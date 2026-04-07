@@ -80,6 +80,24 @@ Adaptive growth (default multiplier 25, with 8 threads -> threshold 200):
 - 100 handlers -> 100 partitions (1:1)
 - 500 handlers -> 350 partitions (200 + 300/2)
 
+### Weighted handlers
+
+`addHandler(type, handler, weight)` allows different handler types to contribute different
+amounts to the partition count. The adaptive formula uses the weighted sum instead of raw
+handler count. Partition assignment remains hash-based (`typeHash()`) — weight only affects
+how many partitions exist, not which partition a type lands on.
+
+L1 uses weight 0.05 for MAL metrics (vs 1.0 for OAL). Rationale: MAL emits ~500 items/type
+per scrape interval. With 20,000-slot buffers, ~40 MAL types can safely share one partition
+(20,000 / 500 = 40). Weight 0.05 ≈ 1/20 gives 2x headroom.
+
+Example (8 threads, 642 OAL + 1,247 MAL):
+- Without weight: 1,889 handlers -> 1,045 partitions (167 MB array overhead at L1)
+- With weight: 642*1.0 + 1,247*0.05 = 705 effective -> 452 partitions (72 MB)
+
+L2 uses default weight 1.0 for all types because after L1 pre-aggregation both OAL and MAL
+have similar per-minute burst patterns.
+
 ## Drain Rebalancing
 
 Static round-robin partition assignment creates thread imbalance when metric types have varying

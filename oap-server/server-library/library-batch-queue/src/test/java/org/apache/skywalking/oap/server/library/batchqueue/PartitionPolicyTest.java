@@ -110,6 +110,29 @@ public class PartitionPolicyTest {
     }
 
     @Test
+    public void testAdaptiveWithWeightedHandlers() {
+        // Simulate 642 OAL (weight 1.0) + 1247 MAL (weight 0.05)
+        // Weighted count = 642 + 1247 * 0.05 = 642 + 62.35 = 704.35, ceil = 705
+        // 8 threads * 25 = 200 threshold, 705 > 200
+        // Result = 200 + (705 - 200) / 2 = 200 + 252 = 452
+        final double weightedCount = 642 * 1.0 + 1247 * 0.05;
+        assertEquals(452, PartitionPolicy.adaptive().resolve(8, weightedCount));
+    }
+
+    @Test
+    public void testAdaptiveWithLowWeightOnly() {
+        // 100 MAL-only handlers at weight 0.05 = effective 5, ceil = 5
+        // 8 threads, threshold = 200, 5 < 200 -> 1:1 -> 5 partitions
+        assertEquals(5, PartitionPolicy.adaptive().resolve(8, 100 * 0.05));
+    }
+
+    @Test
+    public void testAdaptiveWithZeroWeightedCount() {
+        // weightedCount = 0.0 should return threadCount
+        assertEquals(8, PartitionPolicy.adaptive().resolve(8, 0.0));
+    }
+
+    @Test
     public void testToString() {
         assertEquals("fixed(4)", PartitionPolicy.fixed(4).toString());
         assertEquals("threadMultiply(2)", PartitionPolicy.threadMultiply(2).toString());

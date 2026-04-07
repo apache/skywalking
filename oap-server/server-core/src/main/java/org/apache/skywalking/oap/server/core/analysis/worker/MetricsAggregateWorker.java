@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
+import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.worker.AbstractWorker;
 import org.apache.skywalking.oap.server.library.batchqueue.BatchQueue;
@@ -121,7 +122,16 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             QUEUE_USAGE_GAUGE = gauge;
         }
 
-        l1Queue.addHandler(metricsClass, new L1Handler());
+        // OAL metrics receive items on every incoming request (high, continuous throughput),
+        // so each type benefits from a dedicated partition — weight 1.0.
+        // MAL metrics receive items only once per scrape interval (typically 1 emit/min),
+        // producing at most ~500 items per type per burst. With a 20,000-slot buffer,
+        // ~40 MAL types can safely share one partition (20,000 / 500 = 40). We use
+        // weight 0.05 (≈ 1/20) to give 2x headroom over the theoretical sharing limit.
+        // This significantly reduces partition count and memory overhead when many MAL
+        // metric types are registered (e.g., from otel-rules).
+        final double weight = Meter.class.isAssignableFrom(metricsClass) ? 0.05 : 1.0;
+        l1Queue.addHandler(metricsClass, new L1Handler(), weight);
     }
 
     @Override

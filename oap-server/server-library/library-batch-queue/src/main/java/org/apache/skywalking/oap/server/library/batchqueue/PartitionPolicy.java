@@ -31,8 +31,8 @@ package org.apache.skywalking.oap.server.library.batchqueue;
  *       excess handlers share partitions at 1:2 ratio.</li>
  * </ul>
  *
- * <p>All policies are resolved via {@link #resolve(int, int)}. For non-adaptive
- * policies the handlerCount parameter is ignored. At queue creation time, if the
+ * <p>All policies are resolved via {@link #resolve(int, double)}. For non-adaptive
+ * policies the weightedHandlerCount parameter is ignored. At queue creation time, if the
  * resolved partition count is less than the thread count, the thread count is
  * reduced to match and a warning is logged.
  */
@@ -130,29 +130,38 @@ public class PartitionPolicy {
      * <ul>
      *   <li>fixed: returns the pre-set count (both parameters ignored).</li>
      *   <li>threadMultiply: returns multiplier * resolvedThreadCount (handlerCount ignored).</li>
-     *   <li>adaptive: when handlerCount is 0, returns resolvedThreadCount as a sensible
-     *       initial count. Otherwise, threshold = threadCount * multiplier; if handlerCount
-     *       &lt;= threshold, returns handlerCount (1:1). If above, returns
-     *       threshold + (handlerCount - threshold) / 2.</li>
+     *   <li>adaptive: when weightedHandlerCount is 0, returns resolvedThreadCount as a sensible
+     *       initial count. Otherwise, threshold = threadCount * multiplier; if weightedHandlerCount
+     *       &lt;= threshold, returns weightedHandlerCount (1:1). If above, returns
+     *       threshold + (weightedHandlerCount - threshold) / 2.</li>
      * </ul>
      *
      * @param resolvedThreadCount the resolved number of drain threads
-     * @param handlerCount the current number of registered type handlers
+     * @param weightedHandlerCount the weighted sum of registered type handlers. Each handler
+     *                             contributes its weight (default 1.0) to this sum.
+     *                             High-weight handlers grow the partition count faster,
+     *                             reducing the chance of hash collisions for those types.
+     *                             Low-weight handlers grow the count slowly, so they are
+     *                             more likely to share partitions with other types via
+     *                             {@code typeHash()} routing. Note that partition assignment
+     *                             is hash-based, not weight-based — there is no guarantee
+     *                             that any type gets a dedicated partition.
      * @return the resolved partition count, always &gt;= 1
      */
-    public int resolve(final int resolvedThreadCount, final int handlerCount) {
+    public int resolve(final int resolvedThreadCount, final double weightedHandlerCount) {
         if (fixedCount > 0) {
             return fixedCount;
         }
         if (adaptive) {
-            if (handlerCount == 0) {
+            final int effectiveCount = (int) Math.ceil(weightedHandlerCount);
+            if (effectiveCount == 0) {
                 return Math.max(1, resolvedThreadCount);
             }
             final int threshold = Math.max(1, multiplier * resolvedThreadCount);
-            if (handlerCount <= threshold) {
-                return handlerCount;
+            if (effectiveCount <= threshold) {
+                return effectiveCount;
             }
-            return threshold + (handlerCount - threshold) / 2;
+            return threshold + (effectiveCount - threshold) / 2;
         }
         return Math.max(1, multiplier * resolvedThreadCount);
     }
