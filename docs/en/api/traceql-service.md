@@ -835,18 +835,8 @@ traceQL:
 ```
 
 ## Integration with Grafana
-
-### Add Tempo Data Source
-1. In Grafana, go to Configuration → Data Sources
-2. Add a new Tempo data source
-3. Set the URL to: `http://<oap-host>:<port>/zipkin` (for Zipkin-compatible traces) or `http://<oap-host>:<port>/skywalking` (for SkyWalking native traces)
-4. **Important**: Disable the "Streaming" option as it is not currently supported
-5. Save and test the connection
-
-### Query Traces
-- Use TraceQL queries in Grafana Explore
-- View trace details with OTLP visualization
-- Search traces by service, span, duration, status and tags
+***Notice:*** The feature requires version `Grafana 12 or later`.
+For more details, refer to [Use Grafana As The UI](../setup/backend/ui-grafana.md).
 
 ## Limitations
 - Pipeline operations (`|` operator) are not supported
