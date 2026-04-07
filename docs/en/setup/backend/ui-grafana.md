@@ -23,11 +23,11 @@ In the data source config panel, chose the `Loki` and set the url to the OAP ser
 <img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-datasource.jpg"/>
 
 ### Tempo Data Source
-In the data source config panel, chose the `Tempo` and set the url to the OAP server address, the default port is `3200`.
+In the data source config panel, chose the `Tempo` and set the url to the full OAP trace API address, including the context path. The default port is `3200`, for example `http://<oap-host>:3200/skywalking` for SkyWalking native trace or `http://<oap-host>:3200/zipkin` for Zipkin trace.
 The SkyWalking native trace API context path is `/skywalking`, and the Zipkin trace API context path is `/zipkin`.
-You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` and `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` respectively.
+You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` and `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` respectively. If you customize either path, use the customized path in the Grafana Tempo data source URL.
 
-***Notice:*** disable the Streamimg option for Tempo data source in the following configuration.
+***Notice:*** disable the Streaming option for Tempo data source in the following configuration.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-datasource-streaming.png"/>
 
 #### SkyWalking Native Trace
@@ -152,7 +152,7 @@ The following steps show how to add a trace panel for SkyWalking native trace.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-trace-detail.png"/>
 
 ### Zipkin Trace
-Same as the SkyWalking native trace, but use the Zipkin tempo data source you configured.
+Same as the SkyWalking native trace, but use the Zipkin Tempo data source you configured.
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
