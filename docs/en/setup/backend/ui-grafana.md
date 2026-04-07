@@ -1,5 +1,5 @@
 # Use Grafana As The UI
-SkyWalking provides [PromQL Service](../../api/promql-service.md) and [LogQL Service](../../api/logql-service.md). You can choose [Grafana](https://grafana.com/) 
+SkyWalking provides [PromQL Service](../../api/promql-service.md), [LogQL Service](../../api/logql-service.md) and [TraceQL Service](../../api/traceql-service.md). You can choose [Grafana](https://grafana.com/) 
 as the SkyWalking UI. About the installation and how to use please refer to the [official document](https://grafana.com/docs/grafana/v9.3/).
 
 Notice <1>, Gafana is [AGPL-3.0 license](https://github.com/grafana/grafana/blob/main/LICENSE), which is very different from Apache 2.0.
@@ -10,20 +10,20 @@ Grafana UI is an extension on our support of PromQL APIs. We don't maintain or p
 
 ## Configure Data Source
 ### Prometheus Data Source
-In the data source config panel, chose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
+In the data source config panel, choose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-datasource.jpg"/>
 
 ### SkyWalking Data Source
 Before you start, please install the [SkyWalking data source plugin](https://github.com/apache/skywalking-grafana-plugins).
-In the data source config panel, chose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
+In the data source config panel, choose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
 <img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-skywalking-datasource.jpg"/>
 
 ### Loki Data Source
-In the data source config panel, chose the `Loki` and set the url to the OAP server address, the default port is `3100`.
+In the data source config panel, choose the `Loki` and set the url to the OAP server address, the default port is `3100`.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-datasource.jpg"/>
 
 ### Tempo Data Source
-In the data source config panel, chose the `Tempo` and set the url to the full OAP trace API address, including the context path. The default port is `3200`, for example `http://<oap-host>:3200/skywalking` for SkyWalking native trace or `http://<oap-host>:3200/zipkin` for Zipkin trace.
+In the data source config panel, choose the `Tempo` and set the url to the full OAP trace API address, including the context path. The default port is `3200`, for example `http://<oap-host>:3200/skywalking` for SkyWalking native trace or `http://<oap-host>:3200/zipkin` for Zipkin trace.
 The SkyWalking native trace API context path is `/skywalking`, and the Zipkin trace API context path is `/zipkin`.
 You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` and `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` respectively. If you customize either path, use the customized path in the Grafana Tempo data source URL.
 
