@@ -1,5 +1,5 @@
 # Use Grafana As The UI
-SkyWalking provides [PromQL Service](../../api/promql-service.md) and [LogQL Service](../../api/logql-service.md). You can choose [Grafana](https://grafana.com/) 
+SkyWalking provides [PromQL Service](../../api/promql-service.md), [LogQL Service](../../api/logql-service.md) and [TraceQL Service](../../api/traceql-service.md). You can choose [Grafana](https://grafana.com/) 
 as the SkyWalking UI. About the installation and how to use please refer to the [official document](https://grafana.com/docs/grafana/v9.3/).
 
 Notice <1>, Gafana is [AGPL-3.0 license](https://github.com/grafana/grafana/blob/main/LICENSE), which is very different from Apache 2.0.
@@ -10,17 +10,31 @@ Grafana UI is an extension on our support of PromQL APIs. We don't maintain or p
 
 ## Configure Data Source
 ### Prometheus Data Source
-In the data source config panel, chose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
+In the data source config panel, choose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/promql/grafana-datasource.jpg"/>
 
 ### SkyWalking Data Source
 Before you start, please install the [SkyWalking data source plugin](https://github.com/apache/skywalking-grafana-plugins).
-In the data source config panel, chose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
+In the data source config panel, choose the `SkyWalking` and set the url to the OAP server `graphql` service address, the default port is `12800`.
 <img src="https://skywalking.apache.org/screenshots/9.7.0/promql/grafana-skywalking-datasource.jpg"/>
 
 ### Loki Data Source
-In the data source config panel, chose the `Loki` and set the url to the OAP server address, the default port is `3100`.
+In the data source config panel, choose the `Loki` and set the url to the OAP server address, the default port is `3100`.
 <img src="https://skywalking.apache.org/screenshots/9.6.0/logql/grafana-loki-datasource.jpg"/>
+
+### Tempo Data Source
+In the data source config panel, choose the `Tempo` and set the url to the full OAP trace API address, including the context path. The default port is `3200`, for example `http://<oap-host>:3200/skywalking` for SkyWalking native trace or `http://<oap-host>:3200/zipkin` for Zipkin trace.
+The SkyWalking native trace API context path is `/skywalking`, and the Zipkin trace API context path is `/zipkin`.
+You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` and `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` respectively. If you customize either path, use the customized path in the Grafana Tempo data source URL.
+
+***Notice:*** The feature requires version `Grafana 12 or later`. And require disabling the Streaming option for the Tempo data source in the following configuration.
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-datasource-streaming.png"/>
+
+#### SkyWalking Native Trace
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-datasource.png"/>
+
+#### Zipkin Trace
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-zipkin-datasource.png"/>
 
 ## Configure Metric Dashboards
 
@@ -117,6 +131,28 @@ The following contents show how to add relation metric panels.
 For endpoint relation scope, extra set `Endpoint` and `Dest Endpoint`.
 4. Test query and save the panel.
 <img src="https://skywalking.apache.org/screenshots/10.1.0/promql/grafana-relation-panel.png"/>
+
+## Configure Trace Dashboard
+### SkyWalking Native Trace
+#### Dashboards Settings
+The following steps are an example of configuring a `Trace` dashboard for SkyWalking native trace:
+1. Go to the `Explore` page, select the `Tempo` data source named `SkyWalkingTraceQL` (the name you configured). Add it to the dashboard and save it as `SkyWalking Trace`.
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-explore.png"/>
+2. Configure variables for the dashboard:
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-variables.png"/>
+
+#### Add Trace Panel
+The following steps show how to add a trace panel for SkyWalking native trace.
+1. Choose `Table` chart or edit your saved panel.
+2. Set `Query type` to `Search` and set the query condition `Service Name` to variable `$Service`.
+3. Set other query conditions if needed.
+4. Test query and save the panel.
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-panel.png"/>
+5. If you click the trace ID on the trace panel, it will jump to the explore page and show the trace details.
+<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-trace-detail.png"/>
+
+### Zipkin Trace
+Same as the SkyWalking native trace, but use the Zipkin Tempo data source you configured.
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
