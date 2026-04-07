@@ -118,6 +118,12 @@ public class MetricsPersistentMinWorker extends MetricsPersistentWorker {
             QUEUE_USAGE_GAUGE = gauge;
         }
 
+        // No weight differentiation at L2. After L1 pre-aggregation, both OAL and MAL
+        // produce one item per (metric_type × entity) per minute — similar burst patterns
+        // and throughput. The OAL per-request amplification is absorbed by L1, so at L2
+        // there is no meaningful throughput difference to justify partition weight tuning.
+        // L2 buffer is also much smaller (2,000 vs 20,000), so the memory overhead of
+        // extra partitions is modest (~16 MB total vs L1's ~167 MB).
         l2Queue.addHandler(metricsClass, new L2Handler());
     }
 

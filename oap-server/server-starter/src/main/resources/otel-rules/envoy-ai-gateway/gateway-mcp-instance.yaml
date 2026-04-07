@@ -1,0 +1,80 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Envoy AI Gateway — MCP Instance-level (per-pod) metrics
+#
+# Same metrics as gateway-mcp-service.yaml but scoped to individual pods.
+# All durations are in seconds from the AI Gateway; multiply by 1000 for ms display.
+
+filter: "{ tags -> tags.job_name == 'envoy-ai-gateway' }"
+expSuffix: instance(['service_name'], ['service_instance_id'], Layer.ENVOY_AI_GATEWAY)
+metricPrefix: meter_envoy_ai_gw_mcp_instance
+
+metricsRules:
+  # ===================== Aggregate MCP metrics =====================
+
+  # MCP request CPM
+  - name: request_cpm
+    exp: mcp_request_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M')
+
+  # MCP request latency average (ms)
+  - name: request_latency_avg
+    exp: mcp_request_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M') / mcp_request_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M') * 1000
+
+  # MCP request latency percentile (ms)
+  - name: request_latency_percentile
+    exp: mcp_request_duration.sum(['le', 'service_name', 'service_instance_id']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99]) * 1000
+
+  # MCP method invocation CPM — labeled by mcp_method_name
+  - name: method_cpm
+    exp: mcp_method_count.sum(['mcp_method_name', 'service_name', 'service_instance_id']).increase('PT1M')
+
+  # MCP error CPM
+  - name: error_cpm
+    exp: mcp_method_count.tagEqual('status', 'error').sum(['service_name', 'service_instance_id']).increase('PT1M')
+
+  # MCP initialization latency average (ms)
+  - name: initialization_latency_avg
+    exp: mcp_initialization_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M') / mcp_initialization_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M') * 1000
+
+  # MCP initialization latency percentile (ms)
+  - name: initialization_latency_percentile
+    exp: mcp_initialization_duration.sum(['le', 'service_name', 'service_instance_id']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99]) * 1000
+
+  # MCP capabilities negotiated CPM — labeled by capability_type
+  - name: capabilities_cpm
+    exp: mcp_capabilities_negotiated.sum(['capability_type', 'service_name', 'service_instance_id']).increase('PT1M')
+
+  # ===================== Per-backend breakdown =====================
+
+  # Backend request CPM
+  - name: backend_request_cpm
+    exp: mcp_request_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M')
+
+  # Backend request latency average (ms)
+  - name: backend_request_latency_avg
+    exp: mcp_request_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') / mcp_request_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') * 1000
+
+  # Backend method CPM
+  - name: backend_method_cpm
+    exp: mcp_method_count.sum(['mcp_backend', 'mcp_method_name', 'service_name', 'service_instance_id']).increase('PT1M')
+
+  # Backend error CPM
+  - name: backend_error_cpm
+    exp: mcp_method_count.tagEqual('status', 'error').sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M')
+
+  # Backend initialization latency average (ms)
+  - name: backend_initialization_latency_avg
+    exp: mcp_initialization_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') / mcp_initialization_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') * 1000

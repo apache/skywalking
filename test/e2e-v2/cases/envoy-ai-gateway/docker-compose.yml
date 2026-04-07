@@ -13,12 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Envoy AI Gateway e2e — ai-gateway-cli + Ollama + SkyWalking OAP
+# Envoy AI Gateway e2e — ai-gateway-cli + Ollama + MCP Everything Server + SkyWalking OAP
 #
 # Architecture:
-#   trigger → ai-gateway-cli (port 1975) → ollama (port 11434)
-#                  ↓ OTLP gRPC
-#             oap (port 11800) → banyandb
+#   LLM trigger → ai-gateway-cli (port 1975) → ollama (port 11434)
+#   MCP trigger → ai-gateway-cli (port 1975) → mcp-server (port 3001)
+#                       ↓ OTLP gRPC
+#                  oap (port 11800) → banyandb
 
 services:
   banyandb:
@@ -52,10 +53,27 @@ services:
       timeout: 60s
       retries: 120
 
+  mcp-server:
+    image: tzolov/mcp-everything-server:v3
+    command: ["node", "dist/index.js", "streamableHttp"]
+    networks:
+      - e2e
+    expose:
+      - 3001
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- --header='Content-Type: application/json' --header='Accept: application/json, text/event-stream' --post-data='{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-03-26\",\"capabilities\":{},\"clientInfo\":{\"name\":\"healthcheck\",\"version\":\"1.0\"}}}' http://localhost:3001/mcp || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
   aigw:
     # TODO: pin to a release version once ai-gateway-cli HTTP listener is available in a release
     image: envoyproxy/ai-gateway-cli:latest
-    command: run --run-id=0
+    command:
+      - "run"
+      - "--run-id=0"
+      - "--mcp-json"
+      - '{"mcpServers":{"everything":{"type":"http","url":"http://mcp-server:3001/mcp"}}}'
     environment:
       OPENAI_API_KEY: "dummy-key-not-used"
       OPENAI_BASE_URL: "http://ollama:11434/v1"
@@ -71,7 +89,7 @@ services:
     networks:
       - e2e
     healthcheck:
-      test: ["CMD", "aigw", "healthcheck"]
+      test: ["CMD", "/app", "healthcheck"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -79,6 +97,8 @@ services:
       oap:
         condition: service_healthy
       ollama:
+        condition: service_healthy
+      mcp-server:
         condition: service_healthy
 
 networks:

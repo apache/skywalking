@@ -15,14 +15,15 @@
 
 # Envoy AI Gateway e2e test (docker-compose)
 #
-# Validates ENVOY_AI_GATEWAY layer metrics and logs via OTLP from ai-gateway-cli.
+# Validates ENVOY_AI_GATEWAY layer LLM + MCP metrics and logs via OTLP from ai-gateway-cli.
 #
 # Architecture:
-#   trigger (curl) → ai-gateway-cli (port 1975) → Ollama (port 11434)
-#                          ↓ OTLP gRPC
-#                     SkyWalking OAP (port 11800)
-#                          ↓
-#                     BanyanDB
+#   LLM trigger (curl) → ai-gateway-cli (port 1975) → Ollama (port 11434)
+#   MCP trigger (curl) → ai-gateway-cli (port 1975) → MCP Everything Server (port 3001)
+#                              ↓ OTLP gRPC
+#                         SkyWalking OAP (port 11800)
+#                              ↓
+#                         BanyanDB
 
 setup:
   env: compose
@@ -47,6 +48,32 @@ setup:
             -d '{"model":"nonexistent-model","messages":[{"role":"user","content":"Hi"}]}'
           sleep 1
         done
+    - name: Send MCP requests for metric verification
+      command: |
+        # Initialize MCP session and capture session ID
+        SESSION_ID=$(curl -sS -f -D- --max-time 15 \
+          http://${aigw_host}:${aigw_1975}/mcp \
+          -H 'Content-Type: application/json' \
+          -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"e2e-test","version":"1.0"}}}' \
+          2>&1 | grep -i '^Mcp-Session-Id:' | tr -d '\r' | sed 's/^[Mm]cp-[Ss]ession-[Ii]d: *//')
+        if [ -z "$SESSION_ID" ]; then
+          echo "Failed to capture MCP session ID" >&2
+          exit 1
+        fi
+        sleep 2
+        # tools/list
+        curl -sS -f --max-time 15 -o /dev/null \
+          http://${aigw_host}:${aigw_1975}/mcp \
+          -H 'Content-Type: application/json' \
+          -H "Mcp-Session-Id: $SESSION_ID" \
+          -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+        sleep 1
+        # tools/call — call a nonexistent tool to generate an error (no -f, expects 4xx)
+        curl -sS --max-time 15 -o /dev/null \
+          http://${aigw_host}:${aigw_1975}/mcp \
+          -H 'Content-Type: application/json' \
+          -H "Mcp-Session-Id: $SESSION_ID" \
+          -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"nonexistent_tool","arguments":{}}}'
 
 trigger:
   action: http

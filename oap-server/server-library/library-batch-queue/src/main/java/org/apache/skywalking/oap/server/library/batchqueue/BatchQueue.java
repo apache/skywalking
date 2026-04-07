@@ -129,6 +129,13 @@ public class BatchQueue<T> {
     private final ConcurrentHashMap<Class<?>, HandlerConsumer<T>> handlerMap;
 
     /**
+     * Running weighted sum of registered handlers, used by adaptive partition policy.
+     * Each handler contributes its weight (default 1.0) when registered via
+     * {@link #addHandler(Class, HandlerConsumer, double)}.
+     */
+    private double weightedHandlerCount;
+
+    /**
      * Tracks unregistered types that have already been warned about,
      * to avoid flooding the log with repeated errors.
      */
@@ -382,23 +389,43 @@ public class BatchQueue<T> {
     }
 
     /**
-     * Register a type-based handler. Items whose {@code getClass()} matches the given
-     * type will be batched together and dispatched to this handler.
-     *
-     * <p>For adaptive partition policies, adding a handler recalculates the partition
-     * count and grows the partition array if needed. For non-adaptive policies the
-     * resolved count never changes, so this is a no-op beyond the registration.
-     * Drain loop threads pick up new partitions on their next cycle via volatile reads.
+     * Register a type-based handler with default weight 1.0.
      *
      * @param type the class of items to route to this handler
      * @param handler the consumer that processes batches of the given type
+     * @see #addHandler(Class, HandlerConsumer, double)
+     */
+    public void addHandler(final Class<? extends T> type, final HandlerConsumer<T> handler) {
+        addHandler(type, handler, 1.0);
+    }
+
+    /**
+     * Register a type-based handler with an explicit weight for adaptive partition sizing.
+     *
+     * <p>The weight controls how much this handler contributes to partition growth.
+     * A weight of 1.0 means one handler ≈ one partition (below the adaptive threshold).
+     * A lower weight (e.g., 0.05) means many handlers share a partition, suitable for
+     * low-throughput types. The weighted sum of all handlers replaces the raw handler
+     * count in the adaptive partition formula.
+     *
+     * <p>For non-adaptive partition policies the weight is ignored and this behaves
+     * the same as {@link #addHandler(Class, HandlerConsumer)}.
+     *
+     * @param type the class of items to route to this handler
+     * @param handler the consumer that processes batches of the given type
+     * @param weight partition weight for this handler (default 1.0). Must be &gt; 0.
      */
     @SuppressWarnings("unchecked")
-    public void addHandler(final Class<? extends T> type, final HandlerConsumer<T> handler) {
+    public void addHandler(final Class<? extends T> type, final HandlerConsumer<T> handler,
+                           final double weight) {
+        if (weight <= 0) {
+            throw new IllegalArgumentException("Handler weight must be > 0, got: " + weight);
+        }
         handlerMap.put(type, handler);
+        weightedHandlerCount += weight;
 
         final int newPartitionCount = config.getPartitions()
-            .resolve(resolvedThreadCount, handlerMap.size());
+            .resolve(resolvedThreadCount, weightedHandlerCount);
         final ArrayBlockingQueue<T>[] currentPartitions = this.partitions;
         if (newPartitionCount > currentPartitions.length) {
             final int oldCount = currentPartitions.length;

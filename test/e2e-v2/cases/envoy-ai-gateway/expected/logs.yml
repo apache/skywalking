@@ -28,6 +28,8 @@ logs:
     content: {{ notEmpty .content }}
     tags:
       {{- contains .tags }}
+      - key: ai_route_type
+        value: llm
       - key: response_code
         value: "404"
       - key: gen_ai.request.model

@@ -73,6 +73,12 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
         this.tableHelper = new TableHelper(moduleManager, jdbcClient);
     }
 
+    JDBCMetadataQueryDAO(JDBCClient jdbcClient, int metadataQueryMaxSize, TableHelper tableHelper) {
+        this.jdbcClient = jdbcClient;
+        this.metadataQueryMaxSize = metadataQueryMaxSize;
+        this.tableHelper = tableHelper;
+    }
+
     @Override
     @SneakyThrows
     public List<Service> listServices() {
@@ -217,8 +223,6 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             condition.add(EndpointTraffic.INDEX_NAME);
             sql.append(" and ").append(EndpointTraffic.SERVICE_ID).append("=?");
             condition.add(serviceId);
-            sql.append(" and ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
-            condition.add(EndpointTraffic.INDEX_NAME);
             if (!Strings.isNullOrEmpty(keyword)) {
                 sql.append(" and ").append(EndpointTraffic.NAME).append(" like concat('%',?,'%') ");
                 condition.add(keyword);
