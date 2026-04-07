@@ -835,8 +835,8 @@ traceQL:
 ```
 
 ## Integration with Grafana
-***Notice:*** The feature requires version `Grafana 12 or later`. 
-More details can refer to [Use Grafana As The UI](../setup/backend/ui-grafana.md)
+***Notice:*** The feature requires version `Grafana 12 or later`.
+For more details, refer to [Use Grafana As The UI](../setup/backend/ui-grafana.md).
 ### Add Tempo Data Source
 1. In Grafana, go to Configuration → Data Sources
 2. Add a new Tempo data source
