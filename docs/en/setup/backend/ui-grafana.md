@@ -27,7 +27,7 @@ In the data source config panel, chose the `Tempo` and set the url to the full O
 The SkyWalking native trace API context path is `/skywalking`, and the Zipkin trace API context path is `/zipkin`.
 You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING` and `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` respectively. If you customize either path, use the customized path in the Grafana Tempo data source URL.
 
-***Notice:*** disable the Streaming option for Tempo data source in the following configuration.
+***Notice:*** The feature requires version `Grafana 12 or later`. And require disabling the Streaming option for the Tempo data source in the following configuration.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-datasource-streaming.png"/>
 
 #### SkyWalking Native Trace
