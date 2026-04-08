@@ -25,7 +25,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -52,7 +51,7 @@ public class JFRDataQueryEsDAO extends EsDAO implements IJFRDataQueryDAO {
         }
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(JFRProfilingDataRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
-        if (IndexController.LogicIndicesRegister.isMergedTable(AsyncProfilerTaskRecord.INDEX_NAME)) {
+        if (IndexController.LogicIndicesRegister.isMergedTable(JFRProfilingDataRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, JFRProfilingDataRecord.INDEX_NAME));
         }
         query.must(Query.term(JFRProfilingDataRecord.TASK_ID, taskId));
