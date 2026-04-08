@@ -3,7 +3,9 @@ TraceQL ([Trace Query Language](https://grafana.com/docs/tempo/latest/traceql/))
 TraceQL Service exposes Tempo Querying HTTP APIs including TraceQL expression system and OpenTelemetry Protocol (OTLP) trace format.
 Third-party systems or visualization platforms that already support Tempo and TraceQL (such as Grafana), could obtain traces through TraceQL Service.
 
-SkyWalking supports two types of traces: SkyWalking native traces and Zipkin-compatible traces. The TraceQL Service converts both trace formats to OpenTelemetry Protocol (OTLP) format to provide compatibility with Grafana Tempo and TraceQL queries.
+SkyWalking supports two types of traces: SkyWalking native traces and Zipkin-compatible traces. The TraceQL Service converts both trace formats to [Tempo's format](https://github.com/grafana/tempo/blob/main/pkg/tempopb/tempo.proto) 
+to provide compatibility with Grafana Tempo and TraceQL queries. Since the trace detail part of Tempo's format (`Trace` message) reuses [OTLP Trace](https://opentelemetry.io/docs/reference/specification/protocol/) definitions, 
+the conversion descriptions below refer to OTLP field names (e.g., span kind, status code).
 
 > **Note**: SkyWalking native trace support in TraceQL is based on the [Query Traces V2 API](https://skywalking.apache.org/docs/main/next/en/api/query-protocol/#trace-v2) (`queryTraces` / `hasQueryTracesV2Support`).
 > Currently, only **BanyanDB** storage implements this API. Other storage backends (e.g. Elasticsearch, MySQL, PostgreSQL) do not support it.
