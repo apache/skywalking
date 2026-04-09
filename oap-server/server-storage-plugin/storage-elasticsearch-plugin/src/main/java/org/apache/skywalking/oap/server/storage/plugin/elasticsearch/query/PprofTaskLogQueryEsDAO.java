@@ -48,13 +48,14 @@ public class PprofTaskLogQueryEsDAO extends EsDAO implements IPprofTaskLogQueryD
     }
 
     @Override
-    public List<PprofTaskLog> getTaskLogList() throws IOException {
+    public List<PprofTaskLog> getTaskLogList(String taskId) throws IOException {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskLogRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofTaskLogRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, PprofTaskLogRecord.INDEX_NAME));
         }
-        
+        query.must(Query.term(PprofTaskLogRecord.TASK_ID, taskId));
+
         final SearchBuilder search =
                 Search.builder().query(query)
                         .sort(PprofTaskLogRecord.OPERATION_TIME, Sort.Order.DESC)

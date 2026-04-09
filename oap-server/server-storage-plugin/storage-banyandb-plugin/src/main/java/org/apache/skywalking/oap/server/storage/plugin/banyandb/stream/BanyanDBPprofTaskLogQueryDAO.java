@@ -52,12 +52,13 @@ public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements
     }
 
     @Override
-    public List<PprofTaskLog> getTaskLogList() throws IOException {
+    public List<PprofTaskLog> getTaskLogList(String taskId) throws IOException {
         StreamQueryResponse resp = query(
             false, PprofTaskLogRecord.INDEX_NAME, TAGS,
             new QueryBuilder<StreamQuery>() {
                 @Override
                 public void apply(StreamQuery query) {
+                    query.and(eq(PprofTaskLogRecord.TASK_ID, taskId));
                     query.setLimit(BanyanDBPprofTaskLogQueryDAO.this.queryMaxSize);
                 }
             }

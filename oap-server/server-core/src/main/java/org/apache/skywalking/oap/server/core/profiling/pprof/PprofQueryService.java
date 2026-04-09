@@ -105,15 +105,9 @@ public class PprofQueryService implements Service {
     }
 
     public List<PprofTaskLog> queryPprofTaskLogs(String taskId) throws IOException {
-        List<PprofTaskLog> taskLogList = getTaskLogQueryDAO().getTaskLogList();
-        return findMatchedLogs(taskId, taskLogList);
-    }
-
-    private List<PprofTaskLog> findMatchedLogs(final String taskID, final List<PprofTaskLog> allLogs) {
-        return allLogs.stream()
-                      .filter(l -> Objects.equals(l.getId(), taskID))
-                      .map(this::extendTaskLog)
-                      .collect(Collectors.toList());
+        return getTaskLogQueryDAO().getTaskLogList(taskId).stream()
+                                   .map(this::extendTaskLog)
+                                   .collect(Collectors.toList());
     }
 
     private PprofTaskLog extendTaskLog(PprofTaskLog log) {

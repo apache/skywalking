@@ -41,11 +41,11 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<PprofTaskLog> getTaskLogList() {
+    public List<PprofTaskLog> getTaskLogList(String taskId) {
         List<String> tables = tableHelper.getTablesWithinTTL(PprofTaskLogRecord.INDEX_NAME);
         final List<PprofTaskLog> results = new ArrayList<PprofTaskLog>();
         for (String table : tables) {
-            SQLAndParameters sqlAndParameters = buildSQL(table);
+            SQLAndParameters sqlAndParameters = buildSQL(table, taskId);
             List<PprofTaskLog> logs = jdbcClient.executeQuery(
                 sqlAndParameters.sql(),
                 resultSet -> {
@@ -62,12 +62,14 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
         return results;
     }
 
-    private SQLAndParameters buildSQL(String table) {
+    private SQLAndParameters buildSQL(String table, String taskId) {
         StringBuilder sql = new StringBuilder();
         List<Object> parameters = new ArrayList<>(2);
         sql.append("select * from ").append(table)
            .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
         parameters.add(PprofTaskLogRecord.INDEX_NAME);
+        sql.append(" and ").append(PprofTaskLogRecord.TASK_ID).append(" = ?");
+        parameters.add(taskId);
         sql.append(" order by ").append(PprofTaskLogRecord.OPERATION_TIME).append(" desc");
         return new SQLAndParameters(sql.toString(), parameters);
     }
