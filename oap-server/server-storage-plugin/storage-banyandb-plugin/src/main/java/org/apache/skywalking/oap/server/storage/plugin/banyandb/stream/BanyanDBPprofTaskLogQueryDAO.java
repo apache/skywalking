@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +31,7 @@ import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLo
 import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 /**
@@ -53,6 +55,9 @@ public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements
 
     @Override
     public List<PprofTaskLog> getTaskLogList(String taskId) throws IOException {
+        if (StringUtil.isBlank(taskId)) {
+            return Collections.emptyList();
+        }
         StreamQueryResponse resp = query(
             false, PprofTaskLogRecord.INDEX_NAME, TAGS,
             new QueryBuilder<StreamQuery>() {

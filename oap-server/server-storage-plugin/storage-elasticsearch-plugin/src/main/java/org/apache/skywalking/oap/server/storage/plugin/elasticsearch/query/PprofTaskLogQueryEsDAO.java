@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
@@ -49,6 +51,9 @@ public class PprofTaskLogQueryEsDAO extends EsDAO implements IPprofTaskLogQueryD
 
     @Override
     public List<PprofTaskLog> getTaskLogList(String taskId) throws IOException {
+        if (StringUtil.isBlank(taskId)) {
+            return Collections.emptyList();
+        }
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(PprofTaskLogRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(PprofTaskLogRecord.INDEX_NAME)) {

@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
 import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -42,6 +43,9 @@ public class JDBCPprofTaskLogQueryDAO implements IPprofTaskLogQueryDAO {
     @Override
     @SneakyThrows
     public List<PprofTaskLog> getTaskLogList(String taskId) {
+        if (StringUtil.isBlank(taskId)) {
+            return new ArrayList<>();
+        }
         List<String> tables = tableHelper.getTablesWithinTTL(PprofTaskLogRecord.INDEX_NAME);
         final List<PprofTaskLog> results = new ArrayList<PprofTaskLog>();
         for (String table : tables) {
