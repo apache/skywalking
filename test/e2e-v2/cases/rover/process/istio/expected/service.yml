@@ -51,16 +51,6 @@
     - MESH
     {{- end }}
   normal: true
-- id: {{ b64enc "ratings.default" }}.1
-  name: ratings.default
-  group: ""
-  shortname: ratings.default
-  layers:
-    {{- contains .layers }}
-    - MESH_DP
-    - MESH
-    {{- end }}
-  normal: true
 - id: {{ b64enc "istio-egressgateway.istio-system" }}.1
   name: istio-egressgateway.istio-system
   group: ""
