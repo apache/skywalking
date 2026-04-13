@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- containsOnce . }}
 - id: {{ notEmpty .id }}
   name: mongodb-exporter-1:9216
   instanceuuid: {{ notEmpty .instanceuuid }}

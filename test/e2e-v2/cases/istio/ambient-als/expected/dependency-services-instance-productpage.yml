@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce .nodes }}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
   serviceid: {{ b64enc "reviews.default" }}.1
@@ -30,7 +30,7 @@ nodes:
   isreal: true
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce .calls }}
 - source: {{ notEmpty .source }}
   sourcecomponents: []
   target: {{ notEmpty .target }}

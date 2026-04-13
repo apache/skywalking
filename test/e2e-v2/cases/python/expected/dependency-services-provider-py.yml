@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce .nodes }}
 - id: {{ b64enc "e2e-service-consumer"}}.1
   name: e2e-service-consumer
   type: Tomcat
@@ -30,7 +30,7 @@ nodes:
     - GENERAL
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce .calls }}
 - source: {{ b64enc "e2e-service-consumer" }}.1
   sourcecomponents:
     - SpringRestTemplate

@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- containsOnce . }}
 - id: {{ b64enc "activemq::activemq-cluster" }}.1
   name: activemq::activemq-cluster
   group: activemq

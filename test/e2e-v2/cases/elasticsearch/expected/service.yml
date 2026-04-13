@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- containsOnce . }}
 - id: {{ b64enc "elasticsearch::cluster-e2e" }}.1
   name: elasticsearch::cluster-e2e
   group: elasticsearch

@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce .nodes }}
 - id: {{ b64enc "e2e::reviews"}}.1
   name: e2e::reviews
   type: http
@@ -42,7 +42,7 @@ nodes:
     - MESH
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce .calls }}
 - source: {{ b64enc "e2e::istio-ingressgateway"}}.1
   sourcecomponents:
     - http
