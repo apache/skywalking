@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains .}}
+{{- containsOnce .}}
 - id: {{ b64enc "rocketmq::rocketmq-cluster" }}.1_{{ b64enc "TopicTest" }}
   name: TopicTest
 {{- end}}

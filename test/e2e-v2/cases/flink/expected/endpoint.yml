@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains .}}
+{{- containsOnce .}}
 - id: {{ b64enc "flink::flink-cluster" }}.1_{{ b64enc "Windowed_Join_Example" }}
   name: Windowed_Join_Example
 {{- end}}

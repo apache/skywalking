@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- containsOnce . }}
 - id: {{ b64enc "APISIX::showcase-apisix-service" }}.1
   name: APISIX::showcase-apisix-service
   shortname: showcase-apisix-service
