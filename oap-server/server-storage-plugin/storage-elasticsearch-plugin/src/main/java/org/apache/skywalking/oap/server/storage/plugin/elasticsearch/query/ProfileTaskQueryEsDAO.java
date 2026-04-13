@@ -101,9 +101,13 @@ public class ProfileTaskQueryEsDAO extends EsDAO implements IProfileTaskQueryDAO
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProfileTaskRecord.INDEX_NAME);
 
-        final SearchBuilder search = Search.builder()
-                                           .query(Query.bool().must(Query.term(ProfileTaskRecord.TASK_ID, id)))
-                                           .size(1);
+        final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProfileTaskRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, ProfileTaskRecord.INDEX_NAME));
+        }
+        query.must(Query.term(ProfileTaskRecord.TASK_ID, id));
+
+        final SearchBuilder search = Search.builder().query(query).size(1);
 
         final SearchResponse response = getClient().search(index, search.build());
 
