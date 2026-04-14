@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "productpage.default"}}.1
   name: productpage.default
   type: http
@@ -42,7 +42,7 @@ nodes:
     - CILIUM_SERVICE
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "productpage.default"}}.1
   sourcecomponents: []
   target: {{ b64enc "reviews.default"}}.1

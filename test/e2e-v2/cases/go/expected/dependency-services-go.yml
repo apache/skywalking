@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "e2e-service-provider"}}.1
   name: e2e-service-provider
   type: Tomcat
@@ -37,7 +37,7 @@ nodes:
     - SO11Y_GO_AGENT
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "e2e-service-consumer"}}.1
   sourcecomponents:
     - SpringRestTemplate

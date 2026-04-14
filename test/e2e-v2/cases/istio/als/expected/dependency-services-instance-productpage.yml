@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
   serviceid: {{ b64enc "e2e::reviews" }}.1
@@ -30,7 +30,7 @@ nodes:
   isreal: true
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ notEmpty .source }}
   sourcecomponents: []
   target: {{ notEmpty .target }}

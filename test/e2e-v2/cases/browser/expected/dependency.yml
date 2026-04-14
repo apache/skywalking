@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "provider-py"}}.1
   name: provider-py
   type: Python
@@ -30,7 +30,7 @@ nodes:
     - BROWSER
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "test-ui"}}.1
   sourcecomponents:
     - ajax

@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "reviews.default"}}.1
   name: reviews.default
   type: http
@@ -54,7 +54,7 @@ nodes:
   {{- end }}
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "productpage.default"}}.1
   sourcecomponents:
     {{- contains .sourcecomponents }}

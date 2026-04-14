@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "mock_a_service" }}.1_{{ b64enc "/dubbox-case/case/dubbox-rest/404-test" }}
   name: /dubbox-case/case/dubbox-rest/404-test
   serviceid: {{ b64enc "mock_a_service" }}.1
@@ -36,7 +36,7 @@ nodes:
   isreal: false
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "mock_a_service" }}.1_{{ b64enc "/dubbox-case/case/dubbox-rest/404-test" }}
   sourcecomponents: []
   target: {{ b64enc "mock_b_service" }}.1_{{ b64enc "org.skywaking.apm.testcase.dubbo.services.GreetServiceImpl.doBusiness()" }}
