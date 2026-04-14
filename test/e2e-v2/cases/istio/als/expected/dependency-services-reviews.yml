@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "e2e::reviews"}}.1
   name: e2e::reviews
   type: http
@@ -36,7 +36,7 @@ nodes:
     - MESH
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "e2e::productpage"}}.1
   sourcecomponents:
     - http

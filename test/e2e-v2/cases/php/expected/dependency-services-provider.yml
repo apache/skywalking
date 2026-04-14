@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "e2e-service-provider"}}.1
   name: e2e-service-provider
   type: Tomcat
@@ -36,7 +36,7 @@ nodes:
     - GENERAL
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "php" }}.1
   sourcecomponents:
     - cURL
