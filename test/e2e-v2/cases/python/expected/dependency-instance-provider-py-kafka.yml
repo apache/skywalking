@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "provider-py-kafka" }}.1_{{ b64enc "provider-py-kafka-instance" }}
   name: provider-py-kafka-instance
   serviceid: {{ b64enc "provider-py-kafka" }}.1
@@ -30,7 +30,7 @@ nodes:
   isreal: true
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
   - source: {{ b64enc "consumer-py" }}.1_{{ b64enc "consumer-py-instance" }}
     sourcecomponents: []
     target: {{ b64enc "provider-py-kafka" }}.1_{{ b64enc "provider-py-kafka-instance" }}

@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ notEmpty .id }}
   name: {{ notEmpty .name }}
   serviceid: {{ b64enc "go-service" }}.1
@@ -30,7 +30,7 @@ nodes:
   isreal: true
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ notEmpty .source }}
   sourcecomponents: []
   target: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}

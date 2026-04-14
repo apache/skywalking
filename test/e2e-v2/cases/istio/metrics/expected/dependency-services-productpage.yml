@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- containsOnce .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "e2e::reviews"}}.1
   name: e2e::reviews
   type: null
@@ -42,7 +42,7 @@ nodes:
     - MESH_DP
 {{- end }}
 calls:
-{{- containsOnce .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "e2e::istio-ingressgateway"}}.1
   sourcecomponents:
     - Unknown
