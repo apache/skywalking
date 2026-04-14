@@ -18,8 +18,10 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.type.Call;
@@ -48,13 +50,17 @@ public class EndpointTopologyBuilder {
 
     EndpointTopology build(List<Call.CallDetail> serverSideCalls) {
         EndpointTopology topology = new EndpointTopology();
+        Map<String, Call> callMap = new HashMap<>();
         serverSideCalls.forEach(callDetail -> {
-            Call call = new Call();
-            call.setId(callDetail.getId());
-            call.setSource(callDetail.getSource());
-            call.setTarget(callDetail.getTarget());
-            call.addDetectPoint(DetectPoint.SERVER);
-            topology.getCalls().add(call);
+            if (!callMap.containsKey(callDetail.getId())) {
+                Call call = new Call();
+                call.setId(callDetail.getId());
+                call.setSource(callDetail.getSource());
+                call.setTarget(callDetail.getTarget());
+                call.addDetectPoint(DetectPoint.SERVER);
+                callMap.put(callDetail.getId(), call);
+                topology.getCalls().add(call);
+            }
         });
 
         Set<String> nodeIds = new HashSet<>();

@@ -25,7 +25,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce .nodes }}
 - id: {{template "genProcessId" "service"}}
   name: service
   serviceid: {{ b64enc "service" }}.1
@@ -42,7 +42,7 @@ nodes:
   isreal: false
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce .calls }}
 - source: {{template "genProcessId" "service"}}
   sourcecomponents:
   {{- contains .sourcecomponents }}
