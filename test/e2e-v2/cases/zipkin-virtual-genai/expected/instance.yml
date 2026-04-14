@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
+{{- containsOnce . }}
 - id: {{ notEmpty .id }}
   name: gpt-4.1-mini-2025-04-14
   instanceuuid: {{ notEmpty .instanceuuid }}

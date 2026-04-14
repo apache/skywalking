@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce .nodes }}
 - id: {{ b64enc "User" }}.0
   name: User
   type: USER
@@ -36,7 +36,7 @@ nodes:
     - GENERAL
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce .calls }}
 - source: {{ b64enc "php" }}.1
   sourcecomponents:
     - cURL
