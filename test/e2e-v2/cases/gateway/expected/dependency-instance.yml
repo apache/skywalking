@@ -15,7 +15,7 @@
 
 debuggingtrace: null
 nodes:
-{{- contains .nodes }}
+{{- containsOnce (.nodes | noDuplicates) }}
 - id: {{ b64enc "gateway:80" }}.0_{{ b64enc "gateway:80" }}
   name: gateway:80
   serviceid: {{ b64enc "gateway:80" }}.0
@@ -36,7 +36,7 @@ nodes:
   isreal: true
 {{- end }}
 calls:
-{{- contains .calls }}
+{{- containsOnce (.calls | noDuplicates) }}
 - source: {{ b64enc "gateway:80" }}.0_{{ b64enc "gateway:80" }}
   sourcecomponents: []
   target: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
