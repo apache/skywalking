@@ -52,6 +52,11 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
                     params.setServiceName(value);
                 }
                 break;
+            case "resource.remote.service":
+                if ("=".equals(operator)) {
+                    params.setRemoteServiceName(value);
+                }
+                break;
             case "resource.instance":
                 if ("=".equals(operator)) {
                     params.setServiceInstance(value);
@@ -105,8 +110,6 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
             }
         } else if ("status".equals(field)) {
             params.setStatus(value);
-        } else if ("kind".equals(field)) {
-            params.setKind(value);
         }
 
         return visitChildren(ctx);

@@ -78,6 +78,7 @@ import org.apache.skywalking.oap.query.promql.rt.result.MetricsRangeResult;
 import org.apache.skywalking.oap.query.promql.rt.PromQLExprQueryVisitor;
 import org.apache.skywalking.oap.query.promql.rt.result.ParseResult;
 import org.apache.skywalking.oap.query.promql.rt.result.ScalarResult;
+import org.apache.skywalking.oap.query.zipkin.ZipkinQueryService;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -101,6 +102,9 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.query.type.ServiceInstance;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.promql.rt.grammar.PromQLLexer;
@@ -113,6 +117,7 @@ public class PromQLApiHandler {
     private final MetadataQueryV2 metadataQuery;
     private final ModuleManager moduleManager;
     private final PromQLConfig config;
+    private final ZipkinQueryService zipkinQueryService;
     private MetricsMetadataQueryService metricsMetadataQueryService;
     private MetricsQueryService metricsQueryService;
     private AggregationQueryService aggregationQueryService;
@@ -135,6 +140,7 @@ public class PromQLApiHandler {
     public PromQLApiHandler(ModuleManager moduleManager, PromQLConfig config) {
         this.metadataQuery = new MetadataQueryV2(moduleManager);
         this.moduleManager = moduleManager;
+        this.zipkinQueryService = new ZipkinQueryService(moduleManager);
         this.config = config;
     }
 
@@ -334,6 +340,23 @@ public class PromQLApiHandler {
                             endpoint -> {
                                 response.getData().add(endpoint.getName());
                             });
+                    } else if (Objects.equals(metricName, ZipkinServiceTraffic.INDEX_NAME)) {
+                        queryZipkinServiceTraffic(parseResult, limitNum).forEach(service -> {
+                            response.getData().add(service);
+                        });
+                    } else if (Objects.equals(metricName, ZipkinServiceRelationTraffic.INDEX_NAME)) {
+                        // When the service name contains special characters, such as dot,
+                        // Grafana variables query will escape it when pass to API, we need to remove the escapes before query.
+                        // For example, service name "order.service" will be escaped to "order\\.service", we need to remove the escape character "\" before query.
+                        String serviceName = removeEscapes(parseResult.getLabelMap().get(LabelName.SERVICE.getLabel()));
+                        queryZipkinServiceRelationTraffic(parseResult, serviceName, limitNum).forEach(relation -> {
+                            response.getData().add(relation);
+                        });
+                    } else if (Objects.equals(metricName, ZipkinServiceSpanTraffic.INDEX_NAME)) {
+                        String serviceName = removeEscapes(parseResult.getLabelMap().get(LabelName.SERVICE.getLabel()));
+                        queryZipkinServiceSpanTraffic(parseResult, serviceName, limitNum).forEach(span -> {
+                            response.getData().add(span);
+                        });
                     }
                 } catch (IllegalExpressionException e) {
                     response.setStatus(ResultStatus.ERROR);
@@ -395,6 +418,28 @@ public class PromQLApiHandler {
                         endpoint -> {
                             response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
                         });
+                } else if (Objects.equals(metricName, ZipkinServiceTraffic.INDEX_NAME)) {
+                    queryZipkinServiceTraffic(parseResult, limitNum).forEach(name -> {
+                        MetricInfo metricInfo = new MetricInfo(metricName);
+                        metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE.getLabel(), name));
+                        response.getData().add(metricInfo);
+                    });
+                } else if (Objects.equals(metricName, ZipkinServiceRelationTraffic.INDEX_NAME)) {
+                    String serviceName = removeEscapes(parseResult.getLabelMap().get(LabelName.SERVICE.getLabel()));
+                    queryZipkinServiceRelationTraffic(parseResult, serviceName, limitNum).forEach(name -> {
+                        MetricInfo metricInfo = new MetricInfo(metricName);
+                        metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE.getLabel(), serviceName));
+                        metricInfo.getLabels().add(new LabelValuePair(LabelName.REMOTE_SERVICE.getLabel(), name));
+                        response.getData().add(metricInfo);
+                    });
+                } else if (Objects.equals(metricName, ZipkinServiceSpanTraffic.INDEX_NAME)) {
+                    String serviceName = removeEscapes(parseResult.getLabelMap().get(LabelName.SERVICE.getLabel()));
+                    queryZipkinServiceSpanTraffic(parseResult, serviceName, limitNum).forEach(name -> {
+                        MetricInfo metricInfo = new MetricInfo(metricName);
+                        metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE.getLabel(), serviceName));
+                        metricInfo.getLabels().add(new LabelValuePair(LabelName.SPAN_NAME.getLabel(), name));
+                        response.getData().add(metricInfo);
+                    });
                 }
             } catch (IllegalExpressionException e) {
                 response.setStatus(ResultStatus.ERROR);
@@ -867,6 +912,83 @@ public class PromQLApiHandler {
             endpoints.stream().limit(limitNum).forEach(result::add);
         }
         return result;
+    }
+
+    private List<String> queryZipkinServiceTraffic(MatcherSetResult parseResult, int limitNum) throws IOException {
+        List<String> result = new ArrayList<>();
+        final List<String> serviceNames = zipkinQueryService.getServiceNames();
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        if (matcher != null) {
+            String serviceName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                serviceNames.stream()
+                    .filter(s -> s.equals(serviceName)).findFirst().ifPresent(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                serviceNames.stream()
+                    .filter(s -> !s.equals(serviceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                serviceNames.stream()
+                    .filter(s -> s.matches(serviceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                serviceNames.stream()
+                    .filter(s -> !s.matches(serviceName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            serviceNames.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
+    }
+
+    private List<String> queryZipkinServiceRelationTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException, IllegalExpressionException {
+        List<String> result = new ArrayList<>();
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
+        final List<String> remoteServices = zipkinQueryService.getRemoteServiceNames(serviceName);
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        if (matcher != null) {
+            String remoteServiceName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                remoteServices.stream().filter(s -> s.equals(remoteServiceName)).findFirst().ifPresent(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                remoteServices.stream().filter(s -> !s.equals(remoteServiceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                remoteServices.stream().filter(s -> s.matches(remoteServiceName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                remoteServices.stream().filter(s -> !s.matches(remoteServiceName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            remoteServices.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
+    }
+
+    private List<String> queryZipkinServiceSpanTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException, IllegalExpressionException {
+        List<String> result = new ArrayList<>();
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
+        final List<String> spanNames = zipkinQueryService.getSpanNames(serviceName);
+        MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
+        if (matcher != null) {
+            String spanName = matcher.getMatchString();
+            if (matcher.getMatchOp() == PromQLParser.EQ) {
+                spanNames.stream().filter(s -> s.equals(spanName)).findFirst().ifPresent(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NEQ) {
+                spanNames.stream().filter(s -> !s.equals(spanName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.RM) {
+                spanNames.stream().filter(s -> s.matches(spanName)).limit(limitNum).forEach(result::add);
+            } else if (matcher.getMatchOp() == PromQLParser.NRM) {
+                spanNames.stream().filter(s -> !s.matches(spanName)).limit(limitNum).forEach(result::add);
+            }
+        } else {
+            spanNames.stream().limit(limitNum).forEach(result::add);
+        }
+        return result;
+    }
+
+    public static String removeEscapes(String input) {
+        return input == null ? null : input.replace("\\", "");
     }
 
     public enum QueryType {

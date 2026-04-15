@@ -33,7 +33,12 @@ public class TraceQLQueryParams {
     private String serviceName;
 
     /**
-     * Service instance name filter
+     * remote service name filter, only for Zipkin traces
+     */
+    private String remoteServiceName;
+
+    /**
+     * Service instance name filter, only for SkyWalking native traces
      */
     private String serviceInstance;
 
@@ -61,11 +66,6 @@ public class TraceQLQueryParams {
      * HTTP status code filter
      */
     private String httpStatusCode;
-
-    /**
-     * Span kind filter
-     */
-    private String kind;
 
     /**
      * Status filter
