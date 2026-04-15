@@ -47,10 +47,25 @@ public class SpanListenerManager implements Service {
 
     /**
      * Load and initialize all {@link SpanListener} implementations via SPI.
+     * Listeners whose {@link SpanListener#requiredModules()} are not all loaded
+     * are skipped with an info log.
      */
     public void init(final ModuleManager moduleManager) {
         final List<SpanListener> loaded = new ArrayList<>();
         for (final SpanListener listener : ServiceLoader.load(SpanListener.class)) {
+            final String[] required = listener.requiredModules();
+            boolean satisfied = true;
+            for (final String moduleName : required) {
+                if (!moduleManager.has(moduleName)) {
+                    log.info("SpanListener {} skipped: required module {} is not loaded",
+                        listener.getClass().getName(), moduleName);
+                    satisfied = false;
+                    break;
+                }
+            }
+            if (!satisfied) {
+                continue;
+            }
             listener.init(moduleManager);
             loaded.add(listener);
             log.info("SpanListener registered: {}", listener.getClass().getName());

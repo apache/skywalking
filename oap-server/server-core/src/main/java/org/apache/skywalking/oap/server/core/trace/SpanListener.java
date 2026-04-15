@@ -42,8 +42,19 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 public interface SpanListener {
     /**
+     * Module names this listener requires to be loaded.
+     * The manager checks these before calling {@link #init} —
+     * if any required module is missing, the listener is skipped.
+     *
+     * @return array of required module names, empty if no dependencies
+     */
+    default String[] requiredModules() {
+        return new String[0];
+    }
+
+    /**
      * Initialize the listener with the module manager.
-     * Called once at startup after SPI discovery.
+     * Called once at startup after SPI discovery and required module validation.
      */
     void init(ModuleManager moduleManager);
 
