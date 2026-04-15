@@ -153,10 +153,16 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 TraceQLQueryParams traceQLParams = parseResult.getParams();
 
                 // Apply TraceQL parameters
-                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName())
+                    && !traceQLParams.getServiceName().equals(ALL)) {
                     queryRequestBuilder.serviceName(traceQLParams.getServiceName());
                 }
-                if (StringUtil.isNotBlank(traceQLParams.getSpanName())) {
+                if (StringUtil.isNotBlank(traceQLParams.getRemoteServiceName())
+                    && !traceQLParams.getRemoteServiceName().equals(ALL)) {
+                    queryRequestBuilder.remoteServiceName(traceQLParams.getRemoteServiceName());
+                }
+                if (StringUtil.isNotBlank(traceQLParams.getSpanName())
+                    && !traceQLParams.getSpanName().equals(ALL)) {
                     queryRequestBuilder.spanName(traceQLParams.getSpanName());
                 }
 
@@ -243,6 +249,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
             duration
         );
         resourceScope.getTags().add(SERVICE);
+        resourceScope.getTags().add(REMOTE_SERVICE);
         response.getScopes().add(resourceScope);
         spanScope.getTags().addAll(tagKeys);
         response.getScopes().add(spanScope);
@@ -288,7 +295,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
             }
             return successResponse(response);
         }
-        if (tagName.equals(NAME)) {
+        if (tagName.equals(NAME) || tagName.equals(RESOURCE_REMOTE_SERVICE)) {
             if (query.isPresent() && !query.get().isEmpty()) {
                 TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
                 if (parseResult.hasError()) {
@@ -296,11 +303,19 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 }
                 TraceQLQueryParams traceQLParams = parseResult.getParams();
                 TagValuesResponse serviceNameRsp = new TagValuesResponse();
-                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
-                    List<String> spanNames = zipkinQueryService.getSpanNames(traceQLParams.getServiceName());
-                    for (String spanName : spanNames) {
-                        TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, spanName);
-                        serviceNameRsp.getTagValues().add(tagValue);
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName()) && !traceQLParams.getServiceName().equals(ALL)) {
+                    if (tagName.equals(NAME)) {
+                        List<String> spanNames = zipkinQueryService.getSpanNames(traceQLParams.getServiceName());
+                        for (String spanName : spanNames) {
+                            TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, spanName);
+                            serviceNameRsp.getTagValues().add(tagValue);
+                        }
+                    } else if (tagName.equals(RESOURCE_REMOTE_SERVICE)) {
+                        List<String> remoteServiceNames = zipkinQueryService.getRemoteServiceNames(traceQLParams.getServiceName());
+                        for (String rs : remoteServiceNames) {
+                            TagValuesResponse.TagValue tagValue = new TagValuesResponse.TagValue(TYPE_STRING, rs);
+                            serviceNameRsp.getTagValues().add(tagValue);
+                        }
                     }
                 }
                 return successResponse(serviceNameRsp);

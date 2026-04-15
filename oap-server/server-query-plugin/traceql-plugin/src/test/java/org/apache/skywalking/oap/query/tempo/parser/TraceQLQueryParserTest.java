@@ -53,6 +53,26 @@ public class TraceQLQueryParserTest {
     }
 
     @Test
+    public void testScopeRemoteService() {
+        String query = "{resource.remote.service=\"backend\"}";
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
+        assertEquals("backend", params.getRemoteServiceName());
+    }
+
+    @Test
+    public void testScopeServiceInstance() {
+        String query = "{resource.instance=\"backend_instance\"}";
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
+        assertEquals("backend_instance", params.getServiceInstance());
+    }
+
+    @Test
     public void testDurationFilter() {
         String query = "{duration > 100ms}";
         TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
@@ -99,6 +119,16 @@ public class TraceQLQueryParserTest {
     @Test
     public void testNameIntrinsicField() {
         String query = "{name=\"HTTP GET\"}";
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertFalse(result.hasError(), "Parse should succeed");
+        TraceQLQueryParams params = result.getParams();
+        assertNotNull(params);
+        assertEquals("HTTP GET", params.getSpanName());
+    }
+
+    @Test
+    public void testSpanName() {
+        String query = "{span.name=\"HTTP GET\"}";
         TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
         assertFalse(result.hasError(), "Parse should succeed");
         TraceQLQueryParams params = result.getParams();

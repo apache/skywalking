@@ -21,6 +21,8 @@
 * Fix duplicate calls in `EndpointTopologyBuilder` — calls were not deduplicated unlike `ServiceTopologyBuilder`, causing duplicate entries when storage returns multiple records for the same relation.
 * Use `containsOnce` and `noDuplicates` for topology dependency e2e expected files to enforce no-duplicate verification.
 * Bump infra-e2e to `ef073ad` to include `noDuplicates` pipe function support.
+* PromQL: support querying Zipkin metadata (service name, remote service name, span name).
+* TraceQL: support more tags and variables in Grafana for querying.
 
 #### UI
 
