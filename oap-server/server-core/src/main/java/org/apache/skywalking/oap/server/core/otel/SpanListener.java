@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *
  * <p><b>Phase 1 ({@link #onOTLPSpan})</b>: called by the OTLP trace handler before Zipkin
  * conversion. Only OTLP spans reach this phase. Listeners can veto persistence (skip Zipkin
- * conversion entirely), inject tags, set layer override, or emit metric sources.
+ * conversion entirely), inject tags, or set layer override.
  *
  * <p><b>Phase 2 ({@link #onZipkinSpan})</b>: called by {@code SpanForward} after Zipkin
  * conversion. All trace sources (OTLP, Zipkin HTTP, Kafka) reach this phase.
@@ -36,9 +36,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *
  * <p>Listeners receive the {@link ModuleManager} at {@link #init} time and can use it to
  * emit data to any pipeline: OAL via {@code SourceReceiver}, MAL via the meter pipeline,
- * or logs via {@code ILogAnalyzerService}. The {@link SpanListenerResult#getSources()} list
- * is a convenience for OAL sources that the caller dispatches; for MAL/logs, listeners
- * should emit directly via their cached module references.
+ * or logs via {@code ILogAnalyzerService}. The {@link SpanListenerResult} only controls
+ * persistence and tag injection — listeners emit sources directly via their cached
+ * module references.
  */
 public interface SpanListener {
     /**
@@ -55,7 +55,7 @@ public interface SpanListener {
      * @param resourceAttributes OTLP resource attributes as a flat map
      * @param scopeName        InstrumentationScope name (e.g., "NSURLSession", "MetricKit")
      * @param scopeVersion     InstrumentationScope version
-     * @return result controlling persistence, tag injection, layer override, and metric emission
+     * @return result controlling persistence, tag injection, and layer override
      */
     default SpanListenerResult onOTLPSpan(final OTLPSpanReader span,
                                           final Map<String, String> resourceAttributes,
@@ -69,7 +69,7 @@ public interface SpanListener {
      * All trace sources (OTLP, Zipkin HTTP, Kafka) reach this phase.
      *
      * @param span the ZipkinSpan with all tags populated
-     * @return result controlling tag injection and metric emission
+     * @return result controlling tag injection
      */
     default SpanListenerResult onZipkinSpan(final ZipkinSpan span) {
         return SpanListenerResult.CONTINUE;

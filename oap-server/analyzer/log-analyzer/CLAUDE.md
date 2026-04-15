@@ -188,6 +188,16 @@ The generator detects the parser type from the AST at compile time and generates
 | log fields (LogData) | `log.body` | `((LogData.Builder) h.ctx().input()).getBody()` |
 | log trace | `log.traceContext.traceId` | `h.ctx().metadata().getTraceContext().getTraceId()` |
 | tags | `tag("KEY")` | `h.tagValue("KEY")` |
+| source attrs | `sourceAttribute("os.name")` | `h.sourceAttributeValue("os.name")` |
+
+### `layer: auto` Mode
+
+Rules with `layer: auto` match logs where `service.layer` is absent (empty). Stored in
+`LogFilterListener.Factory.autoDsls` (separate from the layer-keyed `dsls` map). At runtime,
+`LogAnalyzer.doAnalysis()` routes empty-layer logs to auto rules via `createAnalysisListeners(null)`.
+
+The `autoLayerMode` flag on `ExecutionContext` triggers a layer check in `FilterSpec.doSink()`:
+if the extractor didn't set a layer, the log is warned and dropped.
 
 ### inputType and LALSourceTypeProvider SPI
 
@@ -276,7 +286,8 @@ Instance-based helper created at the start of `execute()`, holds the `ExecutionC
 **Data source methods:**
 - `mapVal(key)`, `mapVal(k1, k2)`, `mapVal(k1, k2, k3)` — JSON/YAML map access
 - `group(name)` — text regexp named group
-- `tagValue(key)` — log tag lookup
+- `tagValue(key)` — log tag lookup (persistent, from LogData tags)
+- `sourceAttributeValue(key)` — source context lookup (non-persistent, from `LogMetadata.sourceAttributes`)
 - `ctx()` — access to ExecutionContext (for `h.ctx().metadata()` and `h.ctx().log()` getters)
 
 **Type conversion:** `toStr()`, `toLong()`, `toInt()`, `toBool()`

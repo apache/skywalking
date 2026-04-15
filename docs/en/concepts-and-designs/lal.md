@@ -21,8 +21,36 @@ When logs arrive via the OTLP receiver, resource attributes are mapped to `LogDa
 Log record attributes are available via `tag("attribute_name")` in LAL rules. Attribute keys
 retain their original names (dots are NOT converted to underscores in log attributes).
 
+All OTLP resource attributes are also available via `sourceAttribute("attribute_name")` in LAL rules.
+Unlike `tag()` which reads from persistent log record tags (`tagsRawData`), `sourceAttribute()` reads
+from non-persistent source context — the values are available during LAL processing but are NOT stored.
+Use `tag 'key': sourceAttribute("attr")` in the extractor to selectively persist specific attributes.
+
 ## Layer
 Layer should be declared in the LAL script to represent the analysis scope of the logs.
+LAL rules are routed by layer — only rules matching the incoming log's layer are evaluated.
+
+When `layer: auto` is declared, the rule matches logs where `service.layer` is absent (common for OTLP
+sources that don't set this attribute). The script is expected to set the layer in the extractor:
+
+```yaml
+rules:
+  - name: detect-ios
+    layer: auto
+    dsl: |
+      filter {
+        if (sourceAttribute("os.name") == "iOS") {
+          extractor {
+            layer "IOS"
+            instance sourceAttribute("service.version")
+            tag 'device.model': sourceAttribute("device.model.identifier")
+          }
+        }
+        sink {}
+      }
+```
+
+If the script does not set the layer, the log is warned and dropped at persistence time.
 
 ## Filter
 
@@ -87,6 +115,26 @@ filter {
     }
 }
 ```
+
+- `sourceAttribute`
+
+`sourceAttribute` function provides access to non-persistent source context attributes. For OTLP logs,
+these are the resource attributes (e.g., `os.name`, `device.model.identifier`). Unlike `tag()`, these
+values are NOT persisted in `tagsRawData` — they are only available during LAL processing.
+
+```
+filter {
+    if (sourceAttribute("os.name") == "iOS") {
+        extractor {
+            layer "IOS"
+            tag 'device.model': sourceAttribute("device.model.identifier")
+        }
+    }
+    sink {}
+}
+```
+
+Returns empty string if the key is not found.
 
 ### Parser
 
