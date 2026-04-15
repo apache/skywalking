@@ -139,20 +139,26 @@ The following steps are an example of configuring a `Trace` dashboard for SkyWal
 1. Go to the `Explore` page, select the `Tempo` data source named `SkyWalkingTraceQL` (the name you configured). Add it to the dashboard and save it as `SkyWalking Trace`.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-explore.png"/>
 2. Configure variables for the dashboard:
-<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-variables.png"/>
+<img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-skywalking-variables.png"/>
+3. If you want the Service/Instance/Endpoint variable support select `all` option, 
+please make sure enable the `Allow custom values` and set the `Custom all value` to `*`.
+<img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-skywalking-variables-all.png"/>
 
 #### Add Trace Panel
 The following steps show how to add a trace panel for SkyWalking native trace.
 1. Choose `Table` chart or edit your saved panel.
-2. Set `Query type` to `Search` and set the query condition `Service Name` to variable `$Service`.
+2. Set `Query type` to `Search` and set the query condition to variables, such as `Service Name` to `$Service`.
 3. Set other query conditions if needed.
 4. Test query and save the panel.
-<img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-panel.png"/>
+<img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-skywalking-panel.png"/>
 5. If you click the trace ID on the trace panel, it will jump to the explore page and show the trace details.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-trace-detail.png"/>
 
 ### Zipkin Trace
 Same as the SkyWalking native trace, but use the Zipkin Tempo data source you configured.
+The following are the variables and trace panel configuration screenshots for Zipkin trace:
+<img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-zipkin-variables.png"/>
+<img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-zipkin-panel.png"/>
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
