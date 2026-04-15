@@ -68,7 +68,11 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 11
+Next SWIP Number: 12
+
+### Proposed SWIPs
+
+- [SWIP-11 Support iOS App Monitoring via OpenTelemetry](SWIP-11.md)
 
 ### Accepted SWIPs
 
