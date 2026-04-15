@@ -26,6 +26,6 @@ public class CoreModuleTest {
     public void testOpenServiceList() {
         CoreModule coreModule = new CoreModule();
 
-        Assertions.assertEquals(52, coreModule.services().length);
+        Assertions.assertEquals(53, coreModule.services().length);
     }
 }
