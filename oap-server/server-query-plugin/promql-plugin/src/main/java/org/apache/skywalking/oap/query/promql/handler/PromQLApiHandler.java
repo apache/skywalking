@@ -939,8 +939,11 @@ public class PromQLApiHandler {
         return result;
     }
 
-    private List<String> queryZipkinServiceRelationTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException {
+    private List<String> queryZipkinServiceRelationTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException, IllegalExpressionException {
         List<String> result = new ArrayList<>();
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
         final List<String> remoteServices = zipkinQueryService.getRemoteServiceNames(serviceName);
         MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
         if (matcher != null) {
@@ -960,8 +963,11 @@ public class PromQLApiHandler {
         return result;
     }
 
-    private List<String> queryZipkinServiceSpanTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException {
+    private List<String> queryZipkinServiceSpanTraffic(MatcherSetResult parseResult, String serviceName, int limitNum) throws IOException, IllegalExpressionException {
         List<String> result = new ArrayList<>();
+        if (StringUtil.isBlank(serviceName)) {
+            throw new IllegalExpressionException("label {service} should not be empty.");
+        }
         final List<String> spanNames = zipkinQueryService.getSpanNames(serviceName);
         MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
         if (matcher != null) {
