@@ -185,23 +185,7 @@ their logs have a concrete layer and are routed to layer-specific rules as befor
 rules only see logs with absent layer. The existing `default.yaml` rule (`layer: GENERAL`) continues
 to catch logs that have `layer = GENERAL`.
 
-### 4. Instance Fallback
-
-The OTel Swift SDK sets `service.version` but not `service.instance.id`. The `OpenTelemetryLogHandler`
-currently reads `service.instance.id` only.
-
-Add fallback in the handler:
-```java
-var serviceInstance = attributes.getOrDefault("service.instance.id", "");
-if (serviceInstance.isEmpty()) {
-    serviceInstance = attributes.getOrDefault("service.version", "");
-}
-```
-
-This is a generic improvement — any OTLP source that uses `service.version` as instance identity
-benefits.
-
-### 5. Resource Attributes Available to LAL
+### 4. Resource Attributes Available to LAL (via `sourceAttribute()`)
 
 The OTel Swift SDK sets the following resource attributes, all available via `sourceAttribute()`:
 
@@ -215,7 +199,7 @@ The OTel Swift SDK sets the following resource attributes, all available via `so
 | `service.version`          | `2.1.0 (45)`           | `CFBundleShortVersionString` + build  |
 | `telemetry.sdk.language`   | `swift`                | Hardcoded                             |
 
-### 6. OTLP Span Listener Mechanism (General Enhancement)
+### 5. OTLP Span Listener Mechanism (General Enhancement)
 
 Currently, `SpanForward` hardcodes GenAI-specific logic (`processGenAILogic()`) inline. Adding iOS
 MetricKit handling as another hardcoded case would be unmaintainable. This SWIP introduces a general
@@ -336,18 +320,18 @@ just better structure.
 - Multiple listeners can process the same span (e.g., a GenAI span on iOS triggers both)
 - If ANY listener vetoes persistence, the span is not converted or stored
 
-### 7. Entity Model
+### 6. Entity Model
 
 | SkyWalking Entity    | Source                                          | Example       |
 |----------------------|-------------------------------------------------|---------------|
 | **Service**          | `service.name` resource attribute                | `MyApp`       |
-| **Service Instance** | `service.version` resource attribute (via fallback) | `2.1.0 (45)` |
+| **Service Instance** | `service.version` resource attribute (set by LAL/listener, SDK doesn't set `service.instance.id`) | `2.1.0 (45)` |
 | **Endpoint**         | HTTP span `http.target` attribute                | `/api/users`  |
 
-### 8. HTTP Span Processing (Trace Path)
+### 7. HTTP Span Processing (Trace Path)
 
 HTTP spans from `InstrumentationScope NSURLSession` flow through the existing OTLP → Zipkin → SpanForward
-trace pipeline. The layer detection in Section 6 assigns `Layer.IOS` to the service.
+trace pipeline. The layer detection in Section 5 assigns `Layer.IOS` to the service.
 
 Span attributes (verified from real SDK output):
 
@@ -400,7 +384,7 @@ Add the following to `searchableTracesTags` default configuration:
 | `network.connection.type`  | Filter by wifi/cell                        |
 | `network.carrier.name`     | Filter by carrier                          |
 
-### 9. Metrics Overview
+### 8. Metrics Overview
 
 iOS monitoring has two distinct metrics sources with different characteristics:
 
@@ -441,13 +425,13 @@ apply automatically — no new OAL needed:
 | Endpoint Latency Percentile | `endpoint_percentile` | `from(Endpoint.latency).percentile2(10)` | P50–P99 per endpoint |
 | Endpoint Success Rate | `endpoint_sla` | `from(Endpoint.*).percent(status == true)` | Success rate per endpoint |
 
-### 10. MetricKit Span Listener (`IOSMetricKitSpanListener`)
+### 9. MetricKit Span Listener (`IOSMetricKitSpanListener`)
 
 Apple's MetricKit delivers pre-aggregated app statistics once per day. The OTel Swift SDK encodes
 this as a single span with `startTime = 24h ago`, `endTime = now`, with all statistics as span
 attributes. These are **not trace spans** — they must be intercepted and converted to metrics.
 
-`IOSMetricKitSpanListener` implements the `OTLPSpanListener` interface (Section 6):
+`IOSMetricKitSpanListener` implements the `OTLPSpanListener` interface (Section 5):
 - **Detection:** `scopeName == "MetricKit"` AND `span.getName() == "MXMetricPayload"` — uses the
   raw OTLP InstrumentationScope name, available because listeners run before Zipkin conversion
 - **Action:** Extract span attributes as `SampleFamily` samples with labels, feed into MAL pipeline
@@ -579,19 +563,19 @@ Resulting daily metrics:
 | `ios_abnormal_exit_count` | sum(2, 0, 1) | **3 crashes** |
 | `ios_wifi_download` | sum(50, 80, 30) | **160 MB** |
 
-### 11. MetricKit Diagnostic Log Processing (LAL)
+### 10. MetricKit Diagnostic Log Processing (LAL)
 
 MetricKit diagnostic payloads arrive as OTLP log records with `InstrumentationScope: MetricKit`.
 The diagnostic type is identified by the `name` log record attribute.
 
 #### LogData Input to LAL
 
-After the changes in Sections 2–4, the LogData seen by LAL for a crash diagnostic:
+After the changes in Sections 2–3, the LogData seen by LAL for a crash diagnostic:
 
 ```
 LogMetadata {
   service:          "MyApp"
-  serviceInstance:  "2.1.0 (45)"       ← from service.version fallback
+  serviceInstance:  ""                 ← empty (SDK doesn't set service.instance.id)
   layer:            ""                 ← empty (SDK doesn't set service.layer)
   sourceAttributes: {                  ← NEW: non-persistent, from OTLP resource
     "os.name":                 "iOS",
@@ -654,6 +638,8 @@ rules:
 
         extractor {
           layer IOS
+          // Set instance from service.version (SDK doesn't set service.instance.id)
+          instance sourceAttribute("service.version")
 
           // Selectively copy useful source attributes into persistent tags
           tag 'device.model': sourceAttribute("device.model.identifier")
@@ -674,7 +660,7 @@ rules:
       }
 ```
 
-### 12. UI Menu and Dashboards
+### 11. UI Menu and Dashboards
 
 #### Menu Configuration
 
