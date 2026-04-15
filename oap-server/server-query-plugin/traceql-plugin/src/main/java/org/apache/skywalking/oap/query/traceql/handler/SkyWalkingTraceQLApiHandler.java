@@ -161,18 +161,23 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         condition.setQueryDuration(duration);
 
         // Set service ID if service name is provided
-        if (StringUtil.isNotBlank(queryParams.getServiceName())) {
+        if (StringUtil.isNotBlank(queryParams.getServiceName())
+            && !queryParams.getServiceName().equals(ALL)) {
             String serviceId = IDManager.ServiceID.buildId(queryParams.getServiceName(), true);
             condition.setServiceId(serviceId);
         }
 
-        if (StringUtil.isNotBlank(queryParams.getServiceInstance()) && StringUtil.isNotBlank(condition.getServiceId())) {
+        if (StringUtil.isNotBlank(queryParams.getServiceInstance())
+            && StringUtil.isNotBlank(condition.getServiceId())
+            && !queryParams.getServiceInstance().equals(ALL)) {
             String instanceId = IDManager.ServiceInstanceID.buildId(condition.getServiceId(), queryParams.getServiceInstance());
             condition.setServiceInstanceId(instanceId);
         }
 
         // Set endpoint ID if span name is provided
-        if (StringUtil.isNotBlank(queryParams.getSpanName()) && StringUtil.isNotBlank(condition.getServiceId())) {
+        if (StringUtil.isNotBlank(queryParams.getSpanName())
+            && StringUtil.isNotBlank(condition.getServiceId())
+            && !queryParams.getSpanName().equals(ALL)) {
             // Use IDManager to build endpoint ID
             condition.setEndpointId(
                 IDManager.EndpointID.buildId(condition.getServiceId(), queryParams.getSpanName())
@@ -330,7 +335,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         }
 
         // Handle 'name' tag with TraceQL query filter
-        if (tagName.equals(NAME)) {
+        if (tagName.equals(NAME) || tagName.equals(RESOURCE_INSTANCE)) {
             if (query.isPresent() && !query.get().isEmpty()) {
                 TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
                 if (parseResult.hasError()) {
@@ -340,41 +345,28 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
                 TagValuesResponse response = new TagValuesResponse();
                 if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
                     String serviceId = IDManager.ServiceID.buildId(traceQLParams.getServiceName(), true);
-                    List<Endpoint> endpoints = metadataQueryService.findEndpoint(
-                        "",
-                        serviceId,
-                        limit.orElse(100),
-                        duration
-                    );
+                    if (tagName.equals(NAME)) {
+                        List<Endpoint> endpoints = metadataQueryService.findEndpoint(
+                            "",
+                            serviceId,
+                            limit.orElse(100),
+                            duration
+                        );
 
-                    for (Endpoint endpoint : endpoints) {
-                        response.getTagValues().add(new TagValuesResponse.TagValue(TYPE_STRING, endpoint.getName()));
-                    }
-                }
-                return successResponse(response);
-            } else {
-                // Return empty list if no query provided, to avoid error as Grafana queries this every time when user enters the query page.
-                return successResponse(new TagValuesResponse());
-            }
-        }
-        if (tagName.equals(RESOURCE_INSTANCE)) {
-            if (query.isPresent() && !query.get().isEmpty()) {
-                TraceQLParseResult parseResult = TraceQLQueryParser.extractParams(query.get());
-                if (parseResult.hasError()) {
-                    return badRequestResponse(parseResult.getErrorInfo());
-                }
-                TraceQLQueryParams traceQLParams = parseResult.getParams();
-                TagValuesResponse response = new TagValuesResponse();
-                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
-                    String serviceId = IDManager.ServiceID.buildId(traceQLParams.getServiceName(), true);
-                    List<ServiceInstance> instances = metadataQueryService.listInstances(
-                        duration,
-                        serviceId
+                        for (Endpoint endpoint : endpoints) {
+                            response.getTagValues()
+                                    .add(new TagValuesResponse.TagValue(TYPE_STRING, endpoint.getName()));
+                        }
+                    } else if (tagName.equals(RESOURCE_INSTANCE)) {
+                        List<ServiceInstance> instances = metadataQueryService.listInstances(
+                            duration,
+                            serviceId
 
-                    );
+                        );
 
-                    for (ServiceInstance instance : instances) {
-                        response.getTagValues().add(new TagValuesResponse.TagValue(TYPE_STRING, instance.getName()));
+                        for (ServiceInstance instance : instances) {
+                            response.getTagValues().add(new TagValuesResponse.TagValue(TYPE_STRING, instance.getName()));
+                        }
                     }
                 }
                 return successResponse(response);

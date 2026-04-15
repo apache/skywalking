@@ -51,7 +51,10 @@ public enum LabelName {
     //for service_instance_relation_traffic
     DEST_SERVICE_INSTANCE("dest_service_instance"),
     //for endpoint_relation
-    DEST_ENDPOINT("dest_endpoint");
+    DEST_ENDPOINT("dest_endpoint"),
+    //for zipkin
+    REMOTE_SERVICE("remote_service"),
+    SPAN_NAME("span_name");
 
     final String label;
 

@@ -61,9 +61,11 @@ public abstract class TraceQLApiHandler {
     // Resource-scoped tag names
     public static final String RESOURCE_SERVICE_NAME = "resource.service.name";
     public static final String RESOURCE_SERVICE = "resource.service";
+    public static final String RESOURCE_REMOTE_SERVICE = "resource.remote.service";
     public static final String RESOURCE_INSTANCE = "resource.instance";
     public static final String SERVICE_NAME = "service.name";
     public static final String SERVICE = "service";
+    public static final String REMOTE_SERVICE = "remote.service";
     public static final String INSTANCE = "instance";
 
     // Span-scoped tag prefix and names
@@ -75,6 +77,8 @@ public abstract class TraceQLApiHandler {
     public static final String ERROR = "error";
     public static final String OK = "ok";
     public static final String TYPE_STRING = "string";
+
+    public static final String ALL = "*";
 
     @Get
     @Path("/ready")
