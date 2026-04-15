@@ -343,7 +343,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
                 }
                 TraceQLQueryParams traceQLParams = parseResult.getParams();
                 TagValuesResponse response = new TagValuesResponse();
-                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName()) && !traceQLParams.getServiceName().equals(ALL)) {
                     String serviceId = IDManager.ServiceID.buildId(traceQLParams.getServiceName(), true);
                     if (tagName.equals(NAME)) {
                         List<Endpoint> endpoints = metadataQueryService.findEndpoint(

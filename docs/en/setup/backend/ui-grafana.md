@@ -139,9 +139,10 @@ The following steps are an example of configuring a `Trace` dashboard for SkyWal
 1. Go to the `Explore` page, select the `Tempo` data source named `SkyWalkingTraceQL` (the name you configured). Add it to the dashboard and save it as `SkyWalking Trace`.
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-skywalking-explore.png"/>
 2. Configure variables for the dashboard:
+***Notice:*** The variables (Service/Instance/Endpoint) querying leverage the Prometheus data source `SkyWalkingPromQL(DS_SW_Prometheus)`.
 <img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-skywalking-variables.png"/>
-3. If you want the Service/Instance/Endpoint variable support select `all` option, 
-please make sure enable the `Allow custom values` and set the `Custom all value` to `*`.
+3. If you want the Service/Instance/Endpoint variables to support the `All` option,
+enable `Allow custom values` and set `Custom all value` to `*` so it matches the backend wildcard.
 <img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-skywalking-variables-all.png"/>
 
 #### Add Trace Panel

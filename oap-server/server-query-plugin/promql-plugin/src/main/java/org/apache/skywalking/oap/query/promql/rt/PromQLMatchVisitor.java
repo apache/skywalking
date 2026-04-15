@@ -25,6 +25,9 @@ import org.apache.skywalking.oap.query.promql.rt.result.ParseResultType;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceSpanTraffic;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceTraffic;
 import org.apache.skywalking.promql.rt.grammar.PromQLParser;
 import org.apache.skywalking.promql.rt.grammar.PromQLParserBaseVisitor;
 
@@ -46,7 +49,14 @@ public class PromQLMatchVisitor extends PromQLParserBaseVisitor<MatcherSetResult
                     || ((metricName.equals(InstanceTraffic.INDEX_NAME)) && LabelName.SERVICE_INSTANCE.getLabel()
                                                                                                      .equals(labelName))
                     || ((metricName.equals(EndpointTraffic.INDEX_NAME)) && LabelName.ENDPOINT.getLabel()
-                                                                                             .equals(labelName))) {
+                                                                                             .equals(labelName))
+                    || ((metricName.equals(ZipkinServiceTraffic.INDEX_NAME)) && LabelName.SERVICE.getLabel()
+                                                                                                 .equals(labelName))
+                    || ((metricName.equals(ZipkinServiceRelationTraffic.INDEX_NAME)) && LabelName.REMOTE_SERVICE.getLabel()
+                                                                                         .equals(labelName))
+                    || ((metricName.equals(ZipkinServiceSpanTraffic.INDEX_NAME)) && LabelName.SPAN_NAME.getLabel()
+                                                                                                       .equals(
+                                                                                                           labelName))) {
                     result.setNameMatcher(
                         new MatcherSetResult.NameMatcher(
                             metricName, labelValueTrim, labelCtx.matchOp().getStart().getType()));

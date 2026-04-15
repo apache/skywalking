@@ -341,7 +341,7 @@ public class PromQLApiHandler {
                                 response.getData().add(endpoint.getName());
                             });
                     } else if (Objects.equals(metricName, ZipkinServiceTraffic.INDEX_NAME)) {
-                        queryZipkinServiceTraffic(parseResult, layer, limitNum).forEach(service -> {
+                        queryZipkinServiceTraffic(parseResult, limitNum).forEach(service -> {
                             response.getData().add(service);
                         });
                     } else if (Objects.equals(metricName, ZipkinServiceRelationTraffic.INDEX_NAME)) {
@@ -419,7 +419,7 @@ public class PromQLApiHandler {
                             response.getData().add(buildMetricInfoFromTraffic(metricName, endpoint));
                         });
                 } else if (Objects.equals(metricName, ZipkinServiceTraffic.INDEX_NAME)) {
-                    queryZipkinServiceTraffic(parseResult, layer, limitNum).forEach(name -> {
+                    queryZipkinServiceTraffic(parseResult, limitNum).forEach(name -> {
                         MetricInfo metricInfo = new MetricInfo(metricName);
                         metricInfo.getLabels().add(new LabelValuePair(LabelName.SERVICE.getLabel(), name));
                         response.getData().add(metricInfo);
@@ -914,7 +914,7 @@ public class PromQLApiHandler {
         return result;
     }
 
-    private List<String> queryZipkinServiceTraffic(MatcherSetResult parseResult, String layer, int limitNum) throws IOException {
+    private List<String> queryZipkinServiceTraffic(MatcherSetResult parseResult, int limitNum) throws IOException {
         List<String> result = new ArrayList<>();
         final List<String> serviceNames = zipkinQueryService.getServiceNames();
         MatcherSetResult.NameMatcher matcher = parseResult.getNameMatcher();
@@ -984,7 +984,6 @@ public class PromQLApiHandler {
     public static String removeEscapes(String input) {
         return input == null ? null : input.replace("\\", "");
     }
-
 
     public enum QueryType {
         INSTANT,

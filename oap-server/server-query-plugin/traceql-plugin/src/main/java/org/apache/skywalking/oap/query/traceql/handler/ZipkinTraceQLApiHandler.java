@@ -303,7 +303,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
                 }
                 TraceQLQueryParams traceQLParams = parseResult.getParams();
                 TagValuesResponse serviceNameRsp = new TagValuesResponse();
-                if (StringUtil.isNotBlank(traceQLParams.getServiceName())) {
+                if (StringUtil.isNotBlank(traceQLParams.getServiceName()) && !traceQLParams.getServiceName().equals(ALL)) {
                     if (tagName.equals(NAME)) {
                         List<String> spanNames = zipkinQueryService.getSpanNames(traceQLParams.getServiceName());
                         for (String spanName : spanNames) {
