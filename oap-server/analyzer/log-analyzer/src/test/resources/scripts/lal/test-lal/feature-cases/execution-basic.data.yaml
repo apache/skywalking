@@ -167,3 +167,35 @@ source-attribute-missing:
   expect:
     save: true
     tag.missing: ""
+
+auto-layer-set:
+  body-type: json
+  body: '{"service":"MyApp"}'
+  source-attributes:
+    os.name: "iOS"
+  expect:
+    save: true
+    layer: IOS
+    service: MyApp
+
+auto-layer-not-set:
+  body-type: json
+  body: '{"service":"MyApp"}'
+  expect:
+    save: true
+    service: MyApp
+
+auto-layer-abort:
+  - body-type: json
+    body: '{"msg":"hello"}'
+    source-attributes:
+      os.name: "iOS"
+    expect:
+      save: true
+      layer: IOS
+  - body-type: json
+    body: '{"msg":"hello"}'
+    source-attributes:
+      os.name: "Android"
+    expect:
+      abort: true

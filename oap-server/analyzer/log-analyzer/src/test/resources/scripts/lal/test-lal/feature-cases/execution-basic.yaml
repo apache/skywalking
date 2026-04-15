@@ -286,3 +286,41 @@ rules:
         }
         sink {}
       }
+
+  - name: auto-layer-set
+    layer: auto
+    dsl: |
+      filter {
+        json {}
+        if (sourceAttribute("os.name") == "iOS") {
+          extractor {
+            layer "IOS"
+            service parsed.service as String
+          }
+        }
+        sink {}
+      }
+
+  - name: auto-layer-not-set
+    layer: auto
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+        }
+        sink {}
+      }
+
+  - name: auto-layer-abort
+    layer: auto
+    dsl: |
+      filter {
+        if (sourceAttribute("os.name") != "iOS") {
+          abort {}
+        }
+        extractor {
+          layer "IOS"
+        }
+        sink {}
+      }

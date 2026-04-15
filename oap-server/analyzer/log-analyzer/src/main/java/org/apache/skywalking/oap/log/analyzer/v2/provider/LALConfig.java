@@ -22,6 +22,12 @@ import lombok.Data;
 
 @Data
 public class LALConfig {
+    /**
+     * Special layer value indicating the layer is determined by the LAL script at runtime.
+     * Rules with {@code layer: auto} match logs where {@code service.layer} is absent.
+     * The script is expected to set the layer in the extractor; if not set, the log is dropped.
+     */
+    public static final String LAYER_AUTO = "auto";
     private String name;
 
     private String dsl;

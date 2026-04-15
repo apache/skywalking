@@ -49,6 +49,7 @@ public class ExecutionContext {
     public static final String KEY_ABORT = "abort";
     public static final String KEY_METRICS_CONTAINER = "metrics_container";
     public static final String KEY_DRY_RUN = "dry_run";
+    public static final String KEY_AUTO_LAYER = "auto_layer";
     public static final String KEY_OUTPUT = "output";
 
     private final Map<String, Object> properties = new HashMap<>();
@@ -145,6 +146,16 @@ public class ExecutionContext {
 
     public boolean isDryRun() {
         return (boolean) getProperty(KEY_DRY_RUN);
+    }
+
+    public ExecutionContext autoLayerMode(final boolean autoLayer) {
+        setProperty(KEY_AUTO_LAYER, autoLayer);
+        return this;
+    }
+
+    public boolean isAutoLayerMode() {
+        final Object val = getProperty(KEY_AUTO_LAYER);
+        return val != null && (boolean) val;
     }
 
     public void setOutput(final Object output) {
