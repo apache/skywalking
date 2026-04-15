@@ -48,19 +48,29 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public class GenAISpanListener implements SpanListener {
     private IGenAIMeterAnalyzerService analyzerService;
     private SourceReceiver sourceReceiver;
+    private boolean active;
 
     @Override
     public void init(final ModuleManager moduleManager) {
+        if (!moduleManager.has(GenAIAnalyzerModule.NAME)) {
+            log.info("GenAIAnalyzerModule is not loaded, GenAISpanListener is inactive");
+            active = false;
+            return;
+        }
         analyzerService = moduleManager.find(GenAIAnalyzerModule.NAME)
                                        .provider()
                                        .getService(IGenAIMeterAnalyzerService.class);
         sourceReceiver = moduleManager.find(CoreModule.NAME)
                                       .provider()
                                       .getService(SourceReceiver.class);
+        active = true;
     }
 
     @Override
     public SpanListenerResult onZipkinSpan(final ZipkinSpan span) {
+        if (!active) {
+            return SpanListenerResult.CONTINUE;
+        }
         final GenAIMetrics metrics = analyzerService.extractMetricsFromZipkinSpan(span);
         if (metrics == null) {
             return SpanListenerResult.CONTINUE;
