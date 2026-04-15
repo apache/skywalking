@@ -39,18 +39,22 @@ rules:
     layer: auto
     dsl: |
       filter {
-        if (sourceAttribute("os.name") == "iOS") {
-          extractor {
-            layer "IOS"
-            instance sourceAttribute("service.version")
-            tag 'device.model': sourceAttribute("device.model.identifier")
-          }
+        if (sourceAttribute("os.name") != "iOS" && sourceAttribute("os.name") != "iPadOS") {
+          abort {}
+        }
+        extractor {
+          layer "IOS"
+          instance sourceAttribute("service.version")
+          tag 'device.model': sourceAttribute("device.model.identifier")
         }
         sink {}
       }
 ```
 
-If the script does not set the layer, the log is warned and dropped at persistence time.
+Each `layer: auto` rule should `abort` for logs it doesn't recognize. If all auto rules abort
+(none claim the log), the log automatically falls back to `GENERAL` layer processing.
+If an auto rule claims the log (doesn't abort) but doesn't set a layer, the log is warned and
+dropped at persistence time.
 
 ## Filter
 

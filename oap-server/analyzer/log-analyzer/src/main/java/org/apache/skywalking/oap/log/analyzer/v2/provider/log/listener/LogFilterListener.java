@@ -77,6 +77,20 @@ public class LogFilterListener implements LogAnalysisListener {
     }
 
     @Override
+    public boolean claimed() {
+        if (!autoMode || contexts == null) {
+            return false;
+        }
+        // At least one auto rule did not abort — it claimed the log
+        for (final ExecutionContext ctx : contexts) {
+            if (!ctx.shouldAbort()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public LogAnalysisListener parse(final LogMetadata metadata,
                                      final Object input) {
         contexts = new ArrayList<>(dsls.size());

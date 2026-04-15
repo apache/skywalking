@@ -62,8 +62,24 @@ public class LogAnalyzer {
             return;
         }
         if (metadata.getLayer() == null || metadata.getLayer().isEmpty()) {
-            // Empty layer: route to auto-layer rules (pass null)
+            // Empty layer: try auto-layer rules first.
             createAnalysisListeners(null);
+            if (!listeners.isEmpty()) {
+                if (metadata.getTimestamp() == 0) {
+                    metadata.setTimestamp(System.currentTimeMillis());
+                }
+                notifyAnalysisListener(metadata, input);
+                notifyAnalysisListenerToBuild();
+
+                // If any auto rule claimed the log (didn't abort), we're done.
+                if (listeners.stream().anyMatch(LogAnalysisListener::claimed)) {
+                    return;
+                }
+                // All auto rules aborted — fall back to GENERAL
+                listeners.clear();
+            }
+            // No auto rules configured, or all aborted — fall back to GENERAL
+            createAnalysisListeners(Layer.GENERAL);
         } else {
             final Layer layer = Layer.nameOf(metadata.getLayer());
             if (layer == Layer.UNDEFINED) {
