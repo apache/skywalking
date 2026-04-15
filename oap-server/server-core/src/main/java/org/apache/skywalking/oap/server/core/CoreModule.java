@@ -68,7 +68,7 @@ import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.otel.SpanListenerManager;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.otel;
+package org.apache.skywalking.oap.server.core.trace;
 
 import java.util.Collections;
 import java.util.Map;

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.receiver.otel.otlp;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
-import org.apache.skywalking.oap.server.core.otel.OTLPSpanReader;
+import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 
 /**
  * {@link OTLPSpanReader} implementation wrapping the real OTLP {@link Span} proto.

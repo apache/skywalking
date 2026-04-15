@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.otel;
+package org.apache.skywalking.oap.server.core.trace;
 
 /**
  * Read-only abstraction over an OTLP span, decoupled from the protobuf

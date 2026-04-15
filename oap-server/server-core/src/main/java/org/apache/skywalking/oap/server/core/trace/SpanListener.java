@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.otel;
+package org.apache.skywalking.oap.server.core.trace;
 
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;

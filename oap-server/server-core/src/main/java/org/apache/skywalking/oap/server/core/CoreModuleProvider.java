@@ -48,7 +48,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.otel.SpanListenerManager;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.skywalking.oap.server.core.otel;
+package org.apache.skywalking.oap.server.core.trace;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,12 +84,16 @@ public class SpanListenerManager implements Service {
             if (!result.isShouldPersist()) {
                 shouldPersist = false;
             }
+            // Merge additional tags — last-writer-wins if multiple listeners
+            // set the same key. Each listener should use distinct tag keys;
+            // collisions indicate a design issue in the listener implementations.
             if (!result.getAdditionalTags().isEmpty()) {
                 if (mergedTags == null) {
                     mergedTags = new HashMap<>();
                 }
                 mergedTags.putAll(result.getAdditionalTags());
             }
+            // Last non-null layer override wins
             if (result.getLayerOverride() != null) {
                 layerOverride = result.getLayerOverride();
             }
@@ -119,6 +123,7 @@ public class SpanListenerManager implements Service {
             if (result == SpanListenerResult.CONTINUE) {
                 continue;
             }
+            // Merge additional tags — last-writer-wins for same key (see phase 1 comment)
             if (!result.getAdditionalTags().isEmpty()) {
                 if (mergedTags == null) {
                     mergedTags = new HashMap<>();
