@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
 services:
   data-hot1:
     extends:
@@ -114,4 +112,3 @@ services:
 
 networks:
   e2e:
-

@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
 services:
   oap:
     extends:
@@ -60,7 +58,5 @@ services:
       service: banyandb
     ports:
       - 17912
-
-
 networks:
   e2e:

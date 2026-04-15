@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-version: '2.1'
-
 services:
   zookeeper:
     image: zookeeper:3.4
@@ -155,8 +153,6 @@ services:
       timeout: 60s
       retries: 120
     entrypoint: ['python3', '/provider-kafka.py']
-
-
   consumer-py:
     build:
       context: .

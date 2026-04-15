@@ -1,6 +1,8 @@
 ## 10.5.0
 
 #### Project
+* Bump infra-e2e to testcontainers-go v0.42.0 (apache/skywalking-infra-e2e#146), which uses Docker Compose v2 plugin natively and removes docker-compose v1 dependency.
+* Remove deprecated `version` field from all docker-compose files for Compose v2 compatibility.
 
 #### OAP Server
 * Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
@@ -27,7 +29,6 @@
 #### UI
 
 #### Documentation
-
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
 
