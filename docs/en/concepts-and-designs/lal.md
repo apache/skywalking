@@ -51,8 +51,14 @@ rules:
       }
 ```
 
-Each `layer: auto` rule should `abort` for logs it doesn't recognize. If all auto rules abort
-(none claim the log), the log automatically falls back to `GENERAL` layer processing.
+In `layer: auto` mode, `abort` and `drop` have distinct meanings:
+
+- **`abort {}`** — "not mine, let others try." If all auto rules abort, the log falls back to
+  `GENERAL` layer processing automatically.
+- **`drop {}`** — "mine, but sampled out." The rule claimed the log (no GENERAL fallback) but
+  chose not to persist it (e.g., sampling). Use this for rate limiting or conditional dropping
+  within a recognized log type.
+
 If an auto rule claims the log (doesn't abort) but doesn't set a layer, the log is warned and
 dropped at persistence time.
 
