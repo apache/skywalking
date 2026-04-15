@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.Map;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
 
@@ -55,6 +56,25 @@ public final class LogMetadataUtils {
                           .layer(builder.getLayer())
                           .timestamp(builder.getTimestamp())
                           .traceContext(tc)
+                          .build();
+    }
+
+    /**
+     * Build LogMetadata from a LogData.Builder with source attributes (e.g., OTLP resource attributes).
+     * Source attributes are non-persistent — available to LAL scripts via {@code sourceAttribute()}
+     * but not stored in tagsRawData.
+     */
+    public static LogMetadata fromLogData(final LogData.Builder builder,
+                                          final Map<String, String> sourceAttributes) {
+        final LogMetadata.TraceContext tc = buildTraceContext(builder.getTraceContext());
+        return LogMetadata.builder()
+                          .service(builder.getService())
+                          .serviceInstance(builder.getServiceInstance())
+                          .endpoint(builder.getEndpoint())
+                          .layer(builder.getLayer())
+                          .timestamp(builder.getTimestamp())
+                          .traceContext(tc)
+                          .sourceAttributes(sourceAttributes)
                           .build();
     }
 

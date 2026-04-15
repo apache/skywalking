@@ -291,4 +291,40 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected at least 2 if-conditions for else-if chain but got "
             + ifCount + " in: " + source);
     }
+
+    // ==================== sourceAttribute() function ====================
+
+    @Test
+    void compileSourceAttributeInCondition() throws Exception {
+        compileAndAssert(
+            "filter {\n"
+            + "  if (sourceAttribute(\"os.name\") == \"iOS\") {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}");
+    }
+
+    @Test
+    void compileAndVerifySourceAttributeEmitsSourceAttributeValue() throws Exception {
+        final String dsl = "filter {\n"
+            + "  if (sourceAttribute(\"os.name\") == \"iOS\") {\n"
+            + "    sink {}\n"
+            + "  }\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("h.sourceAttributeValue(\"os.name\")"),
+            "Expected sourceAttributeValue call but got: " + source);
+    }
+
+    @Test
+    void compileSourceAttributeInExtractorTag() throws Exception {
+        compileAndAssert(
+            "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'device.model': sourceAttribute(\"device.model.identifier\")\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}");
+    }
 }

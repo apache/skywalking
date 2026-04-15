@@ -193,6 +193,24 @@ public final class LalRuntimeHelper {
         return "";
     }
 
+    /**
+     * Source attribute lookup by key name. Reads from
+     * {@link org.apache.skywalking.oap.server.core.source.LogMetadata#getSourceAttributes()}.
+     * Returns empty string if the key is not found or sourceAttributes is empty.
+     * <pre>
+     *   // LAL:  sourceAttribute("os.name")
+     *   // Generated:  h.sourceAttributeValue("os.name")
+     * </pre>
+     */
+    public String sourceAttributeValue(final String key) {
+        final Map<String, String> attrs = ctx.metadata().getSourceAttributes();
+        if (attrs == null || attrs.isEmpty()) {
+            return "";
+        }
+        final String val = attrs.get(key);
+        return val != null ? val : "";
+    }
+
     // ==================== JSON conversion (for def variables) ====================
     //
     // toJsonObject: converts to JsonObject. Overloaded for Struct, String, Object.

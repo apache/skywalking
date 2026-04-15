@@ -118,7 +118,7 @@ public class OpenTelemetryLogHandler
                 .flatMap(it -> it.getLogRecordsList().stream())
                 .forEach(logRecord -> {
                     try (final var timer = getProcessHistogram().createTimer()) {
-                        doAnalysisQuietly(service, layer, serviceInstance, logRecord);
+                        doAnalysisQuietly(service, layer, serviceInstance, attributes, logRecord);
                     }
                 });
         });
@@ -126,7 +126,8 @@ public class OpenTelemetryLogHandler
         responseObserver.onCompleted();
     }
 
-    private void doAnalysisQuietly(String service, String layer, String serviceInstance, LogRecord logRecord) {
+    private void doAnalysisQuietly(String service, String layer, String serviceInstance,
+                                   Map<String, String> resourceAttributes, LogRecord logRecord) {
         try {
             final LogData.Builder builder = LogData
                 .newBuilder()
@@ -136,7 +137,8 @@ public class OpenTelemetryLogHandler
                 .setTags(buildTags(logRecord))
                 .setBody(buildBody(logRecord))
                 .setLayer(layer);
-            logAnalyzerService().doAnalysis(LogMetadataUtils.fromLogData(builder), builder);
+            logAnalyzerService().doAnalysis(
+                LogMetadataUtils.fromLogData(builder, resourceAttributes), builder);
         } catch (Exception e) {
             log.error("Failed to analyze logs", e);
         }

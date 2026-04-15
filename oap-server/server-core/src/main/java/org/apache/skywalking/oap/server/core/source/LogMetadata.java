@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.Collections;
+import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
 
@@ -36,6 +38,14 @@ public class LogMetadata {
     private long timestamp;
     @Builder.Default
     private TraceContext traceContext = TraceContext.EMPTY;
+
+    /**
+     * Non-persistent attributes from the log source (e.g., OTLP resource attributes,
+     * ALS node context). Available to LAL scripts via {@code sourceAttribute()} but
+     * NOT stored in tagsRawData.
+     */
+    @Builder.Default
+    private Map<String, String> sourceAttributes = Collections.emptyMap();
 
     @Data
     @Builder

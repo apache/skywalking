@@ -388,6 +388,22 @@ final class LALValueCodegen {
             return;
         }
 
+        // sourceAttribute("KEY") — reads from LogMetadata.sourceAttributes (non-persistent).
+        // Available regardless of input type (reads from metadata, not input).
+        if ("sourceAttribute".equals(value.getFunctionCallName())) {
+            if (value.getFunctionCallArgs().size() != 1
+                    || !value.getFunctionCallArgs().get(0).getValue().isStringLiteral()) {
+                throw new IllegalArgumentException(
+                    "sourceAttribute() requires exactly one string literal argument, "
+                        + "e.g. sourceAttribute(\"os.name\")");
+            }
+            sb.append("h.sourceAttributeValue(\"");
+            final String key = value.getFunctionCallArgs().get(0)
+                .getValue().getSegments().get(0);
+            sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
+            return;
+        }
+
         // Handle string/number literals
         if (value.isStringLiteral() && value.getChain().isEmpty()) {
             sb.append("\"").append(LALCodegenHelper.escapeJava(value.getSegments().get(0)))
