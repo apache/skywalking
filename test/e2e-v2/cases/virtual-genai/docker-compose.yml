@@ -54,7 +54,7 @@ services:
       - e2e
     environment:
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      SPRING_AI_OPENAI_BASE_URL: http://provider:9090/llm
+      SPRING_AI_OPENAI_BASE_URL: http://provider:9090/llm/v1
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_LOGGING_OUTPUT: CONSOLE
       SW_AGENT_NAME: e2e-spring-ai
