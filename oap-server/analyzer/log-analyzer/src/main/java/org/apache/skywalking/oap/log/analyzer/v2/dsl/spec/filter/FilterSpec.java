@@ -190,6 +190,7 @@ public class FilterSpec extends AbstractSpec {
             if (layer == null || layer.isEmpty()) {
                 LOGGER.warn("Auto-layer LAL rule did not set layer for service={}, dropping log",
                     metadata.getService());
+                ctx.drop();
                 return;
             }
         }

@@ -163,7 +163,10 @@ public class SpanForward implements SpanForwardService {
 
             // Merge additional tags from listeners into span tags
             if (!listenerResult.getAdditionalTags().isEmpty()) {
-                final JsonObject tags = zipkinSpan.getTags();
+                JsonObject tags = zipkinSpan.getTags();
+                if (tags == null) {
+                    tags = new JsonObject();
+                }
                 for (final Map.Entry<String, String> entry : listenerResult.getAdditionalTags().entrySet()) {
                     tags.addProperty(entry.getKey(), entry.getValue());
                 }

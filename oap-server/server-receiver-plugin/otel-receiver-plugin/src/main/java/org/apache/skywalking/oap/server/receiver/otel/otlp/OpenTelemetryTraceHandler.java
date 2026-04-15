@@ -144,12 +144,20 @@ public class OpenTelemetryTraceHandler
                                 continue;
                             }
 
-                            // Merge additional tags from listeners before conversion
-                            if (!otlpResult.getAdditionalTags().isEmpty()) {
-                                resourceTags.putAll(otlpResult.getAdditionalTags());
+                            // Per-span tag copy to avoid leaking listener tags into
+                            // subsequent spans that share the same resourceTags map
+                            final Map<String, String> spanTags;
+                            if (!otlpResult.getAdditionalTags().isEmpty()
+                                    || otlpResult.getLayerOverride() != null) {
+                                spanTags = new HashMap<>(resourceTags);
+                                spanTags.putAll(otlpResult.getAdditionalTags());
+                                // TODO: layerOverride will be wired to service registration
+                                // when iOS layer detection is implemented
+                            } else {
+                                spanTags = resourceTags;
                             }
 
-                            Span zipkinSpan = convertSpan(span, serviceName, resourceTags);
+                            Span zipkinSpan = convertSpan(span, serviceName, spanTags);
                             result.add(zipkinSpan);
                         }
                     }
