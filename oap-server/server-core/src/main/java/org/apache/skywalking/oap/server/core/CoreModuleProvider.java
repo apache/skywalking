@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.otel.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
@@ -194,6 +195,9 @@ public class CoreModuleProvider extends ModuleProvider {
         );
         this.registerServiceImplementation(NamingControl.class, namingControl);
         this.registerServiceImplementation(EndpointNameGroupService.class, endpointNameGrouping);
+
+        final SpanListenerManager spanListenerManager = new SpanListenerManager();
+        this.registerServiceImplementation(SpanListenerManager.class, spanListenerManager);
         MeterEntity.setNamingControl(namingControl);
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(
@@ -404,6 +408,9 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
+        // Initialize SpanListenerManager — discovers and initializes SpanListener SPI implementations
+        getService(SpanListenerManager.class).init(getManager());
+
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
         grpcServer.addInterceptor(WatermarkGRPCInterceptor.INSTANCE);

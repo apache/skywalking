@@ -21,16 +21,14 @@ package org.apache.skywalking.oap.server.receiver.zipkin.trace;
 import com.google.common.util.concurrent.RateLimiter;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
-import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
-import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
+import org.apache.skywalking.oap.server.core.otel.SpanListenerManager;
+import org.apache.skywalking.oap.server.core.otel.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
@@ -47,8 +45,6 @@ import zipkin2.Annotation;
 import zipkin2.Span;
 import zipkin2.internal.HexCodec;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,8 +61,7 @@ public class SpanForward implements SpanForwardService {
     private NamingControl namingControl;
     private SourceReceiver receiver;
     private RateLimiter rateLimiter;
-
-    private IGenAIMeterAnalyzerService genAIMeterAnalyzerService;
+    private SpanListenerManager spanListenerManager;
 
     public SpanForward(final ZipkinReceiverConfig config, final ModuleManager manager) {
         this.config = config;
@@ -162,7 +157,18 @@ public class SpanForward implements SpanForwardService {
                 zipkinSpan.setTags(tagsJson);
             }
 
-            processGenAILogic(zipkinSpan);
+            // Phase 2: notify span listeners with the Zipkin span
+            final SpanListenerResult listenerResult = getSpanListenerManager()
+                .notifyZipkinPhase(zipkinSpan);
+
+            // Merge additional tags from listeners into span tags
+            if (!listenerResult.getAdditionalTags().isEmpty()) {
+                final JsonObject tags = zipkinSpan.getTags();
+                for (final Map.Entry<String, String> entry : listenerResult.getAdditionalTags().entrySet()) {
+                    tags.addProperty(entry.getKey(), entry.getValue());
+                }
+                zipkinSpan.setTags(tags);
+            }
 
             getReceiver().receive(zipkinSpan);
 
@@ -205,28 +211,6 @@ public class SpanForward implements SpanForwardService {
         relation.setRemoteServiceName(zipkinSpan.getRemoteEndpointServiceName());
         relation.setTimeBucket(minuteTimeBucket);
         getReceiver().receive(relation);
-    }
-
-    private void processGenAILogic(ZipkinSpan zipkinSpan) {
-        GenAIMetrics metrics = getGenAIMeterAnalyzerService().extractMetricsFromZipkinSpan(zipkinSpan);
-        if (metrics == null) {
-            return;
-        }
-
-        setEstimatedCost(zipkinSpan, metrics.getTotalEstimatedCost());
-
-        getGenAIMeterAnalyzerService().transferToSources(metrics)
-                .forEach(source -> getReceiver().receive(source));
-    }
-
-    private void setEstimatedCost(ZipkinSpan zipkinSpan, double totalEstimatedCost) {
-        if (totalEstimatedCost > 0) {
-            BigDecimal calculatedCost = BigDecimal.valueOf(totalEstimatedCost)
-                    .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
-            JsonObject tags = zipkinSpan.getTags();
-            tags.addProperty(GenAITagKeys.ESTIMATED_COST, calculatedCost.stripTrailingZeros().toPlainString());
-            zipkinSpan.setTags(tags);
-        }
     }
 
     private List<Span> getSampledTraces(List<Span> input) {
@@ -276,10 +260,10 @@ public class SpanForward implements SpanForwardService {
         return receiver;
     }
 
-    private IGenAIMeterAnalyzerService getGenAIMeterAnalyzerService() {
-        if (genAIMeterAnalyzerService == null) {
-            genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME).provider().getService(IGenAIMeterAnalyzerService.class);
+    private SpanListenerManager getSpanListenerManager() {
+        if (spanListenerManager == null) {
+            spanListenerManager = moduleManager.find(CoreModule.NAME).provider().getService(SpanListenerManager.class);
         }
-        return genAIMeterAnalyzerService;
+        return spanListenerManager;
     }
 }
