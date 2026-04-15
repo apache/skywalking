@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -73,7 +72,6 @@ public class SpanListenerManager implements Service {
         }
         boolean shouldPersist = true;
         Map<String, String> mergedTags = null;
-        Layer layerOverride = null;
 
         for (final SpanListener listener : listeners) {
             final SpanListenerResult result = listener.onOTLPSpan(
@@ -93,16 +91,11 @@ public class SpanListenerManager implements Service {
                 }
                 mergedTags.putAll(result.getAdditionalTags());
             }
-            // Last non-null layer override wins
-            if (result.getLayerOverride() != null) {
-                layerOverride = result.getLayerOverride();
-            }
         }
 
         return SpanListenerResult.builder()
                                 .shouldPersist(shouldPersist)
                                 .additionalTags(mergedTags != null ? mergedTags : Collections.emptyMap())
-                                .layerOverride(layerOverride)
                                 .build();
     }
 

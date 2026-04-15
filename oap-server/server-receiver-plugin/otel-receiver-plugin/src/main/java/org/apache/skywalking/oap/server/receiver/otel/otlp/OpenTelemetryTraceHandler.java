@@ -147,12 +147,9 @@ public class OpenTelemetryTraceHandler
                             // Per-span tag copy to avoid leaking listener tags into
                             // subsequent spans that share the same resourceTags map
                             final Map<String, String> spanTags;
-                            if (!otlpResult.getAdditionalTags().isEmpty()
-                                    || otlpResult.getLayerOverride() != null) {
+                            if (!otlpResult.getAdditionalTags().isEmpty()) {
                                 spanTags = new HashMap<>(resourceTags);
                                 spanTags.putAll(otlpResult.getAdditionalTags());
-                                // TODO: layerOverride will be wired to service registration
-                                // when iOS layer detection is implemented
                             } else {
                                 spanTags = resourceTags;
                             }

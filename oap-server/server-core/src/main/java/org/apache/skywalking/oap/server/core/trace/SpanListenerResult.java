@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 
 /**
  * Result returned by {@link SpanListener} phase methods.
@@ -51,10 +50,4 @@ public class SpanListenerResult {
      */
     @Builder.Default
     private final Map<String, String> additionalTags = Collections.emptyMap();
-
-    /**
-     * Layer override for the service. If non-null, the service is registered
-     * with this layer instead of the default.
-     */
-    private final Layer layerOverride;
 }

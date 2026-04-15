@@ -26,7 +26,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *
  * <p><b>Phase 1 ({@link #onOTLPSpan})</b>: called by the OTLP trace handler before Zipkin
  * conversion. Only OTLP spans reach this phase. Listeners can veto persistence (skip Zipkin
- * conversion entirely), inject tags, or set layer override.
+ * conversion entirely) or inject tags.
  *
  * <p><b>Phase 2 ({@link #onZipkinSpan})</b>: called by {@code SpanForward} after Zipkin
  * conversion. All trace sources (OTLP, Zipkin HTTP, Kafka) reach this phase.
@@ -55,7 +55,7 @@ public interface SpanListener {
      * @param resourceAttributes OTLP resource attributes as a flat map
      * @param scopeName        InstrumentationScope name (e.g., "NSURLSession", "MetricKit")
      * @param scopeVersion     InstrumentationScope version
-     * @return result controlling persistence, tag injection, and layer override
+     * @return result controlling persistence and tag injection
      */
     default SpanListenerResult onOTLPSpan(final OTLPSpanReader span,
                                           final Map<String, String> resourceAttributes,
