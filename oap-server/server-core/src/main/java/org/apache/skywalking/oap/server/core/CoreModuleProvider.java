@@ -197,6 +197,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(EndpointNameGroupService.class, endpointNameGrouping);
 
         final SpanListenerManager spanListenerManager = new SpanListenerManager();
+        spanListenerManager.setModuleManager(getManager());
         this.registerServiceImplementation(SpanListenerManager.class, spanListenerManager);
         MeterEntity.setNamingControl(namingControl);
         try {
@@ -408,9 +409,6 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ModuleStartException {
-        // Initialize SpanListenerManager — discovers and initializes SpanListener SPI implementations
-        getService(SpanListenerManager.class).init(getManager());
-
         grpcServer.addHandler(new RemoteServiceHandler(getManager()));
         grpcServer.addHandler(new HealthCheckServiceHandler());
         grpcServer.addInterceptor(WatermarkGRPCInterceptor.INSTANCE);

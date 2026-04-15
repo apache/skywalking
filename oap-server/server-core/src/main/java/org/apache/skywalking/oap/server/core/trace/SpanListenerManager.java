@@ -32,8 +32,12 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * Core service that manages {@link SpanListener} instances discovered via SPI.
  * Provides two-phase notification for OTLP and Zipkin span processing.
  *
- * <p>The manager only aggregates persistence/tag/layer decisions from listeners.
+ * <p>The manager only aggregates persistence/tag decisions from listeners.
  * Listeners emit sources (OAL, MAL, logs) directly via their own cached module references.
+ *
+ * <p>Listeners are lazily loaded and initialized on the first notification call,
+ * ensuring all modules are fully started (including receiver ports) before any
+ * listener accesses module services.
  *
  * <p>Callers:
  * <ul>
@@ -43,34 +47,56 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 @Slf4j
 public class SpanListenerManager implements Service {
+    private volatile boolean initialized = false;
     private List<SpanListener> listeners = Collections.emptyList();
+    private ModuleManager moduleManager;
 
     /**
-     * Load and initialize all {@link SpanListener} implementations via SPI.
-     * Listeners whose {@link SpanListener#requiredModules()} are not all loaded
+     * Store the module manager reference for lazy initialization.
+     * Called during {@code CoreModuleProvider.prepare()}.
+     */
+    public void setModuleManager(final ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    /**
+     * Lazily load and initialize all {@link SpanListener} implementations via SPI.
+     * Called on first {@link #notifyOTLPPhase} or {@link #notifyZipkinPhase} invocation,
+     * when all modules are fully started.
+     *
+     * <p>Listeners whose {@link SpanListener#requiredModules()} are not all loaded
      * are skipped with an info log.
      */
-    public void init(final ModuleManager moduleManager) {
-        final List<SpanListener> loaded = new ArrayList<>();
-        for (final SpanListener listener : ServiceLoader.load(SpanListener.class)) {
-            final String[] required = listener.requiredModules();
-            boolean satisfied = true;
-            for (final String moduleName : required) {
-                if (!moduleManager.has(moduleName)) {
-                    log.info("SpanListener {} skipped: required module {} is not loaded",
-                        listener.getClass().getName(), moduleName);
-                    satisfied = false;
-                    break;
-                }
-            }
-            if (!satisfied) {
-                continue;
-            }
-            listener.init(moduleManager);
-            loaded.add(listener);
-            log.info("SpanListener registered: {}", listener.getClass().getName());
+    private void ensureInitialized() {
+        if (initialized) {
+            return;
         }
-        this.listeners = loaded;
+        synchronized (this) {
+            if (initialized) {
+                return;
+            }
+            final List<SpanListener> loaded = new ArrayList<>();
+            for (final SpanListener listener : ServiceLoader.load(SpanListener.class)) {
+                final String[] required = listener.requiredModules();
+                boolean satisfied = true;
+                for (final String moduleName : required) {
+                    if (!moduleManager.has(moduleName)) {
+                        log.info("SpanListener {} skipped: required module {} is not loaded",
+                            listener.getClass().getName(), moduleName);
+                        satisfied = false;
+                        break;
+                    }
+                }
+                if (!satisfied) {
+                    continue;
+                }
+                listener.init(moduleManager);
+                loaded.add(listener);
+                log.info("SpanListener registered: {}", listener.getClass().getName());
+            }
+            this.listeners = loaded;
+            this.initialized = true;
+        }
     }
 
     /**
@@ -82,6 +108,7 @@ public class SpanListenerManager implements Service {
                                               final Map<String, String> resourceAttributes,
                                               final String scopeName,
                                               final String scopeVersion) {
+        ensureInitialized();
         if (listeners.isEmpty()) {
             return SpanListenerResult.CONTINUE;
         }
@@ -121,6 +148,7 @@ public class SpanListenerManager implements Service {
      * @return merged result.
      */
     public SpanListenerResult notifyZipkinPhase(final ZipkinSpan span) {
+        ensureInitialized();
         if (listeners.isEmpty()) {
             return SpanListenerResult.CONTINUE;
         }
