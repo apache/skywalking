@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.server.receiver.aws.firehose;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.Default;
@@ -35,6 +36,7 @@ import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRe
 
 @Slf4j
 @AllArgsConstructor
+@Blocking
 public class FirehoseHTTPHandler {
     private final OpenTelemetryMetricRequestProcessor openTelemetryMetricRequestProcessor;
     private final String firehoseAccessKey;

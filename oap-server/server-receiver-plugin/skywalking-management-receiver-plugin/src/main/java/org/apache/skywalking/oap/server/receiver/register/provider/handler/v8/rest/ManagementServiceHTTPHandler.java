@@ -19,12 +19,14 @@
 package org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.Blocking;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.management.v3.InstancePingPkg;
 import org.apache.skywalking.apm.network.management.v3.InstanceProperties;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.register.provider.handler.v8.ManagementServiceHandler;
 
+@Blocking
 public class ManagementServiceHTTPHandler {
     private final ManagementServiceHandler handler;
 

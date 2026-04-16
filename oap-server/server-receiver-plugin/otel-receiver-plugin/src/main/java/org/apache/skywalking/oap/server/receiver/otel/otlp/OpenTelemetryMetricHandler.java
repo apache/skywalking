@@ -23,7 +23,10 @@ import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceResponse;
 import io.opentelemetry.proto.collector.metrics.v1.MetricsServiceGrpc;
 import lombok.extern.slf4j.Slf4j;
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
@@ -58,6 +61,13 @@ public class OpenTelemetryMetricHandler
                                                          .provider()
                                                          .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(this);
+
+        HTTPHandlerRegister httpHandlerRegister = manager.find(SharingServerModule.NAME)
+                                                         .provider()
+                                                         .getService(HTTPHandlerRegister.class);
+        httpHandlerRegister.addHandler(
+            new OpenTelemetryMetricHTTPHandler(metricRequestProcessor),
+            Collections.singletonList(HttpMethod.POST));
     }
 
     @Override

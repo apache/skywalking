@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.receiver.log.provider.handler.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.Blocking;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -33,6 +34,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
+@Blocking
 public class LogReportServiceHTTPHandler {
     private final HistogramMetrics histogram;
 

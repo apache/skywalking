@@ -36,7 +36,10 @@ import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.receiver.otel.Handler;
@@ -88,10 +91,26 @@ public class OpenTelemetryLogHandler
                                                          .provider()
                                                          .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(this);
+
+        HTTPHandlerRegister httpHandlerRegister = manager.find(SharingServerModule.NAME)
+                                                         .provider()
+                                                         .getService(HTTPHandlerRegister.class);
+        httpHandlerRegister.addHandler(
+            new OpenTelemetryLogHTTPHandler(this),
+            Collections.singletonList(HttpMethod.POST));
     }
 
     @Override
     public void export(ExportLogsServiceRequest request, StreamObserver<ExportLogsServiceResponse> responseObserver) {
+        processExport(request);
+        responseObserver.onNext(ExportLogsServiceResponse.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Process an OTLP log export request. Shared by both gRPC and HTTP handlers.
+     */
+    void processExport(ExportLogsServiceRequest request) {
         request.getResourceLogsList().forEach(resourceLogs -> {
             final var resource = resourceLogs.getResource();
             final var attributes = resource
@@ -122,8 +141,6 @@ public class OpenTelemetryLogHandler
                     }
                 });
         });
-        responseObserver.onNext(ExportLogsServiceResponse.getDefaultInstance());
-        responseObserver.onCompleted();
     }
 
     private void doAnalysisQuietly(String service, String layer, String serviceInstance,

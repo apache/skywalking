@@ -35,7 +35,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
+import com.linecorp.armeria.common.HttpMethod;
+import java.util.Collections;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
+import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -107,10 +110,26 @@ public class OpenTelemetryTraceHandler
             .provider()
             .getService(GRPCHandlerRegister.class);
         grpcHandlerRegister.addHandler(this);
+
+        HTTPHandlerRegister httpHandlerRegister = manager.find(SharingServerModule.NAME)
+            .provider()
+            .getService(HTTPHandlerRegister.class);
+        httpHandlerRegister.addHandler(
+            new OpenTelemetryTraceHTTPHandler(this),
+            Collections.singletonList(HttpMethod.POST));
     }
 
     @Override
     public void export(ExportTraceServiceRequest request, StreamObserver<ExportTraceServiceResponse> responseObserver) {
+        processExport(request);
+        responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Process an OTLP trace export request. Shared by both gRPC and HTTP handlers.
+     */
+    void processExport(ExportTraceServiceRequest request) {
         final ArrayList<Span> result = new ArrayList<>();
 
         try (final var unused = getProcessHistogram().createTimer()) {
@@ -167,9 +186,6 @@ public class OpenTelemetryTraceHandler
                 getDroppedSpans().inc(result.size() - processedSpans.size());
             }
         }
-
-        responseObserver.onNext(ExportTraceServiceResponse.getDefaultInstance());
-        responseObserver.onCompleted();
     }
 
     private Span convertSpan(io.opentelemetry.proto.trace.v1.Span span, String serviceName, Map<String, String> resourceTags) {
