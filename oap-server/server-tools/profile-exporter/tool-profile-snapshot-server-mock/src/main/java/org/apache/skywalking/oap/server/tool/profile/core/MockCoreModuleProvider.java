@@ -73,6 +73,7 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
@@ -144,6 +145,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         moduleConfig.setEnableHierarchy(false);
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
         this.registerServiceImplementation(HierarchyService.class, new HierarchyService(getManager(), moduleConfig));
+        this.registerServiceImplementation(SpanListenerManager.class, new SpanListenerManager());
         this.registerServiceImplementation(
                 DownSamplingConfigService.class, new DownSamplingConfigService(Collections.emptyList()));
 

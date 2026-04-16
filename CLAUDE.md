@@ -27,7 +27,8 @@ skywalking/
 │   ├── server-testing/             # Shared test utilities (DSL test framework)
 │   ├── analyzer/                  # Log and trace analyzers
 │   ├── ai-pipeline/               # AI/ML pipeline components
-│   └── exporter/                  # Data export functionality
+│   ├── exporter/                  # Data export functionality
+│   └── server-tools/              # Standalone tools (profile exporter) with mock providers
 ├── apm-protocol/                  # Protocol definitions (submodule)
 │   └── apm-network/               # gRPC/Protobuf network protocols
 ├── skywalking-ui/                 # Web UI (submodule - skywalking-booster-ui)
@@ -253,6 +254,8 @@ Actions owned by `actions/*` (GitHub), `github/*`, and `apache/*` are always all
 8. **Test both unit and integration**: Different test patterns for different scopes
 9. **Documentation is rendered via markdown**: When reviewing docs, consider how they will be rendered by a markdown engine
 10. **Relative paths in docs are valid**: Relative file paths (e.g., `../../../oap-server/...`) in documentation work both in the repo and on the documentation website, supported by website build tooling
+11. **Module service registration**: When adding a service to `CoreModule.services()`, update ALL `CoreModuleProvider` implementations — not just the main one. Search with `grep -rn "extends CoreModuleProvider" oap-server/ --include="*.java"`. The `MockCoreModuleProvider` in `server-tools/profile-exporter/` also needs it, or the profile exporter e2e test will fail at startup.
+12. **Multiple OAP packagings**: The OAP server is not only the main `server-starter`. The `server-tools/` directory contains standalone tools (e.g., profile exporter) that boot with mock module providers and a subset of modules. Changes to core module contracts (services, required modules) must be reflected in these tools too.
 
 ## Analysis and Design Principles
 
