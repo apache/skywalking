@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.receiver.event.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.Blocking;
 
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
+@Blocking
 public class EventRestServiceHandler {
     private final HistogramMetrics histogram;
 

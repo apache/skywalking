@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.telegraf.provider.handler;
 
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.server.annotation.RequestConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -44,6 +45,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Blocking
 public class TelegrafServiceHandler {
 
     private final HistogramMetrics histogram;

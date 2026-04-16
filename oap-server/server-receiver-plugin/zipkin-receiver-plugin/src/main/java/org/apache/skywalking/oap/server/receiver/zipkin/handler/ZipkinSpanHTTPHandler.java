@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.zipkin.handler;
 
 import com.linecorp.armeria.common.HttpData;
+import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
@@ -41,6 +42,7 @@ import zipkin2.codec.SpanBytesDecoder;
 import static java.util.Objects.nonNull;
 
 @Slf4j
+@Blocking
 public class ZipkinSpanHTTPHandler {
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;

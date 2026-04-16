@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.receiver.browser.provider.handler.rest;
 
 import com.linecorp.armeria.server.annotation.Post;
+import com.linecorp.armeria.server.annotation.Blocking;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
@@ -46,6 +47,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
  * Collect and process the error log
  */
 @Slf4j
+@Blocking
 public class BrowserPerfServiceHTTPHandler {
     private final ModuleManager moduleManager;
     private final BrowserServiceModuleConfig config;
