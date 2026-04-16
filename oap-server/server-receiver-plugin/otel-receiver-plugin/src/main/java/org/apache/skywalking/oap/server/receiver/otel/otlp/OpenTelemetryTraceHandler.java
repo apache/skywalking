@@ -32,6 +32,9 @@ import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Status;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -68,6 +71,7 @@ public class OpenTelemetryTraceHandler
     implements Handler {
     private ModuleManager manager;
     private SpanForwardService forwardService;
+    private SpanListenerManager spanListenerManager;
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -125,9 +129,32 @@ public class OpenTelemetryTraceHandler
 
                 try {
                     for (ScopeSpans scopeSpans : scopeSpansList) {
+                        final String scopeName = scopeSpans.getScope().getName();
+                        final String scopeVersion = scopeSpans.getScope().getVersion();
                         extractScopeTag(scopeSpans.getScope(), resourceTags);
                         for (io.opentelemetry.proto.trace.v1.Span span : scopeSpans.getSpansList()) {
-                            Span zipkinSpan = convertSpan(span, serviceName, resourceTags);
+                            // Phase 1: notify OTLP span listeners before Zipkin conversion
+                            final SpanListenerResult otlpResult = getSpanListenerManager()
+                                .notifyOTLPPhase(
+                                    new OTLPSpanReaderImpl(span),
+                                    resourceTags, scopeName, scopeVersion);
+
+                            // If any listener vetoed persistence, skip Zipkin conversion
+                            if (!otlpResult.isShouldPersist()) {
+                                continue;
+                            }
+
+                            // Per-span tag copy to avoid leaking listener tags into
+                            // subsequent spans that share the same resourceTags map
+                            final Map<String, String> spanTags;
+                            if (!otlpResult.getAdditionalTags().isEmpty()) {
+                                spanTags = new HashMap<>(resourceTags);
+                                spanTags.putAll(otlpResult.getAdditionalTags());
+                            } else {
+                                spanTags = resourceTags;
+                            }
+
+                            Span zipkinSpan = convertSpan(span, serviceName, spanTags);
                             result.add(zipkinSpan);
                         }
                     }
@@ -407,4 +434,12 @@ public class OpenTelemetryTraceHandler
         }
         return forwardService;
     }
+
+    private SpanListenerManager getSpanListenerManager() {
+        if (spanListenerManager == null) {
+            spanListenerManager = manager.find(CoreModule.NAME).provider().getService(SpanListenerManager.class);
+        }
+        return spanListenerManager;
+    }
+
 }

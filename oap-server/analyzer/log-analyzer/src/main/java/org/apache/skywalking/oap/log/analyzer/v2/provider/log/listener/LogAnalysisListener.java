@@ -36,4 +36,14 @@ public interface LogAnalysisListener {
      * @return {@code this} for chaining.
      */
     LogAnalysisListener parse(LogMetadata metadata, Object input);
+
+    /**
+     * Whether this listener claimed the log during {@link #build()}.
+     * For auto-layer listeners, returns true if any rule did not abort
+     * (i.e., at least one rule processed the log and set a layer).
+     * Default: false.
+     */
+    default boolean claimed() {
+        return false;
+    }
 }

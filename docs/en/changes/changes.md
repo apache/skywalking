@@ -25,10 +25,14 @@
 * Bump infra-e2e to `ef073ad` to include `noDuplicates` pipe function support.
 * PromQL: support querying Zipkin metadata (service name, remote service name, span name).
 * TraceQL: support more tags and variables in Grafana for querying.
+* LAL: add `sourceAttribute()` function for non-persistent OTLP resource attribute access in LAL scripts.
+* LAL: add `layer: auto` mode for dynamic layer assignment when `service.layer` is absent.
+* Add two-phase `SpanListener` SPI mechanism for extensible trace span processing. Refactor GenAI from hardcoded `SpanForward.processGenAILogic()` to `GenAISpanListener`.
 
 #### UI
 
 #### Documentation
+* Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
 

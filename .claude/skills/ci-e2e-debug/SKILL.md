@@ -39,3 +39,5 @@ Download test log artifacts from a GitHub Actions CI run and inspect them for er
 - Log files are organized by namespace/pod name
 - OAP init pods may have different errors than the main OAP pod — check all of them
 - Common errors: MAL/LAL/OAL compilation failures, storage connection issues, module initialization errors
+- **Profile exporter tests** (e.g., Trace Profiling ES): the exporter runs as a separate process with `MockCoreModuleProvider`. If a new service is added to `CoreModule.services()` but not registered in the mock, the exporter fails at startup with `requiredCheck()` error — but the OAP logs will show no errors (OAP is fine, the exporter subprocess is what fails). Check the test step that runs `profile_exporter.sh`.
+- **When OAP logs are clean but tests fail**: look at which specific test step failed. Some e2e tests invoke standalone tools (profile exporter, data generator) that boot with mock providers and may fail independently of OAP.

@@ -252,3 +252,75 @@ rules:
         }
         sink {}
       }
+
+  - name: source-attribute-tag
+    layer: GENERAL
+    dsl: |
+      filter {
+        extractor {
+          tag 'device.model': sourceAttribute("device.model.identifier")
+          tag 'os.name': sourceAttribute("os.name")
+        }
+        sink {}
+      }
+
+  - name: source-attribute-condition
+    layer: GENERAL
+    dsl: |
+      filter {
+        if (sourceAttribute("os.name") == "iOS") {
+          extractor {
+            layer "IOS"
+            tag 'platform': "ios"
+          }
+        }
+        sink {}
+      }
+
+  - name: source-attribute-missing
+    layer: GENERAL
+    dsl: |
+      filter {
+        extractor {
+          tag 'missing': sourceAttribute("nonexistent.key")
+        }
+        sink {}
+      }
+
+  - name: auto-layer-set
+    layer: auto
+    dsl: |
+      filter {
+        json {}
+        if (sourceAttribute("os.name") == "iOS") {
+          extractor {
+            layer "IOS"
+            service parsed.service as String
+          }
+        }
+        sink {}
+      }
+
+  - name: auto-layer-not-set
+    layer: auto
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+        }
+        sink {}
+      }
+
+  - name: auto-layer-abort
+    layer: auto
+    dsl: |
+      filter {
+        if (sourceAttribute("os.name") != "iOS") {
+          abort {}
+        }
+        extractor {
+          layer "IOS"
+        }
+        sink {}
+      }

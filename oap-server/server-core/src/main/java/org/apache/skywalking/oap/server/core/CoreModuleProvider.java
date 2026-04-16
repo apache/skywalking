@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRuleWatcher;
@@ -194,6 +195,10 @@ public class CoreModuleProvider extends ModuleProvider {
         );
         this.registerServiceImplementation(NamingControl.class, namingControl);
         this.registerServiceImplementation(EndpointNameGroupService.class, endpointNameGrouping);
+
+        final SpanListenerManager spanListenerManager = new SpanListenerManager();
+        spanListenerManager.setModuleManager(getManager());
+        this.registerServiceImplementation(SpanListenerManager.class, spanListenerManager);
         MeterEntity.setNamingControl(namingControl);
         try {
             endpointNameGroupingRuleWatcher = new EndpointNameGroupingRuleWatcher(

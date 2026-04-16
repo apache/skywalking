@@ -138,3 +138,64 @@ text-parser-regexp:
   body: "1609459200000 ERROR Something failed"
   expect:
     service: ERROR
+
+source-attribute-tag:
+  body-type: json
+  body: '{"msg":"hello"}'
+  source-attributes:
+    device.model.identifier: "iPhone15,2"
+    os.name: "iOS"
+    os.version: "17.4.1"
+  expect:
+    save: true
+    tag.device.model: "iPhone15,2"
+    tag.os.name: "iOS"
+
+source-attribute-condition:
+  body-type: json
+  body: '{"msg":"hello"}'
+  source-attributes:
+    os.name: "iOS"
+  expect:
+    save: true
+    layer: IOS
+    tag.platform: "ios"
+
+source-attribute-missing:
+  body-type: json
+  body: '{"msg":"hello"}'
+  expect:
+    save: true
+    tag.missing: ""
+
+auto-layer-set:
+  body-type: json
+  body: '{"service":"MyApp"}'
+  source-attributes:
+    os.name: "iOS"
+  expect:
+    save: true
+    layer: IOS
+    service: MyApp
+
+auto-layer-not-set:
+  body-type: json
+  body: '{"service":"MyApp"}'
+  expect:
+    save: true
+    service: MyApp
+
+auto-layer-abort:
+  - body-type: json
+    body: '{"msg":"hello"}'
+    source-attributes:
+      os.name: "iOS"
+    expect:
+      save: true
+      layer: IOS
+  - body-type: json
+    body: '{"msg":"hello"}'
+    source-attributes:
+      os.name: "Android"
+    expect:
+      abort: true

@@ -178,8 +178,13 @@ class LALScriptExecutionTest {
                         v2Manager, new LogAnalyzerModuleConfig());
                 disableSinkListenersOnSpec(v2FilterSpec);
 
+                @SuppressWarnings("unchecked")
+                final java.util.Map<String, String> srcAttrs = inputData != null
+                    ? (java.util.Map<String, String>) inputData.get("source-attributes") : null;
                 final org.apache.skywalking.oap.server.core.source.LogMetadata v2Metadata =
-                    org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLog);
+                    srcAttrs != null
+                        ? org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLogBuilder, srcAttrs)
+                        : org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLog);
                 final Object v2Input = extraLog != null ? extraLog : testLogBuilder;
                 v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext();
                 v2Ctx.init(v2Metadata, v2Input);

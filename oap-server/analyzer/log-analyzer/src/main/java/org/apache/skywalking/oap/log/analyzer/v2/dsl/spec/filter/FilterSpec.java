@@ -184,6 +184,17 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
+        // In auto-layer mode, the script must set the layer. If not set, drop the log.
+        if (ctx.isAutoLayerMode()) {
+            final String layer = metadata.getLayer();
+            if (layer == null || layer.isEmpty()) {
+                LOGGER.warn("Auto-layer LAL rule did not set layer for service={}, dropping log",
+                    metadata.getService());
+                ctx.drop();
+                return;
+            }
+        }
+
         sinkListenerFactories.stream()
                  .map(LogSinkListenerFactory::create)
                  .forEach(it -> it.parse(metadata, input, ctx).build());

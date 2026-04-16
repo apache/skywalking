@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
-import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -62,19 +61,33 @@ public class LogAnalyzer {
             log.debug("The log is ignored because the Service name is empty");
             return;
         }
-        Layer layer;
         if (metadata.getLayer() == null || metadata.getLayer().isEmpty()) {
-            layer = Layer.GENERAL;
+            // Empty layer: try auto-layer rules first.
+            createAnalysisListeners(null);
+            if (!listeners.isEmpty()) {
+                if (metadata.getTimestamp() == 0) {
+                    metadata.setTimestamp(System.currentTimeMillis());
+                }
+                notifyAnalysisListener(metadata, input);
+                notifyAnalysisListenerToBuild();
+
+                // If any auto rule claimed the log (didn't abort), we're done.
+                if (listeners.stream().anyMatch(LogAnalysisListener::claimed)) {
+                    return;
+                }
+                // All auto rules aborted — fall back to GENERAL
+                listeners.clear();
+            }
+            // No auto rules configured, or all aborted — fall back to GENERAL
+            createAnalysisListeners(Layer.GENERAL);
         } else {
-            try {
-                layer = Layer.nameOf(metadata.getLayer());
-            } catch (UnexpectedException e) {
-                log.warn("The Layer {} is not found, abandon the log.", metadata.getLayer());
+            final Layer layer = Layer.nameOf(metadata.getLayer());
+            if (layer == Layer.UNDEFINED) {
+                log.warn("The Layer {} is not recognized, abandon the log.", metadata.getLayer());
                 return;
             }
+            createAnalysisListeners(layer);
         }
-
-        createAnalysisListeners(layer);
         if (metadata.getTimestamp() == 0) {
             metadata.setTimestamp(System.currentTimeMillis());
         }

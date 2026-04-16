@@ -57,10 +57,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 @Slf4j
 public class LogFilterListener implements LogAnalysisListener {
     private final List<DSL> dsls;
+    private final boolean autoMode;
     private List<ExecutionContext> contexts;
 
-    LogFilterListener(final Collection<DSL> dsls) {
+    LogFilterListener(final Collection<DSL> dsls, final boolean autoMode) {
         this.dsls = new ArrayList<>(dsls);
+        this.autoMode = autoMode;
     }
 
     @Override
@@ -75,11 +77,29 @@ public class LogFilterListener implements LogAnalysisListener {
     }
 
     @Override
+    public boolean claimed() {
+        if (!autoMode || contexts == null) {
+            return false;
+        }
+        // At least one auto rule did not abort — it claimed the log
+        for (final ExecutionContext ctx : contexts) {
+            if (!ctx.shouldAbort()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public LogAnalysisListener parse(final LogMetadata metadata,
                                      final Object input) {
         contexts = new ArrayList<>(dsls.size());
         for (int i = 0; i < dsls.size(); i++) {
-            contexts.add(new ExecutionContext().init(metadata, input));
+            final ExecutionContext ctx = new ExecutionContext().init(metadata, input);
+            if (autoMode) {
+                ctx.autoLayerMode(true);
+            }
+            contexts.add(ctx);
         }
         return this;
     }
@@ -105,9 +125,11 @@ public class LogFilterListener implements LogAnalysisListener {
      */
     public static class Factory implements LogAnalysisListenerFactory {
         private final Map<Layer, Map<String, DSL>> dsls;
+        private final Map<String, DSL> autoDsls;
 
         public Factory(final ModuleManager moduleManager, final LogAnalyzerModuleConfig config) throws Exception {
             dsls = new HashMap<>();
+            autoDsls = new HashMap<>();
 
             // Scan SPI providers for default inputType/outputType per layer
             final Map<Layer, LALSourceTypeProvider> spiProviders = new HashMap<>();
@@ -123,19 +145,30 @@ public class LogFilterListener implements LogAnalysisListener {
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
-                final Layer layer = Layer.nameOf(c.getLayer());
-                final LALSourceTypeProvider spiProvider = spiProviders.get(layer);
+                final boolean isAuto = LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer());
+                final Layer layer = isAuto ? null : Layer.nameOf(c.getLayer());
+                final LALSourceTypeProvider spiProvider = isAuto ? null : spiProviders.get(layer);
 
                 // Per-rule resolution: explicit YAML > SPI > null
                 final Class<?> resolvedInputType = resolveInputType(c, spiProvider);
                 final Class<?> resolvedOutputType = resolveOutputType(c, spiProvider);
 
-                final Map<String, DSL> layerDsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
-                if (layerDsls.put(c.getName(), DSL.of(
-                        moduleManager, config, c.getDsl(),
-                        resolvedInputType, resolvedOutputType,
-                        c.getName(), c.getSourceName())) != null) {
-                    throw new ModuleStartException("Layer " + layer.name() + " has already set " + c.getName() + " rule.");
+                final DSL dsl = DSL.of(
+                    moduleManager, config, c.getDsl(),
+                    resolvedInputType, resolvedOutputType,
+                    c.getName(), c.getSourceName());
+
+                if (isAuto) {
+                    if (autoDsls.put(c.getName(), dsl) != null) {
+                        throw new ModuleStartException(
+                            "Auto-layer rules have duplicate name: " + c.getName());
+                    }
+                } else {
+                    final Map<String, DSL> layerDsls = this.dsls.computeIfAbsent(layer, k -> new HashMap<>());
+                    if (layerDsls.put(c.getName(), dsl) != null) {
+                        throw new ModuleStartException(
+                            "Layer " + layer.name() + " has already set " + c.getName() + " rule.");
+                    }
                 }
             }
         }
@@ -221,13 +254,17 @@ public class LogFilterListener implements LogAnalysisListener {
         @Override
         public LogAnalysisListener create(Layer layer) {
             if (layer == null) {
-                return null;
+                // null layer → route to auto-layer rules
+                if (autoDsls.isEmpty()) {
+                    return null;
+                }
+                return new LogFilterListener(autoDsls.values(), true);
             }
             final Map<String, DSL> dsl = dsls.get(layer);
             if (dsl == null) {
                 return null;
             }
-            return new LogFilterListener(dsl.values());
+            return new LogFilterListener(dsl.values(), false);
         }
     }
 }

@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.receiver.zipkin;
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Arrays;
 
-import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -119,8 +118,7 @@ public class ZipkinReceiverProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             TelemetryModule.NAME,
-            CoreModule.NAME,
-            GenAIAnalyzerModule.NAME
+            CoreModule.NAME
         };
     }
 }

@@ -175,7 +175,12 @@ class LALExpressionExecutionTest {
         if (ruleLayer != null) {
             logData.setLayer(ruleLayer);
         }
-        final LogMetadata metadata = LogMetadataUtils.fromLogData(logData);
+        @SuppressWarnings("unchecked")
+        final Map<String, String> sourceAttrs =
+            (Map<String, String>) input.get("source-attributes");
+        final LogMetadata metadata = sourceAttrs != null
+            ? LogMetadataUtils.fromLogData(logData, sourceAttrs)
+            : LogMetadataUtils.fromLogData(logData);
 
         final Message extraLog = LalLogDataBuilder.buildExtraLog(input);
         final Object lalInput = extraLog != null ? extraLog : logData;
