@@ -1,0 +1,51 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# iOS MetricKit diagnostic log processing.
+# Processes crash, hang, CPU exception, disk write exception, and app launch
+# diagnostics from the OTel Swift SDK's MetricKit instrumentation.
+#
+# These arrive as OTLP log records with InstrumentationScope "MetricKit"
+# and the diagnostic type identified by the "name" attribute.
+
+rules:
+  - name: ios-metrickit-diagnostics
+    layer: auto
+    dsl: |
+      filter {
+        if (sourceAttribute("os.name") != "iOS" && sourceAttribute("os.name") != "iPadOS") {
+          abort {}
+        }
+        if (tag("name") == null || !tag("name").startsWith("metrickit.diagnostic.")) {
+          abort {}
+        }
+
+        extractor {
+          layer "IOS"
+          instance sourceAttribute("service.version")
+
+          tag 'device.model': sourceAttribute("device.model.identifier")
+          tag 'os.version': sourceAttribute("os.version")
+          tag 'diagnosticType': tag("name")
+          tag 'exception.type': tag("exception.type")
+          tag 'exception.message': tag("exception.message")
+          tag 'exception.stacktrace': tag("exception.stacktrace")
+          tag 'signal.name': tag("metrickit.diagnostic.crash.exception.signal.name")
+          tag 'hang.duration': tag("metrickit.diagnostic.hang.hang_duration")
+        }
+
+        sink {
+        }
+      }

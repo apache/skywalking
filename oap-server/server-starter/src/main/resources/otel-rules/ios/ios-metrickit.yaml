@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# iOS MetricKit daily metrics from Apple's MetricKit framework.
+# Data arrives as OTLP spans (not metrics) via IOSMetricKitSpanListener,
+# which converts span attributes to labeled SampleFamily samples.
+
+expSuffix: service(['service_name'], Layer.IOS).instance(['service_name', 'service_instance_id'])
+metricPrefix: meter_ios
+
+metricsRules:
+  # App responsiveness — average across devices
+  - name: app_launch_time
+    exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id'])
+  - name: app_launch_time_by_device
+    exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id', 'device_model'])
+  - name: hang_time
+    exp: metrickit_hang_time.avg(['service_name', 'service_instance_id'])
+
+  # Stability — sum across devices
+  - name: abnormal_exit_count
+    exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: abnormal_exit_count_by_os
+    exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id', 'os_version'])
+  - name: normal_exit_count
+    exp: metrickit_normal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: oom_kill_count
+    exp: metrickit_oom_kill_count.sum(['service_name', 'service_instance_id'])
+
+  # Resource usage
+  - name: peak_memory
+    exp: metrickit_peak_memory.max(['service_name', 'service_instance_id'])
+  - name: cpu_time
+    exp: metrickit_cpu_time.sum(['service_name', 'service_instance_id'])
+  - name: gpu_time
+    exp: metrickit_gpu_time.sum(['service_name', 'service_instance_id'])
+  - name: disk_write
+    exp: metrickit_disk_write.sum(['service_name', 'service_instance_id'])
+
+  # Network transfer — sum across devices
+  - name: wifi_download
+    exp: metrickit_wifi_download.sum(['service_name', 'service_instance_id'])
+  - name: wifi_upload
+    exp: metrickit_wifi_upload.sum(['service_name', 'service_instance_id'])
+  - name: cellular_download
+    exp: metrickit_cellular_download.sum(['service_name', 'service_instance_id'])
+  - name: cellular_upload
+    exp: metrickit_cellular_upload.sum(['service_name', 'service_instance_id'])
+
+  # UI quality — average across devices
+  - name: scroll_hitch_ratio
+    exp: metrickit_scroll_hitch_ratio.avg(['service_name', 'service_instance_id'])
