@@ -29,6 +29,8 @@
 * LAL: add `layer: auto` mode for dynamic layer assignment when `service.layer` is absent.
 * Add two-phase `SpanListener` SPI mechanism for extensible trace span processing. Refactor GenAI from hardcoded `SpanForward.processGenAILogic()` to `GenAISpanListener`.
 * Add OTLP/HTTP receiver support for traces, logs, and metrics (`/v1/traces`, `/v1/logs`, `/v1/metrics`). Supports both `application/x-protobuf` and `application/json` content types.
+* Fix: TTL query add metadata TTL.
+* Fix: PersistentWorker used wrong TTL for metrics cache if the storage is BanyanDB.
 
 #### UI
 

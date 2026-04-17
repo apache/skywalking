@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.ttl;
 
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface StorageTTLStatusQuery extends Service {
@@ -29,5 +30,18 @@ public interface StorageTTLStatusQuery extends Service {
      */
     default TTLDefinition getTTL() {
         return null;
+    }
+
+    /**
+     * Get the effective TTL (in days) for a specific metrics model.
+     * The returned value should include both hot and warm stage TTL,
+     * representing the total period during which data is accessible.
+     *
+     * @param model the metrics model
+     * @return TTL in days, or -1 if the storage does not customize per-model TTL
+     *         (consumer falls back to core metricsDataTTL)
+     */
+    default int getMetricsTTL(Model model) {
+        return -1;
     }
 }

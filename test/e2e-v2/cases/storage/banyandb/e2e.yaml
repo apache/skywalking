@@ -63,6 +63,9 @@ verify:
       expected: ../expected/traces-v2-list.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --tags http.method=POST,http.status_code=201
       expected: ../expected/empty-traces-v2-list.yml
+    - query: |
+        curl -X GET http://${oap_host}:${oap_12800}/status/config/ttl -H "Accept: application/json"
+      expected: ../expected/ttl-config-banyandb.yml
 cleanup:
   on: always
   collect:

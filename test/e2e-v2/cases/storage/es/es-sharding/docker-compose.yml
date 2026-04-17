@@ -15,7 +15,7 @@
 
 services:
   es:
-    image: elastic/elasticsearch:8.18.8
+    image: elastic/elasticsearch:${ES_VERSION}
     expose:
       - 9200
     networks:

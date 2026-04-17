@@ -71,3 +71,6 @@ verify:
       expected: ../expected/trace-users-detail.yml
     - query: curl -X GET http://${oap_host}:${oap_12800}/debugging/config/dump
       expected: ../expected/config-dump.yml
+    - query: |
+        curl -X GET http://${oap_host}:${oap_12800}/status/config/ttl -H "Accept: application/json"
+      expected: ../expected/ttl-config.yml

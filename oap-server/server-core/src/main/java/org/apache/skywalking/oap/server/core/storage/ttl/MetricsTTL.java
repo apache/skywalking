@@ -30,6 +30,7 @@ import lombok.Data;
  */
 @Data
 public class MetricsTTL {
+    private final int metadata;
     private final int minute;
     private final int hour;
     private final int day;

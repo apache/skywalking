@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.ttl.MetricsTTL;
 import org.apache.skywalking.oap.server.core.storage.ttl.RecordsTTL;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
@@ -42,6 +44,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private int gmColdMinuteTTLDays = -1;
     private int gmColdHourTTLDays = -1;
     private int gmColdDayTTLDays = -1;
+    private int gmMetadataTTLDays = -1;
 
     public BanyanDBTTLStatusQuery(BanyanDBStorageConfig config) {
         grNormalTTLDays = config.getRecordsNormal().getTtl();
@@ -52,6 +55,8 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
         gmMinuteTTLDays = config.getMetricsMin().getTtl();
         gmHourTTLDays = config.getMetricsHour().getTtl();
         gmDayTTLDays = config.getMetricsDay().getTtl();
+        gmMetadataTTLDays = config.getMetadata().getTtl();
+
         config.getRecordsNormal().getAdditionalLifecycleStages().forEach(stage -> {
             if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
                 grNormalTTLDays = grNormalTTLDays + stage.getTtl();
@@ -113,7 +118,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     @Override
     public TTLDefinition getTTL() {
         TTLDefinition definition = new TTLDefinition(
-            new MetricsTTL(gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
+            new MetricsTTL(gmMetadataTTLDays, gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
             new RecordsTTL(grNormalTTLDays, grTraceTTLDays, grZipkinTraceTTLDays, grLogTTLDays, grBrowserErrorLogTTLDays)
         );
         definition.getRecords().setColdNormal(grColdNormalTTLDays);
@@ -125,5 +130,22 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
         definition.getMetrics().setColdHour(gmColdHourTTLDays);
         definition.getMetrics().setColdDay(gmColdDayTTLDays);
         return definition;
+    }
+
+    @Override
+    public int getMetricsTTL(Model model) {
+        if (model.getBanyanDBModelExtension().isIndexMode()) {
+            return gmMetadataTTLDays;
+        }
+        switch (model.getDownsampling()) {
+            case Hour:
+                return gmHourTTLDays;
+            case Day:
+                return gmDayTTLDays;
+            case Minute:
+                return gmMinuteTTLDays;
+            default:
+                throw new UnexpectedException("Unexpected downsampling " + model.getDownsampling());
+        }
     }
 }
