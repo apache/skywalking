@@ -44,7 +44,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private int gmColdMinuteTTLDays = -1;
     private int gmColdHourTTLDays = -1;
     private int gmColdDayTTLDays = -1;
-    private int gmMetadataTTLDay = -1;
+    private int gmMetadataTTLDays = -1;
 
     public BanyanDBTTLStatusQuery(BanyanDBStorageConfig config) {
         grNormalTTLDays = config.getRecordsNormal().getTtl();
@@ -55,7 +55,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
         gmMinuteTTLDays = config.getMetricsMin().getTtl();
         gmHourTTLDays = config.getMetricsHour().getTtl();
         gmDayTTLDays = config.getMetricsDay().getTtl();
-        gmMetadataTTLDay = config.getMetadata().getTtl();
+        gmMetadataTTLDays = config.getMetadata().getTtl();
 
         config.getRecordsNormal().getAdditionalLifecycleStages().forEach(stage -> {
             if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
@@ -118,7 +118,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     @Override
     public TTLDefinition getTTL() {
         TTLDefinition definition = new TTLDefinition(
-            new MetricsTTL(gmMetadataTTLDay, gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
+            new MetricsTTL(gmMetadataTTLDays, gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
             new RecordsTTL(grNormalTTLDays, grTraceTTLDays, grZipkinTraceTTLDays, grLogTTLDays, grBrowserErrorLogTTLDays)
         );
         definition.getRecords().setColdNormal(grColdNormalTTLDays);
@@ -135,7 +135,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     @Override
     public int getMetricsTTL(Model model) {
         if (model.getBanyanDBModelExtension().isIndexMode()) {
-            return gmMetadataTTLDay;
+            return gmMetadataTTLDays;
         }
         switch (model.getDownsampling()) {
             case Hour:
@@ -143,6 +143,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
             case Day:
                 return gmDayTTLDays;
             case Minute:
+                return gmMinuteTTLDays;
             default:
                 throw new UnexpectedException("Unexpected downsampling " + model.getDownsampling());
         }

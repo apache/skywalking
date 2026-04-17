@@ -39,7 +39,7 @@ services:
       SW_STORAGE_BANYANDB_PASSWORD: admin
       # The TTL of the minute metrics should be hot + warm stage, which is 7 + 15 = 22.
       SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_WARM_STAGE: "true"
-      SW_STORAGE_BANYANDB_METRICS_MINUTE_COLD_REPLICAS: "true"
+      SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_COLD_STAGE: "true"
     ports:
       - 12800
     depends_on:

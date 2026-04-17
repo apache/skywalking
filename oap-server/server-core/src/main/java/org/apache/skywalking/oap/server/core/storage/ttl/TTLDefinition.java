@@ -39,7 +39,7 @@ public class TTLDefinition {
         ttlDefinition.append("#\n");
         ttlDefinition.append("# TTLs for each granularity metrics are listed separately.\n");
         ttlDefinition.append("#\n");
-        ttlDefinition.append("metadata=").append(metrics.getMetadata()).append("\n");
+        ttlDefinition.append("metrics.metadata=").append(metrics.getMetadata()).append("\n");
         ttlDefinition.append("# Cover hot and warm data for BanyanDB.\n");
         ttlDefinition.append("metrics.minute=").append(metrics.getMinute()).append("\n");
         ttlDefinition.append("metrics.hour=").append(metrics.getHour()).append("\n");
