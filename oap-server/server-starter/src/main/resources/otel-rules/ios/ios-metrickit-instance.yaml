@@ -1,0 +1,55 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# iOS MetricKit instance-level (per app version) metrics.
+# Same metrics as ios-metrickit.yaml but scoped to service instance.
+
+expSuffix: instance(['service_name'], ['service_instance_id'], Layer.IOS)
+metricPrefix: meter_ios_instance
+
+metricsRules:
+  # App responsiveness
+  - name: app_launch_time_percentile
+    exp: metrickit_app_launch_time_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+  - name: hang_time_sum
+    exp: metrickit_hang_time.sum(['service_name', 'service_instance_id'])
+  - name: hang_time_percentile
+    exp: metrickit_hang_time_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+
+  # Stability — sum across devices for this version
+  - name: foreground_abnormal_exit_count
+    exp: metrickit_foreground_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: background_abnormal_exit_count
+    exp: metrickit_background_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: background_oom_kill_count
+    exp: metrickit_background_oom_kill_count.sum(['service_name', 'service_instance_id'])
+
+  # Resource usage
+  - name: peak_memory
+    exp: metrickit_peak_memory.max(['service_name', 'service_instance_id'])
+
+  # Network transfer — average per device for this version
+  - name: wifi_download
+    exp: metrickit_wifi_download.avg(['service_name', 'service_instance_id'])
+  - name: wifi_upload
+    exp: metrickit_wifi_upload.avg(['service_name', 'service_instance_id'])
+  - name: cellular_download
+    exp: metrickit_cellular_download.avg(['service_name', 'service_instance_id'])
+  - name: cellular_upload
+    exp: metrickit_cellular_upload.avg(['service_name', 'service_instance_id'])
+
+  # UI quality
+  - name: scroll_hitch_ratio
+    exp: metrickit_scroll_hitch_ratio.avg(['service_name', 'service_instance_id'])

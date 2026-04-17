@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>meter-analyzer</artifactId>
+            <artifactId>otel-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

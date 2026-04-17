@@ -13,52 +13,49 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# iOS MetricKit daily metrics from Apple's MetricKit framework.
-# Data arrives as OTLP spans (not metrics) via IOSMetricKitSpanListener,
-# which converts span attributes to labeled SampleFamily samples.
+# iOS MetricKit service-level metrics from Apple's MetricKit framework.
+# Aggregated across all app versions (instances) and devices.
 
-expSuffix: service(['service_name'], Layer.IOS).instance(['service_name', 'service_instance_id'])
+expSuffix: service(['service_name'], Layer.IOS)
 metricPrefix: meter_ios
 
 metricsRules:
-  # App responsiveness — average across devices
-  - name: app_launch_time
-    exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id'])
-  - name: app_launch_time_by_device
-    exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id', 'device_model'])
-  - name: hang_time
-    exp: metrickit_hang_time.avg(['service_name', 'service_instance_id'])
+  # App responsiveness
+  - name: app_launch_time_percentile
+    exp: metrickit_app_launch_time_histogram.sum(['service_name', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+  - name: hang_time_sum
+    exp: metrickit_hang_time.sum(['service_name'])
+  - name: hang_time_percentile
+    exp: metrickit_hang_time_histogram.sum(['service_name', 'le']).histogram().histogram_percentile([50,75,90,95,99])
 
-  # Stability — sum across devices
-  - name: abnormal_exit_count
-    exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
-  - name: abnormal_exit_count_by_os
-    exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id', 'os_version'])
-  - name: normal_exit_count
-    exp: metrickit_normal_exit_count.sum(['service_name', 'service_instance_id'])
-  - name: oom_kill_count
-    exp: metrickit_oom_kill_count.sum(['service_name', 'service_instance_id'])
+  # Stability — sum across all devices and versions
+  - name: foreground_abnormal_exit_count
+    exp: metrickit_foreground_abnormal_exit_count.sum(['service_name'])
+  - name: background_abnormal_exit_count
+    exp: metrickit_background_abnormal_exit_count.sum(['service_name'])
+  - name: background_oom_kill_count
+    exp: metrickit_background_oom_kill_count.sum(['service_name'])
 
   # Resource usage
   - name: peak_memory
-    exp: metrickit_peak_memory.max(['service_name', 'service_instance_id'])
+    exp: metrickit_peak_memory.max(['service_name'])
   - name: cpu_time
-    exp: metrickit_cpu_time.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_cpu_time.sum(['service_name'])
   - name: gpu_time
-    exp: metrickit_gpu_time.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_gpu_time.sum(['service_name'])
   - name: disk_write
-    exp: metrickit_disk_write.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_disk_write.sum(['service_name'])
 
-  # Network transfer — sum across devices
+  # Network transfer — average per device
   - name: wifi_download
-    exp: metrickit_wifi_download.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_wifi_download.avg(['service_name'])
   - name: wifi_upload
-    exp: metrickit_wifi_upload.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_wifi_upload.avg(['service_name'])
   - name: cellular_download
-    exp: metrickit_cellular_download.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_cellular_download.avg(['service_name'])
   - name: cellular_upload
-    exp: metrickit_cellular_upload.sum(['service_name', 'service_instance_id'])
+    exp: metrickit_cellular_upload.avg(['service_name'])
 
-  # UI quality — average across devices
+  # UI quality
   - name: scroll_hitch_ratio
-    exp: metrickit_scroll_hitch_ratio.avg(['service_name', 'service_instance_id'])
+    exp: metrickit_scroll_hitch_ratio.avg(['service_name'])

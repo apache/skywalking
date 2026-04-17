@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,6 +12,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-org.apache.skywalking.oap.analyzer.ios.listener.IOSHTTPSpanListener
-org.apache.skywalking.oap.analyzer.ios.listener.IOSMetricKitSpanListener
+
+services:
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    environment:
+      SW_OTEL_RECEIVER: default
+      SW_OTEL_RECEIVER_ENABLED_HANDLERS: "otlp-traces,otlp-logs"
+      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: "ios/ios-metrickit,ios/ios-metrickit-instance"
+      SW_RECEIVER_ZIPKIN: default
+      SW_QUERY_ZIPKIN: default
+      SW_LOG_LAL_FILES: "ios-metrickit"
+      SW_LOG_ANALYZER: default
+
+  banyandb:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
+networks:
+  e2e:

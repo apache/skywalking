@@ -31,11 +31,17 @@
 * Add OTLP/HTTP receiver support for traces, logs, and metrics (`/v1/traces`, `/v1/logs`, `/v1/metrics`). Supports both `application/x-protobuf` and `application/json` content types.
 * Fix: TTL query add metadata TTL.
 * Fix: PersistentWorker used wrong TTL for metrics cache if the storage is BanyanDB.
+* Add iOS/iPadOS app monitoring via OpenTelemetry Swift SDK (SWIP-11). Includes the `IOS` layer, `IOSHTTPSpanListener` for outbound HTTP client metrics (supports OTel Swift `.old`/`.stable`/`.httpDup` semantic-convention modes via stable-then-legacy attribute fallback), `IOSMetricKitSpanListener` for daily MetricKit metrics (exit counts split by foreground/background, app-launch / hang-time percentile histograms with finite 30 s overflow ceiling), LAL rules for crash/hang diagnostics, Mobile menu, and iOS dashboards.
+* Fix LAL `layer: auto` mode dropping logs after extractor set the layer. Codegen now propagates `layer "..."` assignments to `LogMetadata.layer` so `FilterSpec.doSink()` sees the script-decided layer.
+* Fix MetricKit histogram percentile metrics being reported at 1000× their true value — the listener now marks its `SampleFamily` with `defaultHistogramBucketUnit(MILLISECONDS)` so MAL's default SECONDS→MS rescale of `le` labels is not applied.
 
 #### UI
+* Add mobile menu icon and i18n labels for the iOS layer.
+* Fix metric label rendering in multi-expression dashboard widgets.
 
 #### Documentation
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
+* Add iOS app monitoring setup documentation.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
 

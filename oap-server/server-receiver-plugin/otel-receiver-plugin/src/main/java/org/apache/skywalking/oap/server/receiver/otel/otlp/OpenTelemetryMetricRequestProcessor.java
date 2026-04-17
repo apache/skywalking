@@ -149,6 +149,18 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         }
     }
 
+    /**
+     * Push pre-built sample families into the MAL pipeline.
+     * Used by SpanListeners (e.g., IOSMetricKitSpanListener) that extract
+     * metrics from OTLP spans and need to feed them through the same
+     * MAL converters configured via enabledOtelMetricsRules.
+     */
+    public void toMeter(final ImmutableMap<String, SampleFamily> sampleFamilies) {
+        if (converters != null) {
+            converters.forEach(convert -> convert.toMeter(sampleFamilies));
+        }
+    }
+
     public void start() throws ModuleStartException {
         final List<String> enabledRules =
             Splitter.on(",")

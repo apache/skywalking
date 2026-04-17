@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: send iOS MetricKit crash diagnostic log (OTLP)
+      command: |
+        for i in 1 2 3 4 5; do
+          TS_NS=$(date +%s)000000000
+          curl -sS --max-time 10 -X POST -H 'Content-Type: application/json' \
+            http://${oap_host}:${oap_12800}/v1/logs \
+            -d "{\"resourceLogs\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"MyiOSApp\"}},{\"key\":\"service.version\",\"value\":{\"stringValue\":\"2.1.0\"}},{\"key\":\"os.name\",\"value\":{\"stringValue\":\"iOS\"}},{\"key\":\"os.version\",\"value\":{\"stringValue\":\"17.4.1\"}},{\"key\":\"device.model.identifier\",\"value\":{\"stringValue\":\"iPhone15,2\"}}]},\"scopeLogs\":[{\"scope\":{\"name\":\"MetricKit\"},\"logRecords\":[{\"timeUnixNano\":\"$TS_NS\",\"severityNumber\":17,\"severityText\":\"ERROR\",\"body\":{\"stringValue\":\"MetricKit iOS crash diagnostic\"},\"attributes\":[{\"key\":\"name\",\"value\":{\"stringValue\":\"metrickit.diagnostic.crash\"}},{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"EXC_BAD_ACCESS\"}},{\"key\":\"exception.message\",\"value\":{\"stringValue\":\"Could not access memory\"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"0 CoreFoundation 0x1a2b __exceptionPreprocess\"}},{\"key\":\"metrickit.diagnostic.crash.exception.signal.name\",\"value\":{\"stringValue\":\"SIGSEGV\"}}]}]}]}]}" \
+            && break || sleep 5
+        done
+
+trigger:
+  action: http
+  interval: 3s
+  times: 10
+  url: http://${oap_host}:${oap_12800}/v1/traces
+  method: POST
+  headers:
+    Content-Type: application/json
+  body: '{"resourceSpans":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"MyiOSApp"}},{"key":"service.version","value":{"stringValue":"2.1.0"}},{"key":"os.name","value":{"stringValue":"iOS"}},{"key":"os.version","value":{"stringValue":"17.4.1"}},{"key":"device.model.identifier","value":{"stringValue":"iPhone15,2"}},{"key":"telemetry.sdk.language","value":{"stringValue":"swift"}}]},"scopeSpans":[{"scope":{"name":"NSURLSession","version":"1.12.0"},"spans":[{"traceId":"5B8EFFF798038103D269B633813FC60C","spanId":"EEE19B7EC3C1B174","name":"HTTP GET","kind":3,"startTimeUnixNano":"0","endTimeUnixNano":"0","attributes":[{"key":"http.method","value":{"stringValue":"GET"}},{"key":"http.url","value":{"stringValue":"https://api.example.com/users"}},{"key":"http.status_code","value":{"intValue":"200"}},{"key":"net.peer.name","value":{"stringValue":"api.example.com"}}],"status":{}}]},{"scope":{"name":"MetricKit","version":"1.0.0"},"spans":[{"traceId":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1","spanId":"BBBBBBBBBBBBBB01","name":"MXMetricPayload","kind":1,"startTimeUnixNano":"0","endTimeUnixNano":"0","attributes":[{"key":"metrickit.app_launch.time_to_first_draw_average","value":{"doubleValue":0.85}},{"key":"metrickit.app_responsiveness.hang_time_average","value":{"doubleValue":0.12}},{"key":"metrickit.cpu.cpu_time","value":{"doubleValue":120.5}},{"key":"metrickit.memory.peak_memory_usage","value":{"doubleValue":157286400}},{"key":"metrickit.app_exit.foreground.abnormal_exit_count","value":{"intValue":"2"}},{"key":"metrickit.app_exit.background.memory_pressure_exit_count","value":{"intValue":"1"}},{"key":"metrickit.app_exit.foreground.normal_app_exit_count","value":{"intValue":"10"}},{"key":"metrickit.network_transfer.wifi_download","value":{"doubleValue":52428800}},{"key":"metrickit.network_transfer.wifi_upload","value":{"doubleValue":10485760}},{"key":"metrickit.network_transfer.cellular_download","value":{"doubleValue":20971520}},{"key":"metrickit.network_transfer.cellular_upload","value":{"doubleValue":5242880}},{"key":"metrickit.animation.scroll_hitch_time_ratio","value":{"doubleValue":0.02}},{"key":"metrickit.gpu.time","value":{"doubleValue":45.3}},{"key":"metrickit.diskio.logical_write_count","value":{"doubleValue":1073741824}}],"status":{}}]}]}]}'
+
+verify:
+  retry:
+    count: 20
+    interval: 10s
+  cases:
+    # Verify iOS service registered with IOS layer
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly IOS
+      expected: expected/service.yml
+    # Verify outbound HTTP traffic metrics (from IOSHTTPSpanListener -> OAL)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_cpm --service-name=MyiOSApp
+      expected: expected/metrics-has-value.yml
+    # Verify MetricKit MAL metrics (service-level, with service_instance_id label from aggregation)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_ios_foreground_abnormal_exit_count --service-name=MyiOSApp
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_ios_hang_time_sum --service-name=MyiOSApp
+      expected: expected/metrics-has-value.yml
+    # Verify domain-based endpoint and its metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint ls --service-name=MyiOSApp
+      expected: expected/endpoint.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=endpoint_cpm --service-name=MyiOSApp --endpoint-name=api.example.com
+      expected: expected/metrics-has-value.yml
+    # Verify instance outbound traffic metrics
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_cpm --service-name=MyiOSApp --instance-name=2.1.0
+      expected: expected/metrics-has-value.yml
+    # Verify MetricKit diagnostic log persisted via LAL (ios-metrickit rule)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=MyiOSApp
+      expected: expected/logs.yml

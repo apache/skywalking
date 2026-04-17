@@ -1,0 +1,86 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Test data for ios-metrickit LAL rule.
+
+ios-metrickit-diagnostics:
+  # Case 1: iOS crash diagnostic — should set layer IOS and extract tags
+  - service: MyiOSApp
+    body-type: none
+    body: ""
+    source-attributes:
+      os.name: "iOS"
+      os.version: "17.4.1"
+      device.model.identifier: "iPhone15,2"
+      service.version: "2.1.0"
+    tags:
+      name: "metrickit.diagnostic.crash"
+      exception.type: "EXC_BAD_ACCESS"
+      exception.message: "Could not access memory"
+      exception.stacktrace: "0 CoreFoundation 0x1a2b __exceptionPreprocess"
+      metrickit.diagnostic.crash.exception.signal.name: "SIGSEGV"
+    expect:
+      save: true
+      abort: false
+      layer: IOS
+      instance: "2.1.0"
+      tag.diagnosticType: "metrickit.diagnostic.crash"
+      tag.exception.type: "EXC_BAD_ACCESS"
+      tag.exception.message: "Could not access memory"
+      tag.signal.name: "SIGSEGV"
+      tag.device.model: "iPhone15,2"
+      tag.os.version: "17.4.1"
+
+  # Case 2: iPadOS hang diagnostic
+  - service: MyiOSApp
+    body-type: none
+    body: ""
+    source-attributes:
+      os.name: "iPadOS"
+      os.version: "16.6"
+      device.model.identifier: "iPad13,4"
+      service.version: "2.0.0"
+    tags:
+      name: "metrickit.diagnostic.hang"
+      exception.stacktrace: "0 MyApp 0x104a -[DataManager syncData]"
+      metrickit.diagnostic.hang.hang_duration: "3500"
+    expect:
+      save: true
+      abort: false
+      layer: IOS
+      instance: "2.0.0"
+      tag.diagnosticType: "metrickit.diagnostic.hang"
+      tag.hang.duration: "3500"
+      tag.device.model: "iPad13,4"
+
+  # Case 3: Non-iOS log — should abort (sourceAttribute os.name != iOS)
+  - service: AndroidApp
+    body-type: none
+    body: ""
+    source-attributes:
+      os.name: "Android"
+    tags:
+      name: "metrickit.diagnostic.crash"
+    expect:
+      abort: true
+
+  # Case 4: No source attributes (non-OTLP) — should abort
+  - service: MyApp
+    body-type: none
+    body: ""
+    tags:
+      name: "metrickit.diagnostic.crash"
+    expect:
+      abort: true

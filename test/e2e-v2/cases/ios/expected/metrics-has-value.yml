@@ -1,4 +1,3 @@
-#
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,6 +12,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-org.apache.skywalking.oap.analyzer.ios.listener.IOSHTTPSpanListener
-org.apache.skywalking.oap.analyzer.ios.listener.IOSMetricKitSpanListener
+
+debuggingtrace: null
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels: []
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ notEmpty .value }}
+        traceid: null
+        owner: null
+      {{- end}}
+  {{- end}}
+error: null

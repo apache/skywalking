@@ -24,7 +24,15 @@ Remote Code Execution (RCE) issues.
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
 
-## appendix
+## Client-Side Monitoring
 
-The SkyWalking [client-js](https://github.com/apache/skywalking-client-js) agent is always running out of the secured
-environment. Please follow its **security notice** for more details.
+Client-side applications — iOS/iPadOS apps (via OpenTelemetry Swift SDK), browser web apps
+(via [client-js](https://github.com/apache/skywalking-client-js)), and WeChat/Alipay
+mini-programs (via [mini-program-monitor](https://github.com/SkyAPM/mini-program-monitor)) —
+send telemetry data **from the public internet** to OAP endpoints including OTLP/HTTP
+(`/v1/traces`, `/v1/logs`, `/v1/metrics`), SkyWalking native (`/v3/segments`), and browser
+reporting endpoints.
+
+These endpoints accept data from any client without authentication by default. Apply the
+security policies listed above, especially rate limiting, to prevent abuse from untrusted
+client-side sources.

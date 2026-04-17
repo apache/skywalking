@@ -83,6 +83,7 @@ public class UITemplateInitializer {
         Layer.BANYANDB.name(),
         Layer.VIRTUAL_GENAI.name(),
         Layer.ENVOY_AI_GATEWAY.name(),
+        Layer.IOS.name(),
         "custom"
     };
     private final UITemplateManagementService uiTemplateManagementService;

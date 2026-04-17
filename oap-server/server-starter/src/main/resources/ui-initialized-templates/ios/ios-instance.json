@@ -1,0 +1,348 @@
+[
+  {
+    "id": "iOS-Instance",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 64,
+          "i": "12",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "App Launch Time Percentile (ms)",
+                    "tips": "Distribution of app launch time for this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "relabels(meter_ios_instance_app_launch_time_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='P50,P75,P90,P95,P99')"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Hang Time Percentile (ms)",
+                    "tips": "Distribution of UI hang duration for this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "relabels(meter_ios_instance_hang_time_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='P50,P75,P90,P95,P99')"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Hang Time Sum (ms)",
+                    "tips": "Total UI hang time for this app version"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "metricConfig": [
+                    {
+                      "unit": "ms"
+                    }
+                  ],
+                  "expressions": [
+                    "meter_ios_instance_hang_time_sum"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Abnormal Exit Count (Crashes)",
+                    "tips": "Abnormal exits (foreground + background) for this app version"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_ios_instance_foreground_abnormal_exit_count",
+                    "meter_ios_instance_background_abnormal_exit_count"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Foreground"
+                    },
+                    {
+                      "label": "Background"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 15,
+                  "w": 8,
+                  "h": 15,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "OOM Kill Count",
+                    "tips": "Out-of-memory kills for this app version"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_ios_instance_background_oom_kill_count"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 8,
+                  "h": 15,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound HTTP Load (calls / min)",
+                    "tips": "Client-side outbound HTTP requests from this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_instance_cpm"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-6"
+                    },
+                    {
+                      "widgetId": "12-0-7"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 30,
+                  "w": 8,
+                  "h": 15,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound HTTP Avg Response Time (ms)",
+                    "tips": "Client-observed latency from this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_instance_resp_time"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-5"
+                    },
+                    {
+                      "widgetId": "12-0-7"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 30,
+                  "w": 8,
+                  "h": 15,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound HTTP Success Rate (%)",
+                    "tips": "Success rate from this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_instance_sla/100"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-5"
+                    },
+                    {
+                      "widgetId": "12-0-6"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Peak Memory (bytes)",
+                    "tips": "Daily peak memory for this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_ios_instance_peak_memory"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Avg Network Transfer (bytes)",
+                    "tips": "Average per-device daily network transfer for this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_ios_instance_wifi_download",
+                    "meter_ios_instance_wifi_upload",
+                    "meter_ios_instance_cellular_download",
+                    "meter_ios_instance_cellular_upload"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "WiFi Down"
+                    },
+                    {
+                      "label": "WiFi Up"
+                    },
+                    {
+                      "label": "Cell Down"
+                    },
+                    {
+                      "label": "Cell Up"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "10",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Scroll Hitch Ratio",
+                    "tips": "Average scroll jank ratio for this app version"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_ios_instance_scroll_hitch_ratio"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 60,
+                  "i": "0",
+                  "type": "Log"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "IOS",
+      "entity": "ServiceInstance",
+      "name": "iOS-Instance",
+      "id": "iOS-Instance",
+      "isRoot": false
+    }
+  }
+]

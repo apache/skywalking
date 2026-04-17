@@ -104,6 +104,10 @@ catalog:
                 path: "/en/setup/backend/backend-aws-api-gateway-monitoring"
           - name: "Browser Monitoring"
             path: "/en/setup/service-agent/browser-agent"
+          - name: "Mobile Monitoring"
+            catalog:
+              - name: "iOS"
+                path: "/en/setup/backend/backend-ios-monitoring"
           - name: "Gateway Monitoring"
             catalog:
               - name: "Nginx Monitoring"
