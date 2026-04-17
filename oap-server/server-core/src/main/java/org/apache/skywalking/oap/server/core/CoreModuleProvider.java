@@ -394,7 +394,6 @@ public class CoreModuleProvider extends ModuleProvider {
         final MetricsStreamProcessor metricsStreamProcessor = MetricsStreamProcessor.getInstance();
         metricsStreamProcessor.setL1FlushPeriod(moduleConfig.getL1FlushPeriod());
         metricsStreamProcessor.setStorageSessionTimeout(moduleConfig.getStorageSessionTimeout());
-        metricsStreamProcessor.setMetricsDataTTL(moduleConfig.getMetricsDataTTL());
         RecordStreamProcessor.getInstance().setRecordDataTTL(moduleConfig.getRecordDataTTL());
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);

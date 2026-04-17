@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.StreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
+import org.apache.skywalking.oap.server.core.query.TTLStatusQuery;
 import org.apache.skywalking.oap.server.core.storage.IMetricsDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
 import org.apache.skywalking.oap.server.core.storage.StorageDAO;
@@ -82,11 +83,6 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
      */
     @Setter
     private long storageSessionTimeout = 70_000;
-    /**
-     * @since 8.7.0 TTL settings from {@link org.apache.skywalking.oap.server.core.CoreModuleConfig#getMetricsDataTTL()}
-     */
-    @Setter
-    private int metricsDataTTL = 3;
 
     public static MetricsStreamProcessor getInstance() {
         return PROCESSOR;
@@ -145,6 +141,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         DownSamplingConfigService configService = moduleDefineHolder.find(CoreModule.NAME)
                                                                     .provider()
                                                                     .getService(DownSamplingConfigService.class);
+        TTLStatusQuery ttlStatusQuery = moduleDefineHolder.find(CoreModule.NAME)
+                                                          .provider()
+                                                          .getService(TTLStatusQuery.class);
 
         MetricsPersistentWorker hourPersistentWorker = null;
         MetricsPersistentWorker dayPersistentWorker = null;
@@ -168,13 +167,15 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                 Model model = modelSetter.add(
                     metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Hour)
                 );
-                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind);
+                int hourTTL = ttlStatusQuery.getMetricsTTL(model);
+                hourPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind, hourTTL);
             }
             if (configService.shouldToDay()) {
                 Model model = modelSetter.add(
                     metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Day)
                 );
-                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind);
+                int dayTTL = ttlStatusQuery.getMetricsTTL(model);
+                dayPersistentWorker = downSamplingWorker(moduleDefineHolder, metricsDAO, model, supportUpdate, kind, dayTTL);
             }
 
             transWorker = new MetricsTransWorker(
@@ -184,8 +185,9 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
         Model model = modelSetter.add(
             metricsClass, stream.getScopeId(), new Storage(stream.getName(), timeRelativeID, DownSampling.Minute)
         );
+        int minuteTTL = ttlStatusQuery.getMetricsTTL(model);
         MetricsPersistentWorker minutePersistentWorker = minutePersistentWorker(
-            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate, kind, metricsClass);
+            moduleDefineHolder, metricsDAO, model, transWorker, supportUpdate, kind, metricsClass, minuteTTL);
 
         String remoteReceiverWorkerName = stream.getName() + "_rec";
         IWorkerInstanceSetter workerInstanceSetter = moduleDefineHolder.find(CoreModule.NAME)
@@ -205,7 +207,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                            MetricsTransWorker transWorker,
                                                            boolean supportUpdate,
                                                            MetricStreamKind kind,
-                                                           Class<? extends Metrics> metricsClass) {
+                                                           Class<? extends Metrics> metricsClass,
+                                                           int metricsDataTTL) {
         AlarmNotifyWorker alarmNotifyWorker = new AlarmNotifyWorker(moduleDefineHolder);
         ExportMetricsWorker exportWorker = new ExportMetricsWorker(moduleDefineHolder);
 
@@ -222,7 +225,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                                                        IMetricsDAO metricsDAO,
                                                        Model model,
                                                        boolean supportUpdate,
-                                                       MetricStreamKind kind) {
+                                                       MetricStreamKind kind,
+                                                       int metricsDataTTL) {
         MetricsPersistentWorker persistentWorker = new MetricsPersistentWorker(
             moduleDefineHolder, model, metricsDAO,
             supportUpdate, storageSessionTimeout, metricsDataTTL, kind

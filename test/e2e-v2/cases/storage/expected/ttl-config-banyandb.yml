@@ -1,0 +1,23 @@
+{
+  "metrics": {
+    "metadata": 15,
+    "minute": 22,
+    "hour": 45,
+    "day": 15,
+    "coldMinute": -1,
+    "coldHour": -1,
+    "coldDay": -1
+  },
+  "records": {
+    "normal": 3,
+    "trace": 3,
+    "zipkinTrace": 3,
+    "log": 3,
+    "browserErrorLog": 3,
+    "coldNormal": -1,
+    "coldTrace": -1,
+    "coldZipkinTrace": -1,
+    "coldLog": -1,
+    "coldBrowserErrorLog": -1
+  }
+}

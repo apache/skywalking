@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.ttl.MetricsTTL;
 import org.apache.skywalking.oap.server.core.storage.ttl.RecordsTTL;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
@@ -51,10 +52,27 @@ public class TTLStatusQuery implements Service {
         TTLDefinition ttlDefinition = getStorageTTLStatusQuery().getTTL();
         if (ttlDefinition == null) {
             ttlDefinition = new TTLDefinition(
-                new MetricsTTL(coreMetricsDataTTL, coreMetricsDataTTL, coreMetricsDataTTL),
+                new MetricsTTL(coreMetricsDataTTL, coreMetricsDataTTL, coreMetricsDataTTL, coreMetricsDataTTL),
                 new RecordsTTL(coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL, coreRecordDataTTL)
             );
         }
         return ttlDefinition;
+    }
+
+    /**
+     * Get the effective TTL (in days) for a specific metrics model.
+     * The returned value should include both hot and warm stage TTL,
+     * representing the total period during which data is accessible.
+     *
+     * @param model the metrics model
+     * @return TTL in days, or -1 if the storage does not customize per-model TTL
+     *         (consumer falls back to core metricsDataTTL)
+     */
+    public int getMetricsTTL(Model model) {
+        int ttl = getStorageTTLStatusQuery().getMetricsTTL(model);
+        if (ttl < 0) {
+            ttl = coreMetricsDataTTL;
+        }
+        return ttl;
     }
 }
