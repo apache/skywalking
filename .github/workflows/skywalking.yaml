@@ -390,8 +390,9 @@ jobs:
           - name: Storage OpenSearch 3.0.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=3.0.0
-          - name: Storage ES Sharding
+          - name: Storage ES Sharding 8.18.8
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
 
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml

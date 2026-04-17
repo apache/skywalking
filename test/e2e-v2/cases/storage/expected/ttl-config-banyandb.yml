@@ -17,9 +17,9 @@
   "metrics": {
     "metadata": 15,
     "minute": 22,
-    "hour": 45,
+    "hour": 15,
     "day": 15,
-    "coldMinute": -1,
+    "coldMinute": 60,
     "coldHour": -1,
     "coldDay": -1
   },
