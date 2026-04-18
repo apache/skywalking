@@ -25,6 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.trace.SpanListener;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
@@ -69,10 +71,11 @@ public class IOSMetricKitSpanListener implements SpanListener {
         {250, 400, 600, 1000, 1500, 2000, 3000, 5000, 10000, 30000};
 
     private OpenTelemetryMetricRequestProcessor metricProcessor;
+    private NamingControl namingControl;
 
     @Override
     public String[] requiredModules() {
-        return new String[] {OtelMetricReceiverModule.NAME};
+        return new String[] {CoreModule.NAME, OtelMetricReceiverModule.NAME};
     }
 
     @Override
@@ -80,6 +83,9 @@ public class IOSMetricKitSpanListener implements SpanListener {
         metricProcessor = moduleManager.find(OtelMetricReceiverModule.NAME)
                                        .provider()
                                        .getService(OpenTelemetryMetricRequestProcessor.class);
+        namingControl = moduleManager.find(CoreModule.NAME)
+                                     .provider()
+                                     .getService(NamingControl.class);
     }
 
     @Override
@@ -98,8 +104,18 @@ public class IOSMetricKitSpanListener implements SpanListener {
             return SpanListenerResult.CONTINUE;
         }
 
-        final String serviceName = resourceAttributes.getOrDefault("service.name", "");
-        final String serviceVersion = resourceAttributes.getOrDefault("service.version", "");
+        final String rawServiceName = resourceAttributes.getOrDefault("service.name", "");
+        if (rawServiceName.isEmpty()) {
+            // No service.name → emitting MAL samples would create an empty-named
+            // service/instance entity via expSuffix and pollute the inventory.
+            return SpanListenerResult.CONTINUE;
+        }
+
+        final String serviceName = namingControl.formatServiceName(rawServiceName);
+        final String rawServiceVersion = resourceAttributes.getOrDefault("service.version", "");
+        final String serviceInstanceId = rawServiceVersion.isEmpty()
+            ? "unknown"
+            : namingControl.formatInstanceName(rawServiceVersion);
         final String deviceModel = getDeviceModel(span, resourceAttributes);
         final String osVersion = getOsVersion(span, resourceAttributes);
         final long timestamp = span.endTimeNanos() > 0
@@ -107,7 +123,7 @@ public class IOSMetricKitSpanListener implements SpanListener {
 
         final ImmutableMap<String, String> labels = ImmutableMap.of(
             "service_name", serviceName,
-            "service_instance_id", serviceVersion,
+            "service_instance_id", serviceInstanceId,
             "device_model", deviceModel,
             "os_version", osVersion
         );

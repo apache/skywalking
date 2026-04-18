@@ -112,7 +112,8 @@ public class IOSHTTPSpanListener implements SpanListener {
         }
 
         final String serviceName = namingControl.formatServiceName(rawServiceName);
-        final String instanceName = resourceAttributes.getOrDefault("service.version", "");
+        final String rawInstanceName = resourceAttributes.getOrDefault("service.version", "");
+        final String instanceName = namingControl.formatInstanceName(rawInstanceName);
         final String endpointName = namingControl.formatEndpointName(serviceName, domain);
         final long now = System.currentTimeMillis();
         final long endTimeMs = span.endTimeNanos() > 0 ? span.endTimeNanos() / 1_000_000 : now;
