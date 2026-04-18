@@ -99,7 +99,11 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             // in resource attributes (e.g., Envoy AI Gateway), it takes precedence via putIfAbsent.
             .put("service.name", "job_name")
             .build();
-    private List<MetricConvert> converters;
+    // Initialized to an empty list so that {@link #processMetricsRequest} and
+    // {@link #toMeter} are safe no-ops when no MAL rules are enabled, instead of
+    // throwing NPE in {@code processMetricsRequest} (which unconditionally does
+    // {@code converters.forEach(...)}).
+    private List<MetricConvert> converters = new java.util.ArrayList<>();
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -156,9 +160,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
      * MAL converters configured via enabledOtelMetricsRules.
      */
     public void toMeter(final ImmutableMap<String, SampleFamily> sampleFamilies) {
-        if (converters != null) {
-            converters.forEach(convert -> convert.toMeter(sampleFamilies));
-        }
+        converters.forEach(convert -> convert.toMeter(sampleFamilies));
     }
 
     public void start() throws ModuleStartException {

@@ -92,6 +92,9 @@ public class IOSHTTPSpanListener implements SpanListener {
         // http.status_code), `.stable` (server.address / http.request.method /
         // http.response.status_code), and `.httpDup` (both). We prefer the stable
         // keys and fall back to legacy so all three modes work.
+        // OTLPSpanReaderImpl returns the OTLP proto enum name (`span.getKind().name()`),
+        // which for client spans is "SPAN_KIND_CLIENT". A span carries exactly one
+        // kind at runtime; this is the stable value to match.
         if (!"NSURLSession".equals(scopeName) || !"SPAN_KIND_CLIENT".equals(span.spanKind())) {
             return SpanListenerResult.CONTINUE;
         }
@@ -119,7 +122,13 @@ public class IOSHTTPSpanListener implements SpanListener {
         final long endTimeMs = span.endTimeNanos() > 0 ? span.endTimeNanos() / 1_000_000 : now;
         final long startTimeMs = span.startTimeNanos() > 0 ? span.startTimeNanos() / 1_000_000 : endTimeMs;
         final long timeBucket = TimeBucket.getMinuteTimeBucket(endTimeMs);
-        final int latency = (int) (endTimeMs - startTimeMs);
+        // Clamp to >= 0 to guard against device clock skew / bad instrumentation
+        // producing start > end. A long-to-int cap is also applied for the
+        // (theoretical) case of >24d latency to avoid overflow into negatives.
+        final long rawLatency = endTimeMs - startTimeMs;
+        final int latency = rawLatency < 0
+            ? 0
+            : (int) Math.min(rawLatency, (long) Integer.MAX_VALUE);
 
         final String statusCodeStr = attr(span, "http.response.status_code", "http.status_code");
         int httpStatusCode = 0;
@@ -129,7 +138,10 @@ public class IOSHTTPSpanListener implements SpanListener {
             } catch (NumberFormatException ignored) {
             }
         }
-        final boolean status = httpStatusCode == 0 || httpStatusCode < 400;
+        // Client-side failures (DNS / TLS / timeout / connection refused) produce
+        // no HTTP response code — treat missing (0) as failure so *_sla metrics
+        // reflect those user-visible errors.
+        final boolean status = httpStatusCode > 0 && httpStatusCode < 400;
 
         // ServiceMeta — register the service with IOS layer
         final ServiceMeta serviceMeta = new ServiceMeta();

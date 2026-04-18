@@ -31,7 +31,8 @@ public interface OTLPSpanReader {
     String spanName();
 
     /**
-     * @return the span kind as a string (e.g., "CLIENT", "INTERNAL")
+     * @return the span kind as the OTLP proto enum name
+     * (e.g., {@code "SPAN_KIND_CLIENT"}, {@code "SPAN_KIND_INTERNAL"}).
      */
     String spanKind();
 
