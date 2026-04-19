@@ -67,6 +67,8 @@ services:
     depends_on:
       oap:
         condition: service_healthy
+      provider:
+        condition: service_healthy
 
 networks:
   e2e:
