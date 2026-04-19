@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import javax.annotation.Nullable;
@@ -369,38 +372,33 @@ public class TraceQueryService implements Service {
         return spans;
     }
 
-    private List<Span> sortSpans(List<Span> spans) {
+    static List<Span> sortSpans(List<Span> spans) {
         List<Span> sortedSpans = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(spans)) {
-            List<Span> rootSpans = findRoot(spans);
-
-            if (CollectionUtils.isNotEmpty(rootSpans)) {
-                rootSpans.forEach(span -> {
-                    List<Span> childrenSpan = new ArrayList<>();
-                    childrenSpan.add(span);
-                    findChildren(spans, span, childrenSpan);
-                    sortedSpans.addAll(childrenSpan);
-                });
+            final Set<String> segmentSpanIds = new HashSet<>(spans.size());
+            final Map<String, List<Span>> childrenByParentSegmentSpanId = new HashMap<>(spans.size());
+            for (Span span : spans) {
+                segmentSpanIds.add(span.getSegmentSpanId());
+                childrenByParentSegmentSpanId
+                    .computeIfAbsent(span.getSegmentParentSpanId(), k -> new ArrayList<>())
+                    .add(span);
             }
+
+            List<Span> rootSpans = findRoot(spans, segmentSpanIds);
+            rootSpans.forEach(span -> {
+                List<Span> childrenSpan = new ArrayList<>();
+                childrenSpan.add(span);
+                findChildren(childrenByParentSegmentSpanId, span, childrenSpan);
+                sortedSpans.addAll(childrenSpan);
+            });
         }
         return  sortedSpans;
     }
 
-    private List<Span> findRoot(List<Span> spans) {
+    private static List<Span> findRoot(List<Span> spans, Set<String> segmentSpanIds) {
         List<Span> rootSpans = new ArrayList<>();
         spans.forEach(span -> {
-            String segmentParentSpanId = span.getSegmentParentSpanId();
-
-            boolean hasParent = false;
-            for (Span subSpan : spans) {
-                if (segmentParentSpanId.equals(subSpan.getSegmentSpanId())) {
-                    hasParent = true;
-                    // if find parent, quick exit
-                    break;
-                }
-            }
-
-            if (!hasParent) {
+            if (!segmentSpanIds.contains(span.getSegmentParentSpanId())) {
                 span.setRoot(true);
                 rootSpans.add(span);
             }
@@ -416,13 +414,17 @@ public class TraceQueryService implements Service {
         return rootSpans;
     }
 
-    private void findChildren(List<Span> spans, Span parentSpan, List<Span> childrenSpan) {
-        spans.forEach(span -> {
-            if (span.getSegmentParentSpanId().equals(parentSpan.getSegmentSpanId())) {
-                childrenSpan.add(span);
-                findChildren(spans, span, childrenSpan);
-            }
-        });
+    private static void findChildren(Map<String, List<Span>> childrenByParentSegmentSpanId,
+                                     Span parentSpan,
+                                     List<Span> childrenSpan) {
+        List<Span> children = childrenByParentSegmentSpanId.get(parentSpan.getSegmentSpanId());
+        if (children == null) {
+            return;
+        }
+        for (Span child : children) {
+            childrenSpan.add(child);
+            findChildren(childrenByParentSegmentSpanId, child, childrenSpan);
+        }
     }
 
     private void appendAttachedEventsToSpanDebuggable(List<Span> spans, List<SpanAttachedEvent> events) throws InvalidProtocolBufferException {
