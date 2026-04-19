@@ -68,12 +68,13 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 12
+Next SWIP Number: 13
 
 ### Proposed SWIPs
 
 ### Accepted SWIPs
 
+- [SWIP-12 Support WeChat & Alipay Mini Program Monitoring](SWIP-12.md)
 - [SWIP-11 Support iOS App Monitoring via OpenTelemetry](SWIP-11.md)
 - [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)
 - [SWIP-9 Support Flink Monitoring](SWIP-9.md)
