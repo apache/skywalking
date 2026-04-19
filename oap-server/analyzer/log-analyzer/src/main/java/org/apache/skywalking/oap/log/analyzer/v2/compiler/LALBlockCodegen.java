@@ -273,6 +273,15 @@ final class LALBlockCodegen {
             LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
         }
         sb.append(");\n");
+
+        // LAYER is also used by FilterSpec.doSink() (layer:auto check) and by downstream routing
+        // that reads from LogMetadata. Propagate the LAL-decided layer to metadata so the output
+        // builder's initFromMetadata() and other metadata consumers see the same value.
+        if (field.getFieldType() == LALScriptModel.FieldType.LAYER) {
+            sb.append("  h.ctx().metadata().setLayer(");
+            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
+            sb.append(");\n");
+        }
     }
 
     static void generateIfBlockInExtractor(

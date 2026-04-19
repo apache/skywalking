@@ -49,6 +49,14 @@ public class RecordSinkListener implements LogSinkListener {
         this.moduleManager = moduleManager;
     }
 
+    /**
+     * Dispatch the finalized output. {@link LALOutputBuilder#complete(SourceReceiver)}
+     * is polymorphic: the default {@code LogBuilder} emits a {@code Log} source; custom
+     * builders registered by receivers (e.g., {@code EnvoyAccessLogBuilder},
+     * {@code DatabaseSlowStatementBuilder}, {@code SampledTraceBuilder}) emit their own
+     * source types. {@code builder} is {@code null} only when {@link #parse} skipped —
+     * in which case there's nothing to persist.
+     */
     @Override
     public void build() {
         if (builder == null) {
@@ -61,6 +69,18 @@ public class RecordSinkListener implements LogSinkListener {
         builder.complete(sourceReceiver);
     }
 
+    /**
+     * Pick up the output object produced by the LAL extractor and prepare it for dispatch.
+     *
+     * <p>The LAL codegen always creates an output at the start of {@code execute()}
+     * via {@code ctx.setOutput(new OutputType())}. {@code OutputType} is resolved per rule
+     * from (in order): the YAML rule's {@code outputType} field, an
+     * {@code LALSourceTypeProvider} SPI contribution for the layer, or the default
+     * {@code LogBuilder}. All valid output types implement {@link LALOutputBuilder}, so
+     * the {@code instanceof} check below is a defensive null-guard, not a selector.
+     * Calling {@code init()} populates standard fields from metadata (service, layer,
+     * timestamp, trace context) only if the extractor left them blank.
+     */
     @Override
     @SneakyThrows
     public LogSinkListener parse(final LogMetadata metadata,
@@ -72,10 +92,6 @@ public class RecordSinkListener implements LogSinkListener {
         builder = ctx.outputAsBuilder();
         builder.init(metadata, input, moduleManager);
         return this;
-    }
-
-    public LALOutputBuilder getBuilder() {
-        return builder;
     }
 
     public static class Factory implements LogSinkListenerFactory {

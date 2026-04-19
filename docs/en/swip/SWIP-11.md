@@ -305,8 +305,7 @@ for (io.opentelemetry.proto.trace.v1.Span span : scopeSpans.getSpansList()) {
 | Listener | Detects | Extracts | Persists? | Modifies? |
 |---|---|---|---|---|
 | `GenAISpanListener` | `gen_ai.system` or `gen_ai.provider.name` attribute | Token metrics, cost → Sources | Yes | Yes (adds `estimated_cost` tag) |
-| `IOSMetricKitSpanListener` | `scopeName == "MetricKit"` + `span.name == "MXMetricPayload"` | Device stats → SampleFamily → MAL | **No** | No |
-| `IOSLayerSpanListener` | resource `os.name == "iOS"` or `"iPadOS"` | None (layer assignment only) | Yes | No (sets `layer = Layer.IOS`) |
+| `IOSMetricKitSpanListener` | `scopeName == "MetricKit"` + `span.name == "MXMetricPayload"` | Device stats → SampleFamily → shared MAL pipeline | **No** | No |
 
 Listeners are registered via SPI (`META-INF/services/`) and loaded at handler initialization.
 The existing `processGenAILogic()` is refactored into `GenAISpanListener` — no behavior change,
@@ -316,46 +315,32 @@ just better structure.
 - Listeners see raw OTLP data — InstrumentationScope name, resource attributes as separate map
 - Any listener can veto trace persistence — prevents Zipkin conversion entirely (no wasted work)
 - Any listener can inject tags — merged before Zipkin conversion
-- Any listener can set layer — applies to service registration
 - Multiple listeners can process the same span (e.g., a GenAI span on iOS triggers both)
 - If ANY listener vetoes persistence, the span is not converted or stored
 
+**Note:** No `IOSLayerSpanListener` is needed. The `IOS` layer is registered automatically
+when the MAL `expSuffix` with `Layer.IOS` processes MetricKit metrics. The OTLP→Zipkin trace
+pipeline (`SpanForward`) emits Zipkin-specific sources (not OAL sources), so there are no
+OAL traffic metrics for OTLP traces.
+
 ### 6. Entity Model
 
-| SkyWalking Entity    | Source                                          | Example       |
-|----------------------|-------------------------------------------------|---------------|
-| **Service**          | `service.name` resource attribute                | `MyApp`       |
-| **Service Instance** | `service.version` resource attribute (set by LAL/listener, SDK doesn't set `service.instance.id`) | `2.1.0 (45)` |
-| **Endpoint**         | HTTP span `http.target` attribute                | `/api/users`  |
+| SkyWalking Entity    | Source                                                     | Example       |
+|----------------------|------------------------------------------------------------|---------------|
+| **Service**          | `service_name` label in MAL `expSuffix`                    | `MyApp`       |
+| **Service Instance** | `service_instance_id` label in MAL `expSuffix`             | `2.1.0`       |
+
+No endpoint entity — MetricKit metrics are service/instance scoped only.
 
 ### 7. HTTP Span Processing (Trace Path)
 
 HTTP spans from `InstrumentationScope NSURLSession` flow through the existing OTLP → Zipkin → SpanForward
-trace pipeline. The layer detection in Section 5 assigns `Layer.IOS` to the service.
+trace pipeline. They are stored as Zipkin spans and queryable via the Zipkin query API.
 
-Span attributes (verified from real SDK output):
-
-| Attribute                    | Example                         | Description                          |
-|------------------------------|---------------------------------|--------------------------------------|
-| `http.method`                | `GET`                           | HTTP method                          |
-| `http.url`                   | `https://api.example.com/users` | Full URL                             |
-| `http.target`                | `/users`                        | URL path (used as endpoint)          |
-| `http.status_code`           | `200`                           | Response status                      |
-| `http.scheme`                | `https`                         | URL scheme                           |
-| `net.peer.name`              | `api.example.com`               | Server host                          |
-| `net.peer.port`              | `443`                           | Server port                          |
-| `http.request.body.size`     | `128`                           | Request body bytes                   |
-| `http.response.body.size`    | `505`                           | Response body bytes                  |
-| `network.connection.type`    | `wifi`, `cell`                  | Network type (iOS only)              |
-| `network.connection.subtype` | `LTE`, `NR`                     | Radio technology (iOS cellular only)  |
-| `network.carrier.name`       | `China Mobile`                  | Carrier name (iOS cellular only)     |
-| `network.carrier.icc`        | `CN`                            | Carrier country code                 |
-| `network.carrier.mcc`        | `460`                           | Mobile country code                  |
-| `network.carrier.mnc`        | `00`                            | Mobile network code                  |
-
-SkyWalking's existing OAL `core.oal` already derives standard service/endpoint metrics
-(`service_cpm`, `service_resp_time`, `service_percentile`, `endpoint_cpm`, etc.) from trace spans.
-These work automatically for iOS HTTP spans once the layer is assigned.
+**Note:** The OTLP→Zipkin trace pipeline (`SpanForward`) emits Zipkin-specific sources
+(`ZipkinService`, `ZipkinServiceSpan`, `ZipkinServiceRelation`), not OAL sources. There are
+**no OAL traffic metrics** (e.g., `service_cpm`, `service_resp_time`) generated from OTLP traces.
+HTTP trace metrics for iOS may be added in the future via MAL extraction in a SpanListener.
 
 #### OTLP Export Feedback Loop
 
@@ -373,57 +358,10 @@ URLSessionInstrumentationConfiguration(
 )
 ```
 
-#### Searchable Tags
-
-Add the following to `searchableTracesTags` default configuration:
-
-| Tag                        | Purpose                                    |
-|----------------------------|--------------------------------------------|
-| `device.model.identifier`  | Filter by device model (iPhone15,2, etc.)  |
-| `os.version`               | Filter by iOS version                      |
-| `network.connection.type`  | Filter by wifi/cell                        |
-| `network.carrier.name`     | Filter by carrier                          |
-
 ### 8. Metrics Overview
 
-iOS monitoring has two distinct metrics sources with different characteristics:
-
-| Source | Granularity | Delivery | Time Bucket | Example |
-|---|---|---|---|---|
-| HTTP trace spans | Per-request, real-time | Continuous | Minute (standard) | Request latency, error rate, CPM |
-| MetricKit spans | Per-device, daily aggregate | Once/day per device | Day | App launch time, crash count, memory |
-
-#### HTTP Trace Metrics (Existing OAL, Minute Granularity)
-
-HTTP spans from URLSession flow through the standard trace pipeline. The existing `core.oal` metrics
-apply automatically — no new OAL needed:
-
-**Service scope:**
-
-| Monitoring Panel | Metric Name | OAL | Description |
-|---|---|---|---|
-| HTTP Throughput | `service_cpm` | `from(Service.*).cpm()` | Requests per minute |
-| HTTP Avg Latency | `service_resp_time` | `from(Service.latency).longAvg()` | Average response time |
-| HTTP Latency Percentile | `service_percentile` | `from(Service.latency).percentile2(10)` | P50/P75/P90/P95/P99 |
-| HTTP Success Rate | `service_sla` | `from(Service.*).percent(status == true)` | Success percentage |
-| HTTP Apdex | `service_apdex` | `from(Service.latency).apdex(name, status)` | User satisfaction score |
-
-**Instance scope (per app version):**
-
-| Monitoring Panel | Metric Name | OAL | Description |
-|---|---|---|---|
-| HTTP Throughput | `service_instance_cpm` | `from(ServiceInstance.*).cpm()` | RPM per version |
-| HTTP Avg Latency | `service_instance_resp_time` | `from(ServiceInstance.latency).longAvg()` | Avg latency per version |
-| HTTP Success Rate | `service_instance_sla` | `from(ServiceInstance.*).percent(status == true)` | Success rate per version |
-
-**Endpoint scope (per URL path):**
-
-| Monitoring Panel | Metric Name | OAL | Description |
-|---|---|---|---|
-| Endpoint Throughput | `endpoint_cpm` | `from(Endpoint.*).cpm()` | RPM per endpoint |
-| Endpoint Avg Latency | `endpoint_resp_time` | `from(Endpoint.latency).longAvg()` | Avg latency per endpoint |
-| Endpoint Latency Percentile | `endpoint_percentile` | `from(Endpoint.latency).percentile2(10)` | P50–P99 per endpoint |
-| Endpoint Success Rate | `endpoint_sla` | `from(Endpoint.*).percent(status == true)` | Success rate per endpoint |
+iOS monitoring metrics come from MetricKit — daily aggregated device statistics delivered once
+per day per device via the OTel Swift SDK's MetricKit instrumentation.
 
 ### 9. MetricKit Span Listener (`IOSMetricKitSpanListener`)
 
@@ -431,11 +369,15 @@ Apple's MetricKit delivers pre-aggregated app statistics once per day. The OTel 
 this as a single span with `startTime = 24h ago`, `endTime = now`, with all statistics as span
 attributes. These are **not trace spans** — they must be intercepted and converted to metrics.
 
-`IOSMetricKitSpanListener` implements the `OTLPSpanListener` interface (Section 5):
-- **Detection:** `scopeName == "MetricKit"` AND `span.getName() == "MXMetricPayload"` — uses the
+`IOSMetricKitSpanListener` implements the `SpanListener` SPI (Section 5):
+- **Detection:** `scopeName == "MetricKit"` AND `span.spanName() == "MXMetricPayload"` — uses the
   raw OTLP InstrumentationScope name, available because listeners run before Zipkin conversion
-- **Action:** Extract span attributes as `SampleFamily` samples with labels, feed into MAL pipeline
-- **Persistence:** Returns `persistTrace = false` — a 24-hour span must not be stored as a trace
+- **Action:** Extract span attributes as `SampleFamily` samples with 4 labels (`service_name`,
+  `service_instance_id`, `device_model`, `os_version`), push into the shared MAL pipeline via
+  `OpenTelemetryMetricRequestProcessor.toMeter()` — no duplicate rule loading
+- **Persistence:** Returns `shouldPersist = false` — a 24-hour span must not be stored as a trace
+- **Required module:** `receiver-otel` — the listener uses the otel-receiver's MAL converters
+  configured via `enabledOtelMetricsRules`
 
 #### MetricKit Source Attributes
 
@@ -449,10 +391,11 @@ attributes. These are **not trace spans** — they must be intercepted and conve
 | `metrickit.network_transfer.wifi_upload`                   | Double | bytes   | WiFi upload (24h)                 |
 | `metrickit.network_transfer.cellular_download`             | Double | bytes   | Cellular download (24h)           |
 | `metrickit.network_transfer.cellular_upload`               | Double | bytes   | Cellular upload (24h)             |
-| `metrickit.app_exit.foreground.abnormal_exit_count`        | Int    | count   | Abnormal exits (crashes)          |
-| `metrickit.app_exit.foreground.normal_app_exit_count`      | Int    | count   | Normal exits                      |
-| `metrickit.app_exit.background.abnormal_exit_count`        | Int    | count   | Background abnormal exits         |
-| `metrickit.app_exit.background.memory_pressure_exit_count` | Int    | count   | OOM kills                         |
+| `metrickit.app_exit.foreground.abnormal_exit_count`        | Int    | count   | Abnormal exits (foreground crashes) — aggregated |
+| `metrickit.app_exit.foreground.normal_app_exit_count`      | Int    | count   | Normal foreground exits — not aggregated         |
+| `metrickit.app_exit.background.abnormal_exit_count`        | Int    | count   | Background abnormal exits — aggregated           |
+| `metrickit.app_exit.background.normal_app_exit_count`      | Int    | count   | Normal background exits — not aggregated         |
+| `metrickit.app_exit.background.memory_pressure_exit_count` | Int    | count   | OOM kills — aggregated                           |
 | `metrickit.animation.scroll_hitch_time_ratio`              | Double | ratio   | Scroll jank ratio                 |
 | `metrickit.gpu.time`                                       | Double | seconds | Cumulative GPU time               |
 | `metrickit.diskio.logical_write_count`                     | Double | bytes   | Disk writes (24h)                 |
@@ -483,7 +426,7 @@ The listener converts each `MXMetricPayload` span into labeled `SampleFamily` sa
 metrickit_app_launch_time{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="17.4.1"} 850
 metrickit_hang_time{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="17.4.1"} 120
 metrickit_peak_memory{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="17.4.1"} 157286400
-metrickit_abnormal_exit_count{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="18.0"} 2
+metrickit_foreground_abnormal_exit_count{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="18.0"} 2
 metrickit_wifi_download{service_name="MyApp", service_instance_id="2.1.0", device_model="iPhone15,2", os_version="17.4.1"} 52428800
 ```
 
@@ -498,51 +441,62 @@ Labels are extracted from:
 Create `oap-server/server-starter/src/main/resources/otel-rules/ios/ios-metrickit.yaml`:
 
 ```yaml
-expSuffix: service(['service_name'], Layer.IOS).instance(['service_name', 'service_instance_id'])
+expSuffix: service(['service_name'], Layer.IOS)
 metricPrefix: meter_ios
 
-# App responsiveness — average across devices
-app_launch_time:
-  exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id'])
-app_launch_time_by_device:
-  exp: metrickit_app_launch_time.avg(['service_name', 'service_instance_id', 'device_model'])
-hang_time:
-  exp: metrickit_hang_time.avg(['service_name', 'service_instance_id'])
+metricsRules:
+  # App responsiveness — percentile across devices (P50 = median)
+  - name: app_launch_time_percentile
+    exp: metrickit_app_launch_time_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+  - name: hang_time_percentile
+    exp: metrickit_hang_time_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+  - name: hang_time_sum
+    exp: metrickit_hang_time.sum(['service_name', 'service_instance_id'])
 
-# Stability — sum across devices
-abnormal_exit_count:
-  exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
-abnormal_exit_count_by_os:
-  exp: metrickit_abnormal_exit_count.sum(['service_name', 'service_instance_id', 'os_version'])
-normal_exit_count:
-  exp: metrickit_normal_exit_count.sum(['service_name', 'service_instance_id'])
-oom_kill_count:
-  exp: metrickit_oom_kill_count.sum(['service_name', 'service_instance_id'])
+  # Stability — sum across devices. Foreground/background are reported separately so
+  # watchdog kills and background-task crashes don't hide behind total crash counts.
+  # Normal graceful exits are not aggregated (no diagnostic signal).
+  - name: foreground_abnormal_exit_count
+    exp: metrickit_foreground_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: background_abnormal_exit_count
+    exp: metrickit_background_abnormal_exit_count.sum(['service_name', 'service_instance_id'])
+  - name: background_oom_kill_count
+    exp: metrickit_background_oom_kill_count.sum(['service_name', 'service_instance_id'])
 
-# Resource usage
-peak_memory:
-  exp: metrickit_peak_memory.max(['service_name', 'service_instance_id'])
-cpu_time:
-  exp: metrickit_cpu_time.sum(['service_name', 'service_instance_id'])
-gpu_time:
-  exp: metrickit_gpu_time.sum(['service_name', 'service_instance_id'])
-disk_write:
-  exp: metrickit_disk_write.sum(['service_name', 'service_instance_id'])
+  # Resource usage
+  - name: peak_memory
+    exp: metrickit_peak_memory.max(['service_name', 'service_instance_id'])
+  - name: cpu_time
+    exp: metrickit_cpu_time.sum(['service_name', 'service_instance_id'])
+  - name: gpu_time
+    exp: metrickit_gpu_time.sum(['service_name', 'service_instance_id'])
+  - name: disk_write
+    exp: metrickit_disk_write.sum(['service_name', 'service_instance_id'])
 
-# Network transfer — sum across devices
-wifi_download:
-  exp: metrickit_wifi_download.sum(['service_name', 'service_instance_id'])
-wifi_upload:
-  exp: metrickit_wifi_upload.sum(['service_name', 'service_instance_id'])
-cellular_download:
-  exp: metrickit_cellular_download.sum(['service_name', 'service_instance_id'])
-cellular_upload:
-  exp: metrickit_cellular_upload.sum(['service_name', 'service_instance_id'])
+  # Network transfer — average per device
+  - name: wifi_download
+    exp: metrickit_wifi_download.avg(['service_name', 'service_instance_id'])
+  - name: wifi_upload
+    exp: metrickit_wifi_upload.avg(['service_name', 'service_instance_id'])
+  - name: cellular_download
+    exp: metrickit_cellular_download.avg(['service_name', 'service_instance_id'])
+  - name: cellular_upload
+    exp: metrickit_cellular_upload.avg(['service_name', 'service_instance_id'])
 
-# UI quality — average across devices
-scroll_hitch_ratio:
-  exp: metrickit_scroll_hitch_ratio.avg(['service_name', 'service_instance_id'])
+  # UI quality
+  - name: scroll_hitch_ratio
+    exp: metrickit_scroll_hitch_ratio.avg(['service_name', 'service_instance_id'])
 ```
+
+The listener emits histogram-bucketed samples (with `le` labels) for app launch time and
+hang time, enabling `histogram_percentile` to compute P50/P75/P90/P95/P99 across the device fleet.
+
+**Bucket ceiling**: both histograms top out at a finite 30 s bucket rather than `+Inf`. MAL
+parses `le="Infinity"` to `(long) Double.POSITIVE_INFINITY = Long.MAX_VALUE` and surfaces it
+verbatim in percentile queries; on a dashboard that renders as ~9.2×10¹⁸, which is worse than
+a visibly alarming but human-readable cap. Values above 30 s are vanishingly rare for iOS app
+launch / hang observations (MetricKit itself hard-caps hangs near 30 s), so the finite sentinel
+preserves percentile accuracy without breaking the UI.
 
 #### Aggregation Example
 
@@ -556,12 +510,13 @@ Device C: appLaunchTime=900ms, peakMemory=140MB, abnormalExitCount=1, wifiDownlo
 
 Resulting daily metrics:
 
-| Metric | Aggregation | Result |
-|---|---|---|
-| `ios_app_launch_time` | avg(850, 1200, 900) | **983 ms** |
-| `ios_peak_memory` | max(150, 200, 140) | **200 MB** |
-| `ios_abnormal_exit_count` | sum(2, 0, 1) | **3 crashes** |
-| `ios_wifi_download` | sum(50, 80, 30) | **160 MB** |
+| Metric                         | Aggregation              | Result         |
+|--------------------------------|--------------------------|----------------|
+| `ios_app_launch_time_percentile P50` | histogram_percentile | **900 ms**   |
+| `ios_app_launch_time_percentile P90` | histogram_percentile | **1200 ms**  |
+| `ios_peak_memory`              | max(150, 200, 140)       | **200 MB**     |
+| `ios_foreground_abnormal_exit_count` | sum(2, 0, 1)       | **3 crashes**  |
+| `ios_wifi_download`            | avg(50, 80, 30)          | **53 MB**      |
 
 ### 10. MetricKit Diagnostic Log Processing (LAL)
 
@@ -688,21 +643,19 @@ Create dashboards under `ui-initialized-templates/ios/`:
 
 | Panel Group      | Metrics                                                        | Source                       |
 |------------------|----------------------------------------------------------------|------------------------------|
-| HTTP Performance | `service_cpm`, `service_resp_time`, `service_percentile`       | OAL (from HTTP trace spans)  |
-| HTTP Errors      | `service_sla` (success rate)                                   | OAL                          |
-| App Launch       | `meter_ios_app_launch_time`                                    | MetricKit analyzer           |
-| Memory           | `meter_ios_peak_memory`                                        | MetricKit analyzer           |
-| CPU              | `meter_ios_cpu_time`                                           | MetricKit analyzer           |
-| Network Transfer | `meter_ios_wifi_download`, `meter_ios_cellular_download`, etc. | MetricKit analyzer           |
-| Stability        | `meter_ios_abnormal_exit_count`, `meter_ios_oom_kill_count`    | MetricKit analyzer           |
-| Responsiveness   | `meter_ios_hang_time`, `meter_ios_scroll_hitch_ratio`          | MetricKit analyzer           |
+| HTTP Traffic     | `service_cpm`, `service_resp_time`, `service_sla`, `service_percentile` | OAL (from IOSHTTPSpanListener) |
+| App Launch       | `meter_ios_app_launch_time`                                    | MetricKit MAL                |
+| Stability        | `meter_ios_foreground_abnormal_exit_count`, `meter_ios_background_oom_kill_count`    | MetricKit MAL                |
+| Memory           | `meter_ios_peak_memory`                                        | MetricKit MAL                |
+| Network Transfer | `meter_ios_wifi_download`, `meter_ios_cellular_download`, etc. | MetricKit MAL                |
+| Responsiveness   | `meter_ios_hang_time`                                          | MetricKit MAL                |
 
 **ios-instance.json** — Per-version dashboard (instance = app version):
-- Same HTTP performance metrics scoped to instance
+- HTTP traffic metrics scoped to instance (`service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla`)
 - MetricKit metrics per version
 
-**ios-endpoint.json** — Per-HTTP-endpoint dashboard:
-- `endpoint_cpm`, `endpoint_resp_time`, `endpoint_percentile`, `endpoint_sla` (from OAL)
+**ios-endpoint.json** — Per-domain dashboard (endpoint = `net.peer.name` domain):
+- `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`, `endpoint_percentile` (from OAL)
 
 #### UI Side
 

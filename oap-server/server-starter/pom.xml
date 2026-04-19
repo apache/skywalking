@@ -53,6 +53,12 @@
             <artifactId>hierarchy</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- iOS SpanListener (SPI-loaded by server-core) -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>ios-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- cluster module -->
         <dependency>

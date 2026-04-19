@@ -278,7 +278,12 @@ public enum Layer {
      * Envoy AI Gateway is an AI/LLM traffic gateway built on Envoy Proxy,
      * providing observability for GenAI API traffic.
      */
-    ENVOY_AI_GATEWAY(46, true);
+    ENVOY_AI_GATEWAY(46, true),
+
+    /**
+     * iOS/iPadOS app monitoring via OpenTelemetry Swift SDK
+     */
+    IOS(47, true);
 
     private final int value;
     /**

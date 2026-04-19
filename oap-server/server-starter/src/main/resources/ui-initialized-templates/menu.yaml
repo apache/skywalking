@@ -242,6 +242,16 @@ menus:
         description: Provide Flink monitoring through OpenTelemetry's Prometheus Receiver.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-flink-monitoring/
         i18nKey: data_processing_engine_flink
+  - title: Mobile
+    icon: mobile
+    description: Mobile application monitoring via OpenTelemetry SDKs.
+    i18nKey: mobile
+    menus:
+      - title: iOS
+        layer: IOS
+        description: iOS/iPadOS app monitoring via OpenTelemetry Swift SDK. Provides HTTP performance, MetricKit daily stats, and crash diagnostics.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-ios-monitoring/
+        i18nKey: mobile_ios
   - title: GenAI
     icon: gen_ai
     description: Generative AI (GenAI) observability provides comprehensive monitoring and performance insights for various AI services and large language models (LLM).

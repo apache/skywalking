@@ -134,6 +134,69 @@ Do NOT run cleanup immediately. Instead:
    e2e cleanup -c test/e2e-v2/cases/<case-path>/e2e.yaml
    ```
 
+### 6. Manually fire each verify query (fast triage)
+
+The `e2e verify` retry loop runs in sequence and stops at the first failing case, so a single bad query hides every case after it. When a verify fails, **run each verify case directly against the still-running OAP** before editing anything — you'll see the real error (bad flag, missing data, wrong expected), not the progress spinner. This is also the right way to author new verify cases: craft the query against live OAP, confirm the actual YAML, then write the expected file.
+
+```bash
+# Find the host-side port that infra-e2e bound to OAP's container port 12800.
+# (Each run picks a new random port; the trigger log prints it too.)
+docker ps --filter "name=skywalking_e2e-oap" --format "{{.Ports}}" \
+  | grep -oE "[0-9]+->12800" | head -1
+# => e.g. 56381->12800
+
+URL=http://localhost:56381/graphql
+SWCTL=/tmp/skywalking-infra-e2e/bin/swctl
+
+# Copy the query from e2e.yaml verbatim, then substitute ${oap_host} → localhost
+# and ${oap_12800} → the port you just found:
+$SWCTL --display yaml --base-url=$URL service ly IOS
+$SWCTL --display yaml --base-url=$URL logs list --service-name=MyiOSApp
+$SWCTL --display yaml --base-url=$URL metrics exec --expression=service_cpm --service-name=MyiOSApp
+```
+
+When a `swctl` subcommand rejects a flag (`Incorrect Usage: flag provided but not defined: -layer`), the e2e config is using syntax the pinned `swctl` commit doesn't support. Find the right syntax with `swctl <cmd> --help` and update the e2e config. Common cases encountered:
+
+| Broken flag/form | Working form |
+|---|---|
+| `service ls --layer IOS` | `service ly IOS` |
+| `metrics exec ... --is-normal=true` | drop `--is-normal` (default behavior) |
+
+For queries that *don't* use `swctl` (raw `curl` against `/loki/...`, Zipkin, PromQL), hit the matching exposed port:
+
+```bash
+curl "http://localhost:$(docker ps --filter name=skywalking_e2e-oap --format '{{.Ports}}' | grep -oE '[0-9]+->3100' | head -1 | cut -d'-' -f1)/loki/api/v1/labels"
+```
+
+### 7. UI template changes require a fresh DB
+
+`UITemplateInitializer.initTemplate()` (in `oap-server/server-core`) calls `uiTemplateManagementService.addIfNotExist(setting)` — keyed by the `id` field in each `ui-initialized-templates/**/*.json`. Same ID → skipped. So edits to an *existing* template JSON (adding widgets, relabeling, changing expressions) will **not** be applied on an already-initialized OAP, even after a container restart, because the old copy still lives in storage.
+
+To pick up dashboard JSON changes:
+
+```bash
+# Remove both containers — BanyanDB stores state inside the container FS in the
+# e2e compose (no named volume), so removing the container wipes state cleanly.
+docker rm -f skywalking_e2e-oap-1 skywalking_e2e-banyandb-1
+
+# For compose setups that use a named volume, also:
+# docker volume rm <volume-name>
+
+# Then re-run — OAP sees empty storage, loads the new template JSON.
+e2e run -c test/e2e-v2/cases/<case>/e2e.yaml
+```
+
+Symptom to watch for: you edit the JSON, rebuild, redeploy — dashboard in the UI still shows the pre-edit layout. That's not a caching bug; that's `addIfNotExist` doing exactly what its name says.
+
+### 8. Author the expected YAML from live output
+
+For a new verify case, the workflow is:
+
+1. Fire the query manually (see step 6) and capture the YAML.
+2. Pick which fields are *meaningful domain values* (must match exactly) vs *dynamic runtime values* (`notEmpty` / `gt` / `ge`). See `test/e2e-v2/CLAUDE.md` for the decision guide.
+3. Write the expected file. If the response is a list, wrap the items in `{{- contains . }} ... {{- end }}` so ordering and extra actual items don't fail the match.
+4. Re-run `e2e verify` alone (the containers are still up from the previous run); iterate on the expected file without rebuilding.
+
 ## Common test cases
 
 | Shorthand | Path |

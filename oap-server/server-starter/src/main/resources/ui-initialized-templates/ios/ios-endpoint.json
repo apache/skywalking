@@ -1,0 +1,150 @@
+[
+  {
+    "id": "iOS-Endpoint",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 34,
+          "i": "12",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Load (calls / min)",
+                    "tips": "Client-side outbound HTTP requests to this domain"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "endpoint_cpm"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-1"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    }
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Avg Response Time (ms)",
+                    "tips": "Client-observed latency of requests to this domain"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "endpoint_resp_time"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-2"
+                    }
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Success Rate (%)",
+                    "tips": "Success rate of requests to this domain"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "endpoint_sla/100"
+                  ],
+                  "associate": [
+                    {
+                      "widgetId": "12-0-0"
+                    },
+                    {
+                      "widgetId": "12-0-1"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 24,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Response Time Percentile (ms)",
+                    "tips": "Client-observed latency distribution of requests to this domain"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "relabels(endpoint_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='P50,P75,P90,P95,P99')"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "IOS",
+      "entity": "Endpoint",
+      "name": "iOS-Endpoint",
+      "id": "iOS-Endpoint",
+      "isRoot": false
+    }
+  }
+]

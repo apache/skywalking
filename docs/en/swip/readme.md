@@ -72,10 +72,9 @@ Next SWIP Number: 12
 
 ### Proposed SWIPs
 
-- [SWIP-11 Support iOS App Monitoring via OpenTelemetry](SWIP-11.md)
-
 ### Accepted SWIPs
 
+- [SWIP-11 Support iOS App Monitoring via OpenTelemetry](SWIP-11.md)
 - [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)
 - [SWIP-9 Support Flink Monitoring](SWIP-9.md)
 - [SWIP-8 Support Kong Monitoring](SWIP-8.md)
