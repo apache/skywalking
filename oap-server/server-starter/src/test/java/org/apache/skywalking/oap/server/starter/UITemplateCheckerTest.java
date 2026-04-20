@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
@@ -45,8 +46,15 @@ public class UITemplateCheckerTest {
         Set<String> dashboardIds = new HashSet<>();
         Set<String> dashboardNames = new HashSet<>();
         for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
-            File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
-                Locale.ROOT));
+            File[] templateFiles;
+            try {
+                templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
+                    Locale.ROOT));
+            } catch (FileNotFoundException e) {
+                // Layer enum values without an on-disk template folder are skipped —
+                // mirrors UITemplateInitializer.initAll() behavior post-auto-discovery.
+                continue;
+            }
             for (File template : templateFiles) {
                 JsonNode jsonNode;
                 try {
