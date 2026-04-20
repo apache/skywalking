@@ -550,26 +550,15 @@ Extend the existing `Mobile` menu group (added in SWIP-11) in
 
 #### Dashboards
 
-`UITemplateInitializer` only loads folders listed in its hard-coded
-`UI_TEMPLATE_FOLDER` array, and the folder name is `Layer.X.name().toLowerCase()`
-(`UITemplateInitializer.java:45-88,101-103`). Two changes are required:
+`UITemplateInitializer` auto-discovers template folders from `Layer.values()` — no
+allowlist to append to. Two platform requirements remain:
 
-1. **Append the new layers to the allowlist** in
-   `oap-server/server-core/src/main/java/.../UITemplateInitializer.java`:
-   ```java
-   public static String[] UI_TEMPLATE_FOLDER = new String[] {
-       // ... existing entries ...
-       Layer.IOS.name(),
-       Layer.WECHAT_MINI_PROGRAM.name(),
-       Layer.ALIPAY_MINI_PROGRAM.name(),
-       "custom"
-   };
-   ```
-2. **Create the folders with underscored names** (matching `Layer.name().toLowerCase()`),
-   and **include a layer-root template** for each platform — `Layer.vue:41-44` requires
-   a dashboard with `isRoot: true` to render the menu landing page (see existing
-   `ios/ios-root.json` for the precedent). Without the root template, clicking the menu
-   item shows an empty "no dashboard" view:
+1. **Folder name must be `Layer.X.name().toLowerCase()`** — underscores, not hyphens.
+   Hyphenated folders don't match any `Layer` enum value and are silently skipped.
+2. **Include a layer-root template** — `Layer.vue:41-44` requires a dashboard with
+   `isRoot: true` to render the menu landing page (precedent: `ios/ios-root.json`).
+   Without the root template, clicking the menu item lands on an empty "no dashboard"
+   view.
    ```
    oap-server/server-starter/src/main/resources/ui-initialized-templates/
    ├── wechat_mini_program/

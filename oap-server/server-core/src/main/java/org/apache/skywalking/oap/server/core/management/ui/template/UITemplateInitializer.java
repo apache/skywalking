@@ -25,8 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
@@ -39,53 +41,37 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation only.
  * Each config file should be only one dashboard setting json object.
  * The dashboard names should be different in the same Layer and entity.
+ * <p>
+ * Folder discovery is automatic: every {@link Layer} enum value is probed as a folder
+ * (via {@code Layer.name().toLowerCase()}) plus the {@code "custom"} slot. Folders that
+ * don't exist are silently skipped. Extensions adding a new {@code Layer} do not need to
+ * touch this class.
+ * <p>
+ * Dev/extension reload: when environment variable {@code SW_UI_TEMPLATE_FORCE_RELOAD}
+ * is {@code true}, each template on disk is written via {@code addOrReplace} rather
+ * than {@code addIfNotExist}, so edits to shipped JSON take effect on the next OAP
+ * restart without needing to wipe the storage container.
  */
 @Slf4j
 public class UITemplateInitializer {
-    public static String[] UI_TEMPLATE_FOLDER = new String[] {
-        Layer.MESH.name(),
-        Layer.GENERAL.name(),
-        Layer.OS_LINUX.name(),
-        Layer.MESH_CP.name(),
-        Layer.MESH_DP.name(),
-        Layer.MYSQL.name(),
-        Layer.POSTGRESQL.name(),
-        Layer.K8S.name(),
-        Layer.BROWSER.name(),
-        Layer.SO11Y_OAP.name(),
-        Layer.VIRTUAL_DATABASE.name(),
-        Layer.VIRTUAL_CACHE.name(),
-        Layer.K8S_SERVICE.name(),
-        Layer.SO11Y_SATELLITE.name(),
-        Layer.APISIX.name(),
-        Layer.VIRTUAL_MQ.name(),
-        Layer.AWS_EKS.name(),
-        Layer.OS_WINDOWS.name(),
-        Layer.AWS_S3.name(),
-        Layer.AWS_DYNAMODB.name(),
-        Layer.AWS_GATEWAY.name(),
-        Layer.REDIS.name(),
-        Layer.ELASTICSEARCH.name(),
-        Layer.RABBITMQ.name(),
-        Layer.MONGODB.name(),
-        Layer.KAFKA.name(),
-        Layer.PULSAR.name(),
-        Layer.BOOKKEEPER.name(),
-        Layer.NGINX.name(),
-        Layer.ROCKETMQ.name(),
-        Layer.CLICKHOUSE.name(),
-        Layer.ACTIVEMQ.name(),
-        Layer.CILIUM_SERVICE.name(),
-        Layer.SO11Y_JAVA_AGENT.name(),
-        Layer.KONG.name(),
-        Layer.SO11Y_GO_AGENT.name(),
-        Layer.FLINK.name(),
-        Layer.BANYANDB.name(),
-        Layer.VIRTUAL_GENAI.name(),
-        Layer.ENVOY_AI_GATEWAY.name(),
-        Layer.IOS.name(),
-        "custom"
-    };
+    /**
+     * Every {@link Layer} enum value, lower-cased, plus the {@code "custom"} folder.
+     * Computed once from {@link Layer#values()} so adding a new {@code Layer} automatically
+     * causes its {@code ui-initialized-templates/<layer>/} folder to be scanned.
+     */
+    public static final String[] UI_TEMPLATE_FOLDER = Stream.concat(
+        Arrays.stream(Layer.values()).map(Layer::name),
+        Stream.of("custom")
+    ).toArray(String[]::new);
+
+    /**
+     * Environment variable: when {@code true}, templates on disk overwrite any previously
+     * seeded copy in storage on every boot. Read from the OS environment directly so
+     * operators / extenders can flip it without touching {@code application.yml}.
+     */
+    private static final boolean FORCE_RELOAD =
+        Boolean.parseBoolean(System.getenv("SW_UI_TEMPLATE_FORCE_RELOAD"));
+
     private final UITemplateManagementService uiTemplateManagementService;
     private final ObjectMapper mapper;
 
@@ -98,6 +84,9 @@ public class UITemplateInitializer {
     }
 
     public void initAll() throws IOException {
+        if (FORCE_RELOAD) {
+            log.info("SW_UI_TEMPLATE_FORCE_RELOAD=true — shipped UI templates will overwrite any previously seeded copy on this boot.");
+        }
         for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
             try {
                 File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase());
@@ -128,7 +117,11 @@ public class UITemplateInitializer {
         setting.setId(inId);
         setting.setConfiguration(configNode.toString());
 
-        uiTemplateManagementService.addIfNotExist(setting);
+        if (FORCE_RELOAD) {
+            uiTemplateManagementService.addOrReplace(setting);
+        } else {
+            uiTemplateManagementService.addIfNotExist(setting);
+        }
     }
 
     private void verifyNameConflict(File template, String inId, String inNameKey) throws IOException {
