@@ -1,0 +1,39 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# WeChat Mini Program instance-level (per app version) metrics.
+# Same metrics as wechat-mini-program.yaml but scoped to the service instance
+# (operator's recommended pattern: set serviceInstance to service.version).
+# When serviceInstance is unset, `service_instance_id` label is empty and no
+# instance traffic is produced; per-instance dashboards are meaningful only
+# when operators follow the recommended pattern (see SWIP-12 §2).
+
+expSuffix: instance(['service_name'], ['service_instance_id'], Layer.WECHAT_MINI_PROGRAM)
+metricPrefix: meter_wechat_mp_instance
+filter: "{ tags -> tags.miniprogram_platform == 'wechat' }"
+
+metricsRules:
+  - name: app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id'])
+  - name: first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id'])
+  - name: route_duration
+    exp: miniprogram_route_duration.avg(['service_name', 'service_instance_id'])
+  - name: script_duration
+    exp: miniprogram_script_duration.avg(['service_name', 'service_instance_id'])
+  - name: package_load_duration
+    exp: miniprogram_package_load_duration.avg(['service_name', 'service_instance_id'])
+  - name: request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])

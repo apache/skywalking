@@ -1,0 +1,50 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# WeChat Mini Program service-level metrics from the mini-program-monitor SDK.
+# Filter gates the rule to traffic carrying miniprogram.platform == "wechat" so
+# the WeChat and Alipay rules do not double-count when both runtimes report to
+# the same OAP. Metrics named `meter_wechat_mp_*` power the WeChat dashboards.
+# Aggregated across all app versions (instances).
+
+expSuffix: service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
+metricPrefix: meter_wechat_mp
+filter: "{ tags -> tags.miniprogram_platform == 'wechat' }"
+
+metricsRules:
+  # Perf (service-wide averages)
+  - name: app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name'])
+  - name: first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name'])
+  # first_paint.time is an epoch-ms timestamp (not a duration) — not aggregated.
+  - name: route_duration
+    exp: miniprogram_route_duration.avg(['service_name'])
+  - name: script_duration
+    exp: miniprogram_script_duration.avg(['service_name'])
+  - name: package_load_duration
+    exp: miniprogram_package_load_duration.avg(['service_name'])
+
+  # Request latency percentile
+  - name: request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+
+  # Per-page (endpoint-scoped) variants — chained .endpoint(...) overrides the expSuffix.
+  - name: endpoint_app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)

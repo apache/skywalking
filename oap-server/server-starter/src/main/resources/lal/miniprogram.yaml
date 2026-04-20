@@ -1,0 +1,68 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# WeChat / Alipay Mini Program error-log processing.
+# One rule covers both runtimes — layer is decided script-side from the
+# miniprogram.platform resource attribute, using the SWIP-11 layer:auto
+# mechanism. Also emits a `miniprogram_error_count` counter sample for
+# every error log, picked up by log-mal-rules/miniprogram.yaml and
+# aggregated into per-platform `error_count` metrics.
+
+rules:
+  - name: miniprogram-errors
+    layer: auto
+    dsl: |
+      filter {
+        def platform = sourceAttribute("miniprogram.platform")
+        if (platform != "wechat" && platform != "alipay") {
+          abort {}
+        }
+        if (tag("exception.type") == null) {
+          abort {}
+        }
+
+        extractor {
+          if (platform == "wechat") {
+            layer "WECHAT_MINI_PROGRAM"
+          } else if (platform == "alipay") {
+            layer "ALIPAY_MINI_PROGRAM"
+          }
+
+          # Instance source matches what OTLP metrics use, so logs aggregate under
+          # the same OAP instance entity when operators follow the recommended
+          # serviceInstance == serviceVersion pattern (SDK >= v0.4.0). If absent,
+          # sourceAttribute() returns null/empty -> TrafficSinkListener skips the
+          # instance traffic, matching MAL's empty-dim behavior.
+          instance sourceAttribute("service.instance.id")
+          endpoint tag("miniprogram.page.path")
+
+          tag 'platform': platform
+          tag 'exception.type': tag("exception.type")
+          tag 'exception.stacktrace': tag("exception.stacktrace")
+          tag 'http.method': tag("http.request.method")
+          tag 'http.status': tag("http.response.status_code")
+          tag 'server.address': tag("server.address")
+
+          metrics {
+            timestamp log.timestamp as Long
+            labels service_name: log.service, exception_type: tag("exception.type"), miniprogram_platform: platform
+            name "miniprogram_error_count"
+            value 1
+          }
+        }
+
+        sink {
+        }
+      }
