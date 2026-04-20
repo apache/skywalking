@@ -13,27 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-services:
-  oap:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: oap
-    ports:
-      - 12800
-    environment:
-      SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_HANDLERS: "otlp-traces,otlp-metrics,otlp-logs"
-      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: "miniprogram/alipay-mini-program,miniprogram/alipay-mini-program-instance"
-      SW_LOG_LAL_FILES: "miniprogram,default"
-      SW_LOG_MAL_FILES: "miniprogram-alipay"
-      SW_LOG_ANALYZER: default
+# Log-MAL rule for WeChat Mini Program error counts.
+# Consumes `miniprogram_error_count` samples emitted by the LAL rule
+# (lal/miniprogram.yaml metrics{} block), filtered to miniprogram_platform
+# == 'wechat', aggregated under meter_wechat_mp_error_count.
 
-  banyandb:
-    extends:
-      file: ../../../script/docker-compose/base-compose.yml
-      service: banyandb
-    ports:
-      - 17912
-
-networks:
-  e2e:
+metricPrefix: meter_wechat_mp
+filter: "{ tags -> tags.miniprogram_platform == 'wechat' }"
+metricsRules:
+  - name: error_count
+    exp: miniprogram_error_count.sum(['service_name', 'exception_type']).downsampling(SUM).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)

@@ -238,7 +238,7 @@ log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
     lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,envoy-ai-gateway,miniprogram,default}
-    malFiles: ${SW_LOG_MAL_FILES:"nginx,miniprogram"}
+    malFiles: ${SW_LOG_MAL_FILES:"nginx,miniprogram-wechat,miniprogram-alipay"}
 
 event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}

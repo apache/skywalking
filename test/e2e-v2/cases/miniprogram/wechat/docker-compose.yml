@@ -25,7 +25,7 @@ services:
       SW_OTEL_RECEIVER_ENABLED_HANDLERS: "otlp-traces,otlp-metrics,otlp-logs"
       SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: "miniprogram/wechat-mini-program,miniprogram/wechat-mini-program-instance"
       SW_LOG_LAL_FILES: "miniprogram,default"
-      SW_LOG_MAL_FILES: "miniprogram"
+      SW_LOG_MAL_FILES: "miniprogram-wechat"
       SW_LOG_ANALYZER: default
 
   banyandb:

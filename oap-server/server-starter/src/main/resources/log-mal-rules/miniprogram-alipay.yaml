@@ -13,19 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Log-MAL rules for WeChat / Alipay Mini Program error counters.
+# Log-MAL rule for Alipay Mini Program error counts.
 # Consumes `miniprogram_error_count` samples emitted by the LAL rule
-# (lal/miniprogram.yaml, metrics{} block), one per error log, and
-# aggregates per-platform into `meter_wechat_mp_error_count` /
-# `meter_alipay_mp_error_count`. The top-level filter gates each doc
-# to the correct platform so the two rules do not double-count.
+# (lal/miniprogram.yaml metrics{} block), filtered to miniprogram_platform
+# == 'alipay', aggregated under meter_alipay_mp_error_count.
 
-metricPrefix: meter_wechat_mp
-filter: "{ tags -> tags.miniprogram_platform == 'wechat' }"
-metricsRules:
-  - name: error_count
-    exp: miniprogram_error_count.sum(['service_name', 'exception_type']).downsampling(SUM).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
----
 metricPrefix: meter_alipay_mp
 filter: "{ tags -> tags.miniprogram_platform == 'alipay' }"
 metricsRules:
