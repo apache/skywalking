@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# WeChat Mini Program e2e test — drives OTLP metrics + OTLP error log
+# payloads via curl (iOS-style, no external sim image dependency) and
+# verifies service / metric / log observable under the WECHAT_MINI_PROGRAM
+# layer. Native-segment handling is covered by the layer-mapping unit
+# tests in RPCAnalysisListenerTest / EndpointDepFromCrossThreadAnalysisListenerTest.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: send WeChat Mini Program JS error log (OTLP)
+      command: |
+        TS_NS=$(date +%s)000000000
+        set -e
+        curl -sS -f --retry 30 --retry-delay 5 --retry-connrefused --retry-all-errors --max-time 10 \
+          -X POST -H 'Content-Type: application/json' \
+          http://${oap_host}:${oap_12800}/v1/logs \
+          -d "{\"resourceLogs\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"wechat-mp-demo\"}},{\"key\":\"service.version\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"service.instance.id\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"miniprogram.platform\",\"value\":{\"stringValue\":\"wechat\"}}]},\"scopeLogs\":[{\"scope\":{\"name\":\"mini-program-monitor\"},\"logRecords\":[{\"timeUnixNano\":\"$TS_NS\",\"severityNumber\":17,\"severityText\":\"ERROR\",\"body\":{\"stringValue\":\"TypeError: Cannot read property 'foo' of undefined\"},\"attributes\":[{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"js\"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"at pages/index/index.js:42\"}},{\"key\":\"miniprogram.page.path\",\"value\":{\"stringValue\":\"pages/index/index\"}}]}]}]}]}"
+
+trigger:
+  action: http
+  interval: 3s
+  times: 10
+  url: http://${oap_host}:${oap_12800}/v1/metrics
+  method: POST
+  headers:
+    Content-Type: application/json
+  body: '{"resourceMetrics":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"wechat-mp-demo"}},{"key":"service.version","value":{"stringValue":"v1.2.0"}},{"key":"service.instance.id","value":{"stringValue":"v1.2.0"}},{"key":"miniprogram.platform","value":{"stringValue":"wechat"}}]},"scopeMetrics":[{"scope":{"name":"mini-program-monitor"},"metrics":[{"name":"miniprogram.app_launch.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":180.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}},{"name":"miniprogram.first_render.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":95.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}}]}]}]}'
+
+verify:
+  retry:
+    count: 20
+    interval: 10s
+  cases:
+    # Service registered under WECHAT_MINI_PROGRAM layer
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly WECHAT_MINI_PROGRAM
+      expected: expected/service.yml
+    # MAL service-scoped metric populated
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_app_launch_duration --service-name=wechat-mp-demo
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_first_render_duration --service-name=wechat-mp-demo
+      expected: expected/metrics-has-value.yml
+    # Log-MAL derived error count non-zero on the error-log traffic
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_error_count --service-name=wechat-mp-demo
+      expected: expected/metrics-has-value.yml
+    # Instance metric populated (serviceInstance == serviceVersion == v1.2.0 per recommended pattern)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_instance_app_launch_duration --service-name=wechat-mp-demo --instance-name=v1.2.0
+      expected: expected/metrics-has-value.yml
+    # Error log persisted via LAL (miniprogram rule, layer:auto -> WECHAT_MINI_PROGRAM)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=wechat-mp-demo
+      expected: expected/logs.yml
