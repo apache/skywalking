@@ -16,22 +16,20 @@
 errorreason: null
 debuggingtrace: null
 logs:
-  {{- contains .logs }}
-  - servicename: mini-program-sim-alipay
-    serviceid: {{ notEmpty .serviceid }}
-    serviceinstancename: "sim"
-    serviceinstanceid: {{ notEmpty .serviceinstanceid }}
-    endpointname: {{ notEmpty .endpointname }}
-    endpointid: {{ notEmpty .endpointid }}
-    traceid: null
-    timestamp: {{ gt .timestamp 0 }}
-    contenttype: TEXT
-    content: {{ notEmpty .content }}
-    tags:
-      {{- contains .tags }}
-      - key: platform
-        value: alipay
-      - key: exception.type
-        value: {{ notEmpty .value }}
-      {{- end }}
+{{- contains .logs }}
+- servicename: mini-program-sim-alipay
+  serviceid: {{ b64enc "mini-program-sim-alipay" }}.1
+  serviceinstancename: sim
+  serviceinstanceid: {{ b64enc "mini-program-sim-alipay" }}.1_{{ b64enc "sim" }}
+  endpointname: {{ notEmpty .endpointname }}
+  endpointid: {{ notEmpty .endpointid }}
+  traceid: null
+  timestamp: {{ gt .timestamp 0 }}
+  contenttype: TEXT
+  content: {{ notEmpty .content }}
+  tags:
+  {{- contains .tags }}
+  - key: platform
+    value: alipay
   {{- end }}
+{{- end }}

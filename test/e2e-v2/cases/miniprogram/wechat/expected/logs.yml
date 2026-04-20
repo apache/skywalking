@@ -16,22 +16,20 @@
 errorreason: null
 debuggingtrace: null
 logs:
-  {{- contains .logs }}
-  - servicename: mini-program-sim-wechat
-    serviceid: {{ notEmpty .serviceid }}
-    serviceinstancename: "sim"
-    serviceinstanceid: {{ notEmpty .serviceinstanceid }}
-    endpointname: {{ notEmpty .endpointname }}
-    endpointid: {{ notEmpty .endpointid }}
-    traceid: null
-    timestamp: {{ gt .timestamp 0 }}
-    contenttype: TEXT
-    content: {{ notEmpty .content }}
-    tags:
-      {{- contains .tags }}
-      - key: platform
-        value: wechat
-      - key: exception.type
-        value: {{ notEmpty .value }}
-      {{- end }}
+{{- contains .logs }}
+- servicename: mini-program-sim-wechat
+  serviceid: {{ b64enc "mini-program-sim-wechat" }}.1
+  serviceinstancename: sim
+  serviceinstanceid: {{ b64enc "mini-program-sim-wechat" }}.1_{{ b64enc "sim" }}
+  endpointname: {{ notEmpty .endpointname }}
+  endpointid: {{ notEmpty .endpointid }}
+  traceid: null
+  timestamp: {{ gt .timestamp 0 }}
+  contenttype: TEXT
+  content: {{ notEmpty .content }}
+  tags:
+  {{- contains .tags }}
+  - key: platform
+    value: wechat
   {{- end }}
+{{- end }}
