@@ -13,12 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ b64enc "mini-program-sim-wechat" }}.1
-  name: mini-program-sim-wechat
-  group: ""
-  shortname: mini-program-sim-wechat
-  layers:
-    - WECHAT_MINI_PROGRAM
-  normal: true
-{{- end }}
+debuggingtrace: null
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: {{ notEmpty .key }}
+          value: {{ notEmpty .value }}
+        {{- end }}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ notEmpty .value }}
+        traceid: null
+        owner: null
+      {{- end}}
+  {{- end}}
+error: null

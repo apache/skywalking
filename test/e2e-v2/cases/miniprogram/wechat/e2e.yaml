@@ -13,11 +13,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# WeChat Mini Program e2e test — drives OTLP metrics + OTLP error log
-# payloads via curl (iOS-style, no external sim image dependency) and
-# verifies service / metric / log observable under the WECHAT_MINI_PROGRAM
-# layer. Native-segment handling is covered by the layer-mapping unit
-# tests in RPCAnalysisListenerTest / EndpointDepFromCrossThreadAnalysisListenerTest.
+# WeChat Mini Program e2e test — drives the published
+# ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.0 image in MODE=timed
+# against OAP wired with the miniprogram MAL / LAL / log-MAL rules. The sim
+# emits realistic OTLP logs + metrics (perf gauges + request-duration
+# histogram + errors) plus SW native trace segments (/v3/segments) with
+# componentId=10002 for 60 s, then exits cleanly.
 
 setup:
   env: compose
@@ -31,44 +32,36 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: send WeChat Mini Program JS error log (OTLP)
-      command: |
-        TS_NS=$(date +%s)000000000
-        set -e
-        curl -sS -f --retry 30 --retry-delay 5 --retry-connrefused --retry-all-errors --max-time 10 \
-          -X POST -H 'Content-Type: application/json' \
-          http://${oap_host}:${oap_12800}/v1/logs \
-          -d "{\"resourceLogs\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"wechat-mp-demo\"}},{\"key\":\"service.version\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"service.instance.id\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"miniprogram.platform\",\"value\":{\"stringValue\":\"wechat\"}}]},\"scopeLogs\":[{\"scope\":{\"name\":\"mini-program-monitor\"},\"logRecords\":[{\"timeUnixNano\":\"$TS_NS\",\"severityNumber\":17,\"severityText\":\"ERROR\",\"body\":{\"stringValue\":\"TypeError: Cannot read property 'foo' of undefined\"},\"attributes\":[{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"js\"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"at pages/index/index.js:42\"}},{\"key\":\"miniprogram.page.path\",\"value\":{\"stringValue\":\"pages/index/index\"}}]}]}]}]}"
-
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${oap_host}:${oap_12800}/v1/metrics
-  method: POST
-  headers:
-    Content-Type: application/json
-  body: '{"resourceMetrics":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"wechat-mp-demo"}},{"key":"service.version","value":{"stringValue":"v1.2.0"}},{"key":"service.instance.id","value":{"stringValue":"v1.2.0"}},{"key":"miniprogram.platform","value":{"stringValue":"wechat"}}]},"scopeMetrics":[{"scope":{"name":"mini-program-monitor"},"metrics":[{"name":"miniprogram.app_launch.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":180.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}},{"name":"miniprogram.first_render.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":95.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}}]}]}]}'
 
 verify:
   retry:
     count: 20
     interval: 10s
   cases:
-    # Service registered under WECHAT_MINI_PROGRAM layer
+    # Service registered under WECHAT_MINI_PROGRAM layer (from MAL + LAL,
+    # both keyed off miniprogram.platform=wechat).
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly WECHAT_MINI_PROGRAM
       expected: expected/service.yml
-    # MAL service-scoped metric populated
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_app_launch_duration --service-name=wechat-mp-demo
+    # MAL service-scoped perf gauges
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_app_launch_duration --service-name=mini-program-sim-wechat
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_first_render_duration --service-name=wechat-mp-demo
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_first_render_duration --service-name=mini-program-sim-wechat
       expected: expected/metrics-has-value.yml
-    # Log-MAL derived error count non-zero on the error-log traffic
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_error_count --service-name=wechat-mp-demo
+    # Request-count derived from the histogram _count family (delta counter
+    # aggregated per minute).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_request_cpm --service-name=mini-program-sim-wechat
       expected: expected/metrics-has-value.yml
-    # Instance metric populated (serviceInstance == serviceVersion == v1.2.0 per recommended pattern)
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_instance_app_launch_duration --service-name=wechat-mp-demo --instance-name=v1.2.0
+    # Request duration percentile via the bucket family (MILLISECONDS unit
+    # keeps le labels as-is — no 1000x rescale).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_request_duration_percentile --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value-label.yml
+    # Log-MAL derived error count — demo scenario fires all four error
+    # surfaces (js / promise / ajax / pageNotFound).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_error_count --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value-label.yml
+    # Instance metric populated (SERVICE_INSTANCE=sim per recommended pattern)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_instance_app_launch_duration --service-name=mini-program-sim-wechat --instance-name=sim
       expected: expected/metrics-has-value.yml
-    # Error log persisted via LAL (miniprogram rule, layer:auto -> WECHAT_MINI_PROGRAM)
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=wechat-mp-demo
+    # Error log persisted via LAL (layer:auto -> WECHAT_MINI_PROGRAM)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=mini-program-sim-wechat
       expected: expected/logs.yml

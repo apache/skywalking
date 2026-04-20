@@ -17,11 +17,11 @@ errorreason: null
 debuggingtrace: null
 logs:
   {{- contains .logs }}
-  - servicename: wechat-mp-demo
+  - servicename: mini-program-sim-wechat
     serviceid: {{ notEmpty .serviceid }}
-    serviceinstancename: "v1.2.0"
+    serviceinstancename: "sim"
     serviceinstanceid: {{ notEmpty .serviceinstanceid }}
-    endpointname: "pages/index/index"
+    endpointname: {{ notEmpty .endpointname }}
     endpointid: {{ notEmpty .endpointid }}
     traceid: null
     timestamp: {{ gt .timestamp 0 }}
@@ -32,8 +32,6 @@ logs:
       - key: platform
         value: wechat
       - key: exception.type
-        value: js
-      - key: exception.stacktrace
-        value: "at pages/index/index.js:42"
+        value: {{ notEmpty .value }}
       {{- end }}
   {{- end }}

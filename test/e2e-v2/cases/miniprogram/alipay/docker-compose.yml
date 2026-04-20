@@ -35,5 +35,21 @@ services:
     ports:
       - 17912
 
+  # Upstream SkyAPM mini-program-monitor simulator (shipped from
+  # https://github.com/SkyAPM/mini-program-monitor).
+  sim-alipay:
+    image: ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.0
+    depends_on:
+      oap:
+        condition: service_healthy
+    environment:
+      MODE: timed
+      DURATION_MS: 60000
+      SCENARIO: demo
+      COLLECTOR_URL: http://oap:12800
+      TRACE_COLLECTOR_URL: http://oap:12800
+      SERVICE_INSTANCE: sim
+    networks: [e2e]
+
 networks:
   e2e:

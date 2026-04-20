@@ -16,17 +16,17 @@
 # WeChat / Alipay Mini Program error-log processing.
 # One rule covers both runtimes — layer is decided script-side from the
 # miniprogram.platform resource attribute, using the SWIP-11 layer:auto
-# mechanism. Also emits a `miniprogram_error_count` counter sample for
-# every error log, picked up by log-mal-rules/miniprogram.yaml and
-# aggregated into per-platform `error_count` metrics.
+# mechanism. Also emits a miniprogram_error_count counter sample for every
+# error log, picked up by log-mal-rules/miniprogram-{wechat,alipay}.yaml
+# which aggregate into per-platform error_count metrics.
 
 rules:
   - name: miniprogram-errors
     layer: auto
     dsl: |
       filter {
-        def platform = sourceAttribute("miniprogram.platform")
-        if (platform != "wechat" && platform != "alipay") {
+        if (sourceAttribute("miniprogram.platform") != "wechat"
+            && sourceAttribute("miniprogram.platform") != "alipay") {
           abort {}
         }
         if (tag("exception.type") == null) {
@@ -34,21 +34,21 @@ rules:
         }
 
         extractor {
-          if (platform == "wechat") {
+          if (sourceAttribute("miniprogram.platform") == "wechat") {
             layer "WECHAT_MINI_PROGRAM"
-          } else if (platform == "alipay") {
+          } else if (sourceAttribute("miniprogram.platform") == "alipay") {
             layer "ALIPAY_MINI_PROGRAM"
           }
 
-          # Instance source matches what OTLP metrics use, so logs aggregate under
-          # the same OAP instance entity when operators follow the recommended
-          # serviceInstance == serviceVersion pattern (SDK >= v0.4.0). If absent,
-          # sourceAttribute() returns null/empty -> TrafficSinkListener skips the
-          # instance traffic, matching MAL's empty-dim behavior.
+          // Instance source matches what OTLP metrics use, so logs aggregate under
+          // the same OAP instance entity when operators follow the recommended
+          // serviceInstance == serviceVersion pattern (SDK >= v0.4.0). If absent,
+          // sourceAttribute() returns null/empty -> TrafficSinkListener skips the
+          // instance traffic, matching MAL's empty-dim behavior.
           instance sourceAttribute("service.instance.id")
           endpoint tag("miniprogram.page.path")
 
-          tag 'platform': platform
+          tag 'platform': sourceAttribute("miniprogram.platform")
           tag 'exception.type': tag("exception.type")
           tag 'exception.stacktrace': tag("exception.stacktrace")
           tag 'http.method': tag("http.request.method")
@@ -57,7 +57,7 @@ rules:
 
           metrics {
             timestamp log.timestamp as Long
-            labels service_name: log.service, exception_type: tag("exception.type"), miniprogram_platform: platform
+            labels service_name: log.service, exception_type: tag("exception.type"), miniprogram_platform: sourceAttribute("miniprogram.platform")
             name "miniprogram_error_count"
             value 1
           }

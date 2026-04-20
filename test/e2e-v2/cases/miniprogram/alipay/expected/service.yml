@@ -14,10 +14,10 @@
 # limitations under the License.
 
 {{- contains . }}
-- id: {{ b64enc "alipay-mp-demo" }}.1
-  name: alipay-mp-demo
+- id: {{ b64enc "mini-program-sim-alipay" }}.1
+  name: mini-program-sim-alipay
   group: ""
-  shortname: alipay-mp-demo
+  shortname: mini-program-sim-alipay
   layers:
     - ALIPAY_MINI_PROGRAM
   normal: true

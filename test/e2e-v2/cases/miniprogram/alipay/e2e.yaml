@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Alipay Mini Program e2e test — mirrors the WeChat case with
-# miniprogram.platform=alipay so the platform-gated filter on the
-# MAL / LAL rules routes to the ALIPAY_MINI_PROGRAM layer. WeChat-only
-# metrics (route / script / package_load / first_paint.time) are not
-# emitted and not verified.
+# Alipay Mini Program e2e test — drives the published
+# ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.0 image in MODE=timed
+# against OAP. Alipay emits a strict subset of metrics relative to WeChat
+# (no route / script / package_load / first_paint) so this case verifies
+# only the metrics Alipay actually produces.
 
 setup:
   env: compose
@@ -31,44 +31,25 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: send Alipay Mini Program JS error log (OTLP)
-      command: |
-        TS_NS=$(date +%s)000000000
-        set -e
-        curl -sS -f --retry 30 --retry-delay 5 --retry-connrefused --retry-all-errors --max-time 10 \
-          -X POST -H 'Content-Type: application/json' \
-          http://${oap_host}:${oap_12800}/v1/logs \
-          -d "{\"resourceLogs\":[{\"resource\":{\"attributes\":[{\"key\":\"service.name\",\"value\":{\"stringValue\":\"alipay-mp-demo\"}},{\"key\":\"service.version\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"service.instance.id\",\"value\":{\"stringValue\":\"v1.2.0\"}},{\"key\":\"miniprogram.platform\",\"value\":{\"stringValue\":\"alipay\"}}]},\"scopeLogs\":[{\"scope\":{\"name\":\"mini-program-monitor\"},\"logRecords\":[{\"timeUnixNano\":\"$TS_NS\",\"severityNumber\":17,\"severityText\":\"ERROR\",\"body\":{\"stringValue\":\"TypeError: Cannot read property 'foo' of undefined\"},\"attributes\":[{\"key\":\"exception.type\",\"value\":{\"stringValue\":\"js\"}},{\"key\":\"exception.stacktrace\",\"value\":{\"stringValue\":\"at pages/index/index.js:42\"}},{\"key\":\"miniprogram.page.path\",\"value\":{\"stringValue\":\"pages/index/index\"}}]}]}]}]}"
-
-trigger:
-  action: http
-  interval: 3s
-  times: 10
-  url: http://${oap_host}:${oap_12800}/v1/metrics
-  method: POST
-  headers:
-    Content-Type: application/json
-  body: '{"resourceMetrics":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"alipay-mp-demo"}},{"key":"service.version","value":{"stringValue":"v1.2.0"}},{"key":"service.instance.id","value":{"stringValue":"v1.2.0"}},{"key":"miniprogram.platform","value":{"stringValue":"alipay"}}]},"scopeMetrics":[{"scope":{"name":"mini-program-monitor"},"metrics":[{"name":"miniprogram.app_launch.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":220.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}},{"name":"miniprogram.first_render.duration","unit":"ms","gauge":{"dataPoints":[{"timeUnixNano":"0","asDouble":110.0,"attributes":[{"key":"miniprogram.page.path","value":{"stringValue":"pages/index/index"}}]}]}}]}]}]}'
 
 verify:
   retry:
     count: 20
     interval: 10s
   cases:
-    # Service registered under ALIPAY_MINI_PROGRAM layer
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly ALIPAY_MINI_PROGRAM
       expected: expected/service.yml
-    # MAL service-scoped metric populated
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_app_launch_duration --service-name=alipay-mp-demo
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_app_launch_duration --service-name=mini-program-sim-alipay
       expected: expected/metrics-has-value.yml
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_first_render_duration --service-name=alipay-mp-demo
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_first_render_duration --service-name=mini-program-sim-alipay
       expected: expected/metrics-has-value.yml
-    # Log-MAL derived error count non-zero on the error-log traffic
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_error_count --service-name=alipay-mp-demo
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_request_cpm --service-name=mini-program-sim-alipay
       expected: expected/metrics-has-value.yml
-    # Instance metric populated (serviceInstance == serviceVersion == v1.2.0 per recommended pattern)
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_instance_app_launch_duration --service-name=alipay-mp-demo --instance-name=v1.2.0
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_request_duration_percentile --service-name=mini-program-sim-alipay
+      expected: expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_error_count --service-name=mini-program-sim-alipay
+      expected: expected/metrics-has-value-label.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_alipay_mp_instance_app_launch_duration --service-name=mini-program-sim-alipay --instance-name=sim
       expected: expected/metrics-has-value.yml
-    # Error log persisted via LAL (miniprogram rule, layer:auto -> ALIPAY_MINI_PROGRAM)
-    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=alipay-mp-demo
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=mini-program-sim-alipay
       expected: expected/logs.yml
