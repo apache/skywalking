@@ -712,7 +712,7 @@ implementing this SWIP must also ship:
 | User-facing doc — Alipay | `docs/en/setup/backend/backend-alipay-mini-program-monitoring.md` |
 | Docs navigation | Two new entries in `docs/menu.yml` under the existing "Mobile" section alongside iOS |
 | Changelog | Entry in `docs/en/changes/changes.md` under `#### OAP Server` (feature) and `#### Documentation` (the two guides) |
-| SWIP readme | Move this SWIP from "Proposed" to "Accepted" in `docs/en/swip/readme.md` at merge time |
+| SWIP readme | Ensure this SWIP is listed under "Accepted SWIPs" in `docs/en/swip/readme.md` |
 | UI i18n | Separate PR in `apache/skywalking-booster-ui` for i18n keys `wechat_mini_program` / `alipay_mini_program` (§9) |
 
 ## Imported Dependencies libs and their licenses
