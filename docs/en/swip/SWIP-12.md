@@ -258,10 +258,13 @@ Mirror the WeChat files exactly, differing only in:
   is what backs per-release / version-regression dashboards.
 - **`service_instance_id` source:** SDK ≥ v0.4.0 emits OTLP `service.instance.id` only
   when the operator passes `init({ serviceInstance: ... })`. When unset, the attribute
-  is omitted; OAP records the instance entity as the literal `-`. The instance dashboard
-  is meaningful only when operators follow the recommended `serviceInstance:
-  serviceVersion` pattern (otherwise everything aggregates under `-`). MAL itself can
-  add a fail-safe (`tag {tags -> tags.service_instance_id = tags.service_instance_id ?: tags.service_name}`)
+  is omitted, `SampleFamily.dim()` collapses the `service_instance_id` label to an
+  empty string, and `Analyzer.java:345` (`if (!Strings.isNullOrEmpty(entity.getInstanceName()))`)
+  short-circuits — **no instance traffic is emitted**, and the per-instance MAL rules
+  produce no metrics. The instance dashboard is therefore meaningful only when operators
+  follow the recommended `serviceInstance: serviceVersion` pattern. MAL itself can add
+  a fail-safe (`tag {tags -> tags.service_instance_id = tags.service_instance_id ?: tags.service_name}`)
+  to keep per-instance metrics populated when the operator doesn't set `serviceInstance`,
   but standard practice is to rely on the SDK side.
 - **The `.endpoint(...)` chain on service-scoped files** — same expression-level
   override pattern as APISIX (`apisix.yaml:91-102`) and RocketMQ. One rule emits to
@@ -319,8 +322,10 @@ These segments are parsed by the normal trace pipeline — no new SPI is needed.
 
 Service-layer assignment already lives in
 `CommonAnalysisListener.identifyServiceLayer(SpanLayer)` (a `protected` instance method
-on the abstract base shared by `SegmentAnalysisListener`, `RPCAnalysisListener`, and
-`EndpointDepFromCrossThreadAnalysisListener` in the agent-analyzer module). Today it
+on the abstract base shared by `RPCAnalysisListener` and
+`EndpointDepFromCrossThreadAnalysisListener` in the agent-analyzer module —
+`SegmentAnalysisListener` does **not** extend `CommonAnalysisListener`, it has its own
+service-meta path). Today it
 maps `SpanLayer.FAAS → Layer.FAAS` and everything else to `Layer.GENERAL`. Extend it to
 also accept the span's `componentId` (which the SDK already sets on every outbound span)
 and dispatch to the mini-program layers.
@@ -454,14 +459,20 @@ Extend the existing `Mobile` menu group (added in SWIP-11) in
        "custom"
    };
    ```
-2. **Create the folders with underscored names** (matching `Layer.name().toLowerCase()`):
+2. **Create the folders with underscored names** (matching `Layer.name().toLowerCase()`),
+   and **include a layer-root template** for each platform — `Layer.vue:41-44` requires
+   a dashboard with `isRoot: true` to render the menu landing page (see existing
+   `ios/ios-root.json` for the precedent). Without the root template, clicking the menu
+   item shows an empty "no dashboard" view:
    ```
    oap-server/server-starter/src/main/resources/ui-initialized-templates/
    ├── wechat_mini_program/
+   │   ├── wechat_mini_program-root.json      # isRoot: true — service-list landing page
    │   ├── wechat_mini_program-service.json
    │   ├── wechat_mini_program-instance.json
    │   └── wechat_mini_program-endpoint.json
    └── alipay_mini_program/
+       ├── alipay_mini_program-root.json      # isRoot: true — service-list landing page
        ├── alipay_mini_program-service.json
        ├── alipay_mini_program-instance.json
        └── alipay_mini_program-endpoint.json
@@ -618,8 +629,9 @@ App({
       service: 'my-mini-program',
       serviceVersion: 'v1.2.0',
       // SDK ≥ v0.4.0 recommendation: set serviceInstance to a version-scoped value
-      // (mirroring service.version or a release tag). Leaving it unset is fine — OAP
-      // records the instance as the literal `-` — but per-version dashboards need this.
+      // (mirroring service.version or a release tag). Leaving it unset means OTLP
+      // metrics + logs do not produce an instance entity at all (segments produce a
+      // literal `-`); per-version / per-release dashboards need this.
       serviceInstance: 'v1.2.0',
       collector: 'https://<oap-host>',
       platform: 'wechat',                  // optional — auto-detected
