@@ -117,17 +117,30 @@ The three signal pipelines key off different attributes by default:
 | Native trace segments | `serviceInstance` field on the segment (substituted with literal `-` if unset) |
 | OTLP logs (via LAL) | `sourceAttribute("service.instance.id")` (the recommended LAL extractor — see §5) |
 
-For all three to land on the same OAP instance entity, the operator must set
+For all three to land on the same OAP instance entity, the operator **must** set
 `init({ serviceInstance: <some-string> })` — recommended value is `service.version` so
 the same string appears as both `service.instance.id` (OTLP) and segment
-`serviceInstance`. When unset, all three signals consistently map to the literal `-`
-(metrics) / absent (logs) / `-` (segments) — still consistent in that *no* instance
-view is meaningful, but per-version dashboards are empty.
+`serviceInstance`.
+
+When `serviceInstance` is unset, the three pipelines do **not** uniformly fall back to
+the same placeholder — they each handle absence differently:
+
+| Pipeline | Behavior on absent `serviceInstance` |
+|---|---|
+| **Native trace segment** | SDK substitutes the literal `-` at the wire (mini-program-monitor `request.ts:147`); OAP records the instance entity literally as `-`. |
+| **OTLP log → LAL** | `TrafficSinkListener:83` short-circuits when `metadata.serviceInstance` is empty; **no instance traffic is generated**. |
+| **OTLP metric → MAL** | `SampleFamily.dim()` (`SampleFamily.java:715`) collapses missing labels to the empty string — the instance dimension is empty, no instance entity is built. |
+
+So the unset case is not "all three aligned under `-`" — segments get a `-` entity,
+logs and metrics get no instance entity at all. Operators who care about per-instance
+dashboards must set `serviceInstance`. This is documented as the recommended pattern in
+the SDK (`README.md` / `SIGNALS.md`) and pinned in the SDK's e2e CI.
 
 The earlier draft of this SWIP set the LAL `instance` to `sourceAttribute("service.version")`,
 which would make logs disagree with metrics + traces whenever `serviceInstance !=
-serviceVersion`. §5 below sources from `service.instance.id` directly to keep the three
-signal types aligned.
+serviceVersion`. §5 below sources from `service.instance.id` directly so when the
+operator follows the recommended pattern, all three signal types share the same
+instance entity.
 
 ### 3. Metric Coverage Per Platform
 
@@ -273,11 +286,12 @@ rules:
 
         extractor {
           layer platform == "wechat" ? "WECHAT_MINI_PROGRAM" : "ALIPAY_MINI_PROGRAM"
-          // Instance source must match what OTLP metrics + native segments use, so
-          // logs aggregate under the same OAP instance entity. SDK ≥ v0.4.0 emits
-          // service.instance.id only when operator passes init({serviceInstance: ...}).
-          // When absent, leave instance unset — OAP will record it as the same
-          // literal "-" the segment receiver records, keeping the three signals aligned.
+          // Instance source matches what OTLP metrics use, so logs aggregate under
+          // the same OAP instance entity when operator follows the recommended
+          // serviceInstance == serviceVersion pattern. SDK ≥ v0.4.0 emits
+          // service.instance.id only when init({serviceInstance: ...}) is set.
+          // If absent, sourceAttribute() returns null/empty → TrafficSinkListener
+          // skips the instance traffic, matching MAL's empty-dim behavior.
           instance sourceAttribute("service.instance.id")
           endpoint tag("miniprogram.page.path")
 
@@ -306,29 +320,49 @@ These segments are parsed by the normal trace pipeline — no new SPI is needed.
 Service-layer assignment already lives in
 `CommonAnalysisListener.identifyServiceLayer(SpanLayer)` (a `protected` instance method
 on the abstract base shared by `SegmentAnalysisListener`, `RPCAnalysisListener`, and
-related listeners in the agent-analyzer module). Today it maps `SpanLayer.FAAS →
-Layer.FAAS` and everything else to `Layer.GENERAL`. Extend it to also accept the span's
-component id (which the SDK already sets on every outbound span) and dispatch to the
-mini-program layers:
+`EndpointDepFromCrossThreadAnalysisListener` in the agent-analyzer module). Today it
+maps `SpanLayer.FAAS → Layer.FAAS` and everything else to `Layer.GENERAL`. Extend it to
+also accept the span's `componentId` (which the SDK already sets on every outbound span)
+and dispatch to the mini-program layers.
+
+The component name → id mapping lives in `component-libraries.yml` and is exposed only
+at runtime via `IComponentLibraryCatalogService`
+(`ComponentLibraryCatalogService.java:84-104`) — there are no auto-generated Java
+constants. So the listener's abstract base resolves the two ids once at construction
+time and caches them as `int` fields:
 
 ```java
-protected Layer identifyServiceLayer(SpanLayer spanLayer, int componentId) {
-    if (componentId == ComponentsDefine.WECHAT_MINI_PROGRAM.getId()) {
-        return Layer.WECHAT_MINI_PROGRAM;
+abstract class CommonAnalysisListener {
+    private final int wechatMiniProgramComponentId;
+    private final int alipayMiniProgramComponentId;
+
+    protected CommonAnalysisListener(IComponentLibraryCatalogService catalog) {
+        this.wechatMiniProgramComponentId = catalog.getComponentId("WeChat-MiniProgram");
+        this.alipayMiniProgramComponentId = catalog.getComponentId("AliPay-MiniProgram");
     }
-    if (componentId == ComponentsDefine.ALIPAY_MINI_PROGRAM.getId()) {
-        return Layer.ALIPAY_MINI_PROGRAM;
+
+    protected Layer identifyServiceLayer(SpanLayer spanLayer, int componentId) {
+        if (componentId == wechatMiniProgramComponentId) {
+            return Layer.WECHAT_MINI_PROGRAM;
+        }
+        if (componentId == alipayMiniProgramComponentId) {
+            return Layer.ALIPAY_MINI_PROGRAM;
+        }
+        if (SpanLayer.FAAS.equals(spanLayer)) {
+            return Layer.FAAS;
+        }
+        return Layer.GENERAL;
     }
-    if (SpanLayer.FAAS.equals(spanLayer)) {
-        return Layer.FAAS;
-    }
-    return Layer.GENERAL;
 }
 ```
 
-This requires two new component-library entries (see §7) and updating each call site
-to pass the span's `componentId` alongside its `SpanLayer`. No new SPI, no new listener
-registration — all the work happens inside the existing
+`IComponentLibraryCatalogService` is already a `CoreModule` service, so wiring it into
+the listener factories is one constructor parameter. Each of the 5 existing call sites
+in `RPCAnalysisListener` (×4) and `EndpointDepFromCrossThreadAnalysisListener` (×1)
+adds `span.getComponentId()` to its current `identifyServiceLayer(span.getSpanLayer())`
+call.
+
+No new SPI, no new listener registration — all the work happens inside the existing
 `SegmentParserListenerManager` pipeline.
 
 **Persistence:** default `true` — unlike iOS MetricKit spans (which represent 24-hour
@@ -438,21 +472,33 @@ Extend the existing `Mobile` menu group (added in SWIP-11) in
 Structure mirrors the iOS dashboards but **adds a trace widget** — because native
 segments are queryable in the normal trace UI (unlike iOS's OTLP→Zipkin path).
 
-**Per-service dashboard panels:**
+Metric names below use per-platform prefixes from §4 (`meter_wechat_mp` /
+`meter_wechat_mp_instance` / `meter_alipay_mp` / `meter_alipay_mp_instance`). The
+WeChat dashboard pulls from `meter_wechat_mp_*`; the Alipay dashboard pulls from
+`meter_alipay_mp_*`.
 
-| Panel Group    | Widgets                                                                                   | Notes                                       |
-|----------------|-------------------------------------------------------------------------------------------|---------------------------------------------|
-| App Launch     | `meter_miniprogram_app_launch_duration`                                                   | Both platforms                              |
-| Page Render    | `meter_miniprogram_first_render_duration`, `first_paint_time`*                            | *WeChat only                                |
-| Navigation     | `route_duration`*, `script_duration`*, `package_load_duration`*                           | *WeChat only — hidden on Alipay dashboard   |
-| Request Perf   | `meter_miniprogram_request_duration_percentile` (P50/P75/P90/P95/P99)                     | Both platforms                              |
-| Errors         | Error count by `exception.type`; top error endpoints                                      | Derived from LAL-processed logs             |
-| **Traces**     | Native trace list for the in-scope service (service list is layer-filtered upstream); endpoint trace drill-down | **Mini-program only** — iOS dashboards lack this because iOS traces go to Zipkin |
+**Per-service dashboard panels (WeChat):**
 
-**Per-instance (version) dashboard:** same metrics scoped to the service instance —
-version regression views.
+| Panel Group    | Widgets                                                                                                                | Notes                                                                            |
+|----------------|------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
+| App Launch     | `meter_wechat_mp_app_launch_duration`                                                                                  |                                                                                  |
+| Page Render    | `meter_wechat_mp_first_render_duration`                                                                                | `first_paint.time` is an epoch-ms timestamp, not aggregated by MAL — see §3      |
+| Navigation     | `meter_wechat_mp_route_duration`, `meter_wechat_mp_script_duration`, `meter_wechat_mp_package_load_duration`           | WeChat-only metrics — these panels are absent from the Alipay dashboard          |
+| Request Perf   | `meter_wechat_mp_request_duration_percentile` (P50/P75/P90/P95/P99)                                                    |                                                                                  |
+| Errors         | Error count by `exception.type`; top error endpoints                                                                   | Derived from LAL-processed logs                                                  |
+| **Traces**     | Native trace list for the in-scope service (service list is layer-filtered upstream); endpoint trace drill-down        | **Mini-program only** — iOS dashboards lack this because iOS traces go to Zipkin |
 
-**Per-endpoint (page) dashboard:** same metrics scoped to page, plus per-page error list.
+**Per-service dashboard panels (Alipay):** same shape as WeChat, but only includes the
+metrics Alipay actually emits (`app_launch_duration`, `first_render_duration`,
+`request_duration_percentile`, errors, traces). The Navigation row and the Page Render
+row's WeChat-only `first_paint` mention are absent.
+
+**Per-instance (version) dashboard:** same metric set scoped to the service instance —
+backed by `meter_wechat_mp_instance_*` / `meter_alipay_mp_instance_*` (§4).
+
+**Per-endpoint (page) dashboard:** uses the chained-`.endpoint(...)` per-page metrics
+from §4 (`endpoint_app_launch_duration`, `endpoint_first_render_duration`,
+`endpoint_request_duration_percentile`), plus per-page error list.
 
 #### UI Side
 
@@ -537,14 +583,17 @@ SDK's compiled JS, same license.
     creating one OAP instance entity per device — usually undesirable. Operators on
     v0.3.x can avoid this by passing `init({ serviceInstance: serviceVersion })`
     explicitly.
-  - SDK ≥ v0.4.0 leaves `service.instance.id` unset by default; OTLP omits the
-    attribute and OAP records the instance as the literal `-` (no special handling for
-    the placeholder — it shows up as an instance entity literally named `-` until the
-    operator sets `serviceInstance`).
+  - SDK ≥ v0.4.0 leaves `service.instance.id` unset by default. The three signal
+    pipelines then handle absence differently (see §2 "Instance coherence" table):
+    native segments produce a literal `-` instance entity; OTLP logs and metrics
+    create no instance entity at all. Per-instance dashboards are meaningful only
+    when the operator sets `serviceInstance`.
   - Recommended operator pattern (SDK docs + e2e CI): set `serviceInstance` to a
-    version-scoped value (mirroring `service.version` or a release tag).
+    version-scoped value (mirroring `service.version` or a release tag). Then all
+    three signal pipelines aggregate under the same OAP instance entity.
   - Dashboards built against pre-v0.4 traffic see a long tail of `mp-*` instance ids;
-    after upgrade, those collapse into a single (`-` or version-scoped) instance.
+    after upgrade with no `serviceInstance` set, only the segment-side `-` entity
+    remains. Set `serviceInstance` to keep populated per-version dashboards.
 - **`server.address` sentinel change in SDK v0.4.0:** when the request URL has no
   parseable `https?://host` prefix, OTLP now omits `server.address` (was `"unknown"`)
   and segments substitute `-` for `peer`. MAL queries that group / filter on
