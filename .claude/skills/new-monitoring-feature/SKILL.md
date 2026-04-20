@@ -11,6 +11,14 @@ There is one skill per narrow concern. This one is the wiring map.
 
 ---
 
+## Working posture
+
+- **Default scope for a new monitoring feature is narrow.** For most new monitoring targets, traces are **re-used as-is** — you do not write or modify a trace analyzer. Metrics and log extensions via OTLP (MAL + LAL) are the common shape. OTLP / Zipkin span-based metrics analysis (`SpanListener`) already exists and only needs a new implementation if your feature introduces genuinely new semantic-convention attributes to extract (e.g. `gen_ai.*`, `mcp.*` for the GenAI layer). Do **not** touch `CommonAnalysisListener` / `RPCAnalysisListener` / `SegmentAnalysisListener` unless the OAP core protocol gains a new `SpanLayer` enum value — details in §2.
+- **If you find yourself editing more than this skill suggests, stop and confirm.** Scope creep on trace analysis, span-layer mapping, receiver handlers, or protobuf/proto contracts is a strong signal the framing is wrong. Ask the developer before committing that direction.
+- **Verify every new feature locally before pushing to CI.** Compile + checkstyle + license-eye are minimums, but they only tell you the code builds — they do **not** tell you the new MAL rule compiles its closures at startup, the LAL layer:auto dispatch works, the OTLP payload shape matches the MAL labels, the UI template renders against real data, or the layer shows up in `swctl service ly <LAYER>`. Run the new e2e case end-to-end locally against a live OAP (see [run-e2e skill](../run-e2e/SKILL.md)) and fire every verify step with `swctl` by hand at least once. Pushing to CI without a local green run wastes shared CI cycles and slow-loops review.
+
+---
+
 ## 0. Register the `Layer` — the feature's entry point
 
 A `Layer` is how OAP slices services / instances / endpoints by data source. **Every new feature needs a new `Layer` enum value.** The UI, storage partitioning, menu navigation, and OAL aggregation all key off it.
@@ -63,6 +71,36 @@ All five DSLs (OAL, MAL, LAL, Hierarchy + SpanListener SPI) compile via ANTLR4 +
 
 SkyWalking OAP ingests traces through two distinct entry points. Pick based on source.
 
+> **Before writing any trace extension — ask "do I actually need one?"**
+>
+> For **most new layers you do not touch trace analysis at all.** Segments (native or
+> OTLP) flow through the existing pipeline, `RPCAnalysisListener.parseExit` produces
+> the outbound `ServiceRelation` edges, the backend-side agent produces the inbound
+> metrics via its own `parseEntry`, and the new-layer Service / Instance / Endpoint
+> entities come from **MAL + LAL**, not from trace analysis. This is how browser
+> (`Layer.BROWSER`), iOS (`Layer.IOS`), mobile mini-programs
+> (`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`), and most
+> scraped-metric layers work.
+>
+> Extend trace analysis **only** when the feature genuinely needs per-span
+> interpretation that the existing pipeline cannot express:
+>
+> - **A new `SpanLayer`** — OAP core protobuf has a new `SpanLayer` enum value that
+>   callers of `identifyServiceLayer` / `identifyRemoteServiceLayer` must dispatch on.
+>   That means touching `CommonAnalysisListener` / `RPCAnalysisListener`.
+> - **A genuinely new signal class not covered by existing listeners** — e.g. the GenAI
+>   work added `GenAISpanListener` for LLM / MCP instrumentation because OTLP spans
+>   carry semantic-convention attributes (`gen_ai.*`, `mcp.*`) that no prior listener
+>   extracted. That is rare.
+>
+> **Anti-pattern we've been bitten by:** using a componentId mapping in
+> `CommonAnalysisListener` to assign a client-side layer to exit-only segments. This
+> does not produce inbound metrics anyway (no entry spans → no
+> `service_cpm` / `endpoint_cpm` from OAL), and it is orthogonal to the Service entity
+> layer (which MAL / LAL sets). Mirror the browser pattern instead: ship `Layer` +
+> `component-libraries.yml` + MAL + LAL + dashboards, and leave the listener chain
+> alone.
+
 ### 2.1 SkyWalking native segments — `AnalysisListener`
 
 **Source protocol**: `apm-protocol/apm-network/src/main/proto/language-agent/Tracing.proto` (`TraceSegmentObject`).
@@ -112,7 +150,9 @@ Return `SpanListenerResult.builder().shouldPersist(false).build()` to prevent a 
 
 ### 3.1 OAL (for entities already produced by core sources)
 
-`oap-server/server-starter/src/main/resources/oal/core.oal` already defines the standard `service_cpm`, `service_resp_time`, `service_sla`, `endpoint_cpm`, etc. — keyed off the `Service`, `ServiceInstance`, `Endpoint` source scopes. If your new layer just emits those entities with the right `Layer`, you get all the core metrics for free.
+`oap-server/server-starter/src/main/resources/oal/core.oal` already defines the standard `service_cpm`, `service_resp_time`, `service_sla`, `endpoint_cpm`, etc. — keyed off the `Service`, `ServiceInstance`, `Endpoint` source scopes. If your new layer emits those entities with the right `Layer`, you get the core metrics for free.
+
+**Who emits those entities matters.** `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time` come from `RPCAnalysisListener.parseEntry` → `callingIn.toService()` / `toEndpoint()`. That only fires on **inbound entry spans**. Client-side / edge layers (browser, iOS, mini-programs) only emit exit spans, so these OAL metrics do **not** populate under those layers — their Service entities are produced by MAL / LAL, and their dashboards use MAL metrics (`meter_<layer>_*`) for load / latency, not `service_cpm` / `service_resp_time`. Don't wire dashboards to OAL-derived metrics that the layer never produces.
 
 Additional OAL rules go in the same file. OAL grammar: `oap-server/oal-grammar/src/main/antlr4/OALParser.g4`. Syntax and examples: [`docs/en/concepts-and-designs/oal.md`](../../../docs/en/concepts-and-designs/oal.md).
 
@@ -168,6 +208,8 @@ JSON files under `oap-server/server-starter/src/main/resources/ui-initialized-te
 - `<feature>-instance.json` — per-instance dashboard.
 - `<feature>-endpoint.json` — per-endpoint dashboard.
 - Menu link in `oap-server/server-starter/src/main/resources/ui-initialized-templates/menu.yaml`.
+
+> **Collaborate with the developer on dashboard design.** Dashboard layout and metric selection are product decisions, not derivable from the MAL rules alone. Before authoring the JSON, check in with the developer on: which metric goes on which panel, which percentiles / aggregations to show, what's on the root list vs. per-service vs. per-instance vs. per-endpoint pages, what stays in the Overview tab vs. a sub-tab, widget sizes / ordering, and whether Trace / Log tabs belong at all (depends on whether the feature emits traces and logs). Then **manually set up the feature against a live OAP** — emit a few real OTLP payloads, open each dashboard in the UI, confirm every widget renders non-empty, and walk the drill-down from root → service → instance → endpoint. Only after that eyes-on pass is the dashboard ready to ship.
 
 Details that always bite:
 
@@ -250,6 +292,8 @@ Run in order; each has a dedicated skill:
 | Trap | Symptom | Fix |
 |---|---|---|
 | Layer folder named with hyphens | `ui-initialized-templates/my-layer/*.json` on disk but dashboard empty | Folder must be `Layer.name().toLowerCase()` (underscores). `wechat_mini_program/`, not `wechat-mini-program/` |
+| Extending `CommonAnalysisListener` for a client-side layer | Added componentId → layer mapping "to get topology for free"; then `service_cpm` etc. don't populate anyway | Client-side (exit-only) layers don't need trace-analysis changes. Ship `Layer` + `component-libraries.yml` + MAL + LAL. See §2 header for when extending trace analysis is actually justified |
+| Dashboards wired to OAL-derived metrics on a client-side layer | Charts stay empty — `service_cpm` / `service_resp_time` / `endpoint_cpm` never populate | Those come from inbound `parseEntry`, which mini-program / browser / iOS don't emit. Use MAL metrics (`meter_<layer>_*`) instead |
 | Missing layer-root template | Menu item lands on empty "no dashboard" view | `Layer.vue:41-44` requires a template with `isRoot: true`; ship a `<layer>-root.json` (precedent: `ios/ios-root.json`) |
 | New layer not selectable in UI / swctl | `service ly <LAYER>` returns empty | Add the enum in `Layer.java` with a fresh id; see §0 |
 | Stale dist in image | `make docker.oap` succeeds but behavior is old | See [`package` skill](../package/SKILL.md); rebuild dist first, then image |
