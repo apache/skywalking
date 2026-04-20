@@ -21,8 +21,8 @@ provides a single JavaScript client that covers both WeChat and Alipay runtimes.
 
 Because the SDK speaks **standard OTLP + SkyWalking native**, no new receiver is required.
 This SWIP focuses on: two new layers, platform-aware MAL/LAL routing, service/instance/
-endpoint entity convention, a `SpanListener` for native trace segments, menu/dashboard
-support, and a data generator for skywalking-showcase.
+endpoint entity convention, componentId-driven layer mapping for native trace segments,
+menu/dashboard support, and a data generator for skywalking-showcase.
 
 This SWIP builds on LAL `layer: auto` / `sourceAttribute()` (SWIP-11) and the existing
 `SegmentParserListenerManager` trace-analyzer pipeline — no new general-purpose
@@ -97,7 +97,7 @@ aggregation dimensions:
 
 | Dropped                                              | Instead used as                                    | Why                                                           |
 |------------------------------------------------------|----------------------------------------------------|---------------------------------------------------------------|
-| `service.instance.id` (device-level, `mp-ax91z2pf`)  | Span tag on trace segments only                    | Unbounded cardinality — millions for any real user base       |
+| Per-device `service.instance.id`                     | Not aggregated as an entity                        | Unbounded cardinality — millions for any real user base. SDK ≥ v0.4.0 no longer auto-generates a device id; operators set `serviceInstance` to a version-scoped value (see §8). |
 | `server.address` (remote host for outbound requests) | Metric label on `miniprogram.request.duration` + `peer` on segments | Not a mini-program entity; topology handles it via tracing |
 
 All three entities are needed — each answers a distinct question:
@@ -147,42 +147,65 @@ metricPrefix: meter_miniprogram
 filter: "{ tags -> tags['miniprogram_platform'] == 'wechat' }"
 
 metricsRules:
+  # Service-scoped (overall app perf) — uses expSuffix layer
   - name: app_launch_duration
-    exp: miniprogram_app_launch_duration.sum(['service_name', 'service_instance_id', 'miniprogram_page_path']).avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id'])
   - name: first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id'])
   # first_paint.time is an epoch-ms timestamp, not a duration — averaging is meaningless,
   # so it's NOT exposed as a MAL metric. Available via raw OTLP query / trace correlation.
   - name: route_duration
-    exp: miniprogram_route_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_route_duration.avg(['service_name', 'service_instance_id'])
   - name: script_duration
-    exp: miniprogram_script_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_script_duration.avg(['service_name', 'service_instance_id'])
   - name: package_load_duration
-    exp: miniprogram_package_load_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_package_load_duration.avg(['service_name', 'service_instance_id'])
   - name: request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+
+  # Endpoint-scoped (per-page perf) — chained .endpoint(...) overrides expSuffix
+  - name: endpoint_app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
 ---
-# Alipay series — only the metrics Alipay actually emits
+# Alipay series — same metric body, only the metrics Alipay actually emits
 expSuffix: service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
 metricPrefix: meter_miniprogram
 filter: "{ tags -> tags['miniprogram_platform'] == 'alipay' }"
 
 metricsRules:
   - name: app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id'])
   - name: first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id', 'miniprogram_page_path'])
+    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id'])
   - name: request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+  - name: endpoint_app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
+  - name: endpoint_first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
+  - name: endpoint_request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
 ```
 
 Notes:
-- `service_instance_id` in MAL = OTLP resource `service.version` (per §2). The OTLP
-  receiver's label normalization already maps `service.version` → `service_instance_id`
-  when `service.instance.id` is absent or device-ephemeral. (SDK guidance in §7: omit
-  `service.instance.id` or set it to the version; device id goes on span tags only.)
-- `miniprogram_page_path` is a metric label, producing **endpoint-scoped** metrics via
-  OAP's label-to-endpoint mapping.
+- **Two YAML documents share the metric body**, differing only by `filter` (platform
+  selector) and the layer in `expSuffix` / chained `.endpoint(...)`. The two platforms'
+  shared metrics map to the same names; per-platform divergence (WeChat-only metrics)
+  appears as extra rules in the WeChat document only.
+- **`service_instance_id` source:** SDK ≥ v0.4.0 maps `service.instance.id` to whatever
+  the operator passes to `init({ serviceInstance: ... })` (recommendation: a
+  version-scoped value, mirroring `service.version`). When the operator leaves it
+  unset, OTLP omits the resource attribute and OAP records the instance as the literal
+  `-`. MAL could optionally substitute `service_name` for `service_instance_id` as a
+  fail-safe (e.g., via a `tag {tags -> tags.service_instance_id = tags.service_instance_id ?: tags.service_name}`
+  prefix) but standard practice is to rely on the agent/SDK to set it correctly.
+- The `.endpoint(...)` chain mirrors the APISIX / RocketMQ MAL pattern — chained on
+  the expression rather than declared in `expSuffix`, because each rule decides whether
+  it wants service-scoped or endpoint-scoped output.
 
 ### 5. LAL Rules (Error Logs, `layer: auto` Fork by Platform)
 
@@ -228,13 +251,15 @@ The SDK posts `SegmentObject` directly to `/v3/segments` (SkyWalking native prot
 These segments are parsed by the normal trace pipeline — no new SPI is needed.
 
 Service-layer assignment already lives in
-`CommonAnalysisListener.getLayer(SpanLayer)` in the agent-analyzer module, which maps
-`SpanLayer.FAAS → Layer.FAAS` and everything else to `Layer.GENERAL`. Extend the same
-method to also look at the span's component id, which the SDK already sets on every
-outbound span:
+`CommonAnalysisListener.identifyServiceLayer(SpanLayer)` (a `protected` instance method
+on the abstract base shared by `SegmentAnalysisListener`, `RPCAnalysisListener`, and
+related listeners in the agent-analyzer module). Today it maps `SpanLayer.FAAS →
+Layer.FAAS` and everything else to `Layer.GENERAL`. Extend it to also accept the span's
+component id (which the SDK already sets on every outbound span) and dispatch to the
+mini-program layers:
 
 ```java
-public static Layer getLayer(SpanLayer spanLayer, int componentId) {
+protected Layer identifyServiceLayer(SpanLayer spanLayer, int componentId) {
     if (componentId == ComponentsDefine.WECHAT_MINI_PROGRAM.getId()) {
         return Layer.WECHAT_MINI_PROGRAM;
     }
@@ -248,8 +273,8 @@ public static Layer getLayer(SpanLayer spanLayer, int componentId) {
 }
 ```
 
-This requires two new component-library entries (see §7) and a small change to the
-`getLayer()` call sites so they pass the componentId. No new SPI, no new listener
+This requires two new component-library entries (see §7) and updating each call site
+to pass the span's `componentId` alongside its `SpanLayer`. No new SPI, no new listener
 registration — all the work happens inside the existing
 `SegmentParserListenerManager` pipeline.
 
@@ -279,22 +304,25 @@ makes the layer mapping in §6 effective.
 
 ### 8. SDK-Side Convention
 
-mini-program-monitor v0.3.0 already lands two of the three originally-proposed SDK
-conventions:
+All three originally-proposed SDK conventions are resolved as of mini-program-monitor
+**v0.4.0** (released):
 
-| Convention                                                    | Status in v0.3.0                          |
-|---------------------------------------------------------------|-------------------------------------------|
-| Per-platform `componentId` on exit spans (`10002` / `10003`)  | ✅ shipped                                |
-| `miniprogram.platform` span tag on every exit span            | ✅ shipped                                |
-| Default `serviceInstance` to `service.version` (not device id)| ❌ pending — SDK still uses `autoInstance()` |
+| Convention                                              | Status                                                                                   |
+|---------------------------------------------------------|------------------------------------------------------------------------------------------|
+| Per-platform `componentId` on exit spans (`10002` / `10003`) | ✅ shipped in v0.3.0                                                                |
+| `miniprogram.platform` span tag on every exit span      | ✅ shipped in v0.3.0                                                                     |
+| Drop auto-generated per-device `serviceInstance`        | ✅ shipped in v0.4.0 — `serviceInstance` defaults to unset; OTLP omits `service.instance.id`, native segments substitute `-` (protocol-mandatory field) |
+| Recommend version-scoped `serviceInstance`              | ✅ documented in SDK README / SIGNALS / SAMPLES + e2e CI pins it to `service.version`    |
 
-**Remaining ask** for a future SDK release: change the default `serviceInstance` from
-the auto-generated device-style id (`mp-ax91z2pf`) to `service.version`, so OTLP metrics
-and trace segments aggregate under the same instance entity. The device id should move
-to a span tag (e.g., `miniprogram.device`) for per-session trace filtering. Operators
-can already work around this today by passing `serviceInstance: serviceVersion` in their
-own `init({...})` call; documenting this in the per-platform docs (§9 doc page) covers
-the gap until the SDK default changes.
+The originally-imagined "default to `service.version`" was rejected upstream in favor
+of a cleaner shape: the SDK has no opinion on what `serviceInstance` should be, but its
+docs explicitly recommend a version-scoped value (mirroring `service.version` or a
+release tag). When operators leave it unset, OTLP simply omits `service.instance.id` —
+spec-allowed (it's RECOMMENDED, not REQUIRED) — and OAP aggregates at the service level.
+
+This also means **no need for a `miniprogram.device` span tag fallback** — the device-id
+problem is gone at the source. Operators that genuinely need per-session granularity
+can still pass `init({ serviceInstance: '<their-id>' })` themselves.
 
 ### 9. UI Menu and Dashboards
 
@@ -338,7 +366,7 @@ UI (unlike iOS's OTLP→Zipkin path).
 | Navigation     | `route_duration`*, `script_duration`*, `package_load_duration`*                           | *WeChat only — hidden on Alipay dashboard   |
 | Request Perf   | `meter_miniprogram_request_duration_percentile` (P50/P75/P90/P95/P99)                     | Both platforms                              |
 | Errors         | Error count by `exception.type`; top error endpoints                                      | Derived from LAL-processed logs             |
-| **Traces**     | Native trace list filtered by layer; endpoint trace drill-down                            | **Mini-program only** — iOS dashboards lack this because iOS traces go to Zipkin |
+| **Traces**     | Native trace list for the in-scope service (service list is layer-filtered upstream); endpoint trace drill-down | **Mini-program only** — iOS dashboards lack this because iOS traces go to Zipkin |
 
 **Per-instance (version) dashboard:** same metrics scoped to the service instance —
 version regression views.
@@ -365,7 +393,7 @@ repo. Just two service entries pointing at OAP, e.g.:
 
 ```yaml
 sim-wechat:
-  image: ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.3.0
+  image: ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.0
   environment:
     MODE: loop
     SCENARIO: demo
@@ -373,8 +401,9 @@ sim-wechat:
     TRACE_COLLECTOR_URL: http://oap:12800
     SERVICE: showcase-wechat-mp
     SERVICE_VERSION: v1.0.0
+    SERVICE_INSTANCE: v1.0.0           # version-scoped, mirrors SDK recommendation
 sim-alipay:
-  image: ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.3.0
+  image: ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.0
   environment:
     MODE: loop
     SCENARIO: demo
@@ -382,6 +411,7 @@ sim-alipay:
     TRACE_COLLECTOR_URL: http://oap:12800
     SERVICE: showcase-alipay-mp
     SERVICE_VERSION: v1.0.0
+    SERVICE_INSTANCE: v1.0.0
 ```
 
 **Run modes** (env `MODE`): `loop` (forever, for demo), `timed` (for `DURATION_MS` then
@@ -415,22 +445,36 @@ SDK's compiled JS, same license.
   continue to resolve to `Layer.GENERAL` / `Layer.FAAS` as today.
 - **Component library:** `10002` and `10003` are newly reserved ids in the JavaScript
   range `[10000, 11000)`; no collision with existing entries.
-- **SDK version dependency:** mini-program-monitor **≥ v0.3.0** is required for the
-  per-platform `componentId` and `miniprogram.platform` span tag. SDK ≤ v0.2.x emits
-  `componentId = 10001` (ajax-inherited) — its segments resolve to `Layer.GENERAL` and
-  do not benefit from this SWIP's layer/topology integration. OTLP metrics + logs from
-  v0.2.x still flow through MAL/LAL normally because they key on `miniprogram.platform`
-  resource attribute, which v0.2 already emits.
-- **SDK change:** the instance-id/version convention change (§7) is SDK-internal, not a
-  wire format change. Older SDK versions continue to work but produce misaligned
-  instance entities between metrics and traces — documented as a known limitation for
-  pre-fix SDK versions.
+- **SDK version recommendation:** mini-program-monitor **≥ v0.4.0** is the recommended
+  baseline. v0.3.0 also works but with the legacy instance-id behavior below.
+  - SDK ≤ v0.2.x emits `componentId = 10001` (ajax-inherited) — its segments resolve
+    to `Layer.GENERAL` and do not benefit from this SWIP's layer / topology integration.
+    OTLP metrics + logs still flow through MAL / LAL because they key on the
+    `miniprogram.platform` resource attribute, which v0.2 already emits.
+- **Instance entity behavior across SDK versions:**
+  - SDK ≤ v0.3.x auto-generated `service.instance.id = mp-{random}` per session,
+    creating one OAP instance entity per device — usually undesirable. Operators on
+    v0.3.x can avoid this by passing `init({ serviceInstance: serviceVersion })`
+    explicitly.
+  - SDK ≥ v0.4.0 leaves `service.instance.id` unset by default; OTLP omits the
+    attribute and OAP records the instance as the literal `-` (no special handling for
+    the placeholder — it shows up as an instance entity literally named `-` until the
+    operator sets `serviceInstance`).
+  - Recommended operator pattern (SDK docs + e2e CI): set `serviceInstance` to a
+    version-scoped value (mirroring `service.version` or a release tag).
+  - Dashboards built against pre-v0.4 traffic see a long tail of `mp-*` instance ids;
+    after upgrade, those collapse into a single (`-` or version-scoped) instance.
+- **`server.address` sentinel change in SDK v0.4.0:** when the request URL has no
+  parseable `https?://host` prefix, OTLP now omits `server.address` (was `"unknown"`)
+  and segments substitute `-` for `peer`. MAL queries that group / filter on
+  `server.address == "unknown"` need to union the old sentinel with the new behavior
+  for data spanning the v0.3 → v0.4 upgrade boundary.
 
 ## General usage docs
 
 ### Prerequisites
 
-- Mini program instrumented with [mini-program-monitor](https://github.com/SkyAPM/mini-program-monitor) **≥ v0.3.0** (per-platform componentId + `miniprogram.platform` span tag)
+- Mini program instrumented with [mini-program-monitor](https://github.com/SkyAPM/mini-program-monitor) **≥ v0.4.0** recommended (clean `serviceInstance` defaults). v0.3.0 still works with manual `serviceInstance: serviceVersion` workaround.
 - SkyWalking OAP with the changes from this SWIP — OTLP HTTP receiver enabled (default on core REST port 12800), and the two new component ids registered
 
 ### Mini Program Setup
@@ -443,8 +487,9 @@ App({
     init({
       service: 'my-mini-program',
       serviceVersion: 'v1.2.0',
-      // Workaround until SDK default changes: align serviceInstance with version so
-      // OTLP metrics and SW native segments aggregate under the same instance entity.
+      // SDK ≥ v0.4.0 recommendation: set serviceInstance to a version-scoped value
+      // (mirroring service.version or a release tag). Leaving it unset is fine — OAP
+      // records the instance as the literal `-` — but per-version dashboards need this.
       serviceInstance: 'v1.2.0',
       collector: 'https://<oap-host>',
       platform: 'wechat',                  // optional — auto-detected
@@ -502,8 +547,10 @@ existing trace receiver. Layer is assigned automatically from the span's compone
   timings. Do not compare WeChat and Alipay perf numbers head-to-head.
 - WeChat-only metrics (`first_paint_time`, `route_duration`, `script_duration`,
   `package_load_duration`, `pageNotFound` error) are absent from Alipay dashboards.
-- Device-level per-user aggregation is not supported — instance is version, not device.
-  Individual user sessions are filterable in the trace view via the `miniprogram.device`
-  span tag.
+- Device-level per-user aggregation is not supported by design — `serviceInstance`
+  is intended to be a version-scoped identifier, not per-device. SDK v0.4.0 dropped
+  the per-device auto-generator entirely; operators who genuinely need per-session
+  granularity can pass any string they want via `init({ serviceInstance: '…' })`,
+  but be aware OAP aggregates one instance entity per distinct value.
 - WebSocket, memory-warning, and network-status-change signals are not instrumented by
   the current SDK.
