@@ -1,0 +1,385 @@
+[
+  {
+    "id": "WeChat-Mini-Program-Service",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 64,
+          "i": "4",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "App Launch Duration (ms)",
+                    "tips": "Mini program start-up time from wx.getPerformance() entries, averaged fleet-wide"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_app_launch_duration"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "First Render Duration (ms)",
+                    "tips": "PerformanceObserver firstRender entry averaged fleet-wide"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_first_render_duration"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 0,
+                  "w": 8,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Package Load Duration (ms)",
+                    "tips": "PerformanceObserver loadPackage entry"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_package_load_duration"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 12,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Route Duration (ms)",
+                    "tips": "PerformanceObserver navigation / route entry"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_route_duration"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 15,
+                  "w": 12,
+                  "h": 15,
+                  "i": "4",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Script Duration (ms)",
+                    "tips": "PerformanceObserver script entry"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_script_duration"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 24,
+                  "h": 15,
+                  "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Duration Percentile (ms)",
+                    "tips": "miniprogram.request.duration histogram — P50 / P75 / P90 / P95 / P99"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "relabels(meter_wechat_mp_request_duration_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='P50,P75,P90,P95,P99')"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Load (calls / min)",
+                    "tips": "Outbound HTTP requests observed by the mini program, derived from native trace segments"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_cpm"
+                  ]
+                },
+                {
+                  "x": 8,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "7",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Avg Response Time (ms)",
+                    "tips": "Client-observed average latency of outbound HTTP requests"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_resp_time"
+                  ]
+                },
+                {
+                  "x": 16,
+                  "y": 45,
+                  "w": 8,
+                  "h": 15,
+                  "i": "8",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Outbound Success Rate (%)",
+                    "tips": "Percentage of outbound HTTP requests with status code < 400"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "service_sla/100"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 60,
+                  "w": 24,
+                  "h": 15,
+                  "i": "9",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Error Count",
+                    "tips": "Counted from LAL-processed error logs, aggregated per service"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_error_count"
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Instance",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 60,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "App Version Breakdown",
+                    "tips": "Each instance represents a release / version (service.instance.id — recommended pattern: service.version). Compare across releases."
+                  },
+                  "graph": {
+                    "type": "InstanceList",
+                    "dashboardName": "WeChat-Mini-Program-Instance",
+                    "fontSize": 12
+                  },
+                  "expressions": [
+                    "avg(meter_wechat_mp_instance_app_launch_duration)",
+                    "avg(meter_wechat_mp_instance_first_render_duration)",
+                    "avg(meter_wechat_mp_instance_request_duration_percentile{p='95'})",
+                    "avg(service_instance_cpm)"
+                  ],
+                  "subExpressions": [
+                    "meter_wechat_mp_instance_app_launch_duration",
+                    "meter_wechat_mp_instance_first_render_duration",
+                    "meter_wechat_mp_instance_request_duration_percentile{p='95'}",
+                    "service_instance_cpm"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "Launch Duration",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "First Render",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "Request P95",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "Outbound Load",
+                      "unit": "calls / min"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Endpoint",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 60,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Pages",
+                    "tips": "In-app pages (miniprogram.page.path). Click a row to drill into per-page perf + errors."
+                  },
+                  "graph": {
+                    "type": "EndpointList",
+                    "dashboardName": "WeChat-Mini-Program-Endpoint",
+                    "fontSize": 12,
+                    "showXAxis": false,
+                    "showYAxis": false
+                  },
+                  "expressions": [
+                    "avg(meter_wechat_mp_endpoint_first_render_duration)",
+                    "avg(meter_wechat_mp_endpoint_request_duration_percentile{p='95'})",
+                    "avg(endpoint_cpm)"
+                  ],
+                  "subExpressions": [
+                    "meter_wechat_mp_endpoint_first_render_duration",
+                    "meter_wechat_mp_endpoint_request_duration_percentile{p='95'}",
+                    "endpoint_cpm"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "First Render",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "Request P95",
+                      "unit": "ms"
+                    },
+                    {
+                      "label": "Outbound Load",
+                      "unit": "calls / min"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "Trace",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 60,
+                  "i": "0",
+                  "type": "Trace"
+                }
+              ]
+            },
+            {
+              "name": "Log",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 24,
+                  "h": 60,
+                  "i": "0",
+                  "type": "Log"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "WECHAT_MINI_PROGRAM",
+      "entity": "Service",
+      "name": "WeChat-Mini-Program-Service",
+      "isRoot": false
+    }
+  }
+]
