@@ -35,6 +35,7 @@
 * Add iOS/iPadOS app monitoring via OpenTelemetry Swift SDK (SWIP-11). Includes the `IOS` layer, `IOSHTTPSpanListener` for outbound HTTP client metrics (supports OTel Swift `.old`/`.stable`/`.httpDup` semantic-convention modes via stable-then-legacy attribute fallback), `IOSMetricKitSpanListener` for daily MetricKit metrics (exit counts split by foreground/background, app-launch / hang-time percentile histograms with finite 30 s overflow ceiling), LAL rules for crash/hang diagnostics, Mobile menu, and iOS dashboards.
 * Fix LAL `layer: auto` mode dropping logs after extractor set the layer. Codegen now propagates `layer "..."` assignments to `LogMetadata.layer` so `FilterSpec.doSink()` sees the script-decided layer.
 * Fix MetricKit histogram percentile metrics being reported at 1000× their true value — the listener now marks its `SampleFamily` with `defaultHistogramBucketUnit(MILLISECONDS)` so MAL's default SECONDS→MS rescale of `le` labels is not applied.
+* Add WeChat and Alipay Mini Program monitoring via the SkyAPM mini-program-monitor SDK (SWIP-12). Two new layers (`WECHAT_MINI_PROGRAM`, `ALIPAY_MINI_PROGRAM`); two new JavaScript componentIds (`WeChat-MiniProgram: 10002`, `AliPay-MiniProgram: 10003`); componentId-driven layer mapping in `CommonAnalysisListener` so native trace segments land on the correct layer with no new SPI; MAL rules per platform × scope under `otel-rules/miniprogram/` including chained `.endpoint(...)` per-page variants; LAL `layer: auto` rule that produces both layers via `miniprogram.platform` dispatch and emits error-count samples; log-MAL rule for per-layer `error_count`; per-layer menu entries and service / instance / endpoint dashboards with a dedicated Trace tab.
 
 #### UI
 * Add mobile menu icon and i18n labels for the iOS layer.
@@ -43,6 +44,7 @@
 #### Documentation
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
 * Add iOS app monitoring setup documentation.
+* Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
 
