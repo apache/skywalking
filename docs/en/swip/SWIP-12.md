@@ -334,38 +334,36 @@ Mirror the WeChat files exactly, differing only in:
   service scope (default from `expSuffix`), the next emits to endpoint scope by
   chaining `.endpoint(...)` at the end.
 
-#### Histogram unit — `miniprogram.request.duration` is in milliseconds
+#### Histogram bucket unit — SDK should follow the seconds convention
 
-The SDK emits the `miniprogram.request.duration` histogram with `le` bucket bounds
-in **milliseconds** (`[10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]`). MAL's
-`SampleFamily.histogram()` default assumes seconds and rescales `le` by
-`defaultHistogramBucketUnit.toMillis(1)` (×1000). Without compensation, percentiles
-come out 1000× too large — the exact bug that bit MetricKit in SWIP-11 (fixed via
-`IOSMetricKitSpanListener` marking its `SampleFamily` with
-`defaultHistogramBucketUnit(MILLISECONDS)`).
+OAP's MAL `SampleFamily.histogram()` rescales `le` labels into milliseconds using
+`defaultHistogramBucketUnit` (default `SECONDS` on the OTLP ingestion path, because
+`PrometheusMetricConverter` builds `SampleFamily` without overriding the default).
+This matches Prometheus ecosystem convention, where latency histograms ship `le`
+values in seconds (e.g. `[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]`).
 
-Mini-program metrics don't go through a custom listener — they arrive via the standard
-OTLP metric receiver. Two options at implementation time:
+The SDK currently emits `miniprogram.request.duration` bucket bounds in **ms**
+(`[10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]`). To land correctly on the
+OAP default ingestion path, the SDK should switch to seconds-convention bounds in its
+next release — same numeric coverage, just divided by 1000. This is an SDK-side change
+only; no OAP-side preprocessor needed. Tracked as a prerequisite alongside the SWIP-12
+implementation.
 
-1. **Preferred:** OTLP metric receiver honors the OTLP `Metric.unit` field (`"ms"` for
-   this histogram) when building `SampleFamily` — a general-purpose improvement that
-   benefits any OTLP ms-native histogram. Scope this as a separate enhancement.
-2. **Fallback:** a minimal `OTLPMetricPreprocessor` (or per-metric override in the MAL
-   rule file header) that marks matching samples with
-   `defaultHistogramBucketUnit(MILLISECONDS)` before MAL sees them.
+The alternative — adding a mini-program-specific OAP preprocessor that marks
+`SampleFamily` with `defaultHistogramBucketUnit(MILLISECONDS)` — complicates OAP
+wiring for a single feature and is rejected. Match the ecosystem convention at the SDK
+boundary.
 
-Either approach must be in place before the request-latency panels are trusted.
+#### `+Inf` overflow bucket
 
-#### Finite sentinel for the `+Inf` overflow bucket
-
-The SDK's 11-bucket histogram has an implicit `+Inf` overflow for observations above
-10 s. MAL stores `le="Infinity"` as `Long.MAX_VALUE` (≈9.2 × 10¹⁸), which the UI
-renders as a visual garbage number when a percentile lands there. SWIP-11 capped
-MetricKit hang/launch histograms at 30 s. For mini-program request duration, any
-observation > 10 s is already an outlier; the SDK histogram should either be updated to
-include a finite overflow bound (e.g. 30 s) or the OAP-side preprocessor should
-substitute a finite ceiling before percentile computation. Track as an SDK/OAP
-coordination item.
+The SDK's histogram has an implicit `+Inf` overflow for observations above the top
+bucket. MAL stores `le="Infinity"` as `Long.MAX_VALUE` (≈9.2 × 10¹⁸); if a percentile
+lands in the overflow bucket the UI renders that sentinel as a visible garbage number.
+For request duration, the top finite bound of 10 s covers essentially all real requests,
+so this is a low-risk dashboard-rendering concern rather than a correctness issue. If
+outlier percentiles turn out to surface the sentinel in practice, the SDK can add a
+finite overflow bound (e.g. a 30 s bucket) — same treatment SWIP-11 applied to the
+MetricKit hang/launch histograms.
 
 ### 5. LAL Rules (Error Logs, `layer: auto` Fork by Platform)
 
