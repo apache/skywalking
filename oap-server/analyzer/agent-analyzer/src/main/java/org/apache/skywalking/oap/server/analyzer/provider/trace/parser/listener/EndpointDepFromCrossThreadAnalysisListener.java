@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
@@ -29,7 +30,6 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -42,22 +42,13 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  *
  * @since 9.0.0
  */
+@RequiredArgsConstructor
 public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisListener implements ExitAnalysisListener, LocalAnalysisListener {
     private final SourceReceiver sourceReceiver;
     private final AnalyzerModuleConfig config;
     private final NamingControl namingControl;
 
     private final List<EndpointDependencyBuilder> depBuilders = new ArrayList<>(10);
-
-    public EndpointDepFromCrossThreadAnalysisListener(final SourceReceiver sourceReceiver,
-                                                      final AnalyzerModuleConfig config,
-                                                      final NamingControl namingControl,
-                                                      final IComponentLibraryCatalogService componentLibraryCatalogService) {
-        super(componentLibraryCatalogService);
-        this.sourceReceiver = sourceReceiver;
-        this.config = config;
-        this.namingControl = namingControl;
-    }
 
     @Override
     public boolean containsPoint(final Point point) {
@@ -111,7 +102,7 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer(), span.getComponentId()));
+                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -145,21 +136,17 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
-        private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
-            this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
-                                                               .provider()
-                                                               .getService(IComponentLibraryCatalogService.class);
         }
 
         @Override
         public AnalysisListener create(final ModuleManager moduleManager, final AnalyzerModuleConfig config) {
-            return new EndpointDepFromCrossThreadAnalysisListener(sourceReceiver, config, namingControl, componentLibraryCatalogService);
+            return new EndpointDepFromCrossThreadAnalysisListener(sourceReceiver, config, namingControl);
         }
     }
 }

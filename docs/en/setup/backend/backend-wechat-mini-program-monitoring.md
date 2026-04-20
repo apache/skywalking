@@ -96,13 +96,16 @@ the chained `.endpoint(...)` override inside the service-scope file and surface 
 It is passed through as a raw gauge sample but not aggregated by MAL — surface it only on
 per-page trace / log views where the absolute timestamp has meaning.
 
-Outbound HTTP metrics come "for free" from the existing `core.oal` rules once the component-id
-mapping assigns the WECHAT_MINI_PROGRAM layer to segments. Under the WeChat Mini Program layer
-you get: `service_cpm`, `service_resp_time`, `service_sla`, `service_percentile`, `service_apdex`,
-`service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla`,
-`service_instance_percentile`, `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`,
-`endpoint_percentile`, plus `ServiceRelation` / `EndpointRelation` topology edges to the
-backend services the mini-program calls.
+Mini-program native trace segments are client-side (exit-only) — the same shape as browser
+JS-agent traces. They flow through OAP's standard `RPCAnalysisListener` pipeline and produce
+`ServiceRelation` / `ServiceInstanceRelation` edges to the backend services the mini-program
+calls (so topology shows the outbound dependency), but do **not** produce
+`service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time`
+under the mini-program layer — those come from inbound (entry-span) analysis, which
+mini-programs don't have. The mini-program service / instance / endpoint entities are
+created by MAL (OTLP metrics) and LAL (OTLP logs) instead. All request-load / latency
+metrics on the dashboard come from the `miniprogram.request.duration` histogram's
+`_count` + bucket families.
 
 ## Error Logs
 

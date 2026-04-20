@@ -19,18 +19,22 @@
             "showGroup": true
           },
           "expressions": [
+            "avg(meter_alipay_mp_request_cpm)",
             "avg(meter_alipay_mp_app_launch_duration)",
             "avg(meter_alipay_mp_first_render_duration)",
-            "avg(meter_alipay_mp_request_duration_percentile{p='95'})",
-            "avg(service_cpm)"
+            "avg(meter_alipay_mp_request_duration_percentile{p='95'})"
           ],
           "subExpressions": [
+            "meter_alipay_mp_request_cpm",
             "meter_alipay_mp_app_launch_duration",
             "meter_alipay_mp_first_render_duration",
-            "meter_alipay_mp_request_duration_percentile{p='95'}",
-            "service_cpm"
+            "meter_alipay_mp_request_duration_percentile{p='95'}"
           ],
           "metricConfig": [
+            {
+              "label": "Request Load",
+              "unit": "calls / min"
+            },
             {
               "label": "Launch Duration",
               "unit": "ms"
@@ -42,10 +46,6 @@
             {
               "label": "Request P95",
               "unit": "ms"
-            },
-            {
-              "label": "Outbound Load",
-              "unit": "calls / min"
             }
           ]
         },

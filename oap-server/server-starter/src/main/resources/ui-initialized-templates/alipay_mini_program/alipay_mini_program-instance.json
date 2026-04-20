@@ -22,8 +22,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Launch Duration (approx, ms)",
-                    "tips": "Lifecycle-based approximation for this release"
+                    "title": "App Launch Duration (approx, ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -45,8 +44,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "First Render Duration (approx, ms)",
-                    "tips": "Lifecycle-based approximation for this release"
+                    "title": "First Render Duration (approx, ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -68,8 +66,29 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Request Duration Percentile (ms)",
-                    "tips": "P50 / P75 / P90 / P95 / P99 for this release"
+                    "title": "Request Load (calls / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_alipay_mp_instance_request_cpm"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 24,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Duration Percentile (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -86,72 +105,6 @@
                     {
                       "label": "P50, P75, P90, P95, P99"
                     }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "3",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Load (calls / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_cpm"
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "4",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Avg Response Time (ms)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_resp_time"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "5",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Success Rate (%)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_sla/100"
                   ]
                 }
               ]

@@ -37,14 +37,22 @@ metricsRules:
   - name: package_load_duration
     exp: miniprogram_package_load_duration.avg(['service_name'])
 
-  # Request latency percentile
+  # Request load (calls per minute) — delta counter, MAL's 1-minute bucketing
+  # sums per-flush counts into requests-per-minute directly.
+  - name: request_cpm
+    exp: miniprogram_request_duration_count.sum(['service_name'])
+
+  # Request latency percentile — bucket `le` labels already in ms, MILLISECONDS
+  # unit stops MAL's default SECONDS → MS rescale (× 1000).
   - name: request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration.sum(['service_name', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99])
 
   # Per-page (endpoint-scoped) variants — chained .endpoint(...) overrides the expSuffix.
   - name: endpoint_app_launch_duration
     exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
   - name: endpoint_first_render_duration
     exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_request_cpm
+    exp: miniprogram_request_duration_count.sum(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
   - name: endpoint_request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+    exp: miniprogram_request_duration.sum(['service_name', 'miniprogram_page_path', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)

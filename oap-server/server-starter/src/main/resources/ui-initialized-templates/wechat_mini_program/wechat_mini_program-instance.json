@@ -22,8 +22,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Launch Duration (ms)",
-                    "tips": "Launch duration for this release"
+                    "title": "App Launch Duration (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -45,8 +44,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "First Render Duration (ms)",
-                    "tips": "First render duration for this release"
+                    "title": "First Render Duration (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -134,6 +132,29 @@
                   "i": "5",
                   "type": "Widget",
                   "widget": {
+                    "title": "Request Load (calls / min)",
+                    "tips": "Outbound HTTP request count for this release"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_instance_request_cpm"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 45,
+                  "w": 24,
+                  "h": 15,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
                     "title": "Request Duration Percentile (ms)",
                     "tips": "P50 / P75 / P90 / P95 / P99 for this release"
                   },
@@ -152,72 +173,6 @@
                     {
                       "label": "P50, P75, P90, P95, P99"
                     }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Load (calls / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_cpm"
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "7",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Avg Response Time (ms)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_resp_time"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "8",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Success Rate (%)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_instance_sla/100"
                   ]
                 }
               ]

@@ -53,6 +53,7 @@ final class MALCodegenHelper {
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.tagOpt.K8sRetagType");
         ENUM_FQCN.put("DownsamplingType",
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType");
+        ENUM_FQCN.put("TimeUnit", "java.util.concurrent.TimeUnit");
 
         CLOSURE_CLASS_FQCN = new HashMap<>();
         CLOSURE_CLASS_FQCN.put("ProcessRegistry",

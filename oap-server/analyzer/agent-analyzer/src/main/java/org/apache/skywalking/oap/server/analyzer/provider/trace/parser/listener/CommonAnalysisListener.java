@@ -20,38 +20,20 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import org.apache.skywalking.apm.network.language.agent.v3.SpanLayer;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
-import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 
 /**
  * The common logic for specific listeners.
  */
 abstract class CommonAnalysisListener {
-
-    private final int wechatMiniProgramComponentId;
-    private final int alipayMiniProgramComponentId;
-
-    protected CommonAnalysisListener(IComponentLibraryCatalogService componentLibraryCatalogService) {
-        this.wechatMiniProgramComponentId = componentLibraryCatalogService.getComponentId("WeChat-MiniProgram");
-        this.alipayMiniProgramComponentId = componentLibraryCatalogService.getComponentId("AliPay-MiniProgram");
-    }
-
     /**
-     * Identify the layer of span's service/instance owner. Such as ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
-     *
-     * @param spanLayer   the span's declared layer, used as a fallback signal (e.g. FAAS).
-     * @param componentId the span's component id, takes precedence when it maps to a known
-     *                    client-side SDK layer (WeChat / Alipay mini-program).
+     * Identify the layer of span's service/instance owner. Such as  ${@link Layer#FAAS} and ${@link Layer#GENERAL}.
      */
-    protected Layer identifyServiceLayer(SpanLayer spanLayer, int componentId) {
-        if (componentId == wechatMiniProgramComponentId) {
-            return Layer.WECHAT_MINI_PROGRAM;
-        }
-        if (componentId == alipayMiniProgramComponentId) {
-            return Layer.ALIPAY_MINI_PROGRAM;
-        }
+    protected Layer identifyServiceLayer(SpanLayer spanLayer) {
         if (SpanLayer.FAAS.equals(spanLayer)) {
+            // function as a Service
             return Layer.FAAS;
+        } else {
+            return Layer.GENERAL;
         }
-        return Layer.GENERAL;
     }
 }

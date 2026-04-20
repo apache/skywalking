@@ -22,8 +22,7 @@
                   "i": "0",
                   "type": "Widget",
                   "widget": {
-                    "title": "App Launch Duration on this Page (ms)",
-                    "tips": "Launch duration observed when this page was the entry"
+                    "title": "App Launch Duration on this Page (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -45,8 +44,7 @@
                   "i": "1",
                   "type": "Widget",
                   "widget": {
-                    "title": "First Render Duration (ms)",
-                    "tips": "First render time for this page"
+                    "title": "First Render Duration (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -68,8 +66,30 @@
                   "i": "2",
                   "type": "Widget",
                   "widget": {
-                    "title": "Request Duration Percentile (ms)",
-                    "tips": "Latency distribution of outbound requests initiated from this page"
+                    "title": "Request Load (calls / min)",
+                    "tips": "Outbound HTTP request count initiated from this page"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_endpoint_request_cpm"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 24,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Duration Percentile (ms)"
                   },
                   "graph": {
                     "type": "Line",
@@ -86,72 +106,6 @@
                     {
                       "label": "P50, P75, P90, P95, P99"
                     }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "3",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Load (calls / min)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "endpoint_cpm"
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "4",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Avg Response Time (ms)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "endpoint_resp_time"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 30,
-                  "w": 8,
-                  "h": 15,
-                  "i": "5",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Success Rate (%)"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "endpoint_sla/100"
                   ]
                 }
               ]

@@ -35,5 +35,7 @@ metricsRules:
     exp: miniprogram_script_duration.avg(['service_name', 'service_instance_id'])
   - name: package_load_duration
     exp: miniprogram_package_load_duration.avg(['service_name', 'service_instance_id'])
+  - name: request_cpm
+    exp: miniprogram_request_duration_count.sum(['service_name', 'service_instance_id'])
   - name: request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration.sum(['service_name', 'service_instance_id', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99])

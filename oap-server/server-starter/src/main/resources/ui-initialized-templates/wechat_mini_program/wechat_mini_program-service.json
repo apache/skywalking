@@ -132,9 +132,51 @@
                 {
                   "x": 0,
                   "y": 30,
-                  "w": 24,
+                  "w": 12,
                   "h": 15,
                   "i": "5",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Load (calls / min)",
+                    "tips": "Outbound HTTP request count derived from miniprogram.request.duration histogram _count family"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_request_cpm"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 30,
+                  "w": 12,
+                  "h": 15,
+                  "i": "6",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Error Count",
+                    "tips": "Counted from LAL-processed error logs (js / promise / ajax / pageNotFound), aggregated per service"
+                  },
+                  "graph": {
+                    "type": "Bar",
+                    "showBackground": true
+                  },
+                  "expressions": [
+                    "meter_wechat_mp_error_count"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 45,
+                  "w": 24,
+                  "h": 15,
+                  "i": "7",
                   "type": "Widget",
                   "widget": {
                     "title": "Request Duration Percentile (ms)",
@@ -155,94 +197,6 @@
                     {
                       "label": "P50, P75, P90, P95, P99"
                     }
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "6",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Load (calls / min)",
-                    "tips": "Outbound HTTP requests observed by the mini program, derived from native trace segments"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_cpm"
-                  ]
-                },
-                {
-                  "x": 8,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "7",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Avg Response Time (ms)",
-                    "tips": "Client-observed average latency of outbound HTTP requests"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_resp_time"
-                  ]
-                },
-                {
-                  "x": 16,
-                  "y": 45,
-                  "w": 8,
-                  "h": 15,
-                  "i": "8",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Outbound Success Rate (%)",
-                    "tips": "Percentage of outbound HTTP requests with status code < 400"
-                  },
-                  "graph": {
-                    "type": "Line",
-                    "step": false,
-                    "smooth": false,
-                    "showSymbol": true,
-                    "showXAxis": true,
-                    "showYAxis": true
-                  },
-                  "expressions": [
-                    "service_sla/100"
-                  ]
-                },
-                {
-                  "x": 0,
-                  "y": 60,
-                  "w": 24,
-                  "h": 15,
-                  "i": "9",
-                  "type": "Widget",
-                  "widget": {
-                    "title": "Error Count",
-                    "tips": "Counted from LAL-processed error logs, aggregated per service"
-                  },
-                  "graph": {
-                    "type": "Bar",
-                    "showBackground": true
-                  },
-                  "expressions": [
-                    "meter_wechat_mp_error_count"
                   ]
                 }
               ]
@@ -267,18 +221,22 @@
                     "fontSize": 12
                   },
                   "expressions": [
+                    "avg(meter_wechat_mp_instance_request_cpm)",
                     "avg(meter_wechat_mp_instance_app_launch_duration)",
                     "avg(meter_wechat_mp_instance_first_render_duration)",
-                    "avg(meter_wechat_mp_instance_request_duration_percentile{p='95'})",
-                    "avg(service_instance_cpm)"
+                    "avg(meter_wechat_mp_instance_request_duration_percentile{p='95'})"
                   ],
                   "subExpressions": [
+                    "meter_wechat_mp_instance_request_cpm",
                     "meter_wechat_mp_instance_app_launch_duration",
                     "meter_wechat_mp_instance_first_render_duration",
-                    "meter_wechat_mp_instance_request_duration_percentile{p='95'}",
-                    "service_instance_cpm"
+                    "meter_wechat_mp_instance_request_duration_percentile{p='95'}"
                   ],
                   "metricConfig": [
+                    {
+                      "label": "Request Load",
+                      "unit": "calls / min"
+                    },
                     {
                       "label": "Launch Duration",
                       "unit": "ms"
@@ -290,10 +248,6 @@
                     {
                       "label": "Request P95",
                       "unit": "ms"
-                    },
-                    {
-                      "label": "Outbound Load",
-                      "unit": "calls / min"
                     }
                   ]
                 }
@@ -311,7 +265,7 @@
                   "type": "Widget",
                   "widget": {
                     "title": "Pages",
-                    "tips": "In-app pages (miniprogram.page.path). Click a row to drill into per-page perf + errors."
+                    "tips": "In-app pages (miniprogram.page.path). Click a row to drill into per-page perf."
                   },
                   "graph": {
                     "type": "EndpointList",
@@ -321,16 +275,20 @@
                     "showYAxis": false
                   },
                   "expressions": [
+                    "avg(meter_wechat_mp_endpoint_request_cpm)",
                     "avg(meter_wechat_mp_endpoint_first_render_duration)",
-                    "avg(meter_wechat_mp_endpoint_request_duration_percentile{p='95'})",
-                    "avg(endpoint_cpm)"
+                    "avg(meter_wechat_mp_endpoint_request_duration_percentile{p='95'})"
                   ],
                   "subExpressions": [
+                    "meter_wechat_mp_endpoint_request_cpm",
                     "meter_wechat_mp_endpoint_first_render_duration",
-                    "meter_wechat_mp_endpoint_request_duration_percentile{p='95'}",
-                    "endpoint_cpm"
+                    "meter_wechat_mp_endpoint_request_duration_percentile{p='95'}"
                   ],
                   "metricConfig": [
+                    {
+                      "label": "Request Load",
+                      "unit": "calls / min"
+                    },
                     {
                       "label": "First Render",
                       "unit": "ms"
@@ -338,10 +296,6 @@
                     {
                       "label": "Request P95",
                       "unit": "ms"
-                    },
-                    {
-                      "label": "Outbound Load",
-                      "unit": "calls / min"
                     }
                   ]
                 }
