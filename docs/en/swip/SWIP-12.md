@@ -168,6 +168,69 @@ expose `PerformanceObserver` entries for the same events. These are approximatio
 compare WeChat and Alipay perf values directly; this is documented in the per-platform
 doc pages.
 
+### 3a. OAL / Topology Metrics Emerge From the Layer Mapping
+
+The SDK posts Exit spans (`spanType=Exit`, `spanLayer=Http`) to `/v3/segments` via the
+SkyWalking native protocol. After §6's `identifyServiceLayer` mapping assigns
+`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`, the native trace pipeline's
+`RPCAnalysisListener` emits `Service`, `ServiceInstance`, `Endpoint` sources — plus
+`ServiceRelation` / `ServiceInstanceRelation` / `EndpointRelation` for the
+mini-program → backend call edge — all tagged with the mini-program layer.
+
+`core.oal` then produces, for free, under each mini-program layer:
+
+| Metric family | Scope | Source |
+|---|---|---|
+| `service_cpm`, `service_resp_time`, `service_sla`, `service_percentile`, `service_apdex` | Service | OAL on `Service` source |
+| `service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla`, `service_instance_percentile` | ServiceInstance | OAL on `ServiceInstance` source |
+| `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`, `endpoint_percentile` | Endpoint (page path) | OAL on `Endpoint` source |
+| Topology edges to backend services | ServiceRelation / EndpointRelation | `sw8` propagation + backend receives the trace |
+
+These are **in addition to** the MAL-produced `meter_wechat_mp_*` /
+`meter_alipay_mp_*` metrics from §4. The service dashboard panels should mix both —
+outbound request latency from OAL (`service_resp_time`, `service_percentile`) keyed on
+observed response time, plus the SDK's own per-page perf gauges from MAL.
+
+Topology note: mini-programs are leaf sources — they issue outbound requests but never
+receive inbound traffic. So each mini-program service has outbound edges (to backend
+APIs carrying `sw8`) but no upstream. This is correct by construction for client-side
+platforms.
+
+### 3b. Error-Count Metric — Log-MAL Rule
+
+`error_count` in §3's metric table is derived from LAL-processed error logs. The
+extraction itself is a separate file in the log-MAL rules directory (not the MAL `otel-rules/`
+directory — log-MAL rules convert persisted logs into metric samples):
+
+`oap-server/server-starter/src/main/resources/log-mal-rules/miniprogram.yaml`:
+
+```yaml
+expSuffix: service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
+metricPrefix: meter_wechat_mp
+metricsRules:
+  - name: error_count
+    exp: miniprogram_error_count.sum(['service_name', 'exception_type'])
+---
+expSuffix: service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
+metricPrefix: meter_alipay_mp
+metricsRules:
+  - name: error_count
+    exp: miniprogram_error_count.sum(['service_name', 'exception_type'])
+```
+
+The sample `miniprogram_error_count` is emitted by a `metrics {}` block in the LAL
+rule (§5) — one sample per error log processed, labelled with
+`exception_type`, `miniprogram_platform`, `service_name`. The platform attribute lets
+the per-layer filter route to the correct `expSuffix`.
+
+Register the log-MAL file alongside the MAL rule file in `application.yml`:
+
+```yaml
+log-analyzer:
+  default:
+    malFiles: ${SW_LOG_MAL_FILES:"<existing defaults>,miniprogram"}
+```
+
 ### 4. MAL Rules — Per-Platform × Per-Scope, Mirroring the iOS Layout
 
 Following the iOS pattern (`otel-rules/ios/ios-metrickit.yaml` for service-scoped +
@@ -271,6 +334,39 @@ Mirror the WeChat files exactly, differing only in:
   service scope (default from `expSuffix`), the next emits to endpoint scope by
   chaining `.endpoint(...)` at the end.
 
+#### Histogram unit — `miniprogram.request.duration` is in milliseconds
+
+The SDK emits the `miniprogram.request.duration` histogram with `le` bucket bounds
+in **milliseconds** (`[10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000]`). MAL's
+`SampleFamily.histogram()` default assumes seconds and rescales `le` by
+`defaultHistogramBucketUnit.toMillis(1)` (×1000). Without compensation, percentiles
+come out 1000× too large — the exact bug that bit MetricKit in SWIP-11 (fixed via
+`IOSMetricKitSpanListener` marking its `SampleFamily` with
+`defaultHistogramBucketUnit(MILLISECONDS)`).
+
+Mini-program metrics don't go through a custom listener — they arrive via the standard
+OTLP metric receiver. Two options at implementation time:
+
+1. **Preferred:** OTLP metric receiver honors the OTLP `Metric.unit` field (`"ms"` for
+   this histogram) when building `SampleFamily` — a general-purpose improvement that
+   benefits any OTLP ms-native histogram. Scope this as a separate enhancement.
+2. **Fallback:** a minimal `OTLPMetricPreprocessor` (or per-metric override in the MAL
+   rule file header) that marks matching samples with
+   `defaultHistogramBucketUnit(MILLISECONDS)` before MAL sees them.
+
+Either approach must be in place before the request-latency panels are trusted.
+
+#### Finite sentinel for the `+Inf` overflow bucket
+
+The SDK's 11-bucket histogram has an implicit `+Inf` overflow for observations above
+10 s. MAL stores `le="Infinity"` as `Long.MAX_VALUE` (≈9.2 × 10¹⁸), which the UI
+renders as a visual garbage number when a percentile lands there. SWIP-11 capped
+MetricKit hang/launch histograms at 30 s. For mini-program request duration, any
+observation > 10 s is already an outlier; the SDK histogram should either be updated to
+include a finite overflow bound (e.g. 30 s) or the OAP-side preprocessor should
+substitute a finite ceiling before percentile computation. Track as an SDK/OAP
+coordination item.
+
 ### 5. LAL Rules (Error Logs, `layer: auto` Fork by Platform)
 
 Create `oap-server/server-starter/src/main/resources/lal/miniprogram.yaml`.
@@ -305,6 +401,18 @@ rules:
           tag 'http.method': tag("http.request.method")
           tag 'http.status': tag("http.response.status_code")
           tag 'server.address': tag("server.address")
+
+          // Emit a counter sample for every error log. Picked up by the log-MAL
+          // rule in §3b, which aggregates per (service, exception_type) for the
+          // per-layer error_count metric.
+          metrics {
+            miniprogram_error_count {
+              tag('service_name', log.service)
+              tag('exception_type', tag("exception.type"))
+              tag('miniprogram_platform', platform)
+              value 1
+            }
+          }
         }
 
         sink { }
@@ -562,6 +670,63 @@ latency).
 **Payload cost in the showcase:** at default cadences, well below existing
 Java/Python/Go showcase services. Pinning to a specific SHA / version (no `:latest`) is
 mandated by the SDK side — the showcase manifest tracks an explicit version.
+
+### 11. OAP-Side E2E Test Case
+
+Separately from the showcase demo generator (§10), an OAP-side e2e test is required
+for CI coverage. Add under `test/e2e-v2/cases/`:
+
+```
+test/e2e-v2/cases/miniprogram/wechat/e2e.yaml         # wechat sim image as the workload
+test/e2e-v2/cases/miniprogram/wechat/expected/        # swctl-format expected outputs
+test/e2e-v2/cases/miniprogram/alipay/e2e.yaml         # alipay sim image as the workload
+test/e2e-v2/cases/miniprogram/alipay/expected/        # swctl-format expected outputs
+```
+
+Each case drives the `ghcr.io/skyapm/mini-program-monitor/sim-{wechat,alipay}:v0.4.0`
+image in `MODE=once` (one-shot signal emission, then exit) against an OAP container
+wired with the new MAL / LAL / log-MAL rules. Verify steps cover:
+- service listed under the correct layer (`swctl service list --layer WECHAT_MINI_PROGRAM`)
+- per-platform MAL metrics non-empty (`meter_wechat_mp_app_launch_duration`, …)
+- `meter_wechat_mp_error_count` non-zero on the `error-storm` scenario
+- endpoint list populated (page paths)
+- native trace segments queryable
+
+Register the two cases in `.github/workflows/skywalking.yaml` e2e matrix.
+
+Additionally, every change to `application.yml` defaults made by this SWIP (new
+`miniprogram/*` entry in `enabledOtelMetricsRules`, new `miniprogram` entry in
+`lalFiles` and `malFiles`) **must** be mirrored in
+`test/e2e-v2/cases/storage/expected/config-dump.yml`. The storage e2e diffs
+`/debugging/config/dump` output against this file and fails on any default drift.
+
+### 12. Security Notice
+
+Mini-program SDKs run on end-user devices and post telemetry to OAP's OTLP + native-segment
+endpoints **from the public internet**, without agent-side authentication. Same
+exposure profile as iOS (SWIP-11) and browser-agent. Add a client-side-monitoring
+paragraph to `docs/en/security/README.md` covering:
+
+- The recommendation to front OAP with a rate-limiter or WAF for public-facing
+  endpoints (`/v1/logs`, `/v1/metrics`, `/v3/segments`).
+- The abuse surface (malformed payloads, high-volume senders, fake `sw8` headers)
+  and mitigation pointers.
+- Explicit mention that per-service authentication for client-side SDKs is out of
+  scope for v1; operators who need it should terminate at a gateway.
+
+### 13. Implementation Deliverables Checklist
+
+The design sections above stop at the rule-file / code-file level. The actual PR(s)
+implementing this SWIP must also ship:
+
+| Deliverable | Location |
+|---|---|
+| User-facing doc — WeChat | `docs/en/setup/backend/backend-wechat-mini-program-monitoring.md` |
+| User-facing doc — Alipay | `docs/en/setup/backend/backend-alipay-mini-program-monitoring.md` |
+| Docs navigation | Two new entries in `docs/menu.yml` under the existing "Mobile" section alongside iOS |
+| Changelog | Entry in `docs/en/changes/changes.md` under `#### OAP Server` (feature) and `#### Documentation` (the two guides) |
+| SWIP readme | Move this SWIP from "Proposed" to "Accepted" in `docs/en/swip/readme.md` at merge time |
+| UI i18n | Separate PR in `apache/skywalking-booster-ui` for i18n keys `wechat_mini_program` / `alipay_mini_program` (§9) |
 
 ## Imported Dependencies libs and their licenses
 
