@@ -90,7 +90,7 @@ aggregation dimensions:
 | SkyWalking Entity | Source                            | Cardinality       | Rationale                                              |
 |-------------------|-----------------------------------|-------------------|--------------------------------------------------------|
 | **Service**       | `service.name`                    | 1 per app         | Fleet-wide app health                                  |
-| **ServiceInstance** | `service.version`               | tens per app      | Version regression / rollout monitoring (per SWIP-11)  |
+| **ServiceInstance** | `service.instance.id` (recommended pattern: operator sets it to `service.version`) | tens per app | Version regression / rollout monitoring. **Coherence depends on operator following the recommended pattern** — see "Instance coherence" below. |
 | **Endpoint**      | `miniprogram.page.path`           | dozens per app    | Which in-app page is slow / errors — matches browser-agent semantics |
 
 **What we deliberately drop:**
@@ -106,6 +106,28 @@ All three entities are needed — each answers a distinct question:
 - **Endpoint (= page)** → which page is slow / error-prone?
 
 Skipping any of them loses a class of question.
+
+#### Instance coherence across signals
+
+The three signal pipelines key off different attributes by default:
+
+| Signal | Source attribute used as instance |
+|---|---|
+| OTLP metrics | OTLP resource `service.instance.id` (omitted by SDK if `serviceInstance` unset) |
+| Native trace segments | `serviceInstance` field on the segment (substituted with literal `-` if unset) |
+| OTLP logs (via LAL) | `sourceAttribute("service.instance.id")` (the recommended LAL extractor — see §5) |
+
+For all three to land on the same OAP instance entity, the operator must set
+`init({ serviceInstance: <some-string> })` — recommended value is `service.version` so
+the same string appears as both `service.instance.id` (OTLP) and segment
+`serviceInstance`. When unset, all three signals consistently map to the literal `-`
+(metrics) / absent (logs) / `-` (segments) — still consistent in that *no* instance
+view is meaningful, but per-version dashboards are empty.
+
+The earlier draft of this SWIP set the LAL `instance` to `sourceAttribute("service.version")`,
+which would make logs disagree with metrics + traces whenever `serviceInstance !=
+serviceVersion`. §5 below sources from `service.instance.id` directly to keep the three
+signal types aligned.
 
 ### 3. Metric Coverage Per Platform
 
@@ -133,27 +155,68 @@ expose `PerformanceObserver` entries for the same events. These are approximatio
 compare WeChat and Alipay perf values directly; this is documented in the per-platform
 doc pages.
 
-### 4. MAL Rules (Shared File, Fork by Platform)
+### 4. MAL Rules — Per-Platform × Per-Scope, Mirroring the iOS Layout
 
-Create `oap-server/server-starter/src/main/resources/otel-rules/miniprogram/miniprogram.yaml`.
+Following the iOS pattern (`otel-rules/ios/ios-metrickit.yaml` for service-scoped +
+`ios-metrickit-instance.yaml` for instance-scoped — service-scoped meters there have no
+`service_instance_id` dim so the "overall app health" view is genuinely
+fleet-aggregated), this SWIP creates **four files**:
 
-A single MAL file handles both platforms. The `miniprogram.platform` resource attribute
-selects the output layer via conditional `expSuffix`:
+```
+oap-server/server-starter/src/main/resources/otel-rules/miniprogram/
+├── wechat-mini-program.yaml          # service-scoped
+├── wechat-mini-program-instance.yaml # instance-scoped (per release/version)
+├── alipay-mini-program.yaml          # service-scoped
+└── alipay-mini-program-instance.yaml # instance-scoped
+```
+
+Each file has a single `expSuffix` (one Layer, one entity scope) and a `filter` block
+that gates on `miniprogram.platform` so traffic from the wrong platform is dropped at
+the rule level.
+
+#### `wechat-mini-program.yaml` — service-scoped
 
 ```yaml
-# WeChat series
 expSuffix: service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
-metricPrefix: meter_miniprogram
+metricPrefix: meter_wechat_mp
 filter: "{ tags -> tags['miniprogram_platform'] == 'wechat' }"
 
 metricsRules:
-  # Service-scoped (overall app perf) — uses expSuffix layer
+  - name: app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name'])
+  - name: first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name'])
+  # first_paint.time is an epoch-ms timestamp, not a duration — not aggregated.
+  - name: route_duration
+    exp: miniprogram_route_duration.avg(['service_name'])
+  - name: script_duration
+    exp: miniprogram_script_duration.avg(['service_name'])
+  - name: package_load_duration
+    exp: miniprogram_package_load_duration.avg(['service_name'])
+  - name: request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'le']).histogram().histogram_percentile([50,75,90,95,99])
+
+  # Endpoint-scoped per-page (chained .endpoint(...) overrides expSuffix)
+  - name: endpoint_app_launch_duration
+    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_first_render_duration
+    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+  - name: endpoint_request_duration_percentile
+    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
+```
+
+#### `wechat-mini-program-instance.yaml` — instance-scoped (per version)
+
+```yaml
+expSuffix: instance(['service_name'], ['service_instance_id'], Layer.WECHAT_MINI_PROGRAM)
+metricPrefix: meter_wechat_mp_instance
+filter: "{ tags -> tags['miniprogram_platform'] == 'wechat' }"
+
+metricsRules:
   - name: app_launch_duration
     exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id'])
   - name: first_render_duration
     exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id'])
-  # first_paint.time is an epoch-ms timestamp, not a duration — averaging is meaningless,
-  # so it's NOT exposed as a MAL metric. Available via raw OTLP query / trace correlation.
   - name: route_duration
     exp: miniprogram_route_duration.avg(['service_name', 'service_instance_id'])
   - name: script_duration
@@ -162,50 +225,35 @@ metricsRules:
     exp: miniprogram_package_load_duration.avg(['service_name', 'service_instance_id'])
   - name: request_duration_percentile
     exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
-
-  # Endpoint-scoped (per-page perf) — chained .endpoint(...) overrides expSuffix
-  - name: endpoint_app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
-  - name: endpoint_first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
-  - name: endpoint_request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
----
-# Alipay series — same metric body, only the metrics Alipay actually emits
-expSuffix: service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
-metricPrefix: meter_miniprogram
-filter: "{ tags -> tags['miniprogram_platform'] == 'alipay' }"
-
-metricsRules:
-  - name: app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name', 'service_instance_id'])
-  - name: first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name', 'service_instance_id'])
-  - name: request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'service_instance_id', 'le']).histogram().histogram_percentile([50,75,90,95,99])
-  - name: endpoint_app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
-  - name: endpoint_first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
-  - name: endpoint_request_duration_percentile
-    exp: miniprogram_request_duration_histogram.sum(['service_name', 'miniprogram_page_path', 'le']).histogram().histogram_percentile([50,75,90,95,99]).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
 ```
 
-Notes:
-- **Two YAML documents share the metric body**, differing only by `filter` (platform
-  selector) and the layer in `expSuffix` / chained `.endpoint(...)`. The two platforms'
-  shared metrics map to the same names; per-platform divergence (WeChat-only metrics)
-  appears as extra rules in the WeChat document only.
-- **`service_instance_id` source:** SDK ≥ v0.4.0 maps `service.instance.id` to whatever
-  the operator passes to `init({ serviceInstance: ... })` (recommendation: a
-  version-scoped value, mirroring `service.version`). When the operator leaves it
-  unset, OTLP omits the resource attribute and OAP records the instance as the literal
-  `-`. MAL could optionally substitute `service_name` for `service_instance_id` as a
-  fail-safe (e.g., via a `tag {tags -> tags.service_instance_id = tags.service_instance_id ?: tags.service_name}`
-  prefix) but standard practice is to rely on the agent/SDK to set it correctly.
-- The `.endpoint(...)` chain mirrors the APISIX / RocketMQ MAL pattern — chained on
-  the expression rather than declared in `expSuffix`, because each rule decides whether
-  it wants service-scoped or endpoint-scoped output.
+#### `alipay-mini-program.yaml` / `alipay-mini-program-instance.yaml`
+
+Mirror the WeChat files exactly, differing only in:
+- `filter`: `tags['miniprogram_platform'] == 'alipay'`
+- `expSuffix` Layer: `Layer.ALIPAY_MINI_PROGRAM`
+- `metricPrefix`: `meter_alipay_mp` / `meter_alipay_mp_instance`
+- **Drop the WeChat-only metrics** Alipay doesn't emit
+  (`route_duration`, `script_duration`, `package_load_duration`)
+
+#### Notes
+
+- **Service-scoped rules sum/avg by `service_name` only** — no `service_instance_id`
+  fragmentation. This produces the genuine fleet-aggregated view for the "overall app
+  health" dashboard panels. iOS's `ios-metrickit.yaml` is the precedent.
+- **Instance-scoped rules go in their own file** with `expSuffix: instance(...)`. This
+  is what backs per-release / version-regression dashboards.
+- **`service_instance_id` source:** SDK ≥ v0.4.0 emits OTLP `service.instance.id` only
+  when the operator passes `init({ serviceInstance: ... })`. When unset, the attribute
+  is omitted; OAP records the instance entity as the literal `-`. The instance dashboard
+  is meaningful only when operators follow the recommended `serviceInstance:
+  serviceVersion` pattern (otherwise everything aggregates under `-`). MAL itself can
+  add a fail-safe (`tag {tags -> tags.service_instance_id = tags.service_instance_id ?: tags.service_name}`)
+  but standard practice is to rely on the SDK side.
+- **The `.endpoint(...)` chain on service-scoped files** — same expression-level
+  override pattern as APISIX (`apisix.yaml:91-102`) and RocketMQ. One rule emits to
+  service scope (default from `expSuffix`), the next emits to endpoint scope by
+  chaining `.endpoint(...)` at the end.
 
 ### 5. LAL Rules (Error Logs, `layer: auto` Fork by Platform)
 
@@ -225,7 +273,12 @@ rules:
 
         extractor {
           layer platform == "wechat" ? "WECHAT_MINI_PROGRAM" : "ALIPAY_MINI_PROGRAM"
-          instance sourceAttribute("service.version")
+          // Instance source must match what OTLP metrics + native segments use, so
+          // logs aggregate under the same OAP instance entity. SDK ≥ v0.4.0 emits
+          // service.instance.id only when operator passes init({serviceInstance: ...}).
+          // When absent, leave instance unset — OAP will record it as the same
+          // literal "-" the segment receiver records, keeping the three signals aligned.
+          instance sourceAttribute("service.instance.id")
           endpoint tag("miniprogram.page.path")
 
           tag 'platform': platform
@@ -352,10 +405,38 @@ Extend the existing `Mobile` menu group (added in SWIP-11) in
 
 #### Dashboards
 
-Create templates under `ui-initialized-templates/wechat-mini-program/` and
-`ui-initialized-templates/alipay-mini-program/`. Structure mirrors the iOS dashboards
-but **adds a trace widget** — because native segments are queryable in the normal trace
-UI (unlike iOS's OTLP→Zipkin path).
+`UITemplateInitializer` only loads folders listed in its hard-coded
+`UI_TEMPLATE_FOLDER` array, and the folder name is `Layer.X.name().toLowerCase()`
+(`UITemplateInitializer.java:45-88,101-103`). Two changes are required:
+
+1. **Append the new layers to the allowlist** in
+   `oap-server/server-core/src/main/java/.../UITemplateInitializer.java`:
+   ```java
+   public static String[] UI_TEMPLATE_FOLDER = new String[] {
+       // ... existing entries ...
+       Layer.IOS.name(),
+       Layer.WECHAT_MINI_PROGRAM.name(),
+       Layer.ALIPAY_MINI_PROGRAM.name(),
+       "custom"
+   };
+   ```
+2. **Create the folders with underscored names** (matching `Layer.name().toLowerCase()`):
+   ```
+   oap-server/server-starter/src/main/resources/ui-initialized-templates/
+   ├── wechat_mini_program/
+   │   ├── wechat_mini_program-service.json
+   │   ├── wechat_mini_program-instance.json
+   │   └── wechat_mini_program-endpoint.json
+   └── alipay_mini_program/
+       ├── alipay_mini_program-service.json
+       ├── alipay_mini_program-instance.json
+       └── alipay_mini_program-endpoint.json
+   ```
+   Hyphenated folder names (e.g. `wechat-mini-program/`) are silently skipped because
+   they don't match `Layer.WECHAT_MINI_PROGRAM.name().toLowerCase()`.
+
+Structure mirrors the iOS dashboards but **adds a trace widget** — because native
+segments are queryable in the normal trace UI (unlike iOS's OTLP→Zipkin path).
 
 **Per-service dashboard panels:**
 
@@ -513,18 +594,26 @@ init({
 
 ### SkyWalking OAP Configuration
 
+Append the mini-program glob to `enabledOtelMetricsRules` and the LAL file to
+`lalFiles` in `application.yml` (preserve the existing defaults — don't replace them):
+
 ```yaml
 receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
-    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-metrics,otlp-logs"}
-    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_RULES:"miniprogram/miniprogram"}
+    enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-traces,otlp-metrics,otlp-logs"}
+    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"<existing defaults>,miniprogram/*"}
 
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:"miniprogram"}
+    lalFiles: ${SW_LOG_LAL_FILES:"<existing defaults>,miniprogram"}
 ```
+
+`miniprogram/*` picks up all four MAL files under `otel-rules/miniprogram/`. The
+existing defaults (distributed with OAP) are a long list including `apisix`,
+`ios/*`, `kafka/*`, and the `default` LAL rule — these must be kept; otherwise
+non–mini-program workloads lose their MAL / LAL wiring.
 
 Native trace segments (`/v3/segments`) need no additional config — handled by the
 existing trace receiver. Layer is assigned automatically from the span's componentId.
