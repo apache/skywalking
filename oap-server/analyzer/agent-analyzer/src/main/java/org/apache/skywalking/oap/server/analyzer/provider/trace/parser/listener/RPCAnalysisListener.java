@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentReference;
@@ -37,6 +36,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -55,7 +55,6 @@ import static org.apache.skywalking.oap.server.analyzer.provider.trace.parser.Sp
  * RPCAnalysisListener detects all RPC relative statistics.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class RPCAnalysisListener extends CommonAnalysisListener implements EntryAnalysisListener, ExitAnalysisListener, LocalAnalysisListener {
     private final List<RPCTrafficSourceBuilder> callingInTraffic = new ArrayList<>(10);
     private final List<RPCTrafficSourceBuilder> callingOutTraffic = new ArrayList<>(10);
@@ -65,6 +64,18 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
     private final AnalyzerModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
     private final NamingControl namingControl;
+
+    public RPCAnalysisListener(final SourceReceiver sourceReceiver,
+                               final AnalyzerModuleConfig config,
+                               final NetworkAddressAliasCache networkAddressAliasCache,
+                               final NamingControl namingControl,
+                               final IComponentLibraryCatalogService componentLibraryCatalogService) {
+        super(componentLibraryCatalogService);
+        this.sourceReceiver = sourceReceiver;
+        this.config = config;
+        this.networkAddressAliasCache = networkAddressAliasCache;
+        this.namingControl = namingControl;
+    }
 
     @Override
     public boolean containsPoint(Point point) {
@@ -119,7 +130,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 sourceBuilder.setDestEndpointName(span.getOperationName());
                 sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
                 sourceBuilder.setDestServiceName(segmentObject.getService());
-                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
+                sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer(), span.getComponentId()));
                 sourceBuilder.setDetectPoint(DetectPoint.SERVER);
                 sourceBuilder.setComponentId(span.getComponentId());
                 setPublicAttrs(sourceBuilder, span);
@@ -134,7 +145,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer(), span.getComponentId()));
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
             setPublicAttrs(sourceBuilder, span);
@@ -147,7 +158,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             sourceBuilder.setSourceLayer(Layer.UNDEFINED);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
             sourceBuilder.setDestServiceName(segmentObject.getService());
-            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer()));
+            sourceBuilder.setDestLayer(identifyServiceLayer(span.getSpanLayer(), span.getComponentId()));
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setDetectPoint(DetectPoint.SERVER);
             sourceBuilder.setComponentId(span.getComponentId());
@@ -178,7 +189,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
 
         sourceBuilder.setSourceServiceName(segmentObject.getService());
         sourceBuilder.setSourceServiceInstanceName(segmentObject.getServiceInstance());
-        sourceBuilder.setSourceLayer(identifyServiceLayer(span.getSpanLayer()));
+        sourceBuilder.setSourceLayer(identifyServiceLayer(span.getSpanLayer(), span.getComponentId()));
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
@@ -377,6 +388,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
         private final SourceReceiver sourceReceiver;
         private final NetworkAddressAliasCache networkAddressAliasCache;
         private final NamingControl namingControl;
+        private final IComponentLibraryCatalogService componentLibraryCatalogService;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -386,12 +398,15 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
+            this.componentLibraryCatalogService = moduleManager.find(CoreModule.NAME)
+                                                               .provider()
+                                                               .getService(IComponentLibraryCatalogService.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new RPCAnalysisListener(
-                sourceReceiver, config, networkAddressAliasCache, namingControl);
+                sourceReceiver, config, networkAddressAliasCache, namingControl, componentLibraryCatalogService);
         }
     }
 }

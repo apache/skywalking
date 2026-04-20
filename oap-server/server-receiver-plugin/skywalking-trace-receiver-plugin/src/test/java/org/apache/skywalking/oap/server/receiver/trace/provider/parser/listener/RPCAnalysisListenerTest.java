@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -71,6 +72,8 @@ public class RPCAnalysisListenerTest {
     private static NetworkAddressAliasCache CACHE;
     @Mock
     private static NetworkAddressAliasCache CACHE2;
+    @Mock
+    private static IComponentLibraryCatalogService COMPONENT_LIBRARY_CATALOG;
     private static NamingControl NAMING_CONTROL = new NamingControl(
         70,
         100,
@@ -82,6 +85,8 @@ public class RPCAnalysisListenerTest {
     public void init() {
         MockitoAnnotations.initMocks(this);
 
+        when(COMPONENT_LIBRARY_CATALOG.getComponentId("WeChat-MiniProgram")).thenReturn(10002);
+        when(COMPONENT_LIBRARY_CATALOG.getComponentId("AliPay-MiniProgram")).thenReturn(10003);
         when(CACHE.get(any())).thenReturn(null);
         final NetworkAddressAlias networkAddressAlias = new NetworkAddressAlias();
         final String serviceId = IDManager.ServiceID.buildId("target-service", true);
@@ -101,7 +106,8 @@ public class RPCAnalysisListenerTest {
             new MockReceiver(),
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
         Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Entry));
         Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Local));
@@ -120,7 +126,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -182,7 +189,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -248,7 +256,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -307,7 +316,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -350,7 +360,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -395,7 +406,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -436,7 +448,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE2,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();
@@ -475,7 +488,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();

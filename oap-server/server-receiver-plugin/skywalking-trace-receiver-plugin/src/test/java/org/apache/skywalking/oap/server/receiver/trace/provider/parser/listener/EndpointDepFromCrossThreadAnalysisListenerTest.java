@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGa
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EndpointDepFromCrossThreadAnalysisListener;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
@@ -50,6 +51,8 @@ import static org.mockito.Mockito.when;
 public class EndpointDepFromCrossThreadAnalysisListenerTest {
     @Mock
     private static AnalyzerModuleConfig CONFIG;
+    @Mock
+    private static IComponentLibraryCatalogService COMPONENT_LIBRARY_CATALOG;
     private static NamingControl NAMING_CONTROL = new NamingControl(
         70,
         100,
@@ -63,6 +66,8 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
     public void init() throws Exception {
         MockitoAnnotations.openMocks(this).close();
 
+        when(COMPONENT_LIBRARY_CATALOG.getComponentId("WeChat-MiniProgram")).thenReturn(10002);
+        when(COMPONENT_LIBRARY_CATALOG.getComponentId("AliPay-MiniProgram")).thenReturn(10003);
         final UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig = Mockito.mock(
             UninstrumentedGatewaysConfig.class);
         when(uninstrumentedGatewaysConfig.isAddressConfiguredAsGateway(any())).thenReturn(false);
@@ -75,7 +80,8 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
         EndpointDepFromCrossThreadAnalysisListener listener = new EndpointDepFromCrossThreadAnalysisListener(
             mockReceiver,
             CONFIG,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            COMPONENT_LIBRARY_CATALOG
         );
 
         final long startTime = System.currentTimeMillis();

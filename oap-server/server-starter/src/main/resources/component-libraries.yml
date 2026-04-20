@@ -844,6 +844,12 @@ JavaScript:
 ajax:
   id: 10001
   languages: JavaScript
+WeChat-MiniProgram:
+  id: 10002
+  languages: JavaScript
+AliPay-MiniProgram:
+  id: 10003
+  languages: JavaScript
 
 # Rust components
 # [11000, 12000) for Rust agent
