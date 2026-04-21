@@ -197,6 +197,27 @@ For a new verify case, the workflow is:
 3. Write the expected file. If the response is a list, wrap the items in `{{- contains . }} ... {{- end }}` so ordering and extra actual items don't fail the match.
 4. Re-run `e2e verify` alone (the containers are still up from the previous run); iterate on the expected file without rebuilding.
 
+### 9. Expected-file authoring traps
+
+These burn CI cycles and pass locally. Each was learned the hard way.
+
+**Unquoted `content: {{ notEmpty .content }}` with `:` inside the value.** Sim-generated or real log content routinely includes colons (`POST https://api.example.com/cart failed: 500`, `HTTP/1.1 500: Internal Server Error`). Without quoting, the template renders to invalid YAML (snakeyaml parses `failed:` as a nested key) and the *whole log entry* marshals to `nil`. Symptom: diff shows `- nil` at *every* position in the expected logs list vs real maps in actual. Fix: wrap in single quotes — `content: '{{ notEmpty .content }}'`. Single-quoted YAML preserves `:` in the scalar; only fails on embedded `'`. Double quotes also work unless the content has `"`.
+
+**Nested `contains` with multiple per-element pattern assertions against a varied stream.** The template renders the block body once per actual element; when the outer block body has *multiple* inner `contains` patterns asserting specific tag key/value pairs, and only *some* actuals satisfy all the inner patterns, `go-cmp` with `contains` can end up comparing `[rendered_for_A0, nil, nil, ...]` vs `[A0, A1, A2, ...]` and fail despite `contains` being permissive on extras. Specifically: outer `contains .logs` with a single log pattern + inner `contains .tags` asserting two distinct key/value pairs. On a simulator emitting heterogeneous errors (js + promise + ajax + pageNotFound), only a subset satisfy the inner assertion. Passes locally with 1–2 logs, fails in CI with 6+.
+- Keep the outer `contains` body lenient: field-shape checks (`notEmpty`, `gt`), one discriminator tag that *every* element in the stream carries.
+- Cover per-category assertions via separate labeled-metric verify cases, not inside the nested template.
+- Rule of thumb: "at least one log exists with the right layer routing" inside the logs expected; per-category coverage via `meter_*_count{label=X}` verify cases.
+
+**Hand-crafted OTLP curl payloads drift from real SDK output.** When the upstream SDK ships a published simulator image (mini-program-monitor's `sim-wechat` / `sim-alipay`, browser-client-js sim, etc.), prefer driving the e2e with that image in `MODE=timed` with a bounded `DURATION_MS` over hand-rolling the OTLP JSON. Hand-crafted payloads miss real-world shape issues: delta-vs-cumulative temporality, label-cardinality surprises, stacktrace formatting variance, attribute key names that changed between SDK versions. Pin to a released tag (`v0.4.0`), not `:latest` or HEAD SHA — reproducibility.
+
+**`timeUnixNano: "0"` in an OTLP metric datapoint.** The receiver propagates this into MAL's bucket computation and the metric lands in the 1970 time bucket — `swctl metrics exec` over the "last N minutes" window won't find it. Either use `$(date +%s)000000000` at setup time or omit the field if the receiver accepts "now" as default.
+
+**Setup-step curl loop with `|| sleep` pattern.** The shell line `for ... do curl && break || sleep 5; done` exits 0 when every attempt connection-refused because the final `sleep 5` returns 0. OAP takes ~50 s to start in CI, so all attempts fail before OAP is ready, and the setup step silently succeeds with zero traffic ingested. Fix: `curl -sS -f --retry 30 --retry-delay 5 --retry-connrefused --retry-all-errors --max-time 10 ...` + `set -e` at step top.
+
+**`swctl` flag rejected.** If a verify case uses a flag the pinned `swctl` commit doesn't support (`service ls --layer` vs `service ly`), the whole case fails 20× before CI gives up. Fire each verify query by hand once before pushing (step 6 above).
+
+**Published image cache miss in CI.** `docker compose pull` sometimes hits rate limits or unreachable registries; the test spins until timeout with "dependency failed to start". Look at the CI log for `Error response from daemon: pull access denied` or `manifest unknown`. If you see that, pin a different image tag that's definitely published (check `docker manifest inspect <tag>` locally), not a floating one.
+
 ## Common test cases
 
 | Shorthand | Path |

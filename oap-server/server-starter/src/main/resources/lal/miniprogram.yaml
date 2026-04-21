@@ -29,7 +29,9 @@ rules:
             && sourceAttribute("miniprogram.platform") != "alipay") {
           abort {}
         }
-        if (tag("exception.type") == null) {
+        // LAL tag() returns "" (not null) for a missing tag, so guard on
+        // both to short-circuit non-error logs cleanly.
+        if (tag("exception.type") == null || tag("exception.type") == "") {
           abort {}
         }
 
