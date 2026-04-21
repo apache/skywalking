@@ -13,41 +13,46 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# WeChat Mini Program service-level metrics from the mini-program-monitor SDK.
-# Filter gates the rule to traffic carrying miniprogram.platform == "wechat" so
-# the WeChat and Alipay rules do not double-count when both runtimes report to
-# the same OAP. Metrics named `meter_wechat_mp_*` power the WeChat dashboards.
-# Aggregated across all app versions (instances).
+# WeChat Mini Program service-level + endpoint-level metrics from the
+# mini-program-monitor SDK. Filter gates the rule to traffic carrying
+# miniprogram.platform == "wechat" so the WeChat and Alipay rules do not
+# double-count.
+#
+# expSuffix is intentionally empty — each rule explicitly chains
+# .service(...) or .endpoint(...) so service-scoped and endpoint-scoped
+# rules coexist in one file (APISIX pattern). A non-empty expSuffix
+# would append .service(...) at the tail and override the endpoint
+# scope on the endpoint-* rules.
 
-expSuffix: service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
+expSuffix:
 metricPrefix: meter_wechat_mp
 filter: "{ tags -> tags.miniprogram_platform == 'wechat' }"
 
 metricsRules:
-  # Perf (service-wide averages)
+  # --- Service-scoped (fleet-aggregated across versions) ---
   - name: app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name'])
+    exp: miniprogram_app_launch_duration.avg(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
   - name: first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name'])
+    exp: miniprogram_first_render_duration.avg(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
   # first_paint.time is an epoch-ms timestamp (not a duration) — not aggregated.
   - name: route_duration
-    exp: miniprogram_route_duration.avg(['service_name'])
+    exp: miniprogram_route_duration.avg(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
   - name: script_duration
-    exp: miniprogram_script_duration.avg(['service_name'])
+    exp: miniprogram_script_duration.avg(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
   - name: package_load_duration
-    exp: miniprogram_package_load_duration.avg(['service_name'])
+    exp: miniprogram_package_load_duration.avg(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
 
   # Request load (calls per minute) — delta counter, MAL's 1-minute bucketing
   # sums per-flush counts into requests-per-minute directly.
   - name: request_cpm
-    exp: miniprogram_request_duration_count.sum(['service_name'])
+    exp: miniprogram_request_duration_count.sum(['service_name']).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
 
   # Request latency percentile — bucket `le` labels already in ms, MILLISECONDS
   # unit stops MAL's default SECONDS → MS rescale (× 1000).
   - name: request_duration_percentile
-    exp: miniprogram_request_duration.sum(['service_name', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration.sum(['service_name', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99]).service(['service_name'], Layer.WECHAT_MINI_PROGRAM)
 
-  # Per-page (endpoint-scoped) variants — chained .endpoint(...) overrides the expSuffix.
+  # --- Per-page (endpoint-scoped) variants ---
   - name: endpoint_app_launch_duration
     exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.WECHAT_MINI_PROGRAM)
   - name: endpoint_first_render_duration

@@ -13,33 +13,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Alipay Mini Program service-level metrics from the mini-program-monitor SDK.
-# Alipay's base library does not expose the PerformanceObserver events WeChat
-# does (route/script/packageLoad/first_paint), so those metrics are absent here
-# — the SDK falls back to lifecycle hooks for app_launch / first_render, which
-# are approximations rather than renderer-authoritative timings.
-# Aggregated across all app versions (instances).
+# Alipay Mini Program service-level + endpoint-level metrics. Alipay's
+# base library doesn't expose PerformanceObserver entries (route / script /
+# packageLoad / first_paint), so only app_launch / first_render are
+# emitted (from lifecycle hooks — approximations, not renderer timings).
+#
+# expSuffix is empty and each rule explicitly chains .service(...) or
+# .endpoint(...) — a non-empty expSuffix would append .service(...) and
+# override the endpoint scope on endpoint-* rules (APISIX pattern).
 
-expSuffix: service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
+expSuffix:
 metricPrefix: meter_alipay_mp
 filter: "{ tags -> tags.miniprogram_platform == 'alipay' }"
 
 metricsRules:
-  # Perf (service-wide averages)
+  # --- Service-scoped ---
   - name: app_launch_duration
-    exp: miniprogram_app_launch_duration.avg(['service_name'])
+    exp: miniprogram_app_launch_duration.avg(['service_name']).service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
   - name: first_render_duration
-    exp: miniprogram_first_render_duration.avg(['service_name'])
+    exp: miniprogram_first_render_duration.avg(['service_name']).service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
 
-  # Request load (calls per minute) — delta counter.
   - name: request_cpm
-    exp: miniprogram_request_duration_count.sum(['service_name'])
+    exp: miniprogram_request_duration_count.sum(['service_name']).service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
 
-  # Request latency percentile — bucket `le` labels already in ms.
   - name: request_duration_percentile
-    exp: miniprogram_request_duration.sum(['service_name', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99])
+    exp: miniprogram_request_duration.sum(['service_name', 'le']).histogram("le", TimeUnit.MILLISECONDS).histogram_percentile([50,75,90,95,99]).service(['service_name'], Layer.ALIPAY_MINI_PROGRAM)
 
-  # Per-page (endpoint-scoped) variants — chained .endpoint(...) overrides the expSuffix.
+  # --- Per-page (endpoint-scoped) variants ---
   - name: endpoint_app_launch_duration
     exp: miniprogram_app_launch_duration.avg(['service_name', 'miniprogram_page_path']).endpoint(['service_name'], ['miniprogram_page_path'], Layer.ALIPAY_MINI_PROGRAM)
   - name: endpoint_first_render_duration
