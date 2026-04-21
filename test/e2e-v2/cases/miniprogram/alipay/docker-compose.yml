@@ -38,7 +38,7 @@ services:
   # Upstream SkyAPM mini-program-monitor simulator (shipped from
   # https://github.com/SkyAPM/mini-program-monitor).
   sim-alipay:
-    image: ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.0
+    image: ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.1
     depends_on:
       oap:
         condition: service_healthy

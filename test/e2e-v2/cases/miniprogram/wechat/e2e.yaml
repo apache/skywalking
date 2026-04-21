@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # WeChat Mini Program e2e test — drives the published
-# ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.0 image in MODE=timed
+# ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.1 image in MODE=timed
 # against OAP wired with the miniprogram MAL / LAL / log-MAL rules. The sim
 # emits realistic OTLP logs + metrics (perf gauges + request-duration
 # histogram + errors) plus SW native trace segments (/v3/segments) with
@@ -46,6 +46,15 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_app_launch_duration --service-name=mini-program-sim-wechat
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_first_render_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    # WeChat-only perf gauges (SDK ≥ v0.4.1 fires PerformanceObserver
+    # entries for route / script / loadPackage; emitted by sim-wechat as
+    # well from v0.4.1 onward).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_route_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_script_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_package_load_duration --service-name=mini-program-sim-wechat
       expected: expected/metrics-has-value.yml
     # Request-count derived from the histogram _count family (delta counter
     # aggregated per minute).
