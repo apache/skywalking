@@ -283,7 +283,17 @@ public enum Layer {
     /**
      * iOS/iPadOS app monitoring via OpenTelemetry Swift SDK
      */
-    IOS(47, true);
+    IOS(47, true),
+
+    /**
+     * WeChat Mini Program monitoring via mini-program-monitor SDK
+     */
+    WECHAT_MINI_PROGRAM(48, true),
+
+    /**
+     * Alipay Mini Program monitoring via mini-program-monitor SDK
+     */
+    ALIPAY_MINI_PROGRAM(49, true);
 
     private final int value;
     /**

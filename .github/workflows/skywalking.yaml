@@ -642,6 +642,10 @@ jobs:
             config: test/e2e-v2/cases/zipkin-virtual-genai/e2e.yaml
           - name: iOS Monitoring
             config: test/e2e-v2/cases/ios/e2e.yaml
+          - name: WeChat Mini Program Monitoring
+            config: test/e2e-v2/cases/miniprogram/wechat/e2e.yaml
+          - name: Alipay Mini Program Monitoring
+            config: test/e2e-v2/cases/miniprogram/alipay/e2e.yaml
 
           - name: Nginx
             config: test/e2e-v2/cases/nginx/e2e.yaml

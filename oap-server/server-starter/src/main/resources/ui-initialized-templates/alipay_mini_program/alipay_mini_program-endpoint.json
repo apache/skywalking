@@ -1,0 +1,122 @@
+[
+  {
+    "id": "Alipay-Mini-Program-Endpoint",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 49,
+          "i": "12",
+          "type": "Tab",
+          "children": [
+            {
+              "name": "Overview",
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "0",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "App Launch Duration on this Page (approx, ms)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_alipay_mp_endpoint_app_launch_duration"
+                  ]
+                },
+                {
+                  "x": 12,
+                  "y": 0,
+                  "w": 12,
+                  "h": 15,
+                  "i": "1",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "First Render Duration (approx, ms)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_alipay_mp_endpoint_first_render_duration"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 15,
+                  "w": 24,
+                  "h": 15,
+                  "i": "2",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Load (calls / min)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "meter_alipay_mp_endpoint_request_cpm"
+                  ]
+                },
+                {
+                  "x": 0,
+                  "y": 30,
+                  "w": 24,
+                  "h": 15,
+                  "i": "3",
+                  "type": "Widget",
+                  "widget": {
+                    "title": "Request Duration Percentile (ms)"
+                  },
+                  "graph": {
+                    "type": "Line",
+                    "step": false,
+                    "smooth": false,
+                    "showSymbol": true,
+                    "showXAxis": true,
+                    "showYAxis": true
+                  },
+                  "expressions": [
+                    "relabels(meter_alipay_mp_endpoint_request_duration_percentile{p='50,75,90,95,99'},p='50,75,90,95,99',percentile='P50,P75,P90,P95,P99')"
+                  ],
+                  "metricConfig": [
+                    {
+                      "label": "P50, P75, P90, P95, P99"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "layer": "ALIPAY_MINI_PROGRAM",
+      "entity": "Endpoint",
+      "name": "Alipay-Mini-Program-Endpoint",
+      "id": "Alipay-Mini-Program-Endpoint",
+      "isRoot": false
+    }
+  }
+]

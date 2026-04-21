@@ -168,33 +168,30 @@ expose `PerformanceObserver` entries for the same events. These are approximatio
 compare WeChat and Alipay perf values directly; this is documented in the per-platform
 doc pages.
 
-### 3a. OAL / Topology Metrics Emerge From the Layer Mapping
+### 3a. Native Trace Segments — Client-Side Pattern (Browser Parity)
 
 The SDK posts Exit spans (`spanType=Exit`, `spanLayer=Http`) to `/v3/segments` via the
-SkyWalking native protocol. After §6's `identifyServiceLayer` mapping assigns
-`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`, the native trace pipeline's
-`RPCAnalysisListener` emits `Service`, `ServiceInstance`, `Endpoint` sources — plus
-`ServiceRelation` / `ServiceInstanceRelation` / `EndpointRelation` for the
-mini-program → backend call edge — all tagged with the mini-program layer.
+SkyWalking native protocol. Mini-programs are client-side (edge) platforms — same shape
+as browser JS-agent traces — so segments only ever carry exit spans and are processed
+by OAP's standard `RPCAnalysisListener` pipeline with **no componentId-based layer
+override**. `parseExit` fires, produces `ServiceRelation` / `ServiceInstanceRelation`
+edges to the backend services the mini-program calls (topology shows the outbound
+dependency, carrying `sw8` propagation for cross-trace joining), and does **not**
+call `toService()` / `toEndpoint()`.
 
-`core.oal` then produces, for free, under each mini-program layer:
-
-| Metric family | Scope | Source |
-|---|---|---|
-| `service_cpm`, `service_resp_time`, `service_sla`, `service_percentile`, `service_apdex` | Service | OAL on `Service` source |
-| `service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla`, `service_instance_percentile` | ServiceInstance | OAL on `ServiceInstance` source |
-| `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`, `endpoint_percentile` | Endpoint (page path) | OAL on `Endpoint` source |
-| Topology edges to backend services | ServiceRelation / EndpointRelation | `sw8` propagation + backend receives the trace |
-
-These are **in addition to** the MAL-produced `meter_wechat_mp_*` /
-`meter_alipay_mp_*` metrics from §4. The service dashboard panels should mix both —
-outbound request latency from OAL (`service_resp_time`, `service_percentile`) keyed on
-observed response time, plus the SDK's own per-page perf gauges from MAL.
+So under the mini-program layer, `service_cpm` / `service_resp_time` / `service_sla` /
+`service_percentile` / `service_apdex` / `endpoint_cpm` / `endpoint_resp_time` /
+`endpoint_sla` / `endpoint_percentile` are **not populated** — those come from inbound
+(entry-span) analysis, which mini-programs don't have. The mini-program service /
+instance / endpoint entities are created by MAL (OTLP metrics) and LAL (OTLP logs)
+instead, and the dashboards' request-load / latency metrics all come from the
+`miniprogram.request.duration` histogram (`_count` family for CPM, bucket family for
+percentiles).
 
 Topology note: mini-programs are leaf sources — they issue outbound requests but never
-receive inbound traffic. So each mini-program service has outbound edges (to backend
-APIs carrying `sw8`) but no upstream. This is correct by construction for client-side
-platforms.
+receive inbound traffic. Each mini-program service has outbound edges but no upstream.
+This is correct by construction for client-side platforms and matches how OAP handles
+browser agent traces.
 
 ### 3b. Error-Count Metric — Log-MAL Rule
 
@@ -421,60 +418,30 @@ The rule sets the layer script-side based on `miniprogram.platform`, so **one ru
 produces two layers**. Error counts per service / instance / endpoint / exception.type
 can be derived via existing OAL log-metric machinery.
 
-### 6. Trace Segment Handling — Component-Driven Layer Mapping
+### 6. Trace Segment Handling — Standard Pipeline, No Componentid Override
 
 The SDK posts `SegmentObject` directly to `/v3/segments` (SkyWalking native protocol).
-These segments are parsed by the normal trace pipeline — no new SPI is needed.
+These segments are parsed by the normal trace pipeline — no new SPI, no listener
+extension, and **no componentId → layer override** in `CommonAnalysisListener`.
 
-Service-layer assignment already lives in
-`CommonAnalysisListener.identifyServiceLayer(SpanLayer)` (a `protected` instance method
-on the abstract base shared by `RPCAnalysisListener` and
-`EndpointDepFromCrossThreadAnalysisListener` in the agent-analyzer module —
-`SegmentAnalysisListener` does **not** extend `CommonAnalysisListener`, it has its own
-service-meta path). Today it
-maps `SpanLayer.FAAS → Layer.FAAS` and everything else to `Layer.GENERAL`. Extend it to
-also accept the span's `componentId` (which the SDK already sets on every outbound span)
-and dispatch to the mini-program layers.
+Rationale: mini-programs are client-side (edge) platforms. They carry only exit spans,
+same shape as browser JS-agent traces. OAP's existing `RPCAnalysisListener.parseExit`
+already handles that: it emits `ServiceRelation` / `ServiceInstanceRelation` edges to
+the backend services the mini-program calls (so outbound topology works, with `sw8`
+joining the downstream trace), and never calls `toService()` / `toEndpoint()` for exit
+spans — so no mini-program Service / Endpoint entity is created from trace analysis.
 
-The component name → id mapping lives in `component-libraries.yml` and is exposed only
-at runtime via `IComponentLibraryCatalogService`
-(`ComponentLibraryCatalogService.java:84-104`) — there are no auto-generated Java
-constants. So the listener's abstract base resolves the two ids once at construction
-time and caches them as `int` fields:
+The mini-program Service / ServiceInstance / Endpoint entities are created separately
+by MAL (OTLP metrics, §4) and LAL (OTLP logs, §5). That's exactly how browser
+monitoring works: traces run through the general pipeline while the browser receiver
+plugin creates Browser-layer entities via its own dispatcher.
 
-```java
-abstract class CommonAnalysisListener {
-    private final int wechatMiniProgramComponentId;
-    private final int alipayMiniProgramComponentId;
-
-    protected CommonAnalysisListener(IComponentLibraryCatalogService catalog) {
-        this.wechatMiniProgramComponentId = catalog.getComponentId("WeChat-MiniProgram");
-        this.alipayMiniProgramComponentId = catalog.getComponentId("AliPay-MiniProgram");
-    }
-
-    protected Layer identifyServiceLayer(SpanLayer spanLayer, int componentId) {
-        if (componentId == wechatMiniProgramComponentId) {
-            return Layer.WECHAT_MINI_PROGRAM;
-        }
-        if (componentId == alipayMiniProgramComponentId) {
-            return Layer.ALIPAY_MINI_PROGRAM;
-        }
-        if (SpanLayer.FAAS.equals(spanLayer)) {
-            return Layer.FAAS;
-        }
-        return Layer.GENERAL;
-    }
-}
-```
-
-`IComponentLibraryCatalogService` is already a `CoreModule` service, so wiring it into
-the listener factories is one constructor parameter. Each of the 5 existing call sites
-in `RPCAnalysisListener` (×4) and `EndpointDepFromCrossThreadAnalysisListener` (×1)
-adds `span.getComponentId()` to its current `identifyServiceLayer(span.getSpanLayer())`
-call.
-
-No new SPI, no new listener registration — all the work happens inside the existing
-`SegmentParserListenerManager` pipeline.
+This means `CommonAnalysisListener.identifyServiceLayer(SpanLayer)` stays unchanged;
+the 5 callsites in `RPCAnalysisListener` / `EndpointDepFromCrossThreadAnalysisListener`
+keep their current signatures; listener factories need no new service injection.
+`component-libraries.yml` still registers `WeChat-MiniProgram: 10002` /
+`AliPay-MiniProgram: 10003` (§7) so topology tooltips and UI renderers show the
+component name — but those ids don't drive layer assignment.
 
 **Persistence:** default `true` — unlike iOS MetricKit spans (which represent 24-hour
 windows and must be suppressed), mini-program segments are real outgoing HTTP spans
