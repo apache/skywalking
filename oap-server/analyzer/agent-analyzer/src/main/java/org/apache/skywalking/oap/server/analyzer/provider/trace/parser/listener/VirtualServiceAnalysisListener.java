@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -82,22 +82,25 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
             this.namingControl = moduleManager.find(CoreModule.NAME)
                     .provider()
                     .getService(NamingControl.class);
-            this.genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME)
-                    .provider()
-                    .getService(IGenAIMeterAnalyzerService.class);
+            if (moduleManager.has(GenAIAnalyzerModule.NAME)) {
+                this.genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME)
+                        .provider()
+                        .getService(IGenAIMeterAnalyzerService.class);
+            } else {
+                this.genAIMeterAnalyzerService = null;
+            }
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
-            return new VirtualServiceAnalysisListener(
-                    sourceReceiver,
-                    Arrays.asList(
-                            new VirtualCacheProcessor(namingControl, config),
-                            new VirtualDatabaseProcessor(namingControl, config),
-                            new VirtualMQProcessor(namingControl),
-                            new VirtualGenAIProcessor(genAIMeterAnalyzerService)
-                    )
-            );
+            List<VirtualServiceProcessor> processors = new ArrayList<>();
+            processors.add(new VirtualCacheProcessor(namingControl, config));
+            processors.add(new VirtualDatabaseProcessor(namingControl, config));
+            processors.add(new VirtualMQProcessor(namingControl));
+            if (genAIMeterAnalyzerService != null) {
+                processors.add(new VirtualGenAIProcessor(genAIMeterAnalyzerService));
+            }
+            return new VirtualServiceAnalysisListener(sourceReceiver, processors);
         }
     }
 
