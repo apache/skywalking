@@ -1,0 +1,76 @@
+[
+  {
+    "id": "Alipay-Mini-Program-Root",
+    "configuration": {
+      "children": [
+        {
+          "x": 0,
+          "y": 3,
+          "w": 24,
+          "h": 45,
+          "i": "0",
+          "type": "Widget",
+          "graph": {
+            "type": "ServiceList",
+            "dashboardName": "Alipay-Mini-Program-Service",
+            "fontSize": 12,
+            "showXAxis": false,
+            "showYAxis": false,
+            "showGroup": true
+          },
+          "expressions": [
+            "avg(meter_alipay_mp_request_cpm)",
+            "avg(meter_alipay_mp_app_launch_duration)",
+            "avg(meter_alipay_mp_first_render_duration)",
+            "avg(meter_alipay_mp_request_duration_percentile{p='95'})"
+          ],
+          "subExpressions": [
+            "meter_alipay_mp_request_cpm",
+            "meter_alipay_mp_app_launch_duration",
+            "meter_alipay_mp_first_render_duration",
+            "meter_alipay_mp_request_duration_percentile{p='95'}"
+          ],
+          "metricConfig": [
+            {
+              "label": "Request Load",
+              "unit": "calls / min"
+            },
+            {
+              "label": "Launch Duration",
+              "unit": "ms"
+            },
+            {
+              "label": "First Render",
+              "unit": "ms"
+            },
+            {
+              "label": "Request P95",
+              "unit": "ms"
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 24,
+          "h": 3,
+          "i": "100",
+          "type": "Text",
+          "graph": {
+            "fontColor": "theme",
+            "backgroundColor": "theme",
+            "content": "Alipay Mini Program monitoring via mini-program-monitor SDK. OTLP metrics (lifecycle-based launch / render approximations + request-duration histogram), OTLP logs (JS / promise / ajax errors), and native trace segments for outbound HTTP requests with sw8 propagation to backends.",
+            "fontSize": 14,
+            "textAlign": "left",
+            "url": "https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-alipay-mini-program-monitoring/"
+          }
+        }
+      ],
+      "id": "Alipay-Mini-Program-Root",
+      "layer": "ALIPAY_MINI_PROGRAM",
+      "entity": "All",
+      "name": "Alipay-Mini-Program-Root",
+      "isRoot": true
+    }
+  }
+]

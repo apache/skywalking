@@ -1,0 +1,76 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# WeChat Mini Program e2e test — drives the published
+# ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.1 image in MODE=timed
+# against OAP wired with the miniprogram MAL / LAL / log-MAL rules. The sim
+# emits realistic OTLP logs + metrics (perf gauges + request-duration
+# histogram + errors) plus SW native trace segments (/v3/segments) with
+# componentId=10002 for 60 s, then exits cleanly.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+verify:
+  retry:
+    count: 20
+    interval: 10s
+  cases:
+    # Service registered under WECHAT_MINI_PROGRAM layer (from MAL + LAL,
+    # both keyed off miniprogram.platform=wechat).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly WECHAT_MINI_PROGRAM
+      expected: expected/service.yml
+    # MAL service-scoped perf gauges
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_app_launch_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_first_render_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    # WeChat-only perf gauges (SDK ≥ v0.4.1 fires PerformanceObserver
+    # entries for route / script / loadPackage; emitted by sim-wechat as
+    # well from v0.4.1 onward).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_route_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_script_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_package_load_duration --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    # Request-count derived from the histogram _count family (delta counter
+    # aggregated per minute).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_request_cpm --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value.yml
+    # Request duration percentile via the bucket family (MILLISECONDS unit
+    # keeps le labels as-is — no 1000x rescale).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_request_duration_percentile --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value-label.yml
+    # Log-MAL derived error count — demo scenario fires all four error
+    # surfaces (js / promise / ajax / pageNotFound).
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_error_count --service-name=mini-program-sim-wechat
+      expected: expected/metrics-has-value-label.yml
+    # Instance metric populated (SERVICE_INSTANCE=sim per recommended pattern)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_wechat_mp_instance_app_launch_duration --service-name=mini-program-sim-wechat --instance-name=sim
+      expected: expected/metrics-has-value.yml
+    # Error log persisted via LAL (layer:auto -> WECHAT_MINI_PROGRAM)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=mini-program-sim-wechat
+      expected: expected/logs.yml

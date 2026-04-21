@@ -108,6 +108,10 @@ catalog:
             catalog:
               - name: "iOS"
                 path: "/en/setup/backend/backend-ios-monitoring"
+              - name: "WeChat Mini Program"
+                path: "/en/setup/backend/backend-wechat-mini-program-monitoring"
+              - name: "Alipay Mini Program"
+                path: "/en/setup/backend/backend-alipay-mini-program-monitoring"
           - name: "Gateway Monitoring"
             catalog:
               - name: "Nginx Monitoring"

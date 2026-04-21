@@ -252,6 +252,16 @@ menus:
         description: iOS/iPadOS app monitoring via OpenTelemetry Swift SDK. Provides HTTP performance, MetricKit daily stats, and crash diagnostics.
         documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-ios-monitoring/
         i18nKey: mobile_ios
+      - title: WeChat Mini Program
+        layer: WECHAT_MINI_PROGRAM
+        description: WeChat Mini Program monitoring via the mini-program-monitor SDK. Provides launch / render / route / script / package-load perf, request latency percentiles, error counts, and per-page breakdowns — plus trace drill-down for outbound HTTP requests.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-wechat-mini-program-monitoring/
+        i18nKey: mobile_wechat_mini_program
+      - title: Alipay Mini Program
+        layer: ALIPAY_MINI_PROGRAM
+        description: Alipay Mini Program monitoring via the mini-program-monitor SDK. Provides lifecycle-based launch / render approximations, request latency percentiles, error counts, and per-page breakdowns — plus trace drill-down for outbound HTTP requests.
+        documentLink: https://skywalking.apache.org/docs/main/next/en/setup/backend/backend-alipay-mini-program-monitoring/
+        i18nKey: mobile_alipay_mini_program
   - title: GenAI
     icon: gen_ai
     description: Generative AI (GenAI) observability provides comprehensive monitoring and performance insights for various AI services and large language models (LLM).
