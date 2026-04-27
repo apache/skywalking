@@ -40,6 +40,7 @@
 * MAL: register `TimeUnit` in `MALCodegenHelper.ENUM_FQCN` so rule YAML can write `.histogram("le", TimeUnit.MILLISECONDS)` for SDKs that emit histogram bucket bounds in ms (default `SECONDS` unit applies a ×1000 rescale that would otherwise inflate stored `le` labels 1000×).
 * Fix: potential unexpected current directory inclusion in Docker OAP classpath.
 * MAL: add `safeDiv(divisor)` on `SampleFamily` that yields `0` when the divisor is `0` instead of `Infinity`/`NaN`. Replace `/` with `safeDiv(...)` in Envoy AI Gateway latency-average rules so `sum / count * 1000` no longer produces dropped or out-of-range samples when a counter is zero in a window.
+* Fix: `envoy-ai-gateway` metrics rules, make the metrics value return `0` when the divisor is `0`.
 
 #### UI
 * Add mobile menu icon and i18n labels for the iOS layer.
