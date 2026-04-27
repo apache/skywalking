@@ -46,6 +46,7 @@
 * Add mobile menu icon and i18n labels for the iOS layer.
 * Fix metric label rendering in multi-expression dashboard widgets.
 * Add i18n menu labels for WeChat Mini Program and Alipay Mini Program (en / zh / es) — sub-menus rendered as raw keys until this bump.
+* Support trace V1 view in trace single page.
 
 #### Documentation
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
