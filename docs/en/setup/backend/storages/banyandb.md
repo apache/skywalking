@@ -15,6 +15,8 @@ If the BanyanDB server API version is not compatible with the OAP server, the OA
 org.apache.skywalking.oap.server.library.module.ModuleStartException: Incompatible BanyanDB server API version...
 ```
 
+> Upgrading from BanyanDB 0.9.x to 0.10.x? See [Upgrading to BanyanDB 0.10.0](../../../banyandb/upgrade-0.10.md) for breaking changes (property on-disk path, node discovery default) and behavioral changes that affect SkyWalking deployments.
+
 ### Configuration
 In the `application.yml` file, select the BanyanDB storage provider:
 
@@ -56,6 +58,8 @@ global:
   # The batch size for querying profile data.
   profileDataQueryBatchSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_DATA_BATCH_SIZE:100}
   asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE:200}
+  # The maximum number of pprof task queries in a request.
+  pprofTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PPROF_TASK_QUERY_MAX_SIZE:200}
   user: ${SW_STORAGE_BANYANDB_USER:""}
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.

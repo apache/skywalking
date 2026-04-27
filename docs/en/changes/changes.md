@@ -49,6 +49,7 @@
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
 * Add iOS app monitoring setup documentation.
 * Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
+* Add `Upgrading to BanyanDB 0.10.0` operator guide covering the property on-disk path layout change, the node discovery default switch to `none` for clusters, dropped Windows binaries, property repair on by default, server-generated stream `element_id`, distributed measure aggregation, and the Bloom-filter / criteria-projection storage tweaks. Also document the missing `pprofTaskQueryMaxSize` field in the BanyanDB storage page (partial #13777).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
 

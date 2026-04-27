@@ -228,6 +228,8 @@ catalog:
             path: "/en/banyandb/stages"
           - name: "BanyanDB self observability dashboard"
             path: "/en/banyandb/dashboards-banyandb"
+          - name: "Upgrading to BanyanDB 0.10.0"
+            path: "/en/banyandb/upgrade-0.10"
       - name: "Tracing"
         catalog:
           - name: "Trace Sampling"
