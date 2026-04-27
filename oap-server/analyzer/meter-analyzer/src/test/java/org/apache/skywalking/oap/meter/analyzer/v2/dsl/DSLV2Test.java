@@ -89,4 +89,88 @@ class DSLV2Test {
         assertEquals(1, filtered.samples.length);
         assertEquals(10.0, filtered.samples[0].getValue());
     }
+
+    @Test
+    void safeDivByZeroNumberYieldsZero() {
+        final SampleFamily sf = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("m").labels(ImmutableMap.of("k", "v")).value(100.0).build()).build();
+
+        final SampleFamily result = sf.safeDiv(0);
+
+        assertNotNull(result);
+        assertTrue(result != SampleFamily.EMPTY);
+        assertEquals(1, result.samples.length);
+        assertEquals(0.0, result.samples[0].getValue());
+    }
+
+    @Test
+    void safeDivByNonZeroNumberDividesNormally() {
+        final SampleFamily sf = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("m").labels(ImmutableMap.of("k", "v")).value(100.0).build()).build();
+
+        final SampleFamily result = sf.safeDiv(4);
+
+        assertEquals(25.0, result.samples[0].getValue());
+    }
+
+    @Test
+    void safeDivByFamilyYieldsZeroWhenDenominatorIsZero() {
+        final SampleFamily numerator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("sum").labels(ImmutableMap.of("svc", "s1")).value(50.0).build()).build();
+        final SampleFamily denominator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("count").labels(ImmutableMap.of("svc", "s1")).value(0.0).build()).build();
+
+        final SampleFamily result = numerator.safeDiv(denominator);
+
+        assertNotNull(result);
+        assertTrue(result != SampleFamily.EMPTY);
+        assertEquals(1, result.samples.length);
+        assertEquals(0.0, result.samples[0].getValue());
+    }
+
+    @Test
+    void safeDivByFamilyMixesZeroAndNonZeroDenominators() {
+        final SampleFamily numerator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("sum").labels(ImmutableMap.of("svc", "s1")).value(60.0).build(),
+            Sample.builder().name("sum").labels(ImmutableMap.of("svc", "s2")).value(20.0).build()).build();
+        final SampleFamily denominator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("count").labels(ImmutableMap.of("svc", "s1")).value(0.0).build(),
+            Sample.builder().name("count").labels(ImmutableMap.of("svc", "s2")).value(4.0).build()).build();
+
+        final SampleFamily result = numerator.safeDiv(denominator);
+
+        assertEquals(2, result.samples.length);
+        final double v1 = sampleValueByLabel(result, "svc", "s1");
+        final double v2 = sampleValueByLabel(result, "svc", "s2");
+        assertEquals(0.0, v1);
+        assertEquals(5.0, v2);
+    }
+
+    @Test
+    void safeDivByEmptyFamilyReturnsEmpty() {
+        final SampleFamily numerator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("sum").labels(ImmutableMap.of("svc", "s1")).value(60.0).build()).build();
+
+        final SampleFamily result = numerator.safeDiv(SampleFamily.EMPTY);
+
+        assertEquals(SampleFamily.EMPTY, result);
+    }
+
+    @Test
+    void safeDivOnEmptyFamilyReturnsEmpty() {
+        final SampleFamily denominator = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("count").labels(ImmutableMap.of("svc", "s1")).value(2.0).build()).build();
+
+        assertEquals(SampleFamily.EMPTY, SampleFamily.EMPTY.safeDiv(denominator));
+        assertEquals(SampleFamily.EMPTY, SampleFamily.EMPTY.safeDiv(2));
+    }
+
+    private static double sampleValueByLabel(final SampleFamily sf, final String labelKey, final String labelValue) {
+        for (final Sample s : sf.samples) {
+            if (labelValue.equals(s.getLabels().get(labelKey))) {
+                return s.getValue();
+            }
+        }
+        throw new IllegalStateException("No sample with " + labelKey + "=" + labelValue);
+    }
 }
