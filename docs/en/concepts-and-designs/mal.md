@@ -152,6 +152,21 @@ have no match and will not show up in the result:
 {region="asia-north",az="az-1"} 0.3333  // 11 / 33
 ```
 
+#### Safe division
+
+The binary `/` operator produces `Infinity` when the right-hand value is `0`, and `NaN` when both
+sides are `0` (NaN samples are silently dropped during evaluation). Either result is rarely useful
+for downstream metrics. The `safeDiv` method on a sample family substitutes `0` for the result whenever
+the divisor is `0`, while behaving exactly like `/` otherwise:
+
+```
+gen_ai_server_request_duration_sum.sum(['service_name']).increase('PT1M')
+    .safeDiv(gen_ai_server_request_duration_count.sum(['service_name']).increase('PT1M')) * 1000
+```
+
+`safeDiv` accepts either a sample family or a scalar number argument. Use it when the denominator
+is a counter that may legitimately be zero in a given window (e.g. request count, error count).
+
 ### Aggregation Operation
 
 Sample family supports the following aggregation operations that can be used to aggregate the samples of a single sample family,

@@ -17,11 +17,16 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import com.google.common.collect.ImmutableMap;
 import javassist.ClassPool;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -146,6 +151,56 @@ class MALClassGeneratorTest {
             "process_cpu_usage.multiply(100)");
         assertNotNull(expr);
         assertNotNull(expr.run(java.util.Map.of()));
+    }
+
+    @Test
+    void compileSafeDivBetweenFamiliesYieldsZeroWhenDenominatorIsZero() throws Exception {
+        final MalExpression expr = generator.compile(
+            "test_safe_div",
+            "metric_sum.safeDiv(metric_count) * 1000");
+        assertNotNull(expr);
+
+        final SampleFamily sum = SampleFamilyBuilder.newBuilder(
+            Sample.builder().labels(ImmutableMap.of("svc", "s1")).value(50.0).build()).build();
+        final SampleFamily count = SampleFamilyBuilder.newBuilder(
+            Sample.builder().labels(ImmutableMap.of("svc", "s1")).value(0.0).build()).build();
+
+        final SampleFamily result = expr.run(java.util.Map.of(
+            "metric_sum", sum, "metric_count", count));
+        assertNotNull(result);
+        assertEquals(1, result.samples.length);
+        assertEquals(0.0, result.samples[0].getValue(), 0.001);
+    }
+
+    @Test
+    void compileSafeDivBetweenFamiliesNonZeroDenominator() throws Exception {
+        final MalExpression expr = generator.compile(
+            "test_safe_div_ok",
+            "metric_sum.safeDiv(metric_count) * 1000");
+        assertNotNull(expr);
+
+        final SampleFamily sum = SampleFamilyBuilder.newBuilder(
+            Sample.builder().labels(ImmutableMap.of("svc", "s1")).value(2.0).build()).build();
+        final SampleFamily count = SampleFamilyBuilder.newBuilder(
+            Sample.builder().labels(ImmutableMap.of("svc", "s1")).value(4.0).build()).build();
+
+        final SampleFamily result = expr.run(java.util.Map.of(
+            "metric_sum", sum, "metric_count", count));
+        assertEquals(500.0, result.samples[0].getValue(), 0.001);
+    }
+
+    @Test
+    void compileSafeDivByZeroNumberLiteral() throws Exception {
+        final MalExpression expr = generator.compile(
+            "test_safe_div_zero_lit",
+            "metric.safeDiv(0)");
+        assertNotNull(expr);
+
+        final SampleFamily input = SampleFamilyBuilder.newBuilder(
+            Sample.builder().labels(ImmutableMap.of("k", "v")).value(123.0).build()).build();
+
+        final SampleFamily result = expr.run(java.util.Map.of("metric", input));
+        assertEquals(0.0, result.samples[0].getValue(), 0.001);
     }
 
     // ==================== Error handling tests ====================

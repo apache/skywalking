@@ -229,6 +229,31 @@ public class SampleFamily {
         return newValue(another, (a, b) -> a / b);
     }
 
+    /**
+     * Safe variant of {@link #div(Number)}: when the divisor is zero, the
+     * resulting samples are valued {@code 0.0} instead of {@code NaN}/{@code Infinity}.
+     */
+    public SampleFamily safeDiv(Number number) {
+        final double divisor = number.doubleValue();
+        if (divisor == 0.0) {
+            return newValue(v -> 0.0);
+        }
+        return newValue(v -> v / divisor);
+    }
+
+    /**
+     * Safe variant of {@link #div(SampleFamily)}: for each label-matched pair,
+     * yields {@code 0.0} when the right-hand value is zero. When the divisor
+     * family is {@link #EMPTY}, the result is also {@link #EMPTY} (no samples
+     * to evaluate against), instead of producing {@code NaN}/{@code Infinity}.
+     */
+    public SampleFamily safeDiv(SampleFamily another) {
+        if (this == EMPTY || another == EMPTY) {
+            return SampleFamily.EMPTY;
+        }
+        return newValue(another, (a, b) -> b == 0.0 ? 0.0 : a / b);
+    }
+
     /* Aggregation operators */
     public SampleFamily sum(List<String> by) {
         return aggregate(by, Double::sum);

@@ -31,7 +31,7 @@ metricsRules:
 
   # MCP request latency average (ms)
   - name: request_latency_avg
-    exp: mcp_request_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M') / mcp_request_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M') * 1000
+    exp: mcp_request_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M').safeDiv(mcp_request_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M')) * 1000
 
   # MCP request latency percentile (ms)
   - name: request_latency_percentile
@@ -47,7 +47,7 @@ metricsRules:
 
   # MCP initialization latency average (ms)
   - name: initialization_latency_avg
-    exp: mcp_initialization_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M') / mcp_initialization_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M') * 1000
+    exp: mcp_initialization_duration_sum.sum(['service_name', 'service_instance_id']).increase('PT1M').safeDiv(mcp_initialization_duration_count.sum(['service_name', 'service_instance_id']).increase('PT1M')) * 1000
 
   # MCP initialization latency percentile (ms)
   - name: initialization_latency_percentile
@@ -65,7 +65,7 @@ metricsRules:
 
   # Backend request latency average (ms)
   - name: backend_request_latency_avg
-    exp: mcp_request_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') / mcp_request_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') * 1000
+    exp: mcp_request_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M').safeDiv(mcp_request_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M')) * 1000
 
   # Backend method CPM
   - name: backend_method_cpm
@@ -77,4 +77,4 @@ metricsRules:
 
   # Backend initialization latency average (ms)
   - name: backend_initialization_latency_avg
-    exp: mcp_initialization_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') / mcp_initialization_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M') * 1000
+    exp: mcp_initialization_duration_sum.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M').safeDiv(mcp_initialization_duration_count.sum(['mcp_backend', 'service_name', 'service_instance_id']).increase('PT1M')) * 1000
