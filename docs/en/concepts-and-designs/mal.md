@@ -157,7 +157,8 @@ have no match and will not show up in the result:
 The binary `/` operator produces `Infinity` when the right-hand value is `0`, and `NaN` when both
 sides are `0` (NaN samples are silently dropped during evaluation). Either result is rarely useful
 for downstream metrics. The `safeDiv` method on a sample family substitutes `0` for the result whenever
-the divisor is `0`, while behaving exactly like `/` otherwise:
+the divisor is `0`. In other cases it follows normal division semantics, except that dividing by an
+empty sample family yields an empty result instead of `Infinity`/`NaN`-style output:
 
 ```
 gen_ai_server_request_duration_sum.sum(['service_name']).increase('PT1M')
