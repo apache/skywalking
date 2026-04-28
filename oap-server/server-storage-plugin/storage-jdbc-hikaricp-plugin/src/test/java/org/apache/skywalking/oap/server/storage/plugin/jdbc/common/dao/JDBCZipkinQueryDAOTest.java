@@ -18,10 +18,13 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +42,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
@@ -107,5 +112,49 @@ class JDBCZipkinQueryDAOTest {
         final String sql = capturedSql.get();
         assertThat(sql).contains(JDBCTableInstaller.TABLE_COLUMN + " = ?");
         assertThat(sql).contains(ZipkinSpanRecord.TRACE_ID + " in (?)");
+    }
+
+    @Test
+    void getTrace_withDuration_shouldUseTablesForReadAndAddTimeBucketFilter() throws Exception {
+        when(tableHelper.getTablesForRead(eq(ZipkinSpanRecord.INDEX_NAME), anyLong(), anyLong()))
+            .thenReturn(Collections.singletonList("zipkin_span_record_20260428"));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return new ArrayList<>();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.getTrace("trace-abc", buildDuration());
+
+        final String sql = capturedSql.get();
+        assertThat(sql).contains(ZipkinSpanRecord.TRACE_ID + " = ?");
+        assertThat(sql).contains(ZipkinSpanRecord.TIME_BUCKET + " >= ?");
+        assertThat(sql).contains(ZipkinSpanRecord.TIME_BUCKET + " <= ?");
+    }
+
+    @Test
+    void getTrace_withNullDuration_shouldFallBackToTablesWithinTTL() throws Exception {
+        when(tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME))
+            .thenReturn(Collections.singletonList("zipkin_span_record"));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return new ArrayList<>();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.getTrace("trace-abc", null);
+
+        final String sql = capturedSql.get();
+        assertThat(sql).doesNotContain(ZipkinSpanRecord.TIME_BUCKET + " >= ?");
+    }
+
+    private static Duration buildDuration() {
+        final Duration duration = new Duration();
+        duration.setStart(new DateTime(2026, 4, 28, 14, 0).toString("yyyy-MM-dd HHmm"));
+        duration.setEnd(new DateTime(2026, 4, 28, 14, 30).toString("yyyy-MM-dd HHmm"));
+        duration.setStep(Step.MINUTE);
+        return duration;
     }
 }

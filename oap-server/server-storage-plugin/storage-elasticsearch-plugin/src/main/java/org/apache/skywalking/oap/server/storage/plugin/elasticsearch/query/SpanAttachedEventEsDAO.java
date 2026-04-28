@@ -69,8 +69,13 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         if (IndexController.LogicIndicesRegister.isMergedTable(SWSpanAttachedEventRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SWSpanAttachedEventRecord.INDEX_NAME));
         }
-        final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
+        if (duration != null) {
+            query.must(Query.range(SWSpanAttachedEventRecord.TIME_BUCKET)
+                .gte(duration.getStartTimeBucketInSec())
+                .lte(duration.getEndTimeBucketInSec()));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         search.sort(SWSpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SWSpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
 
@@ -92,8 +97,13 @@ public class SpanAttachedEventEsDAO extends EsDAO implements ISpanAttachedEventQ
         if (IndexController.LogicIndicesRegister.isMergedTable(SpanAttachedEventRecord.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, SpanAttachedEventRecord.INDEX_NAME));
         }
-        final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         query.must(Query.terms(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
+        if (duration != null) {
+            query.must(Query.range(SpanAttachedEventRecord.TIME_BUCKET)
+                .gte(duration.getStartTimeBucketInSec())
+                .lte(duration.getEndTimeBucketInSec()));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(scrollingBatchSize);
         search.sort(SpanAttachedEventRecord.START_TIME_SECOND, Sort.Order.ASC);
         search.sort(SpanAttachedEventRecord.START_TIME_NANOS, Sort.Order.ASC);
 

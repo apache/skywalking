@@ -47,11 +47,19 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     @Override
     @SneakyThrows
     public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) {
-        final var tables = tableHelper.getTablesWithinTTL(SpanAttachedEventRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (duration != null) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(SpanAttachedEventRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(SpanAttachedEventRecord.INDEX_NAME);
         final var results = new ArrayList<SpanAttachedEventRecord>();
 
         for (String table : tables) {
-            final var sqlAndParameters = buildZKSQL(traceIds, table);
+            final var sqlAndParameters = buildZKSQL(traceIds, table, startSecondTB, endSecondTB);
 
             jdbcClient.executeQuery(
                 sqlAndParameters.sql(),
@@ -87,11 +95,19 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
     @Override
     @SneakyThrows
     public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) {
-        final var tables = tableHelper.getTablesWithinTTL(SWSpanAttachedEventRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (duration != null) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(SWSpanAttachedEventRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(SWSpanAttachedEventRecord.INDEX_NAME);
         final var results = new ArrayList<SWSpanAttachedEventRecord>();
 
         for (String table : tables) {
-            final var sqlAndParameters = buildSWSQL(traceIds, table);
+            final var sqlAndParameters = buildSWSQL(traceIds, table, startSecondTB, endSecondTB);
 
             jdbcClient.executeQuery(
                     sqlAndParameters.sql(),
@@ -124,9 +140,9 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                 .collect(toList());
     }
 
-    private static SQLAndParameters buildZKSQL(List<String> traceIds, String table) {
+    private static SQLAndParameters buildZKSQL(List<String> traceIds, String table, long startSecondTB, long endSecondTB) {
         final var sql = new StringBuilder("select * from " + table + " where ");
-        final var parameters = new ArrayList<>(traceIds.size() + 1);
+        final var parameters = new ArrayList<>(traceIds.size() + 3);
 
         sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(SpanAttachedEventRecord.INDEX_NAME);
@@ -140,15 +156,22 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
         );
         parameters.addAll(traceIds);
 
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            sql.append(" and ").append(SpanAttachedEventRecord.TIME_BUCKET).append(" >= ?");
+            parameters.add(startSecondTB);
+            sql.append(" and ").append(SpanAttachedEventRecord.TIME_BUCKET).append(" <= ?");
+            parameters.add(endSecondTB);
+        }
+
         sql.append(" order by ").append(SpanAttachedEventRecord.START_TIME_SECOND)
            .append(",").append(SpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");
 
         return new SQLAndParameters(sql.toString(), parameters);
     }
 
-    private static SQLAndParameters buildSWSQL(List<String> traceIds, String table) {
+    private static SQLAndParameters buildSWSQL(List<String> traceIds, String table, long startSecondTB, long endSecondTB) {
         final var sql = new StringBuilder("select * from " + table + " where ");
-        final var parameters = new ArrayList<>(traceIds.size() + 1);
+        final var parameters = new ArrayList<>(traceIds.size() + 3);
 
         sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
         parameters.add(SWSpanAttachedEventRecord.INDEX_NAME);
@@ -161,6 +184,13 @@ public class JDBCSpanAttachedEventQueryDAO implements ISpanAttachedEventQueryDAO
                         .collect(joining(",", "(", ")"))
         );
         parameters.addAll(traceIds);
+
+        if (startSecondTB != 0 && endSecondTB != 0) {
+            sql.append(" and ").append(SWSpanAttachedEventRecord.TIME_BUCKET).append(" >= ?");
+            parameters.add(startSecondTB);
+            sql.append(" and ").append(SWSpanAttachedEventRecord.TIME_BUCKET).append(" <= ?");
+            parameters.add(endSecondTB);
+        }
 
         sql.append(" order by ").append(SWSpanAttachedEventRecord.START_TIME_SECOND)
                 .append(",").append(SWSpanAttachedEventRecord.START_TIME_NANOS).append(" ASC ");

@@ -150,18 +150,32 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
     @Override
     @SneakyThrows
     public List<Span> getTrace(final String traceId, @Nullable final Duration duration) {
-        final var tables = tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (duration != null) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(ZipkinSpanRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
         final var trace = new ArrayList<Span>();
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
-            List<Object> condition = new ArrayList<>(1);
+            List<Object> condition = new ArrayList<>(4);
             sql.append("select * from ").append(table);
             sql.append(" where ");
             sql.append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?");
             condition.add(ZipkinSpanRecord.INDEX_NAME);
             sql.append(" and ").append(ZipkinSpanRecord.TRACE_ID).append(" = ?");
             condition.add(traceId);
+            if (startSecondTB != 0 && endSecondTB != 0) {
+                sql.append(" and ").append(ZipkinSpanRecord.TIME_BUCKET).append(" >= ?");
+                condition.add(startSecondTB);
+                sql.append(" and ").append(ZipkinSpanRecord.TIME_BUCKET).append(" <= ?");
+                condition.add(endSecondTB);
+            }
             h2Client.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
                     trace.add(buildSpan(resultSet));

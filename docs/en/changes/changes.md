@@ -41,6 +41,7 @@
 * Fix: potential unexpected current directory inclusion in Docker OAP classpath.
 * MAL: add `safeDiv(divisor)` on `SampleFamily` that yields `0` when the divisor is `0` instead of `Infinity`/`NaN`. Replace `/` with `safeDiv(...)` in Envoy AI Gateway latency-average rules so `sum / count * 1000` no longer produces dropped or out-of-range samples when a counter is zero in a window.
 * Fix: `envoy-ai-gateway` metrics rules, make the metrics value return `0` when the divisor is `0`.
+* Push the `Duration` parameter down to the storage layer in trace detail query DAOs. `JDBCTraceQueryDAO`, `JDBCSpanAttachedEventQueryDAO`, `JDBCZipkinQueryDAO`, `TraceQueryEsDAO`, and `SpanAttachedEventEsDAO` previously accepted `@Nullable Duration` but ignored it: JDBC scanned every shard table within TTL and Elasticsearch did not apply a `time_bucket` range filter. Both backends now narrow to the trace's time window when duration is provided (preserving prior behavior when null). BanyanDB already handled this correctly.
 
 #### UI
 * Add mobile menu icon and i18n labels for the iOS layer.

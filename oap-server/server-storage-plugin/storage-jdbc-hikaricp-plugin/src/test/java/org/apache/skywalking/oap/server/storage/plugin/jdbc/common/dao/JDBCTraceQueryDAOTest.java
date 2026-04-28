@@ -19,10 +19,13 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +40,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
@@ -145,6 +150,87 @@ class JDBCTraceQueryDAOTest {
         final String sql = capturedSql.get();
         assertThat(sql).contains(SegmentRecord.TRACE_ID + " in (?)");
         assertThat(sql).contains(" and " + SegmentRecord.SERVICE_INSTANCE_ID + " in (?)");
+    }
+
+    @Test
+    void queryByTraceId_withDuration_shouldUseTablesForReadAndAddTimeBucketFilter() throws Exception {
+        when(tableHelper.getTablesForRead(eq(SegmentRecord.INDEX_NAME), anyLong(), anyLong()))
+            .thenReturn(Collections.singletonList(TABLE));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return Collections.emptyList();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.queryByTraceId("trace-abc", buildDuration());
+
+        final String sql = capturedSql.get();
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " >= ?");
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " <= ?");
+    }
+
+    @Test
+    void queryBySegmentIdList_withDuration_shouldUseTablesForReadAndAddTimeBucketFilter() throws Exception {
+        when(tableHelper.getTablesForRead(eq(SegmentRecord.INDEX_NAME), anyLong(), anyLong()))
+            .thenReturn(Collections.singletonList(TABLE));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return Collections.emptyList();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.queryBySegmentIdList(Arrays.asList("seg-1", "seg-2"), buildDuration());
+
+        final String sql = capturedSql.get();
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " >= ?");
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " <= ?");
+    }
+
+    @Test
+    void queryByTraceIdWithInstanceId_withDuration_shouldUseTablesForReadAndAddTimeBucketFilter() throws Exception {
+        when(tableHelper.getTablesForRead(eq(SegmentRecord.INDEX_NAME), anyLong(), anyLong()))
+            .thenReturn(Collections.singletonList(TABLE));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return Collections.emptyList();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.queryByTraceIdWithInstanceId(
+            Arrays.asList("trace-1"), Arrays.asList("instance-1"), buildDuration()
+        );
+
+        final String sql = capturedSql.get();
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " >= ?");
+        assertThat(sql).contains(SegmentRecord.TIME_BUCKET + " <= ?");
+    }
+
+    @Test
+    void queryByTraceId_withNullDuration_shouldFallBackToTablesWithinTTL() throws Exception {
+        when(tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME))
+            .thenReturn(Collections.singletonList(TABLE));
+
+        final AtomicReference<String> capturedSql = new AtomicReference<>();
+        doAnswer(invocation -> {
+            capturedSql.set(invocation.getArgument(0));
+            return Collections.emptyList();
+        }).when(jdbcClient).executeQuery(anyString(), any(), any(Object[].class));
+
+        dao.queryByTraceId("trace-abc", null);
+
+        final String sql = capturedSql.get();
+        assertThat(sql).doesNotContain(SegmentRecord.TIME_BUCKET + " >= ?");
+    }
+
+    private static Duration buildDuration() {
+        final Duration duration = new Duration();
+        duration.setStart(new DateTime(2026, 4, 28, 14, 0).toString("yyyy-MM-dd HHmm"));
+        duration.setEnd(new DateTime(2026, 4, 28, 14, 30).toString("yyyy-MM-dd HHmm"));
+        duration.setStep(Step.MINUTE);
+        return duration;
     }
 
     private long countOccurrences(final String text, final String pattern) {

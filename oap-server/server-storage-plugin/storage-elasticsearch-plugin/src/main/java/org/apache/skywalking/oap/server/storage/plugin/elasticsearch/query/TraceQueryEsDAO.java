@@ -183,10 +183,13 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 
-        final SearchBuilder search =
-            Search.builder()
-                  .query(Query.term(SegmentRecord.TRACE_ID, traceId))
-                  .size(segmentQueryMaxSize);
+        final BoolQueryBuilder query = Query.bool().must(Query.term(SegmentRecord.TRACE_ID, traceId));
+        if (duration != null) {
+            query.must(Query.range(SegmentRecord.TIME_BUCKET)
+                .gte(duration.getStartTimeBucketInSec())
+                .lte(duration.getEndTimeBucketInSec()));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(segmentQueryMaxSize);
 
         SearchParams searchParams = new SearchParams();
         RoutingUtils.addRoutingValueToSearchParam(searchParams, traceId);
@@ -201,10 +204,13 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 
-        final SearchBuilder search =
-            Search.builder()
-                .query(Query.terms(SegmentRecord.SEGMENT_ID, segmentIdList))
-                .size(segmentQueryMaxSize);
+        final BoolQueryBuilder query = Query.bool().must(Query.terms(SegmentRecord.SEGMENT_ID, segmentIdList));
+        if (duration != null) {
+            query.must(Query.range(SegmentRecord.TIME_BUCKET)
+                .gte(duration.getStartTimeBucketInSec())
+                .lte(duration.getEndTimeBucketInSec()));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(segmentQueryMaxSize);
 
         SearchParams searchParams = new SearchParams();
         final SearchResponse response = getClient().search(index, search.build(), searchParams);
@@ -217,10 +223,15 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME);
 
-        final SearchBuilder search =
-            Search.builder()
-                .query(Query.bool().must(Query.terms(SegmentRecord.TRACE_ID, traceIdList)).must(Query.terms(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList)))
-                .size(segmentQueryMaxSize);
+        final BoolQueryBuilder query = Query.bool()
+            .must(Query.terms(SegmentRecord.TRACE_ID, traceIdList))
+            .must(Query.terms(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList));
+        if (duration != null) {
+            query.must(Query.range(SegmentRecord.TIME_BUCKET)
+                .gte(duration.getStartTimeBucketInSec())
+                .lte(duration.getEndTimeBucketInSec()));
+        }
+        final SearchBuilder search = Search.builder().query(query).size(segmentQueryMaxSize);
 
         SearchParams searchParams = new SearchParams();
         final SearchResponse response = getClient().search(index, search.build(), searchParams);

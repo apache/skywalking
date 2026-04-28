@@ -234,19 +234,39 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @Override
     @SneakyThrows
     public List<SegmentRecord> queryByTraceId(String traceId, @Nullable Duration duration) throws IOException {
-        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
 
         for (String table : tables) {
-            jdbcClient.executeQuery(
+            final var sql = new StringBuilder(
                 DETAIL_SELECT_QUERY + " from " + table + " where " +
                     JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
-                    SegmentRecord.TRACE_ID + " = ?",
+                    SegmentRecord.TRACE_ID + " = ?");
+            final var parameters = new ArrayList<>();
+            parameters.add(SegmentRecord.INDEX_NAME);
+            parameters.add(traceId);
+            if (startSecondTB != 0 && endSecondTB != 0) {
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+                parameters.add(startSecondTB);
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+                parameters.add(endSecondTB);
+            }
+
+            jdbcClient.executeQuery(
+                sql.toString(),
                 resultSet -> {
                     segmentRecords.addAll(buildRecords(resultSet));
                     return null;
                 },
-                SegmentRecord.INDEX_NAME, traceId
+                parameters.toArray()
             );
         }
         return segmentRecords;
@@ -255,23 +275,40 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @SneakyThrows
     @Override
     public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
-        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
-        final ArrayList<String> conditions = new ArrayList<>();
-        conditions.add(SegmentRecord.INDEX_NAME);
-        conditions.addAll(segmentIdList);
 
         for (String table : tables) {
-            jdbcClient.executeQuery(
+            final var sql = new StringBuilder(
                 DETAIL_SELECT_QUERY + " from " + table + " where " +
                     JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
                     SegmentRecord.SEGMENT_ID + " in " +
-                    segmentIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")),
+                    segmentIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")));
+            final var parameters = new ArrayList<>();
+            parameters.add(SegmentRecord.INDEX_NAME);
+            parameters.addAll(segmentIdList);
+            if (startSecondTB != 0 && endSecondTB != 0) {
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+                parameters.add(startSecondTB);
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+                parameters.add(endSecondTB);
+            }
+
+            jdbcClient.executeQuery(
+                sql.toString(),
                 resultSet -> {
                     segmentRecords.addAll(buildRecords(resultSet));
                     return null;
                 },
-                conditions.toArray()
+                parameters.toArray()
             );
         }
         return segmentRecords;
@@ -280,26 +317,43 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @SneakyThrows
     @Override
     public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
-        final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
+        long startSecondTB = 0;
+        long endSecondTB = 0;
+        if (nonNull(duration)) {
+            startSecondTB = duration.getStartTimeBucketInSec();
+            endSecondTB = duration.getEndTimeBucketInSec();
+        }
+        final var tables = startSecondTB > 0 && endSecondTB > 0 ?
+            tableHelper.getTablesForRead(SegmentRecord.INDEX_NAME, startSecondTB, endSecondTB) :
+            tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
-        final ArrayList<String> conditions = new ArrayList<>();
-        conditions.add(SegmentRecord.INDEX_NAME);
-        conditions.addAll(traceIdList);
-        conditions.addAll(instanceIdList);
 
         for (String table : tables) {
-            jdbcClient.executeQuery(
+            final var sql = new StringBuilder(
                 DETAIL_SELECT_QUERY + " from " + table + " where " +
                     JDBCTableInstaller.TABLE_COLUMN + " = ? and " +
                     SegmentRecord.TRACE_ID + " in " +
                     traceIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ") and ")) +
                     SegmentRecord.SERVICE_INSTANCE_ID + " in " +
-                    instanceIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")),
+                    instanceIdList.stream().map(it -> "?").collect(Collectors.joining(",", "(", ")")));
+            final var parameters = new ArrayList<>();
+            parameters.add(SegmentRecord.INDEX_NAME);
+            parameters.addAll(traceIdList);
+            parameters.addAll(instanceIdList);
+            if (startSecondTB != 0 && endSecondTB != 0) {
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" >= ?");
+                parameters.add(startSecondTB);
+                sql.append(" and ").append(SegmentRecord.TIME_BUCKET).append(" <= ?");
+                parameters.add(endSecondTB);
+            }
+
+            jdbcClient.executeQuery(
+                sql.toString(),
                 resultSet -> {
                     segmentRecords.addAll(buildRecords(resultSet));
                     return null;
                 },
-                conditions.toArray()
+                parameters.toArray()
             );
         }
         return segmentRecords;
