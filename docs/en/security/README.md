@@ -4,8 +4,13 @@ The SkyWalking OAP server, UI, and agent deployments should run in a secure envi
 OAP server, UI, and agent deployments should only be reachable by the operation team on default
 deployment.
 
-All telemetry data are trusted. The OAP server **would not validate any field** of the telemetry data to avoid extra
-load for the server.
+All telemetry data — including **metrics, traces, and logs** — are trusted. The OAP server
+**would not validate any field** of the telemetry data to avoid extra load for the server.
+Log data deserves explicit attention here: unlike numeric metric or response-time samples,
+log lines are free-form text emitted by applications and routinely contain
+attacker-controllable fragments (request URIs, query strings, headers, stack traces from
+poisoned input). Treat log payloads as untrusted at the same level as raw HTTP request
+bodies.
 
 It is up to the operator(OPS team) whether to expose the OAP server, UI, or some agent deployment to unsecured
 environment.
@@ -15,11 +20,19 @@ The following security policies should be considered to add to secure your SkyWa
 2. Set up TOKEN or username/password based authentications for the OAP server and UI through your Gateway.
 3. Validate all fields of the traceable RPC(including HTTP 1/2, MQ) headers(header names are `sw8`, `sw8-x` and `sw8-correlation`) 
    when requests are from out of the trusted zone. Or simply block/remove those headers unless you are using the client-js agent.
-4. All fields of telemetry data(HTTP in raw text or encoded Protobuf format) should be validated and reject malicious
-   data.
+4. All fields of telemetry data — metrics, traces, **and logs** (HTTP in raw text or encoded
+   Protobuf format) — should be validated and reject malicious data. Log fields in particular
+   carry attacker-controllable text (request URIs, headers, exception messages from poisoned
+   input) and are the most common vector for XSS/RCE payloads landing in the OAP and UI.
+5. **Build a validation layer between agents and OAP.** The recommended deployment shape is an
+   operator-controlled gateway / sidecar / service mesh between agents and OAP that
+   authenticates the source, enforces rate limits, and validates / sanitises telemetry —
+   metrics, traces, and logs alike — before forwarding to OAP. Several security vendors offer
+   commercial implementations of this layer; the OAP itself does not perform that validation.
 
-Without these protections, an attacker could embed executable Javascript code in those fields, causing XSS or even
-Remote Code Execution (RCE) issues.
+Without these protections, an attacker could embed executable Javascript code in those fields,
+causing XSS or even Remote Code Execution (RCE) issues. Log data is especially exposed
+because applications routinely emit raw user input verbatim into log messages.
 
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
