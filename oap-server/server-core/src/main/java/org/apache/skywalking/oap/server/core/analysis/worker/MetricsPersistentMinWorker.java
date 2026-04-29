@@ -158,6 +158,26 @@ public class MetricsPersistentMinWorker extends MetricsPersistentWorker {
         }
     }
 
+    /**
+     * Deregister this worker's L2 handler for runtime-rule hot-remove. Does not flush pending
+     * data — callers must invoke {@link #drainPendingRequests()} and submit the returned requests
+     * via {@code IBatchDAO.flush} first if they want the L2 cache drained to storage.
+     *
+     * <p>Any samples still buffered in the L2 queue partition for this metric class after this
+     * call will hit the null-handler path and be dropped (logged once). Callers must have already
+     * unregistered from {@code MetricsStreamProcessor.entryWorkers} and drained the L1 side
+     * ({@link MetricsAggregateWorker#drainAndDeregister()}) so no new samples enter the L2 queue.
+     *
+     * <p>Not safe to call concurrently with {@code addHandler}/{@code removeHandler} on the same
+     * L2 queue — the runtime-rule module serializes via its per-file lock.
+     *
+     * @param metricsClass the metrics class whose handler should be removed; must match the class
+     *                     this worker was constructed with.
+     */
+    public void deregisterFromL2Queue(final Class<? extends Metrics> metricsClass) {
+        l2Queue.removeHandler(metricsClass);
+    }
+
     private class L2Handler implements HandlerConsumer<Metrics> {
         @Override
         public void consume(List<Metrics> data) {

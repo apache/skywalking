@@ -21,6 +21,8 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -48,11 +50,18 @@ final class MALBytecodeHelper {
     private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 
     private static final Set<String> USED_CLASS_NAMES =
-        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+        Collections.synchronizedSet(new HashSet<>());
 
     private File classOutputDir;
     private String classNameHint;
     private String yamlSource;
+    /**
+     * When true, each apply gets its own per-file classloader, so generated class names are
+     * scoped to that loader and don't need the process-wide {@link #USED_CLASS_NAMES} dedup.
+     * Set by {@link MALClassGenerator} when its {@code targetClassLoader} is non-null — the
+     * runtime-rule hot-update path. Legacy startup (shared OAP app loader) keeps dedup on.
+     */
+    private boolean perFileClassLoader;
 
     void setClassOutputDir(final File dir) {
         this.classOutputDir = dir;
@@ -68,6 +77,10 @@ final class MALBytecodeHelper {
 
     void setYamlSource(final String yamlSource) {
         this.yamlSource = yamlSource;
+    }
+
+    void setPerFileClassLoader(final boolean perFileClassLoader) {
+        this.perFileClassLoader = perFileClassLoader;
     }
 
     // ==================== Class naming ====================
@@ -112,6 +125,13 @@ final class MALBytecodeHelper {
     }
 
     private String dedupClassName(final String base) {
+        // Runtime-rule hot-update gives every apply its own RuleClassLoader — same class name
+        // across applies lands in different loader namespaces. Skip the process-wide dedup set
+        // so it doesn't grow without bound across thousands of hot-updates. Legacy startup
+        // path (shared app loader) still needs dedup.
+        if (perFileClassLoader) {
+            return base;
+        }
         if (USED_CLASS_NAMES.add(base)) {
             return base;
         }
@@ -279,7 +299,7 @@ final class MALBytecodeHelper {
      */
     void addRunLocalVariableTable(final javassist.CtMethod method,
                                    final String className,
-                                   final java.util.Set<String> varNames) {
+                                   final Set<String> varNames) {
         final String sfDesc =
             "L" + MALCodegenHelper.SF.replace('.', '/') + ";";
         final String[][] vars = new String[1 + varNames.size()][];

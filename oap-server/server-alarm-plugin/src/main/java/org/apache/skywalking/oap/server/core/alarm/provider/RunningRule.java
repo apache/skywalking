@@ -199,6 +199,26 @@ public class RunningRule {
     }
 
     /**
+     * Discard every per-entity {@link Window} this rule owns. Used by runtime rule hot-update
+     * ({@link org.apache.skywalking.oap.server.core.alarm.AlarmKernelService}) when a metric's
+     * semantics move so alarm state does not carry across the boundary — the next arriving
+     * sample re-creates a fresh Window via {@link java.util.concurrent.ConcurrentHashMap#computeIfAbsent}
+     * in {@link #in}.
+     *
+     * <p>Each Window is reset under its own {@code Window.lock} so any in-flight
+     * {@link Window#add} / {@link Window#checkAlarm} finishes before we wipe its values and
+     * state-machine counters. The subsequent {@code windows.clear()} drops the map entries;
+     * any Window that {@code in()} allocated concurrently during the iteration is itself
+     * fresh (post-{@code init()}) and is removed cleanly by the clear. Next arriving sample
+     * for any entity allocates a new Window with state-machine at {@code NORMAL} and no
+     * carried-over values.
+     */
+    public void resetWindows() {
+        windows.values().forEach(Window::reset);
+        windows.clear();
+    }
+
+    /**
      * Move the buffer window to give time.
      *
      * @param targetTime of moving target
@@ -471,6 +491,25 @@ public class RunningRule {
             }
         }
 
+        /**
+         * Atomic per-window reset invoked by {@link RunningRule#resetWindows()}. Holds the
+         * same {@code lock} that {@link #add}, {@link #moveTo}, and {@link #isMatch} use, so
+         * any in-flight alarm evaluation for this window finishes before the values and
+         * state-machine are wiped.
+         */
+        public void reset() {
+            lock.lock();
+            try {
+                init();
+                endTime = null;
+                lastAlarmMessage = null;
+                mqeMetricsSnapshot = null;
+                stateMachine.reset();
+            } finally {
+                lock.unlock();
+            }
+        }
+
         private void init() {
             values = new LinkedList<>();
             for (int i = 0; i < size; i++) {
@@ -582,6 +621,17 @@ public class RunningRule {
 
             private void resetCountdowns() {
                 this.recoveryObservationCountdown = this.recoveryObservationPeriod;
+            }
+
+            /**
+             * Reset to freshly-constructed state. Invoked by {@link Window#reset()} during
+             * runtime-rule hot-update so alarm firings built up against the old metric
+             * semantics don't carry across the boundary.
+             */
+            public void reset() {
+                this.currentState = State.NORMAL;
+                this.silenceCountdown = -1;
+                this.recoveryObservationCountdown = recoveryObservationPeriod;
             }
 
         }

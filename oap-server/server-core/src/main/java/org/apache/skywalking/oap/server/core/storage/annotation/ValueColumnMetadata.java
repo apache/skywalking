@@ -60,6 +60,16 @@ public enum ValueColumnMetadata {
     }
 
     /**
+     * Drop the metadata entry for the given model name. Used by the runtime-rule
+     * teardown path so a subsequent re-register under a different scope (e.g. a
+     * SHAPE-BREAK from SERVICE → SERVICE_INSTANCE) is not silently ignored by
+     * {@link #putIfAbsent}. No-op when the entry is absent.
+     */
+    public void remove(String modelName) {
+        mapping.remove(modelName);
+    }
+
+    /**
      * Fetch the value column name of the given metrics name.
      */
     public String getValueCName(String metricsName) {

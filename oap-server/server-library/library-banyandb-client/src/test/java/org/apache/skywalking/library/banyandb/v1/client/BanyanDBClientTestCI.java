@@ -20,7 +20,7 @@ package org.apache.skywalking.library.banyandb.v1.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
-import org.apache.skywalking.oap.server.library.it.ITVersions;
+import org.apache.skywalking.oap.server.library.it.BanyanDBTestContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
@@ -31,22 +31,15 @@ import java.io.IOException;
 @Slf4j
 @Testcontainers
 public class BanyanDBClientTestCI {
-    private static final String REGISTRY = "ghcr.io";
-    private static final String IMAGE_NAME = "apache/skywalking-banyandb";
-    private static final String TAG = ITVersions.get("SW_BANYANDB_COMMIT");
-
-    private static final String IMAGE = REGISTRY + "/" + IMAGE_NAME + ":" + TAG;
-
-    protected static final int GRPC_PORT = 17912;
-    protected static final int HTTP_PORT = 17913;
+    protected static final int GRPC_PORT = BanyanDBTestContainer.GRPC_PORT;
+    protected static final int HTTP_PORT = BanyanDBTestContainer.HTTP_PORT;
 
     @Container
     public GenericContainer<?> banyanDB = new GenericContainer<>(
-            DockerImageName.parse(IMAGE))
-            .withCommand("standalone", "--stream-root-path", "/tmp/banyandb-stream-data",
-                    "--measure-root-path", "/tmp/banyand-measure-data")
+            DockerImageName.parse(BanyanDBTestContainer.image()))
+            .withCommand(BanyanDBTestContainer.standaloneCommand())
             .withExposedPorts(GRPC_PORT, HTTP_PORT)
-            .waitingFor(Wait.forHttp("/api/healthz").forPort(HTTP_PORT));
+            .waitingFor(Wait.forHttp(BanyanDBTestContainer.HEALTH_ENDPOINT).forPort(HTTP_PORT));
 
     protected BanyanDBClient client;
 

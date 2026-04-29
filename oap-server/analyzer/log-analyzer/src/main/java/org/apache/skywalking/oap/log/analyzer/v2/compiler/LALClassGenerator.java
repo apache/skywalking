@@ -20,10 +20,14 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -31,6 +35,8 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder;
+import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -61,10 +67,18 @@ public final class LALClassGenerator {
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
 
-    private static final java.util.Set<String> USED_CLASS_NAMES =
-        java.util.Collections.synchronizedSet(new java.util.HashSet<>());
+    private static final Set<String> USED_CLASS_NAMES =
+        Collections.synchronizedSet(new HashSet<>());
 
     private final ClassPool classPool;
+    /**
+     * When non-null, generated LAL classes are defined in this ClassLoader via
+     * {@code ctClass.toClass(loader, null)} — used by the runtime-rule hot-update path so one
+     * YAML file's full LAL class family lives in a single per-file {@code RuleClassLoader} and
+     * drops together on unregister. Null = legacy startup path: uses the neighbor-class form
+     * with {@link LalExpressionPackageHolder} so classes land in the OAP app loader.
+     */
+    private final ClassLoader targetClassLoader;
     private File classOutputDir;
     private String classNameHint;
     private Class<?> inputType;
@@ -187,14 +201,25 @@ public final class LALClassGenerator {
     }
 
     public LALClassGenerator() {
-        this(ClassPool.getDefault());
+        this(ClassPool.getDefault(), null);
         if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
             classOutputDir = new File(WorkPath.getPath().getParentFile(), "lal-rt");
         }
     }
 
     public LALClassGenerator(final ClassPool classPool) {
+        this(classPool, null);
+    }
+
+    /**
+     * Runtime-rule constructor: caller supplies the per-file {@link ClassPool} (already scoped
+     * to a per-file {@code RuleClassLoader} via {@code LoaderClassPath}) and the target
+     * {@link ClassLoader}. Every class this generator emits will be loaded into
+     * {@code targetClassLoader} rather than the OAP app loader.
+     */
+    public LALClassGenerator(final ClassPool classPool, final ClassLoader targetClassLoader) {
         this.classPool = classPool;
+        this.targetClassLoader = targetClassLoader;
     }
 
     public void setClassOutputDir(final File dir) {
@@ -255,6 +280,15 @@ public final class LALClassGenerator {
     }
 
     private String dedupClassName(final String base) {
+        // Runtime-rule hot-update path: every apply gets a fresh per-file RuleClassLoader, so
+        // two apps of the same rule can safely carry the same generated class name — they live
+        // in different classloader namespaces. Skip the process-wide dedup set to keep it from
+        // growing without bound over thousands of hot-updates. The legacy startup path
+        // (targetClassLoader == null) still needs dedup because it defines classes into the
+        // shared app loader via LalExpressionPackageHolder.
+        if (targetClassLoader != null) {
+            return base;
+        }
         if (USED_CLASS_NAMES.add(base)) {
             return base;
         }
@@ -439,7 +473,7 @@ public final class LALClassGenerator {
         final ParserType parserType = detectParserType(model.getStatements());
         final Class<?> resolvedOutput = this.outputType != null
             ? this.outputType
-            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
+            : LogBuilder.class;
         // inputType is only meaningful for parser-less rules (NONE) where parsed.*
         // generates direct proto getter calls.  When a parser is present (json/yaml/text),
         // parsed.* reads from the parsed map and tag() reads from LogData.Builder tags,
@@ -501,9 +535,38 @@ public final class LALClassGenerator {
 
         writeClassFile(ctClass);
 
-        final Class<?> clazz = ctClass.toClass(LalExpressionPackageHolder.class);
+        final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
         return (LalExpression) clazz.getDeclaredConstructor().newInstance();
+    }
+
+    /**
+     * Loads a generated class through the configured {@link #targetClassLoader} when set
+     * (runtime-rule hot-update path: class lands in the per-file {@code RuleClassLoader}),
+     * or via the neighbor-class form when {@code targetClassLoader} is {@code null}
+     * (startup path: class lands in the OAP app loader alongside
+     * {@link LalExpressionPackageHolder}).
+     *
+     * <p>{@link BytecodeClassDefiner} loaders (the runtime-rule {@code RuleClassLoader})
+     * receive the {@code CtClass.toBytecode()} bytes via their public {@code defineClass}
+     * — bypasses Javassist's deprecated {@code toClass(loader, ProtectionDomain)} reflection
+     * path so we don't need {@code --add-opens java.base/java.lang} on the OAP container.
+     * Same shape as {@code MALClassGenerator}; both DSLs share the contract.
+     */
+    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
+        if (targetClassLoader != null) {
+            if (targetClassLoader instanceof BytecodeClassDefiner) {
+                try {
+                    return ((BytecodeClassDefiner) targetClassLoader)
+                        .defineClass(ctClass.getName(), ctClass.toBytecode());
+                } catch (final IOException e) {
+                    throw new javassist.CannotCompileException(
+                        "failed to serialise " + ctClass.getName() + " bytes", e);
+                }
+            }
+            return ctClass.toClass(targetClassLoader, null);
+        }
+        return ctClass.toClass(LalExpressionPackageHolder.class);
     }
 
     private static boolean hasParsedAccess(
@@ -629,7 +692,7 @@ public final class LALClassGenerator {
         final LALScriptModel model = LALScriptParser.parse(dsl);
         final Class<?> resolvedOutput = this.outputType != null
             ? this.outputType
-            : org.apache.skywalking.oap.server.core.source.LogBuilder.class;
+            : LogBuilder.class;
         final ParserType pt = detectParserType(model.getStatements());
         final GenCtx genCtx = new GenCtx(
             pt, pt == ParserType.NONE ? this.inputType : null, resolvedOutput);

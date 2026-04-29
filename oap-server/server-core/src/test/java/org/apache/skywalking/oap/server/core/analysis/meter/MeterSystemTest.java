@@ -52,7 +52,10 @@ public class MeterSystemTest {
         processorMock = Mockito.mock(MetricsStreamProcessor.class);
         mockedProcessor = Mockito.mockStatic(MetricsStreamProcessor.class);
         mockedProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(processorMock);
-        doNothing().when(processorMock).create(any(), (StreamDefinition) any(), any());
+        // MetricsStreamProcessor.create now takes a StorageManipulationOpt on every path —
+        // MeterSystem.createInternal threads the opt through so the shape-mismatch gate at
+        // the installer level can surface to the metric-registration path.
+        doNothing().when(processorMock).create(any(), (StreamDefinition) any(), any(), any());
     }
 
     @AfterEach

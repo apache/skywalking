@@ -37,7 +37,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -90,10 +91,12 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
             throw new UnexpectedException("Create " + stream.builder().getSimpleName() + " record DAO failure.", e);
         }
 
-        ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
+        ModelRegistry modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelRegistry.class);
         // Record stream doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
         Model model = modelSetter.add(
-            recordClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second));
+            recordClass, stream.scopeId(),
+            new Storage(stream.name(), false, DownSampling.Second),
+            StorageManipulationOpt.createIfAbsent());
         ExportRecordWorker exportWorker = new ExportRecordWorker(moduleDefineHolder);
         RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO, exportWorker);
 

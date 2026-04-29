@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -82,7 +83,7 @@ public class StorageEsInstaller extends ModelInstaller {
     }
 
     @Override
-    public InstallInfo isExists(Model model) throws StorageException {
+    public InstallInfo isExists(Model model, StorageManipulationOpt opt) throws StorageException {
         InstallInfoES installInfo = new InstallInfoES(model, config);
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);

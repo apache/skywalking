@@ -1,0 +1,69 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      # Hot-update receiver — opens the admin port on 17128. Default is "" (disabled).
+      SW_RECEIVER_RUNTIME_RULE: default
+      # Steer OAP to BanyanDB. Reuses the standard env var the base-compose already wires.
+      SW_STORAGE: banyandb
+      # Tighten the persistence timer for the e2e: every 10s (default 25s) so the
+      # lifecycle flow's per-phase awaits land sooner. Doesn't change the minute-
+      # bucket boundary itself (which is what dominates the wait), just shortens
+      # the flush gap between bucket close and BanyanDB-side visibility.
+      SW_CORE_PERSISTENT_PERIOD: "10"
+      # Static rule catalogs stay at their defaults. The runtime-rule lifecycle uses a
+      # unique e2e_rr_-prefixed metric name that does not collide with anything the
+      # static catalogs ship, so the apply path's CREATE phase still exercises a
+      # first-time DDL register against the backend for that specific metric — even
+      # though the storage-side merging tables (meter_sum_*) may already exist for
+      # other static metrics that share the function.
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    networks:
+      - e2e
+
+  banyandb:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  otlp-emitter:
+    build:
+      context: ../otlp-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap:11800
+      EMITTER_SERVICE: e2e-rr-svc
+      EMITTER_INSTANCE: e2e-rr-i1
+      # The lifecycle flow rewrites this file via `docker compose exec`
+      # between phases so each emitted sample carries the current phase's
+      # `step` label. Defaults to "create" until the flow writes it for
+      # the first time, matching the first-phase emitter behaviour.
+      STEP_FILE: /tmp/step
+      STEP_DEFAULT: create
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

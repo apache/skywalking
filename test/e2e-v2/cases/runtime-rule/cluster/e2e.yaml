@@ -1,0 +1,59 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# 2-OAP cluster + ZK + BanyanDB. Drives apply / inactivate / delete on OAP-1 and
+# verifies OAP-2 converges within a reconciler tick (default 30 s).
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 25m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install jq
+      command: |
+        if ! command -v jq >/dev/null 2>&1; then
+          curl -fsSL -o /tmp/skywalking-infra-e2e/bin/jq \
+            https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
+          chmod +x /tmp/skywalking-infra-e2e/bin/jq
+        fi
+    - name: drive cluster convergence flow
+      command: |
+        set -euo pipefail
+        export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+        bash test/e2e-v2/cases/runtime-rule/cluster/cluster-flow.sh
+
+verify:
+  retry:
+    count: 1
+    interval: 1s
+  cases:
+    - query: curl -fsS http://127.0.0.1:17128/runtime/rule/list >/dev/null && echo ok
+      expected: expected/ok.txt
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/runtime-rule/cluster
+    items:
+      - service: oap1
+        paths:
+          - /skywalking/logs/
+      - service: oap2
+        paths:
+          - /skywalking/logs/

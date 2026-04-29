@@ -1,0 +1,79 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: postgresql
+      SW_JDBC_URL: jdbc:postgresql://postgres:5432/swtest
+      SW_DATA_SOURCE_USER: postgres
+      SW_DATA_SOURCE_PASSWORD: root@1234
+      SW_RECEIVER_RUNTIME_RULE: default
+      # Tighten the persistence timer for the e2e: every 10s (default 25s) so the
+      # lifecycle flow's per-phase awaits land sooner.
+      SW_CORE_PERSISTENT_PERIOD: "10"
+      # Static rule catalogs stay at their defaults — the e2e_rr_-prefixed metric name
+      # the runtime-rule lifecycle uses doesn't collide with anything static, so CREATE
+      # still exercises a first-time register for that specific metric even though the
+      # merging-table (meter_sum_*) may already exist for other static metrics.
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  postgres:
+    image: postgres:14.1
+    environment:
+      TZ: Asia/Shanghai
+      POSTGRES_PASSWORD: root@1234
+      POSTGRES_DB: swtest
+    ports:
+      - "5432:5432"
+    networks:
+      - e2e
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/5432"]
+      interval: 5s
+      timeout: 60s
+      retries: 60
+
+  otlp-emitter:
+    build:
+      context: ../otlp-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap:11800
+      EMITTER_SERVICE: e2e-rr-svc
+      EMITTER_INSTANCE: e2e-rr-i1
+      # The lifecycle flow rewrites this file via `docker compose exec`
+      # between phases so each emitted sample carries the current phase's
+      # `step` label.
+      STEP_FILE: /tmp/step
+      STEP_DEFAULT: create
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

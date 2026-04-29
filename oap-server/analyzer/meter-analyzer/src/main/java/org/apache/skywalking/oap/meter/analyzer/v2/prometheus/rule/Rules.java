@@ -18,25 +18,27 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
-
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import java.util.stream.Stream;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 import org.slf4j.Logger;
@@ -49,11 +51,32 @@ import org.yaml.snakeyaml.Yaml;
 public class Rules {
     private static final Logger LOG = LoggerFactory.getLogger(Rule.class);
 
-    public static List<Rule> loadRules(final String path) throws IOException {
-        return loadRules(path, Collections.emptyList());
+    /**
+     * Default-manager entry point. Picks up the process-wide {@link ModuleManager} set by
+     * core during start, so receivers don't have to thread it through their own loaders.
+     * Tests with no core boot get an empty resolver list and pure disk-only loading.
+     */
+    public static List<Rule> loadRules(final String path, List<String> enabledRules) throws IOException {
+        return loadInternal(path, enabledRules, null, /* useInstalledManager= */ true);
     }
 
-    public static List<Rule> loadRules(final String path, List<String> enabledRules) throws IOException {
+    /**
+     * Explicit-manager entry point — primarily for receivers that already hold a
+     * {@link ModuleManager} and want to bypass the process-wide one.
+     *
+     * <p>The {@code path} doubles as the catalog identifier passed to resolvers — rule
+     * directories under {@code server-starter/src/main/resources/} (for instance
+     * {@code otel-rules}, {@code log-mal-rules}, {@code envoy-metrics-rules}) already align
+     * with the runtime-rule catalog namespace.
+     */
+    public static List<Rule> loadRules(final String path, List<String> enabledRules,
+                                       final ModuleManager manager) throws IOException {
+        return loadInternal(path, enabledRules, manager, /* useInstalledManager= */ false);
+    }
+
+    private static List<Rule> loadInternal(final String path, List<String> enabledRules,
+                                            final ModuleManager manager,
+                                            final boolean useInstalledManager) throws IOException {
 
         final Path root = ResourceUtils.getPath(path);
 
@@ -70,26 +93,33 @@ public class Rules {
                     return rule;
                 })
                 .collect(Collectors.toMap(rule -> rule, $ -> false));
-        List<Rule> rules;
+
+        // Disk baseline: every file under `root` that matches the enabled-rules glob, keyed
+        // by relative path without extension (the rule name).
+        final Map<String, byte[]> diskBytes = new HashMap<>();
         try (Stream<Path> stream = Files.walk(root)) {
-            rules = stream
-                    .filter(it -> formedEnabledRules.keySet().stream()
-                                    .anyMatch(rule -> {
-                                        boolean matches = FileSystems.getDefault().getPathMatcher("glob:" + rule)
-                                                .matches(root.relativize(it));
-                                        if (matches) {
-                                            formedEnabledRules.put(rule, true);
-                                        }
-                                        return matches;
-                                    }))
-                    .map(pathPointer -> {
-                        // Use relativized file path without suffix as the rule name.
-                        String relativizePath = root.relativize(pathPointer).toString();
-                        String ruleName = relativizePath.substring(0, relativizePath.lastIndexOf("."));
-                        return getRulesFromFile(ruleName, pathPointer);
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList()) ;
+            stream.filter(p -> {
+                File f = p.toFile();
+                if (!f.isFile() || f.isHidden()) {
+                    return false;
+                }
+                return formedEnabledRules.keySet().stream().anyMatch(rule -> {
+                    boolean matches = FileSystems.getDefault().getPathMatcher("glob:" + rule)
+                        .matches(root.relativize(p));
+                    if (matches) {
+                        formedEnabledRules.put(rule, true);
+                    }
+                    return matches;
+                });
+            }).forEach(p -> {
+                final String rel = root.relativize(p).toString();
+                final String ruleName = rel.substring(0, rel.lastIndexOf('.'));
+                try {
+                    diskBytes.put(ruleName, Files.readAllBytes(p));
+                } catch (IOException e) {
+                    throw new UnexpectedException("Load rule file " + p.getFileName() + " failed", e);
+                }
+            });
         }
 
         if (formedEnabledRules.containsValue(false)) {
@@ -98,15 +128,22 @@ public class Rules {
                     .collect(Collectors.toList());
             throw new UnexpectedException("Some configuration files of enabled rules are not found, enabled rules: " + rulesNotFound);
         }
-        return rules;
+
+        // Merge with classpath-discovered resolvers (runtime-rule DB, plus any future
+        // priority-ranked source). Resolvers contributing INACTIVE drop their entries;
+        // ACTIVE substitutes content. Resolver-only rules (not on disk) are included.
+        final Map<String, byte[]> merged = useInstalledManager
+            ? RuleSetMerger.merge(path, diskBytes)
+            : RuleSetMerger.merge(path, diskBytes, manager);
+
+        return merged.entrySet().stream()
+            .map(e -> parseRule(e.getKey(), e.getValue()))
+            .filter(java.util.Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
-    private static Rule getRulesFromFile(String ruleName, Path path) {
-        File file = path.toFile();
-        if (!file.isFile() || file.isHidden()) {
-            return null;
-        }
-        try (Reader r = new FileReader(file)) {
+    private static Rule parseRule(final String ruleName, final byte[] bytes) {
+        try (Reader r = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8)) {
             Rule rule = new Yaml().loadAs(r, Rule.class);
             if (rule == null) {
                 return null;
@@ -114,7 +151,7 @@ public class Rules {
             rule.setName(ruleName);
             return rule;
         } catch (IOException e) {
-            throw new UnexpectedException("Load rule file" + file.getName() + " failed", e);
+            throw new UnexpectedException("Load rule " + ruleName + " failed", e);
         }
     }
 }

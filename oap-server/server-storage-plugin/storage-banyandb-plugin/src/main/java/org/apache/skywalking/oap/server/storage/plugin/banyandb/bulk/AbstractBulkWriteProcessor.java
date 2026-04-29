@@ -35,7 +35,7 @@ import org.apache.skywalking.library.banyandb.v1.client.AbstractWrite;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 
 @Slf4j
-public abstract class AbstractBulkWriteProcessor<REQ extends com.google.protobuf.GeneratedMessageV3,
+public abstract class AbstractBulkWriteProcessor<REQ extends com.google.protobuf.GeneratedMessage,
     STUB extends AbstractAsyncStub<STUB>>
     implements Runnable, Closeable {
     private final STUB stub;
@@ -208,7 +208,7 @@ public abstract class AbstractBulkWriteProcessor<REQ extends com.google.protobuf
             this.future = future;
         }
 
-        public static <REQ extends com.google.protobuf.GeneratedMessageV3> Holder create(AbstractWrite<REQ> writeEntity,
+        public static <REQ extends com.google.protobuf.GeneratedMessage> Holder create(AbstractWrite<REQ> writeEntity,
                                                                                          CompletableFuture<Void> future) {
             future.whenComplete((v, t) -> {
                 if (t != null) {

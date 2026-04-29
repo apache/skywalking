@@ -69,7 +69,7 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceSetter;
@@ -178,7 +178,7 @@ public class CoreModule extends ModuleDefine {
     }
 
     private void addInternalServices(List<Class> classes) {
-        classes.add(ModelCreator.class);
+        classes.add(ModelRegistry.class);
         classes.add(IModelManager.class);
         classes.add(ModelManipulator.class);
         classes.add(RemoteClientManager.class);

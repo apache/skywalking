@@ -34,8 +34,11 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
+import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
@@ -108,6 +111,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TagAu
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TopologyQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UIMenuManagementEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.RuntimeRuleManagementEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.zipkin.ZipkinQueryEsDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -213,6 +217,11 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             config.getNumHttpClientThread()
         );
         modelInstaller = new StorageEsInstaller(elasticSearchClient, getManager(), config);
+        // Expose the installer so the runtime-rule reconciler can call isExists() after a
+        // hot-apply to verify that DDL landed. On ES, verify compares
+        // the logic-shard structure + mapping + index settings; a missing field / mapping
+        // diff surfaces as a clear WARN to operators.
+        this.registerServiceImplementation(ModelInstaller.class, modelInstaller);
 
         this.registerServiceImplementation(
             IBatchDAO.class,
@@ -246,6 +255,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
                 .getProfileTaskQueryMaxSize()));
         this.registerServiceImplementation(
             UITemplateManagementDAO.class, new UITemplateManagementEsDAO(elasticSearchClient, new UITemplate.Builder()));
+        this.registerServiceImplementation(
+            RuntimeRuleManagementDAO.class, new RuntimeRuleManagementEsDAO(elasticSearchClient, new RuntimeRule.Builder()));
         this.registerServiceImplementation(
             UIMenuManagementDAO.class, new UIMenuManagementEsDAO(elasticSearchClient, new UIMenu.Builder()));
 
@@ -330,7 +341,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
 
             getManager().find(CoreModule.NAME)
                         .provider()
-                        .getService(ModelCreator.class)
+                        .getService(ModelRegistry.class)
                         .addModelListener(modelInstaller);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);

@@ -36,26 +36,39 @@ public class IndexRuleBindingMetadataRegistry extends MetadataClient<IndexRuleBi
 
     @Override
     public long create(IndexRuleBinding payload) throws BanyanDBException {
-        execute(() -> stub.create(BanyandbDatabase.IndexRuleBindingRegistryServiceCreateRequest.newBuilder()
-                .setIndexRuleBinding(payload)
-                .build()));
-        return DEFAULT_MOD_REVISION;
+        BanyandbDatabase.IndexRuleBindingRegistryServiceCreateResponse resp = execute(() ->
+                stub.create(BanyandbDatabase.IndexRuleBindingRegistryServiceCreateRequest.newBuilder()
+                        .setIndexRuleBinding(payload)
+                        .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public void update(IndexRuleBinding payload) throws BanyanDBException {
-        execute(() -> stub.update(BanyandbDatabase.IndexRuleBindingRegistryServiceUpdateRequest.newBuilder()
-                .setIndexRuleBinding(payload)
-                .build()));
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(IndexRuleBinding payload) throws BanyanDBException {
+        BanyandbDatabase.IndexRuleBindingRegistryServiceUpdateResponse resp = execute(() ->
+                stub.update(BanyandbDatabase.IndexRuleBindingRegistryServiceUpdateRequest.newBuilder()
+                        .setIndexRuleBinding(payload)
+                        .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public boolean delete(String group, String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(String group, String name) throws BanyanDBException {
         BanyandbDatabase.IndexRuleBindingRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.IndexRuleBindingRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

@@ -62,10 +62,63 @@ public class StorageModelsTest {
     }
 
     @Test
+    public void rolledBackOnListenerFailure() throws StorageException {
+        // A CreatingListener throw must NOT leave the model in `models`. Future retries
+        // would otherwise hit the dedup short-circuit and skip listeners entirely, leaving
+        // the storage stack permanently half-built.
+        StorageModels models = new StorageModels();
+        models.addModelListener((model, opt) -> {
+            throw new StorageException("simulated DDL failure");
+        });
+        Assertions.assertThrows(StorageException.class, () -> models.add(TestModel.class, -1,
+            new Storage("StorageModelsRollbackTest", false, DownSampling.Hour),
+            StorageManipulationOpt.fullInstall()));
+        // Registry must not retain the model — a retry would otherwise dedup-skip the
+        // listener instead of attempting the DDL again.
+        assertEquals(0, models.allModels().size());
+    }
+
+    @Test
+    public void removeKeepsModelOnListenerFailure() throws StorageException {
+        // remove() must keep the model in `models` if any whenRemoving listener throws —
+        // otherwise the registry diverges from the backend (model gone, BanyanDB measure
+        // still alive) and there's nothing for the retry path to find. Listeners are
+        // required to be idempotent on the drop, so re-firing them on retry is safe.
+        StorageModels models = new StorageModels();
+        models.add(TestModel.class, -1,
+            new Storage("StorageModelsRemoveRetryTest", false, DownSampling.Hour),
+            StorageManipulationOpt.fullInstall());
+        assertEquals(1, models.allModels().size());
+
+        // Listener that throws on remove (simulating BanyanDB delete-measure transient failure).
+        // Note: addModelListener fires whenCreating for already-added models, but our listener
+        // only overrides whenRemoving, so the catch-up call is a no-op via the default impl.
+        models.addModelListener(new ModelRegistry.CreatingListener() {
+            @Override
+            public void whenCreating(final Model model, final StorageManipulationOpt opt) {
+                // already-created catch-up — fine to no-op for this test
+            }
+
+            @Override
+            public void whenRemoving(final Model model, final StorageManipulationOpt opt) throws StorageException {
+                throw new StorageException("simulated dropTable failure");
+            }
+        });
+
+        Assertions.assertThrows(StorageException.class,
+            () -> models.remove(TestModel.class, StorageManipulationOpt.fullInstall()));
+        // Model must still be in the registry — the next retry needs to find and drive
+        // dropTable again. Otherwise the operator's /inactivate succeeds locally but the
+        // backend measure stays orphaned forever.
+        assertEquals(1, models.allModels().size());
+    }
+
+    @Test
     public void testStorageModels() throws StorageException {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
-                   new Storage("StorageModelsTest", false, DownSampling.Hour)
+                   new Storage("StorageModelsTest", false, DownSampling.Hour),
+                   StorageManipulationOpt.fullInstall()
         );
 
         final List<Model> allModules = models.allModels();

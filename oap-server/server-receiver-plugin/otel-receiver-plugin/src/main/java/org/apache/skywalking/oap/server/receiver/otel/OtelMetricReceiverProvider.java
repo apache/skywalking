@@ -22,6 +22,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
@@ -68,6 +70,10 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(
             getManager(), config);
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
+        // Expose the same instance under the MalConverterRegistry contract so the runtime-rule
+        // plugin can push / drop otel-rules converters without depending on otel-receiver's
+        // concrete processor class.
+        registerServiceImplementation(MalConverterRegistry.class, metricRequestProcessor);
         final List<String> enabledHandlers = config.getEnabledHandlers();
 
         final var handlers = new ArrayList<Handler>();
@@ -94,6 +100,13 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        return new String[] {SharingServerModule.NAME};
+        // StorageModule is declared so Storage.start() (and its catch-up whenCreating
+        // fan-out that creates the runtime_rule management table) runs before this
+        // provider's start(), guaranteeing the RuntimeRuleOverrideResolver's DB-backed
+        // resolver can load during static rule registration. Without this dep the
+        // module-system sort could place OTEL ahead of Storage, the resolver would
+        // silently no-op at boot, and DB overrides would only take effect on the
+        // reconciler's next tick.
+        return new String[] {SharingServerModule.NAME, StorageModule.NAME};
     }
 }

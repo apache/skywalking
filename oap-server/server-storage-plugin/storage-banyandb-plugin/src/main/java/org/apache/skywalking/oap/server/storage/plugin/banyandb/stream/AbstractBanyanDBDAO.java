@@ -396,7 +396,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         };
     }
 
-    protected abstract static class QueryBuilder<T extends AbstractQuery<? extends com.google.protobuf.GeneratedMessageV3>> {
+    protected abstract static class QueryBuilder<T extends AbstractQuery<? extends com.google.protobuf.GeneratedMessage>> {
         protected abstract void apply(final T query);
 
         protected PairQueryCondition<Long> eq(String name, long value) {

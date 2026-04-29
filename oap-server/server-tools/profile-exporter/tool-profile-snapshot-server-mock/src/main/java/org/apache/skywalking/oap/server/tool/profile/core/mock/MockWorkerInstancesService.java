@@ -39,4 +39,8 @@ public class MockWorkerInstancesService implements IWorkerInstanceSetter, IWorke
     public void put(String remoteReceiverWorkName, AbstractWorker instance,
                     MetricStreamKind kind, Class<? extends StreamData> streamDataClass) {
     }
+
+    @Override
+    public void remove(String remoteReceiverWorkName) {
+    }
 }

@@ -18,14 +18,18 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder;
+import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter;
@@ -57,8 +61,18 @@ public final class MALClassGenerator {
     private final ClassPool classPool;
     private final MALBytecodeHelper bytecodeHelper;
 
+    /**
+     * When non-null, generated MAL classes (MalExpression, MalFilter, closure companions)
+     * are defined in this ClassLoader via {@code ctClass.toClass(loader, null)} — used by
+     * the runtime-rule hot-update path so the whole MAL class family for one YAML file
+     * lives in a single per-file {@code RuleClassLoader} and drops together on unregister.
+     * Null = legacy startup path: uses neighbor-class form with
+     * {@link MalExpressionPackageHolder} so classes land in the OAP app loader.
+     */
+    private final ClassLoader targetClassLoader;
+
     public MALClassGenerator() {
-        this(createClassPool());
+        this(createClassPool(), null);
         if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
             bytecodeHelper.setClassOutputDir(
                 new File(WorkPath.getPath().getParentFile(), "mal-rt"));
@@ -74,8 +88,22 @@ public final class MALClassGenerator {
     }
 
     public MALClassGenerator(final ClassPool classPool) {
+        this(classPool, null);
+    }
+
+    /**
+     * Runtime-rule constructor: caller supplies the per-file {@link ClassPool} (already
+     * scoped to a per-file {@code RuleClassLoader} via {@code LoaderClassPath}) and the
+     * target {@link ClassLoader}. Every class this generator emits will be loaded into
+     * {@code targetClassLoader} rather than the OAP app loader.
+     */
+    public MALClassGenerator(final ClassPool classPool, final ClassLoader targetClassLoader) {
         this.classPool = classPool;
         this.bytecodeHelper = new MALBytecodeHelper();
+        this.targetClassLoader = targetClassLoader;
+        // Per-file loader mode: generated class names are scoped to this loader's namespace so
+        // the helper can skip its process-wide dedup set (the leak finding).
+        this.bytecodeHelper.setPerFileClassLoader(targetClassLoader != null);
     }
 
     public void setClassOutputDir(final File dir) {
@@ -159,9 +187,41 @@ public final class MALClassGenerator {
 
         bytecodeHelper.writeClassFile(ctClass);
 
-        final Class<?> clazz = ctClass.toClass(MalExpressionPackageHolder.class);
+        final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
         return (MalFilter) clazz.getDeclaredConstructor().newInstance();
+    }
+
+    /**
+     * Loads a generated class through the configured {@link #targetClassLoader} when set
+     * (runtime-rule hot-update path: class lands in the per-file {@code RuleClassLoader}),
+     * or via the neighbor-class form when {@code targetClassLoader} is {@code null}
+     * (startup path: class lands in the OAP app loader alongside
+     * {@link MalExpressionPackageHolder}).
+     *
+     * <p>When {@code targetClassLoader} implements
+     * {@link org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner
+     * BytecodeClassDefiner} (the runtime-rule {@code RuleClassLoader} does), we hand
+     * the loader the {@code CtClass.toBytecode()} bytes and let it invoke its public
+     * {@code defineClass} directly — no Javassist {@code toClass(loader,
+     * ProtectionDomain)} reflection, no {@code --add-opens java.base/java.lang}
+     * requirement on JDK 17+. Otherwise we fall back to the legacy 2-arg toClass for
+     * back-compat, but no shipped loader uses that path today.
+     */
+    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
+        if (targetClassLoader != null) {
+            if (targetClassLoader instanceof BytecodeClassDefiner) {
+                try {
+                    return ((BytecodeClassDefiner) targetClassLoader)
+                        .defineClass(ctClass.getName(), ctClass.toBytecode());
+                } catch (final IOException e) {
+                    throw new javassist.CannotCompileException(
+                        "failed to serialise " + ctClass.getName() + " bytes", e);
+                }
+            }
+            return ctClass.toClass(targetClassLoader, null);
+        }
+        return ctClass.toClass(MalExpressionPackageHolder.class);
     }
 
     /**
@@ -178,8 +238,8 @@ public final class MALClassGenerator {
 
         final List<String> closureFieldNames = new ArrayList<>();
         final List<String> closureInterfaceTypes = new ArrayList<>();
-        final java.util.Map<String, Integer> closureNameCounts =
-            new java.util.HashMap<>();
+        final Map<String, Integer> closureNameCounts =
+            new HashMap<>();
         for (int i = 0; i < closures.size(); i++) {
             final String purpose = closures.get(i).methodName;
             final int count = closureNameCounts.getOrDefault(purpose, 0);
@@ -262,14 +322,13 @@ public final class MALClassGenerator {
         // 6. Load companions, then main class
         for (final CtClass companion : companionClasses) {
             bytecodeHelper.writeClassFile(companion);
-            companion.toClass(MalExpressionPackageHolder.class);
+            defineClass(companion);
             companion.detach();
         }
 
         bytecodeHelper.writeClassFile(ctClass);
 
-        final Class<?> clazz =
-            ctClass.toClass(MalExpressionPackageHolder.class);
+        final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
 
         return (MalExpression) clazz.getDeclaredConstructor().newInstance();
@@ -288,8 +347,8 @@ public final class MALClassGenerator {
         cc.collectClosures(ast, closures);
 
         final List<String> fieldNames = new ArrayList<>();
-        final java.util.Map<String, Integer> nameCounts =
-            new java.util.HashMap<>();
+        final Map<String, Integer> nameCounts =
+            new HashMap<>();
         for (final MALClosureCodegen.ClosureInfo ci : closures) {
             final String purpose = ci.methodName;
             final int count = nameCounts.getOrDefault(purpose, 0);

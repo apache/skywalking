@@ -39,7 +39,8 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 
@@ -89,10 +90,12 @@ public class TopNStreamProcessor implements StreamProcessor<TopN> {
                 "Create " + stream.builder().getSimpleName() + " top n record DAO failure.", e);
         }
 
-        ModelCreator modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelCreator.class);
+        ModelRegistry modelSetter = moduleDefineHolder.find(CoreModule.NAME).provider().getService(ModelRegistry.class);
         // Top N metrics doesn't read data from database during the persistent process. Keep the timeRelativeID == false always.
         Model model = modelSetter.add(
-            topNClass, stream.scopeId(), new Storage(stream.name(), false, DownSampling.Second));
+            topNClass, stream.scopeId(),
+            new Storage(stream.name(), false, DownSampling.Second),
+            StorageManipulationOpt.createIfAbsent());
 
         TopNWorker persistentWorker = new TopNWorker(
             moduleDefineHolder, model, topSize, topNWorkerReportCycle * 60 * 1000L, recordDAO, topNClass);

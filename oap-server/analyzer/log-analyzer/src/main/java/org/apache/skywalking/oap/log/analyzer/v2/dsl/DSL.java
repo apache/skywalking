@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
+import javassist.ClassPool;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,8 +66,32 @@ public class DSL {
                          final Class<?> outputType,
                          final String ruleName,
                          final String yamlSource) throws ModuleStartException {
+        return of(moduleManager, config, dsl, inputType, outputType, ruleName,
+            yamlSource, null, null);
+    }
+
+    /**
+     * Runtime-rule overload: compile with a per-file {@link ClassPool} and target
+     * {@link ClassLoader}. The generated {@code LalExpression} class is defined in the
+     * supplied loader instead of the shared OAP app loader. The caller-supplied pool must
+     * already be scoped to the loader via {@code appendClassPath(new LoaderClassPath(loader))}.
+     *
+     * <p>When both {@code pool} and {@code targetClassLoader} are null this uses the legacy
+     * default pool + app loader — startup path, unchanged.
+     */
+    public static DSL of(final ModuleManager moduleManager,
+                         final LogAnalyzerModuleConfig config,
+                         final String dsl,
+                         final Class<?> inputType,
+                         final Class<?> outputType,
+                         final String ruleName,
+                         final String yamlSource,
+                         final ClassPool pool,
+                         final ClassLoader targetClassLoader) throws ModuleStartException {
         try {
-            final LALClassGenerator generator = new LALClassGenerator();
+            final LALClassGenerator generator = (pool != null && targetClassLoader != null)
+                ? new LALClassGenerator(pool, targetClassLoader)
+                : new LALClassGenerator();
             generator.setInputType(inputType);
             generator.setOutputType(outputType);
             generator.setClassNameHint(ruleName);

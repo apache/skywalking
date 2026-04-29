@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import javassist.ClassPool;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
@@ -47,17 +48,45 @@ public class FilterExpression {
     public FilterExpression(final String literal,
                             final String filterNameHint,
                             final String yamlSource) {
+        this(literal, filterNameHint, yamlSource, null, null);
+    }
+
+    /**
+     * Runtime-rule overload: compile the filter with a per-file {@link ClassPool} and target
+     * {@link ClassLoader} so the generated {@code MalFilter} class lands in the caller's
+     * per-file loader alongside the {@code MalExpression} classes for the same YAML file.
+     *
+     * <p>When both {@code pool} and {@code targetClassLoader} are null this delegates to the
+     * shared startup-path {@link #GENERATOR}, unchanged.
+     */
+    public FilterExpression(final String literal,
+                            final String filterNameHint,
+                            final String yamlSource,
+                            final ClassPool pool,
+                            final ClassLoader targetClassLoader) {
         this.literal = literal;
         try {
-            if (filterNameHint != null) {
-                GENERATOR.setClassNameHint(filterNameHint);
-            }
-            GENERATOR.setYamlSource(yamlSource);
-            try {
-                this.malFilter = GENERATOR.compileFilter(literal);
-            } finally {
-                GENERATOR.setClassNameHint(null);
-                GENERATOR.setYamlSource(null);
+            if (pool != null && targetClassLoader != null) {
+                // Dedicated generator per filter — avoids mutating the shared singleton's
+                // classNameHint/yamlSource state and keeps runtime-rule compiles isolated
+                // from startup compiles running on the shared GENERATOR.
+                final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
+                if (filterNameHint != null) {
+                    perFile.setClassNameHint(filterNameHint);
+                }
+                perFile.setYamlSource(yamlSource);
+                this.malFilter = perFile.compileFilter(literal);
+            } else {
+                if (filterNameHint != null) {
+                    GENERATOR.setClassNameHint(filterNameHint);
+                }
+                GENERATOR.setYamlSource(yamlSource);
+                try {
+                    this.malFilter = GENERATOR.compileFilter(literal);
+                } finally {
+                    GENERATOR.setClassNameHint(null);
+                    GENERATOR.setYamlSource(null);
+                }
             }
         } catch (Exception e) {
             throw new IllegalStateException(

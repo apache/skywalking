@@ -1,0 +1,91 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Cluster convergence — 2 OAPs behind a ZooKeeper coordinator + BanyanDB.
+# Verifies that a runtime-rule apply on one node propagates to the other within a
+# reconciler tick (default 30 s) and that the Suspend / Resume RPC bracket dispatch
+# correctly across the cluster.
+services:
+  zookeeper:
+    image: zookeeper:3.8
+    networks:
+      - e2e
+    environment:
+      ZOO_4LW_COMMANDS_WHITELIST: "ruok,stat,srvr"
+    healthcheck:
+      # Use the zookeeper-shell.sh ls wrapper (image's own /bin) — the official
+      # zookeeper:3.8 image does not ship `nc`, so the more obvious `echo ruok | nc ...`
+      # idiom fails. zkServer.sh status returns 0 once the server is in standalone /
+      # leader mode.
+      test: ["CMD-SHELL", "zkServer.sh status 2>/dev/null | grep -E 'Mode: (standalone|leader|follower)'"]
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  oap1:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    hostname: oap1
+    environment:
+      SW_RECEIVER_RUNTIME_RULE: default
+      SW_STORAGE: banyandb
+      SW_CLUSTER: zookeeper
+      SW_CLUSTER_ZK_HOST_PORT: zookeeper:2181
+      # First-up node also doubles as the static-rule installer; nothing to coordinate
+      # with peers on storage init.
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      banyandb:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  oap2:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    hostname: oap2
+    environment:
+      SW_RECEIVER_RUNTIME_RULE: default
+      SW_STORAGE: banyandb
+      SW_CLUSTER: zookeeper
+      SW_CLUSTER_ZK_HOST_PORT: zookeeper:2181
+    ports:
+      - "11801:11800"
+      - "12801:12800"
+      - "17129:17128"
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+      banyandb:
+        condition: service_healthy
+      oap1:
+        condition: service_healthy
+    networks:
+      - e2e
+
+networks:
+  e2e:

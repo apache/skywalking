@@ -24,6 +24,37 @@ Remote Code Execution (RCE) issues.
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
 
+## Runtime Rule Admin Surface (port 17128)
+
+The `skywalking-runtime-rule-receiver-plugin` exposes an HTTP admin API on port 17128 that
+lets operators **add, override, inactivate, and delete MAL/LAL rule files at runtime** without
+restarting OAP. Rules are compiled and loaded into the OAP JVM on the fly. This surface is
+**far more powerful than the telemetry receiver ports** — a request can register new Javassist-
+compiled bytecode, mutate `MeterSystem` state, and drop backend schema (BanyanDB measures).
+
+The module is **disabled by default**. Enabling it (via `SW_RECEIVER_RUNTIME_RULE=default` or
+the YAML selector) opens port 17128 with **no authentication**. This is intentional for now —
+the design goal is a simple admin socket that a gateway / service mesh wraps with the
+operator's existing auth story.
+
+Required operator actions when enabling:
+
+1. **Never expose port 17128 to the public internet.** Bind to a private network interface or
+   `localhost` and reach it through an operator-controlled gateway.
+2. **Gateway-protect with IP allow-list + authentication.** Only the operator team should be
+   able to reach the endpoint.
+3. **Audit every request.** Rule content is arbitrary YAML that compiles into the OAP JVM —
+   a malicious rule could exfiltrate data, spike resource use, or create metric-name
+   collisions. Treat `POST /runtime/rule/*` as equivalent to shell access on the OAP host.
+4. **Keep the port off the cluster-external interface even in cluster mode.** The cluster-
+   internal Suspend RPC is registered on the OAP cluster-bus gRPC server (shared with
+   RemoteService / HealthCheck) — that is a separate transport from 17128 and follows the
+   same security posture as the rest of the cluster bus.
+
+Without these protections an attacker with network reach to port 17128 can execute arbitrary
+code inside the OAP JVM. See `docs/en/setup/backend/backend-runtime-rule-api.md` for the full
+API surface.
+
 ## Client-Side Monitoring
 
 Client-side applications — iOS/iPadOS apps (via OpenTelemetry Swift SDK), browser web apps

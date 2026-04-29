@@ -24,7 +24,7 @@ package org.apache.skywalking.library.banyandb.v1.client.metadata;
  *
  * @param <P> the produced class must be in Protobuf message type.
  */
-public interface Serializable<P extends com.google.protobuf.GeneratedMessageV3> {
+public interface Serializable<P extends com.google.protobuf.GeneratedMessage> {
     /**
      * Serialize the object to the protobuf format
      *

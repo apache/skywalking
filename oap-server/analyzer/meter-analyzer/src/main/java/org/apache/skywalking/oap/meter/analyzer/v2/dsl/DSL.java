@@ -17,8 +17,12 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 
+import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALMetadataExtractor;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALScriptParser;
 
 /**
  * DSL compiles MAL expression strings into {@link Expression} objects
@@ -52,9 +56,58 @@ public final class DSL {
     public static Expression parse(final String metricName,
                                    final String expression,
                                    final String yamlSource) {
+        return parse(metricName, expression, yamlSource, null, null);
+    }
+
+    /**
+     * Runtime-rule overload: compile with a per-file {@link ClassPool} and target
+     * {@link ClassLoader}. Every class generated for this expression — the main
+     * {@code MalExpression} subclass plus any closure companions — is defined in the
+     * supplied loader instead of the shared OAP app loader. The caller-supplied pool must
+     * already be scoped to the loader via {@code appendClassPath(new LoaderClassPath(loader))}.
+     *
+     * <p>When {@code pool} and {@code targetClassLoader} are both null, this delegates to
+     * the shared {@link #GENERATOR} singleton (startup path, unchanged). Passing null for
+     * only one of the two is treated as "startup path" — there is no half-isolated mode.
+     */
+    /**
+     * Extract compile-time {@link ExpressionMetadata} from a MAL expression string without
+     * running Javassist codegen. Returns scope type, sample names, aggregation labels,
+     * histogram flag + percentiles, and downsampling — the inputs the runtime-rule classifier
+     * needs to derive the storage shape tuple {@code (functionName, scopeType)} for a metric
+     * and decide FILTER_ONLY vs STRUCTURAL.
+     *
+     * <p>Throws {@link IllegalStateException} on parse failure — wraps the upstream ANTLR
+     * error listener so callers have a single exception type to catch.
+     */
+    public static ExpressionMetadata extractMetadata(final String expression) {
         try {
-            GENERATOR.setYamlSource(yamlSource);
-            final MalExpression malExpr = GENERATOR.compile(metricName, expression);
+            final MALExpressionModel.Expr ast = MALScriptParser.parse(expression);
+            return MALMetadataExtractor.extractMetadata(ast);
+        } catch (final Exception e) {
+            throw new IllegalStateException(
+                "Failed to parse MAL expression for metadata: " + expression, e);
+        }
+    }
+
+    public static Expression parse(final String metricName,
+                                   final String expression,
+                                   final String yamlSource,
+                                   final ClassPool pool,
+                                   final ClassLoader targetClassLoader) {
+        try {
+            final MalExpression malExpr;
+            if (pool != null && targetClassLoader != null) {
+                // Per-file generator: one instance per compile is fine — it's just a thin
+                // orchestrator over ClassPool. Prevents cross-contamination of classNameHint /
+                // yamlSource state that the shared GENERATOR carries between calls.
+                final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
+                perFile.setYamlSource(yamlSource);
+                malExpr = perFile.compile(metricName, expression);
+            } else {
+                GENERATOR.setYamlSource(yamlSource);
+                malExpr = GENERATOR.compile(metricName, expression);
+            }
             return new Expression(metricName, expression, malExpr);
         } catch (Exception e) {
             throw new IllegalStateException(

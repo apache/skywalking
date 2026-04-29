@@ -35,4 +35,13 @@ public interface IWorkerInstanceSetter extends Service {
      */
     void put(String remoteReceiverWorkName, AbstractWorker instance,
              MetricStreamKind kind, Class<? extends StreamData> streamDataClass);
+
+    /**
+     * Remove the registration for {@code remoteReceiverWorkName}. Idempotent — a no-op when
+     * no such key exists. Required for the runtime-rule hot-remove path: without it, a
+     * subsequent {@link #put} with the same name throws "Duplicate worker name" and blocks
+     * any metric re-registration (shape-break remove+apply, operator recovery push via
+     * {@code /addOrUpdate?force=true}, etc.).
+     */
+    void remove(String remoteReceiverWorkName);
 }

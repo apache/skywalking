@@ -22,15 +22,20 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 
 import static java.util.stream.Collectors.toList;
 
@@ -74,24 +79,118 @@ public class MetricConvert {
     private final List<Analyzer> analyzers;
 
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
+        // Static boot default: create-if-absent semantics. Runtime-rule on-demand callers use
+        // the explicit-opt overload and pass fullInstall() to get reshape permission.
+        this(rule, service, null, null, StorageManipulationOpt.createIfAbsent());
+    }
+
+    public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
+                         final javassist.ClassPool pool,
+                         final ClassLoader targetClassLoader) {
+        this(rule, service, pool, targetClassLoader,
+             StorageManipulationOpt.createIfAbsent());
+    }
+
+    /**
+     * Runtime-rule overload carrying per-file classloader + storage policy.
+     *
+     * @param rule the MAL rule config to compile
+     * @param service MeterSystem target for registration
+     * @param pool per-file Javassist pool, or null to use the shared default
+     * @param targetClassLoader per-file ClassLoader, or null to use the shared default
+     * @param storageOpt policy for backend-side install; main-node passes fullInstall,
+     *                   peer-node passes localCacheOnly to skip server DDL
+     */
+    public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
+                         final javassist.ClassPool pool,
+                         final ClassLoader targetClassLoader,
+                         final StorageManipulationOpt storageOpt) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
         final String sourceName = rule.getSourceName();
-        final FilterExpression filter = buildFilter(rule);
+        final FilterExpression filter = buildFilter(rule, pool, targetClassLoader);
         final List<? extends MetricRuleConfig.RuleConfig> rules = rule.getMetricsRules();
-        this.analyzers = IntStream.range(0, rules.size()).mapToObj(
+
+        // Two-phase apply at file granularity so a compile error on a later rule never
+        // leaves earlier rules with measures already provisioned on the storage backend.
+        //
+        // Phase 1 — prepare every Analyzer: runs DSL.parse (Javassist codegen into the
+        //   per-file ClassLoader when running on the runtime-rule path) + metadata
+        //   extraction, but does NOT call MeterSystem.create. On any failure, the whole
+        //   file apply aborts before any DDL fires; partial Javassist classes die with
+        //   the (throwaway) per-file loader.
+        //
+        // Phase 2 — register: walks the prepared list and calls Analyzer.register which
+        //   drives MeterSystem.create → StorageModels.add → per-backend listener DDL.
+        //   On partial register failure the caller (MalFileApplier / Reconciler) rolls
+        //   back only the metrics that this apply attempt actually created. Phase 2
+        //   failures are rare in practice — MeterSystem.create is idempotent for same-
+        //   shape re-registration and the runtime-rule path pre-removes shape-break
+        //   metrics before reaching here.
+        final List<Analyzer> prepared = IntStream.range(0, rules.size()).mapToObj(
             i -> {
                 final MetricRuleConfig.RuleConfig r = rules.get(i);
                 final String yamlSource = sourceName != null
                     ? sourceName + ".yaml:" + i : null;
-                return buildAnalyzer(
+                return prepareAnalyzer(
                     formatMetricName(rule, r.getName()),
                     filter,
                     formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
                     service,
-                    yamlSource
+                    yamlSource,
+                    pool,
+                    targetClassLoader,
+                    storageOpt
                 );
             }
         ).collect(toList());
+        // Phase 2 — register. Track each metric name as it's successfully registered so a
+        // mid-phase throw gives the caller an accurate "actually registered" set. The previous
+        // design left the caller using the full enumerated metric list for rollback, which was
+        // catastrophic for FILTER_ONLY edits: a compile surprise between register() calls would
+        // wipe the old bundle's metrics that this apply attempt never touched.
+        final Set<String> registered = new LinkedHashSet<>(prepared.size());
+        for (final Analyzer a : prepared) {
+            try {
+                a.register();
+            } catch (final Throwable t) {
+                throw new PartialRegistrationException(
+                    "phase-2 register failed for " + a.getMetricName(),
+                    t, Collections.unmodifiableSet(new LinkedHashSet<>(registered)));
+            }
+            registered.add(a.getMetricName());
+        }
+        this.analyzers = prepared;
+        this.registeredMetricNames = Collections.unmodifiableSet(registered);
+    }
+
+    /**
+     * Metric names that completed phase-2 register on this instance — the set the caller would
+     * unregister to undo a successful apply. Same as {@code analyzers.stream().map(getMetricName)}
+     * for a fully-constructed instance; the field exists so {@link PartialRegistrationException}
+     * can carry the same value for the partial case.
+     */
+    @Getter
+    private final Set<String> registeredMetricNames;
+
+    /**
+     * Thrown from the ctor when phase-2 register throws after at least one metric was already
+     * registered. Carries the subset that did land, so the caller can unregister exactly what
+     * this apply attempt touched and leave the old bundle's unchanged metrics alone.
+     *
+     * <p>Phase-1 (compile) failures do NOT use this exception — nothing was registered, the
+     * original Throwable propagates unwrapped.
+     */
+    public static final class PartialRegistrationException extends RuntimeException {
+        @Getter
+        private final Set<String> registeredBeforeFailure;
+
+        public PartialRegistrationException(final String message, final Throwable cause,
+                                             final Set<String> registeredBeforeFailure) {
+            super(message, cause);
+            this.registeredBeforeFailure = registeredBeforeFailure == null
+                ? Collections.emptySet()
+                : registeredBeforeFailure;
+        }
     }
 
     Analyzer buildAnalyzer(final String metricsName,
@@ -99,16 +198,55 @@ public class MetricConvert {
                            final String exp,
                            final MeterSystem service,
                            final String yamlSource) {
+        return buildAnalyzer(metricsName, filter, exp, service, yamlSource, null, null);
+    }
+
+    Analyzer buildAnalyzer(final String metricsName,
+                           final FilterExpression filter,
+                           final String exp,
+                           final MeterSystem service,
+                           final String yamlSource,
+                           final javassist.ClassPool pool,
+                           final ClassLoader targetClassLoader) {
         return Analyzer.build(
             metricsName,
             filter,
             exp,
             service,
-            yamlSource
+            yamlSource,
+            pool,
+            targetClassLoader
         );
     }
 
-    private static FilterExpression buildFilter(final MetricRuleConfig rule) {
+    /**
+     * Compile-only counterpart to {@link #buildAnalyzer}. The ctor uses this in phase 1 so
+     * every rule's MAL expression is parsed + typed before any {@code MeterSystem.create}
+     * call fires. Phase 2 runs {@link Analyzer#register} on the returned objects.
+     */
+    Analyzer prepareAnalyzer(final String metricsName,
+                              final FilterExpression filter,
+                              final String exp,
+                              final MeterSystem service,
+                              final String yamlSource,
+                              final javassist.ClassPool pool,
+                              final ClassLoader targetClassLoader,
+                              final StorageManipulationOpt storageOpt) {
+        return Analyzer.prepare(
+            metricsName,
+            filter,
+            exp,
+            service,
+            yamlSource,
+            pool,
+            targetClassLoader,
+            storageOpt
+        );
+    }
+
+    private static FilterExpression buildFilter(final MetricRuleConfig rule,
+                                                final javassist.ClassPool pool,
+                                                final ClassLoader targetClassLoader) {
         final String filterText = rule.getFilter();
         if (Strings.isNullOrEmpty(filterText)) {
             return null;
@@ -116,7 +254,7 @@ public class MetricConvert {
         final String sourceName = rule.getSourceName();
         final String yamlSource = sourceName != null
             ? sourceName + ".yaml" : null;
-        return new FilterExpression(filterText, "filter", yamlSource);
+        return new FilterExpression(filterText, "filter", yamlSource, pool, targetClassLoader);
     }
 
     private String formatExp(final String expPrefix, String expSuffix, String exp) {

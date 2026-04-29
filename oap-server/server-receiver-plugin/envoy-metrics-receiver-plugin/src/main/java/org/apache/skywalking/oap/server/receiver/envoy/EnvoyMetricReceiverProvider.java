@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegisterImpl;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.watermark.WatermarkGRPCInterceptor;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -156,11 +157,17 @@ public class EnvoyMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
+        // StorageModule is declared so Storage.start() runs before this provider — the
+        // envoy metrics rules are read via Rules.loadRules, which consults the
+        // RuntimeRuleOverrideResolver chain. Without this dep the DB-backed resolver would
+        // silently no-op at boot and DB overrides would only take effect on the next
+        // reconciler tick.
         return new String[] {
             TelemetryModule.NAME,
             CoreModule.NAME,
             SharingServerModule.NAME,
-            MeshReceiverModule.NAME
+            MeshReceiverModule.NAME,
+            StorageModule.NAME
         };
     }
 }

@@ -24,6 +24,7 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmKernelService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence;
@@ -63,6 +64,8 @@ public class AlarmModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
         this.registerServiceImplementation(AlarmRulesWatcherService.class, alarmRulesWatcher);
         this.registerServiceImplementation(AlarmStatusWatcherService.class, new AlarmStatusWatcher(getManager()));
+        this.registerServiceImplementation(AlarmKernelService.class,
+            new AlarmKernel(alarmRulesWatcher));
     }
 
     @Override

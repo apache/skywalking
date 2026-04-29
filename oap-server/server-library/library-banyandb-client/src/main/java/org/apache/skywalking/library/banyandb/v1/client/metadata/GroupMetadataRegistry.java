@@ -35,17 +35,25 @@ public class GroupMetadataRegistry extends MetadataClient<GroupRegistryServiceGr
 
     @Override
     public long create(Group payload) throws BanyanDBException {
-        execute(() -> stub.create(BanyandbDatabase.GroupRegistryServiceCreateRequest.newBuilder()
-                .setGroup(payload)
-                .build()));
-        return DEFAULT_MOD_REVISION;
+        BanyandbDatabase.GroupRegistryServiceCreateResponse resp = execute(() ->
+                stub.create(BanyandbDatabase.GroupRegistryServiceCreateRequest.newBuilder()
+                        .setGroup(payload)
+                        .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public void update(Group payload) throws BanyanDBException {
-        execute(() -> stub.update(BanyandbDatabase.GroupRegistryServiceUpdateRequest.newBuilder()
-                .setGroup(payload)
-                .build()));
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(Group payload) throws BanyanDBException {
+        BanyandbDatabase.GroupRegistryServiceUpdateResponse resp = execute(() ->
+                stub.update(BanyandbDatabase.GroupRegistryServiceUpdateRequest.newBuilder()
+                        .setGroup(payload)
+                        .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
@@ -54,7 +62,12 @@ public class GroupMetadataRegistry extends MetadataClient<GroupRegistryServiceGr
                 stub.delete(BanyandbDatabase.GroupRegistryServiceDeleteRequest.newBuilder()
                         .setGroup(name)
                         .build()));
-        return resp != null && resp.getDeleted();
+        // Schema-consistency Phase 1+ proto removed the explicit `bool deleted` field;
+        // a non-null response means the server accepted the delete. mod_revision is
+        // the new authoritative signal for "tombstone recorded" — callers needing
+        // delete-fence semantics should use AwaitSchemaDeleted via SchemaBarrier when
+        // mod_revision is 0 (no tombstone).
+        return resp != null;
     }
 
     @Override

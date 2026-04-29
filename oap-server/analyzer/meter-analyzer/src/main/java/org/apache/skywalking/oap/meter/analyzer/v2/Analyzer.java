@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.Se
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues;
@@ -127,15 +129,95 @@ public class Analyzer {
                                  final String expression,
                                  final MeterSystem meterSystem,
                                  final String yamlSource) {
-        Expression e = DSL.parse(metricName, expression, yamlSource);
+        return build(metricName, filter, expression, meterSystem, yamlSource, null, null);
+    }
+
+    /**
+     * Overload used by the runtime-rule hot-update path. When {@code pool} and
+     * {@code targetClassLoader} are non-null, every class compiled for this rule — the
+     * generated {@code MalExpression} subclass, its closure companion classes, and the
+     * storage-side {@code Metrics} subclass emitted by {@code MeterSystem.create} — is
+     * built in the caller-supplied Javassist pool and loaded through the caller-supplied
+     * per-file {@code RuleClassLoader}. The whole class family for one YAML file then
+     * drops together when the reconciler retires the loader on unregister.
+     *
+     * <p>With null args this delegates to the legacy startup path that goes through the
+     * shared {@code DSL.GENERATOR} singleton and the default-pool {@code MeterSystem.create}
+     * overload — unchanged.
+     */
+    public static Analyzer build(final String metricName,
+                                 final FilterExpression filter,
+                                 final String expression,
+                                 final MeterSystem meterSystem,
+                                 final String yamlSource,
+                                 final javassist.ClassPool pool,
+                                 final ClassLoader targetClassLoader) {
+        final Analyzer analyzer = prepare(
+            metricName, filter, expression, meterSystem, yamlSource, pool, targetClassLoader);
+        analyzer.register();
+        return analyzer;
+    }
+
+    /**
+     * Compile-only factory: parses the MAL expression into a {@code MalExpression} class
+     * under the per-file loader and populates runtime state ({@code samples}, {@code metricType},
+     * {@code percentiles}) from the extracted metadata, but does NOT call
+     * {@link MeterSystem#create} yet. Used by {@code MetricConvert} to split the apply of a
+     * rule file into two phases — compile everything first, register everything only if all
+     * compiles succeed. That way a compile error on a later rule doesn't leave earlier
+     * rules with measures already provisioned on the storage backend.
+     *
+     * <p>{@link #register()} completes the second phase per analyzer.
+     */
+    public static Analyzer prepare(final String metricName,
+                                    final FilterExpression filter,
+                                    final String expression,
+                                    final MeterSystem meterSystem,
+                                    final String yamlSource,
+                                    final javassist.ClassPool pool,
+                                    final ClassLoader targetClassLoader) {
+        // Static boot / default path: create-if-absent. Runtime-rule on-demand apply passes
+        // fullInstall() via the explicit-opt overload.
+        return prepare(metricName, filter, expression, meterSystem, yamlSource, pool, targetClassLoader,
+            StorageManipulationOpt.createIfAbsent());
+    }
+
+    /**
+     * Prepare overload that carries a {@link StorageManipulationOpt}. Runtime-rule peer-side
+     * apply passes {@link StorageManipulationOpt#localCacheOnly()} so subsequent
+     * {@link #register()} call skips server-side DDL.
+     */
+    public static Analyzer prepare(final String metricName,
+                                    final FilterExpression filter,
+                                    final String expression,
+                                    final MeterSystem meterSystem,
+                                    final String yamlSource,
+                                    final javassist.ClassPool pool,
+                                    final ClassLoader targetClassLoader,
+                                    final StorageManipulationOpt storageOpt) {
+        Expression e = DSL.parse(metricName, expression, yamlSource, pool, targetClassLoader);
         ExpressionMetadata ctx = e.parse();
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
-        analyzer.init();
+        analyzer.pool = pool;
+        analyzer.targetClassLoader = targetClassLoader;
+        analyzer.storageOpt = storageOpt == null ? StorageManipulationOpt.createIfAbsent() : storageOpt;
+        analyzer.resolveTypeFromMetadata();
         return analyzer;
+    }
+
+    /**
+     * Register the prepared analyzer with the {@link MeterSystem}. Separate from
+     * {@link #prepare} so {@code MetricConvert} can batch all prepare calls for a rule file
+     * before any DDL fires. Idempotent at the {@code MeterSystem} level — the receiver
+     * short-circuits on identical-shape re-registration.
+     */
+    public void register() {
+        createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling());
     }
 
     private List<String> samples;
 
+    @Getter
     private final String metricName;
 
     private final FilterExpression filterExpression;
@@ -149,6 +231,20 @@ public class Analyzer {
     private MetricType metricType;
 
     private int[] percentiles;
+
+    /** Per-file Javassist pool for runtime-rule hot-update, null on startup path. */
+    private javassist.ClassPool pool;
+    /** Per-file target classloader for runtime-rule hot-update, null on startup path. */
+    private ClassLoader targetClassLoader;
+    /**
+     * Storage-install policy threaded through to {@link MeterSystem#create}. Startup uses
+     * {@link StorageManipulationOpt#createIfAbsent()} (the default when callers don't set
+     * it — never reshape the backend at boot). Main-node on-demand apply sets
+     * {@link StorageManipulationOpt#fullInstall()}. Peer-node apply sets
+     * {@link StorageManipulationOpt#localCacheOnly()} so local Metrics classes + BanyanDB
+     * MetadataRegistry populate without server-side DDL.
+     */
+    private StorageManipulationOpt storageOpt = StorageManipulationOpt.createIfAbsent();
 
     /**
      * Analyse the full sample family map and produce meter-system metrics.
@@ -289,13 +385,15 @@ public class Analyzer {
     }
 
     /**
-     * Initializes runtime state from compile-time metadata.
+     * Resolves {@link #samples}, {@link #metricType}, {@link #percentiles} from the
+     * compile-time metadata. Side-effect free — no {@link MeterSystem} interaction.
      *
-     * <p>{@code ctx.getSamples()} provides the Prometheus metric names this expression references
-     * (e.g., ["node_cpu_seconds_total"]). These are used at runtime to select relevant entries
-     * from the full sample family map, avoiding unnecessary expression evaluation.
+     * <p>{@code ctx.getSamples()} provides the Prometheus metric names this expression
+     * references (e.g. {@code ["node_cpu_seconds_total"]}). These are used at runtime to
+     * select relevant entries from the full sample family map, avoiding unnecessary
+     * expression evaluation.
      */
-    private void init() {
+    private void resolveTypeFromMetadata() {
         this.samples = ctx.getSamples();
         if (ctx.isHistogram()) {
             if (ctx.getPercentiles() != null && ctx.getPercentiles().length > 0) {
@@ -311,7 +409,6 @@ public class Analyzer {
                 metricType = MetricType.labeled;
             }
         }
-        createMetric(ctx.getScopeType(), metricType.literal, ctx.getDownsampling());
     }
 
     private void createMetric(final ScopeType scopeType,
@@ -319,7 +416,19 @@ public class Analyzer {
                               final DownsamplingType downsamplingType) {
         String downSamplingStr = CaseUtils.toCamelCase(downsamplingType.toString().toLowerCase(), false, '_');
         String functionName = String.format("%s%s", downSamplingStr, StringUtils.capitalize(dataType));
-        meterSystem.create(metricName, functionName, scopeType);
+        // Default path (startup): pool + neighbor null → MeterSystem uses its own default pool
+        // + MeterClassPackageHolder as loader neighbor. Runtime-rule path: caller provided a
+        // per-file RuleClassLoader + ClassPool, and MeterSystem.create's pool/neighbor
+        // overload puts the generated Metrics subclass in the per-file loader so the whole
+        // bundle drops together on hot-remove.
+        if (pool != null && targetClassLoader != null) {
+            // Per-file: generated Metrics class goes directly into the supplied RuleClassLoader.
+            // storageOpt controls server-side DDL: fullInstall() on main, localCacheOnly()
+            // on peer — see the Analyzer class-level Javadoc for the main/peer contract.
+            meterSystem.create(metricName, functionName, scopeType, pool, targetClassLoader, storageOpt);
+        } else {
+            meterSystem.create(metricName, functionName, scopeType);
+        }
     }
 
     private void send(final AcceptableValue<?> v, final long time) {

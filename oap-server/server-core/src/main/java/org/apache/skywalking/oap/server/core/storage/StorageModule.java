@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.core.storage;
 
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
@@ -102,7 +104,15 @@ public class StorageModule extends ModuleDefine {
             IPprofTaskQueryDAO.class,
             IPprofTaskLogQueryDAO.class,
             IPprofDataQueryDAO.class,
-            StorageTTLStatusQuery.class
+            StorageTTLStatusQuery.class,
+            // Exposed for the runtime-rule reconciler — it calls ModelInstaller.isExists
+            // after a hot-apply to verify DDL landed (BanyanDB swallows ALREADY_EXISTS on
+            // shape-changing re-creates, so post-verify is the only way to detect silent
+            // schema divergence).
+            ModelInstaller.class,
+            // Exposed so the runtime-rule receiver can persist / list / delete RuntimeRule
+            // rows independent of the generic IManagementDAO path.
+            RuntimeRuleManagementDAO.class,
         };
     }
 }

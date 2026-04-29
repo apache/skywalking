@@ -34,8 +34,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
@@ -156,6 +157,11 @@ public class BanyanDBStorageProvider extends ModuleProvider {
 
         this.client = new BanyanDBStorageClient(getManager(), config);
         this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);
+        // Expose the installer so the runtime-rule reconciler can call isExists() after a
+        // hot-apply to verify that DDL landed as expected. Needed
+        // especially for BanyanDB, where client.define swallows ALREADY_EXISTS on shape-
+        // changing re-creates; the post-verify catches the silent divergence via describe+diff.
+        this.registerServiceImplementation(ModelInstaller.class, this.modelInstaller);
 
         // Stream
         this.registerServiceImplementation(
@@ -182,6 +188,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                                                                                             this.config.getGlobal().getProfileTaskQueryMaxSize()
             ));
         this.registerServiceImplementation(UITemplateManagementDAO.class, new BanyanDBUITemplateManagementDAO(client));
+        this.registerServiceImplementation(RuntimeRuleManagementDAO.class, new BanyanDBRuntimeRuleManagementDAO(client));
         this.registerServiceImplementation(UIMenuManagementDAO.class, new BanyanDBUIMenuManagementDAO(client));
         this.registerServiceImplementation(IEventQueryDAO.class, new BanyanDBEventQueryDAO(client));
         this.registerServiceImplementation(ITopologyQueryDAO.class, new BanyanDBTopologyQueryDAO(client));
@@ -238,7 +245,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
             this.client.connect();
             this.modelInstaller.start();
 
-            getManager().find(CoreModule.NAME).provider().getService(ModelCreator.class).addModelListener(modelInstaller);
+            getManager().find(CoreModule.NAME).provider().getService(ModelRegistry.class).addModelListener(modelInstaller);
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

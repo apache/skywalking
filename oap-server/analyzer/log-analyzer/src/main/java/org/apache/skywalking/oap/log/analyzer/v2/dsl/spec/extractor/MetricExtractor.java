@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
-import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
@@ -48,16 +47,19 @@ import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotBlan
  * compile-time setter resolution in the generated code.
  */
 public class MetricExtractor extends AbstractSpec {
-    private final List<MetricConvert> metricConverts;
+    /**
+     * Resolved once at construction — cheaper than re-looking-up on every sample. The provider's
+     * converter registry is mutated under runtime-rule hot-update, but the provider reference
+     * itself never changes for the lifetime of this JVM, so caching it is safe.
+     */
+    private final LogAnalyzerModuleProvider provider;
 
     public MetricExtractor(final ModuleManager moduleManager,
                            final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
         super(moduleManager, moduleConfig);
 
-        LogAnalyzerModuleProvider provider = (LogAnalyzerModuleProvider) moduleManager
+        this.provider = (LogAnalyzerModuleProvider) moduleManager
             .find(LogAnalyzerModule.NAME).provider();
-
-        metricConverts = provider.getMetricConverts();
     }
 
     public SampleBuilder prepareMetrics(final ExecutionContext ctx) {
@@ -79,7 +81,10 @@ public class MetricExtractor extends AbstractSpec {
         if (possibleMetricsContainer.isPresent()) {
             possibleMetricsContainer.get().add(sampleFamily);
         } else {
-            metricConverts.forEach(it -> it.toMeter(
+            // Re-read the converter snapshot on every submit. Hot-updates publish a new map
+            // reference through LogAnalyzerModuleProvider, so reading at this point picks up
+            // freshly-applied runtime rules without an extra signal from the reconciler.
+            provider.getMetricConverts().forEach(it -> it.toMeter(
                 ImmutableMap.<String, SampleFamily>builder()
                             .put(sample.getName(), sampleFamily)
                             .build()

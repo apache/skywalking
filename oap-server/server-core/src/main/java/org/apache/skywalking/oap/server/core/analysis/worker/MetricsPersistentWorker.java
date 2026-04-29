@@ -189,7 +189,16 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
         if (persistentCounter++ % persistentMod != 0) {
             return Collections.emptyList();
         }
+        return buildBatchRequestsUnconditionally();
+    }
 
+    /**
+     * Unconditional variant of {@link #buildBatchRequests()} that bypasses the
+     * {@link #persistentMod} guard. Used by {@link #drainPendingRequests()} for runtime rule
+     * hot-remove, where any pending data must be submitted to storage before the worker is
+     * dropped — regardless of whether this tick would otherwise be a skip-tick.
+     */
+    private List<PrepareRequest> buildBatchRequestsUnconditionally() {
         final List<Metrics> lastCollection = getCache().read();
 
         long start = System.currentTimeMillis();
@@ -347,6 +356,24 @@ public class MetricsPersistentWorker extends PersistenceWorker<Metrics> implemen
     @Override
     public void endOfRound() {
         sessionCache.removeExpired();
+    }
+
+    /**
+     * Return any pending metrics in the in-memory cache as {@link PrepareRequest} batch items,
+     * without the {@link #persistentCounter} skip-tick guard. Also invalidates the session cache
+     * so the caller can safely drop this worker afterwards.
+     *
+     * <p>Used for runtime-rule hot-remove: callers execute the returned requests synchronously
+     * via {@code IBatchDAO.flush} and then retire the worker. Any samples still in-flight through
+     * the L2 queue partition for this metric class after deregistration hit the null-handler path
+     * and are dropped by design (structural window).
+     *
+     * @return the list of prepare requests, possibly empty
+     */
+    public List<PrepareRequest> drainPendingRequests() {
+        final List<PrepareRequest> requests = buildBatchRequestsUnconditionally();
+        sessionCache.removeExpired();
+        return requests;
     }
 
     /**
