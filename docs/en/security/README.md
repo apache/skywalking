@@ -4,13 +4,26 @@ The SkyWalking OAP server, UI, and agent deployments should run in a secure envi
 OAP server, UI, and agent deployments should only be reachable by the operation team on default
 deployment.
 
-All telemetry data — including **metrics, traces, and logs** — are trusted. The OAP server
-**would not validate any field** of the telemetry data to avoid extra load for the server.
-Log data deserves explicit attention here: unlike numeric metric or response-time samples,
-log lines are free-form text emitted by applications and routinely contain
-attacker-controllable fragments (request URIs, query strings, headers, stack traces from
-poisoned input). Treat log payloads as untrusted at the same level as raw HTTP request
-bodies.
+All telemetry data are trusted. The OAP server **would not validate any field** of the
+telemetry data to avoid extra load for the server. **Every field of every telemetry
+category should be validated by the operator before it reaches OAP** — none are
+inherently safer than the others.
+
+Examples of surfaces that routinely carry attacker-controllable strings (non-exhaustive):
+
+- **Metrics**: metric names, label keys, label values.
+- **Traces**: span operation names, span tags (keys and values), span logs / events,
+  endpoint and peer identifiers.
+- **Logs**: log body, structured fields.
+- **Profiling**: profiling results (eBPF / async-profiler / JFR samples), captured stack
+  frames, symbol names.
+- **HTTP capture **: HTTP request and response bodies, headers, query
+  strings, and dumps collected by agent-side body-capture profiling plugins.
+
+A request URI, a header value, an exception message from poisoned input, or any other
+free-form string an instrumented application happens to attach to any of the above will
+reach OAP and the UI verbatim. The list grows with every new feature; the operator
+contract is "validate everything," not "validate this enumerated set."
 
 It is up to the operator(OPS team) whether to expose the OAP server, UI, or some agent deployment to unsecured
 environment.
@@ -20,19 +33,20 @@ The following security policies should be considered to add to secure your SkyWa
 2. Set up TOKEN or username/password based authentications for the OAP server and UI through your Gateway.
 3. Validate all fields of the traceable RPC(including HTTP 1/2, MQ) headers(header names are `sw8`, `sw8-x` and `sw8-correlation`) 
    when requests are from out of the trusted zone. Or simply block/remove those headers unless you are using the client-js agent.
-4. All fields of telemetry data — metrics, traces, **and logs** (HTTP in raw text or encoded
-   Protobuf format) — should be validated and reject malicious data. Log fields in particular
-   carry attacker-controllable text (request URIs, headers, exception messages from poisoned
-   input) and are the most common vector for XSS/RCE payloads landing in the OAP and UI.
-5. **Build a validation layer between agents and OAP.** The recommended deployment shape is an
-   operator-controlled gateway / sidecar / service mesh between agents and OAP that
-   authenticates the source, enforces rate limits, and validates / sanitises telemetry —
-   metrics, traces, and logs alike — before forwarding to OAP. Several security vendors offer
-   commercial implementations of this layer; the OAP itself does not perform that validation.
+4. **All fields of telemetry data should be validated and rejected when malicious** — in
+   both HTTP raw-text and encoded Protobuf transports. The scope is every category an
+   agent can emit (metrics, traces, logs, profiling results, HTTP capture / debugging
+   dumps, and any future telemetry surface), and every field within each category. Treat
+   the list above as examples; the rule is "validate every field," not "validate the
+   ones we enumerated." None of these surfaces are inherently safer than the others.
+5. **Build a validation layer between agents and OAP** as a security enhancement. The
+   recommended deployment shape is an operator-controlled gateway / sidecar / service mesh
+   that authenticates the source, enforces rate limits, and validates / sanitises every
+   telemetry category before forwarding to OAP. Several security vendors offer commercial
+   implementations of this layer; the OAP itself does not perform that validation.
 
-Without these protections, an attacker could embed executable Javascript code in those fields,
-causing XSS or even Remote Code Execution (RCE) issues. Log data is especially exposed
-because applications routinely emit raw user input verbatim into log messages.
+Without these protections, an attacker could embed executable Javascript code in any of
+those fields, causing XSS or even Remote Code Execution (RCE) issues.
 
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
