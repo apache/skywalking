@@ -21,34 +21,74 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.reconcile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyContext;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyInputs;
+import org.apache.skywalking.oap.server.receiver.runtimerule.engine.Classification;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngine;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngineRegistry;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleScript;
 
 /**
- * Destructive {@code /delete} pipeline. Third orchestrator alongside {@link DSLRuntimeApply}
- * (NEW / FILTER_ONLY / STRUCTURAL apply) and {@link DSLRuntimeUnregister} (INACTIVE / gone-keys
- * tear-down). {@code /delete} is the one endpoint that physically drops backend schema —
- * {@code /inactivate} preserves it for cheap re-activation.
+ * {@code /delete?mode=revertToBundled} orchestrator. Third orchestrator alongside
+ * {@link DSLRuntimeApply} (NEW / FILTER_ONLY / STRUCTURAL apply) and
+ * {@link DSLRuntimeUnregister} (INACTIVE / gone-keys tear-down).
  *
- * <p>This orchestrator is a thin dispatcher: it acquires the per-file lock, runs the cross-
- * file ownership guard (defence-in-depth — {@code /addOrUpdate} should have caught it
- * already), and routes to {@link RuleEngine#dropBackend}. Engines that own backend
- * schema (MAL) execute the re-register-then-drop dance there; engines without backend (LAL)
- * implement the SPI method as a no-op.
+ * <p><b>Two paths through {@code /delete}.</b> The REST handler chooses based on operator
+ * intent and bundled-twin presence:
+ * <ul>
+ *   <li>DEFAULT mode, no bundled twin — REST does {@code dao.delete} directly. The runtime
+ *       was already torn down locally by the prior {@code /inactivate}; the backend measure
+ *       (if any) stays as an inert artefact, matching bundled-rule deletion semantics.
+ *       This orchestrator is not involved.</li>
+ *   <li>DEFAULT mode, bundled twin exists — REST refuses with 409
+ *       {@code requires_revert_to_bundled}. Operator must opt in.</li>
+ *   <li>{@code revertToBundled} mode, bundled twin exists — REST calls
+ *       {@link #revertToBundled} and then {@code dao.delete}. This is the schema-change
+ *       path; bundled may have a different shape than runtime, so the runtime backend
+ *       must be dropped cleanly before bundled installs its own measure.</li>
+ *   <li>{@code revertToBundled} mode, no bundled twin — REST returns 400; this orchestrator
+ *       is not invoked.</li>
+ * </ul>
  *
- * <p>The caller (REST {@code /delete}) holds the per-file lock; this orchestrator re-acquires
- * it (lock is reentrant) so the implementation is correct whether called inline or from a
- * background path.
+ * <p><b>How the schema change happens.</b> {@code /inactivate} cleared the engine's applied
+ * state, so a naive bundled apply has no prior state to diff against — it would just
+ * register bundled's metrics and leave any runtime-only metrics orphaned. To get the
+ * proper diff, {@link #revertToBundled} runs the steps below in order:
+ * <pre>
+ *   1. {@link RuleEngine#installRuntime} re-registers prior runtime claims under
+ *      {@code withoutSchemaChange} (no backend touch). Now the rules map points at
+ *      runtime's claim set as if it were ACTIVE again.
+ *   2. {@link DSLRuntimeApply#apply} runs the standard pipeline against the bundled YAML
+ *      with {@code Kind.BUNDLED} + {@code withSchemaChange}. Engine.compile sees the
+ *      step-1 runtime install as prior, classifies STRUCTURAL, computes the runtime→bundled
+ *      delta. Engine.commit fires {@code applier.remove(removedMetrics, withSchemaChange)}
+ *      which drops runtime-only measures via the listener chain, and the new compile
+ *      registers bundled-only measures. Bundled-shared metrics at matching shape are
+ *      reused; at differing shape, the listener cascade reshapes them via the standard
+ *      {@code allowStorageChange} contract.
+ *   3. The rules-map entry's state is reset to {@code null} so the next gone-keys
+ *      reconcile (peer ticks see the absent DAO row) treats this as boot-seeded bundled
+ *      rather than a dangling ACTIVE.
+ * </pre>
+ *
+ * <p>The REST handler invokes {@code dao.delete} after this orchestrator returns success;
+ * a DAO failure leaves the local node with bundled installed and the runtime row still
+ * present, which the next reconciler tick reapplies as runtime — eventually consistent,
+ * and the operator can retry the revert.
+ *
+ * <p>The orchestrator re-acquires the per-file lock (REST already holds it; the lock is
+ * reentrant) so the implementation is correct whether called inline or from a background
+ * path.
  */
 @Slf4j
 public class DSLRuntimeDelete {
@@ -57,71 +97,98 @@ public class DSLRuntimeDelete {
     private final ModuleManager moduleManager;
     private final Map<String, AppliedRuleScript> rules;
     private final Consumer<Set<String>> alarmResetter;
+    private final DSLRuntimeApply dslRuntimeApply;
 
     public DSLRuntimeDelete(final RuleEngineRegistry engineRegistry,
                             final ModuleManager moduleManager,
                             final Map<String, AppliedRuleScript> rules,
-                            final Consumer<Set<String>> alarmResetter) {
+                            final Consumer<Set<String>> alarmResetter,
+                            final DSLRuntimeApply dslRuntimeApply) {
         this.engineRegistry = engineRegistry;
         this.moduleManager = moduleManager;
         this.rules = rules;
         this.alarmResetter = alarmResetter;
+        this.dslRuntimeApply = dslRuntimeApply;
+    }
+
+    /** Outcome of a {@link #revertToBundled} call. */
+    public static final class Result {
+        public enum Status {
+            /** Steps 1–3 all succeeded. Bundled is now serving locally. */
+            REVERTED,
+            /** Step 1 succeeded; step 2 (bundled apply pipeline) failed. In practice this
+             *  is almost always a backend-storage failure during DDL or verify — BanyanDB
+             *  rejected the measure shape, the schema-barrier didn't propagate within the
+             *  timeout, or the storage backend was unreachable. Bundled YAML parse and
+             *  Javassist generation are theoretical failure modes but extremely rare
+             *  (bundled YAML has already been loaded successfully at boot). The engine
+             *  has self-rolled-back its partial registrations and the orchestrator has
+             *  unregistered the step-1 runtime install, so local state matches the
+             *  persisted INACTIVE row. The operator can retry the revert once the storage
+             *  backend recovers. */
+            BUNDLED_APPLY_FAILED,
+            /** Cross-file ownership guard rejected the revert. Bundled's claims overlap
+             *  with another active bundle. */
+            REFUSED_CONFLICT,
+            /** Pre-step bookkeeping failed (no engine for catalog, MeterSystem unavailable,
+             *  bundled YAML missing, etc.). Local state has not been mutated. */
+            PRECONDITION_FAILED
+        }
+
+        public final Status status;
+        public final String error;
+
+        Result(final Status status, final String error) {
+            this.status = status;
+            this.error = error;
+        }
     }
 
     /**
-     * Discharge backend debt for the {@code (catalog, name)} bundle the REST handler is about
-     * to {@code /delete}. Routes to {@link RuleEngine#dropBackend} — engines that own
-     * backend schema do the re-register-then-drop dance; engines without backend no-op.
-     *
-     * @throws IllegalStateException if a cross-file ownership conflict is detected, or the
-     *     engine cannot discharge its backend debt (MeterSystem unavailable, parse error in
-     *     the inactive content). The caller (REST handler) aborts {@code dao.delete} on this
-     *     throw — refusing to delete the row is the correct failure mode.
+     * Run the revert-to-bundled pipeline for {@code (catalog, name)}. The REST handler
+     * has already verified that the bundled YAML twin exists on disk. Returns a
+     * {@link Result} describing the outcome; the REST handler maps that to an HTTP
+     * response and decides whether to proceed with {@code dao.delete}.
      */
-    public void dropBackendForDelete(final String catalog, final String name, final String content) {
+    public Result revertToBundled(final String catalog, final String name,
+                                  final String runtimeContent) {
         final RuleEngine<?> engine = engineRegistry.forCatalog(catalog);
         if (engine == null) {
-            log.warn("runtime-rule dslManager: no engine registered for catalog '{}' on "
-                + "/delete of {}/{}; skipping", catalog, catalog, name);
-            return;
+            return new Result(Result.Status.PRECONDITION_FAILED,
+                "no engine registered for catalog '" + catalog + "'");
+        }
+        final Optional<String> bundled = StaticRuleRegistry.active().find(catalog, name);
+        if (!bundled.isPresent()) {
+            return new Result(Result.Status.PRECONDITION_FAILED,
+                "no bundled YAML on disk for " + catalog + "/" + name);
         }
         final ReentrantLock perFile = AppliedRuleScript.lockFor(rules, catalog, name);
         perFile.lock();
         try {
-            // Defence-in-depth ownership guard. /addOrUpdate's check should have prevented
-            // this — if a race or DAO blip slipped one through, dropping the backend resource
-            // here would tear down a metric another active file is still using.
-            final List<String> activeConflicts = checkOwnershipConflicts(engine, catalog, name, content);
+            // Defence-in-depth ownership guard. After the revert, bundled's claims become
+            // the live claim set for this key. Refuse if any of bundled's claims are
+            // already owned by another active bundle — letting bundled register would
+            // clobber whatever the other active bundle is currently serving.
+            final List<String> activeConflicts = checkOwnershipConflicts(
+                engine, catalog, name, bundled.get());
             if (!activeConflicts.isEmpty()) {
-                throw new IllegalStateException(
-                    "/delete refused for " + catalog + "/" + name + ": claim(s) "
-                        + activeConflicts + " are now owned by another active bundle. "
-                        + "The /addOrUpdate cross-file ownership check should have caught "
-                        + "this; this is a safety net. Update or /inactivate the conflicting "
-                        + "bundle(s) first.");
+                return new Result(Result.Status.REFUSED_CONFLICT,
+                    "/delete?mode=revertToBundled refused for " + catalog + "/" + name
+                        + ": bundled claim(s) " + activeConflicts + " are owned by "
+                        + "another active bundle. Update or /inactivate the conflicting "
+                        + "bundle(s) first, or accept that the bundled rule is masked "
+                        + "until they are released.");
             }
-            // The engine's dropBackend handles both modes via bundledContent:
-            //   * null     → destructive cascade (drop everything runtime claimed)
-            //   * non-null → delta drop (only runtime-only + shape-break metrics; bundled-
-            //                 shared at matching shape is preserved for bundled to reuse on
-            //                 its synchronous reload below).
-            final String bundledContent =
-                StaticRuleRegistry.active().find(catalog, name).orElse(null);
-            if (bundledContent != null) {
-                log.info("runtime-rule /delete: bundled twin exists for {}/{} — running "
-                    + "delta-aware cleanup (drop runtime-only / shape-break, keep bundled-shared)",
-                    catalog, name);
-            }
-            dropBackend(engine, catalog, name, content, bundledContent);
+            return runRevert(engine, catalog, name, runtimeContent, bundled.get());
         } finally {
             perFile.unlock();
         }
     }
 
     private List<String> checkOwnershipConflicts(final RuleEngine<?> engine, final String catalog,
-                                                 final String name, final String content) {
+                                                 final String name, final String bundledContent) {
         final String selfKey = DSLScriptKey.key(catalog, name);
-        final Set<String> planned = engine.claimedKeys(content, catalog + "/" + name);
+        final Set<String> planned = engine.claimedKeys(bundledContent, catalog + "/" + name);
         final List<String> conflicts = new ArrayList<>();
         for (final Map.Entry<String, Set<String>> other : engine.activeClaimsExcluding(selfKey).entrySet()) {
             for (final String pk : planned) {
@@ -133,52 +200,64 @@ public class DSLRuntimeDelete {
         return conflicts;
     }
 
-    /**
-     * Synchronously reload the bundled rule into a fresh {@code static:} loader after a
-     * {@code /delete} of a row whose {@code (catalog, name)} has a bundled YAML on disk.
-     * The REST handler calls this so the operator's response reflects the post-delete
-     * reality (bundled is already serving) rather than waiting for the next tick.
-     *
-     * @return {@code true} when a bundled rule was reloaded; {@code false} when no bundled
-     *         twin exists or the engine doesn't participate in static fall-over for this
-     *         catalog. Errors are logged at WARN and surfaced as {@code false}.
-     */
-    public boolean reloadBundledIfPresent(final String catalog, final String name) {
-        final RuleEngine<?> engine = engineRegistry.forCatalog(catalog);
-        if (engine == null) {
-            return false;
-        }
-        if (!StaticRuleRegistry.active().find(catalog, name).isPresent()) {
-            return false;
-        }
-        final ReentrantLock perFile = AppliedRuleScript.lockFor(rules, catalog, name);
-        perFile.lock();
+    /** Wildcard-capture helper. Threads the engine's typed context through the three
+     *  steps that need a strong-typed {@code C}: install runtime, run apply, reset state. */
+    private <C extends ApplyContext> Result runRevert(final RuleEngine<C> engine,
+                                                       final String catalog, final String name,
+                                                       final String runtimeContent,
+                                                       final String bundledContent) {
+        // Step 1. Install runtime locally (no backend touch). The next step's compile
+        // sees this as the prior state and computes the runtime→bundled delta against it.
+        final ApplyInputs withoutSchema = new ApplyInputs(
+            moduleManager, StorageManipulationOpt.withoutSchemaChange(),
+            alarmResetter, rules);
+        final C ctx = engine.newApplyContext(withoutSchema);
         try {
-            return engine.reloadStatic(catalog, name, alarmResetter, moduleManager);
+            engine.installRuntime(catalog, name, runtimeContent, ctx);
+        } catch (final IllegalStateException ise) {
+            return new Result(Result.Status.PRECONDITION_FAILED,
+                "installRuntime failed for " + catalog + "/" + name + ": " + ise.getMessage());
         } catch (final Throwable t) {
-            log.warn("runtime-rule /delete: bundled fall-over reload failed for {}/{}; "
-                + "peer tick will retry via gone-keys path", catalog, name, t);
-            return false;
-        } finally {
-            perFile.unlock();
+            log.error("runtime-rule revertToBundled: installRuntime threw for {}/{}",
+                catalog, name, t);
+            return new Result(Result.Status.PRECONDITION_FAILED, t.getMessage());
         }
-    }
 
-    /**
-     * Wildcard-capture helper. Threads {@code bundledContent} through to {@link
-     * RuleEngine#dropBackend}: a null value triggers the destructive cascade (drop
-     * everything runtime had); a non-null value triggers the delta drop (drop only
-     * metrics runtime had that bundled doesn't claim, preserve bundled-shared at
-     * matching shape). fullInstall makes the listener chain run.
-     */
-    private <C extends ApplyContext> void dropBackend(
-            final RuleEngine<C> engine, final String catalog, final String name,
-            final String runtimeContent, final String bundledContent) {
-        final ApplyInputs inputs = new ApplyInputs(
-            moduleManager, StorageManipulationOpt.fullInstall(),
-            alarmResetter, rules
-        );
-        final C ctx = engine.newApplyContext(inputs);
-        engine.dropBackend(catalog, name, runtimeContent, bundledContent, ctx);
+        // Step 2. Run the standard apply pipeline against bundled. Engine.commit drops
+        // runtime-only measures via the delta, registers bundled-only measures, and
+        // reuses bundled-shared measures at matching shape.
+        final RuntimeRuleManagementDAO.RuntimeRuleFile bundledFile =
+            new RuntimeRuleManagementDAO.RuntimeRuleFile(
+                catalog, name, bundledContent, /* status */ null, /* updateTime */ 0L);
+        final ApplyInputs withSchema = new ApplyInputs(
+            moduleManager, StorageManipulationOpt.withSchemaChange(),
+            alarmResetter, rules);
+        final DSLRuntimeApply.Outcome outcome = dslRuntimeApply.apply(
+            bundledFile, Classification.STRUCTURAL,
+            DSLClassLoaderManager.Kind.BUNDLED, withSchema);
+        if (outcome.status != DSLRuntimeApply.Outcome.Status.COMMITTED) {
+            log.warn("runtime-rule revertToBundled: bundled apply did not commit for {}/{}: {} ({})",
+                catalog, name, outcome.error, outcome.status);
+            // Step 1 installed runtime locally under withoutSchemaChange — handlers and
+            // meterPrototypes are live again. Bundled apply failed (engine self-rolled
+            // back its own partial registrations) but step 1 is still in place. The
+            // operator's intent was /inactivate (handlers OFF) followed by a failed
+            // revert — leaving runtime live silently violates the inactivate. Tear it
+            // back down so local state matches the persisted INACTIVE row. The operator
+            // must retry /delete?mode=revertToBundled after fixing the bundled YAML.
+            final ApplyInputs cleanup = new ApplyInputs(
+                moduleManager, StorageManipulationOpt.withoutSchemaChange(),
+                alarmResetter, rules);
+            final C cleanupCtx = engine.newApplyContext(cleanup);
+            engine.unregister(catalog, name, cleanupCtx);
+            return new Result(Result.Status.BUNDLED_APPLY_FAILED, outcome.error);
+        }
+
+        // Step 3. Mark the entry boot-seeded so gone-keys reconcile leaves it alone after
+        // dao.delete removes the row. Without this reset, the next tick would see state
+        // != null + DAO row absent and tear down what we just installed.
+        rules.computeIfPresent(DSLScriptKey.key(catalog, name),
+            (k, prev) -> prev.withState(null));
+        return new Result(Result.Status.REVERTED, null);
     }
 }

@@ -179,11 +179,11 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
     /**
      * Opt-aware variant invoked from the runtime-rule MAL path. Peer nodes pass
-     * {@link StorageManipulationOpt#localCacheOnly()} so every downstream {@code ModelRegistry.add}
+     * {@link StorageManipulationOpt#withoutSchemaChange()} so every downstream {@code ModelRegistry.add}
      * records per-resource outcomes and suppresses server-side install. Main-node on-demand
-     * callers (REST {@code /addOrUpdate}) pass {@link StorageManipulationOpt#fullInstall()}.
+     * callers (REST {@code /addOrUpdate}) pass {@link StorageManipulationOpt#withSchemaChange()}.
      * Startup-path callers (stream registration for static rules) pass
-     * {@link StorageManipulationOpt#createIfAbsent()} so boot never reshapes the backend.
+     * {@link StorageManipulationOpt#schemaCreateIfAbsent()} so boot never reshapes the backend.
      */
     public void create(ModuleDefineHolder moduleDefineHolder,
                        StreamDefinition stream,
@@ -196,7 +196,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                         StreamDefinition stream,
                         Class<? extends Metrics> metricsClass,
                         MetricStreamKind kind) throws StorageException {
-        this.create(moduleDefineHolder, stream, metricsClass, kind, StorageManipulationOpt.createIfAbsent());
+        this.create(moduleDefineHolder, stream, metricsClass, kind, StorageManipulationOpt.schemaCreateIfAbsent());
     }
 
     private void create(ModuleDefineHolder moduleDefineHolder,

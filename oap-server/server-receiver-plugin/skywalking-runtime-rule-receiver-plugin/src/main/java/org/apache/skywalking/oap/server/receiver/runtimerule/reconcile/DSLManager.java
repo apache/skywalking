@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.metrics.LockMetrics
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmKernelService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
@@ -105,7 +106,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
  * only when a forwarded request arrives at a node that itself doesn't believe it's main
  * (split cluster view). The tick picks its storage opt via {@link #tickStorageOpt(boolean)};
  * the per-endpoint REST opts are routed by the handler ({@code /addOrUpdate} →
- * {@code fullInstall}, {@code /inactivate} → {@code localCacheOnly}, {@code /delete} →
+ * {@code withSchemaChange}, {@code /inactivate} → {@code withoutSchemaChange}, {@code /delete} →
  * dedicated {@link DSLRuntimeDelete} path).
  */
 @Slf4j
@@ -162,17 +163,17 @@ public final class DSLManager {
     private final DSLRuntimeApply dslRuntimeApply;
 
     /** Destructive {@code /delete} pipeline. Re-registers prototypes locally then tears down
-     *  under fullInstall so the backend cascade fires before the DAO row is deleted.
+     *  under withSchemaChange so the backend cascade fires before the DAO row is deleted.
      *  Exposed via {@code @Getter}. */
     @Getter
     private final DSLRuntimeDelete dslRuntimeDelete;
 
-    /** Boot-time seed + tick-time rehydrate of static rules. Exposed via {@code @Getter}
+    /** Boot-time seed + tick-time re-install of bundled rules. Exposed via {@code @Getter}
      *  so the module provider can drive the boot-time load directly. */
     @Getter
     private final StaticRuleLoader staticRuleLoader;
 
-    /** One-tick body — DB diff + apply + gone-keys cleanup + static rehydrate. */
+    /** One-tick body — DB diff + apply + gone-keys cleanup + bundled re-install. */
     private final RuleSync ruleSync;
 
     /** Catalog → engine lookup. Built once here from the per-DSL maps the scheduler owns;
@@ -203,7 +204,7 @@ public final class DSLManager {
         );
         this.dslRuntimeDelete = new DSLRuntimeDelete(
             this.engineRegistry, this.moduleManager,
-            this.rules, this::invokeAlarmReset
+            this.rules, this::invokeAlarmReset, this.dslRuntimeApply
         );
         this.staticRuleLoader = new StaticRuleLoader(
             this.engineRegistry, this.rules,
@@ -228,13 +229,13 @@ public final class DSLManager {
     /**
      * Variant invoked once at boot from {@code RuntimeRuleModuleProvider.notifyAfterCompleted}
      * with {@code atBoot=true}. The boot pass on a no-init OAP picks
-     * {@link StorageManipulationOpt#localCacheVerify()} so missing or shape-mismatched
+     * {@link StorageManipulationOpt#verifySchemaOnly()} so missing or shape-mismatched
      * backend schema fails the bootstrap (k8s pod backloop) instead of silently
      * proceeding. The scheduled executor calls the no-arg overload so subsequent ticks
-     * stay on the lenient {@code localCacheOnly} retry path.
+     * stay on the lenient {@code withoutSchemaChange} retry path.
      *
      * <p>Boot semantics are scoped to no-init mode only — init-mode OAPs continue to
-     * pick {@link StorageManipulationOpt#createIfAbsent()} (boot creates), and
+     * pick {@link StorageManipulationOpt#schemaCreateIfAbsent()} (boot creates), and
      * default-mode OAPs continue to pick by cluster main-ness.
      */
     public void tick(final boolean atBoot) {
@@ -317,7 +318,7 @@ public final class DSLManager {
         return rules;
     }
 
-    /** Run one tick — DB diff + apply + gone-keys cleanup + static rehydrate. Delegates to
+    /** Run one tick — DB diff + apply + gone-keys cleanup + bundled re-install. Delegates to
      *  {@link RuleSync}. */
     private void applyDeltasFromDatabase(final boolean atBoot) {
         ruleSync.runOnce(atBoot);
@@ -357,22 +358,24 @@ public final class DSLManager {
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit) {
-        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.fullInstall());
+        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChange());
     }
 
     /**
      * Storage-opt overload of {@link #applyNowForRuleFile(RuntimeRuleManagementDAO.RuntimeRuleFile, boolean)}.
      *
-     * <p>The REST {@code /inactivate} path passes {@link StorageManipulationOpt#localCacheOnly()}
+     * <p>The REST {@code /inactivate} path passes {@link StorageManipulationOpt#withoutSchemaChange()}
      * here so the OAP-internal teardown — MeterSystem prototypes, MetricsStreamProcessor
      * entry / persistent workers, BatchQueue handlers, retired RuleClassLoader — runs to
      * completion while the backend's measure / table / index, and the data already stored
-     * under the pre-inactivate metric, are left intact. {@code /delete} (and STRUCTURAL
-     * {@code /addOrUpdate} that drops shape-broken metrics) keeps {@code fullInstall()} so
-     * the destructive cascade reaches the backend as before.
+     * under the pre-inactivate metric, are left intact. STRUCTURAL {@code /addOrUpdate}
+     * keeps {@code withSchemaChange()} so the listener chain reaches the backend for shape
+     * changes; {@code /delete} default mode does not run the apply pipeline at all (the
+     * row is just removed), and {@code /delete?mode=revertToBundled} uses
+     * {@code withSchemaChange()} via {@link DSLRuntimeDelete#revertToBundled}.
      *
      * <p>Other call sites should keep using the no-opt overload above so the documented
-     * "REST path = fullInstall, peer tick = localCacheOnly" routing rule is unchanged.
+     * "REST path = withSchemaChange, peer tick = withoutSchemaChange" routing rule is unchanged.
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit,
@@ -545,7 +548,7 @@ public final class DSLManager {
 
         // 5. Engine pipeline — compile + fireSchemaChanges + verify.
         final DSLRuntimeApply.Outcome outcome = dslRuntimeApply.compileAndVerify(
-            ruleFile, cl, buildApplyInputs(storageOpt));
+            ruleFile, cl, DSLClassLoaderManager.Kind.RUNTIME, buildApplyInputs(storageOpt));
         if (outcome.status == DSLRuntimeApply.Outcome.Status.COMPILE_FAILED) {
             // Engine has already rolled back partial registrations.
             log.error("runtime-rule dslManager CRITICAL: apply COMPILE_FAILED for {}/{}: {}",
@@ -707,7 +710,7 @@ public final class DSLManager {
      * <p><b>RunningMode (boot/init context).</b>
      * <ul>
      *   <li>{@code init} mode — OAP is the dedicated initialiser; install schema if
-     *       absent. {@link StorageManipulationOpt#createIfAbsent()} matches what the
+     *       absent. {@link StorageManipulationOpt#schemaCreateIfAbsent()} matches what the
      *       rest of the static-rule install path does in init mode (idempotent against
      *       backends that already hold the table).
      *   <li>{@code no-init} mode — this OAP must NOT touch the backend; the init OAP
@@ -715,12 +718,12 @@ public final class DSLManager {
      *       or a scheduled tick:
      *     <ul>
      *       <li><b>Boot pass</b> ({@code atBoot=true}) →
-     *           {@link StorageManipulationOpt#localCacheVerify()}. Strict: backend
+     *           {@link StorageManipulationOpt#verifySchemaOnly()}. Strict: backend
      *           resources must already exist with the declared shape. A missing or
      *           mismatched schema fails the bootstrap (k8s pod backloop) — operator must
      *           bring up the init OAP first, or align rule files with the backend.
      *       <li><b>Scheduled tick</b> ({@code atBoot=false}) →
-     *           {@link StorageManipulationOpt#localCacheOnly()}. Lenient: the timer
+     *           {@link StorageManipulationOpt#withoutSchemaChange()}. Lenient: the timer
      *           retries forever without raising errors so transient absence (init OAP
      *           still catching up between ticks) self-heals.
      *     </ul>
@@ -729,17 +732,17 @@ public final class DSLManager {
      *
      * <p><b>Cluster main-ness (default mode only).</b>
      * <ul>
-     *   <li>Self is main → {@link StorageManipulationOpt#fullInstall()}. The REST path
+     *   <li>Self is main → {@link StorageManipulationOpt#withSchemaChange()}. The REST path
      *       has the same shape; tick rarely runs on main because REST usually
      *       converges the main's state first.
-     *   <li>Peer (someone else is main) → {@link StorageManipulationOpt#localCacheOnly()}.
+     *   <li>Peer (someone else is main) → {@link StorageManipulationOpt#withoutSchemaChange()}.
      *       Local MeterSystem + MetadataRegistry populate so the peer dispatches samples
      *       correctly, but no server-side DDL fires.
      * </ul>
      *
      * <p>When the cluster module isn't wired (embedded test topology), {@link
      * MainRouter#isSelfMain} returns {@code true} and the default-mode branch falls
-     * through to {@code fullInstall} — single-process deployments are always main.
+     * through to {@code withSchemaChange} — single-process deployments are always main.
      *
      * @param atBoot true for the synchronous one-shot pass invoked from
      *               {@code RuntimeRuleModuleProvider.notifyAfterCompleted}; false for
@@ -747,21 +750,21 @@ public final class DSLManager {
      */
     private StorageManipulationOpt tickStorageOpt(final boolean atBoot) {
         if (RunningMode.isInitMode()) {
-            return StorageManipulationOpt.createIfAbsent();
+            return StorageManipulationOpt.schemaCreateIfAbsent();
         }
         if (RunningMode.isNoInitMode()) {
             return atBoot
-                ? StorageManipulationOpt.localCacheVerify()
-                : StorageManipulationOpt.localCacheOnly();
+                ? StorageManipulationOpt.verifySchemaOnly()
+                : StorageManipulationOpt.withoutSchemaChange();
         }
         try {
             final RemoteClientManager rcm = moduleManager.find(CoreModule.NAME).provider()
                                                          .getService(RemoteClientManager.class);
             return MainRouter.isSelfMain(rcm)
-                ? StorageManipulationOpt.fullInstall()
-                : StorageManipulationOpt.localCacheOnly();
+                ? StorageManipulationOpt.withSchemaChange()
+                : StorageManipulationOpt.withoutSchemaChange();
         } catch (final Throwable t) {
-            return StorageManipulationOpt.fullInstall();
+            return StorageManipulationOpt.withSchemaChange();
         }
     }
 }

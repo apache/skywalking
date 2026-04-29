@@ -86,7 +86,7 @@ server returns `400 compile_failed`.
 |--------|------------------------------------------------------------------------------------|---------------|--------|
 | POST   | `/runtime/rule/addOrUpdate?catalog=&name=[&allowStorageChange=true][&force=true]` | raw rule YAML | Creates or replaces a rule. Edits that keep the same metric storage shape are applied without pausing the cluster. Edits that add, remove, or reshape metrics pause affected traffic, update and verify backend storage, save the rule, and then resume. If the posted content exactly matches the current `ACTIVE` rule, the server returns `no_change`; `force=true` skips that shortcut for recovery. |
 | POST   | `/runtime/rule/inactivate?catalog=&name=`                                          | empty         | Soft-pauses a rule. OAP stops using the rule and saves it as `INACTIVE`, while the backend measure and historical data remain available for reactivation. |
-| POST   | `/runtime/rule/delete?catalog=&name=[&mode=revertToBundled]`                       | empty         | Removes an `INACTIVE` runtime row. Active rules return `409 requires_inactivate_first`. **No bundled twin on disk** → destructive: backend resource is dropped and the rule is fully gone. **Bundled twin on disk** → non-destructive: backend is preserved (bundled will reuse it), the row is removed, and the bundled rule is reinstalled into a `static:` loader on the local node. Peers converge via the gone-keys reconcile path on their next tick. `?mode=revertToBundled` is an explicit operator hint that requires a bundled twin (returns `400 no_bundled_twin` when none exists) — useful for scripts that want to fail loudly if their assumption was wrong. The OAP-side teardown (cluster-wide unparking, dispatcher / worker / catalog / model removal, stored-rule removal) is uniform; the **storage-side** effect is per-backend (see below). |
+| POST   | `/runtime/rule/delete?catalog=&name=[&mode=revertToBundled]`                       | empty         | Removes an `INACTIVE` runtime row. Active rules return `409 requires_inactivate_first`. **No bundled twin, default mode** → drops the row; the backend measure (if any) stays as an inert artefact. **Bundled twin exists, default mode** → returns `409 requires_revert_to_bundled` because letting bundled silently take over the `(catalog, name)` is a meaningful state change requiring an explicit operator decision. **Bundled twin exists, `?mode=revertToBundled`** → schema-change path: the orchestrator rehydrates the runtime DSL locally and runs the bundled YAML through the standard apply pipeline so the runtime→bundled delta drops runtime-only metrics, registers bundled-only metrics, and reuses bundled-shared metrics at matching shape; the row is then removed and the bundled rule is the active loader on the local node. Peers converge via the gone-keys reconcile path on their next tick. **No bundled twin, `?mode=revertToBundled`** → returns `400 no_bundled_twin`. |
 
 **Read endpoints**
 
@@ -99,23 +99,22 @@ server returns `400 compile_failed`.
 
 ### `/delete` storage semantics — per backend
 
-`/delete` always tears down the rule on the OAP side: the cluster unparks the affected
-dispatchers, removes the workers, drops the model from the in-memory registry, removes
-the stored rule, and the rule no longer appears in `/runtime/rule/list`. What happens to
-the **on-disk data** depends on the storage plugin:
+`/delete` tears down the runtime DSL on the OAP side (the `/inactivate` step that must
+precede it has already unparked dispatchers, removed workers, and dropped the model from
+the in-memory registry) and removes the stored rule from `/runtime/rule/list`. What
+happens to the **backend schema and data** depends on the path taken:
 
-| Backend | After `/delete` | Old data still queryable? |
-|---|---|---|
-| **BanyanDB** | The measure / stream group + schema are dropped (`dropMeasure` / `dropStream`). | No — rows are gone. |
-| **Elasticsearch** | `dropTable` is a documented **no-op**. The merging index (e.g. `metrics-all`) and any per-metric index stay. | Yes — historical samples remain in place until TTL expires. |
-| **JDBC (H2 / MySQL / PostgreSQL / TiDB / OceanBase)** | `dropTable` is a documented **no-op**. The merging table (e.g. `meter_sum_<dayBucket>`) stays. | Yes — historical samples remain in place until TTL expires. |
+| Path | Backend effect |
+|---|---|
+| **Default mode, no bundled twin** | The runtime DSL was already torn down by `/inactivate`. The backend measure (if any) is left in place as an inert artefact — no listener writes to it, but the schema and historical rows stay. This matches bundled-rule deletion semantics on disk: removing a YAML from `otel-rules/` doesn't drop its measure either. Reclaim manually via the storage backend's tools if you need the schema gone. |
+| **Default mode, bundled twin** | Refused with `409 requires_revert_to_bundled`. The operator must opt in explicitly. |
+| **`?mode=revertToBundled`, bundled twin** | Schema-change path. Bundled may have a different shape than runtime. The runtime DSL is rehydrated locally so the apply pipeline can compute the runtime→bundled delta. Metrics in the delta:<br>• **Runtime-only** (in runtime, not in bundled) — dropped via the listener chain. On BanyanDB the measure / stream is dropped. On ES / JDBC `dropTable` is a documented no-op (their tables are append-only; TTL reclaims space).<br>• **Bundled-only** (in bundled, not in runtime) — created.<br>• **Bundled-shared at matching shape** — reused; no schema mutation.<br>• **Bundled-shared at differing shape** — reshaped via the listener chain (additive subset each backend supports online: `client.update` for BanyanDB, add-column for JDBC, mapping append for ES). |
+| **`?mode=revertToBundled`, no bundled twin** | Refused with `400 no_bundled_twin`. |
 
-The ES / JDBC behaviour is intentional and consistent with how the static catalog treats
-table lifecycle on those backends: tables are append-only, and TTL — not DDL — reclaims
-space. If you need the data gone immediately, drop the table out-of-band with the storage
-backend's own tools after `/delete` returns.
+Historical query semantics on ES and JDBC are unchanged from prior releases: tables stay
+beyond `dropTable` and TTL reclaims rows.
 
-A re-`addOrUpdate` of the same rule (same name, same scope and downsampling) replays
+A re-`addOrUpdate` of the same rule (same name, scope and downsampling) replays
 schema registration. On BanyanDB this re-creates the measure; on ES / JDBC this is a
 no-op against the existing index / table. In both cases new samples land alongside any
 retained history.
@@ -174,6 +173,16 @@ false.
 > name) so the old data keeps accumulating until TTL and the new data starts fresh under
 > a clean identity. Treat the flag as an explicit "I accept data loss" affirmation, not a
 > convenience toggle.
+
+> **Edge case — `/addOrUpdate` after a `/delete` of a runtime-only rule.** Default `/delete`
+> with no bundled twin leaves the backend measure in place as an inert artefact. A later
+> `/addOrUpdate` against the same `(catalog, name)` has no `priorContent` to diff against,
+> so the storage-change guardrail will not refuse the request even when the new content
+> reuses the same metric names with a different shape. The apply pipeline's listener chain
+> may reshape the inert backend measure silently. If you suspect a stale schema from a
+> previously-deleted rule, push the new rule with `allowStorageChange=true` so the intent
+> is explicit; or rename the metrics in the new rule so the old schema stays inert and a
+> fresh measure is created instead.
 
 ### Recovery from a failed apply
 
@@ -279,7 +288,8 @@ the response formats listed above; their error responses use the same JSON shape
 | 200 OK        | `inactivated`              | row flipped to `INACTIVE`; backend measure and data preserved                                          |
 | 200 OK        | `static_tombstoned`        | `/inactivate` against a rule that exists only on disk; an `INACTIVE` tombstone row is now persisted    |
 | 200 OK        | `already_inactive`         | `/inactivate` against an already-inactive row; idempotent no-op                                        |
-| 200 OK        | `deleted`                  | row hard-deleted; backend measure dropped (MAL) or in-process handlers removed (LAL)                   |
+| 200 OK        | `deleted`                  | `/delete` of a rule with no bundled twin; row removed, backend measure left as inert artefact          |
+| 200 OK        | `reverted_to_bundled`      | `/delete?mode=revertToBundled`; runtime row removed, bundled rule installed via the apply pipeline (schema change handled by the standard delta path) |
 | 200 OK        | `not_found`                | `/inactivate` or `/delete` against an absent rule; idempotent no-op                                    |
 | 200 OK        | `filter_only_persisted`    | row persisted but the in-memory swap threw on this node; converges on the next periodic scan          |
 
@@ -288,9 +298,13 @@ the response formats listed above; their error responses use the same JSON shape
 | Status            | `applyStatus`                                 | Meaning                                                                                                                |
 |-------------------|-----------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | 400 Bad Request   | `compile_failed`, `empty_body`, `invalid_*`   | rule parse failure or request validation failure; row was NOT persisted                                                |
+| 400 Bad Request   | `invalid_catalog`, `invalid_mode`             | unknown `catalog=` or `mode=` query value                                                                              |
+| 400 Bad Request   | `no_bundled_twin`                             | `/delete?mode=revertToBundled` against a rule with no bundled YAML on disk; drop the mode flag, or check that the bundled YAML exists |
 | 409 Conflict      | `storage_change_requires_explicit_approval`   | update would move storage identity and `allowStorageChange` was not set — no cluster pause, no persist, no side effects |
 | 409 Conflict      | `update_in_progress`                          | another apply is already in flight for this rule; retry after a few seconds                                            |
 | 409 Conflict      | `requires_inactivate_first`                   | `/delete` against an `ACTIVE` row; run `/inactivate` first, then `/delete`                                             |
+| 409 Conflict      | `requires_revert_to_bundled`                  | `/delete` (default mode) against a rule with a bundled YAML twin on disk; either re-issue with `?mode=revertToBundled` to fall back to bundled, or leave the row `INACTIVE` |
+| 409 Conflict      | `delete_refused`                              | cross-file ownership conflict: bundled's claims overlap another active bundle. Update or `/inactivate` the conflicting bundle(s) first |
 | 503 Service Unavailable | `storage_unavailable`                    | storage could not be read while checking the current rule; retry when storage is healthy                               |
 
 **Cluster-routing errors — usually transient**
@@ -311,7 +325,9 @@ the response formats listed above; their error responses use the same JSON shape
 | 500 Internal Server Error | `persist_failed`               | row write failed; on filter-only this node still serves the pre-edit rule, on structural the local node rolled back and resumed peers |
 | 500 Internal Server Error | `commit_deferred`              | apply succeeded and row was persisted, but the local finishing step failed on this node. Storage is authoritative and peers will converge; this node will retry on its next periodic scan |
 | 500 Internal Server Error | `teardown_deferred`            | row was inactivated, but local cleanup failed; this node retries on the next periodic scan                                  |
-| 500 Internal Server Error | `dao_unavailable`, `inactivate_failed`, `delete_backend_drop_failed`, `delete_failed`, other `*_failed` | management storage or backend cleanup failed; no destructive row removal is completed unless the backend cleanup succeeded |
+| 500 Internal Server Error | `revert_to_bundled_failed`     | bundled apply failed during DDL or verify (typically a backend-storage issue — BanyanDB unreachable, shape rejection, or schema-barrier timeout). The orchestrator unwound the step-1 runtime install so local state matches the persisted INACTIVE row. Retry once storage recovers. |
+| 500 Internal Server Error | `revert_to_bundled_precondition_failed` | revertToBundled prep step failed (no engine for catalog, MeterSystem unavailable for installRuntime). Local state is unchanged. Retry when the prerequisite recovers. |
+| 500 Internal Server Error | `dao_unavailable`, `inactivate_failed`, `delete_failed`, other `*_failed` | management storage or local cleanup failed; check the message for the specific failure point. |
 
 ## Per-node list output
 
@@ -355,10 +371,10 @@ the OAP is actually serving on this node. Reading these three fields together:
 | Bundled rule shipped on disk; operator never touched it | `BUNDLED` | `NONE` | `true` | Bundled YAML, served from the OAP's shared default classloader (registered at boot by the catalog loaders). |
 | Operator pushed `/addOrUpdate` overriding a bundled rule | `ACTIVE` | `RUNTIME` | `true` | Runtime override in a per-file `runtime-rule:` loader. Compare `contentHash` with `bundledContentHash` to detect drift. |
 | Operator pushed `/addOrUpdate` for a brand-new rule (no bundled twin) | `ACTIVE` | `RUNTIME` | `false` | Runtime override in a per-file `runtime-rule:` loader. No bundled fallback. |
-| Operator `/inactivate`d a runtime override of a bundled rule | `INACTIVE` | `NONE` | `true` | Nothing — handlers are unregistered. The bundled rule does **not** auto-resurrect; to turn it back on, push `/addOrUpdate` (with the bundled YAML or your own) or call `/delete` (which reverts to bundled). |
+| Operator `/inactivate`d a runtime override of a bundled rule | `INACTIVE` | `NONE` | `true` | Nothing — handlers are unregistered. The bundled rule does **not** auto-resurrect; to turn it back on, push `/addOrUpdate` (with the bundled YAML or your own) or call `/delete?mode=revertToBundled` (which reverts to bundled via the schema-change path). Plain `/delete` is refused with `409 requires_revert_to_bundled` to force the explicit decision. |
 | Operator `/inactivate`d a bundled-only rule | `INACTIVE` | `NONE` | `true` | Nothing — same as above. The `INACTIVE` row is a tombstone carrying the bundled YAML at inactivate-time. |
 | Operator `/inactivate`d a brand-new runtime rule | `INACTIVE` | `NONE` | `false` | Nothing — handlers gone. To turn back on: `/addOrUpdate` (with new content) or `/delete` (rule is fully gone). |
-| `/delete` propagating after a bundled-twin row was removed | `n/a` (no row) | `STATIC` | `true` | Bundled rule, freshly compiled into a `static:` loader. Equivalent to a fresh boot of bundled. |
+| `/delete?mode=revertToBundled` propagating after a bundled-twin row was removed | `n/a` (no row) | `BUNDLED` | `true` | Bundled rule, freshly compiled into a `bundled:` loader. Equivalent to a fresh boot of bundled. |
 
 Quick decision rules for an operator reading `/list`:
 
@@ -367,7 +383,7 @@ Quick decision rules for an operator reading `/list`:
 - `status=ACTIVE` + `bundled=true` + `contentHash == bundledContentHash` → runtime override matches bundled. UIs typically render this as "Override (matches bundled)" — common after an explicit `/addOrUpdate ?source=bundled` revert.
 - `status=ACTIVE` + `bundled=false` → runtime-only rule, no on-disk twin.
 - `status=INACTIVE` → soft-paused. The DAO row preserves the content the operator last had; `/list` does not surface it (call `GET /runtime/rule` for the YAML).
-- `loaderKind=STATIC` → a `static:` loader is currently serving (transient, between `/delete` and the next clean state).
+- `loaderKind=BUNDLED` → a `bundled:` loader is currently serving (typical after `/delete?mode=revertToBundled`, where the bundled YAML was compiled into a fresh per-file loader).
 - `loaderKind=NONE` → no per-file loader. For `BUNDLED` this is normal (shared default loader). For `INACTIVE` this is the rule being off.
 
 - `status` — `ACTIVE` or `INACTIVE` for stored rows. `BUNDLED` and `n/a` are synthesized
@@ -393,8 +409,9 @@ Quick decision rules for an operator reading `/list`:
   rule cleanup issue worth investigating.
 - `loaderKind` — origin of the per-file class loader currently serving this rule:
   - `RUNTIME` — operator-pushed runtime override.
-  - `STATIC` — bundled rule serving via static fall-over (a runtime override was previously
-    in place, then removed; the bundled YAML was reloaded into a fresh `static:` loader).
+  - `BUNDLED` — bundled rule serving via bundled fall-over (a runtime override was previously
+    in place, then `/delete?mode=revertToBundled` reinstalled the bundled YAML in a fresh
+    `bundled:` loader).
   - `NONE` — no per-file loader (typical for bundled-only rules served from the shared
     default loader; also a row whose loader has been retired but not yet replaced).
 - `loaderName` — formatted loader name (`<kind>:<catalog>/<rule>@<MMdd-HHmmss>`), the same
@@ -431,7 +448,7 @@ This makes the "compare runtime override against bundled" workflow a two-call se
 fetch the runtime body with the default request, then fetch the bundled body with
 `?source=bundled` and diff in the editor. `POST /runtime/rule/delete` drops the runtime
 override; the next `/list` will show the row served by the bundled fall-over
-(`loaderKind=STATIC`).
+(`loaderKind=BUNDLED`).
 
 ## Consistency model — at a glance
 

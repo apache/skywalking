@@ -15,13 +15,18 @@
     on disk are not auto-resurrected when an `inactivate` removes the runtime override.
     This is the safe way to take a rule offline.
   * `delete` — removes an `INACTIVE` row (active rules return `409 requires_inactivate_first`).
-    For runtime-only rules with no bundled YAML on disk, the backend measure is dropped and
-    the rule is fully gone. For rules that have a bundled YAML, `delete` is non-destructive:
-    backend resources runtime claimed that bundled does not (or claims at a different shape)
-    are dropped, bundled-shared at matching shape is preserved, the row is removed, and the
-    bundled rule is reinstalled into a `static:` loader on the local node — peers converge
-    via the periodic reconcile. `?mode=revertToBundled` is an explicit operator hint that
-    fails with `400 no_bundled_twin` when no bundled YAML exists.
+    For runtime-only rules with no bundled YAML on disk, the row is dropped; the backend
+    measure (if any) is left in place as an inert artefact, matching bundled-rule deletion
+    semantics (removing a YAML from `otel-rules/` on disk doesn't drop its measure either).
+    For rules that have a bundled YAML twin, plain `delete` returns `409
+    requires_revert_to_bundled` — letting bundled silently take over the
+    `(catalog, name)` is a meaningful state change that requires an explicit operator
+    decision. Re-issue with `?mode=revertToBundled` to fall back to bundled: that path runs
+    the schema-change pipeline (rehydrates the runtime DSL locally, then applies the
+    bundled YAML through the standard apply pipeline so the runtime→bundled delta drops
+    runtime-only metrics, registers bundled-only metrics, and reuses bundled-shared metrics
+    at matching shape) before removing the row. Returns `400 no_bundled_twin` when
+    `?mode=revertToBundled` is used without a bundled YAML on disk.
   * `get` / `bundled` / `list` / `dump` — read-side endpoints for fetching a single rule's
     YAML (with `ETag` support; `?source=bundled` reads the on-disk bundled YAML even when a
     runtime override is in place), listing the bundled-vs-runtime overlay per catalog,

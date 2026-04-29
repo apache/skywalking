@@ -136,7 +136,7 @@ class MalFileApplierTest {
         // The inverse side of the contract: on unregister every metric name the prior apply
         // recorded must flow to MeterSystem.removeMetric. The dslManager relies on this to
         // drain L1/L2 handlers + drop the BanyanDB measure. The applier's no-opt overload
-        // delegates to the opt-aware removeMetric with fullInstall(), which is what we
+        // delegates to the opt-aware removeMetric with withSchemaChange(), which is what we
         // verify here.
         final Set<String> names = setOf("meter_a", "meter_b", "meter_c");
         applier.remove(names);

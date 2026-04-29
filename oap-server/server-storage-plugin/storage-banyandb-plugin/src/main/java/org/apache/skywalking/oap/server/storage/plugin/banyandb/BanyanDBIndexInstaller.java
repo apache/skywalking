@@ -146,7 +146,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             } else {
                 // Run shape-compat checks unless we're in the legacy no-init poll loop
                 // path. failOnAbsence implies the caller wants strict verification even
-                // in non-init mode (LOCAL_CACHE_VERIFY), so honour that instead of just
+                // in non-init mode (VERIFY_SCHEMA_ONLY), so honour that instead of just
                 // gating on RunningMode.
                 final boolean runShapeChecks = !RunningMode.isNoInitMode() || opt.getFlags().isFailOnAbsence();
                 if (model.isTimeSeries()) {
@@ -248,7 +248,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public void createTable(Model model) throws StorageException {
         // Legacy entry point preserved for binary compatibility; orchestrator calls
         // the opt-aware overload.
-        createTable(model, StorageManipulationOpt.fullInstall());
+        createTable(model, StorageManipulationOpt.withSchemaChange());
     }
 
     @Override
@@ -386,7 +386,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public void dropTable(Model model) throws StorageException {
         // Legacy entry point: delegate to opt-aware overload with a default opt so
         // existing callers don't need to construct one.
-        dropTable(model, StorageManipulationOpt.fullInstall());
+        dropTable(model, StorageManipulationOpt.withSchemaChange());
     }
 
     @Override
@@ -764,9 +764,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the measure exists and, when the live shape differs from the intended shape,
-     * either update it (on-demand operator workflow — {@link StorageManipulationOpt#isFullInstall()})
+     * either update it (on-demand operator workflow — {@link StorageManipulationOpt#isWithSchemaChange()})
      * or skip the update and record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}
-     * (static boot workflow — {@link StorageManipulationOpt#isCreateIfAbsent()}). Boot MUST
+     * (static boot workflow — {@link StorageManipulationOpt#isSchemaCreateIfAbsent()}). Boot MUST
      * NOT reshape the backend — reshape is an explicit operator action only.
      */
     private void checkMeasure(Measure measure, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
@@ -893,7 +893,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the index rules exist and update them if necessary. In
-     * {@link StorageManipulationOpt#isLocalCacheVerify() verify} mode the writes are
+     * {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode the writes are
      * skipped and a {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} is
      * recorded instead — the orchestrator promotes that to a fatal boot error.
      */
@@ -947,7 +947,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the index rule binding exists and update it if necessary. In
-     * {@link StorageManipulationOpt#isLocalCacheVerify() verify} mode skip the write and
+     * {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode skip the write and
      * record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
      */
     private void checkIndexRuleBinding(List<IndexRule> indexRules,
@@ -1022,7 +1022,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     /**
      * Check if the TopN aggregation exists and update it if necessary.
      * If the TopN rules are not used, will be checked and deleted after install, in the `BanyanDBStorageProvider.notifyAfterCompleted()`.
-     * In {@link StorageManipulationOpt#isLocalCacheVerify() verify} mode skip the write
+     * In {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode skip the write
      * and record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
      */
     private void checkTopNAggregation(Model model, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {

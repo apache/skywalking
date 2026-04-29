@@ -106,8 +106,8 @@ class DSLClassLoaderManagerTest {
             Catalog.LAL, rule, DSLClassLoaderManager.Kind.RUNTIME, "h");
         assertTrue(runtimeLoader.getName().startsWith("runtime-rule:lal/" + rule));
 
-        final RuleClassLoader staticLoader = DSLClassLoaderManager.INSTANCE.newBuilder(
-            Catalog.LAL, rule, DSLClassLoaderManager.Kind.STATIC, "h");
-        assertTrue(staticLoader.getName().startsWith("static:lal/" + rule));
+        final RuleClassLoader bundledLoader = DSLClassLoaderManager.INSTANCE.newBuilder(
+            Catalog.LAL, rule, DSLClassLoaderManager.Kind.BUNDLED, "h");
+        assertTrue(bundledLoader.getName().startsWith("bundled:lal/" + rule));
     }
 }

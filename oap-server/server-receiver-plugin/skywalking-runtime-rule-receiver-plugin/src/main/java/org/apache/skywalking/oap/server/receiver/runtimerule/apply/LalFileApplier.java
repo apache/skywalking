@@ -109,8 +109,8 @@ public class LalFileApplier {
     }
 
     /**
-     * Origin-tagged overload: {@link DSLClassLoaderManager.Kind#STATIC} mints a {@code static:}
-     * loader so the static fall-over path (bundled rule serving again after the runtime
+     * Origin-tagged overload: {@link DSLClassLoaderManager.Kind#BUNDLED} mints a {@code bundled:}
+     * loader so the bundled fall-over path (bundled rule serving again after the runtime
      * override is removed) is distinguishable from the runtime path in logs and diagnostics.
      */
     public Applied apply(final String yamlContent, final String sourceName,

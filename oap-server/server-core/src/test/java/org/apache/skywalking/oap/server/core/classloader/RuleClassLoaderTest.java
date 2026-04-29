@@ -53,12 +53,12 @@ class RuleClassLoaderTest {
     }
 
     @Test
-    void staticKindLoaderNameHasStaticPrefix() {
+    void bundledKindLoaderNameHasBundledPrefix() {
         final RuleClassLoader loader = new RuleClassLoader(
-            DSLClassLoaderManager.Kind.STATIC, Catalog.LOG_MAL_RULES, "service-resp", "h",
+            DSLClassLoaderManager.Kind.BUNDLED, Catalog.LOG_MAL_RULES, "service-resp", "h",
             Thread.currentThread().getContextClassLoader());
-        assertTrue(loader.getName().startsWith("static:log-mal-rules/service-resp@"),
-            "expected static prefix, got: " + loader.getName());
+        assertTrue(loader.getName().startsWith("bundled:log-mal-rules/service-resp@"),
+            "expected bundled prefix, got: " + loader.getName());
     }
 
     @Test

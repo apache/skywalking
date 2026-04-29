@@ -252,7 +252,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
     }
 
     @Override
-    public boolean loadStaticRuleFile(final String catalog, final String name, final String content) {
+    public boolean recordBundledClaims(final String catalog, final String name, final String content) {
         final String key = DSLScriptKey.key(catalog, name);
         if (appliedFor(rules, key) != null) {
             return false;
@@ -292,6 +292,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
     @Override
     public CompiledDSL compile(final RuntimeRuleManagementDAO.RuntimeRuleFile file,
                                final Classification classification,
+                               final DSLClassLoaderManager.Kind kind,
                                final MalApplyContext ctx) {
         final String key = DSLScriptKey.key(file.getCatalog(), file.getName());
         final String sourceName = file.getCatalog() + "/" + file.getName();
@@ -311,7 +312,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
             final MalFileApplier.Applied fresh;
             try {
                 fresh = applier.apply(
-                    file.getContent(), sourceName, newHash, ctx.getStorageOpt());
+                    file.getContent(), sourceName, newHash, ctx.getStorageOpt(), kind);
             } catch (final MalFileApplier.ApplyException ae) {
                 // Engine-internal partial rollback: undo whatever this attempt managed to
                 // register before the throw. Old appliedMal[key] is untouched — it's still
@@ -346,7 +347,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
         final MalFileApplier.Applied newApplied;
         try {
             newApplied = applier.apply(
-                file.getContent(), sourceName, newHash, ctx.getStorageOpt());
+                file.getContent(), sourceName, newHash, ctx.getStorageOpt(), kind);
         } catch (final MalFileApplier.ApplyException ae) {
             // Engine-internal partial rollback: undo only the metrics this attempt would
             // have created or re-shaped (added ∪ shape-break). Unchanged metrics short-
@@ -459,8 +460,8 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
         final CompiledMalDSL c = (CompiledMalDSL) compiled;
         // Drop metrics this bundle no longer claims (STRUCTURAL/NEW only — FILTER_ONLY has
         // identical metric sets). Honours the caller's storage opt: a peer-driven tick uses
-        // localCacheOnly here so the cluster-shared backend isn't touched; the main's REST
-        // path uses fullInstall to fire dropTable through the listener chain. Must run
+        // withoutSchemaChange here so the cluster-shared backend isn't touched; the main's REST
+        // path uses withSchemaChange to fire dropTable through the listener chain. Must run
         // BEFORE the swap so the about-to-be-displaced applier still owns the prototypes.
         if (c.getClassification() != Classification.FILTER_ONLY
                 && c.getDelta() != null
@@ -537,13 +538,15 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
      * <p>The {@link MalApplyContext#getStorageOpt()} parameter decides whether the listener
      * chain reaches the backend:
      * <ul>
-     *   <li>{@code localCacheOnly} — soft-pause path. Local state is cleared (meterPrototypes,
+     *   <li>{@code withoutSchemaChange} — soft-pause path. Local state is cleared (meterPrototypes,
      *       Models from registry, appliedMal entry, classloader retired) but the listener's
      *       {@code dropTable} is skipped, so the BanyanDB measure / ES index / JDBC table stays
      *       intact. This is the {@code /inactivate} contract.</li>
-     *   <li>{@code fullInstall} — destructive path. Same local cleanup PLUS the listener fires
-     *       {@code dropTable} so the backend resource is removed. This is the {@code /delete}
-     *       contract and the tick's gone-keys cleanup on main.</li>
+     *   <li>{@code withSchemaChange} — schema-change path. Same local cleanup PLUS the listener
+     *       fires {@code dropTable} so the backend resource is removed. Used by the
+     *       {@code /delete?mode=revertToBundled} pipeline (where the engine's commit drops
+     *       runtime-only metrics through the listener chain) and by STRUCTURAL
+     *       {@code /addOrUpdate} that drops shape-broken metrics.</li>
      * </ul>
      *
      * <p><b>Cascade-first ordering.</b> {@code applier.remove} runs before {@code
@@ -618,77 +621,35 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
     }
 
     /**
-     * Discharge backend schema for {@code /delete}. {@code bundledContent} controls the
-     * destructiveness:
+     * Install the runtime MAL DSL into local MeterSystem state under
+     * {@code withoutSchemaChange} so a subsequent {@code apply} of the bundled YAML can
+     * compute its delta against the prior runtime claim set. The listener chain is
+     * suppressed — backend schema is untouched here. The destructive moment lives inside
+     * the standard apply pipeline that runs immediately after this call: its
+     * {@link #commit} sees the loaded prior, calls
+     * {@code applier.remove(removedMetrics, withSchemaChange)}, and the listener cascade fires
+     * {@code dropTable} on the runtime-only metrics that bundled doesn't claim.
      *
-     * <ul>
-     *   <li><b>{@code null}</b> — destructive: re-register prototypes locally under
-     *       {@code localCacheOnly} (so the listener chain doesn't re-create the measure
-     *       we're about to drop) and then tear down via {@link #unregister} under
-     *       {@code fullInstall}. The two-step dance is needed because {@code /inactivate}
-     *       has already cleared {@code appliedMal[key]}; without re-register, unregister
-     *       would no-op the cascade and the backend would orphan.</li>
-     *   <li><b>non-null</b> — delta: classify {@code runtimeContent} → {@code bundledContent}
-     *       and drop only metrics the runtime row claims that bundled does NOT claim, plus
-     *       metrics in both at different shape. Bundled-shared metrics at matching shape
-     *       are preserved (no data loss for the measures bundled will reuse on its
-     *       synchronous reload). The drop runs under {@code fullInstall} so the listener
-     *       cascade fires.</li>
-     * </ul>
-     *
-     * <p>Throws {@link IllegalStateException} on MeterSystem unavailability or re-register
-     * failure; the caller propagates so the REST handler aborts {@code dao.delete}.
+     * <p>Throws {@link IllegalStateException} on MeterSystem unavailability or register
+     * failure; the caller propagates so the REST handler aborts {@code dao.delete} before
+     * any destructive moment.
      */
     @Override
-    public void dropBackend(final String catalog, final String name,
-                            final String runtimeContent, final String bundledContent,
-                            final MalApplyContext ctx) {
+    public void installRuntime(final String catalog, final String name,
+                            final String runtimeContent, final MalApplyContext ctx) {
         final MalFileApplier applier = resolveApplier();
         if (applier == null) {
             throw new IllegalStateException(
-                "MeterSystem unavailable; cannot drop backend measure for " + catalog + "/"
-                    + name + " — refusing to delete the row and orphan the measure. Retry "
-                    + "when MeterSystem is up.");
+                "MeterSystem unavailable; cannot install runtime locally for " + catalog + "/"
+                    + name + " — refusing to delete the row. Retry when MeterSystem is up.");
         }
-        if (bundledContent != null) {
-            dropBackendDelta(catalog, name, runtimeContent, bundledContent, applier);
-            return;
-        }
-        dropBackendDestructive(catalog, name, runtimeContent, applier, ctx);
-    }
-
-    private void dropBackendDelta(final String catalog, final String name,
-                                  final String runtimeContent, final String bundledContent,
-                                  final MalFileApplier applier) {
-        final DSLDelta delta = DeltaClassifier.classifyMal(runtimeContent, bundledContent);
-        final Set<String> toDrop = new HashSet<>();
-        toDrop.addAll(delta.removedMetrics());
-        toDrop.addAll(delta.shapeBreakMetrics());
-        if (toDrop.isEmpty()) {
-            log.info("runtime-rule MAL engine: /delete bundled-twin delta empty for {}/{} — "
-                + "nothing to drop, bundled will reuse all existing measures",
-                catalog, name);
-            return;
-        }
-        log.info("runtime-rule MAL engine: /delete bundled-twin delta for {}/{} — dropping {} "
-            + "runtime-only / shape-break metric(s): {}",
-            catalog, name, toDrop.size(), toDrop);
-        applier.remove(toDrop, StorageManipulationOpt.fullInstall());
-    }
-
-    private void dropBackendDestructive(final String catalog, final String name,
-                                        final String runtimeContent, final MalFileApplier applier,
-                                        final MalApplyContext ctx) {
         final String key = DSLScriptKey.key(catalog, name);
         final String sourceName = catalog + "/" + name;
         final String hash = ContentHash.sha256Hex(runtimeContent);
 
-        // Re-register prototypes locally so unregister has Models + meterPrototypes to walk.
-        // localCacheOnly suppresses listener-side backend define — we don't want to recreate
-        // the measure we're about to drop.
         try {
             final MalFileApplier.Applied applied = applier.apply(
-                runtimeContent, sourceName, hash, StorageManipulationOpt.localCacheOnly());
+                runtimeContent, sourceName, hash, StorageManipulationOpt.withoutSchemaChange());
             if (applied.getRuleClassLoader() != null) {
                 DSLClassLoaderManager.INSTANCE.commit(applied.getRuleClassLoader())
                     .filter(prior -> prior != applied.getRuleClassLoader())
@@ -699,41 +660,21 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
                     .withContentAndApplied(runtimeContent, applied)
                 : prev.withContentAndApplied(runtimeContent, applied));
         } catch (final MalFileApplier.ApplyException ae) {
-            // Roll back any partial state that DID land before the throw — every other apply
-            // path does the same. localCacheOnly matches the apply: backend was untouched.
             if (ae.getPartiallyRegistered() != null && !ae.getPartiallyRegistered().isEmpty()) {
                 try {
                     applier.remove(ae.getPartiallyRegistered(),
-                        StorageManipulationOpt.localCacheOnly());
+                        StorageManipulationOpt.withoutSchemaChange());
                 } catch (final Throwable rollbackErr) {
-                    log.warn("runtime-rule /delete: rollback of partial re-register also "
+                    log.warn("runtime-rule installRuntime: rollback of partial re-register also "
                         + "failed for {}/{}; {} prototype(s) may persist locally until OAP "
                         + "restart.", catalog, name, ae.getPartiallyRegistered().size(),
                         rollbackErr);
                 }
             }
             throw new IllegalStateException(
-                "re-register for backend drop failed for " + catalog + "/" + name
-                    + "; refusing to delete the row to avoid orphaning the measure. "
-                    + "Cause: " + ae.getMessage(), ae);
+                "installRuntime for revert-to-bundled failed for " + catalog + "/" + name
+                    + "; refusing to delete the row. Cause: " + ae.getMessage(), ae);
         }
-
-        // Tear down with fullInstall: drops backend (listener whenRemoving fires dropTable
-        // for each downsampling variant) and clears the re-registered local state. We need
-        // to swap the storage opt for this call — clone the context with fullInstall.
-        final MalApplyContext fullInstallCtx = withStorageOpt(ctx, StorageManipulationOpt.fullInstall());
-        unregister(catalog, name, fullInstallCtx);
-    }
-
-    /** Clone {@code ctx} with the given storage opt. Used by the destructive
-     *  {@link #dropBackend} path to flip from {@code localCacheOnly} (re-register) to
-     *  {@code fullInstall} (destructive teardown). */
-    private static MalApplyContext withStorageOpt(final MalApplyContext ctx,
-                                                  final StorageManipulationOpt opt) {
-        final ApplyInputs inputs = new ApplyInputs(
-            ctx.getModuleManager(), opt,
-            ctx.getAlarmResetter(), ctx.getRules());
-        return new MalApplyContext(inputs);
     }
 
     /**
@@ -743,10 +684,10 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
      * gone and operators would have to restart the OAP to get the bundled metrics flowing
      * again.
      *
-     * <p>Compiles via {@code applier.apply(..., Kind.STATIC)} so the per-file loader is minted
-     * with the {@code static:} prefix — diagnostics can tell at a glance whether a key is
-     * being served by a runtime override or a static fall-over. The applier internally runs
-     * under {@code localCacheOnly}: the bundled metric backend already exists (it pre-dates
+     * <p>Compiles via {@code applier.apply(..., Kind.BUNDLED)} so the per-file loader is minted
+     * with the {@code bundled:} prefix — diagnostics can tell at a glance whether a key is
+     * being served by a runtime override or a bundled fall-over. The applier internally runs
+     * under {@code withoutSchemaChange}: the bundled metric backend already exists (it pre-dates
      * the override), so we only need to re-register local prototypes and re-publish the
      * MetricConvert.
      *
@@ -754,9 +695,10 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
      * clean window.
      */
     @Override
-    public boolean reloadStatic(final String catalog, final String name,
+    public boolean installBundled(final String catalog, final String name,
                                 final Consumer<Set<String>> alarmResetter,
-                                final ModuleManager moduleManager) {
+                                final ModuleManager moduleManager,
+                                final StorageManipulationOpt storageOpt) {
         if (!CATALOGS.contains(catalog)) {
             return false;
         }
@@ -773,15 +715,14 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
         final String sourceName = catalog + "/" + name;
         final String hash = ContentHash.sha256Hex(staticContent);
         try {
-            // createIfAbsent rather than localCacheOnly: when reload follows a /delete that
-            // dropped runtime-only / shape-break measures (via dropBundledTwinDelta), some
-            // bundled-claimed measures may be missing in the backend. createIfAbsent recreates
-            // them without affecting backends that already match.
+            // Storage opt is caller-supplied: main-node /delete passes schemaCreateIfAbsent so
+            // measures the delta-drop just removed get recreated; peer-node tick reconcile
+            // passes the tick's own opt (typically withoutSchemaChange) so peers don't double-
+            // write DDL the main has already applied.
             final MalFileApplier.Applied fresh = applier.apply(
-                staticContent, sourceName, hash,
-                StorageManipulationOpt.createIfAbsent(),
-                DSLClassLoaderManager.Kind.STATIC);
-            // Promote the new static: loader. Any prior loader (typically null — unregister
+                staticContent, sourceName, hash, storageOpt,
+                DSLClassLoaderManager.Kind.BUNDLED);
+            // Promote the new bundled: loader. Any prior loader (typically null — unregister
             // already dropRuntime'd it) is retired so the graveyard observes its collection.
             if (fresh.getRuleClassLoader() != null) {
                 DSLClassLoaderManager.INSTANCE.commit(fresh.getRuleClassLoader())
@@ -799,12 +740,12 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
             });
             pushRuntimeConverter(catalog, name, fresh.getMetricConvert());
             alarmResetter.accept(fresh.getRegisteredMetricNames());
-            log.info("runtime-rule MAL engine: static fall-over OK for {}/{} — {} metric(s) "
+            log.info("runtime-rule MAL engine: bundled fall-over OK for {}/{} — {} metric(s) "
                 + "re-registered from bundled YAML", catalog, name,
                 fresh.getRegisteredMetricNames().size());
             return true;
         } catch (final MalFileApplier.ApplyException ae) {
-            log.warn("runtime-rule MAL engine: static fall-over for {}/{} failed to compile "
+            log.warn("runtime-rule MAL engine: bundled fall-over for {}/{} failed to compile "
                 + "the bundled YAML; bundled metrics will stay dark until next /addOrUpdate "
                 + "or restart", catalog, name, ae);
             return false;

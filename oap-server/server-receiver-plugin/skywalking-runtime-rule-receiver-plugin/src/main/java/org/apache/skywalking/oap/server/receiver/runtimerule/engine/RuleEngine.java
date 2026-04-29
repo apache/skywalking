@@ -21,7 +21,9 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.engine;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
@@ -121,24 +123,27 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *                         Engine clears its applied-state entry, drops registered
  *                         dispatcher handlers, retires the classloader, fires alarm reset
  *                         for the prior metric set. Storage opt determines whether
- *                         backend schema is dropped (fullInstall) or preserved
- *                         (localCacheOnly — the {@code /inactivate} contract).
+ *                         backend schema is dropped (withSchemaChange) or preserved
+ *                         (withoutSchemaChange — the {@code /inactivate} contract).
  * </pre>
  *
- * <p><b>4. Destructive {@code /delete} (driven by {@code DSLRuntimeDelete})</b>
+ * <p><b>4. Bundled-revert prep (driven by {@code DSLRuntimeDelete})</b>
  * <pre>
- *   dropBackend(catalog, name, content, ctx) — called by REST {@code /delete}
- *                         after {@code /inactivate} has already cleared the engine's
- *                         applied state. Engines with backend schema (MAL) re-register
- *                         prototypes locally then tear down under fullInstall so the
- *                         listener chain runs the destructive cascade. Engines without
- *                         backend (LAL) implement as no-op — the DAO row deletion alone
- *                         discharges the rule.
+ *   installRuntime(catalog, name, content, ctx) — called by REST
+ *                         {@code /delete?mode=revertToBundled} after {@code /inactivate}
+ *                         has already cleared the engine's applied state. Engines with
+ *                         backend schema (MAL) re-register prototypes under
+ *                         {@code withoutSchemaChange} so a subsequent {@code apply} of
+ *                         the bundled YAML can compute its delta against runtime and
+ *                         drop runtime-only metrics through the standard commit path.
+ *                         Engines without backend (LAL) implement as no-op. Symmetric
+ *                         with {@link #recordBundledClaims} — both install a DSL into
+ *                         local applied state without firing the listener chain.
  * </pre>
  *
  * <p><b>5. Boot / recovery (driven by {@code StaticRuleLoader})</b>
  * <pre>
- *   loadStaticRuleFile(catalog, name, content) — called once at boot for every static rule
+ *   recordBundledClaims(catalog, name, content) — called once at boot for every static rule
  *                         the catalog loaders compiled at module start, and again on each
  *                         tick for any static rule whose DB row got {@code /delete}d while
  *                         the disk content remained. Engine seeds a synthetic applied
@@ -243,7 +248,7 @@ public interface RuleEngine<C extends ApplyContext> {
      * the loader stay DSL-agnostic — it doesn't need to know whether the engine's applied
      * state is keyed on metric names or {@code (layer, ruleName)} tuples.
      */
-    boolean loadStaticRuleFile(String catalog, String name, String content);
+    boolean recordBundledClaims(String catalog, String name, String content);
 
     /**
      * Build the engine's concrete {@link ApplyContext} subtype from the shared
@@ -257,16 +262,25 @@ public interface RuleEngine<C extends ApplyContext> {
      * generated classes + per-file classloader + delta info. NO backend DDL fired here, NO
      * scheduler-cache mutation. Throws {@link RuntimeException} on compile failure;
      * scheduler stamps {@code applyError} on the snapshot and surfaces to the caller.
+     *
+     * <p>{@code kind} controls how the per-file classloader is tagged in {@link
+     * org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}:
+     * {@link DSLClassLoaderManager.Kind#RUNTIME} for {@code /addOrUpdate} and tick paths,
+     * {@link DSLClassLoaderManager.Kind#BUNDLED} for the {@code /delete?mode=revertToBundled}
+     * path that re-installs the bundled YAML through the standard apply pipeline. The kind
+     * surfaces in {@code /list} so operators can tell at a glance whether a key is being
+     * served by a runtime override or a bundled fall-over.
      */
     CompiledDSL compile(RuntimeRuleManagementDAO.RuntimeRuleFile file,
                            Classification classification,
+                           DSLClassLoaderManager.Kind kind,
                            C ctx);
 
     /**
      * Phase: schema changes. Drive the listener chain (BanyanDB define / drop, ES index
      * mapping, JDBC table, etc.) for the deltas this CompiledDSL represents. The
      * {@code StorageManipulationOpt} on the context controls whether the listeners actually
-     * fire (full / localCacheOnly / localCacheVerify). LAL impl is a no-op (no backend
+     * fire (full / withoutSchemaChange / verifySchemaOnly). LAL impl is a no-op (no backend
      * schema). Throws on backend failure; scheduler invokes {@link #rollback}.
      */
     void fireSchemaChanges(CompiledDSL compiled, C ctx);
@@ -297,53 +311,44 @@ public interface RuleEngine<C extends ApplyContext> {
 
     /**
      * Tear down a previously-applied bundle (or a static-only bundle). Driven by
-     * {@code /inactivate} (with {@code localCacheOnly} so backend stays), {@code /delete}
-     * (with {@code fullInstall} so backend drops), and the tick's gone-keys cleanup on main.
+     * {@code /inactivate} (with {@code withoutSchemaChange} so backend stays), {@code /delete}
+     * (with {@code withSchemaChange} so backend drops), and the tick's gone-keys cleanup on main.
      * Engine clears its own dispatcher state + per-key applied entry. Shared post-cleanup
      * (content-cache clear) is the orchestrator's concern after this call returns.
      */
     void unregister(String catalog, String name, C ctx);
 
     /**
-     * Discharge backend schema for {@code /delete}. By the time the REST handler invokes
-     * {@code /delete}, {@code /inactivate} has already cleared the engine's applied state
-     * — a naive {@link #unregister} call would no-op the destructive cascade and the
-     * backend resource would orphan once the DAO row is deleted. Engines that own backend
-     * schema (MAL) re-register prototypes locally then tear down under fullInstall so the
-     * listener chain runs the destructive cascade on the existing resource. Engines without
-     * backend (LAL) implement this as a no-op — the row deletion alone discharges the rule.
+     * Install a runtime DSL into local applied state without firing the backend listener
+     * chain. Pairs with {@link #recordBundledClaims}: that method seeds bundled YAML at boot
+     * time; this one re-installs runtime content after {@code /inactivate} has cleared the
+     * applied state, so a subsequent {@link
+     * org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLRuntimeApply#apply}
+     * of the bundled YAML can compute a runtime→bundled delta and drop runtime-only metrics
+     * through the standard commit path.
      *
-     * <p>{@code bundledContent} controls the destructiveness:
-     * <ul>
-     *   <li>{@code null} — destructive: drop all backend resources the runtime row
-     *       claimed. The rule is being permanently removed (no bundled twin on disk to
-     *       fall back to).</li>
-     *   <li>non-null — delta: drop only metrics that {@code runtimeContent} claims but
-     *       {@code bundledContent} does not, plus metrics in both at different shape.
-     *       Bundled-shared metrics at matching shape are preserved (no data loss for the
-     *       measures bundled will reuse on its synchronous reload). Used when {@code
-     *       /delete} reverts to a bundled twin.</li>
-     * </ul>
+     * <p>Engines with backend schema (MAL) compile + register meterPrototypes / Models under
+     * {@code withoutSchemaChange} so BanyanDB / ES / JDBC stay untouched. Engines without backend
+     * (LAL) implement this as a no-op — bundled's apply pipeline reinstalls handlers without
+     * needing a runtime delta.
      *
      * <p>Throws {@link IllegalStateException} when a prerequisite fails (e.g., MeterSystem
-     * unavailable, parse error in either content); the caller (the {@code DSLRuntimeDelete}
-     * orchestrator) propagates the throw so the REST handler aborts the row deletion —
-     * refusing to delete the row is the correct failure mode (an orphaned backend resource
-     * with no DAO row to drive a retry is worse).
+     * unavailable, parse error in the runtime content); the caller (the {@code
+     * DSLRuntimeDelete} orchestrator) propagates the throw so the REST handler aborts
+     * the row deletion before any destructive moment.
      */
-    void dropBackend(String catalog, String name, String runtimeContent,
-                     String bundledContent, C ctx);
+    void installRuntime(String catalog, String name, String runtimeContent, C ctx);
 
     /**
      * After a runtime override has been removed for {@code (catalog, name)}, reload the
      * bundled rule from {@link
      * org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry} (if any) and bring
-     * it back into service via a fresh {@code static:} loader from
+     * it back into service via a fresh {@code bundled:} loader from
      * {@link org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}.
      *
      * <p>Returns {@code true} when a bundled rule was found and reinstalled; {@code false}
      * when no bundled rule exists for this key (the rule is genuinely gone) or the engine
-     * doesn't participate in static fall-over (e.g. its catalog has no {@code StaticRuleRegistry}
+     * doesn't participate in bundled fall-over (e.g. its catalog has no {@code StaticRuleRegistry}
      * entries).
      *
      * <p>Errors during reload propagate as {@link RuntimeException}s the orchestrator logs
@@ -356,7 +361,12 @@ public interface RuleEngine<C extends ApplyContext> {
      *                      drives reset itself) doesn't double-reset.
      * @param moduleManager scheduler-supplied module manager so the engine can resolve its
      *                      backend dispatcher (MeterSystem / LogFilterListener.Factory).
+     * @param storageOpt    storage policy for the reload. Main-node {@code /delete} passes
+     *                      {@code schemaCreateIfAbsent} so backend resources removed by the delta
+     *                      drop get recreated; peer-node tick reconcile passes the tick's
+     *                      own opt (typically {@code withoutSchemaChange}) so peers don't
+     *                      double-write DDL.
      */
-    boolean reloadStatic(String catalog, String name, Consumer<Set<String>> alarmResetter,
-                         ModuleManager moduleManager);
+    boolean installBundled(String catalog, String name, Consumer<Set<String>> alarmResetter,
+                         ModuleManager moduleManager, StorageManipulationOpt storageOpt);
 }

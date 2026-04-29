@@ -72,7 +72,7 @@ public class StorageModelsTest {
         });
         Assertions.assertThrows(StorageException.class, () -> models.add(TestModel.class, -1,
             new Storage("StorageModelsRollbackTest", false, DownSampling.Hour),
-            StorageManipulationOpt.fullInstall()));
+            StorageManipulationOpt.withSchemaChange()));
         // Registry must not retain the model — a retry would otherwise dedup-skip the
         // listener instead of attempting the DDL again.
         assertEquals(0, models.allModels().size());
@@ -87,7 +87,7 @@ public class StorageModelsTest {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
             new Storage("StorageModelsRemoveRetryTest", false, DownSampling.Hour),
-            StorageManipulationOpt.fullInstall());
+            StorageManipulationOpt.withSchemaChange());
         assertEquals(1, models.allModels().size());
 
         // Listener that throws on remove (simulating BanyanDB delete-measure transient failure).
@@ -106,7 +106,7 @@ public class StorageModelsTest {
         });
 
         Assertions.assertThrows(StorageException.class,
-            () -> models.remove(TestModel.class, StorageManipulationOpt.fullInstall()));
+            () -> models.remove(TestModel.class, StorageManipulationOpt.withSchemaChange()));
         // Model must still be in the registry — the next retry needs to find and drive
         // dropTable again. Otherwise the operator's /inactivate succeeds locally but the
         // backend measure stays orphaned forever.
@@ -118,7 +118,7 @@ public class StorageModelsTest {
         StorageModels models = new StorageModels();
         models.add(TestModel.class, -1,
                    new Storage("StorageModelsTest", false, DownSampling.Hour),
-                   StorageManipulationOpt.fullInstall()
+                   StorageManipulationOpt.withSchemaChange()
         );
 
         final List<Model> allModules = models.allModels();

@@ -51,9 +51,9 @@ import lombok.Getter;
 public final class RuleClassLoader extends URLClassLoader implements BytecodeClassDefiner {
     private static final DateTimeFormatter NAME_TS = DateTimeFormatter.ofPattern("MMdd-HHmmss");
 
-    /** Origin tag — {@link DSLClassLoaderManager.Kind#STATIC} for fall-over reload of bundled
+    /** Origin tag — {@link DSLClassLoaderManager.Kind#BUNDLED} for fall-over reload of bundled
      *  rules; {@link DSLClassLoaderManager.Kind#RUNTIME} for operator-pushed overrides. Visible
-     *  in {@link #getName()} via the {@code static:} / {@code runtime-rule:} prefix. */
+     *  in {@link #getName()} via the {@code bundled:} / {@code runtime-rule:} prefix. */
     @Getter
     private final DSLClassLoaderManager.Kind kind;
     @Getter
@@ -94,7 +94,7 @@ public final class RuleClassLoader extends URLClassLoader implements BytecodeCla
 
     private static String buildLoaderName(final DSLClassLoaderManager.Kind kind,
                                           final Catalog catalog, final String rule) {
-        final String prefix = kind == DSLClassLoaderManager.Kind.STATIC ? "static" : "runtime-rule";
+        final String prefix = kind == DSLClassLoaderManager.Kind.BUNDLED ? "bundled" : "runtime-rule";
         return prefix + ":" + catalog.getWireName() + "/" + rule
             + "@" + LocalDateTime.now().format(NAME_TS);
     }

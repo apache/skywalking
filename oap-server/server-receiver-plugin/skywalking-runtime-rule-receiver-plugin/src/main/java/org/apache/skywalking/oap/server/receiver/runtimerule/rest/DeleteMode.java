@@ -26,15 +26,19 @@ import lombok.Getter;
  * of free-form strings.
  */
 public enum DeleteMode {
-    /** No mode flag — apply the default {@code /delete} behaviour. If the rule has a
-     *  bundled YAML on disk for {@code (catalog, name)}, the row is removed and bundled is
-     *  reinstalled into a {@code static:} loader; backend resources are preserved. If no
-     *  bundled twin exists, the destructive cascade fires (drops the backend resource +
-     *  removes the row). */
+    /** No mode flag — apply the default {@code /delete} behaviour. With no bundled twin
+     *  on disk, the row is dropped and the backend measure (if any) is left in place as
+     *  an inert artefact (operator-side cleanup of orphaned schemas is out of scope, same
+     *  as for static rules removed from {@code otel-rules/}). With a bundled twin, the
+     *  request is refused with {@code 409 requires_revert_to_bundled} so letting bundled
+     *  silently take over the {@code (catalog, name)} requires an explicit operator
+     *  decision. */
     DEFAULT(""),
-    /** Operator explicitly asked to revert this rule to its bundled YAML. Identical to
-     *  {@link #DEFAULT} when a bundled twin exists; returns {@code 400 no_bundled_twin}
-     *  when one does not (vs {@link #DEFAULT}, which would still drop the runtime row). */
+    /** Operator explicitly asked to revert this rule to its bundled YAML. Runs the
+     *  schema-change pipeline (install runtime locally, apply bundled through the
+     *  standard pipeline so the runtime→bundled delta drops runtime-only metrics and
+     *  installs bundled-only ones) before removing the row. Returns {@code 400
+     *  no_bundled_twin} when no bundled YAML exists on disk for {@code (catalog, name)}. */
     REVERT_TO_BUNDLED("revertToBundled");
 
     @Getter

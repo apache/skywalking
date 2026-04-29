@@ -338,11 +338,11 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
         }
         // A late-registering listener catches up on every previously-added model. These
         // models were added with their original caller's policy; the listener now receives
-        // them under createIfAbsent() because this catch-up is boot-time model registration,
+        // them under schemaCreateIfAbsent() because this catch-up is boot-time model registration,
         // not an on-demand operator reshape — we want the same "create-if-absent + report
         // shape mismatch" semantics, never auto-reshape.
         for (Model model : modelsSnapshot) {
-            listener.whenCreating(model, StorageManipulationOpt.createIfAbsent());
+            listener.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent());
         }
     }
 

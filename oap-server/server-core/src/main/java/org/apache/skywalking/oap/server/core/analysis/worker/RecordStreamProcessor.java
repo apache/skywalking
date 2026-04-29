@@ -96,7 +96,7 @@ public class RecordStreamProcessor implements StreamProcessor<Record> {
         Model model = modelSetter.add(
             recordClass, stream.scopeId(),
             new Storage(stream.name(), false, DownSampling.Second),
-            StorageManipulationOpt.createIfAbsent());
+            StorageManipulationOpt.schemaCreateIfAbsent());
         ExportRecordWorker exportWorker = new ExportRecordWorker(moduleDefineHolder);
         RecordPersistentWorker persistentWorker = new RecordPersistentWorker(moduleDefineHolder, model, recordDAO, exportWorker);
 

@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.reconcile;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyContext;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyInputs;
@@ -58,8 +59,14 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngineRe
  *
  * <p><b>Deferred commit.</b> The scheduler can invoke {@link #compileAndVerify} (no commit)
  * for the STRUCTURAL REST 2-PC path, then drive {@link #commit} or {@link #rollback}
- * separately after row-persist resolves. The simpler {@link #applyInline} variant does
+ * separately after row-persist resolves. The simpler {@link #apply} variant does
  * compile + verify + commit in one call for the tick path and FILTER_ONLY REST path.
+ *
+ * <p><b>Loader kind.</b> All entry points take a {@link DSLClassLoaderManager.Kind} that
+ * tags the per-file classloader. {@link DSLClassLoaderManager.Kind#RUNTIME} for {@code
+ * /addOrUpdate} and tick paths; {@link DSLClassLoaderManager.Kind#BUNDLED} for the
+ * {@code /delete?mode=revertToBundled} path that re-installs the bundled YAML through
+ * this same pipeline.
  */
 @Slf4j
 public final class DSLRuntimeApply {
@@ -71,19 +78,20 @@ public final class DSLRuntimeApply {
     }
 
     /**
-     * Run compile → fireSchemaChanges → verify → commit (or rollback on verify failure) inline.
-     * Used by the tick path and the FILTER_ONLY REST path where there is no row-persist gate
-     * to wait on.
+     * Run compile → fireSchemaChanges → verify → commit (or rollback on verify failure) all in
+     * one call. Used by the tick path and the FILTER_ONLY REST path where there is no row-
+     * persist gate to wait on.
      */
-    public Outcome applyInline(final RuntimeRuleManagementDAO.RuntimeRuleFile file,
-                               final Classification classification,
-                               final ApplyInputs inputs) {
+    public Outcome apply(final RuntimeRuleManagementDAO.RuntimeRuleFile file,
+                         final Classification classification,
+                         final DSLClassLoaderManager.Kind kind,
+                         final ApplyInputs inputs) {
         final RuleEngine<?> engine = engineRegistry.forCatalog(file.getCatalog());
         if (engine == null) {
             return Outcome.compileFailed(
                 "no engine registered for catalog '" + file.getCatalog() + "'", null);
         }
-        return applyInlineTyped(engine, file, classification, inputs);
+        return applyTyped(engine, file, classification, kind, inputs);
     }
 
     /**
@@ -93,13 +101,14 @@ public final class DSLRuntimeApply {
      */
     public Outcome compileAndVerify(final RuntimeRuleManagementDAO.RuntimeRuleFile file,
                                     final Classification classification,
+                                    final DSLClassLoaderManager.Kind kind,
                                     final ApplyInputs inputs) {
         final RuleEngine<?> engine = engineRegistry.forCatalog(file.getCatalog());
         if (engine == null) {
             return Outcome.compileFailed(
                 "no engine registered for catalog '" + file.getCatalog() + "'", null);
         }
-        return compileAndVerifyTyped(engine, file, classification, inputs);
+        return compileAndVerifyTyped(engine, file, classification, kind, inputs);
     }
 
     /** Drive {@code engine.commit} on a previously {@link #compileAndVerify}-produced outcome. */
@@ -121,12 +130,13 @@ public final class DSLRuntimeApply {
         rollbackTyped(outcome);
     }
 
-    private static <C extends ApplyContext> Outcome applyInlineTyped(
+    private static <C extends ApplyContext> Outcome applyTyped(
             final RuleEngine<C> engine,
             final RuntimeRuleManagementDAO.RuntimeRuleFile file,
             final Classification classification,
+            final DSLClassLoaderManager.Kind kind,
             final ApplyInputs inputs) {
-        final Outcome step = compileAndVerifyTypedHelper(engine, file, classification, inputs);
+        final Outcome step = compileAndVerifyTypedHelper(engine, file, classification, kind, inputs);
         if (step.status != Outcome.Status.READY_TO_COMMIT) {
             return step;
         }
@@ -140,19 +150,21 @@ public final class DSLRuntimeApply {
             final RuleEngine<C> engine,
             final RuntimeRuleManagementDAO.RuntimeRuleFile file,
             final Classification classification,
+            final DSLClassLoaderManager.Kind kind,
             final ApplyInputs inputs) {
-        return compileAndVerifyTypedHelper(engine, file, classification, inputs);
+        return compileAndVerifyTypedHelper(engine, file, classification, kind, inputs);
     }
 
     private static <C extends ApplyContext> Outcome compileAndVerifyTypedHelper(
             final RuleEngine<C> engine,
             final RuntimeRuleManagementDAO.RuntimeRuleFile file,
             final Classification classification,
+            final DSLClassLoaderManager.Kind kind,
             final ApplyInputs inputs) {
         final C ctx = engine.newApplyContext(inputs);
         final CompiledDSL compiled;
         try {
-            compiled = engine.compile(file, classification, ctx);
+            compiled = engine.compile(file, classification, kind, ctx);
         } catch (final EngineCompileException ece) {
             log.error("runtime-rule apply: compile FAILED for {}/{}: {}",
                 file.getCatalog(), file.getName(), ece.getMessage(), ece);

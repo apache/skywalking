@@ -48,7 +48,7 @@ import lombok.extern.slf4j.Slf4j;
  * Per-file static loaders only appear after a runtime override on a bundled rule is removed
  * (via {@code /inactivate} or {@code /delete}): the runtime loader retires here, then the
  * engine reloads the bundled YAML from {@code StaticRuleRegistry} and calls
- * {@link #newBuilder} with {@link Kind#STATIC} to mint a fresh loader hosting the bundled
+ * {@link #newBuilder} with {@link Kind#BUNDLED} to mint a fresh loader hosting the bundled
  * compile output. So at any moment there is at most one per-file loader for a given key, and
  * only when the key has actually fallen over.
  *
@@ -61,11 +61,11 @@ import lombok.extern.slf4j.Slf4j;
 public final class DSLClassLoaderManager {
 
     /** Origin of a loader. {@code RUNTIME} loaders host operator-pushed runtime-rule overrides;
-     *  {@code STATIC} loaders host bundled rules brought back into service after a runtime
+     *  {@code BUNDLED} loaders host bundled rules brought back into service after a runtime
      *  override on the same key was removed. The active loader for a given key is always at
      *  most one; manager keys are {@code (catalog, rule)}, not {@code (catalog, rule, kind)}. */
     public enum Kind {
-        STATIC, RUNTIME
+        BUNDLED, RUNTIME
     }
 
     /** Process-wide singleton. */
@@ -239,7 +239,7 @@ public final class DSLClassLoaderManager {
                     log.warn("rule loader leak suspected: {}:{}/{} hash={} pending {} ms "
                             + "(threshold {}). Check for lingering handler registrations or "
                             + "samples buffered in DataCarrier partitions.",
-                        r.kind() == Kind.STATIC ? "static" : "runtime-rule",
+                        r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
                         r.catalog().getWireName(), r.rule(), r.contentHashShort(), ageMs,
                         STALE_LOADER_WARN_THRESHOLD_MS);
                 }

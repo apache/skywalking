@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DeltaClassifier;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.LalFileApplier;
@@ -171,7 +172,7 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
     }
 
     @Override
-    public boolean loadStaticRuleFile(final String catalog, final String name, final String content) {
+    public boolean recordBundledClaims(final String catalog, final String name, final String content) {
         final String key = DSLScriptKey.key(catalog, name);
         if (appliedFor(rules, key) != null) {
             return false;
@@ -208,6 +209,7 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
     @Override
     public CompiledDSL compile(final RuntimeRuleManagementDAO.RuntimeRuleFile file,
                                   final Classification classification,
+                                  final DSLClassLoaderManager.Kind kind,
                                   final LalApplyContext ctx) {
         final String key = DSLScriptKey.key(file.getCatalog(), file.getName());
         final String sourceName = file.getCatalog() + "/" + file.getName();
@@ -221,7 +223,7 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
         final LalFileApplier.Applied oldApplied = appliedFor(ctx.getRules(), key);
         try {
             final LalFileApplier.Applied newApplied = lalApplier.apply(
-                file.getContent(), sourceName, newHash);
+                file.getContent(), sourceName, newHash, kind);
             return new CompiledLalDSL(file.getCatalog(), file.getName(), newHash, classification,
                 file.getContent(), oldApplied, newApplied);
         } catch (final LalFileApplier.ApplyException ae) {
@@ -353,9 +355,23 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
             return;
         }
         try {
-            final String oldHash = ContentHash
-                .sha256Hex(prior.getContent());
-            lalApplier.apply(prior.getContent(), sourceName, oldHash);
+            final String oldHash = ContentHash.sha256Hex(prior.getContent());
+            final LalFileApplier.Applied restored = lalApplier.apply(
+                prior.getContent(), sourceName, oldHash);
+            // Promote the restored loader through the manager so /list reflects the
+            // actual serving loader and a later /delete or fall-over can retire it
+            // through the graveyard. Without this promote, the manager's active map
+            // would still point at the (failed-and-discarded) new loader's prior entry
+            // — a stale view the orchestrator never recovers from until the next apply.
+            if (restored.getRuleClassLoader() != null) {
+                DSLClassLoaderManager.INSTANCE.commit(restored.getRuleClassLoader())
+                    .filter(displaced -> displaced != restored.getRuleClassLoader())
+                    .ifPresent(DSLClassLoaderManager.INSTANCE::retire);
+            }
+            ctx.getRules().compute(key, (k, prev) -> prev == null
+                ? new AppliedRuleScript(c.getCatalog(), c.getName(),
+                    prior.getContent(), null).withApplied(restored)
+                : prev.withContentAndApplied(prior.getContent(), restored));
             log.info("runtime-rule LAL engine: rollback OK for {}/{} — {} partial registration(s) removed and prior DSL restored",
                 c.getCatalog(), c.getName(), c.getNewApplied().getRegistered().size());
         } catch (final LalFileApplier.ApplyException e) {
@@ -426,12 +442,12 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
             staticKeys.size(), catalog, name);
     }
 
-    /** No-op: LAL has no backend schema. {@code /delete}'s row deletion alone discharges
-     *  the rule — no destructive cascade or delta-drop needed. */
+    /** No-op: LAL has no backend schema, so {@code /delete?mode=revertToBundled} doesn't
+     *  need to install prior runtime claims for delta computation — bundled's apply
+     *  pipeline reinstalls handlers without needing a runtime delta. */
     @Override
-    public void dropBackend(final String catalog, final String name,
-                            final String runtimeContent, final String bundledContent,
-                            final LalApplyContext ctx) {
+    public void installRuntime(final String catalog, final String name,
+                               final String runtimeContent, final LalApplyContext ctx) {
         // Intentionally no-op.
     }
 
@@ -441,14 +457,16 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
      * the bundled rule's compiled classes would be gone and operators would have to restart
      * the OAP to get the bundled DSL serving again.
      *
-     * <p>Compiles via {@code lalApplier.apply(..., Kind.STATIC)} so the per-file loader is
-     * minted with the {@code static:} prefix — diagnostics can tell at a glance whether a
-     * key is being served by a runtime override or a static fall-over.
+     * <p>Compiles via {@code lalApplier.apply(..., Kind.BUNDLED)} so the per-file loader is
+     * minted with the {@code bundled:} prefix — diagnostics can tell at a glance whether a
+     * key is being served by a runtime override or a bundled fall-over.
      */
     @Override
-    public boolean reloadStatic(final String catalog, final String name,
+    public boolean installBundled(final String catalog, final String name,
                                 final Consumer<Set<String>> alarmResetter,
-                                final ModuleManager moduleManager) {
+                                final ModuleManager moduleManager,
+                                final StorageManipulationOpt storageOpt) {
+        // LAL has no backend schema — storageOpt is unused here, accepted for SPI symmetry.
         if (!CATALOGS.contains(catalog)) {
             return false;
         }
@@ -466,8 +484,8 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
         final String hash = ContentHash.sha256Hex(staticContent);
         try {
             final LalFileApplier.Applied fresh = lalApplier.apply(
-                staticContent, sourceName, hash, DSLClassLoaderManager.Kind.STATIC);
-            // Promote the new static: loader. The displaced prior, if any, is retired —
+                staticContent, sourceName, hash, DSLClassLoaderManager.Kind.BUNDLED);
+            // Promote the new bundled: loader. The displaced prior, if any, is retired —
             // typically null here (we're called immediately after unregister, which already
             // dropRuntime'd the old runtime loader).
             if (fresh.getRuleClassLoader() != null) {
@@ -486,12 +504,12 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
                 final ReentrantLock lock = prev != null ? prev.getLock() : new ReentrantLock();
                 return new AppliedRuleScript(catalog, name, staticContent, null, lock, fresh);
             });
-            log.info("runtime-rule LAL engine: static fall-over OK for {}/{} — {} rule(s) "
+            log.info("runtime-rule LAL engine: bundled fall-over OK for {}/{} — {} rule(s) "
                 + "registered from bundled YAML", catalog, name,
                 fresh.getRegistered().size());
             return true;
         } catch (final LalFileApplier.ApplyException ae) {
-            log.warn("runtime-rule LAL engine: static fall-over for {}/{} failed to compile "
+            log.warn("runtime-rule LAL engine: bundled fall-over for {}/{} failed to compile "
                 + "the bundled YAML; bundled rule will stay dark until next /addOrUpdate "
                 + "or restart", catalog, name, ae);
             return false;

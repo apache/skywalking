@@ -56,7 +56,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
  *       DSLManager#applyOneRuleFile} (which delegates to {@link DSLRuntimeApply} or {@link
  *       DSLRuntimeUnregister} via the per-DSL drivers). Honours the per-tick
  *       {@link StorageManipulationOpt} and the marker-debt promotion (peer that was
- *       localCacheOnly is now main → re-fire under fullInstall).</li>
+ *       withoutSchemaChange is now main → re-fire under withSchemaChange).</li>
  *   <li><b>Gone-keys cleanup</b> — anything in the snapshot that's not in the DB and not
  *       static-shadowed gets {@link DSLRuntimeUnregister}'d. Snapshot removal is deferred
  *       past unregister so a transient teardown failure doesn't lose the retry.</li>
@@ -106,7 +106,7 @@ public final class RuleSync {
     /**
      * Run the full tick body once. {@code atBoot=true} on the synchronous first tick from
      * {@code RuntimeRuleModuleProvider.notifyAfterCompleted}; the storage-opt picker uses this
-     * to choose {@code localCacheVerify} on no-init OAPs (fail boot if backend is not in shape).
+     * to choose {@code verifySchemaOnly} on no-init OAPs (fail boot if backend is not in shape).
      */
     public void runOnce(final boolean atBoot) {
         final RuntimeRuleManagementDAO dao;
@@ -220,15 +220,23 @@ public final class RuleSync {
                 // Map removal deferred to AFTER unregister succeeds. If unregister throws,
                 // the entry stays so the next tick retries via the same removedKeys path.
                 try {
-                    // unregisterBundle with reloadStaticAfter=true: tear down the removed
+                    // unregisterBundle with installBundledAfter=true: tear down the removed
                     // runtime registrations, then if the rule has a bundled twin install
-                    // it fresh via a static: loader. Returns true when a bundled fall-over
-                    // landed — in that case we KEEP the rules entry (reloadStatic re-seeded
+                    // it fresh via a bundled: loader. Returns true when a bundled fall-over
+                    // landed — in that case we KEEP the rules entry (installBundled re-seeded
                     // it as a bundled-served entry, equivalent to a boot-seeded one).
                     // Otherwise the entry is fully gone and we remove it.
-                    final boolean staticReloaded = unregister.unregisterBundle(
-                        parts[0], parts[1], true, tickOpt, true);
-                    if (!staticReloaded) {
+                    //
+                    // Storage opt: ALWAYS withoutSchemaChange for the unregister leg. The
+                    // new /delete contract says default-mode (no bundled twin) leaves the
+                    // backend as inert artefact, and the only schema-changing /delete path
+                    // (revertToBundled) drives the schema mutation through the apply
+                    // pipeline at REST time, not here. Passing the tickOpt would let a
+                    // peer-promoted-to-main node drop the backend during gone-keys cleanup,
+                    // contradicting the operator-facing contract.
+                    final boolean bundledReloaded = unregister.unregisterBundle(
+                        parts[0], parts[1], true, StorageManipulationOpt.withoutSchemaChange(), true);
+                    if (!bundledReloaded) {
                         rules.remove(gone);
                     }
                 } catch (final Throwable t) {
@@ -253,7 +261,7 @@ public final class RuleSync {
     @FunctionalInterface
     public interface Unregister {
         boolean unregisterBundle(String catalog, String name, boolean invokeAlarmOnRemove,
-                                 StorageManipulationOpt storageOpt, boolean reloadStaticAfter);
+                                 StorageManipulationOpt storageOpt, boolean installBundledAfter);
     }
 
     /** Functional handle for per-tick storage-opt picking (init / no-init / main vs peer). */

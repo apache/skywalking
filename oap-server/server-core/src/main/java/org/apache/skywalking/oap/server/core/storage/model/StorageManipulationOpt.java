@@ -37,7 +37,7 @@ import lombok.Getter;
  * constructor is private. If a future scenario genuinely needs a fifth mode, add it to
  * {@link Mode} here so every caller keeps picking from a known set.
  *
- * <h3>{@link #fullInstall()} — {@link Mode#FULL_INSTALL} (predicate: {@link #isFullInstall()})</h3>
+ * <h3>{@link #withSchemaChange()} — {@link Mode#WITH_SCHEMA_CHANGE} (predicate: {@link #isWithSchemaChange()})</h3>
  * <p>Callers:
  * <ul>
  *   <li>Main-node REST apply ({@code /addOrUpdate}, {@code /delete}) — operator-driven,
@@ -48,7 +48,7 @@ import lombok.Getter;
  *       (rare — REST usually wins the race)</li>
  * </ul>
  * <p>Note: {@code /inactivate} is a soft-pause that goes through
- * {@link Mode#LOCAL_CACHE_ONLY} — backend schema and data are preserved; only
+ * {@link Mode#WITHOUT_SCHEMA_CHANGE} — backend schema and data are preserved; only
  * OAP-internal state (compiled bundles, dispatch, prototypes) is torn down so
  * cheap re-activation works on the next {@code /addOrUpdate}.
  * <p>Backend behaviour: full DDL — create missing tables / measures, drop retired ones,
@@ -56,7 +56,7 @@ import lombok.Getter;
  * shape mismatch, and create / update index rules + bindings. Reshaping is treated as
  * intended because the caller came in through an on-demand operator request.
  *
- * <h3>{@link #createIfAbsent()} — {@link Mode#CREATE_IF_ABSENT} (predicate: {@link #isCreateIfAbsent()})</h3>
+ * <h3>{@link #schemaCreateIfAbsent()} — {@link Mode#SCHEMA_CREATE_IF_ABSENT} (predicate: {@link #isSchemaCreateIfAbsent()})</h3>
  * <p>Callers:
  * <ul>
  *   <li>Startup-time model registration (every OAP, via stream processors — static MAL /
@@ -70,7 +70,7 @@ import lombok.Getter;
  * skip surfaces the mismatch to the operator, who must reshape via the on-demand
  * runtime-rule REST endpoint (the only workflow that may change backend schema).
  *
- * <h3>{@link #localCacheVerify()} — {@link Mode#LOCAL_CACHE_VERIFY} (predicate: {@link #isLocalCacheVerify()})</h3>
+ * <h3>{@link #verifySchemaOnly()} — {@link Mode#VERIFY_SCHEMA_ONLY} (predicate: {@link #isVerifySchemaOnly()})</h3>
  * <p>Callers:
  * <ul>
  *   <li>Boot-time reconciler pass on a non-init OAP — the operator declared
@@ -79,7 +79,7 @@ import lombok.Getter;
  *       declares.</li>
  * </ul>
  * <p>Backend behaviour: read-only inspection. The installer issues the same metadata
- * read RPCs as {@link Mode#CREATE_IF_ABSENT} but never invokes create / update / drop. On
+ * read RPCs as {@link Mode#SCHEMA_CREATE_IF_ABSENT} but never invokes create / update / drop. On
  * resource missing OR shape mismatch the installer throws — the exception propagates up
  * through the module bootstrap and causes the OAP process to exit, which under k8s
  * results in a pod backloop until either the init OAP has caught up or the operator has
@@ -88,7 +88,7 @@ import lombok.Getter;
  * what's declared. Local {@code MetadataRegistry} is populated only when the live shape
  * matches the declared shape.
  *
- * <h3>{@link #localCacheOnly()} — {@link Mode#LOCAL_CACHE_ONLY} (predicate: {@link #isLocalCacheOnly()})</h3>
+ * <h3>{@link #withoutSchemaChange()} — {@link Mode#WITHOUT_SCHEMA_CHANGE} (predicate: {@link #isWithoutSchemaChange()})</h3>
  * <p>Callers:
  * <ul>
  *   <li>Peer-node reconciler tick (peer is not the hash-selected main for this file —
@@ -103,7 +103,7 @@ import lombok.Getter;
  * {@link Outcome#SKIPPED_NOT_ALLOWED SKIPPED_NOT_ALLOWED} outcomes instead of firing
  * {@code createTable} / {@code dropTable}. Peer's local MeterSystem still compiles
  * Metrics classes and populates {@code meterPrototypes} — that's pure in-JVM work the
- * opt doesn't (and shouldn't) gate. Differs from {@link Mode#LOCAL_CACHE_VERIFY} in two
+ * opt doesn't (and shouldn't) gate. Differs from {@link Mode#VERIFY_SCHEMA_ONLY} in two
  * ways: no server RPCs (cache populates from local model), and missing / mismatched
  * resources are <strong>not</strong> a fatal error (the next tick will retry, or the
  * main will catch up).
@@ -129,7 +129,7 @@ public final class StorageManipulationOpt {
          * for ES). Reshape is treated as intended because the caller explicitly asked
          * for it via the operator REST endpoint.
          */
-        FULL_INSTALL(Flags.builder()
+        WITH_SCHEMA_CHANGE(Flags.builder()
             .inspectBackend(true)
             .createMissing(true)
             .updateOnMismatch(true)
@@ -143,20 +143,20 @@ public final class StorageManipulationOpt {
          * call update / reshape. Operator must reconcile via the runtime-rule REST
          * endpoint — boot is not allowed to silently mutate backend shape.
          */
-        CREATE_IF_ABSENT(Flags.builder()
+        SCHEMA_CREATE_IF_ABSENT(Flags.builder()
             .inspectBackend(true)
             .createMissing(true)
             .build()),
         /**
          * Boot path on a non-init OAP. Installer issues the same read-only inspection
-         * RPCs as {@link #CREATE_IF_ABSENT} but never creates / updates / drops. On
+         * RPCs as {@link #SCHEMA_CREATE_IF_ABSENT} but never creates / updates / drops. On
          * resource missing or shape mismatch the installer <strong>throws</strong>; the
          * exception propagates up through module bootstrap and exits the process.
          * Under k8s this causes a pod backloop until the init OAP has caught up or the
          * operator has aligned rule files with the backend. Local {@code MetadataRegistry}
          * is populated only when the live shape matches the declared shape.
          */
-        LOCAL_CACHE_VERIFY(Flags.builder()
+        VERIFY_SCHEMA_ONLY(Flags.builder()
             .inspectBackend(true)
             .failOnAbsence(true)
             .failOnShapeMismatch(true)
@@ -165,10 +165,10 @@ public final class StorageManipulationOpt {
          * Peer-node reconciler tick path. Zero server RPCs — local caches populate from
          * the declared model and the main is trusted to own backend DDL. Missing or
          * mismatched resources are not an error: the next tick will retry, and the main
-         * will eventually converge. Distinct from {@link #LOCAL_CACHE_VERIFY} in that
+         * will eventually converge. Distinct from {@link #VERIFY_SCHEMA_ONLY} in that
          * verification is skipped entirely, not run-and-fail.
          */
-        LOCAL_CACHE_ONLY(Flags.builder().build());
+        WITHOUT_SCHEMA_CHANGE(Flags.builder().build());
 
         @Getter
         private final Flags flags;
@@ -195,7 +195,7 @@ public final class StorageManipulationOpt {
     public static final class Flags {
         /**
          * Issue read RPCs to the backend (existence + shape compare). False on
-         * {@link Mode#LOCAL_CACHE_ONLY} where the contract is "zero server RPCs". When
+         * {@link Mode#WITHOUT_SCHEMA_CHANGE} where the contract is "zero server RPCs". When
          * false the installer must populate local caches from the declared model and
          * return early without inspecting the backend.
          */
@@ -209,40 +209,40 @@ public final class StorageManipulationOpt {
         /**
          * Call backend update primitives ({@code client.update}, JDBC {@code ALTER
          * TABLE}, ES mapping append) when a present resource's live shape diverges from
-         * the declared shape. Only {@link Mode#FULL_INSTALL} (the operator-driven path)
+         * the declared shape. Only {@link Mode#WITH_SCHEMA_CHANGE} (the operator-driven path)
          * permits this — boot must never silently reshape backend storage.
          *
          * <p>Note: BanyanDB's index-rule / index-rule-binding update path is gated by
          * {@link #failOnShapeMismatch} instead of this flag, preserving the long-standing
          * behaviour that init-mode OAPs reconcile index rules even under
-         * {@link Mode#CREATE_IF_ABSENT}.</p>
+         * {@link Mode#SCHEMA_CREATE_IF_ABSENT}.</p>
          */
         private final boolean updateOnMismatch;
         /**
          * Call backend drop primitives ({@code client.dropMeasure} / {@code dropStream}
          * / etc.) from {@link ModelRegistry.CreatingListener#whenRemoving}. Only
-         * {@link Mode#FULL_INSTALL} (operator-driven runtime-rule deletion) permits
-         * this; peers under {@link Mode#LOCAL_CACHE_ONLY} short-circuit with
+         * {@link Mode#WITH_SCHEMA_CHANGE} (operator-driven runtime-rule deletion) permits
+         * this; peers under {@link Mode#WITHOUT_SCHEMA_CHANGE} short-circuit with
          * {@link Outcome#SKIPPED_NOT_ALLOWED}.
          */
         private final boolean dropOnRemoval;
         /**
          * Throw a {@link org.apache.skywalking.oap.server.core.storage.StorageException}
          * when a resource is absent on the backend after inspection. Used by
-         * {@link Mode#LOCAL_CACHE_VERIFY} to fail boot rather than silently start
+         * {@link Mode#VERIFY_SCHEMA_ONLY} to fail boot rather than silently start
          * against an unprepared backend.
          */
         private final boolean failOnAbsence;
         /**
          * Throw a {@link org.apache.skywalking.oap.server.core.storage.StorageException}
          * when a present resource's live shape diverges from the declared shape. Used
-         * by {@link Mode#LOCAL_CACHE_VERIFY} so boot does not silently start against a
+         * by {@link Mode#VERIFY_SCHEMA_ONLY} so boot does not silently start against a
          * backend whose schema disagrees with the rule file.
          */
         private final boolean failOnShapeMismatch;
         /**
          * Re-throw cascaded backend errors to the caller (REST handler, operator
-         * tooling) instead of swallowing them. Set on {@link Mode#FULL_INSTALL}; other
+         * tooling) instead of swallowing them. Set on {@link Mode#WITH_SCHEMA_CHANGE}; other
          * modes log and continue so a peer-side bookkeeping glitch doesn't take down
          * the node.
          */
@@ -267,55 +267,55 @@ public final class StorageManipulationOpt {
         return mode.getFlags();
     }
 
-    public static StorageManipulationOpt fullInstall() {
-        return new StorageManipulationOpt(Mode.FULL_INSTALL);
+    public static StorageManipulationOpt withSchemaChange() {
+        return new StorageManipulationOpt(Mode.WITH_SCHEMA_CHANGE);
     }
 
-    public static StorageManipulationOpt createIfAbsent() {
-        return new StorageManipulationOpt(Mode.CREATE_IF_ABSENT);
+    public static StorageManipulationOpt schemaCreateIfAbsent() {
+        return new StorageManipulationOpt(Mode.SCHEMA_CREATE_IF_ABSENT);
     }
 
-    public static StorageManipulationOpt localCacheVerify() {
-        return new StorageManipulationOpt(Mode.LOCAL_CACHE_VERIFY);
+    public static StorageManipulationOpt verifySchemaOnly() {
+        return new StorageManipulationOpt(Mode.VERIFY_SCHEMA_ONLY);
     }
 
-    public static StorageManipulationOpt localCacheOnly() {
-        return new StorageManipulationOpt(Mode.LOCAL_CACHE_ONLY);
+    public static StorageManipulationOpt withoutSchemaChange() {
+        return new StorageManipulationOpt(Mode.WITHOUT_SCHEMA_CHANGE);
     }
 
     /**
-     * True for {@link Mode#FULL_INSTALL}. The on-demand operator workflow — drops,
+     * True for {@link Mode#WITH_SCHEMA_CHANGE}. The on-demand operator workflow — drops,
      * updates, and reshapes are permitted because the caller explicitly asked for them.
      */
-    public boolean isFullInstall() {
-        return mode == Mode.FULL_INSTALL;
+    public boolean isWithSchemaChange() {
+        return mode == Mode.WITH_SCHEMA_CHANGE;
     }
 
     /**
-     * True for {@link Mode#CREATE_IF_ABSENT}. The static boot workflow — create absent
+     * True for {@link Mode#SCHEMA_CREATE_IF_ABSENT}. The static boot workflow — create absent
      * resources, skip + record {@link Outcome#SKIPPED_SHAPE_MISMATCH} on a resource that
      * already exists with a different shape. Never update or drop.
      */
-    public boolean isCreateIfAbsent() {
-        return mode == Mode.CREATE_IF_ABSENT;
+    public boolean isSchemaCreateIfAbsent() {
+        return mode == Mode.SCHEMA_CREATE_IF_ABSENT;
     }
 
     /**
-     * True for {@link Mode#LOCAL_CACHE_VERIFY}. Boot-time strict verification on a
+     * True for {@link Mode#VERIFY_SCHEMA_ONLY}. Boot-time strict verification on a
      * non-init OAP — installer issues read-only inspection RPCs and throws on missing or
      * shape-mismatched resources. No DDL.
      */
-    public boolean isLocalCacheVerify() {
-        return mode == Mode.LOCAL_CACHE_VERIFY;
+    public boolean isVerifySchemaOnly() {
+        return mode == Mode.VERIFY_SCHEMA_ONLY;
     }
 
     /**
-     * True for {@link Mode#LOCAL_CACHE_ONLY}. The {@code BanyanDBIndexInstaller.isExists}
+     * True for {@link Mode#WITHOUT_SCHEMA_CHANGE}. The {@code BanyanDBIndexInstaller.isExists}
      * short-circuit reads this to skip every server RPC and populate
      * {@code MetadataRegistry} only.
      */
-    public boolean isLocalCacheOnly() {
-        return mode == Mode.LOCAL_CACHE_ONLY;
+    public boolean isWithoutSchemaChange() {
+        return mode == Mode.WITHOUT_SCHEMA_CHANGE;
     }
 
     private StorageManipulationOpt(final Mode mode) {
@@ -426,8 +426,8 @@ public final class StorageManipulationOpt {
         /** Resource present and matches the intended shape. No action taken. */
         EXISTING_MATCHED,
         /** Resource present but live shape differs from intended; update was NOT applied
-         *  because the caller is in {@link Mode#LOCAL_CACHE_ONLY}. Caller may re-push with
-         *  {@link #fullInstall()} to reconcile. {@link ResourceOutcome#getDiff()} carries
+         *  because the caller is in {@link Mode#WITHOUT_SCHEMA_CHANGE}. Caller may re-push with
+         *  {@link #withSchemaChange()} to reconcile. {@link ResourceOutcome#getDiff()} carries
          *  a short description of the difference. */
         EXISTING_MISMATCH,
         /** Installer ran {@code createTable} (or equivalent) and the resource now exists. */

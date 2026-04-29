@@ -112,8 +112,8 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  *   │   • per-file lock acquisition                                   │
  *   │   • Suspend/Resume RPC fan-out                                  │
  *   │   • cross-file ownership guard (DAO + appliedX)                 │
- *   │   • storage-opt selection (fullInstall / localCacheOnly /       │
- *   │     localCacheVerify) — gates whether DDL fires                 │
+ *   │   • storage-opt selection (withSchemaChange / withoutSchemaChange /       │
+ *   │     verifySchemaOnly) — gates whether DDL fires                 │
  *   │   • persistence (RuntimeRuleManagementDAO.save) + 2-PC stash    │
  *   │     for STRUCTURAL via StructuralCommitCoordinator              │
  *   │   • DSLRuntimeUnregister orchestrator routes teardown to engine │
@@ -169,10 +169,10 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  * </pre>
  *
  * <p>Peers converge on the next dslManager tick by reading the persisted row and re-running
- * the same engines under {@link StorageManipulationOpt#localCacheOnly} — peers register
+ * the same engines under {@link StorageManipulationOpt#withoutSchemaChange} — peers register
  * local handlers + prototypes but skip backend DDL since main has already done the writes.
- * {@code /inactivate} is soft-pause (localCacheOnly — backend preserved, OAP-internal state
- * torn down); {@code /delete} is destructive (fullInstall so the listener chain fires
+ * {@code /inactivate} is soft-pause (withoutSchemaChange — backend preserved, OAP-internal state
+ * torn down); {@code /delete} is destructive (withSchemaChange so the listener chain fires
  * {@code dropTable}). Both ride the same {@link
  * org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLRuntimeUnregister}
  * orchestrator that dispatches to {@code engine.unregister}.
@@ -349,12 +349,12 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
         // In a k8s rollout the list flips to non-empty as soon as self joins it, then keeps
         // changing for tens of seconds as more pods boot. Gating on it neither guaranteed
         // membership stability nor saved a wasteful first apply. If this tick runs under
-        // {@code localCacheOnly} because peer list is empty, the next scheduled tick (2 s
+        // {@code withoutSchemaChange} because peer list is empty, the next scheduled tick (2 s
         // later) re-evaluates with whatever {@code RemoteClientManager} now shows and re-
-        // applies under {@code fullInstall} if this node resolves as main. Backend DDL is
+        // applies under {@code withSchemaChange} if this node resolves as main. Backend DDL is
         // idempotent so the re-apply costs nothing.
         try {
-            // atBoot=true so a no-init OAP picks localCacheVerify and refuses to
+            // atBoot=true so a no-init OAP picks verifySchemaOnly and refuses to
             // start with a missing or shape-mismatched backend (k8s pod backloop)
             // instead of silently registering local workers against schema that
             // doesn't exist. Init / default-mode OAPs are unaffected — their boot
@@ -363,12 +363,12 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
             log.info("Runtime rule dslManager: synchronous first tick completed "
                 + "(runtime-only DB rows are now applied locally).");
         } catch (final RuntimeException re) {
-            // Boot pass under localCacheVerify re-throws missing/mismatch as a
+            // Boot pass under verifySchemaOnly re-throws missing/mismatch as a
             // RuntimeException so module bootstrap aborts. Translate to
             // ModuleStartException so the OAP exit message points the operator at
             // the right place.
             throw new ModuleStartException(
-                "Runtime rule dslManager boot pass failed under localCacheVerify; "
+                "Runtime rule dslManager boot pass failed under verifySchemaOnly; "
                     + "the backend schema is missing or diverges from the declared rule. "
                     + "Bring up the init OAP first or align rule files with the backend, "
                     + "then restart this node.",

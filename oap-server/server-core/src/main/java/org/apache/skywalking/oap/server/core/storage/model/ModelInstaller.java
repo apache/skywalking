@@ -166,7 +166,7 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      * Check whether the storage entity exists, reporting per-resource outcomes on
      * {@code opt}. Backends with in-isExists side effects (BanyanDB's auto-update of
      * {@code Measure}/{@code IndexRule}/{@code IndexRuleBinding}) honour
-     * {@link StorageManipulationOpt#isLocalCacheOnly()} to suppress server writes when the
+     * {@link StorageManipulationOpt#isWithoutSchemaChange()} to suppress server writes when the
      * caller is a peer node.
      */
     public abstract InstallInfo isExists(Model model, StorageManipulationOpt opt) throws StorageException;

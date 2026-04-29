@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
  * <ul>
  *   <li>{@link #loadAll} — boot-time load. Asks every engine to load its catalog's static
  *       rules into the engine's internal applied state (via
- *       {@link RuleEngine#loadStaticRuleFile}), then seeds the shared
+ *       {@link RuleEngine#recordBundledClaims}), then seeds the shared
  *       {@code appliedContent} + {@code snapshot} maps so the first {@code /addOrUpdate}
  *       classifier and the first Suspend lookup see the bundle.</li>
  *   <li>{@link #loadIfMissing} — tick-time load. Re-loads any static rule whose DB row got
@@ -67,7 +67,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
  *
  * <p><b>DSL-agnostic.</b> The actual per-DSL load — building a synthetic Applied artifact
  * with metric names (MAL) or registered-rule list (LAL) — happens behind
- * {@link RuleEngine#loadStaticRuleFile}. This class only iterates {@code StaticRuleRegistry},
+ * {@link RuleEngine#recordBundledClaims}. This class only iterates {@code StaticRuleRegistry},
  * routes each entry to the matching engine, and updates the shared scheduler-side state on
  * success.
  */
@@ -116,16 +116,24 @@ public final class StaticRuleLoader {
                 continue;
             }
             final String content = e.getValue();
-            if (!engine.loadStaticRuleFile(catalog, name, content)) {
+            if (!engine.recordBundledClaims(catalog, name, content)) {
                 continue;
             }
             final String key = DSLScriptKey.key(catalog, name);
             final String contentHash = ContentHash.sha256Hex(content);
-            // Without these the first REST /addOrUpdate would classify against null prior
-            // content and return NEW even on a filter-only edit; the first Suspend RPC
-            // would lookup-miss.
-            rules.putIfAbsent(key, new AppliedRuleScript(catalog, name, content,
-                DSLRuntimeState.running(catalog, name, contentHash, nowMs)));
+            // recordBundledClaims has already stamped the synthetic Applied into the
+            // rules map (with content=null and state=null). Overlay the bundled content
+            // and a RUNNING state on that entry — without these, the first REST
+            // /addOrUpdate would classify against null prior content and return NEW even
+            // on a filter-only edit, and the first Suspend RPC would lookup-miss.
+            // putIfAbsent would no-op here because the engine already created the entry.
+            rules.compute(key, (k, prev) -> {
+                final DSLRuntimeState state =
+                    DSLRuntimeState.running(catalog, name, contentHash, nowMs);
+                return prev == null
+                    ? new AppliedRuleScript(catalog, name, content, state)
+                    : prev.withContentAndState(content, state);
+            });
             loaded++;
         }
         if (loaded > 0) {
@@ -159,7 +167,7 @@ public final class StaticRuleLoader {
                 continue;
             }
             // Snapshot presence is the scheduler's "is this bundle tracked?" signal — engine
-            // ownership lives behind loadStaticRuleFile. If snapshot has the key, either the
+            // ownership lives behind recordBundledClaims. If snapshot has the key, either the
             // engine has it loaded or a runtime apply did it; either way nothing to redo.
             if (rules.containsKey(key)) {
                 continue;

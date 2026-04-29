@@ -221,17 +221,34 @@ never destroys data they might want back:
   reset), but the **backend measure and its data are explicitly preserved**.
   Re-activation via `/addOrUpdate` reuses the existing measure; the cost is a
   recompile, not a backfill or a metric-identity change.
-- **`/delete`** is the **destructive** endpoint — the **only** one that drops
-  data. It refuses to operate on an `ACTIVE` row (returns `HTTP 409
-  requires_inactivate_first`), so destruction always goes through the explicit
-  two-step `/inactivate → /delete` workflow. On an `INACTIVE` row it drops the
-  backend measure and removes the entry; on an absent row it is an idempotent
-  `200 not_found`.
-
-If a static version of the rule exists on disk, `/delete` of the runtime entry
-causes the rule to revert to the static content on the next periodic scan. This is
-the intended recovery path for "undo all operator state, go back to what ships in
-the OAP distribution."
+- **`/delete`** removes the runtime row. It refuses to operate on an `ACTIVE`
+  row (returns `HTTP 409 requires_inactivate_first`), so destruction always goes
+  through the explicit two-step `/inactivate → /delete` workflow. On an absent
+  row it is an idempotent `200 not_found`. The `/inactivate` step has already
+  torn down OAP-internal state under `withoutSchemaChange` (handlers, prototypes,
+  Models cleared; backend measure preserved). What `/delete` does next depends on
+  whether a bundled YAML twin exists on disk:
+  - **No bundled twin (default mode)** — drops the row only; the backend measure
+    (if any) is left in place as an inert artefact. This matches bundled-rule
+    deletion semantics: removing a YAML from `otel-rules/` on disk doesn't drop
+    its measure either. Operators who want backend cleanup must purge the
+    measure out-of-band with the storage backend's tools.
+  - **Bundled twin exists, default mode** — refused with `HTTP 409
+    requires_revert_to_bundled`. Letting bundled silently take over the
+    `(catalog, name)` after the row goes away is a meaningful state change that
+    requires an explicit operator decision.
+  - **Bundled twin exists, `?mode=revertToBundled`** — schema-change path.
+    Bundled may have a different shape than runtime, so the apply pipeline runs
+    a unified flow: re-install the prior runtime DSL locally under
+    `withoutSchemaChange` (no backend touch), apply the bundled YAML through
+    the standard `compile → fireSchemaChanges → verify → commit` pipeline with
+    `withSchemaChange`. The commit's delta drops runtime-only metrics through
+    the listener chain, registers bundled-only metrics, and reuses bundled-shared
+    metrics at matching shape. The runtime row is then removed and the bundled
+    rule is the active loader on this node. Peers converge via the periodic
+    scan.
+  - **No bundled twin, `?mode=revertToBundled`** — refused with `HTTP 400
+    no_bundled_twin`.
 
 ### Inactive rules still hold their names
 

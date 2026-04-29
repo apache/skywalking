@@ -95,7 +95,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
  *       storage_change_requires_explicit_approval).</li>
  *   <li>{@code /inactivate} — the soft-pause path. Broadcasts Suspend, flips the row to
  *       INACTIVE, runs the OAP-internal teardown under
- *       {@link StorageManipulationOpt#localCacheOnly} via
+ *       {@link StorageManipulationOpt#withoutSchemaChange} via
  *       {@link DSLManager#applyNowForRuleFile}: dispatch handlers unregistered, prototypes
  *       and Models cleared, alarm windows reset. The BanyanDB measure and its data are
  *       explicitly preserved so reactivation via {@code /addOrUpdate} on the INACTIVE row
@@ -103,16 +103,15 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
  *       the same OAP-internal teardown. The inactive rule still HOLDS its metric / rule
  *       names per the soft-pause contract — another file claiming any of those names is
  *       rejected by the cross-file ownership guard.</li>
- *   <li>{@code /delete} — the destructive path. Requires the rule to already be INACTIVE
- *       (returns HTTP 409 {@code requires_inactivate_first} otherwise) — the two-step
- *       {@code /inactivate → /delete} workflow is enforced. {@code /delete} drives
- *       {@link DSLRuntimeDelete}: re-registers prototypes locally under
- *       {@code localCacheOnly} so the cascade has Models to walk, then runs the unregister
- *       path under {@code fullInstall} so the listener chain fires BanyanDB delete-measure
- *       on the live measure. Backend-drop failure aborts the row
- *       removal — an orphaned measure with no row left to retry is never possible. After
- *       the row is gone, if a static version exists on disk the rule reverts to that on
- *       the next dslManager tick.</li>
+ *   <li>{@code /delete} — row removal. Requires the rule to already be INACTIVE (returns
+ *       HTTP 409 {@code requires_inactivate_first} otherwise). Behaviour depends on bundled
+ *       twin and {@code mode} flag: default mode with no twin drops the row and leaves the
+ *       backend measure as inert artefact (matches bundled-rule deletion on disk); default
+ *       mode with a bundled twin returns 409 {@code requires_revert_to_bundled} to force
+ *       an explicit operator decision; {@code ?mode=revertToBundled} with a twin runs the
+ *       schema-change pipeline through {@link DSLRuntimeDelete#revertToBundled} and
+ *       reinstalls bundled before removing the row; {@code ?mode=revertToBundled} without
+ *       a twin returns 400 {@code no_bundled_twin}.</li>
  *   <li>{@code /list} returns an NDJSON view of every row merged with the dslManager's
  *       per-node {@link DSLRuntimeState}. {@code /dump} streams a tar.gz of every row plus a
  *       manifest so the entire admin surface can be backed up and restored.</li>
@@ -473,8 +472,8 @@ public class RuntimeRuleService {
      *   <li>DAO row for {@code (catalog, name)} regardless of status — INACTIVE rules keep
      *       their content under the soft-pause contract so the editor can re-edit.</li>
      *   <li>{@link StaticRuleRegistry} fallback — bundled rules that have never been
-     *       overridden by the operator. Returned with synthetic status {@code STATIC} and
-     *       source {@code static}.</li>
+     *       overridden by the operator. Returned with synthetic status {@code BUNDLED}
+     *       and source {@code bundled}.</li>
      *   <li>Otherwise 404 {@code not_found}.</li>
      * </ol>
      *
@@ -1452,14 +1451,16 @@ public class RuntimeRuleService {
         // applyNowForRuleFile is idempotent; if the tick fires first, the second call is a
         // fast no-op on the matching hash.
         //
-        // SOFT-PAUSE semantics: pass {@link StorageManipulationOpt#localCacheOnly()} so the
+        // SOFT-PAUSE semantics: pass {@link StorageManipulationOpt#withoutSchemaChange()} so the
         // teardown unregisters every OAP-internal artefact (MeterSystem prototypes,
         // MetricsStreamProcessor entry / persistent workers, BatchQueue handlers, retired
         // RuleClassLoader) without firing the backend dropTable cascade. The measure / table
         // / index and any data already persisted under the pre-inactivate metric stay
         // intact — operators reactivate via {@code /addOrUpdate} and the existing data
-        // remains queryable through the new bundle. {@code /delete} is the only path that
-        // drops the backend schema.
+        // remains queryable through the new bundle. {@code /delete} removes the row but
+        // also leaves the backend schema in place (default mode); the only schema-changing
+        // {@code /delete} path is {@code ?mode=revertToBundled}, which runs through the
+        // apply pipeline so bundled's shape can replace runtime's.
         //
         // Teardown failure handling: surface as 500 teardown_deferred rather than 200
         // inactivated. The DB row IS INACTIVE (persist already succeeded above) so peers
@@ -1467,14 +1468,14 @@ public class RuntimeRuleService {
         // completed (MalFileApplier swallowed per-metric failures, MetricsStreamProcessor
         // worker drain threw, etc.). Returning 200 would tell the operator "done" while
         // dispatch is still live; 500 + "teardown_deferred" accurately signals retriable
-        // state — the next dslManager tick re-runs the same localCacheOnly teardown.
+        // state — the next dslManager tick re-runs the same withoutSchemaChange teardown.
         final RuntimeRuleManagementDAO.RuntimeRuleFile inactiveFile =
             new RuntimeRuleManagementDAO.RuntimeRuleFile(
                 catalog, name, content,
                 RuntimeRule.STATUS_INACTIVE, rule.getUpdateTime());
         try {
             dslManager.applyNowForRuleFile(inactiveFile, false,
-                StorageManipulationOpt.localCacheOnly());
+                StorageManipulationOpt.withoutSchemaChange());
         } catch (final Throwable t) {
             log.warn("runtime-rule inactivate: local teardown deferred to tick for {}/{}",
                 catalog, name, t);
@@ -1536,15 +1537,18 @@ public class RuntimeRuleService {
     private HttpResponse doDeleteLocked(final String catalog, final String name,
                                          final DeleteMode mode,
                                          final RuntimeRuleManagementDAO dao) {
-        // /delete is the one destructive endpoint. /inactivate is a soft-pause that runs the
-        // OAP-internal teardown under localCacheOnly, deliberately preserving the BanyanDB
-        // measure + its data so a re-activation via /addOrUpdate is cheap and lossless.
-        // /delete drops the backend measure first, then removes the tombstone row.
+        // /inactivate is a soft-pause that runs the OAP-internal teardown under
+        // withoutSchemaChange, deliberately preserving the BanyanDB measure + its data so
+        // a re-activation via /addOrUpdate is cheap and lossless. /delete then removes the
+        // INACTIVE row. Default mode without a bundled twin leaves the backend measure as
+        // an inert artefact; with a bundled twin, default mode is refused (operator must
+        // opt in to ?mode=revertToBundled which runs the schema-change pipeline before
+        // removing the row).
         //
         // The two-step workflow (/inactivate → /delete) is enforced by the INACTIVE-status
-        // check below: an ACTIVE rule cannot be deleted in one shot. This separation makes
-        // the destructive moment explicit and lets operators reverse the soft-pause for a
-        // bounded window before committing to data loss.
+        // check below: an ACTIVE rule cannot be deleted in one shot. This separation lets
+        // operators reverse the soft-pause for a bounded window before committing to row
+        // removal.
         final RuntimeRuleManagementDAO.RuntimeRuleFile prior;
         try {
             prior = findRule(dao, catalog, name);
@@ -1564,7 +1568,8 @@ public class RuntimeRuleService {
                 jsonBody("requires_inactivate_first", catalog, name,
                     "rule is ACTIVE; POST /runtime/rule/inactivate first, then /runtime/rule/delete. "
                         + "Inactivate runs the soft-pause (handlers stop dispatching; backend "
-                        + "measure preserved); delete drops the backend measure and removes the row."));
+                        + "measure preserved); /delete then removes the INACTIVE row "
+                        + "(use ?mode=revertToBundled to revert to a bundled YAML twin)."));
         }
 
         final boolean bundledTwinExists =
@@ -1578,54 +1583,92 @@ public class RuntimeRuleService {
                 "mode=revertToBundled requires a bundled YAML on disk for this "
                     + "(catalog, name); none was found");
         }
-
-        // Backend drop. /inactivate preserved the BanyanDB measure under localCacheOnly;
-        // discharge that debt now via the dslManager before the row goes away. The
-        // orchestrator skips the destructive cascade when a bundled twin exists (bundled
-        // will reuse the backend resource on the synchronous reload below). LAL has no
-        // backend schema so the call is a no-op for the lal catalog. A throw here aborts
-        // the row deletion — we do NOT proceed with dao.delete on backend-drop failure:
-        // that would orphan the measure with no way to find it again.
-        try {
-            dslManager.getDslRuntimeDelete().dropBackendForDelete(catalog, name, prior.getContent());
-        } catch (final IllegalStateException refused) {
-            // Cross-file ownership conflict /addOrUpdate's guard didn't catch. Surface as
-            // 409 so the operator sees a clear "fix and retry" signal rather than 500.
-            log.warn("runtime-rule /delete refused for {}/{}: {}", catalog, name, refused.getMessage());
+        if (mode == DeleteMode.DEFAULT && bundledTwinExists) {
+            // Refuse the implicit revert. A bundled YAML on disk would silently take over
+            // the (catalog, name) the moment the runtime row goes away — that's a
+            // semantically meaningful state change and we want the operator to have
+            // declared it. Two legitimate continuations: (a) re-issue /delete with
+            // ?mode=revertToBundled to fall back to bundled, or (b) leave the rule
+            // INACTIVE (the soft-pause state from the previous /inactivate), which keeps
+            // both runtime and bundled effectively off until the operator re-activates.
             return HttpResponse.of(HttpStatus.CONFLICT, MediaType.JSON_UTF_8,
-                jsonBody("delete_refused", catalog, name, refused.getMessage()));
-        } catch (final Throwable t) {
-            log.error("runtime-rule /delete: backend drop threw for {}/{}", catalog, name, t);
-            return serverError("delete_backend_drop_failed", catalog, name, t.getMessage());
+                jsonBody("requires_revert_to_bundled", catalog, name,
+                    "a bundled YAML twin exists for this (catalog, name); deleting the "
+                        + "runtime row would let bundled take over without an explicit "
+                        + "operator decision. Re-issue with ?mode=revertToBundled to "
+                        + "fall back to the bundled rule, or leave the row INACTIVE "
+                        + "(soft-pause) to keep the rule off."));
         }
+
+        if (mode == DeleteMode.REVERT_TO_BUNDLED) {
+            // Bundled-revert path is the schema-change path: bundled may have a different
+            // shape than runtime. The orchestrator runs the unified pipeline:
+            //   (1) installRuntime to put prior runtime claims back locally,
+            //   (2) apply(bundled, STRUCTURAL, BUNDLED, withSchemaChange) — engine.commit
+            //       drops runtime-only metrics through the standard delta path,
+            //   (3) reset rules-map state to boot-seeded so gone-keys reconcile leaves
+            //       it alone after dao.delete.
+            // dao.delete only runs after revertToBundled returns REVERTED — a precondition
+            // or compile failure aborts the row deletion so the operator can retry.
+            final DSLRuntimeDelete.Result revert;
+            try {
+                revert = dslManager.getDslRuntimeDelete()
+                    .revertToBundled(catalog, name, prior.getContent());
+            } catch (final Throwable t) {
+                log.error("runtime-rule /delete: revertToBundled threw for {}/{}", catalog, name, t);
+                return serverError("revert_to_bundled_failed", catalog, name, t.getMessage());
+            }
+            switch (revert.status) {
+                case REFUSED_CONFLICT:
+                    log.warn("runtime-rule /delete refused for {}/{}: {}", catalog, name, revert.error);
+                    return HttpResponse.of(HttpStatus.CONFLICT, MediaType.JSON_UTF_8,
+                        jsonBody("delete_refused", catalog, name, revert.error));
+                case PRECONDITION_FAILED:
+                    log.error("runtime-rule /delete: revertToBundled precondition failed for {}/{}: {}",
+                        catalog, name, revert.error);
+                    return serverError("revert_to_bundled_precondition_failed", catalog, name, revert.error);
+                case BUNDLED_APPLY_FAILED:
+                    log.error("runtime-rule /delete: bundled apply failed for {}/{}: {}",
+                        catalog, name, revert.error);
+                    return serverError("revert_to_bundled_failed", catalog, name,
+                        "bundled apply failed (typically a storage-backend DDL/verify "
+                            + "issue — BanyanDB unreachable, shape rejection, or schema-"
+                            + "barrier timeout). The orchestrator unwound the step-1 "
+                            + "runtime install so local state matches the persisted "
+                            + "INACTIVE row. Retry once storage recovers. Cause: "
+                            + revert.error);
+                case REVERTED:
+                default:
+                    break;
+            }
+            try {
+                dao.delete(catalog, name);
+            } catch (final IOException e) {
+                log.error("failed to delete runtime rule {}/{}", catalog, name, e);
+                return serverError("delete_failed", catalog, name, e.getMessage());
+            }
+            return ok(HttpStatus.OK, "reverted_to_bundled", catalog, name,
+                "runtime row removed; bundled rule installed via apply pipeline (schema "
+                    + "change handled by the standard delta path); peers converge on next tick");
+        }
+
+        // No-bundled-twin DEFAULT path. /inactivate already tore down local handlers under
+        // withoutSchemaChange, so the runtime rule is no longer dispatching. The backend measure
+        // (if any) is left in place — it becomes an inert schema artefact, matching the
+        // bundled-rule deletion semantics (removing a YAML from otel-rules/ on disk doesn't
+        // drop its measure either). Operators who want backend cleanup must purge the
+        // measure out-of-band; this endpoint never re-installs the runtime DSL just to
+        // tear it down again.
         try {
             dao.delete(catalog, name);
         } catch (final IOException e) {
             log.error("failed to delete runtime rule {}/{}", catalog, name, e);
             return serverError("delete_failed", catalog, name, e.getMessage());
         }
-
-        // Synchronously reload the bundled rule (if any) so the operator's response
-        // reflects the post-delete reality — bundled is already serving via a static:
-        // loader on this node. Peer nodes converge via the gone-keys reconcile path on
-        // their next tick. A reload failure is logged and surfaced as a partial-success
-        // response (200 with applyStatus=reverted_to_bundled_partial) — the row is gone,
-        // the operator's intent landed, but bundled didn't compile cleanly on this node.
-        if (bundledTwinExists) {
-            final boolean reloaded = dslManager.getDslRuntimeDelete()
-                .reloadBundledIfPresent(catalog, name);
-            return ok(HttpStatus.OK,
-                reloaded ? "reverted_to_bundled" : "reverted_to_bundled_partial",
-                catalog, name,
-                reloaded
-                    ? "runtime row removed; bundled rule reinstalled into a static: loader "
-                        + "on this node; peers converge on next tick"
-                    : "runtime row removed; bundled reload deferred (compile failed or "
-                        + "engine unavailable); peers will retry via the gone-keys "
-                        + "reconcile on their next tick");
-        }
         return ok(HttpStatus.OK, "deleted", catalog, name,
-            "backend measure dropped, runtime row removed from storage; rule is fully gone");
+            "runtime row removed; local handlers were already unregistered by /inactivate; "
+                + "any backend schema this rule installed is left in place as an inert "
+                + "artefact (drop manually if needed)");
     }
 
     /**

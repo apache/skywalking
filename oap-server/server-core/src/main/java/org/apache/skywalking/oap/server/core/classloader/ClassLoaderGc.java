@@ -84,7 +84,7 @@ final class ClassLoaderGc {
             if (done != null) {
                 collectedTotal.incrementAndGet();
                 log.info("rule loader collected: {}:{}/{} hash={} ttg={}ms",
-                    done.kind() == DSLClassLoaderManager.Kind.STATIC ? "static" : "runtime-rule",
+                    done.kind() == DSLClassLoaderManager.Kind.BUNDLED ? "bundled" : "runtime-rule",
                     done.catalog().getWireName(), done.rule(), done.contentHashShort(),
                     System.currentTimeMillis() - done.retiredAtMs());
                 drained.add(done);

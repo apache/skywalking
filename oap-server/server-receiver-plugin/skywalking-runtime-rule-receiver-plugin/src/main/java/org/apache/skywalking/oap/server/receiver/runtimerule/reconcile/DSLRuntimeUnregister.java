@@ -43,9 +43,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleSc
  * static-rule fallback, alarm reset target). The orchestrator owns the cross-DSL bookkeeping
  * (clearing the content side of {@link AppliedRuleScript} on success).
  *
- * <p>After a successful teardown, the engine's {@code reloadStatic} hook is invoked so any
- * bundled-static rule that the now-removed runtime override was masking gets brought back into
- * service via a fresh {@code static:} loader from
+ * <p>After a successful teardown, the engine's {@code installBundled} hook is invoked so any
+ * bundled rule that the now-removed runtime override was masking gets brought back into
+ * service via a fresh {@code bundled:} loader from
  * {@link org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}.
  *
  * <p><b>{@code invokeAlarmOnRemove}.</b> Two legitimate call modes:
@@ -86,7 +86,7 @@ public final class DSLRuntimeUnregister {
     }
 
     /**
-     * Tear down a bundle's local registrations. {@code reloadStaticAfter} controls whether
+     * Tear down a bundle's local registrations. {@code installBundledAfter} controls whether
      * the bundled rule (if any) is reinstalled after the unregister:
      *
      * <ul>
@@ -97,18 +97,18 @@ public final class DSLRuntimeUnregister {
      *   <li>{@code true} — used by the row-gone reconcile path (a {@code /delete} cleared
      *       the row, peer ticks observe the absence). The runtime override no longer
      *       exists, so the bundled YAML (if any) should serve again — engines reload via
-     *       {@link RuleEngine#reloadStatic} into a fresh {@code static:} loader.</li>
+     *       {@link RuleEngine#installBundled} into a fresh {@code bundled:} loader.</li>
      * </ul>
      *
      * @return {@code true} when a bundled fall-over was actually installed (caller may want
      *         to retain the entry in the unified rules map rather than removing it);
      *         {@code false} otherwise (no engine, no bundled twin, reload failed, or
-     *         {@code reloadStaticAfter=false}).
+     *         {@code installBundledAfter=false}).
      */
     public boolean unregister(final String catalog, final String name,
                               final boolean invokeAlarmOnRemove,
                               final StorageManipulationOpt storageOpt,
-                              final boolean reloadStaticAfter) {
+                              final boolean installBundledAfter) {
         final RuleEngine<?> engine = engineRegistry.forCatalog(catalog);
         if (engine == null) {
             log.warn("runtime-rule dslManager: no engine registered for catalog '{}' on "
@@ -123,17 +123,20 @@ public final class DSLRuntimeUnregister {
         // Cross-DSL bookkeeping: clear the cached raw content so the next classify call sees
         // "no prior bundle". Engines deliberately don't touch this — it's shared between
         // catalogs and the orchestrator owns the lifecycle. State is preserved (set
-        // elsewhere — INACTIVE tombstone, NOT_LOADED, or reset by reloadStatic below).
+        // elsewhere — INACTIVE tombstone, NOT_LOADED, or reset by installBundled below).
         rules.computeIfPresent(DSLScriptKey.key(catalog, name),
             (k, prev) -> prev.withContent(null));
 
-        if (!reloadStaticAfter) {
+        if (!installBundledAfter) {
             return false;
         }
         try {
-            return engine.reloadStatic(catalog, name, resetter, moduleManager);
+            // Pass the same storage opt the unregister ran under so peer-tick gone-keys
+            // doesn't write DDL the main has already applied (tickStorageOpt picks
+            // withoutSchemaChange for peers).
+            return engine.installBundled(catalog, name, resetter, moduleManager, storageOpt);
         } catch (final Throwable t) {
-            log.warn("runtime-rule dslManager: static fall-over reload failed for {}/{}; "
+            log.warn("runtime-rule dslManager: bundled fall-over reload failed for {}/{}; "
                 + "bundled rule may stay dark until a successful re-apply or restart",
                 catalog, name, t);
             return false;

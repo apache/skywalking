@@ -90,8 +90,8 @@ public class MalFileApplier {
     }
 
     /**
-     * Origin-tagged overload: {@link DSLClassLoaderManager.Kind#STATIC} mints a {@code static:}
-     * loader so the static fall-over path (bundled rule serving again after the runtime
+     * Origin-tagged overload: {@link DSLClassLoaderManager.Kind#BUNDLED} mints a {@code bundled:}
+     * loader so the bundled fall-over path (bundled rule serving again after the runtime
      * override is removed) is distinguishable from the runtime path in logs and diagnostics.
      */
     public Applied apply(final String yamlContent, final String sourceName,
@@ -143,11 +143,11 @@ public class MalFileApplier {
 
     /**
      * Back-compat overload: callers that haven't yet picked a storage policy pass
-     * {@link StorageManipulationOpt#fullInstall()}. Main-node apply path.
+     * {@link StorageManipulationOpt#withSchemaChange()}. Main-node apply path.
      */
     public Applied apply(final String yamlContent, final String sourceName,
                          final String contentHash) throws ApplyException {
-        return apply(yamlContent, sourceName, contentHash, StorageManipulationOpt.fullInstall());
+        return apply(yamlContent, sourceName, contentHash, StorageManipulationOpt.withSchemaChange());
     }
 
     /**
@@ -156,15 +156,15 @@ public class MalFileApplier {
      * {@code ClassLoaderGc} output.
      */
     public Applied apply(final String yamlContent, final String sourceName) throws ApplyException {
-        return apply(yamlContent, sourceName, "", StorageManipulationOpt.fullInstall());
+        return apply(yamlContent, sourceName, "", StorageManipulationOpt.withSchemaChange());
     }
 
     /**
      * Reverse of {@link #apply}: drop every metric name the previous apply registered under
      * the given {@link StorageManipulationOpt storage policy}. Main-node callers pass
-     * {@link StorageManipulationOpt#fullInstall()} so {@code BanyanDBIndexInstaller.dropTable}
+     * {@link StorageManipulationOpt#withSchemaChange()} so {@code BanyanDBIndexInstaller.dropTable}
      * actually deletes the server-side measure. Peer-node callers pass
-     * {@link StorageManipulationOpt#localCacheOnly()} so local teardown (L1/L2 drain,
+     * {@link StorageManipulationOpt#withoutSchemaChange()} so local teardown (L1/L2 drain,
      * {@code meterPrototypes} eviction, CtClass detach) still runs but the server-side drop
      * is suppressed — main owns server-side state.
      *
@@ -204,7 +204,7 @@ public class MalFileApplier {
 
     /** Back-compat overload: full-install policy (server-side drop fires). */
     public void remove(final Set<String> metricNames) {
-        remove(metricNames, StorageManipulationOpt.fullInstall());
+        remove(metricNames, StorageManipulationOpt.withSchemaChange());
     }
 
     private Rule parse(final String yamlContent, final String sourceName) throws ApplyException {
