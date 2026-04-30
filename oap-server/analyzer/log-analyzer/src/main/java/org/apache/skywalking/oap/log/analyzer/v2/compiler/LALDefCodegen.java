@@ -169,6 +169,10 @@ final class LALDefCodegen {
                 return Long.class;
             case "Integer":
                 return Integer.class;
+            case "Double":
+                return Double.class;
+            case "Float":
+                return Float.class;
             case "Boolean":
                 return Boolean.class;
             default:

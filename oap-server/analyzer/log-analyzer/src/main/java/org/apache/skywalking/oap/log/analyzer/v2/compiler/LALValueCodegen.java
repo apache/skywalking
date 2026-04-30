@@ -45,7 +45,9 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
  * def variable             myVar?.getAsString()               _def_myVar?.getAsString()
  * Parenthesized            (expr as String).trim()            h.toStr(...).trim()
  * String concat            "${log.service}:${parsed.code}"    "" + ... + ":" + ...
- * Arithmetic sum           (tag("a") as Integer) + (tag("b") as Integer)  Long.valueOf((long) h.toInt(...) + (long) h.toInt(...))
+ * Arithmetic (int)          (tag("a") as Integer) + (tag("b") as Integer)  Integer.valueOf(h.toInt(...) + h.toInt(...))
+ * Arithmetic (mixed)        (tag("a") as Integer) * (tag("b") as Long)     Long.valueOf((long) h.toInt(...) * h.toLong(...))
+ * Arithmetic (double)       (parsed.x as Double) - 1                       Double.valueOf(h.toDouble(...) - (double) 1)
  * }</pre>
  *
  * <p>Condition codegen ({@link #generateCondition}) handles {@code if}
@@ -163,29 +165,201 @@ final class LALValueCodegen {
             final LALScriptModel.ComparisonCondition cc,
             final String op,
             final LALClassGenerator.GenCtx genCtx) {
-        // Generate left side into buffer to inspect resolved type
+        // Decide the primitive comparison type from explicit casts and the
+        // operand shapes — both sides influence the choice via JLS-style
+        // promotion. RHS-side cast is read off ValueAccessConditionValue;
+        // RHS literals contribute via their inferred numeric type.
+        final ExprType lhsType = inferComparisonOperandType(cc.getLeft(), cc.getLeftCast(), genCtx);
+        final ExprType rhsType = inferRightHandType(cc.getRight(), genCtx);
+        final ExprType cmpType = pickComparisonType(lhsType, rhsType);
+        final Class<?> cmpClass = primitiveClass(cmpType);
+
+        // Generate left side into a buffer to inspect what the codegen
+        // produced — typed proto fields and binary-expression results expose
+        // their primitive expression via genCtx.lastRawChain, which lets us
+        // skip the h.toX() unboxing wrapper. A top-level numeric cast on the
+        // comparison (`tag("a") as Integer < 1.5`) is honoured first so the
+        // operand is rendered in the user's declared primitive, not in the
+        // promoted comparison type.
         final StringBuilder leftBuf = new StringBuilder();
-        generateValueAccessObj(leftBuf, cc.getLeft(), null, genCtx);
+        emitOperandRespectingCast(leftBuf, cc.getLeft(), cc.getLeftCast(), genCtx);
 
-        final boolean primitiveNumeric = genCtx.lastResolvedType != null
-            && (genCtx.lastResolvedType == int.class
-                || genCtx.lastResolvedType == long.class);
+        final Class<?> resolved = genCtx.lastResolvedType;
+        final boolean primitiveNumeric = resolved != null
+            && (resolved == int.class || resolved == long.class
+                || resolved == float.class || resolved == double.class);
 
+        final String leftExpr;
         if (primitiveNumeric && genCtx.lastRawChain != null) {
-            // Direct primitive comparison — no boxing, no h.toLong()
-            if (genCtx.lastNullChecks != null) {
-                sb.append("(").append(genCtx.lastNullChecks).append(" ? false : ")
-                  .append(genCtx.lastRawChain).append(op);
-                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
-                sb.append(")");
-            } else {
-                sb.append(genCtx.lastRawChain).append(op);
-                generateConditionValueNumeric(sb, cc.getRight(), genCtx);
-            }
+            // Already primitive — widen to cmpType only if narrower.
+            leftExpr = widenPrimitiveExpr(genCtx.lastRawChain,
+                primitiveToExprType(resolved), cmpType);
         } else {
-            // Fallback: h.toLong() conversion
-            sb.append("h.toLong(").append(leftBuf).append(")").append(op);
-            generateConditionValueNumeric(sb, cc.getRight(), genCtx);
+            // Untyped operand — wrap with the helper that produces the
+            // chosen primitive type. h.toLong is no longer the universal
+            // fallback when the user wrote `as Double` / `as Float`.
+            leftExpr = wrapAsPrimitive(leftBuf.toString(), cmpType);
+        }
+
+        if (genCtx.lastNullChecks != null && primitiveNumeric) {
+            sb.append("(").append(genCtx.lastNullChecks).append(" ? false : ")
+              .append(leftExpr).append(op);
+            generateConditionValueNumeric(sb, cc.getRight(), cmpClass, genCtx);
+            sb.append(")");
+        } else {
+            sb.append(leftExpr).append(op);
+            generateConditionValueNumeric(sb, cc.getRight(), cmpClass, genCtx);
+        }
+    }
+
+    /**
+     * Read the numeric type the user declared for the left side of a
+     * comparison: top-level {@code as} cast on the comparison wins, otherwise
+     * fall back to inspecting the operand AST.
+     */
+    private static ExprType inferComparisonOperandType(
+            final LALScriptModel.ValueAccess value,
+            final String topLevelCast,
+            final LALClassGenerator.GenCtx genCtx) {
+        final ExprType fromCast = castToType(topLevelCast);
+        if (fromCast.isNumeric()) {
+            return fromCast;
+        }
+        final ExprType inferred = inferType(value, genCtx);
+        return inferred.isNumeric() ? inferred : ExprType.LONG;
+    }
+
+    /**
+     * Read the numeric type of a comparison's RHS — literal type for number
+     * literals, declared cast for value accesses, otherwise unknown.
+     */
+    private static ExprType inferRightHandType(
+            final LALScriptModel.ConditionValue cv,
+            final LALClassGenerator.GenCtx genCtx) {
+        if (cv instanceof LALScriptModel.NumberConditionValue) {
+            final String literal = ((LALScriptModel.NumberConditionValue) cv).getLiteral();
+            return literal != null ? NumericLiteral.parse(literal).type : ExprType.LONG;
+        }
+        if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
+            final LALScriptModel.ValueAccessConditionValue vacv =
+                (LALScriptModel.ValueAccessConditionValue) cv;
+            final ExprType castT = castToType(vacv.getCastType());
+            if (castT.isNumeric()) {
+                return castT;
+            }
+            return inferType(vacv.getValue(), genCtx);
+        }
+        return ExprType.UNKNOWN;
+    }
+
+    /**
+     * Pick the JLS-promoted primitive type for a comparison given both sides'
+     * inferred types. Numeric sides drive promotion; non-numeric sides default
+     * to {@code LONG} so the comparison still has a primitive home.
+     */
+    private static ExprType pickComparisonType(final ExprType lhs, final ExprType rhs) {
+        if (lhs.isNumeric() && rhs.isNumeric()) {
+            return promote(lhs, rhs);
+        }
+        if (lhs.isNumeric()) {
+            return lhs;
+        }
+        if (rhs.isNumeric()) {
+            return rhs;
+        }
+        return ExprType.LONG;
+    }
+
+    /**
+     * Emit a primitive widening cast on an already-primitive expression, only
+     * when the source type is narrower than the target.
+     */
+    private static String widenPrimitiveExpr(final String expr,
+                                              final ExprType from,
+                                              final ExprType to) {
+        if (from == to || promote(from, to) == from) {
+            return expr;
+        }
+        return "(" + javaPrimitiveName(to) + ") " + expr;
+    }
+
+    /**
+     * Render an operand for a numeric comparison while preserving the user's
+     * declared cast. Two-phase to avoid double-coercion:
+     * <ol>
+     *   <li>Render the operand expression. Typed proto fields, arithmetic
+     *       results, and paren-cast operands already land as a primitive and
+     *       record the type via {@code genCtx.lastResolvedType}.</li>
+     *   <li>If the rendered expression is non-primitive (a boxed/Object)
+     *       and the user declared a numeric cast, wrap it with the matching
+     *       {@code h.toX()} helper so the primitive identity is preserved
+     *       — e.g. {@code tag("a") as Integer < 1.5} renders
+     *       {@code (double) h.toInt(h.tagValue("a")) < 1.5}, not
+     *       {@code h.toDouble(h.tagValue("a")) < 1.5}.</li>
+     * </ol>
+     */
+    private static void emitOperandRespectingCast(
+            final StringBuilder sb,
+            final LALScriptModel.ValueAccess value,
+            final String castType,
+            final LALClassGenerator.GenCtx genCtx) {
+        final int start = sb.length();
+        generateValueAccessObj(sb, value, castType, genCtx);
+        final Class<?> resolved = genCtx.lastResolvedType;
+        final boolean alreadyPrimitive = resolved != null && resolved.isPrimitive();
+        if (alreadyPrimitive) {
+            // Native primitive — the declared cast is either redundant
+            // (matches) or will be honoured by JLS widening at the
+            // comparison site. Leave the rendered expression as-is.
+            return;
+        }
+        final ExprType castET = castToType(castType);
+        if (!castET.isNumeric()) {
+            return;
+        }
+        // Wrap with the matching numeric helper. Re-record the primitive
+        // metadata so the comparison emits an unboxed compare.
+        final String inner = sb.substring(start);
+        sb.setLength(start);
+        switch (castET) {
+            case INT:
+                sb.append("h.toInt(").append(inner).append(")");
+                recordPrimitiveResult(genCtx, int.class, sb, start);
+                break;
+            case LONG:
+                sb.append("h.toLong(").append(inner).append(")");
+                recordPrimitiveResult(genCtx, long.class, sb, start);
+                break;
+            case FLOAT:
+                sb.append("h.toFloat(").append(inner).append(")");
+                recordPrimitiveResult(genCtx, float.class, sb, start);
+                break;
+            case DOUBLE:
+                sb.append("h.toDouble(").append(inner).append(")");
+                recordPrimitiveResult(genCtx, double.class, sb, start);
+                break;
+            default:
+                // unreachable — castET.isNumeric() checked above
+                sb.append(inner);
+                break;
+        }
+    }
+
+    /**
+     * Wrap an Object-typed expression in the right {@code h.toX()} helper for
+     * the chosen primitive comparison type.
+     */
+    private static String wrapAsPrimitive(final String objectExpr, final ExprType target) {
+        switch (target) {
+            case DOUBLE:
+                return "h.toDouble(" + objectExpr + ")";
+            case FLOAT:
+                return "h.toFloat(" + objectExpr + ")";
+            case INT:
+                return "h.toInt(" + objectExpr + ")";
+            case LONG:
+            default:
+                return "h.toLong(" + objectExpr + ")";
         }
     }
 
@@ -214,22 +388,120 @@ final class LALValueCodegen {
         }
     }
 
+    /**
+     * Render a numeric RHS for a comparison operator. The literal is emitted
+     * in a form compatible with the LHS resolved type so the comparison stays
+     * in the LHS's primitive space — no defensive widening to long.
+     *
+     * <p>Examples (LHS in parens):
+     * <ul>
+     *   <li>(int) {@code < 10000}   → {@code 10000}</li>
+     *   <li>(long) {@code < 10000}  → {@code 10000L}</li>
+     *   <li>(double) {@code < 1.5}  → {@code 1.5d}</li>
+     *   <li>(int) {@code < 1.5}     → {@code 1.5d} — JLS will widen LHS to double</li>
+     * </ul>
+     */
     static void generateConditionValueNumeric(
             final StringBuilder sb,
             final LALScriptModel.ConditionValue cv,
+            final Class<?> lhsType,
             final LALClassGenerator.GenCtx genCtx) {
         if (cv instanceof LALScriptModel.NumberConditionValue) {
-            sb.append((long) ((LALScriptModel.NumberConditionValue) cv)
-                .getValue()).append("L");
+            final LALScriptModel.NumberConditionValue ncv =
+                (LALScriptModel.NumberConditionValue) cv;
+            final String literal = ncv.getLiteral();
+            if (literal != null) {
+                sb.append(formatNumericLiteralForCompare(literal, lhsType));
+            } else {
+                // Synthesised value (no source text).
+                sb.append(formatDoubleAsLiteral(ncv.getValue(), lhsType));
+            }
         } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            sb.append("h.toLong(");
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ValueAccessConditionValue) cv).getValue(),
-                null, genCtx);
-            sb.append(")");
+            // RHS value access — emit the LHS-typed primitive form. If
+            // codegen managed to land it as a primitive (typed proto field,
+            // arithmetic), reuse lastRawChain widened to lhsType; otherwise
+            // wrap the boxed object with the matching h.toX() helper.
+            final LALScriptModel.ValueAccessConditionValue vacv =
+                (LALScriptModel.ValueAccessConditionValue) cv;
+            final StringBuilder rhsBuf = new StringBuilder();
+            emitOperandRespectingCast(rhsBuf, vacv.getValue(), vacv.getCastType(), genCtx);
+            final Class<?> rhsResolved = genCtx.lastResolvedType;
+            final ExprType target = primitiveToExprType(lhsType);
+            if (rhsResolved != null
+                    && (rhsResolved == int.class || rhsResolved == long.class
+                        || rhsResolved == float.class || rhsResolved == double.class)
+                    && genCtx.lastRawChain != null) {
+                sb.append(widenPrimitiveExpr(genCtx.lastRawChain,
+                    primitiveToExprType(rhsResolved), target));
+            } else {
+                sb.append(wrapAsPrimitive(rhsBuf.toString(), target));
+            }
         } else {
             sb.append("0L");
         }
+    }
+
+    private static String formatNumericLiteralForCompare(final String literal,
+                                                          final Class<?> lhsType) {
+        final NumericLiteral parsed = NumericLiteral.parse(literal);
+        // Honour the user's declared literal type when wider than LHS;
+        // otherwise emit in the LHS form so the compare stays in that space.
+        final ExprType lhsExpr = primitiveToExprType(lhsType);
+        final ExprType result = parsed.type.compareTo(lhsExpr) > 0 ? parsed.type : lhsExpr;
+        if (result == parsed.type) {
+            return parsed.javaText;
+        }
+        // Widen literal to LHS type via suffix change (no Java cast needed for
+        // numeric literals — the widened form is itself a valid literal).
+        return widenLiteralToType(parsed.javaText, parsed.type, result);
+    }
+
+    private static String widenLiteralToType(final String text,
+                                              final ExprType from,
+                                              final ExprType to) {
+        // Strip trailing suffix (if any) and re-emit in `to`.
+        String body = text;
+        final char last = body.isEmpty() ? 0 : body.charAt(body.length() - 1);
+        if (last == 'L' || last == 'F' || last == 'f' || last == 'd' || last == 'D') {
+            body = body.substring(0, body.length() - 1);
+        }
+        switch (to) {
+            case LONG:
+                return body + "L";
+            case FLOAT:
+                return (body.contains(".") ? body : body + ".0") + "f";
+            case DOUBLE:
+                return body.contains(".") ? body : body + ".0";
+            case INT:
+            default:
+                return body;
+        }
+    }
+
+    private static String formatDoubleAsLiteral(final double value, final Class<?> lhsType) {
+        if (lhsType == double.class || lhsType == float.class) {
+            return Double.toString(value) + (lhsType == float.class ? "f" : "");
+        }
+        if (lhsType == long.class) {
+            return ((long) value) + "L";
+        }
+        return Long.toString((long) value);
+    }
+
+    private static ExprType primitiveToExprType(final Class<?> c) {
+        if (c == int.class) {
+            return ExprType.INT;
+        }
+        if (c == long.class) {
+            return ExprType.LONG;
+        }
+        if (c == float.class) {
+            return ExprType.FLOAT;
+        }
+        if (c == double.class) {
+            return ExprType.DOUBLE;
+        }
+        return ExprType.LONG;
     }
 
     // ==================== Value access ====================
@@ -246,6 +518,11 @@ final class LALValueCodegen {
                                            final LALScriptModel.ValueAccess value,
                                            final String castType,
                                            final LALClassGenerator.GenCtx genCtx) {
+        // Each numeric cast produces a primitive expression; record the type
+        // and the raw chain so callers (numeric comparisons, arithmetic
+        // codegen) can skip a redundant h.toX() wrapper when the operand
+        // already matches the target primitive.
+        final int start = sb.length();
         if ("String".equals(castType)) {
             sb.append("h.toStr(");
             generateValueAccess(sb, value, genCtx);
@@ -254,10 +531,22 @@ final class LALValueCodegen {
             sb.append("h.toLong(");
             generateValueAccess(sb, value, genCtx);
             sb.append(")");
+            recordPrimitiveResult(genCtx, long.class, sb, start);
         } else if ("Integer".equals(castType)) {
             sb.append("h.toInt(");
             generateValueAccess(sb, value, genCtx);
             sb.append(")");
+            recordPrimitiveResult(genCtx, int.class, sb, start);
+        } else if ("Double".equals(castType)) {
+            sb.append("h.toDouble(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append(")");
+            recordPrimitiveResult(genCtx, double.class, sb, start);
+        } else if ("Float".equals(castType)) {
+            sb.append("h.toFloat(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append(")");
+            recordPrimitiveResult(genCtx, float.class, sb, start);
         } else if ("Boolean".equals(castType)) {
             sb.append("h.toBool(");
             generateValueAccess(sb, value, genCtx);
@@ -265,6 +554,15 @@ final class LALValueCodegen {
         } else {
             generateValueAccess(sb, value, genCtx);
         }
+    }
+
+    private static void recordPrimitiveResult(final LALClassGenerator.GenCtx genCtx,
+                                                final Class<?> type,
+                                                final StringBuilder sb,
+                                                final int start) {
+        genCtx.lastResolvedType = type;
+        genCtx.lastRawChain = sb.substring(start);
+        genCtx.lastNullChecks = null;
     }
 
     /**
@@ -285,6 +583,14 @@ final class LALValueCodegen {
             sb.append("))");
         } else if ("Integer".equals(castType)) {
             sb.append("String.valueOf(h.toInt(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append("))");
+        } else if ("Double".equals(castType)) {
+            sb.append("String.valueOf(h.toDouble(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append("))");
+        } else if ("Float".equals(castType)) {
+            sb.append("String.valueOf(h.toFloat(");
             generateValueAccess(sb, value, genCtx);
             sb.append("))");
         } else if ("Boolean".equals(castType)) {
@@ -343,22 +649,13 @@ final class LALValueCodegen {
                                      final LALClassGenerator.GenCtx genCtx) {
         genCtx.clearExtraLogResult();
 
-        // Handle string concatenation or arithmetic addition (term1 + term2 + ...)
-        // When every part is a numeric cast (Integer/Long) or a number literal,
-        // emit integer/long arithmetic. Otherwise emit string concatenation.
+        // Handle binary expressions (term1 OP term2 OP ...). The decision is
+        // delegated to generateBinaryExpression, which performs JLS-style type
+        // inference and emits either Java arithmetic, string concatenation, or a
+        // compile-time error.
         if (!value.getConcatParts().isEmpty()) {
-            if (allPartsNumeric(value.getConcatParts())) {
-                generateArithmeticSum(sb, value.getConcatParts(), genCtx);
-            } else {
-                sb.append("(\"\" + ");
-                for (int i = 0; i < value.getConcatParts().size(); i++) {
-                    if (i > 0) {
-                        sb.append(" + ");
-                    }
-                    generateValueAccess(sb, value.getConcatParts().get(i), genCtx);
-                }
-                sb.append(")");
-            }
+            generateBinaryExpression(sb, value.getConcatParts(),
+                value.getConcatOps(), genCtx);
             return;
         }
 
@@ -419,10 +716,21 @@ final class LALValueCodegen {
         }
         if (value.isNumberLiteral() && value.getChain().isEmpty()) {
             final String num = value.getSegments().get(0);
-            if (num.contains(".")) {
-                sb.append("Double.valueOf(").append(num).append(")");
-            } else {
-                sb.append("Integer.valueOf(").append(num).append(")");
+            final NumericLiteral lit = NumericLiteral.parse(num);
+            switch (lit.type) {
+                case DOUBLE:
+                    sb.append("Double.valueOf(").append(lit.javaText).append(")");
+                    break;
+                case FLOAT:
+                    sb.append("Float.valueOf(").append(lit.javaText).append(")");
+                    break;
+                case LONG:
+                    sb.append("Long.valueOf(").append(lit.javaText).append(")");
+                    break;
+                case INT:
+                default:
+                    sb.append("Integer.valueOf(").append(lit.javaText).append(")");
+                    break;
             }
             return;
         }
@@ -865,80 +1173,421 @@ final class LALValueCodegen {
 
     // ==================== Utility methods ====================
 
+    // ==================== Binary expression codegen ====================
+
     /**
-     * Returns {@code true} when every concat part is numeric — i.e. a
-     * parenthesized expression with an {@code Integer} or {@code Long} cast,
-     * or a bare number literal. If so, {@code +} is arithmetic, not string
-     * concatenation.
+     * JLS-style numeric type tag used for binary numeric promotion. Ordered
+     * narrow → wide, so {@code commonType(a, b)} can return the wider of two.
      */
-    private static boolean allPartsNumeric(final List<LALScriptModel.ValueAccess> parts) {
-        for (final LALScriptModel.ValueAccess part : parts) {
-            if (part.isNumberLiteral()) {
-                continue;
-            }
-            if (part.getParenInner() != null && isNumericCast(part.getParenCast())) {
-                continue;
-            }
-            return false;
-        }
-        return true;
-    }
+    private enum ExprType {
+        INT, LONG, FLOAT, DOUBLE,
+        STRING, BOOLEAN, OBJECT, UNKNOWN;
 
-    private static boolean isNumericCast(final String cast) {
-        return "Integer".equals(cast) || "Long".equals(cast);
+        boolean isNumeric() {
+            return this == INT || this == LONG || this == FLOAT || this == DOUBLE;
+        }
     }
 
     /**
-     * Generates an arithmetic sum expression for a list of numeric parts.
-     * Always uses {@code long} arithmetic to avoid Javassist autoboxing
-     * restrictions (Javassist cannot pass a primitive {@code int/long} to a
-     * method that expects {@code Object}, e.g. {@code h.toLong(int)}).
+     * Parsed representation of a NUMBER literal token. Carries the inferred
+     * Java type and the literal text trimmed/suffixed for direct emission as
+     * Java source.
+     */
+    private static final class NumericLiteral {
+        final ExprType type;
+        /** Java-source representation, e.g. "10000", "10000L", "1.5", "1.5f". */
+        final String javaText;
+
+        private NumericLiteral(final ExprType type, final String javaText) {
+            this.type = type;
+            this.javaText = javaText;
+        }
+
+        static NumericLiteral parse(final String numText) {
+            String t = numText;
+            char suffix = 0;
+            if (!t.isEmpty()) {
+                final char last = t.charAt(t.length() - 1);
+                if (last == 'L' || last == 'l' || last == 'F' || last == 'f'
+                        || last == 'D' || last == 'd') {
+                    suffix = last;
+                    t = t.substring(0, t.length() - 1);
+                }
+            }
+            final boolean fractional = t.contains(".") || t.contains("e") || t.contains("E");
+            switch (suffix) {
+                case 'L':
+                case 'l':
+                    return new NumericLiteral(ExprType.LONG, t + "L");
+                case 'F':
+                case 'f':
+                    return new NumericLiteral(ExprType.FLOAT,
+                        (fractional ? t : (t + ".0")) + "f");
+                case 'D':
+                case 'd':
+                    return new NumericLiteral(ExprType.DOUBLE,
+                        (fractional ? t : (t + ".0")) + "d");
+                default:
+                    if (fractional) {
+                        return new NumericLiteral(ExprType.DOUBLE, t);
+                    }
+                    // Bare integer literal — INT if it fits, else LONG.
+                    try {
+                        Integer.parseInt(t);
+                        return new NumericLiteral(ExprType.INT, t);
+                    } catch (NumberFormatException e) {
+                        return new NumericLiteral(ExprType.LONG, t + "L");
+                    }
+            }
+        }
+    }
+
+    /**
+     * Returns the JLS-style binary numeric promotion result for the two operand
+     * types. Both must be numeric; otherwise this is a programmer bug (the
+     * caller is responsible for the non-numeric error path).
+     */
+    private static ExprType promote(final ExprType a, final ExprType b) {
+        if (a == ExprType.DOUBLE || b == ExprType.DOUBLE) {
+            return ExprType.DOUBLE;
+        }
+        if (a == ExprType.FLOAT || b == ExprType.FLOAT) {
+            return ExprType.FLOAT;
+        }
+        if (a == ExprType.LONG || b == ExprType.LONG) {
+            return ExprType.LONG;
+        }
+        return ExprType.INT;
+    }
+
+    private static String javaPrimitiveName(final ExprType t) {
+        switch (t) {
+            case LONG:
+                return "long";
+            case FLOAT:
+                return "float";
+            case DOUBLE:
+                return "double";
+            case INT:
+            default:
+                return "int";
+        }
+    }
+
+    private static String javaWrapperName(final ExprType t) {
+        switch (t) {
+            case LONG:
+                return "Long";
+            case FLOAT:
+                return "Float";
+            case DOUBLE:
+                return "Double";
+            case INT:
+            default:
+                return "Integer";
+        }
+    }
+
+    private static Class<?> primitiveClass(final ExprType t) {
+        switch (t) {
+            case LONG:
+                return long.class;
+            case FLOAT:
+                return float.class;
+            case DOUBLE:
+                return double.class;
+            case INT:
+            default:
+                return int.class;
+        }
+    }
+
+    /**
+     * Compile-time inference of an operand's Java type. Operates on the same
+     * AST that codegen will subsequently emit, so the result is consistent.
+     */
+    private static ExprType inferType(final LALScriptModel.ValueAccess part,
+                                       final LALClassGenerator.GenCtx genCtx) {
+        if (part == null) {
+            return ExprType.UNKNOWN;
+        }
+        if (part.isStringLiteral()) {
+            return ExprType.STRING;
+        }
+        if (part.isNumberLiteral() && part.getChain().isEmpty()) {
+            return NumericLiteral.parse(part.getSegments().get(0)).type;
+        }
+        // (expr as Cast) primary — only trustable when no further chain is applied.
+        if (part.getParenInner() != null && part.getChain().isEmpty()) {
+            if (part.getParenCast() != null) {
+                return castToType(part.getParenCast());
+            }
+            // Pure grouping (no cast): the parens just preserve precedence.
+            return inferType(part.getParenInner(), genCtx);
+        }
+        // Nested binary expression: recompute via its parts/ops.
+        if (!part.getConcatParts().isEmpty()) {
+            return inferBinaryType(part.getConcatParts(), part.getConcatOps(), genCtx);
+        }
+        // def variable with a known resolved type.
+        if (!part.getSegments().isEmpty()) {
+            final LALClassGenerator.LocalVarInfo lv =
+                genCtx.localVars.get(part.getSegments().get(0));
+            if (lv != null && part.getChain().isEmpty()) {
+                final Class<?> t = lv.resolvedType;
+                if (t == int.class || t == Integer.class) {
+                    return ExprType.INT;
+                }
+                if (t == long.class || t == Long.class) {
+                    return ExprType.LONG;
+                }
+                if (t == float.class || t == Float.class) {
+                    return ExprType.FLOAT;
+                }
+                if (t == double.class || t == Double.class) {
+                    return ExprType.DOUBLE;
+                }
+                if (t == String.class) {
+                    return ExprType.STRING;
+                }
+                if (t == boolean.class || t == Boolean.class) {
+                    return ExprType.BOOLEAN;
+                }
+                return ExprType.OBJECT;
+            }
+        }
+        // tag(), sourceAttribute(), parsed.* without typed input — String.
+        if ("tag".equals(part.getFunctionCallName())
+                || "sourceAttribute".equals(part.getFunctionCallName())) {
+            return ExprType.STRING;
+        }
+        return ExprType.UNKNOWN;
+    }
+
+    private static ExprType castToType(final String cast) {
+        if ("Integer".equals(cast)) {
+            return ExprType.INT;
+        }
+        if ("Long".equals(cast)) {
+            return ExprType.LONG;
+        }
+        if ("Float".equals(cast)) {
+            return ExprType.FLOAT;
+        }
+        if ("Double".equals(cast)) {
+            return ExprType.DOUBLE;
+        }
+        if ("String".equals(cast)) {
+            return ExprType.STRING;
+        }
+        if ("Boolean".equals(cast)) {
+            return ExprType.BOOLEAN;
+        }
+        return ExprType.UNKNOWN;
+    }
+
+    /**
+     * Walk the operand list applying JLS promotion left-to-right, treating any
+     * {@code +} that touches a String operand as string concat (which sticks).
+     */
+    private static ExprType inferBinaryType(
+            final List<LALScriptModel.ValueAccess> parts,
+            final List<LALScriptModel.BinaryOp> ops,
+            final LALClassGenerator.GenCtx genCtx) {
+        ExprType acc = inferType(parts.get(0), genCtx);
+        for (int i = 1; i < parts.size(); i++) {
+            final ExprType rhs = inferType(parts.get(i), genCtx);
+            final LALScriptModel.BinaryOp op = ops.get(i - 1);
+            if (op == LALScriptModel.BinaryOp.PLUS
+                    && (acc == ExprType.STRING || rhs == ExprType.STRING)) {
+                acc = ExprType.STRING;
+                continue;
+            }
+            if (acc.isNumeric() && rhs.isNumeric()) {
+                acc = promote(acc, rhs);
+                continue;
+            }
+            // Anything else for + (object + object) → fallback to string concat
+            // (preserves long-standing behaviour for `tag("a") + tag("b")` etc.).
+            if (op == LALScriptModel.BinaryOp.PLUS) {
+                acc = ExprType.STRING;
+                continue;
+            }
+            // - * / on non-numeric — caller emits a compile error.
+            return ExprType.UNKNOWN;
+        }
+        return acc;
+    }
+
+    /**
+     * Top-level binary-expression codegen. Branches by the inferred result type:
+     * numeric → Java arithmetic in the promoted primitive; STRING → string
+     * concat (only valid if the only operators are {@code +}); UNKNOWN with a
+     * non-{@code +} operator → compile-time error.
+     */
+    private static void generateBinaryExpression(
+            final StringBuilder sb,
+            final List<LALScriptModel.ValueAccess> parts,
+            final List<LALScriptModel.BinaryOp> ops,
+            final LALClassGenerator.GenCtx genCtx) {
+        final ExprType resultType = inferBinaryType(parts, ops, genCtx);
+        if (resultType.isNumeric()) {
+            generateNumericExpression(sb, parts, ops, resultType, genCtx);
+            return;
+        }
+        // Validate operators — only `+` is legal for string concat.
+        for (final LALScriptModel.BinaryOp op : ops) {
+            if (op != LALScriptModel.BinaryOp.PLUS) {
+                throw new IllegalArgumentException(
+                    "Operator '" + opSymbol(op) + "' requires numeric operands; "
+                        + "got non-numeric expression. Cast operands with "
+                        + "'as Integer/Long/Float/Double' to enable arithmetic.");
+            }
+        }
+        generateStringConcat(sb, parts, genCtx);
+    }
+
+    private static String opSymbol(final LALScriptModel.BinaryOp op) {
+        switch (op) {
+            case PLUS:
+                return "+";
+            case MINUS:
+                return "-";
+            case STAR:
+                return "*";
+            case SLASH:
+                return "/";
+            default:
+                return "?";
+        }
+    }
+
+    /**
+     * Emit Java arithmetic in the promoted primitive type. Each operand is
+     * widened only when its declared type differs from the result type (no
+     * defensive INT → LONG bumps — respect the user's declared casts).
      *
      * <p>Two outputs are produced:
      * <ul>
-     *   <li>The raw {@code long} expression is stored in
-     *       {@code genCtx.lastRawChain} so that {@code generateNumericComparison}
-     *       can emit a direct primitive comparison without a
-     *       {@code h.toLong()} wrapper.</li>
-     *   <li>{@code Long.valueOf(rawExpr)} is appended to {@code sb} so that
-     *       non-comparison contexts (tag assignment, {@code h.toStr()}, etc.)
-     *       receive a boxed {@code Long} — a valid {@code Object}.</li>
+     *   <li>The raw primitive expression is stored in
+     *       {@code genCtx.lastRawChain}, with {@code lastResolvedType} set
+     *       to the promoted primitive class. This lets
+     *       {@link #generateNumericComparison} emit an unboxed comparison.</li>
+     *   <li>{@code Wrapper.valueOf(rawExpr)} is appended to {@code sb} so
+     *       Object contexts (tag assignment, def initialiser, {@code h.toStr}
+     *       wrapping, etc.) receive a properly boxed value.</li>
      * </ul>
-     *
-     * <p>Examples:
-     * <pre>{@code
-     * (tag("a") as Integer) + (tag("b") as Integer) < 10000
-     * rawExpr  → ((long) h.toInt(h.tagValue("a")) + (long) h.toInt(h.tagValue("b")))
-     * in sb    → Long.valueOf(((long) h.toInt(...) + (long) h.toInt(...)))
-     * comparison emits → rawExpr < 10000L   (via lastRawChain / primitiveNumeric path)
-     * }</pre>
      */
-    private static void generateArithmeticSum(final StringBuilder sb,
-                                               final List<LALScriptModel.ValueAccess> parts,
-                                               final LALClassGenerator.GenCtx genCtx) {
-        final StringBuilder expr = new StringBuilder("(");
-        for (int i = 0; i < parts.size(); i++) {
-            if (i > 0) {
-                expr.append(" + ");
-            }
-            final LALScriptModel.ValueAccess part = parts.get(i);
-            if (part.isNumberLiteral()) {
-                expr.append(part.getSegments().get(0)).append("L");
-            } else if ("Long".equals(part.getParenCast())) {
-                generateCastedValueAccess(expr, part.getParenInner(), "Long", genCtx);
-            } else {
-                expr.append("(long) ");
-                generateCastedValueAccess(expr, part.getParenInner(), "Integer", genCtx);
-            }
+    private static void generateNumericExpression(
+            final StringBuilder sb,
+            final List<LALScriptModel.ValueAccess> parts,
+            final List<LALScriptModel.BinaryOp> ops,
+            final ExprType resultType,
+            final LALClassGenerator.GenCtx genCtx) {
+        final StringBuilder expr = new StringBuilder();
+        appendOperand(expr, parts.get(0), resultType, genCtx);
+        for (int i = 1; i < parts.size(); i++) {
+            expr.append(' ').append(opSymbol(ops.get(i - 1))).append(' ');
+            appendOperand(expr, parts.get(i), resultType, genCtx);
         }
-        expr.append(")");
-        final String rawExpr = expr.toString();
-        // Let generateNumericComparison skip h.toLong() and compare directly.
-        genCtx.lastResolvedType = long.class;
+        final String rawExpr = "(" + expr + ")";
+        genCtx.lastResolvedType = primitiveClass(resultType);
         genCtx.lastRawChain = rawExpr;
         genCtx.lastNullChecks = null;
-        // Box for Object contexts (h.toStr, h.toLong, def assignments, etc.)
-        sb.append("Long.valueOf(").append(rawExpr).append(")");
+        sb.append(javaWrapperName(resultType)).append(".valueOf(").append(rawExpr).append(")");
+    }
+
+    /**
+     * Render one numeric operand into the promoted result type, casting only
+     * when the operand's declared type is narrower than the result.
+     */
+    private static void appendOperand(final StringBuilder sb,
+                                       final LALScriptModel.ValueAccess part,
+                                       final ExprType resultType,
+                                       final LALClassGenerator.GenCtx genCtx) {
+        final ExprType opType = inferType(part, genCtx);
+        // Number literal — emit in its source form, widened by suffix when needed.
+        if (part.isNumberLiteral() && part.getChain().isEmpty()) {
+            final NumericLiteral lit = NumericLiteral.parse(part.getSegments().get(0));
+            if (lit.type == resultType) {
+                sb.append(lit.javaText);
+                return;
+            }
+            // Widen via Java cast — e.g. INT literal `10000` in DOUBLE context → `(double) 10000`.
+            sb.append("(").append(javaPrimitiveName(resultType)).append(") ").append(lit.javaText);
+            return;
+        }
+        // Paren-cast operand — emit the cast call directly.
+        if (part.getParenInner() != null && part.getParenCast() != null
+                && part.getChain().isEmpty() && opType.isNumeric()) {
+            if (opType == resultType) {
+                generateCastedValueAccess(sb, part.getParenInner(),
+                    javaWrapperName(opType), genCtx);
+            } else {
+                sb.append("(").append(javaPrimitiveName(resultType)).append(") ");
+                generateCastedValueAccess(sb, part.getParenInner(),
+                    javaWrapperName(opType), genCtx);
+            }
+            return;
+        }
+        // Paren grouping without cast — recurse into the inner expression
+        // and unwrap to its primitive raw chain. Inner is typically a
+        // sub-arithmetic like (1 + 2) or a typed proto comparison.
+        if (part.getParenInner() != null && part.getParenCast() == null
+                && part.getChain().isEmpty() && opType.isNumeric()) {
+            final StringBuilder inner = new StringBuilder();
+            generateValueAccessObj(inner, part.getParenInner(), null, genCtx);
+            final Class<?> resolved = genCtx.lastResolvedType;
+            final String rawChain = genCtx.lastRawChain;
+            // Inner produced a primitive — reuse its raw chain.
+            if (rawChain != null && resolved != null
+                    && (resolved == int.class || resolved == long.class
+                        || resolved == float.class || resolved == double.class)) {
+                final ExprType from = primitiveToExprType(resolved);
+                sb.append(widenPrimitiveExpr(rawChain, from, resultType));
+            } else {
+                // Inner stayed boxed — wrap to the result primitive.
+                sb.append(wrapAsPrimitive(inner.toString(), resultType));
+            }
+            return;
+        }
+        // Nested binary expression — recurse, then unbox via the raw chain.
+        if (!part.getConcatParts().isEmpty()) {
+            final StringBuilder inner = new StringBuilder();
+            generateBinaryExpression(inner, part.getConcatParts(), part.getConcatOps(), genCtx);
+            // generateNumericExpression set lastRawChain to the primitive expression.
+            final String rawInner = genCtx.lastRawChain;
+            if (opType == resultType) {
+                sb.append(rawInner);
+            } else {
+                sb.append("(").append(javaPrimitiveName(resultType)).append(") ").append(rawInner);
+            }
+            // Don't let the inner expression's lastRawChain leak as the
+            // outermost result — the caller will overwrite it after this call.
+            return;
+        }
+        // def variable or other resolved value — fall back to a value access
+        // wrapped with the appropriate cast to the result type.
+        sb.append("(").append(javaPrimitiveName(resultType)).append(") ");
+        generateCastedValueAccess(sb, part, javaWrapperName(resultType), genCtx);
+    }
+
+    /**
+     * Emit a Java string concatenation: {@code ("" + a + b + ...)}. Used for
+     * legacy GString-style joins where at least one operand is a String (or
+     * UNKNOWN/OBJECT) and every operator is {@code +}.
+     */
+    private static void generateStringConcat(final StringBuilder sb,
+                                              final List<LALScriptModel.ValueAccess> parts,
+                                              final LALClassGenerator.GenCtx genCtx) {
+        sb.append("(\"\" + ");
+        for (int i = 0; i < parts.size(); i++) {
+            if (i > 0) {
+                sb.append(" + ");
+            }
+            generateValueAccess(sb, parts.get(i), genCtx);
+        }
+        sb.append(")");
     }
 
     /**

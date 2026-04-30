@@ -347,6 +347,17 @@ public final class LALScriptModel {
 
     // ==================== Value access ====================
 
+    /**
+     * Binary arithmetic / concat operator joining adjacent {@code concatParts}.
+     * The list of operators aligns with the gaps between parts: for N parts there
+     * are N-1 operators, where {@code concatOps[i]} joins {@code concatParts[i]}
+     * and {@code concatParts[i + 1]}.  Precedence is already encoded by the parser
+     * (mul-level expressions sit inside add-level parts).
+     */
+    public enum BinaryOp {
+        PLUS, MINUS, STAR, SLASH
+    }
+
     @Getter
     public static final class ValueAccess {
         private final List<String> segments;
@@ -359,6 +370,7 @@ public final class LALScriptModel {
         private final String functionCallName;
         private final List<FunctionArg> functionCallArgs;
         private final List<ValueAccess> concatParts;
+        private final List<BinaryOp> concatOps;
         private final ValueAccess parenInner;
         private final String parenCast;
 
@@ -368,7 +380,7 @@ public final class LALScriptModel {
                            final List<ValueAccessSegment> chain) {
             this(segments, parsedRef, logRef, false, false, false,
                 chain, null, Collections.emptyList(),
-                Collections.emptyList(), null, null);
+                Collections.emptyList(), Collections.emptyList(), null, null);
         }
 
         public ValueAccess(final List<String> segments,
@@ -383,7 +395,7 @@ public final class LALScriptModel {
             this(segments, parsedRef, logRef, processRegistryRef,
                 stringLiteral, numberLiteral, chain,
                 functionCallName, functionCallArgs,
-                Collections.emptyList(), null, null);
+                Collections.emptyList(), Collections.emptyList(), null, null);
         }
 
         public ValueAccess(final List<String> segments,
@@ -396,6 +408,26 @@ public final class LALScriptModel {
                            final String functionCallName,
                            final List<FunctionArg> functionCallArgs,
                            final List<ValueAccess> concatParts,
+                           final ValueAccess parenInner,
+                           final String parenCast) {
+            this(segments, parsedRef, logRef, processRegistryRef,
+                stringLiteral, numberLiteral, chain,
+                functionCallName, functionCallArgs,
+                concatParts, defaultPlusOps(concatParts),
+                parenInner, parenCast);
+        }
+
+        public ValueAccess(final List<String> segments,
+                           final boolean parsedRef,
+                           final boolean logRef,
+                           final boolean processRegistryRef,
+                           final boolean stringLiteral,
+                           final boolean numberLiteral,
+                           final List<ValueAccessSegment> chain,
+                           final String functionCallName,
+                           final List<FunctionArg> functionCallArgs,
+                           final List<ValueAccess> concatParts,
+                           final List<BinaryOp> concatOps,
                            final ValueAccess parenInner,
                            final String parenCast) {
             this.segments = Collections.unmodifiableList(segments);
@@ -411,12 +443,25 @@ public final class LALScriptModel {
                 ? Collections.unmodifiableList(functionCallArgs) : Collections.emptyList();
             this.concatParts = concatParts != null
                 ? Collections.unmodifiableList(concatParts) : Collections.emptyList();
+            this.concatOps = concatOps != null
+                ? Collections.unmodifiableList(concatOps) : Collections.emptyList();
             this.parenInner = parenInner;
             this.parenCast = parenCast;
         }
 
         public String toPathString() {
             return String.join(".", segments);
+        }
+
+        private static List<BinaryOp> defaultPlusOps(final List<ValueAccess> parts) {
+            if (parts == null || parts.size() <= 1) {
+                return Collections.emptyList();
+            }
+            final BinaryOp[] ops = new BinaryOp[parts.size() - 1];
+            for (int i = 0; i < ops.length; i++) {
+                ops[i] = BinaryOp.PLUS;
+            }
+            return List.of(ops);
         }
     }
 
@@ -486,9 +531,22 @@ public final class LALScriptModel {
     @Getter
     public static final class NumberConditionValue implements ConditionValue {
         private final double value;
+        /**
+         * Original literal text from the LAL source (e.g. {@code "10000"},
+         * {@code "10000L"}, {@code "1.5"}, {@code "1e6"}). Codegen uses this
+         * to preserve the user-declared numeric type — a bare {@code 10000}
+         * stays {@code int}, an {@code L}-suffixed literal becomes {@code long},
+         * etc. May be {@code null} for synthesised values.
+         */
+        private final String literal;
 
         public NumberConditionValue(final double value) {
+            this(value, null);
+        }
+
+        public NumberConditionValue(final double value, final String literal) {
             this.value = value;
+            this.literal = literal;
         }
     }
 
