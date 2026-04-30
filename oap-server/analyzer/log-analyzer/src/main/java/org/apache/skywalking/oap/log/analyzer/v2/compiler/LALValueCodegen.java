@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
  * def variable             myVar?.getAsString()               _def_myVar?.getAsString()
  * Parenthesized            (expr as String).trim()            h.toStr(...).trim()
  * String concat            "${log.service}:${parsed.code}"    "" + ... + ":" + ...
+ * Arithmetic sum           (tag("a") as Integer) + (tag("b") as Integer)  Long.valueOf((long) h.toInt(...) + (long) h.toInt(...))
  * }</pre>
  *
  * <p>Condition codegen ({@link #generateCondition}) handles {@code if}
@@ -342,16 +343,22 @@ final class LALValueCodegen {
                                      final LALClassGenerator.GenCtx genCtx) {
         genCtx.clearExtraLogResult();
 
-        // Handle string concatenation (term1 + term2 + ...)
+        // Handle string concatenation or arithmetic addition (term1 + term2 + ...)
+        // When every part is a numeric cast (Integer/Long) or a number literal,
+        // emit integer/long arithmetic. Otherwise emit string concatenation.
         if (!value.getConcatParts().isEmpty()) {
-            sb.append("(\"\" + ");
-            for (int i = 0; i < value.getConcatParts().size(); i++) {
-                if (i > 0) {
-                    sb.append(" + ");
+            if (allPartsNumeric(value.getConcatParts())) {
+                generateArithmeticSum(sb, value.getConcatParts(), genCtx);
+            } else {
+                sb.append("(\"\" + ");
+                for (int i = 0; i < value.getConcatParts().size(); i++) {
+                    if (i > 0) {
+                        sb.append(" + ");
+                    }
+                    generateValueAccess(sb, value.getConcatParts().get(i), genCtx);
                 }
-                generateValueAccess(sb, value.getConcatParts().get(i), genCtx);
+                sb.append(")");
             }
-            sb.append(")");
             return;
         }
 
@@ -857,6 +864,82 @@ final class LALValueCodegen {
     }
 
     // ==================== Utility methods ====================
+
+    /**
+     * Returns {@code true} when every concat part is numeric — i.e. a
+     * parenthesized expression with an {@code Integer} or {@code Long} cast,
+     * or a bare number literal. If so, {@code +} is arithmetic, not string
+     * concatenation.
+     */
+    private static boolean allPartsNumeric(final List<LALScriptModel.ValueAccess> parts) {
+        for (final LALScriptModel.ValueAccess part : parts) {
+            if (part.isNumberLiteral()) {
+                continue;
+            }
+            if (part.getParenInner() != null && isNumericCast(part.getParenCast())) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isNumericCast(final String cast) {
+        return "Integer".equals(cast) || "Long".equals(cast);
+    }
+
+    /**
+     * Generates an arithmetic sum expression for a list of numeric parts.
+     * Always uses {@code long} arithmetic to avoid Javassist autoboxing
+     * restrictions (Javassist cannot pass a primitive {@code int/long} to a
+     * method that expects {@code Object}, e.g. {@code h.toLong(int)}).
+     *
+     * <p>Two outputs are produced:
+     * <ul>
+     *   <li>The raw {@code long} expression is stored in
+     *       {@code genCtx.lastRawChain} so that {@code generateNumericComparison}
+     *       can emit a direct primitive comparison without a
+     *       {@code h.toLong()} wrapper.</li>
+     *   <li>{@code Long.valueOf(rawExpr)} is appended to {@code sb} so that
+     *       non-comparison contexts (tag assignment, {@code h.toStr()}, etc.)
+     *       receive a boxed {@code Long} — a valid {@code Object}.</li>
+     * </ul>
+     *
+     * <p>Examples:
+     * <pre>{@code
+     * (tag("a") as Integer) + (tag("b") as Integer) < 10000
+     * rawExpr  → ((long) h.toInt(h.tagValue("a")) + (long) h.toInt(h.tagValue("b")))
+     * in sb    → Long.valueOf(((long) h.toInt(...) + (long) h.toInt(...)))
+     * comparison emits → rawExpr < 10000L   (via lastRawChain / primitiveNumeric path)
+     * }</pre>
+     */
+    private static void generateArithmeticSum(final StringBuilder sb,
+                                               final List<LALScriptModel.ValueAccess> parts,
+                                               final LALClassGenerator.GenCtx genCtx) {
+        final StringBuilder expr = new StringBuilder("(");
+        for (int i = 0; i < parts.size(); i++) {
+            if (i > 0) {
+                expr.append(" + ");
+            }
+            final LALScriptModel.ValueAccess part = parts.get(i);
+            if (part.isNumberLiteral()) {
+                expr.append(part.getSegments().get(0)).append("L");
+            } else if ("Long".equals(part.getParenCast())) {
+                generateCastedValueAccess(expr, part.getParenInner(), "Long", genCtx);
+            } else {
+                expr.append("(long) ");
+                generateCastedValueAccess(expr, part.getParenInner(), "Integer", genCtx);
+            }
+        }
+        expr.append(")");
+        final String rawExpr = expr.toString();
+        // Let generateNumericComparison skip h.toLong() and compare directly.
+        genCtx.lastResolvedType = long.class;
+        genCtx.lastRawChain = rawExpr;
+        genCtx.lastNullChecks = null;
+        // Box for Object contexts (h.toStr, h.toLong, def assignments, etc.)
+        sb.append("Long.valueOf(").append(rawExpr).append(")");
+    }
 
     /**
      * Appends a method call segment to the current expression chain.

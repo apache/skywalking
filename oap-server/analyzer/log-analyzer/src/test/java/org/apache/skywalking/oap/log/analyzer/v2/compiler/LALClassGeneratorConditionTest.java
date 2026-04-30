@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -290,6 +291,66 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         assertTrue(ifCount >= 2,
             "Expected at least 2 if-conditions for else-if chain but got "
             + ifCount + " in: " + source);
+    }
+
+    // ==================== Arithmetic addition in conditions ====================
+
+    @Test
+    void compileArithmeticSumOfIntegerTagsEmitsLongArithmetic() throws Exception {
+        // The envoy-ai-gateway token check pattern:
+        // (tag("input_tokens") as Integer) + (tag("output_tokens") as Integer) < 10000
+        // must do numeric addition (3033 < 10000 = true → abort),
+        // not string concat ("2872161" → 2872161 >= 10000 = false → no abort).
+        final String dsl = "filter {\n"
+            + "  if ((tag(\"a\") as Integer) + (tag(\"b\") as Integer) < 10000) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("(long)"),
+            "Expected (long) promotion for Integer parts but got: " + source);
+        assertTrue(source.contains("h.toInt("),
+            "Expected h.toInt() for Integer cast but got: " + source);
+        assertFalse(source.contains("\"\" +"),
+            "Expected arithmetic addition, not string concat, but got: " + source);
+        // In a comparison context generateNumericComparison uses lastRawChain directly,
+        // so the comparison emits the raw long expression without Long.valueOf().
+        assertTrue(source.contains("< 10000L"),
+            "Expected '< 10000L' numeric comparison but got: " + source);
+    }
+
+    @Test
+    void compileArithmeticSumOfLongAndIntegerTagsEmitsLongArithmetic() throws Exception {
+        final String dsl = "filter {\n"
+            + "  if ((tag(\"a\") as Long) + (tag(\"b\") as Integer) < 10000) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("h.toLong("),
+            "Expected h.toLong() for Long cast but got: " + source);
+        assertTrue(source.contains("(long)"),
+            "Expected (long) promotion for Integer parts but got: " + source);
+        assertFalse(source.contains("\"\" +"),
+            "Expected arithmetic addition, not string concat, but got: " + source);
+    }
+
+    @Test
+    void compileStringConcatWithPlusRemainsStringConcat() throws Exception {
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'key': tag(\"a\") + tag(\"b\")\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("\"\" +"),
+            "Expected string concatenation for uncast tags but got: " + source);
     }
 
     // ==================== sourceAttribute() function ====================
