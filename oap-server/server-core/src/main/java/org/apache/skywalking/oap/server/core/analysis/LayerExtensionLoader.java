@@ -78,11 +78,16 @@ public final class LayerExtensionLoader {
     }
 
     private static void loadFromYaml() {
+        loadFromYaml(LAYER_EXTENSIONS_FILE);
+    }
+
+    /** Package-private overload for tests so they can target a fixture file instead of the production resource. */
+    static void loadFromYaml(final String resourceName) {
         final Reader reader;
         try {
-            reader = ResourceUtils.read(LAYER_EXTENSIONS_FILE);
+            reader = ResourceUtils.read(resourceName);
         } catch (FileNotFoundException e) {
-            log.debug("{} not found on classpath; no operator-defined layer extensions.", LAYER_EXTENSIONS_FILE);
+            log.debug("{} not found on classpath; no operator-defined layer extensions.", resourceName);
             return;
         }
         final LayerExtensionsFile root = new Yaml().loadAs(reader, LayerExtensionsFile.class);
@@ -100,7 +105,8 @@ public final class LayerExtensionLoader {
         private List<LayerDefinition> layers;
     }
 
-    private static void loadFromSpi() {
+    /** Package-private so tests can drive the SPI step independently of yaml loading. */
+    static void loadFromSpi() {
         for (final LayerExtension extension : ServiceLoader.load(LayerExtension.class)) {
             log.info("Applying LayerExtension SPI: {}", extension.getClass().getName());
             extension.contribute();
