@@ -45,7 +45,7 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
  * def variable             myVar?.getAsString()               _def_myVar?.getAsString()
  * Parenthesized            (expr as String).trim()            h.toStr(...).trim()
  * String concat            "${log.service}:${parsed.code}"    "" + ... + ":" + ...
- * Arithmetic sum           (tag("a") as Integer) + (tag("b") as Integer)  (h.toInt(...) + h.toInt(...))
+ * Arithmetic sum           (tag("a") as Integer) + (tag("b") as Integer)  Long.valueOf((long) h.toInt(...) + (long) h.toInt(...))
  * }</pre>
  *
  * <p>Condition codegen ({@link #generateCondition}) handles {@code if}
