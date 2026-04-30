@@ -16,36 +16,29 @@
  *
  */
 
-package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
+package org.apache.skywalking.oap.server.core.analysis;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
-import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
-
-import java.util.List;
 
 /**
- * Rule contains the global configuration of prometheus fetcher.
+ * Wire format for a single external {@link Layer} declaration. Used by every yaml-driven
+ * registration path: the operator-managed {@code layer-extensions.yml}, MAL rule files'
+ * {@code layerDefinitions:} block, and LAL rule files' {@code layerDefinitions:} block. All
+ * paths funnel through {@link Layer#register(String, int, boolean)}, which enforces
+ * name-shape, name-uniqueness, ordinal-uniqueness, and seal-state checks.
+ *
+ * <p>Defaults to {@code normal=true}.
  */
 @Data
 @NoArgsConstructor
-public class Rule implements MetricRuleConfig {
+public class LayerDefinition {
     private String name;
-    private String metricPrefix;
-    private String expSuffix;
-    private String expPrefix;
-    private String filter;
-    private List<MetricsRule> metricsRules;
-    /**
-     * Optional inline layer registrations. When present, each entry is registered through
-     * {@code Layer.register(...)} before the rule's expressions compile, so the
-     * rule file is self-describing for any custom layers it references.
-     */
-    private List<LayerDefinition> layerDefinitions;
+    private int ordinal;
+    private boolean normal = true;
 
-    @Override
-    public String getSourceName() {
-        return name;
+    /** Funnels this declaration through the registry; idempotent on identical re-registration. */
+    public Layer register() {
+        return Layer.register(name, ordinal, normal);
     }
 }

@@ -217,6 +217,15 @@ public class MalFileApplier {
             if (rule.getName() == null || rule.getName().isEmpty()) {
                 rule.setName(sourceName);
             }
+            if (rule.getLayerDefinitions() != null && !rule.getLayerDefinitions().isEmpty()) {
+                throw new ApplyException(
+                    "MAL rule " + sourceName + " declares `layerDefinitions:`, which is only "
+                        + "permitted in bundled rule files loaded at OAP boot. Layer extensions "
+                        + "cannot be added at runtime — the registry is sealed once OAP startup "
+                        + "completes. Declare the layer in `layer-extensions.yml` or a bundled "
+                        + "MAL/LAL file, restart OAP, then retry this update.",
+                    null, Collections.emptySet());
+            }
             return rule;
         } catch (final ApplyException e) {
             throw e;

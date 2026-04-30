@@ -1,0 +1,63 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# ----------------------------------------------------------------------------
+# Layer Extensions
+# ----------------------------------------------------------------------------
+# Declare custom layers that the OAP distribution does not ship out of the box.
+# Each layer becomes a first-class identifier that MAL rules, LAL rules, UI dashboard
+# templates, and query APIs can reference by name.
+#
+# A layer is persisted alongside every service / instance / endpoint it owns. Because
+# every OAP node in a cluster reads and writes the same data, every node MUST agree on
+# the (name, ordinal) mapping. Deploy this file identically to every node.
+#
+# Recommended ordinal range:
+#   0-999   reserved by convention for the OAP distribution's built-in layers.
+#   >= 1000 strongly recommended for external layers. Staying above 1000 avoids
+#           colliding with future built-in layers added by the OAP distribution.
+#           Conflicting ordinals or names cause OAP boot to fail with a clear error.
+#
+# Name shape: must match the regex `[A-Z][A-Z0-9_]*` (upper-snake-case, leading letter).
+#
+# Field reference:
+#   name:    upper-snake-case identifier. MAL/LAL rules and UI templates reference
+#            the layer by this name.
+#   ordinal: stable integer. Once assigned and used to write data, this value is
+#            permanent — changing it orphans every previously stored row tagged with
+#            the old ordinal.
+#   normal:  true  = services in this layer are agent-installed
+#            false = services are conjectured/virtual (e.g. inferred from upstream
+#                    calls). Defaults to true if omitted.
+#
+# Example (uncomment and edit):
+#
+# layers:
+#   - name: IOT_FLEET
+#     ordinal: 1000
+#     normal: true
+#   - name: IOT_GATEWAY
+#     ordinal: 1001
+#     normal: true
+#   - name: VIRTUAL_IOT_DEVICE
+#     ordinal: 1002
+#     normal: false
+#
+# Other places a custom layer can be declared:
+#   - At the top of a MAL or LAL rule file via a `layerDefinitions:` block —
+#     recommended when a layer ships together with the rules that produce its telemetry.
+#   - As an in-process extension contributed by a plugin jar on the OAP classpath.
+
+layers: []

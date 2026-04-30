@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.Locale;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,44 +45,43 @@ public class UITemplateCheckerTest {
         mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
         Set<String> dashboardIds = new HashSet<>();
         Set<String> dashboardNames = new HashSet<>();
-        for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
-            File[] templateFiles;
-            try {
-                templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase(
-                    Locale.ROOT));
-            } catch (FileNotFoundException e) {
-                // Layer enum values without an on-disk template folder are skipped —
-                // mirrors UITemplateInitializer.initAll() behavior post-auto-discovery.
+        final List<File> templateFiles;
+        try {
+            templateFiles = ResourceUtils.getDirectoryFilesRecursive(UITemplateInitializer.UI_TEMPLATE_ROOT, 2);
+        } catch (FileNotFoundException e) {
+            // No template root on classpath — mirrors UITemplateInitializer.initAll() behavior.
+            return;
+        }
+        for (File template : templateFiles) {
+            if (!template.getName().endsWith(".json")) {
                 continue;
             }
-            for (File template : templateFiles) {
-                JsonNode jsonNode;
-                try {
-                    jsonNode = mapper.readTree(template);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("File: " + template.getName() + " is not a legal json file.", e);
-                }
-                if (jsonNode == null || jsonNode.isEmpty()) {
-                    continue;
-                }
-                if (jsonNode.size() > 1) {
-                    throw new IllegalArgumentException(
-                        "File:  " + template.getName() + " should be only one dashboard setting json object.");
-                }
-
-                JsonNode configNode = jsonNode.get(0).get("configuration");
-                String inId = jsonNode.get(0).get("id").textValue();
-                String inName = configNode.get("name").textValue();
-                String inLayer = configNode.get("layer").textValue();
-                String inEntity = configNode.get("entity").textValue();
-                Assertions.assertFalse(dashboardIds.contains(inId), "File: " + template + " has duplicate id: " + inId);
-                dashboardIds.add(inId);
-                String nameKey = StringUtil.join('_', inLayer, inEntity, inName);
-                Assertions.assertFalse(dashboardNames.contains(nameKey), "File:" + template + " has duplicate name: " + inName);
-                dashboardNames.add(nameKey);
-
-                //Todo: implement more validation.
+            JsonNode jsonNode;
+            try {
+                jsonNode = mapper.readTree(template);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("File: " + template.getName() + " is not a legal json file.", e);
             }
+            if (jsonNode == null || jsonNode.isEmpty()) {
+                continue;
+            }
+            if (jsonNode.size() > 1) {
+                throw new IllegalArgumentException(
+                    "File:  " + template.getName() + " should be only one dashboard setting json object.");
+            }
+
+            JsonNode configNode = jsonNode.get(0).get("configuration");
+            String inId = jsonNode.get(0).get("id").textValue();
+            String inName = configNode.get("name").textValue();
+            String inLayer = configNode.get("layer").textValue();
+            String inEntity = configNode.get("entity").textValue();
+            Assertions.assertFalse(dashboardIds.contains(inId), "File: " + template + " has duplicate id: " + inId);
+            dashboardIds.add(inId);
+            String nameKey = StringUtil.join('_', inLayer, inEntity, inName);
+            Assertions.assertFalse(dashboardNames.contains(nameKey), "File:" + template + " has duplicate name: " + inName);
+            dashboardNames.add(nameKey);
+
+            //Todo: implement more validation.
         }
     }
 }

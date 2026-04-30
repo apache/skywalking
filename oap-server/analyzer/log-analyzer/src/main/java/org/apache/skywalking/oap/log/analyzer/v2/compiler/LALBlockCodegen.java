@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 
 /**
  * Code generation for LAL block-level structures: {@code extractor},
@@ -265,7 +266,11 @@ final class LALBlockCodegen {
             sb.append(", \"")
               .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
               .append("\")");
-        } else if (paramType.isEnum()) {
+        } else if (paramType.isEnum() || paramType == Layer.class) {
+            // `Layer` was historically an enum and is now a registry-backed value type with a
+            // matching `valueOf(String)`; both flow through the same `Type.valueOf(string)`
+            // codegen so LAL extractors written as `layer "MYSQL"` still resolve to the typed
+            // setter argument.
             sb.append(paramType.getName()).append(".valueOf(");
             LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(")");

@@ -21,11 +21,22 @@ There is one skill per narrow concern. This one is the wiring map.
 
 ## 0. Register the `Layer` — the feature's entry point
 
-A `Layer` is how OAP slices services / instances / endpoints by data source. **Every new feature needs a new `Layer` enum value.** The UI, storage partitioning, menu navigation, and OAL aggregation all key off it.
+A `Layer` is how OAP slices services / instances / endpoints by data source. The UI, storage partitioning, menu navigation, and OAL aggregation all key off it.
 
-**Only one place to edit** — `oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java`. Add a new enum constant with a unique id and `normal` flag. Ids are never reused; pick the next integer. Examples: `IOS(47, true)`, `APISIX(27, true)`, `VIRTUAL_DATABASE(11, false)` for inferred/non-real services.
+`Layer` is a registry-backed value type (no longer a closed enum). Built-in layers are declared as `public static final Layer` constants in `oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java`; external layers are registered through the `Layer.register(name, ordinal, normal)` API at boot. **Pick the registration path that matches the scope of your feature:**
 
-UI template folders are auto-discovered: `UITemplateInitializer.UI_TEMPLATE_FOLDER` is computed from `Layer.values()` + `"custom"` at class-init time. Drop a `ui-initialized-templates/<layer-name-lowercased>/` folder on disk and the initializer picks it up on the next boot. Missing folders are silently skipped. There is no allowlist to append to.
+| Your feature ships as | Registration path |
+|---|---|
+| Part of the OAP distribution (in-tree, the common case for new SkyWalking-supported targets) | Add a `public static final Layer` constant to `Layer.java` with the next sequential ordinal in `0–49`. Examples: `IOS = register("IOS", 47, true)`, `APISIX = register("APISIX", 21, true)`, `VIRTUAL_DATABASE = register("VIRTUAL_DATABASE", 14, false)` for inferred/non-real services. |
+| An out-of-tree MAL or LAL rule file | Add a top-level `layerDefinitions:` block to the rule file. The DSL loader funnels each entry through `Layer.register` before compiling the rule. One file ships the layer + the rules that produce its telemetry. |
+| An out-of-tree plugin module (jar) | Implement `org.apache.skywalking.oap.server.core.analysis.LayerExtension` and register via `META-INF/services/`. Discovered by `LayerExtensionLoader` during `CoreModuleProvider.prepare()`. |
+| Operator-deployed config (no code, no DSL) | Add an entry to `oap-server/server-starter/src/main/resources/layer-extensions.yml` (or override on the OAP node's classpath). |
+
+**Ordinal conventions:** `0–49` is in active use by built-ins. `50–999` is reserved by convention for future built-in layers. External layers are recommended (not required) to start at `>= 1000` to avoid colliding with future built-ins on OAP upgrade. Collisions in either direction are detected at boot via the ordinal-uniqueness check, which fails OAP startup loudly.
+
+**Storage encoding is the ordinal int**, persisted in BanyanDB / Elasticsearch / JDBC. Every OAP node that reads or writes a given layer must agree on its `(name, ordinal)` mapping — deploy `layer-extensions.yml` and any `layerDefinitions:` rule files identically across all nodes. The registry is sealed at the start of `Core.notifyAfterCompleted()`; later registration attempts throw.
+
+**UI template folders are auto-discovered by file scan, not by `Layer.values()`.** `UITemplateInitializer` walks `ui-initialized-templates/**/*.json` recursively (depth 2) and trusts each template's own `configuration.layer` field. Drop a folder of dashboard JSONs on disk and the initializer picks them up on the next boot — folder name is purely organizational.
 
 **Component ID lookup in Java code**: IDs declared in `component-libraries.yml` are loaded at runtime into `ComponentLibraryCatalogService`'s `componentName2Id` map — they are **not** exposed as Java enum constants. To look up by name in listener code, inject the catalog service and resolve once at construction:
 ```java
@@ -35,11 +46,14 @@ int myComponentId = catalog.getComponentId("My-Component-Name");
 ```
 Cache as an `int` field; runtime comparisons are then plain `componentId == myComponentId`. **Trap:** there is a `ComponentsDefine` class under `skywalking-trace-receiver-plugin/src/test/java/.../mock/ComponentsDefine.java` — it is a test-only mock holding five hand-picked constants (Tomcat, Dubbo, RocketMQ, MongoDB). Do not import or extend it from production code.
 
-Emit the layer from every source object your feature produces:
+Emit the layer from every source object your feature produces. Built-in layers have a static-field accessor; external layers are looked up by name through the registry:
+
 ```java
-service.setLayer(Layer.<YOUR_LAYER>);
-serviceInstance.setServiceLayer(Layer.<YOUR_LAYER>);
-endpoint.setServiceLayer(Layer.<YOUR_LAYER>);
+// Built-in layer (constant)
+service.setLayer(Layer.IOS);
+
+// External layer (registered via yaml / SPI / layerDefinitions:)
+service.setLayer(Layer.nameOf("IOT_FLEET"));
 ```
 
 Downstream (the core OAL, `service ly <LAYER>` swctl query, topology filters, UI root dashboard's layer selector) all work off this single enum value.

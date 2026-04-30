@@ -257,6 +257,15 @@ public class LalFileApplier {
                     "LAL YAML parsed to empty/malformed — no rules list in " + sourceName,
                     null, Collections.emptyList());
             }
+            if (configs.getLayerDefinitions() != null && !configs.getLayerDefinitions().isEmpty()) {
+                throw new ApplyException(
+                    "LAL rule " + sourceName + " declares `layerDefinitions:`, which is only "
+                        + "permitted in bundled rule files loaded at OAP boot. Layer extensions "
+                        + "cannot be added at runtime — the registry is sealed once OAP startup "
+                        + "completes. Declare the layer in `layer-extensions.yml` or a bundled "
+                        + "MAL/LAL file, restart OAP, then retry this update.",
+                    null, Collections.emptyList());
+            }
             return configs.getRules();
         } catch (final ApplyException e) {
             throw e;
