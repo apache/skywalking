@@ -25,6 +25,8 @@ import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationSe
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
 import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.LayerExtensionLoader;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -184,6 +186,12 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        // Load external Layer registrations (yaml + SPI) before anything else in Core
+        // wires up. Downstream modules' prepare()/start() — including MAL/LAL DSL loaders
+        // that may declare inline `layerDefinitions:` blocks — register on top of this
+        // baseline. The registry is sealed at the start of notifyAfterCompleted().
+        LayerExtensionLoader.load();
+
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
         }
@@ -473,6 +481,12 @@ public class CoreModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
+        // Seal the Layer registry: every module's prepare() and start() has now run, so
+        // MAL/LAL/SPI/yaml all had their full window to register external layers. After
+        // this point, Layer.register() throws — UI templates and downstream
+        // queries see a stable layer set.
+        Layer.seal();
+
         try {
             if (!RunningMode.isInitMode()) {
                 grpcServer.start();

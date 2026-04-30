@@ -377,6 +377,44 @@ name: <string>
 exp: <string>
 ```
 
+### <layer_definitions>
+
+Optional top-level block for declaring custom layers inline alongside the rules that produce
+their telemetry. Each entry is funneled through `Layer.register(name, ordinal, normal)`
+**before** the rules in the same file compile, so a MAL file is fully self-describing — a new
+monitoring target can land as a single MAL file without an enum edit elsewhere in the OAP source.
+
+```yaml
+layerDefinitions:
+  - name: IOT_FLEET    # upper-snake-case, must match [A-Z][A-Z0-9_]*
+    ordinal: 1000      # unique across all layers; >= 1000 recommended
+    normal: true       # true = agent-installed (default), false = conjectured/virtual
+
+metricsRules:
+  - name: device_battery_percentage
+    exp: iot_device_battery_level.tagAverage(['service'], ['host'])
+expSuffix: instance(['host'], ['service'], Layer.nameOf('IOT_FLEET'))
+```
+
+Notes:
+- **Storage encoding is the ordinal int**, persisted in BanyanDB / Elasticsearch / JDBC. Every
+  OAP node that reads or writes a given layer must agree on its `(name, ordinal)` mapping —
+  deploy a MAL file with `layerDefinitions:` identically across all nodes.
+- **Identical re-registration is a no-op**, so the same `IOT_FLEET` entry can appear in multiple
+  MAL files (and additionally in a LAL file, in `layer-extensions.yml`, or via the
+  `LayerExtension` SPI). Conflicting registrations (same name with different ordinal, or same
+  ordinal with different name) cause OAP boot to fail loudly with the offending file in the
+  stack trace.
+- **Ordinals 0–49** are in active use by the OAP distribution's built-in layers; **50–999** are
+  reserved by convention for future built-ins. External layers should start at `>= 1000` —
+  enforcement is not strict, but staying above the reserved band avoids upgrade-time collisions.
+
+Three other registration paths exist for layers that are **not** specific to a MAL file: an
+operator-managed `layer-extensions.yml`, a `LayerExtension` Java SPI for plugin jars, and the
+built-in static fields in `Layer.java` for distribution layers. See
+[`Layer.java`](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java)
+javadoc for the full picture.
+
 ## More Examples
 
 Please refer to [OAP Self-Observability](../../../oap-server/server-starter/src/main/resources/otel-rules/oap.yaml).

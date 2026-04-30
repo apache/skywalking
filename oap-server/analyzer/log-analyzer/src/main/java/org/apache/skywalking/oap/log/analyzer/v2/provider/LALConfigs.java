@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -48,6 +50,12 @@ import static org.apache.skywalking.oap.server.library.util.CollectionUtils.isEm
 @Slf4j
 public class LALConfigs {
     private List<LALConfig> rules;
+    /**
+     * Optional inline layer registrations. When present, each entry is registered through
+     * {@code Layer.register(...)} before the rules in this file are compiled, so a
+     * LAL file is self-describing for any custom layers it references.
+     */
+    private List<LayerDefinition> layerDefinitions;
 
     public static List<LALConfigs> load(final String path, final List<String> files) throws Exception {
         return loadInternal(path, files, null, /* useInstalledManager= */ true);
@@ -127,6 +135,7 @@ public class LALConfigs {
                     if (configs == null || configs.getRules() == null) {
                         continue;
                     }
+                    registerInlineLayers(ruleName, configs);
                     // sourceFileName is only present for entries that came from disk; resolver-
                     // only rules synthesise a name so diagnostics still print something.
                     final String src = sourceFileName.getOrDefault(ruleName, ruleName + ".yaml");
@@ -139,6 +148,27 @@ public class LALConfigs {
             return out;
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Failed to load LAL config rules", e);
+        }
+    }
+
+    /**
+     * Funnel any inline {@code layerDefinitions:} entries through {@code Layer.register}.
+     * Conflict checks (reserved-range, name uniqueness, ordinal uniqueness, sealed-state) live
+     * in {@code Layer.register}; failures here surface with the offending rule name in
+     * the stack trace, which is enough for an operator to find the bad file.
+     */
+    private static void registerInlineLayers(final String ruleName, final LALConfigs configs) {
+        final List<LayerDefinition> defs = configs.getLayerDefinitions();
+        if (defs == null || defs.isEmpty()) {
+            return;
+        }
+        for (final LayerDefinition def : defs) {
+            try {
+                def.register();
+            } catch (RuntimeException e) {
+                throw new UnexpectedException(
+                    "LAL rule " + ruleName + " layerDefinitions entry rejected: " + def, e);
+            }
         }
     }
 }

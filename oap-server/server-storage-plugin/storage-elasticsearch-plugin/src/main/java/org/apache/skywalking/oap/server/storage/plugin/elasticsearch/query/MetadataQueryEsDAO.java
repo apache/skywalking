@@ -37,7 +37,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
@@ -71,7 +70,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     private final int scrollingBatchSize;
     private String endpointTrafficNameAlias;
     private boolean aliasNameInit = false;
-    private final int layerSize;
 
     protected final Function<SearchHit, Service> searchHitServiceFunction = hit -> {
         final var sourceAsMap = hit.getSource();
@@ -121,7 +119,6 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
         super(client);
         this.queryMaxSize = config.getMetadataQueryMaxSize();
         this.scrollingBatchSize = config.getScrollingBatchSize();
-        this.layerSize = Layer.values().length;
     }
 
     @Override

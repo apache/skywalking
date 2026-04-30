@@ -25,12 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -41,13 +38,14 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * UITemplateInitializer load the template from the config file in json format. It depends on the UI implementation only.
  * Each config file should be only one dashboard setting json object.
  * The dashboard names should be different in the same Layer and entity.
- * <p>
- * Folder discovery is automatic: every {@link Layer} enum value is probed as a folder
- * (via {@code Layer.name().toLowerCase()}) plus the {@code "custom"} slot. Folders that
- * don't exist are silently skipped. Extensions adding a new {@code Layer} do not need to
- * touch this class.
- * <p>
- * Dev/extension reload: when environment variable {@code SW_UI_TEMPLATE_FORCE_RELOAD}
+ *
+ * <p>Folder discovery is automatic: the {@code ui-initialized-templates/} root is walked
+ * recursively and every {@code *.json} file is loaded as a template. The template's owning
+ * layer comes from the {@code configuration.layer} field inside the JSON itself, so the
+ * folder name is purely organizational. Out-of-tree extensions can drop a folder of their
+ * own (named after their custom Layer or anything else) and the initializer picks it up.
+ *
+ * <p>Dev/extension reload: when environment variable {@code SW_UI_TEMPLATE_FORCE_RELOAD}
  * is {@code true}, each template on disk is written via {@code addOrReplace} rather
  * than {@code addIfNotExist}, so edits to shipped JSON take effect on the next OAP
  * restart without needing to wipe the storage container.
@@ -55,14 +53,18 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 @Slf4j
 public class UITemplateInitializer {
     /**
-     * Every {@link Layer} enum value, lower-cased, plus the {@code "custom"} folder.
-     * Computed once from {@link Layer#values()} so adding a new {@code Layer} automatically
-     * causes its {@code ui-initialized-templates/<layer>/} folder to be scanned.
+     * Root directory holding all UI dashboard templates. Subdirectory names are hints
+     * (typically the layer name lowercased, plus {@code custom/}); the actual layer the
+     * template applies to is read from {@code configuration.layer} inside each JSON file.
      */
-    public static final String[] UI_TEMPLATE_FOLDER = Stream.concat(
-        Arrays.stream(Layer.values()).map(Layer::name),
-        Stream.of("custom")
-    ).toArray(String[]::new);
+    public static final String UI_TEMPLATE_ROOT = "ui-initialized-templates";
+
+    /**
+     * Walk depth: {@code ui-initialized-templates/<folder>/<file>.json}. Depth 2 covers
+     * the canonical layout; files nested deeper are silently ignored to keep template
+     * discovery predictable. If a deeper layout is ever needed, raise this constant.
+     */
+    private static final int WALK_MAX_DEPTH = 2;
 
     /**
      * Environment variable: when {@code true}, templates on disk overwrite any previously
@@ -87,15 +89,18 @@ public class UITemplateInitializer {
         if (FORCE_RELOAD) {
             log.info("SW_UI_TEMPLATE_FORCE_RELOAD=true — shipped UI templates will overwrite any previously seeded copy on this boot.");
         }
-        for (String folder : UITemplateInitializer.UI_TEMPLATE_FOLDER) {
-            try {
-                File[] templateFiles = ResourceUtils.getPathFiles("ui-initialized-templates/" + folder.toLowerCase());
-                for (File file : templateFiles) {
-                    initTemplate(file);
-                }
-            } catch (FileNotFoundException e) {
-                log.debug("No such folder of path: {}, skipping loading UI templates", folder);
+        final List<File> templateFiles;
+        try {
+            templateFiles = ResourceUtils.getDirectoryFilesRecursive(UI_TEMPLATE_ROOT, WALK_MAX_DEPTH);
+        } catch (FileNotFoundException e) {
+            log.debug("No {} folder on classpath, skipping UI template initialization.", UI_TEMPLATE_ROOT);
+            return;
+        }
+        for (File file : templateFiles) {
+            if (!file.getName().endsWith(".json")) {
+                continue;
             }
+            initTemplate(file);
         }
     }
 

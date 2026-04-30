@@ -30,6 +30,51 @@ Use `tag 'key': sourceAttribute("attr")` in the extractor to selectively persist
 Layer should be declared in the LAL script to represent the analysis scope of the logs.
 LAL rules are routed by layer — only rules matching the incoming log's layer are evaluated.
 
+### Inline layer declarations (`layerDefinitions:`)
+
+A LAL file may declare its own custom layers with a top-level `layerDefinitions:` block.
+Each entry is funneled through `Layer.register(name, ordinal, normal)` **before**
+the rules in the same file compile, so a LAL file is fully self-describing — a new
+monitoring target can land as a single LAL file without an enum edit elsewhere in the OAP
+source.
+
+```yaml
+layerDefinitions:
+  - name: IOT_FLEET    # upper-snake-case, must match [A-Z][A-Z0-9_]*
+    ordinal: 1000      # unique across all layers; >= 1000 recommended
+    normal: true       # true = agent-installed (default), false = conjectured/virtual
+
+rules:
+  - name: iot-fleet-access
+    layer: IOT_FLEET
+    dsl: |
+      filter {
+        text { regexp $/(?<status>\d+)\s+(?<path>\S+)/$ }
+        sink { sampler { rateLimit { rpm 1800 } } }
+      }
+```
+
+Notes:
+- **Storage encoding is the ordinal int**, persisted in BanyanDB / Elasticsearch / JDBC.
+  Every OAP node that reads or writes a given layer must agree on its `(name, ordinal)`
+  mapping — deploy a LAL file with `layerDefinitions:` identically across all nodes.
+- **Identical re-registration is a no-op**, so the same `IOT_FLEET` entry can appear in
+  multiple LAL files (and additionally in a MAL file, in `layer-extensions.yml`, or via the
+  `LayerExtension` SPI). Conflicting registrations cause OAP boot to fail loudly with the
+  offending file in the stack trace.
+- **Ordinals 0–49** are in active use by the OAP distribution's built-in layers; **50–999**
+  are reserved by convention for future built-ins. External layers should start at `>= 1000`
+  — enforcement is not strict, but staying above the reserved band avoids upgrade-time
+  collisions.
+- `layer: auto` works with extension layers too — the extractor body can call
+  `layer "IOT_FLEET"` and the runtime resolves it through the registry.
+
+Three other registration paths exist for layers that are **not** specific to a LAL file: an
+operator-managed `layer-extensions.yml`, a `LayerExtension` Java SPI for plugin jars, and
+the built-in static fields in `Layer.java` for distribution layers. See
+[`Layer.java`](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java)
+javadoc for the full picture.
+
 When `layer: auto` is declared, the rule matches logs where `service.layer` is absent (common for OTLP
 sources that don't set this attribute). The script is expected to set the layer in the extractor:
 

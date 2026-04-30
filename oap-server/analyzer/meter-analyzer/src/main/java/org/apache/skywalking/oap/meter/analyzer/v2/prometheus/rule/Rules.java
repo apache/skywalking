@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -149,9 +150,31 @@ public class Rules {
                 return null;
             }
             rule.setName(ruleName);
+            registerInlineLayers(ruleName, rule);
             return rule;
         } catch (IOException e) {
             throw new UnexpectedException("Load rule " + ruleName + " failed", e);
+        }
+    }
+
+    /**
+     * Funnel any inline {@code layerDefinitions:} entries through {@code Layer.register}.
+     * Conflict checks (reserved-range, name uniqueness, ordinal uniqueness, sealed-state) live
+     * in {@code Layer.register}; failures here surface with the offending rule name in
+     * the stack trace, which is enough for an operator to find the bad file.
+     */
+    private static void registerInlineLayers(final String ruleName, final Rule rule) {
+        final List<LayerDefinition> defs = rule.getLayerDefinitions();
+        if (defs == null || defs.isEmpty()) {
+            return;
+        }
+        for (final LayerDefinition def : defs) {
+            try {
+                def.register();
+            } catch (RuntimeException e) {
+                throw new UnexpectedException(
+                    "MAL rule " + ruleName + " layerDefinitions entry rejected: " + def, e);
+            }
         }
     }
 }

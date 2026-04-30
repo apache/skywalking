@@ -51,6 +51,7 @@ import org.apache.skywalking.library.banyandb.v1.client.And;
 import org.apache.skywalking.library.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Duration;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
@@ -631,7 +632,7 @@ public enum MetadataRegistry {
         TagSpec.Builder tagSpec = TagSpec.newBuilder().setName(colName);
         if (String.class.equals(clazz) || StorageDataComplexObject.class.isAssignableFrom(clazz) || JsonObject.class.equals(clazz)) {
             tagSpec = tagSpec.setType(TagType.TAG_TYPE_STRING);
-        } else if (int.class.equals(clazz) || long.class.equals(clazz) || Integer.class.equals(clazz) || Long.class.equals(clazz)) {
+        } else if (int.class.equals(clazz) || long.class.equals(clazz) || Integer.class.equals(clazz) || Long.class.equals(clazz) || Layer.class.equals(clazz)) {
             tagSpec = tagSpec.setType(TagType.TAG_TYPE_INT);
         } else if (byte[].class.equals(clazz)) {
             tagSpec = tagSpec.setType(TagType.TAG_TYPE_DATA_BINARY);
