@@ -88,7 +88,9 @@ public class MeterProcessorTest {
                 "PROCESSOR",
                 mockProcessor
         );
-        doNothing().when(mockProcessor).create(any(), (StreamDefinition) any(), any());
+        // MetricsStreamProcessor.create now takes a StorageManipulationOpt on every path so
+        // the shape-mismatch gate at the installer level can surface to stream registration.
+        doNothing().when(mockProcessor).create(any(), (StreamDefinition) any(), any(), any());
         final MeterProcessService processService = new MeterProcessService(moduleManager);
         List<MeterConfig> config = MeterConfigs.loadConfig("meter-analyzer-config", Arrays.asList("config"));
         processService.start(config);

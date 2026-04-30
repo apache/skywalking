@@ -45,19 +45,30 @@ public class MeasureMetadataRegistry extends MetadataClient<MeasureRegistryServi
 
     @Override
     public void update(final Measure payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(final Measure payload) throws BanyanDBException {
+        BanyandbDatabase.MeasureRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.MeasureRegistryServiceUpdateRequest.newBuilder()
                         .setMeasure(payload)
                         .build()));
+        return resp.getModRevision();
     }
 
     @Override
     public boolean delete(final String group, final String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(final String group, final String name) throws BanyanDBException {
         BanyandbDatabase.MeasureRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.MeasureRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

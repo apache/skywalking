@@ -47,6 +47,7 @@ import org.apache.skywalking.banyandb.common.v1.ServiceGrpc;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBinding;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Measure;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Stream;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Subject;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
@@ -66,6 +67,7 @@ import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBE
 import org.apache.skywalking.library.banyandb.v1.client.metadata.GroupMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.IndexRuleBindingMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.IndexRuleMetadataRegistry;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.MetadataClient;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.MeasureMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.PropertyMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.ResourceExist;
@@ -103,6 +105,12 @@ public class BanyanDBClient implements Closeable {
      */
     @Getter
     private volatile Channel channel;
+    /**
+     * Lazy-initialised wrapper over {@code SchemaBarrierService}. First access after
+     * the channel is wired creates the watcher; nullable until then so that callers
+     * which never need a schema fence don't pay the construction cost.
+     */
+    private volatile SchemaWatcher schemaWatcher;
     /**
      * gRPC client stub
      */
@@ -365,64 +373,57 @@ public class BanyanDBClient implements Closeable {
     }
 
     /**
-     * Define a new stream
-     *
-     * @param stream the stream to be created
+     * Define a new stream and return the etcd {@code mod_revision} server-stamped on
+     * the registry write. Callers that need a schema-watch fence (see
+     * {@link SchemaWatcher#awaitRevisionApplied}) capture this value; legacy callers
+     * that don't need the fence may ignore the return.
      */
-    public void define(Stream stream) throws BanyanDBException {
+    public long define(Stream stream) throws BanyanDBException {
         StreamMetadataRegistry streamRegistry = new StreamMetadataRegistry(checkNotNull(this.channel));
-        long modRevision = streamRegistry.create(stream);
-        stream = stream.toBuilder().setMetadata(stream.getMetadata().toBuilder().setModRevision(modRevision)).build();
+        return streamRegistry.create(stream);
     }
 
     /**
-     * Define a new stream with index rules,
-     * @param stream the stream to be created
-     * @param indexRules the index rules to be created
+     * Define a new stream with index rules. Returns the highest {@code mod_revision}
+     * across the stream + every index rule + the binding write so callers can fence
+     * on a single revision.
      */
-    public void define(Stream stream, List<IndexRule> indexRules) throws BanyanDBException {
-        define(stream);
-        defineIndexRules(stream, indexRules);
+    public long define(Stream stream, List<IndexRule> indexRules) throws BanyanDBException {
+        long maxRev = define(stream);
+        return Math.max(maxRev, defineIndexRules(stream, indexRules));
     }
 
     /**
-     * Define a new measure
-     *
-     * @param measure the measure to be created
+     * Define a new measure. See {@link #define(Stream)} for the mod_revision contract.
      */
-    public void define(Measure measure) throws BanyanDBException {
+    public long define(Measure measure) throws BanyanDBException {
         MeasureMetadataRegistry measureRegistry = new MeasureMetadataRegistry(checkNotNull(this.channel));
-        long modRevision = measureRegistry.create(measure);
-        measure = measure.toBuilder().setMetadata(measure.getMetadata().toBuilder().setModRevision(modRevision)).build();
+        return measureRegistry.create(measure);
     }
 
     /**
-     * Define a new measure with index rules
-     * @param measure the measure to be created
-     * @param indexRules the index rules to be created
+     * Define a new measure with index rules. Returns the highest mod_revision of
+     * any registry write performed during the call.
      */
-    public void define(Measure measure, List<IndexRule> indexRules) throws BanyanDBException {
-        define(measure);
-        defineIndexRules(measure, indexRules);
+    public long define(Measure measure, List<IndexRule> indexRules) throws BanyanDBException {
+        long maxRev = define(measure);
+        return Math.max(maxRev, defineIndexRules(measure, indexRules));
     }
 
     /**
-     * Define a new TopNAggregation
-     *
-     * @param topNAggregation the topN rule to be created
+     * Define a new TopNAggregation. Returns the etcd mod_revision of the write.
      */
-    public void define(TopNAggregation topNAggregation) throws BanyanDBException {
+    public long define(TopNAggregation topNAggregation) throws BanyanDBException {
         TopNAggregationMetadataRegistry registry = new TopNAggregationMetadataRegistry(checkNotNull(this.channel));
-        registry.create(topNAggregation);
+        return registry.create(topNAggregation);
     }
 
     /**
-     * Define a new IndexRule
-     * @param indexRule the index rule to be created
+     * Define a new IndexRule. Returns the etcd mod_revision of the write.
      */
-    public void define(IndexRule indexRule) throws BanyanDBException {
+    public long define(IndexRule indexRule) throws BanyanDBException {
         IndexRuleMetadataRegistry registry = new IndexRuleMetadataRegistry(checkNotNull(this.channel));
-        registry.create(indexRule);
+        return registry.create(indexRule);
     }
 
     /**
@@ -430,40 +431,37 @@ public class BanyanDBClient implements Closeable {
      * The default value of beginAt is the current time, and the default value of expireAt is 2099-01-01 00:00:00 UTC.
      * @param indexRuleBinding the index rule binding to be created
      */
-    public void define(IndexRuleBinding indexRuleBinding) throws BanyanDBException {
+    public long define(IndexRuleBinding indexRuleBinding) throws BanyanDBException {
         ZonedDateTime beginAt = indexRuleBinding.getBeginAt() == Timestamp.getDefaultInstance() ? ZonedDateTime.now() : TimeUtils.parseTimestamp(indexRuleBinding.getBeginAt());
         ZonedDateTime expireAt = indexRuleBinding.getExpireAt() == Timestamp.getDefaultInstance() ? DEFAULT_EXPIRE_AT : TimeUtils.parseTimestamp(indexRuleBinding.getExpireAt());
-        this.define(indexRuleBinding, beginAt, expireAt);
+        return this.define(indexRuleBinding, beginAt, expireAt);
     }
 
     /**
-     * Define a new IndexRuleBinding
-     * @param indexRuleBinding the index rule binding to be created
-     * @param beginAt the beginning time of the index rule binding
-     * @param expireAt the expiry time of the index rule binding
+     * Define a new IndexRuleBinding. Returns the etcd mod_revision of the write.
      */
-    public void define(IndexRuleBinding indexRuleBinding, ZonedDateTime beginAt, ZonedDateTime expireAt) throws BanyanDBException {
+    public long define(IndexRuleBinding indexRuleBinding, ZonedDateTime beginAt, ZonedDateTime expireAt) throws BanyanDBException {
         IndexRuleBindingMetadataRegistry registry = new IndexRuleBindingMetadataRegistry(checkNotNull(this.channel));
         indexRuleBinding = indexRuleBinding.toBuilder()
                                            .setBeginAt(TimeUtils.buildTimestamp(beginAt))
                                            .setExpireAt(TimeUtils.buildTimestamp(expireAt))
                                            .build();
-        registry.create(indexRuleBinding);
+        return registry.create(indexRuleBinding);
     }
 
     /**
-     * Bind index rule to the stream
-     * By default, the index rule binding will be active from now, and it will never be expired.
-     * @param stream     the subject of index rule binding
-     * @param indexRules rules to be bounded
+     * Bind index rule to the stream. Returns the highest mod_revision of any registry
+     * write performed during the call. Per-rule {@code ALREADY_EXISTS} responses are
+     * swallowed (idempotent); a swallowed conflict contributes 0 to the max.
      */
-    public void defineIndexRules(Stream stream, List<IndexRule> indexRules) throws BanyanDBException {
+    public long defineIndexRules(Stream stream, List<IndexRule> indexRules) throws BanyanDBException {
         Preconditions.checkArgument(stream != null, "stream cannot be null");
 
         IndexRuleMetadataRegistry irRegistry = new IndexRuleMetadataRegistry(checkNotNull(this.channel));
+        long maxRev = MetadataClient.DEFAULT_MOD_REVISION;
         for (final IndexRule ir : indexRules) {
             try {
-                irRegistry.create(ir);
+                maxRev = Math.max(maxRev, irRegistry.create(ir));
             } catch (BanyanDBException ex) {
                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
                     continue;
@@ -472,7 +470,7 @@ public class BanyanDBClient implements Closeable {
             }
         }
         if (indexRules.isEmpty()) {
-            return;
+            return maxRev;
         }
 
         List<String> indexRuleNames = indexRules.stream()
@@ -491,23 +489,21 @@ public class BanyanDBClient implements Closeable {
                                                                       .setCatalog(
                                                                           BanyandbCommon.Catalog.CATALOG_STREAM))
                                                    .addAllRules(indexRuleNames).build();
-        this.define(binding);
+        return Math.max(maxRev, this.define(binding));
     }
 
     /**
-     * Bind index rule to the measure.
-     * By default, the index rule binding will be active from now, and it will never be expired.
-     *
-     * @param measure    the subject of index rule binding
-     * @param indexRules rules to be bounded
+     * Bind index rule to the measure. See {@link #defineIndexRules(Stream, List)} for
+     * the mod_revision contract.
      */
-    public void defineIndexRules(Measure measure, List<IndexRule> indexRules) throws BanyanDBException {
+    public long defineIndexRules(Measure measure, List<IndexRule> indexRules) throws BanyanDBException {
         Preconditions.checkArgument(measure != null, "measure cannot be null");
 
         IndexRuleMetadataRegistry irRegistry = new IndexRuleMetadataRegistry(checkNotNull(this.channel));
+        long maxRev = MetadataClient.DEFAULT_MOD_REVISION;
         for (final IndexRule ir : indexRules) {
             try {
-                irRegistry.create(ir);
+                maxRev = Math.max(maxRev, irRegistry.create(ir));
             } catch (BanyanDBException ex) {
                 // multiple entity can share a single index rule
                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
@@ -517,7 +513,7 @@ public class BanyanDBClient implements Closeable {
             }
         }
         if (indexRules.isEmpty()) {
-            return;
+            return maxRev;
         }
 
         List<String> indexRuleNames = indexRules.stream().map(indexRule -> indexRule.getMetadata().getName()).collect(Collectors.toList());
@@ -534,63 +530,43 @@ public class BanyanDBClient implements Closeable {
                                                                       .setCatalog(
                                                                           BanyandbCommon.Catalog.CATALOG_MEASURE))
                                                    .addAllRules(indexRuleNames).build();
-        this.define(binding);
+        return Math.max(maxRev, this.define(binding));
     }
 
-    /**
-     * Update the group
-     *
-     * @param group the group to be updated
-     */
-    public void update(Group group) throws BanyanDBException {
+    /** Update the group. Returns the etcd mod_revision of the write. */
+    public long update(Group group) throws BanyanDBException {
         GroupMetadataRegistry registry = new GroupMetadataRegistry(checkNotNull(this.channel));
-        registry.update(group);
+        return registry.updateWithRevision(group);
     }
 
-    /**
-     * Update the stream
-     * @param stream the stream to be updated
-     */
-    public void update(Stream stream) throws BanyanDBException {
+    /** Update the stream. Returns the etcd mod_revision of the write. */
+    public long update(Stream stream) throws BanyanDBException {
         StreamMetadataRegistry streamRegistry = new StreamMetadataRegistry(checkNotNull(this.channel));
-        streamRegistry.update(stream);
+        return streamRegistry.updateWithRevision(stream);
     }
 
-    /**
-     * Update the measure
-     *
-     * @param measure the measure to be updated
-     */
-    public void update(Measure measure) throws BanyanDBException {
+    /** Update the measure. Returns the etcd mod_revision of the write. */
+    public long update(Measure measure) throws BanyanDBException {
         MeasureMetadataRegistry measureRegistry = new MeasureMetadataRegistry(checkNotNull(this.channel));
-        measureRegistry.update(measure);
+        return measureRegistry.updateWithRevision(measure);
     }
 
-    /**
-     * Update the TopNAggregation
-     * @param topNAggregation the topN rule to be updated
-     */
-    public void update(TopNAggregation topNAggregation) throws BanyanDBException {
+    /** Update the TopNAggregation. Returns the etcd mod_revision of the write. */
+    public long update(TopNAggregation topNAggregation) throws BanyanDBException {
         TopNAggregationMetadataRegistry registry = new TopNAggregationMetadataRegistry(checkNotNull(this.channel));
-        registry.update(topNAggregation);
+        return registry.updateWithRevision(topNAggregation);
     }
 
-    /**
-     * Update the IndexRule
-     * @param indexRule the index rule to be updated
-     */
-    public void update(IndexRule indexRule) throws BanyanDBException {
+    /** Update the IndexRule. Returns the etcd mod_revision of the write. */
+    public long update(IndexRule indexRule) throws BanyanDBException {
         IndexRuleMetadataRegistry registry = new IndexRuleMetadataRegistry(checkNotNull(this.channel));
-        registry.update(indexRule);
+        return registry.updateWithRevision(indexRule);
     }
 
-    /**
-     * Update the IndexRuleBinding
-     * @param indexRuleBinding the index rule binding to be updated
-     */
-    public void update(IndexRuleBinding indexRuleBinding) throws BanyanDBException {
+    /** Update the IndexRuleBinding. Returns the etcd mod_revision of the write. */
+    public long update(IndexRuleBinding indexRuleBinding) throws BanyanDBException {
         IndexRuleBindingMetadataRegistry registry = new IndexRuleBindingMetadataRegistry(checkNotNull(this.channel));
-        registry.update(indexRuleBinding);
+        return registry.updateWithRevision(indexRuleBinding);
     }
 
     /**
@@ -669,6 +645,65 @@ public class BanyanDBClient implements Closeable {
     }
 
     /**
+     * Variant of {@link #deleteStream(String, String)} that returns the etcd
+     * {@code mod_revision} of the tombstone. Returns 0 when the server did not
+     * record one — callers needing a delete-fence then fall back to
+     * {@link SchemaWatcher#awaitSchemaDeleted}.
+     */
+    public long deleteStreamWithRevision(String group, String name) throws BanyanDBException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+        return new StreamMetadataRegistry(checkNotNull(this.channel)).deleteWithRevision(group, name);
+    }
+
+    /** See {@link #deleteStreamWithRevision}. */
+    public long deleteMeasureWithRevision(String group, String name) throws BanyanDBException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+        return new MeasureMetadataRegistry(checkNotNull(this.channel)).deleteWithRevision(group, name);
+    }
+
+    /** See {@link #deleteStreamWithRevision}. */
+    public long deleteTopNAggregationWithRevision(String group, String name) throws BanyanDBException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+        return new TopNAggregationMetadataRegistry(checkNotNull(this.channel)).deleteWithRevision(group, name);
+    }
+
+    /** See {@link #deleteStreamWithRevision}. */
+    public long deleteIndexRuleWithRevision(String group, String name) throws BanyanDBException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+        return new IndexRuleMetadataRegistry(checkNotNull(this.channel)).deleteWithRevision(group, name);
+    }
+
+    /** See {@link #deleteStreamWithRevision}. */
+    public long deleteIndexRuleBindingWithRevision(String group, String name) throws BanyanDBException {
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(group));
+        Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
+        return new IndexRuleBindingMetadataRegistry(checkNotNull(this.channel)).deleteWithRevision(group, name);
+    }
+
+    /**
+     * Lazy accessor for the schema-watcher wrapper. Use to fence subsequent
+     * data writes / queries against a target {@code mod_revision}, or to wait for
+     * a delete tombstone to fan out across data nodes.
+     */
+    public SchemaWatcher getSchemaWatcher() {
+        SchemaWatcher local = this.schemaWatcher;
+        if (local == null) {
+            synchronized (this) {
+                local = this.schemaWatcher;
+                if (local == null) {
+                    local = new SchemaWatcher(checkNotNull(this.channel));
+                    this.schemaWatcher = local;
+                }
+            }
+        }
+        return local;
+    }
+
+    /**
      * Find the IndexRule
      * @param group the group name of the index rule
      * @param name the name of the index rule
@@ -736,20 +771,17 @@ public class BanyanDBClient implements Closeable {
      * @param property the property to be stored in the BanyanBD
      * @throws BanyanDBException if the property is invalid
      */
-    public void define(org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property property) throws BanyanDBException {
+    public long define(Property property) throws BanyanDBException {
         PropertyMetadataRegistry registry = new PropertyMetadataRegistry(checkNotNull(this.channel));
-        registry.create(property);
+        return registry.create(property);
     }
 
     /**
-     * Update the property.
-     *
-     * @param property the property to be stored in the BanyanBD
-     * @throws BanyanDBException if the property is invalid
+     * Update the property. Returns the etcd mod_revision of the write.
      */
-    public void update(org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property property) throws BanyanDBException {
+    public long update(Property property) throws BanyanDBException {
         PropertyMetadataRegistry registry = new PropertyMetadataRegistry(checkNotNull(this.channel));
-        registry.update(property);
+        return registry.updateWithRevision(property);
     }
 
     /**
@@ -759,7 +791,7 @@ public class BanyanDBClient implements Closeable {
      * @param name  name of the metadata
      * @return the property found in BanyanDB. Otherwise, null is returned.
      */
-    public org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property findPropertyDefinition(String group, String name) throws BanyanDBException {
+    public Property findPropertyDefinition(String group, String name) throws BanyanDBException {
         PropertyMetadataRegistry registry = new PropertyMetadataRegistry(checkNotNull(this.channel));
         return registry.get(group, name);
     }
@@ -770,7 +802,7 @@ public class BanyanDBClient implements Closeable {
      * @param group group of the metadata
      * @return the properties found in BanyanDB
      */
-    public List<org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Property> findPropertiesDefinition(String group) throws BanyanDBException {
+    public List<Property> findPropertiesDefinition(String group) throws BanyanDBException {
         PropertyMetadataRegistry registry = new PropertyMetadataRegistry(checkNotNull(this.channel));
         return registry.list(group);
     }
@@ -804,20 +836,17 @@ public class BanyanDBClient implements Closeable {
      * @param trace the trace to be stored in the BanyanDB
      * @throws BanyanDBException if the trace is invalid
      */
-    public void define(Trace trace) throws BanyanDBException {
+    public long define(Trace trace) throws BanyanDBException {
         TraceMetadataRegistry registry = new TraceMetadataRegistry(checkNotNull(this.channel));
-        registry.create(trace);
+        return registry.create(trace);
     }
 
     /**
-     * Update the trace.
-     *
-     * @param trace the trace to be stored in the BanyanDB
-     * @throws BanyanDBException if the trace is invalid
+     * Update the trace. Returns the etcd mod_revision of the write.
      */
-    public void update(Trace trace) throws BanyanDBException {
+    public long update(Trace trace) throws BanyanDBException {
         TraceMetadataRegistry registry = new TraceMetadataRegistry(checkNotNull(this.channel));
-        registry.update(trace);
+        return registry.updateWithRevision(trace);
     }
 
     /**

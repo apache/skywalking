@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
+import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -102,7 +103,7 @@ import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.PersistenceTimer;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.storage.ttl.DataTTLKeeperTimer;
@@ -296,7 +297,7 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
-        this.registerServiceImplementation(ModelCreator.class, storageModels);
+        this.registerServiceImplementation(ModelRegistry.class, storageModels);
         this.registerServiceImplementation(IModelManager.class, storageModels);
         this.registerServiceImplementation(ModelManipulator.class, storageModels);
 
@@ -428,6 +429,14 @@ public class CoreModuleProvider extends ModuleProvider {
         } catch (IOException | IllegalAccessException | InstantiationException | StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);
         }
+
+        // Install the process-wide ModuleManager for RuleSetMerger so MAL/LAL static-rule
+        // loaders pick up classpath-discovered RuntimeRuleOverrideResolvers (notably the
+        // runtime-rule DB resolver) without having to thread the manager through every
+        // signature. Done after the management streams are registered (annotationScan above
+        // creates the runtime_rule table on the backend) and before analyzers start loading
+        // static MAL/LAL files.
+        RuleSetMerger.installManager(getManager());
 
         Address gRPCServerInstanceAddress = new Address(moduleConfig.getGRPCHost(), moduleConfig.getGRPCPort(), true);
         TelemetryRelatedContext.INSTANCE.setId(gRPCServerInstanceAddress.toString());

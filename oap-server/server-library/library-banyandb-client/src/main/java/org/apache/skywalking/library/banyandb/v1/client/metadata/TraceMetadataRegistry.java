@@ -45,19 +45,30 @@ public class TraceMetadataRegistry extends MetadataClient<TraceRegistryServiceGr
 
     @Override
     public void update(Trace payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(Trace payload) throws BanyanDBException {
+        BanyandbDatabase.TraceRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.TraceRegistryServiceUpdateRequest.newBuilder()
                         .setTrace(payload)
                         .build()));
+        return resp.getModRevision();
     }
 
     @Override
     public boolean delete(String group, String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(String group, String name) throws BanyanDBException {
         BanyandbDatabase.TraceRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.TraceRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

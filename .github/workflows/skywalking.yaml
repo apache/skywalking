@@ -294,7 +294,9 @@ jobs:
           distribution: temurin
       - name: Integration test
         run: |
-          # Exclude slow integration tests and run those tests separately below.
+          # Exclude slow integration tests (run in slow-integration-test). Runtime-rule
+          # and BanyanDB storage CRUD are verified end-to-end in the dedicated e2e cases
+          # (see test/e2e-v2/cases/runtime-rule/ and test/e2e-v2/cases/banyandb).
           ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
           ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
 
@@ -393,6 +395,18 @@ jobs:
           - name: Storage ES Sharding 8.18.8
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.18.8
+
+          - name: Runtime Rule MAL Storage BanyanDB
+            config: test/e2e-v2/cases/runtime-rule/mal-storage/banyandb/e2e.yaml
+          - name: Runtime Rule MAL Storage PostgreSQL
+            config: test/e2e-v2/cases/runtime-rule/mal-storage/postgresql/e2e.yaml
+          - name: Runtime Rule MAL Storage Elasticsearch 8.18.8
+            config: test/e2e-v2/cases/runtime-rule/mal-storage/elasticsearch/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Runtime Rule LAL Hot-Update
+            config: test/e2e-v2/cases/runtime-rule/lal/e2e.yaml
+          - name: Runtime Rule Cluster Convergence
+            config: test/e2e-v2/cases/runtime-rule/cluster/e2e.yaml
 
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml

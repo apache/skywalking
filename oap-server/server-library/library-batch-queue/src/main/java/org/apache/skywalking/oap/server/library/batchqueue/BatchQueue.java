@@ -129,6 +129,13 @@ public class BatchQueue<T> {
     private final ConcurrentHashMap<Class<?>, HandlerConsumer<T>> handlerMap;
 
     /**
+     * Per-type registration weight, populated by {@link #addHandler(Class, HandlerConsumer, double)}.
+     * Used by {@link #removeHandler(Class)} so the running {@link #weightedHandlerCount} can be
+     * decremented symmetrically when a handler is unregistered (runtime rule hot-remove).
+     */
+    private final ConcurrentHashMap<Class<?>, Double> handlerWeights;
+
+    /**
      * Running weighted sum of registered handlers, used by adaptive partition policy.
      * Each handler contributes its weight (default 1.0) when registered via
      * {@link #addHandler(Class, HandlerConsumer, double)}.
@@ -301,6 +308,7 @@ public class BatchQueue<T> {
         this.config = config;
         this.partitionSelector = config.getPartitionSelector();
         this.handlerMap = new ConcurrentHashMap<>();
+        this.handlerWeights = new ConcurrentHashMap<>();
         this.warnedUnregisteredTypes = ConcurrentHashMap.newKeySet();
 
         int threadCount = config.getThreads().resolve();
@@ -422,7 +430,13 @@ public class BatchQueue<T> {
             throw new IllegalArgumentException("Handler weight must be > 0, got: " + weight);
         }
         handlerMap.put(type, handler);
-        weightedHandlerCount += weight;
+        final Double previous = handlerWeights.put(type, weight);
+        if (previous != null) {
+            // Re-register of an existing type: replace weight symmetrically.
+            weightedHandlerCount += weight - previous;
+        } else {
+            weightedHandlerCount += weight;
+        }
 
         final int newPartitionCount = config.getPartitions()
             .resolve(resolvedThreadCount, weightedHandlerCount);
@@ -458,6 +472,38 @@ public class BatchQueue<T> {
             this.assignedPartitions = buildAssignments(taskCount, newPartitionCount);
             this.partitions = grown;
         }
+    }
+
+    /**
+     * Remove a previously-registered type handler. Intended for runtime rule hot-remove (MAL/LAL).
+     * Not safe to call concurrently with {@link #addHandler(Class, HandlerConsumer, double)} for
+     * the same or another type — the caller must serialize registrations (the runtime-rule module
+     * holds a per-file lock around its {@code create}/{@code removeMetric} sequence; OAP startup
+     * registrations run single-threaded).
+     *
+     * <p>Side effects:
+     * <ul>
+     *   <li>{@link #handlerMap} entry for {@code type} is removed atomically. Subsequent drained
+     *       items of that class hit the "no handler" path and are logged + dropped at most once per type.</li>
+     *   <li>{@link #weightedHandlerCount} is decremented by the weight recorded at registration.</li>
+     *   <li>Partition array is NOT shrunk — slots allocated by adaptive growth stay for the lifetime
+     *       of the process. This is a bounded leak proportional to cumulative distinct types seen,
+     *       accepted by design (the alternative requires quiescing producers cluster-wide).</li>
+     *   <li>The {@link #warnedUnregisteredTypes} memo is cleared for this type so a later re-registration
+     *       followed by accidental sample arrival produces a fresh warning.</li>
+     * </ul>
+     *
+     * @param type the class whose handler should be removed
+     * @return {@code true} if a handler was present and removed, {@code false} if no handler was registered
+     */
+    public boolean removeHandler(final Class<? extends T> type) {
+        final HandlerConsumer<T> removed = handlerMap.remove(type);
+        final Double weight = handlerWeights.remove(type);
+        if (weight != null) {
+            weightedHandlerCount -= weight;
+        }
+        warnedUnregisteredTypes.remove(type);
+        return removed != null;
     }
 
     /**

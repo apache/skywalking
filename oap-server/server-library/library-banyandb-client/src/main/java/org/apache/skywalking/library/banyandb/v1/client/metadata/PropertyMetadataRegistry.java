@@ -45,19 +45,30 @@ public class PropertyMetadataRegistry extends MetadataClient<PropertyRegistrySer
 
     @Override
     public void update(final Property payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(final Property payload) throws BanyanDBException {
+        BanyandbDatabase.PropertyRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.PropertyRegistryServiceUpdateRequest.newBuilder()
                         .setProperty(payload)
                         .build()));
+        return resp.getModRevision();
     }
 
     @Override
     public boolean delete(final String group, final String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(final String group, final String name) throws BanyanDBException {
         BanyandbDatabase.PropertyRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.PropertyRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

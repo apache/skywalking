@@ -43,4 +43,5 @@ test/script-cases/scripts/**/*.generated-classes/
 
 # Claude Code local settings
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 *.generated-classes/

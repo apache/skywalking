@@ -29,6 +29,7 @@ import io.vavr.Function1;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.PrometheusMetricConverter;
@@ -51,7 +52,9 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -59,12 +62,11 @@ import java.util.stream.Stream;
 
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_DELTA;
 import static io.opentelemetry.proto.metrics.v1.AggregationTemporality.AGGREGATION_TEMPORALITY_UNSPECIFIED;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 @RequiredArgsConstructor
 @Slf4j
-public class OpenTelemetryMetricRequestProcessor implements Service {
+public class OpenTelemetryMetricRequestProcessor implements Service, MalConverterRegistry {
 
     private final ModuleManager manager;
 
@@ -99,11 +101,26 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
             // in resource attributes (e.g., Envoy AI Gateway), it takes precedence via putIfAbsent.
             .put("service.name", "job_name")
             .build();
-    // Initialized to an empty list so that {@link #processMetricsRequest} and
-    // {@link #toMeter} are safe no-ops when no MAL rules are enabled, instead of
-    // throwing NPE in {@code processMetricsRequest} (which unconditionally does
-    // {@code converters.forEach(...)}).
-    private List<MetricConvert> converters = new java.util.ArrayList<>();
+    /**
+     * Active MAL converters, keyed by {@code "<catalog>:<rule-name>"} so boot-time entries and
+     * runtime-rule entries share one namespace. A runtime {@code /addOrUpdate} for a rule that
+     * already has a static version replaces the boot entry in place, avoiding double-dispatch
+     * on ingest samples; a runtime {@code /inactivate} teardown removes the entry cleanly.
+     *
+     * <p>Volatile + copy-on-write: readers in {@link #processMetricsRequest} and {@link #toMeter}
+     * observe a consistent snapshot without taking a lock; writers replace the reference under
+     * {@link #convertersWriteLock}. Iteration order is preserved by {@link LinkedHashMap} so
+     * the behaviour matches the pre-refactor {@code List} ordering for static rules.
+     */
+    private volatile Map<String, MetricConvert> converters = Collections.emptyMap();
+    private final Object convertersWriteLock = new Object();
+
+    /**
+     * Catalog identifier for the {@link OpenTelemetryMetricRequestProcessor}'s MAL rules.
+     * Matches the on-disk directory name and the runtime-rule catalog — the REST handler
+     * rejects requests under any other catalog so the key namespace stays aligned.
+     */
+    private static final String OTEL_CATALOG = "otel-rules";
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -148,7 +165,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
                                .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OTEL metric to prometheus metric"))
                            )
                 );
-                converters.forEach(convert -> convert.toMeter(sampleFamilies));
+                converters.values().forEach(convert -> convert.toMeter(sampleFamilies));
             });
         }
     }
@@ -160,7 +177,41 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
      * MAL converters configured via enabledOtelMetricsRules.
      */
     public void toMeter(final ImmutableMap<String, SampleFamily> sampleFamilies) {
-        converters.forEach(convert -> convert.toMeter(sampleFamilies));
+        converters.values().forEach(convert -> convert.toMeter(sampleFamilies));
+    }
+
+    /**
+     * Install or replace a single MAL converter identified by {@code key}. Thread-safe against
+     * concurrent readers and other writers; readers observe either the pre-call snapshot or the
+     * post-call snapshot, never a torn intermediate state. Called by the runtime-rule plugin
+     * when an operator's {@code /addOrUpdate} commits a new MAL bundle under the
+     * {@code otel-rules} catalog; boot-time loading also uses this method so there is exactly
+     * one installation path.
+     */
+    @Override
+    public void addOrReplaceConverter(final String key, final MetricConvert convert) {
+        synchronized (convertersWriteLock) {
+            final Map<String, MetricConvert> copy = new LinkedHashMap<>(converters);
+            copy.put(key, convert);
+            converters = Collections.unmodifiableMap(copy);
+        }
+    }
+
+    /**
+     * Drop the MAL converter previously installed under {@code key}. No-op if the key is not
+     * present — {@code /delete} on a runtime rule that already tore down on this node shouldn't
+     * surface an error.
+     */
+    @Override
+    public void removeConverter(final String key) {
+        synchronized (convertersWriteLock) {
+            if (!converters.containsKey(key)) {
+                return;
+            }
+            final Map<String, MetricConvert> copy = new LinkedHashMap<>(converters);
+            copy.remove(key);
+            converters = Collections.unmodifiableMap(copy);
+        }
     }
 
     public void start() throws ModuleStartException {
@@ -181,10 +232,9 @@ public class OpenTelemetryMetricRequestProcessor implements Service {
         }
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
 
-        converters = rules
-            .stream()
-            .map(r -> new MetricConvert(r, meterSystem))
-            .collect(toList());
+        for (final Rule rule : rules) {
+            addOrReplaceConverter(OTEL_CATALOG + ":" + rule.getName(), new MetricConvert(rule, meterSystem));
+        }
     }
 
     private static Map<String, String> buildLabels(List<KeyValue> kvs) {

@@ -35,28 +35,39 @@ public class IndexRuleMetadataRegistry extends MetadataClient<IndexRuleRegistryS
 
     @Override
     public long create(IndexRule payload) throws BanyanDBException {
-        execute(() ->
+        BanyandbDatabase.IndexRuleRegistryServiceCreateResponse resp = execute(() ->
                 stub.create(BanyandbDatabase.IndexRuleRegistryServiceCreateRequest.newBuilder()
                         .setIndexRule(payload)
                         .build()));
-        return DEFAULT_MOD_REVISION;
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public void update(IndexRule payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(IndexRule payload) throws BanyanDBException {
+        BanyandbDatabase.IndexRuleRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.IndexRuleRegistryServiceUpdateRequest.newBuilder()
                         .setIndexRule(payload)
                         .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public boolean delete(String group, String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(String group, String name) throws BanyanDBException {
         BanyandbDatabase.IndexRuleRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.IndexRuleRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

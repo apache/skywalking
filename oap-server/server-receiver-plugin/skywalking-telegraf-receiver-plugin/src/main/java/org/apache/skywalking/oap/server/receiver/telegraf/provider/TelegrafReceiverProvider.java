@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -70,16 +71,20 @@ public class TelegrafReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    @Override
+    public void start() throws ServiceNotProvidedException, ModuleStartException {
+        // Load static telegraf MAL rules in start() (not prepare()) so the runtime-rule
+        // extension chain can consult Storage — installed by CoreModuleProvider.start()
+        // and made query-ready by StorageModule.start() which the requiredModules list below
+        // forces to run first.
         try {
             configs = Rules.loadRules(TelegrafModuleConfig.CONFIG_PATH,
                     StringUtil.isEmpty(moduleConfig.getActiveFiles()) ? Collections.emptyList() : Splitter.on(",").splitToList(moduleConfig.getActiveFiles()));
         } catch (IOException e) {
             throw new ModuleStartException("Failed to load MAL rules", e);
         }
-    }
-
-    @Override
-    public void start() throws ServiceNotProvidedException, ModuleStartException {
         if (CollectionUtils.isNotEmpty(configs)) {
             HTTPHandlerRegister httpHandlerRegister = getManager().find(SharingServerModule.NAME)
                     .provider()
@@ -98,9 +103,12 @@ public class TelegrafReceiverProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
+        // StorageModule is declared so the runtime-rule override cache is populated before
+        // Rules.loadRules fires in start() above.
         return new String[] {
             CoreModule.NAME,
-            SharingServerModule.NAME
+            SharingServerModule.NAME,
+            StorageModule.NAME
         };
     }
 }

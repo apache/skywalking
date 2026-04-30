@@ -90,6 +90,17 @@ public class XxxModuleProvider extends ModuleProvider {
 - No star imports (`import xxx.*`)
 - No unused or redundant imports
 - No empty statements (standalone `;`)
+- No fully-qualified class names inline in code — always add an `import` statement and
+  use the short name. Acceptable exceptions: (a) two classes with the same simple name
+  would collide if both imported, (b) the class appears exactly once in a Javadoc
+  `{@link}` where the short name would be ambiguous to the reader. Field declarations,
+  method signatures, local variables, and generic type arguments should always use the
+  imported short name — `private RemoteClientManager rcm;`, not `private
+  org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager rcm;`.
+- No one-line delegate methods. A wrapper whose only body is a single forwarding call
+  to another class (`return Other.foo(a, b);`) adds a hop without value. Inline the
+  call at the use site, or call the underlying object directly (including via method
+  reference: `obj::foo` instead of `this::wrapperOfFoo`).
 
 **Required patterns:**
 - `@Override` annotation required for overridden methods
@@ -105,6 +116,13 @@ public class XxxModuleProvider extends ModuleProvider {
 - Package names: `org.apache.skywalking.*` or `test.apache.skywalking.*`
 - Type names: `PascalCase` or `UPPER_CASE_WITH_UNDERSCORES`
 - Local variables/parameters/members: `camelCase`
+- **Function-oriented naming, not abstract metaphor**: classes and methods are named for
+  what they do, not for an abstract concept. Prefer concrete verbs (`load`, `apply`,
+  `unregister`, `compile`, `verify`, `commit`, `rollback`) over metaphorical ones
+  (`seed`, `hydrate`, `bootstrap`, `prime`). Class names follow the same rule —
+  `StaticRuleLoader` (loads static rules), not `StaticBundleSeeder`; `DSLSyncTimer` (syncs
+  DB → state on a timer), not `TickRunner`. If you can't name a method without reaching
+  for a metaphor, the method is probably doing too much; split it.
 
 **File limits:**
 - Max file length: 3000 lines
@@ -257,6 +275,10 @@ Actions owned by `actions/*` (GitHub), `github/*`, and `apache/*` are always all
 10. **Relative paths in docs are valid**: Relative file paths (e.g., `../../../oap-server/...`) in documentation work both in the repo and on the documentation website, supported by website build tooling
 11. **Module service registration**: When adding a service to `CoreModule.services()`, update ALL `CoreModuleProvider` implementations — not just the main one. Search with `grep -rn "extends CoreModuleProvider" oap-server/ --include="*.java"`. The `MockCoreModuleProvider` in `server-tools/profile-exporter/` also needs it, or the profile exporter e2e test will fail at startup.
 12. **Multiple OAP packagings**: The OAP server is not only the main `server-starter`. The `server-tools/` directory contains standalone tools (e.g., profile exporter) that boot with mock module providers and a subset of modules. Changes to core module contracts (services, required modules) must be reflected in these tools too.
+13. **`moduleManager.find(X.NAME)` requires `X.NAME` in `requiredModules()`**: every call to `moduleManager.find(SomeModule.NAME)` (direct or through a helper) must have `SomeModule.NAME` in the provider's `requiredModules()` array. Missing declarations cause runtime exceptions the first time the code path fires — not at module boot. Wrapping the call in `try { ... } catch (Throwable)` is NOT a substitute; declare the module and keep the try/catch only for defensive handling of transient provider outages. When auditing a branch, grep for `moduleManager.find(` across the touched module and verify each target name appears in `requiredModules()`. Example modules that frequently catch teams out: `AlarmModule` (used by alarm-kernel reset), `LogAnalyzerModule` (used by LAL factory lookup).
+14. **Don't look up `ClusterModule` services directly**: the `ClusterModule` (ZooKeeper / K8s / Nacos coordination) exposes `ClusterRegister` / `ClusterNodesQuery` / `ClusterCoordinator`. Most receiver / analyzer modules don't declare `ClusterModule` in `requiredModules()`, so calling `moduleManager.find(ClusterModule.NAME)` will throw at runtime. Instead, go through `CoreModule`'s `RemoteClientManager` service — it's already populated by the cluster module and exposes the peer list every OAP needs. If a module genuinely needs cluster-coordinator primitives, declare `ClusterModule.NAME` in `requiredModules()` explicitly.
+15. **No `ThreadLocal` side-channels to hijack downstream behaviour**: routing a caller's intent through a `ThreadLocal` that downstream code reads (e.g., `if (PeerMode.isActive()) skipSomething()`) is almost always the wrong answer — it creates invisible coupling between far-apart code paths, leaks across async hand-offs (executors, gRPC threads, Armeria event loops), and makes the behaviour impossible to understand from a method signature. The correct fix is almost always to **extend the interface** — add a parameter, a new method, a new mode enum that appears in the signature. Rare exceptions: propagating OpenTelemetry context where the whole industry has standardised on `ThreadLocal`, or security principals enforced by a framework. In all other cases, prefer an explicit API extension, even if it costs more lines.
+16. **BanyanDB schema-visibility: fence on `mod_revision`, do NOT poll metadata**: every BanyanDB Create / Update / Delete returns an etcd `mod_revision` (0 on a delete that didn't record a tombstone). After firing DDL, fence on `BanyanDBClient.getSchemaWatcher().awaitRevisionApplied(maxRev, timeout)` before unparking dispatch / firing data writes — this blocks until every data node has caught up, which the registry's read-after-write does not guarantee. For deletes that returned `mod_revision == 0`, fall back to `awaitSchemaDeleted(SchemaKey, timeout)`. The previous "poll `findMeasure` until you can read your own write" idiom existed before the `SchemaBarrierService` proto landed and has been replaced — do not reintroduce it. JDBC and ES are synchronous-DDL on the coordinator so they don't need a fence.
 
 ## Analysis and Design Principles
 

@@ -45,19 +45,30 @@ public class StreamMetadataRegistry extends MetadataClient<StreamRegistryService
 
     @Override
     public void update(Stream payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(Stream payload) throws BanyanDBException {
+        BanyandbDatabase.StreamRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.StreamRegistryServiceUpdateRequest.newBuilder()
                         .setStream(payload)
                         .build()));
+        return resp.getModRevision();
     }
 
     @Override
     public boolean delete(String group, String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(String group, String name) throws BanyanDBException {
         BanyandbDatabase.StreamRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.StreamRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

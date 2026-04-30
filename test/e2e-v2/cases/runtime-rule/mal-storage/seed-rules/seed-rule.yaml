@@ -1,0 +1,28 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# v1 — initial CREATE rule for the runtime-rule lifecycle e2e.
+# Derives one SkyWalking metric (e2e_rr_requests) from the OTLP counter
+# emitted by the otlp-emitter container, keyed by service + step so each
+# lifecycle phase's samples land on a distinct row the verify queries can
+# attribute back to the phase that wrote them.
+# Verifies first-time DDL on each backend — boots without any static
+# otel-rules / lal so the runtime-rule apply path is the one that
+# creates the underlying measure / table / index.
+metricPrefix: e2e_rr
+expSuffix: service(['service_name'], Layer.GENERAL)
+metricsRules:
+  - name: requests
+    exp: e2e_rr_request_count_total.sum(['service_name', 'step'])

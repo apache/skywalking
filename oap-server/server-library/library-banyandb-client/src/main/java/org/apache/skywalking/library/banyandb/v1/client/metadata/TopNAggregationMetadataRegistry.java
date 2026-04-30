@@ -35,28 +35,39 @@ public class TopNAggregationMetadataRegistry extends MetadataClient<TopNAggregat
 
     @Override
     public long create(TopNAggregation payload) throws BanyanDBException {
-        execute(() ->
+        BanyandbDatabase.TopNAggregationRegistryServiceCreateResponse resp = execute(() ->
                 stub.create(BanyandbDatabase.TopNAggregationRegistryServiceCreateRequest.newBuilder()
                         .setTopNAggregation(payload)
                         .build()));
-        return DEFAULT_MOD_REVISION;
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public void update(TopNAggregation payload) throws BanyanDBException {
-        execute(() ->
+        updateWithRevision(payload);
+    }
+
+    @Override
+    public long updateWithRevision(TopNAggregation payload) throws BanyanDBException {
+        BanyandbDatabase.TopNAggregationRegistryServiceUpdateResponse resp = execute(() ->
                 stub.update(BanyandbDatabase.TopNAggregationRegistryServiceUpdateRequest.newBuilder()
                         .setTopNAggregation(payload)
                         .build()));
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override
     public boolean delete(String group, String name) throws BanyanDBException {
+        return deleteWithRevision(group, name) >= 0;
+    }
+
+    @Override
+    public long deleteWithRevision(String group, String name) throws BanyanDBException {
         BanyandbDatabase.TopNAggregationRegistryServiceDeleteResponse resp = execute(() ->
                 stub.delete(BanyandbDatabase.TopNAggregationRegistryServiceDeleteRequest.newBuilder()
                         .setMetadata(BanyandbCommon.Metadata.newBuilder().setGroup(group).setName(name).build())
                         .build()));
-        return resp != null && resp.getDeleted();
+        return resp == null ? DEFAULT_MOD_REVISION : resp.getModRevision();
     }
 
     @Override

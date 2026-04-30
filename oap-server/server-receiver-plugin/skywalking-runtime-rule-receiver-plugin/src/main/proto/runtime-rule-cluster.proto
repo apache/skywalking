@@ -1,0 +1,161 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+syntax = "proto3";
+
+package skywalking.v3.runtime_rule;
+
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1";
+
+// Cluster-internal RPCs used during a structural runtime-rule update. Updates are routed to
+// a single deterministic main node per (catalog, name); the main broadcasts Suspend to every
+// peer so they stop running the old bundle while the main applies DDL and verifies it. On
+// success the main persists the new row; peers converge on the next dslManager tick. On
+// failure (compile, verify, persist) the main broadcasts Resume so peers flip back to RUNNING
+// within an RPC round-trip instead of waiting the 60 s self-heal window.
+//
+// Self-heal in the dslManager is the backstop for the narrow case where the main crashes
+// after Suspend but before Resume — peers whose SUSPENDED state has been held by a peer
+// origin past the self-heal threshold and whose DB content has not advanced flip themselves
+// back to RUNNING on the retained old bundle.
+service RuntimeRuleClusterService {
+    rpc Suspend(SuspendRequest) returns (SuspendAck);
+    rpc Resume(ResumeRequest) returns (ResumeAck);
+    // Forward a write request to the hash-selected main node for (catalog, name). Any OAP
+    // that receives an /addOrUpdate / /inactivate / /delete HTTP request for a file it isn't
+    // the main of wraps the HTTP intent in a ForwardRequest and calls this RPC against the
+    // main's cluster channel. The main runs the full local workflow and returns the HTTP
+    // status + JSON body in the ack. Eliminates the "client must resubmit" round-trip from
+    // the old 421 Misdirected Request behaviour.
+    rpc Forward(ForwardRequest) returns (ForwardResponse);
+}
+
+message SuspendRequest {
+    // otel-rules | log-mal-rules | lal
+    string catalog = 1;
+    // relative path under the catalog root, no extension, may contain '/'
+    string name = 2;
+    // informational; logged on the receiver for diagnostic trails
+    string reason = 3;
+    // main node's instance id — receivers compare against their own id to suppress any
+    // accidental self-broadcast loops that would otherwise drain the local bundle twice
+    string sender_node_id = 4;
+    // epoch millis on the main node. Not used for causality decisions (self-heal uses
+    // monotonic clock on the receiver) but useful for latency diagnostics in logs.
+    int64 issued_at_ms = 5;
+}
+
+message SuspendAck {
+    string node_id = 1;
+    SuspendState state = 2;
+    // human-readable audit trail (e.g. "drained 7 metric classes, 2 lal rules")
+    string detail = 3;
+}
+
+enum SuspendState {
+    SUSPEND_STATE_UNSPECIFIED = 0;
+    // was ACTIVE on this node, now suspended — new response for this tick
+    SUSPENDED = 1;
+    // idempotent replay of a Suspend the receiver has already honored — no state change
+    ALREADY_SUSPENDED = 2;
+    // bundle not present locally; main node proceeds, nothing to drain here
+    NOT_PRESENT = 3;
+    // receiver refused because of an origin conflict (this node is itself mid-apply as
+    // SELF origin, meaning two OAPs believe they're main for this file — routing failure
+    // or split-brain). `detail` carries the diagnostic message.
+    REJECTED = 4;
+}
+
+// Resume is the inverse of Suspend. Sent by the main node right after a local apply failure
+// (compile / verify / persist) so peers flip back to RUNNING without waiting for the 60 s
+// self-heal threshold. Clears only the PEER origin on the receiver — a receiver that happens
+// to be SELF-suspended for its own in-flight apply ignores Resume for the SELF bit.
+message ResumeRequest {
+    string catalog = 1;
+    string name = 2;
+    string reason = 3;
+    string sender_node_id = 4;
+    int64 issued_at_ms = 5;
+}
+
+message ResumeAck {
+    string node_id = 1;
+    ResumeState state = 2;
+    string detail = 3;
+}
+
+enum ResumeState {
+    RESUME_STATE_UNSPECIFIED = 0;
+    // bundle transitioned SUSPENDED → RUNNING (PEER origin cleared; no other origin held)
+    RESUMED = 1;
+    // PEER origin was not set on this node (never received Suspend, or already cleared by
+    // self-heal, or another Resume replay). Idempotent, no state change.
+    NOT_SUSPENDED_BY_SENDER = 2;
+    // bundle not present locally — nothing to flip
+    RESUME_NOT_PRESENT = 3;
+    // PEER cleared but SELF is still set (rare BOTH state); bundle stays SUSPENDED until
+    // local apply finishes. `detail` describes the BOTH situation for audit.
+    PARTIALLY_RESUMED = 4;
+}
+
+// ForwardRequest wraps an incoming HTTP write request so the receiving (non-main) node can
+// hand the work off to the hash-selected main. Receiver runs the operation as if it received
+// the HTTP directly, then packages the HTTP response into ForwardResponse. Two operator-
+// visible behaviours:
+//
+//   1. Normal case: non-main wraps + forwards; main runs the workflow; operator sees the
+//      main's response transparently without having to resubmit.
+//   2. Routing-misfire fail-safe: if the receiver of a ForwardRequest ALSO isn't the main
+//      (its own cluster view disagrees with the sender's), it does NOT re-forward —
+//      responds with http_status=421 and a diagnostic body. This bounds cluster ping-pong
+//      at one hop and signals an operator that two nodes disagree about cluster membership.
+message ForwardRequest {
+    // "addOrUpdate" | "inactivate" | "delete"
+    string operation = 1;
+    string catalog = 2;
+    string name = 3;
+    // Raw HTTP body — the rule YAML bytes for addOrUpdate; empty for inactivate / delete.
+    // Bytes not string so a binary-safe round-trip is guaranteed even though YAML is UTF-8
+    // text in practice.
+    bytes body = 4;
+    // Maps to the /addOrUpdate?allowStorageChange= query param; ignored for inactivate /
+    // delete.
+    bool allow_storage_change = 5;
+    // Maps to the /addOrUpdate?force= query param. True for recovery pushes — forces the
+    // bypass of the byte-identical no-change short-circuit so a same-content re-push drives
+    // the full pipeline. Ignored for inactivate / delete.
+    bool force_reapply = 6;
+    // Sender's instance id. Receivers log it for diagnostic trails; the fail-safe also uses
+    // it to spot pathological self-forward loops before they cause damage.
+    string sender_node_id = 7;
+    // Epoch millis on the forwarding node. Diagnostic only; not used for causality.
+    int64 issued_at_ms = 8;
+}
+
+message ForwardResponse {
+    // Mirror of the HTTP status the main's REST handler would have returned (200, 400,
+    // 409, 421, 500, etc.). Forwarder relays this verbatim to the original HTTP caller.
+    int32 http_status = 1;
+    // Mirror of the HTTP response body (JSON) the main would have returned.
+    string body = 2;
+    // Instance id of the node that actually produced the response — normally the main,
+    // but on the fail-safe path (receiver also isn't main) it's still the receiver so the
+    // operator can correlate which node refused.
+    string node_id = 3;
+}

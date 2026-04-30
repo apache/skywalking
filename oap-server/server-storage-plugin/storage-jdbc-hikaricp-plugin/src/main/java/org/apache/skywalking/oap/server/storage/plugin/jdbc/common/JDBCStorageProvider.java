@@ -27,8 +27,9 @@ import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.cache.INetworkAddressAliasDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UIMenuManagementDAO;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
@@ -97,6 +98,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTagAu
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopologyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCUIMenuManagementDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCRuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCUITemplateManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCZipkinQueryDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -143,6 +145,12 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         jdbcClient = new JDBCClient(config.getProperties());
         modelInstaller = (JDBCTableInstaller) createModelInstaller();
         tableHelper = new TableHelper(getManager(), jdbcClient);
+
+        // Expose the installer so the runtime-rule reconciler can call isExists() post-apply
+        // On JDBC the verify is cheap: merged-table columns are
+        // compared against the Model's expected set; a missing column is a clear WARN signal
+        // rather than a silent schema mismatch.
+        this.registerServiceImplementation(ModelInstaller.class, modelInstaller);
 
         this.registerServiceImplementation(
             StorageBuilderFactory.class,
@@ -205,6 +213,9 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             UITemplateManagementDAO.class,
             new JDBCUITemplateManagementDAO(jdbcClient, tableHelper));
+        this.registerServiceImplementation(
+            RuntimeRuleManagementDAO.class,
+            new JDBCRuntimeRuleManagementDAO(jdbcClient, tableHelper));
         this.registerServiceImplementation(
             UIMenuManagementDAO.class,
             new JDBCUIMenuManagementDAO(jdbcClient, tableHelper));
@@ -299,7 +310,7 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
             getManager()
                 .find(CoreModule.NAME)
                 .provider()
-                .getService(ModelCreator.class)
+                .getService(ModelRegistry.class)
                 .addModelListener(modelInstaller);
         } catch (StorageException e) {
             throw new ModuleStartException(e.getMessage(), e);

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>server-receiver-plugin</artifactId>
+        <groupId>org.apache.skywalking</groupId>
+        <version>${revision}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>skywalking-runtime-rule-receiver-plugin</artifactId>
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>server-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--
+          meter-analyzer carries MetricConvert / Rule / Analyzer — the MAL compile pipeline.
+          The apply step constructs one MetricConvert per rule-file bundle, which invokes the
+          generator + MeterSystem.create per declared metric name. Scoped compile+runtime.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>meter-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--
+          log-analyzer carries LogFilterListener.Factory and the LAL compile helpers. The
+          runtime-rule LAL apply path reuses Factory.compile + Factory.addOrReplace / remove
+          so every hot-update hits the same registry the runtime log pipeline consults.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>log-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- commons-compress provides TarArchiveOutputStream for /runtime/rule/dump. -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+        <!--
+          gRPC dependencies needed to generate and host RuntimeRuleClusterService. The Suspend
+          RPC is a small cluster-internal call that travels between OAP nodes on the existing
+          inter-node transport; compile-level deps only, no netty shading concerns here.
+        -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-protobuf</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <!--
+          IT-only deps. library-integration-test provides BanyanDBTestContainer + ITVersions
+          so the runtime-rule ITs share image/port/version constants with every other BanyanDB
+          IT in the repo. library-banyandb-client gives MalApplyRollbackIT / MalShapeBreakIT a
+          read-side verifyClient to inspect groups and measures independently of the
+          storage-plugin write path.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-integration-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>library-banyandb-client</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--
+          storage-banyandb-plugin gives us BanyanDBIndexInstaller, BanyanDBStorageDAO,
+          BanyanDBBatchDAO, and BanyanDBRuntimeRuleManagementDAO — the concrete services the
+          StorageStackHarness wires into the mocked ModuleManager so MeterSystem.create fires
+          real DDL against the Testcontainers BanyanDB.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>storage-banyandb-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--
+          grpc-testing provides InProcessServerBuilder / InProcessChannelBuilder used by the
+          two-node cluster harness. Keeps the in-memory gRPC transport real (deadlines, status
+          codes, cancellation) without a TCP loopback.
+        -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>${protobuf-maven-plugin.version}</version>
+                <configuration>
+                    <protocArtifact>
+                        com.google.protobuf:protoc:${protobuf-java.version}:exe:${os.detected.classifier}
+                    </protocArtifact>
+                    <pluginId>grpc-java</pluginId>
+                    <pluginArtifact>
+                        io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+                    </pluginArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>compile-custom</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

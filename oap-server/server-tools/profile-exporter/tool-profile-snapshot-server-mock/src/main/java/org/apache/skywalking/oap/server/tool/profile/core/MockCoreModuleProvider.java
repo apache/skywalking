@@ -74,7 +74,7 @@ import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
-import org.apache.skywalking.oap.server.core.storage.model.ModelCreator;
+import org.apache.skywalking.oap.server.core.storage.model.ModelRegistry;
 import org.apache.skywalking.oap.server.core.storage.model.ModelManipulator;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
@@ -162,7 +162,7 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
         this.registerServiceImplementation(IWorkerInstanceSetter.class, instancesService);
 
         this.registerServiceImplementation(RemoteSenderService.class, new RemoteSenderService(getManager()));
-        this.registerServiceImplementation(ModelCreator.class, storageModels);
+        this.registerServiceImplementation(ModelRegistry.class, storageModels);
         this.registerServiceImplementation(IModelManager.class, storageModels);
         this.registerServiceImplementation(ModelManipulator.class, storageModels);
 

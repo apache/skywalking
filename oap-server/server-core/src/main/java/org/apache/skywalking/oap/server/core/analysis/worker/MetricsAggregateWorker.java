@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.worker;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.data.MergableBufferedData;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
@@ -76,6 +77,11 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
     private final MergableBufferedData<Metrics> mergeDataCache;
     private final CounterMetrics abandonCounter;
     private final CounterMetrics aggregationCounter;
+    private final Class<? extends Metrics> metricsClass;
+    /** Stream/model name — exposed to {@link MetricsStreamProcessor#removeMetric} so it can
+     *  match this aggregate worker to its down-sampling persistent workers. */
+    @Getter
+    private final String modelName;
     private long lastSendTime = 0;
 
     MetricsAggregateWorker(final ModuleDefineHolder moduleDefineHolder,
@@ -87,6 +93,8 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
         this.nextWorker = nextWorker;
         this.mergeDataCache = new MergableBufferedData<>();
         this.l1FlushPeriod = l1FlushPeriod;
+        this.metricsClass = metricsClass;
+        this.modelName = modelName;
         this.l1Queue = BatchQueueManager.getOrCreate(L1_QUEUE_NAME, L1_QUEUE_CONFIG);
 
         final MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
@@ -173,6 +181,27 @@ public class MetricsAggregateWorker extends AbstractWorker<Metrics> {
             mergeDataCache.read().forEach(nextWorker::in);
             lastSendTime = currentTime;
         }
+    }
+
+    /**
+     * Drain and deregister this worker's L1 handler for hot-remove (MAL/LAL runtime rule
+     * removal). Flushes any in-flight merged metrics from {@link #mergeDataCache} to the next
+     * stage unconditionally (bypassing the {@link #l1FlushPeriod} guard), then unregisters this
+     * metric class from the shared L1 queue.
+     *
+     * <p>After this call, any samples still buffered in the L1 queue partitions for this class
+     * will hit the null-handler path and be dropped (logged once by {@code BatchQueue}). Callers
+     * must have already removed the route from {@code MetricsStreamProcessor.entryWorkers} so no
+     * new samples arrive here during the window.
+     *
+     * <p>Not safe to call concurrently with other {@code addHandler}/{@code removeHandler} on the
+     * same L1 queue — the runtime-rule module serializes via its per-file lock.
+     */
+    public void drainAndDeregister() {
+        // Unconditional flush: ignore lastSendTime so no merged data is left behind.
+        mergeDataCache.read().forEach(nextWorker::in);
+        lastSendTime = System.currentTimeMillis();
+        l1Queue.removeHandler(metricsClass);
     }
 
     private class L1Handler implements HandlerConsumer<Metrics> {

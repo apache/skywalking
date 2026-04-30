@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
  * <p>Also generates the {@code metadata()} method source that returns
  * {@link ExpressionMetadata} at runtime.
  */
-final class MALMetadataExtractor {
+public final class MALMetadataExtractor {
 
     private MALMetadataExtractor() {
     }
@@ -52,7 +52,7 @@ final class MALMetadataExtractor {
      * extracts samples=["metric"], scopeType=SERVICE, scopeLabels=["svc"],
      * aggregationLabels=["svc"].
      */
-    static ExpressionMetadata extractMetadata(final MALExpressionModel.Expr ast) {
+    public static ExpressionMetadata extractMetadata(final MALExpressionModel.Expr ast) {
         final Set<String> sampleNames = new LinkedHashSet<>();
         collectSampleNames(ast, sampleNames);
 

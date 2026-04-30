@@ -34,6 +34,11 @@ public class AlarmModule extends ModuleDefine {
 
     @Override
     public Class[] services() {
-        return new Class[] {MetricsNotify.class, AlarmRulesWatcherService.class, AlarmStatusWatcherService.class};
+        return new Class[] {
+            MetricsNotify.class,
+            AlarmRulesWatcherService.class,
+            AlarmStatusWatcherService.class,
+            AlarmKernelService.class,
+        };
     }
 }

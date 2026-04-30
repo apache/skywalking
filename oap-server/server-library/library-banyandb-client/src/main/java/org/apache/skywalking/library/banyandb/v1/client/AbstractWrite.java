@@ -22,7 +22,7 @@ import java.util.Optional;
 import lombok.Getter;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 
-public abstract class AbstractWrite<P extends com.google.protobuf.GeneratedMessageV3> {
+public abstract class AbstractWrite<P extends com.google.protobuf.GeneratedMessage> {
     /**
      * Timestamp represents the time of the current data point, in milliseconds.
      * <p>

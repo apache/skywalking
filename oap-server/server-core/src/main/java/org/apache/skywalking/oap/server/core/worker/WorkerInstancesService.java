@@ -52,4 +52,12 @@ public class WorkerInstancesService implements IWorkerInstanceSetter, IWorkerIns
         instances.put(remoteReceiverWorkName, new RemoteHandleWorker(instance, kind, streamDataClass));
         LOGGER.debug("Worker {} has been registered as {}", instance.toString(), remoteReceiverWorkName);
     }
+
+    @Override
+    public void remove(String remoteReceiverWorkName) {
+        final RemoteHandleWorker removed = instances.remove(remoteReceiverWorkName);
+        if (removed != null) {
+            LOGGER.debug("Worker {} has been deregistered", remoteReceiverWorkName);
+        }
+    }
 }

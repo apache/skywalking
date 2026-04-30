@@ -93,7 +93,10 @@ public class ZabbixMetricsTest extends ZabbixBaseTest {
         meterSystem = Mockito.spy(new MeterSystem(moduleManager));
         ReflectUtil.setInternalState(MetricsStreamProcessor.class, "PROCESSOR",
                                   Mockito.spy(MetricsStreamProcessor.getInstance()));
-        doNothing().when(MetricsStreamProcessor.getInstance()).create(any(), (StreamDefinition) any(), any());
+        // MetricsStreamProcessor.create now takes a StorageManipulationOpt on every path so
+        // the shape-mismatch gate at the installer level can surface to stream registration.
+        doNothing().when(MetricsStreamProcessor.getInstance())
+                   .create(any(), (StreamDefinition) any(), any(), any());
         CoreModule coreModule = Mockito.spy(CoreModule.class);
 
         ReflectUtil.setInternalState(coreModule, "loadedProvider", moduleProvider);

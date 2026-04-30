@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
@@ -67,7 +68,7 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     @Override
     @SneakyThrows
-    public InstallInfo isExists(Model model) {
+    public InstallInfo isExists(Model model, StorageManipulationOpt opt) {
         InstallInfoJDBC installInfo = new InstallInfoJDBC(model);
         TableMetaInfo.addModel(model);
 

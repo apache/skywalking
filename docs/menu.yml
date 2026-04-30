@@ -390,6 +390,8 @@ catalog:
         path: "/en/concepts-and-designs/mal"
       - name: "Analysis Logs"
         path: "/en/concepts-and-designs/lal"
+      - name: "Runtime Rule Hot-Update"
+        path: "/en/concepts-and-designs/runtime-rule-hot-update"
       - name: "Profiling"
         path: "/en/concepts-and-designs/profiling"
       - name: "Service Hierarchy Configuration"
@@ -400,6 +402,8 @@ catalog:
     catalog:
       - name: "Dynamic Code Generation and Debugging"
         path: "/en/operation/dynamic-code-generation-debugging"
+      - name: "Runtime Rule Hot-Update"
+        path: "/en/setup/backend/backend-runtime-rule-api"
   - name: "Security Notice"
     path: "/en/security/readme"
   - name: "Academy"

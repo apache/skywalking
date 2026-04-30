@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# LAL v1 — extracts one meter sample per matching log under metric name
+# `e2e_lal_log_count` and stamps it with `step=v1`. The companion log-mal
+# rule (seed-rules/log-mal.yaml) aggregates this counter; swctl asserts the
+# aggregated value carries step=v1 once data lands. Swapping to v2 (same
+# rule key, different `step` literal) proves the hot-update actually changed
+# the running extraction — the new step value shows up in queries.
+rules:
+  - name: e2e-rr-lal-live
+    layer: GENERAL
+    dsl: |
+      filter {
+        text {
+          regexp $/.*e2e_rr_lal_live.*/$
+        }
+        extractor {
+          metrics {
+            timestamp log.timestamp as Long
+            labels service: log.service, service_instance_id: log.serviceInstance, step: 'v1'
+            name 'e2e_lal_log_count'
+            value 1
+          }
+        }
+        sink {
+        }
+      }

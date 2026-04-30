@@ -196,6 +196,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>skywalking-runtime-rule-receiver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-telegraf-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>

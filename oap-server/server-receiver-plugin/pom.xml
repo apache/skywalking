@@ -50,6 +50,7 @@
         <module>aws-firehose-receiver</module>
         <module>skywalking-async-profiler-receiver-plugin</module>
         <module>skywalking-pprof-receiver-plugin</module>
+        <module>skywalking-runtime-rule-receiver-plugin</module>
     </modules>
 
     <dependencies>

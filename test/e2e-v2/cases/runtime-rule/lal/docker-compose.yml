@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# LAL live-swap — single OAP + BanyanDB + an OTLP log emitter. The flow applies
+# a LAL rule (v1), swaps it for v2 with the same (layer, ruleName) key, then
+# inactivates and deletes. The log emitter pushes one log every second so the
+# LAL filter pipeline has actual data to match across the swap window — failures
+# in the per-file classloader retirement / Factory.addOrReplace path show up as
+# stalled or duplicated dispatch (caught by the next-tick /list assertions).
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_RECEIVER_RUNTIME_RULE: default
+      SW_STORAGE: banyandb
+      # Open the OTLP gRPC log receiver on the standard port (11800) — base-compose
+      # already opens 11800; we just need the log handler to be on.
+      SW_OTEL_LOG_RECEIVER: default
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    networks:
+      - e2e
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  log-emitter:
+    build:
+      context: ./log-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap:11800
+      EMITTER_SERVICE: e2e-rr-lal-svc
+      EMITTER_INSTANCE: e2e-rr-lal-i1
+      EMITTER_INTERVAL_S: "1"
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

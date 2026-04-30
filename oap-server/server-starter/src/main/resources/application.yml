@@ -643,6 +643,23 @@ receiver-telegraf:
   default:
     activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
 
+# Runtime rule admin surface for hot-update of MAL / LAL rule files.
+# DISABLED BY DEFAULT. Empty selector below keeps the provider unloaded. To enable, set
+# SW_RECEIVER_RUNTIME_RULE=default (or edit this block). Once enabled, the admin endpoint
+# binds on port 17128. SECURITY NOTICE: the endpoint has no authentication this iteration —
+# gateway-protect with IP allow-lists and never expose it to the public internet.
+receiver-runtime-rule:
+  selector: ${SW_RECEIVER_RUNTIME_RULE:-}
+  default:
+    restHost: ${SW_RECEIVER_RUNTIME_RULE_REST_HOST:0.0.0.0}
+    restPort: ${SW_RECEIVER_RUNTIME_RULE_REST_PORT:17128}
+    restContextPath: ${SW_RECEIVER_RUNTIME_RULE_REST_CONTEXT_PATH:/}
+    restIdleTimeOut: ${SW_RECEIVER_RUNTIME_RULE_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_RECEIVER_RUNTIME_RULE_REST_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_RECEIVER_RUNTIME_RULE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    reconcilerIntervalSeconds: ${SW_RECEIVER_RUNTIME_RULE_RECONCILER_INTERVAL_SECONDS:30}
+    selfHealThresholdSeconds: ${SW_RECEIVER_RUNTIME_RULE_SELF_HEAL_THRESHOLD_SECONDS:60}
+
 aws-firehose:
   selector: ${SW_RECEIVER_AWS_FIREHOSE:default}
   default:

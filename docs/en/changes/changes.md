@@ -1,8 +1,62 @@
 ## 10.5.0
 
 #### Project
+
+* **Runtime rule hot-update for MAL and LAL.** Operators can now ship metric (MAL) and log
+  (LAL) rule changes without restarting OAP. A push to a new admin endpoint persists the rule
+  to the configured storage backend, and every node in the cluster converges to the new
+  content within ~30 seconds. Common workflows:
+  * `addOrUpdate` — create or replace a rule. Body is the raw YAML you would normally ship
+    with OAP's static rule files. Returns 200 once the rule is applied locally and
+    persisted; peers pick it up on their next periodic scan (≤ 30 s).
+  * `inactivate` — soft-pause a rule. The OAP stops emitting metrics for that rule but the
+    backend measure (and its history) is preserved, so a later `addOrUpdate` to the same
+    `(catalog, name)` is lossless. The "off" intent is durable across reboots; bundled rules
+    on disk are not auto-resurrected when an `inactivate` removes the runtime override.
+    This is the safe way to take a rule offline.
+  * `delete` — removes an `INACTIVE` row (active rules return `409 requires_inactivate_first`).
+    For runtime-only rules with no bundled YAML on disk, the row is dropped; the backend
+    measure (if any) is left in place as an inert artefact, matching bundled-rule deletion
+    semantics (removing a YAML from `otel-rules/` on disk doesn't drop its measure either).
+    For rules that have a bundled YAML twin, plain `delete` returns `409
+    requires_revert_to_bundled` — letting bundled silently take over the
+    `(catalog, name)` is a meaningful state change that requires an explicit operator
+    decision. Re-issue with `?mode=revertToBundled` to fall back to bundled: that path runs
+    the schema-change pipeline (rehydrates the runtime DSL locally, then applies the
+    bundled YAML through the standard apply pipeline so the runtime→bundled delta drops
+    runtime-only metrics, registers bundled-only metrics, and reuses bundled-shared metrics
+    at matching shape) before removing the row. Returns `400 no_bundled_twin` when
+    `?mode=revertToBundled` is used without a bundled YAML on disk.
+  * `get` / `bundled` / `list` / `dump` — read-side endpoints for fetching a single rule's
+    YAML (with `ETag` support; `?source=bundled` reads the on-disk bundled YAML even when a
+    runtime override is in place), listing the bundled-vs-runtime overlay per catalog,
+    inspecting cluster-wide rule state as a JSON envelope (`{generatedAt, loaderStats,
+    rules}` — each row carries `status`/`localState`/`loaderKind`/`bundled`/`bundledContentHash`
+    so a UI can render override badges without a second roundtrip), and exporting all rules
+    as a tar.gz for backup / DR.
+  Hot-updates survive OAP restart: at boot OAP merges bundled rule files with persisted
+  runtime rules, so the cluster never silently regresses to the bundled defaults.
+  **The endpoint is disabled by default and listens on port `17128` when enabled. It has
+  no built-in authentication — operators must gateway-protect it with IP allow-lists and
+  never expose it to the public internet.**
+* **BanyanDB schema mismatches are now visible at boot, not silent.** If BanyanDB already
+  holds a resource whose shape doesn't match what the current rule declares (e.g., a rule
+  was edited on disk while OAP was offline), OAP now skips that resource, logs an ERROR
+  with the declared-vs-backend diff, and continues booting — previously the mismatch was
+  silently accepted and samples for the affected resource were quietly dropped. To
+  re-shape a mismatched metric, push the desired YAML through
+  `POST /runtime/rule/addOrUpdate`.
 * Bump infra-e2e to testcontainers-go v0.42.0 (apache/skywalking-infra-e2e#146), which uses Docker Compose v2 plugin natively and removes docker-compose v1 dependency.
 * Remove deprecated `version` field from all docker-compose files for Compose v2 compatibility.
+* **Best-effort schema-cutover fence for BanyanDB.** After firing a schema install or drop
+  OAP now waits up to a bounded window (default 2s) for every BanyanDB data node to apply
+  the change before resuming dispatch — the typical case gets a clean cutover where
+  samples after `200 OK` use the new shape. On laggard timeout, OAP logs a warning and
+  proceeds anyway so a single slow node doesn't wedge the apply.
+* Bump dependencies: gRPC `1.70.0` → `1.80.0`, protobuf-java `3.25.5` → `4.33.1`, Netty
+  `4.2.10.Final` → `4.2.12.Final`, Netty-tcnative `2.0.75` → `2.0.77`, pgv (protoc-gen-validate)
+  `1.2.1` → `1.3.0`. Driven by the new BanyanDB schema-consistency RPCs whose generated
+  validation code requires the `protobuf-java 4.x` runtime.
 
 #### OAP Server
 * Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
@@ -54,4 +108,3 @@
 * Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:10.5.0)
-

@@ -16,26 +16,26 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.storage.model;
+package org.apache.skywalking.oap.server.receiver.runtimerule.module;
 
-import org.apache.skywalking.oap.server.core.storage.StorageException;
-import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 /**
- * INewModel implementation supports creating a new module.
+ * Module contract for the runtime rule receiver.
+ *
+ * <p>Exposes an HTTP admin surface (default port 17128, disabled by default) for hot-updating
+ * MAL / LAL rule files without OAP restart. Skeleton only in this bundle — HTTP handlers return
+ * 501 until the apply pipeline lands in a later bundle.
  */
-public interface ModelCreator extends Service {
-    /**
-     * Add a new model
-     *
-     * @return the created new model
-     */
-    Model add(Class<?> aClass, int scopeId, Storage storage) throws StorageException;
+public class RuntimeRuleModule extends ModuleDefine {
+    public static final String NAME = "receiver-runtime-rule";
 
-    void addModelListener(CreatingListener listener) throws StorageException;
+    public RuntimeRuleModule() {
+        super(NAME);
+    }
 
-    interface CreatingListener {
-        void whenCreating(Model model) throws StorageException;
+    @Override
+    public Class[] services() {
+        return new Class[0];
     }
 }

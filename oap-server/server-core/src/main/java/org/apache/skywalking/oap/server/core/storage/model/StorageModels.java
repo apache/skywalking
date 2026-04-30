@@ -34,19 +34,28 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * StorageModels manages all models detected by the core.
+ *
+ * <p>Concurrency: the {@code models} and {@code listeners} lists are guarded by {@link #lock}. Mutations
+ * (add/remove) acquire the lock, snapshot the listener list, release the lock, and then invoke listener
+ * callbacks. Callbacks may do I/O (DDL) and must not block unrelated {@code add} calls coming from other
+ * threads (e.g. a late-loading module's startup). Read-only API ({@link #allModels()}) returns an
+ * unmodifiable snapshot taken under the lock.
  */
 @Slf4j
-public class StorageModels implements IModelManager, ModelCreator, ModelManipulator {
+public class StorageModels implements IModelManager, ModelRegistry, ModelManipulator {
     private final List<Model> models;
     private final HashMap<String, String> columnNameOverrideRule;
     private final List<CreatingListener> listeners;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public StorageModels() {
         this.models = new ArrayList<>();
@@ -55,7 +64,7 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     }
 
     @Override
-    public Model add(Class<?> aClass, int scopeId, Storage storage) throws StorageException {
+    public Model add(Class<?> aClass, int scopeId, Storage storage, StorageManipulationOpt opt) throws StorageException {
         // Check this scope id is valid.
         DefaultScopeDefine.nameOf(scopeId);
 
@@ -174,12 +183,139 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
         );
 
         this.followColumnNameRules(model);
-        models.add(model);
 
-        for (final CreatingListener listener : listeners) {
-            listener.whenCreating(model);
+        final List<CreatingListener> listenersSnapshot;
+        final Model finalModel;
+        lock.lock();
+        try {
+            // Dedup by (model name, downsampling). Two registrations with the same logical identity are idempotent —
+            // the first caller wins, the second receives the existing model reference and no listener fires again.
+            // Required for runtime-rule hot-update, where a remove followed by an add of the same metric name would
+            // otherwise append a duplicate entry to the internal list.
+            Model existing = null;
+            for (Model m : models) {
+                if (m.getName().equals(model.getName()) && m.getDownsampling() == model.getDownsampling()) {
+                    existing = m;
+                    break;
+                }
+            }
+            if (existing != null) {
+                return existing;
+            }
+            models.add(model);
+            listenersSnapshot = new ArrayList<>(listeners);
+            finalModel = model;
+        } finally {
+            lock.unlock();
         }
-        return model;
+
+        // If a listener (e.g. the BanyanDB / ES installer) throws while creating the
+        // backing measure / index / table, roll the model out of the registry before
+        // letting the exception propagate. Without this, the model stays in `models` and
+        // the dedup check above short-circuits future retries — the listener never fires
+        // again for this model, and the storage stays half-built. The model is published
+        // to the registry only after all listeners succeed.
+        boolean committed = false;
+        try {
+            for (final CreatingListener listener : listenersSnapshot) {
+                listener.whenCreating(finalModel, opt);
+            }
+            committed = true;
+        } finally {
+            if (!committed) {
+                lock.lock();
+                try {
+                    models.remove(finalModel);
+                } finally {
+                    lock.unlock();
+                }
+            }
+        }
+        return finalModel;
+    }
+
+    /**
+     * Remove every model registered through {@link #add(Class, int, Storage, StorageManipulationOpt)} whose stream
+     * class equals {@code streamClass}. Cascades across downsampling variants (Hour / Day /
+     * Minute). Backend drop operations (BanyanDB delete-measure) run inside listener
+     * {@link CreatingListener#whenRemoving} BEFORE the model is removed from the registry,
+     * so a transient backend-drop failure leaves the model in place — the caller (typically
+     * runtime-rule {@code /inactivate} or the reconciler tick) sees the throw and can
+     * re-attempt the whole tear-down. Removing the model first would leave the registry
+     * out of sync with the backend (model gone, measure still present) and the next
+     * {@code remove} call's iteration would find nothing to drop.
+     *
+     * @return the list of models that were removed, in the order they were discovered. Empty
+     *         if no model matched. If a listener throws, that listener's drop is left in an
+     *         unknown state on the corresponding backend; this method propagates the first
+     *         such error after attempting every listener × model pair (so partial successes
+     *         on one backend don't block successes on another).
+     */
+    @Override
+    public List<Model> remove(Class<?> streamClass, StorageManipulationOpt opt) throws StorageException {
+        // Snapshot matching models without yet removing them. Backend cascade first, registry
+        // mutation only after every listener succeeds.
+        final List<Model> matching;
+        final List<CreatingListener> listenersSnapshot;
+        lock.lock();
+        try {
+            matching = new ArrayList<>();
+            for (final Model m : models) {
+                if (Objects.equals(m.getStreamClass(), streamClass)) {
+                    matching.add(m);
+                }
+            }
+            listenersSnapshot = new ArrayList<>(listeners);
+        } finally {
+            lock.unlock();
+        }
+
+        StorageException firstError = null;
+        for (final Model m : matching) {
+            for (final CreatingListener listener : listenersSnapshot) {
+                try {
+                    listener.whenRemoving(m, opt);
+                } catch (StorageException e) {
+                    log.error("Listener {} failed to handle whenRemoving({})", listener.getClass().getName(), m.getName(), e);
+                    if (firstError == null) {
+                        firstError = e;
+                    }
+                }
+            }
+        }
+        if (firstError != null) {
+            // Leave models in the registry — backend state is uncertain on at least one
+            // listener, so the next retry needs to find them and re-fire whenRemoving.
+            // Listeners are required to be idempotent on the drop path (BanyanDB's
+            // delete-measure on a non-existent measure is a no-op; ES / JDBC dropTable for
+            // management data is a documented no-op).
+            throw firstError;
+        }
+        // All listeners succeeded for every matching model — drop them from the registry.
+        // Identity-based removal: avoids the {@code @EqualsAndHashCode} on {@link Model}
+        // matching a concurrent fresh add of the same stream class with different field
+        // combinations. The matching list was captured under the lock; identity stays stable.
+        // Also drop the corresponding ValueColumnMetadata entry so a subsequent re-register
+        // under a different scope (runtime-rule SHAPE-BREAK: SERVICE → SERVICE_INSTANCE) is
+        // not silently ignored by {@code ValueColumnMetadata.putIfAbsent} — without this the
+        // metric catalog (used by listMetrics / MQE entity resolution) would keep the old
+        // scope and queries would target the wrong entity_id.
+        lock.lock();
+        try {
+            for (final Model target : matching) {
+                final Iterator<Model> it = models.iterator();
+                while (it.hasNext()) {
+                    if (it.next() == target) {
+                        it.remove();
+                        break;
+                    }
+                }
+                ValueColumnMetadata.INSTANCE.remove(target.getName());
+            }
+        } finally {
+            lock.unlock();
+        }
+        return matching;
     }
 
     private boolean isSuperDatasetModel(Class<?> aClass) {
@@ -187,14 +323,26 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
     }
 
     /**
-     * CreatingListener listener could react when {@link ModelCreator#add(Class, int, Storage)} model happens. Also, the
+     * CreatingListener listener could react when {@link ModelRegistry#add(Class, int, Storage, StorageManipulationOpt)} model happens. Also, the
      * added models are being notified in this add operation.
      */
     @Override
     public void addModelListener(final CreatingListener listener) throws StorageException {
-        listeners.add(listener);
-        for (Model model : models) {
-            listener.whenCreating(model);
+        final List<Model> modelsSnapshot;
+        lock.lock();
+        try {
+            listeners.add(listener);
+            modelsSnapshot = new ArrayList<>(models);
+        } finally {
+            lock.unlock();
+        }
+        // A late-registering listener catches up on every previously-added model. These
+        // models were added with their original caller's policy; the listener now receives
+        // them under schemaCreateIfAbsent() because this catch-up is boot-time model registration,
+        // not an on-demand operator reshape — we want the same "create-if-absent + report
+        // shape mismatch" semantics, never auto-reshape.
+        for (Model model : modelsSnapshot) {
+            listener.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent());
         }
     }
 
@@ -340,8 +488,15 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
     @Override
     public void overrideColumnName(String columnName, String newName) {
-        columnNameOverrideRule.put(columnName, newName);
-        models.forEach(this::followColumnNameRules);
+        final List<Model> modelsSnapshot;
+        lock.lock();
+        try {
+            columnNameOverrideRule.put(columnName, newName);
+            modelsSnapshot = new ArrayList<>(models);
+        } finally {
+            lock.unlock();
+        }
+        modelsSnapshot.forEach(this::followColumnNameRules);
         ValueColumnMetadata.INSTANCE.overrideColumnName(columnName, newName);
     }
 
@@ -373,7 +528,12 @@ public class StorageModels implements IModelManager, ModelCreator, ModelManipula
 
     @Override
     public List<Model> allModels() {
-        return models;
+        lock.lock();
+        try {
+            return Collections.unmodifiableList(new ArrayList<>(models));
+        } finally {
+            lock.unlock();
+        }
     }
 
     private TraceIndexRule createTraceIndexRule(Class<?> aClass, BanyanDB.Trace.IndexRule indexRuleColumns) {
