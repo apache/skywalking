@@ -61,13 +61,6 @@ rules:
 
         extractor {
           tag 'ai_route_type': "llm"
-          tag 'gen_ai.request.model': tag("gen_ai.request.model")
-          tag 'gen_ai.response.model': tag("gen_ai.response.model")
-          tag 'gen_ai.provider.name': tag("gen_ai.provider.name")
-          tag 'gen_ai.usage.input_tokens': tag("gen_ai.usage.input_tokens")
-          tag 'gen_ai.usage.output_tokens': tag("gen_ai.usage.output_tokens")
-          tag 'response_code': tag("response_code")
-          tag 'duration': tag("duration")
         }
 
         sink {
@@ -93,11 +86,6 @@ rules:
 
         extractor {
           tag 'ai_route_type': "mcp"
-          tag 'mcp.method.name': tag("mcp.method.name")
-          tag 'mcp.provider.name': tag("mcp.provider.name")
-          tag 'mcp.session.id': tag("mcp.session.id")
-          tag 'response_code': tag("response_code")
-          tag 'duration': tag("duration")
         }
 
         sink {

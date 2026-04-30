@@ -59,6 +59,7 @@
   validation code requires the `protobuf-java 4.x` runtime.
 
 #### OAP Server
+* Fix: remove the redundant tags from the `envoy-ai-gateway.yaml` LAL configuration.
 * Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
   between `opentelemetry-exporter-zipkin-proto-http` (protobuf~=3.12) and `opentelemetry-proto` (protobuf>=5.0).
 * Fix missing `taskId` filter and incorrect `IN` clause parameter binding in `JDBCJFRDataQueryDAO` and `JDBCPprofDataQueryDAO`.
