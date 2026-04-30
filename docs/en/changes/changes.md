@@ -57,9 +57,9 @@
   `4.2.10.Final` → `4.2.12.Final`, Netty-tcnative `2.0.75` → `2.0.77`, pgv (protoc-gen-validate)
   `1.2.1` → `1.3.0`. Driven by the new BanyanDB schema-consistency RPCs whose generated
   validation code requires the `protobuf-java 4.x` runtime.
-* Fix: remove the redundant tags from the `envoy-ai-gateway.yaml` LAL configuration.
 
 #### OAP Server
+* Fix: remove the redundant tags from the `envoy-ai-gateway.yaml` LAL configuration.
 * Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
   between `opentelemetry-exporter-zipkin-proto-http` (protobuf~=3.12) and `opentelemetry-proto` (protobuf>=5.0).
 * Fix missing `taskId` filter and incorrect `IN` clause parameter binding in `JDBCJFRDataQueryDAO` and `JDBCPprofDataQueryDAO`.
