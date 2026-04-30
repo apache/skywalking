@@ -96,6 +96,7 @@
 * Fix: potential unexpected current directory inclusion in Docker OAP classpath.
 * MAL: add `safeDiv(divisor)` on `SampleFamily` that yields `0` when the divisor is `0` instead of `Infinity`/`NaN`. Replace `/` with `safeDiv(...)` in Envoy AI Gateway latency-average rules so `sum / count * 1000` no longer produces dropped or out-of-range samples when a counter is zero in a window.
 * Fix: `envoy-ai-gateway` metrics rules, make the metrics value return `0` when the divisor is `0`.
+* Fix: LAL compiler treated `(tag("x") as Integer) + (tag("y") as Integer)` as string concatenation instead of numeric addition. Expressions like `input_tokens + output_tokens < 10000` produced the concatenated string `"2589115"` rather than the integer sum `2704`, so token-threshold conditions never triggered `abort {}`. The compiler now detects all-numeric operands (cast to `Integer` or `Long`) and emits proper `long` arithmetic.
 
 #### UI
 * Add mobile menu icon and i18n labels for the iOS layer.
