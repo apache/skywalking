@@ -26,6 +26,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.skywalking.lal.rt.grammar.LALLexer;
 import org.apache.skywalking.lal.rt.grammar.LALParser;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.AbortStatement;
@@ -528,8 +530,9 @@ public final class LALScriptParser {
                 stripQuotes(((LALParser.CondStringContext) ctx).STRING().getText()));
         }
         if (ctx instanceof LALParser.CondNumberContext) {
-            return new NumberConditionValue(
-                Double.parseDouble(((LALParser.CondNumberContext) ctx).NUMBER().getText()));
+            final String numText =
+                ((LALParser.CondNumberContext) ctx).NUMBER().getText();
+            return new NumberConditionValue(parseLiteralAsDouble(numText), numText);
         }
         if (ctx instanceof LALParser.CondNullContext) {
             return new NullConditionValue();
@@ -541,13 +544,15 @@ public final class LALScriptParser {
             // (since valueAccessPrimary includes them and condValueAccess has priority).
             // Detect standalone literals and create proper ConditionValue types.
             final LALParser.ValueAccessContext vaCtx = va.valueAccess();
-            if (va.typeCast() == null && vaCtx.valueAccessTerm().size() == 1
-                    && vaCtx.valueAccessTerm(0).valueAccessSegment().isEmpty()) {
+            final LALParser.ValueAccessTermContext singleTerm = singleTermOf(vaCtx);
+            if (va.typeCast() == null && singleTerm != null
+                    && singleTerm.valueAccessSegment().isEmpty()) {
                 final LALParser.ValueAccessPrimaryContext primary =
-                    vaCtx.valueAccessTerm(0).valueAccessPrimary();
+                    singleTerm.valueAccessPrimary();
                 if (primary instanceof LALParser.ValueNumberContext) {
-                    return new NumberConditionValue(Double.parseDouble(
-                        ((LALParser.ValueNumberContext) primary).NUMBER().getText()));
+                    final String numText =
+                        ((LALParser.ValueNumberContext) primary).NUMBER().getText();
+                    return new NumberConditionValue(parseLiteralAsDouble(numText), numText);
                 }
                 if (primary instanceof LALParser.ValueNullContext) {
                     return new NullConditionValue();
@@ -595,19 +600,62 @@ public final class LALScriptParser {
     // ==================== Value access ====================
 
     private static ValueAccess visitValueAccess(final LALParser.ValueAccessContext ctx) {
+        return visitValueAccessAdd(ctx.valueAccessAdd());
+    }
+
+    private static ValueAccess visitValueAccessAdd(final LALParser.ValueAccessAddContext ctx) {
+        final List<LALParser.ValueAccessMulContext> muls = ctx.valueAccessMul();
+        if (muls.size() == 1) {
+            return visitValueAccessMul(muls.get(0));
+        }
+        final List<ValueAccess> parts = new ArrayList<>();
+        for (final LALParser.ValueAccessMulContext mul : muls) {
+            parts.add(visitValueAccessMul(mul));
+        }
+        // Walk children to recover operator order — PLUS/MINUS appear interleaved with mul nodes.
+        final List<LALScriptModel.BinaryOp> ops = new ArrayList<>(muls.size() - 1);
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            final ParseTree child = ctx.getChild(i);
+            if (child instanceof TerminalNode) {
+                final int type = ((TerminalNode) child).getSymbol().getType();
+                if (type == LALLexer.PLUS) {
+                    ops.add(LALScriptModel.BinaryOp.PLUS);
+                } else if (type == LALLexer.MINUS) {
+                    ops.add(LALScriptModel.BinaryOp.MINUS);
+                }
+            }
+        }
+        return new ValueAccess(
+            List.of("expr"), false, false, false, false, false,
+            List.of(), null, null,
+            parts, ops, null, null);
+    }
+
+    private static ValueAccess visitValueAccessMul(final LALParser.ValueAccessMulContext ctx) {
         final List<LALParser.ValueAccessTermContext> terms = ctx.valueAccessTerm();
         if (terms.size() == 1) {
             return visitValueAccessTerm(terms.get(0));
         }
-        // Multiple terms joined by PLUS — string concatenation
         final List<ValueAccess> parts = new ArrayList<>();
         for (final LALParser.ValueAccessTermContext term : terms) {
             parts.add(visitValueAccessTerm(term));
         }
+        final List<LALScriptModel.BinaryOp> ops = new ArrayList<>(terms.size() - 1);
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            final ParseTree child = ctx.getChild(i);
+            if (child instanceof TerminalNode) {
+                final int type = ((TerminalNode) child).getSymbol().getType();
+                if (type == LALLexer.STAR) {
+                    ops.add(LALScriptModel.BinaryOp.STAR);
+                } else if (type == LALLexer.SLASH) {
+                    ops.add(LALScriptModel.BinaryOp.SLASH);
+                }
+            }
+        }
         return new ValueAccess(
-            List.of("concat"), false, false, false, false, false,
+            List.of("expr"), false, false, false, false, false,
             List.of(), null, null,
-            parts, null, null);
+            parts, ops, null, null);
     }
 
     private static ValueAccess visitValueAccessTerm(
@@ -736,12 +784,48 @@ public final class LALScriptParser {
     }
 
     private static String resolveValueAsString(final LALParser.ValueAccessContext ctx) {
-        final LALParser.ValueAccessPrimaryContext primary =
-            ctx.valueAccessTerm(0).valueAccessPrimary();
+        final LALParser.ValueAccessTermContext term = singleTermOf(ctx);
+        if (term == null) {
+            return ctx.getText();
+        }
+        final LALParser.ValueAccessPrimaryContext primary = term.valueAccessPrimary();
         if (primary instanceof LALParser.ValueStringContext) {
             return stripQuotes(((LALParser.ValueStringContext) primary).STRING().getText());
         }
         return primary.getText();
+    }
+
+    /**
+     * Returns the single {@link LALParser.ValueAccessTermContext} of a
+     * {@code valueAccess} when it has no arithmetic operators, otherwise null.
+     */
+    private static LALParser.ValueAccessTermContext singleTermOf(
+            final LALParser.ValueAccessContext ctx) {
+        final LALParser.ValueAccessAddContext add = ctx.valueAccessAdd();
+        if (add.valueAccessMul().size() != 1) {
+            return null;
+        }
+        final LALParser.ValueAccessMulContext mul = add.valueAccessMul(0);
+        if (mul.valueAccessTerm().size() != 1) {
+            return null;
+        }
+        return mul.valueAccessTerm(0);
+    }
+
+    /**
+     * Parse a NUMBER literal text (which may carry an L/F/D suffix) as a Java double
+     * for use in {@link NumberConditionValue}. Suffix is stripped before parsing.
+     */
+    private static double parseLiteralAsDouble(final String numText) {
+        String t = numText;
+        if (!t.isEmpty()) {
+            final char last = t.charAt(t.length() - 1);
+            if (last == 'L' || last == 'l' || last == 'F' || last == 'f'
+                    || last == 'D' || last == 'd') {
+                t = t.substring(0, t.length() - 1);
+            }
+        }
+        return Double.parseDouble(t);
     }
 
     // ==================== Utilities ====================
@@ -755,6 +839,12 @@ public final class LALScriptParser {
         }
         if (ctx.INTEGER_TYPE() != null) {
             return "Integer";
+        }
+        if (ctx.DOUBLE_TYPE() != null) {
+            return "Double";
+        }
+        if (ctx.FLOAT_TYPE() != null) {
+            return "Float";
         }
         if (ctx.BOOLEAN_TYPE() != null) {
             return "Boolean";

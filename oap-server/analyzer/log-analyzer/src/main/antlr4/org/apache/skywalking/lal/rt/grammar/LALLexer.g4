@@ -66,6 +66,8 @@ AS:            'as';
 STRING_TYPE:   'String';
 LONG_TYPE:     'Long';
 INTEGER_TYPE:  'Integer';
+DOUBLE_TYPE:   'Double';
+FLOAT_TYPE:    'Float';
 BOOLEAN_TYPE:  'Boolean';
 
 // Keywords - built-in references
@@ -111,8 +113,17 @@ TRUE:          'true';
 FALSE:         'false';
 NULL:          'null';
 
+// Numeric literal. Suffix rules mirror Java:
+//   * `L` / `l` is valid only on integer literals (no decimal, no exponent).
+//   * `F` / `f` and `D` / `d` are valid on any form.
+// Bare integer literals (no suffix, no decimal, no exponent) are interpreted as int
+// by the compiler if they fit, otherwise long. Bare decimal/exponent literals are
+// double unless suffixed.
 NUMBER
-    : Digit+ ('.' Digit+)?
+    : Digit+ '.' Digit+ ([eE] [+\-]? Digit+)? [FfDd]?
+    | Digit+ [eE] [+\-]? Digit+ [FfDd]?
+    | '.' Digit+ ([eE] [+\-]? Digit+)? [FfDd]?
+    | Digit+ [LlFfDd]?
     ;
 
 // String literal: single or double quoted

@@ -321,8 +321,19 @@ conditionExpr
 //   tag("LOG_KIND")
 //   ProcessRegistry.generateVirtualLocalProcess(...)
 
+// Arithmetic / string-concat expressions.  Operator precedence: * / bind tighter than + -.
+// All four operators share the same flattened model in the AST: each level produces a
+// list of operands plus a list of operators (size N-1).
 valueAccess
-    : valueAccessTerm (PLUS valueAccessTerm)*
+    : valueAccessAdd
+    ;
+
+valueAccessAdd
+    : valueAccessMul ((PLUS | MINUS) valueAccessMul)*
+    ;
+
+valueAccessMul
+    : valueAccessTerm ((STAR | SLASH) valueAccessTerm)*
     ;
 
 valueAccessTerm
@@ -374,7 +385,7 @@ functionArg
 // ==================== Type cast ====================
 
 typeCast
-    : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | BOOLEAN_TYPE | qualifiedName)
+    : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | DOUBLE_TYPE | FLOAT_TYPE | BOOLEAN_TYPE | qualifiedName)
     ;
 
 qualifiedName

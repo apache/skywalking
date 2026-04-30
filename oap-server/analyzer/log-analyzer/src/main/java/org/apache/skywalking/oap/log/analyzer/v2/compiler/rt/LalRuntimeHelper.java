@@ -443,6 +443,38 @@ public final class LalRuntimeHelper {
     }
 
     /**
+     * {@code as Double} cast — Number or String to double.
+     * <pre>
+     *   // LAL:  parsed.ratio as Double    →  Double.valueOf(h.toDouble(h.mapVal("ratio")))
+     * </pre>
+     */
+    public double toDouble(final Object obj) {
+        if (obj instanceof Number) {
+            return ((Number) obj).doubleValue();
+        }
+        if (obj instanceof String) {
+            return Double.parseDouble((String) obj);
+        }
+        return 0.0d;
+    }
+
+    /**
+     * {@code as Float} cast — Number or String to float.
+     * <pre>
+     *   // LAL:  parsed.ratio as Float    →  Float.valueOf(h.toFloat(h.mapVal("ratio")))
+     * </pre>
+     */
+    public float toFloat(final Object obj) {
+        if (obj instanceof Number) {
+            return ((Number) obj).floatValue();
+        }
+        if (obj instanceof String) {
+            return Float.parseFloat((String) obj);
+        }
+        return 0.0f;
+    }
+
+    /**
      * {@code as Boolean} cast — Boolean, String, or non-null to boolean.
      * <pre>
      *   // LAL:  parsed.ssl as Boolean    →  Boolean.valueOf(h.toBool(h.mapVal("ssl")))
