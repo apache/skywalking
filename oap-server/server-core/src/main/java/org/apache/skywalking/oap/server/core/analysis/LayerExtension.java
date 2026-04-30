@@ -33,15 +33,15 @@ package org.apache.skywalking.oap.server.core.analysis;
  * {@code META-INF/services/org.apache.skywalking.oap.server.core.analysis.LayerExtension}.
  *
  * <p>Example:
- * <pre>{@code
+ * <pre>
  * public final class IotFleetLayers implements LayerExtension {
- *     @Override
+ *     &#64;Override
  *     public void contribute() {
  *         Layer.register("IOT_FLEET",   1000, true);
  *         Layer.register("IOT_GATEWAY", 1001, true);
  *     }
  * }
- * }</pre>
+ * </pre>
  *
  * <p>SPI is preferred over registering from a downstream module's {@code prepare()} because
  * Core's {@code prepare()} runs before every other module's {@code prepare()} — there is no
