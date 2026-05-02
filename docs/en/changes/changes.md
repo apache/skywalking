@@ -2,6 +2,7 @@
 
 #### Project
 
+* Bump `kafka-clients` from 3.4.0 to 3.9.1 to fix SASL authentication failure on JDK 24+ (JEP 486 removed `Subject.getSubject`; fix included in kafka-clients 3.9.1 via KAFKA-17078).
 * **Runtime rule hot-update for MAL and LAL.** Operators can now ship metric (MAL) and log
   (LAL) rule changes without restarting OAP. A push to a new admin endpoint persists the rule
   to the configured storage backend, and every node in the cluster converges to the new
