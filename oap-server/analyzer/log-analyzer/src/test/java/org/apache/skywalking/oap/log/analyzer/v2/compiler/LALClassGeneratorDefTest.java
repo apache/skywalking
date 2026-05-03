@@ -177,8 +177,11 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
         final String source = generator.generateSource(dsl);
         assertTrue(source.contains("java.lang.String _def_svc"),
             "Expected String declaration but got:\n" + source);
-        assertTrue(source.contains("(java.lang.String)"),
-            "Expected String cast but got:\n" + source);
+        // Scalar casts now route through h.toStr(...) instead of a plain
+        // Java cast — this avoids ClassCastException at runtime when the
+        // initialiser returns Object (e.g. parsed.x from a JSON map).
+        assertTrue(source.contains("h.toStr("),
+            "Expected h.toStr() cast routing but got:\n" + source);
     }
 
     @Test

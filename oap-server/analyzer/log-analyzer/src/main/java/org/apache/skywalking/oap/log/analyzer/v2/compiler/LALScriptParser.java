@@ -24,6 +24,7 @@ import java.util.Map;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -351,15 +352,20 @@ public final class LALScriptParser {
     private static SamplerBlock visitSamplerBlock(final LALParser.SamplerBlockContext ctx) {
         final List<SamplerContent> contents = new ArrayList<>();
         for (final LALParser.RateLimitBlockContext rlc : ctx.samplerContent().rateLimitBlock()) {
-            final String id = stripQuotes(rlc.rateLimitId().getText());
-            final long rpm = Long.parseLong(rlc.rateLimitContent().NUMBER().getText());
-            final List<InterpolationPart> idParts = parseInterpolation(id);
-            contents.add(new RateLimitBlock(id, idParts, rpm));
+            contents.add(visitRateLimitBlock(rlc));
         }
         for (final LALParser.IfStatementContext isc : ctx.samplerContent().ifStatement()) {
             contents.add((SamplerContent) visitIfStatement(isc));
         }
         return new SamplerBlock(contents);
+    }
+
+    private static RateLimitBlock visitRateLimitBlock(
+            final LALParser.RateLimitBlockContext rlc) {
+        final String id = stripQuotes(rlc.rateLimitId().getText());
+        final long rpm = parseStrictInteger(
+            rlc.rateLimitContent().NUMBER().getText(), "rpm");
+        return new RateLimitBlock(id, parseInterpolation(id), rpm);
     }
 
     // ==================== If statement ====================
@@ -428,11 +434,7 @@ public final class LALScriptParser {
         if (sc != null) {
             final List<SamplerContent> samplerItems = new ArrayList<>();
             for (final LALParser.RateLimitBlockContext rlc : sc.rateLimitBlock()) {
-                final String id = stripQuotes(rlc.rateLimitId().getText());
-                final long rpm = Long.parseLong(
-                    rlc.rateLimitContent().NUMBER().getText());
-                final List<InterpolationPart> idParts = parseInterpolation(id);
-                samplerItems.add(new RateLimitBlock(id, idParts, rpm));
+                samplerItems.add(visitRateLimitBlock(rlc));
             }
             for (final LALParser.IfStatementContext isc : sc.ifStatement()) {
                 samplerItems.add((SamplerContent) visitIfStatement(isc));
@@ -467,34 +469,34 @@ public final class LALScriptParser {
         }
         if (ctx instanceof LALParser.CondEqContext) {
             final LALParser.CondEqContext eq = (LALParser.CondEqContext) ctx;
-            return makeComparison(eq.conditionExpr(0), CompareOp.EQ, eq.conditionExpr(1));
+            return visitComparison(eq.conditionExpr(0), CompareOp.EQ, eq.conditionExpr(1));
         }
         if (ctx instanceof LALParser.CondNeqContext) {
             final LALParser.CondNeqContext neq = (LALParser.CondNeqContext) ctx;
-            return makeComparison(neq.conditionExpr(0), CompareOp.NEQ, neq.conditionExpr(1));
+            return visitComparison(neq.conditionExpr(0), CompareOp.NEQ, neq.conditionExpr(1));
         }
         if (ctx instanceof LALParser.CondGtContext) {
             final LALParser.CondGtContext gt = (LALParser.CondGtContext) ctx;
-            return makeComparison(gt.conditionExpr(0), CompareOp.GT, gt.conditionExpr(1));
+            return visitComparison(gt.conditionExpr(0), CompareOp.GT, gt.conditionExpr(1));
         }
         if (ctx instanceof LALParser.CondLtContext) {
             final LALParser.CondLtContext lt = (LALParser.CondLtContext) ctx;
-            return makeComparison(lt.conditionExpr(0), CompareOp.LT, lt.conditionExpr(1));
+            return visitComparison(lt.conditionExpr(0), CompareOp.LT, lt.conditionExpr(1));
         }
         if (ctx instanceof LALParser.CondGteContext) {
             final LALParser.CondGteContext gte = (LALParser.CondGteContext) ctx;
-            return makeComparison(gte.conditionExpr(0), CompareOp.GTE, gte.conditionExpr(1));
+            return visitComparison(gte.conditionExpr(0), CompareOp.GTE, gte.conditionExpr(1));
         }
         if (ctx instanceof LALParser.CondLteContext) {
             final LALParser.CondLteContext lte = (LALParser.CondLteContext) ctx;
-            return makeComparison(lte.conditionExpr(0), CompareOp.LTE, lte.conditionExpr(1));
+            return visitComparison(lte.conditionExpr(0), CompareOp.LTE, lte.conditionExpr(1));
         }
         // condSingle
         final LALParser.CondSingleContext single = (LALParser.CondSingleContext) ctx;
         return visitConditionExprAsCondition(single.conditionExpr());
     }
 
-    private static Condition makeComparison(
+    private static Condition visitComparison(
             final LALParser.ConditionExprContext leftCtx,
             final CompareOp op,
             final LALParser.ConditionExprContext rightCtx) {
@@ -608,27 +610,13 @@ public final class LALScriptParser {
         if (muls.size() == 1) {
             return visitValueAccessMul(muls.get(0));
         }
-        final List<ValueAccess> parts = new ArrayList<>();
+        final List<ValueAccess> parts = new ArrayList<>(muls.size());
         for (final LALParser.ValueAccessMulContext mul : muls) {
             parts.add(visitValueAccessMul(mul));
         }
-        // Walk children to recover operator order — PLUS/MINUS appear interleaved with mul nodes.
-        final List<LALScriptModel.BinaryOp> ops = new ArrayList<>(muls.size() - 1);
-        for (int i = 0; i < ctx.getChildCount(); i++) {
-            final ParseTree child = ctx.getChild(i);
-            if (child instanceof TerminalNode) {
-                final int type = ((TerminalNode) child).getSymbol().getType();
-                if (type == LALLexer.PLUS) {
-                    ops.add(LALScriptModel.BinaryOp.PLUS);
-                } else if (type == LALLexer.MINUS) {
-                    ops.add(LALScriptModel.BinaryOp.MINUS);
-                }
-            }
-        }
-        return new ValueAccess(
-            List.of("expr"), false, false, false, false, false,
-            List.of(), null, null,
-            parts, ops, null, null);
+        return binaryExpr(parts, collectInfixOps(ctx,
+            LALLexer.PLUS, LALScriptModel.BinaryOp.PLUS,
+            LALLexer.MINUS, LALScriptModel.BinaryOp.MINUS));
     }
 
     private static ValueAccess visitValueAccessMul(final LALParser.ValueAccessMulContext ctx) {
@@ -636,22 +624,49 @@ public final class LALScriptParser {
         if (terms.size() == 1) {
             return visitValueAccessTerm(terms.get(0));
         }
-        final List<ValueAccess> parts = new ArrayList<>();
+        final List<ValueAccess> parts = new ArrayList<>(terms.size());
         for (final LALParser.ValueAccessTermContext term : terms) {
             parts.add(visitValueAccessTerm(term));
         }
-        final List<LALScriptModel.BinaryOp> ops = new ArrayList<>(terms.size() - 1);
+        return binaryExpr(parts, collectInfixOps(ctx,
+            LALLexer.STAR, LALScriptModel.BinaryOp.STAR,
+            LALLexer.SLASH, LALScriptModel.BinaryOp.SLASH));
+    }
+
+    /**
+     * Walk a parser context's terminal children to recover the infix
+     * operator sequence (one operator per gap between operands). Used by
+     * the additive and multiplicative visitors to rebuild operator order
+     * from ANTLR's flattened child list.
+     */
+    private static List<LALScriptModel.BinaryOp> collectInfixOps(
+            final ParserRuleContext ctx,
+            final int firstToken, final LALScriptModel.BinaryOp firstOp,
+            final int secondToken, final LALScriptModel.BinaryOp secondOp) {
+        final List<LALScriptModel.BinaryOp> ops = new ArrayList<>();
         for (int i = 0; i < ctx.getChildCount(); i++) {
             final ParseTree child = ctx.getChild(i);
-            if (child instanceof TerminalNode) {
-                final int type = ((TerminalNode) child).getSymbol().getType();
-                if (type == LALLexer.STAR) {
-                    ops.add(LALScriptModel.BinaryOp.STAR);
-                } else if (type == LALLexer.SLASH) {
-                    ops.add(LALScriptModel.BinaryOp.SLASH);
-                }
+            if (!(child instanceof TerminalNode)) {
+                continue;
+            }
+            final int type = ((TerminalNode) child).getSymbol().getType();
+            if (type == firstToken) {
+                ops.add(firstOp);
+            } else if (type == secondToken) {
+                ops.add(secondOp);
             }
         }
+        return ops;
+    }
+
+    /**
+     * Wrap a list of operands and operators as a {@link ValueAccess}
+     * representing a binary expression node — used by the additive and
+     * multiplicative visitors so neither has to know the AST construction
+     * details.
+     */
+    private static ValueAccess binaryExpr(final List<ValueAccess> parts,
+                                            final List<LALScriptModel.BinaryOp> ops) {
         return new ValueAccess(
             List.of("expr"), false, false, false, false, false,
             List.of(), null, null,
@@ -732,8 +747,8 @@ public final class LALScriptParser {
                 chain.add(new LALScriptModel.MethodSegment(
                     fi.functionName().getText(), visitFunctionArgs(fi), true));
             } else if (seg instanceof LALParser.SegmentIndexContext) {
-                final int index = Integer.parseInt(
-                    ((LALParser.SegmentIndexContext) seg).NUMBER().getText());
+                final int index = (int) parseStrictInteger(
+                    ((LALParser.SegmentIndexContext) seg).NUMBER().getText(), "[index]");
                 segments.add("[" + index + "]");
                 chain.add(new IndexSegment(index));
             }
@@ -810,6 +825,27 @@ public final class LALScriptParser {
             return null;
         }
         return mul.valueAccessTerm(0);
+    }
+
+    /**
+     * Parse a NUMBER literal that must represent a plain integer (no
+     * decimal, no exponent, no Java-style suffix). Used by integer-only
+     * grammar slots — {@code rateLimit { rpm N }} and {@code list[N]} —
+     * which share the lexer NUMBER token with arithmetic expressions but
+     * cannot accept the suffixes/forms supported there. Throws a clear
+     * compile-time error instead of letting NumberFormatException leak
+     * later.
+     */
+    private static long parseStrictInteger(final String numText, final String slot) {
+        for (int i = 0; i < numText.length(); i++) {
+            final char c = numText.charAt(i);
+            if (c < '0' || c > '9') {
+                throw new IllegalArgumentException(
+                    slot + " expects a plain integer literal, got '" + numText
+                        + "' (suffixes / decimals / exponents are not accepted here)");
+            }
+        }
+        return Long.parseLong(numText);
     }
 
     /**

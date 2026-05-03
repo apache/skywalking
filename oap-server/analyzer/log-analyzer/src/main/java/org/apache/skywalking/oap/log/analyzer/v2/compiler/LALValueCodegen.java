@@ -333,13 +333,26 @@ final class LALValueCodegen {
         generateValueAccessObj(sb, value, castType, genCtx);
         final Class<?> resolved = genCtx.lastResolvedType;
         final boolean alreadyPrimitive = resolved != null && resolved.isPrimitive();
+        final ExprType castET = castToType(castType);
         if (alreadyPrimitive) {
-            // Native primitive — the declared cast is either redundant
-            // (matches) or will be honoured by JLS widening at the
-            // comparison site. Leave the rendered expression as-is.
+            // Native primitive. If the user declared a different numeric
+            // type, honour it via a Java primitive cast — e.g.
+            // `((tag("a") as Long) + 1) as Integer` should narrow the long
+            // sum to int rather than silently keep the long value. Read
+            // the primitive form from lastRawChain (sb may hold a boxed
+            // wrapper like `Long.valueOf(...)` that the verifier can't
+            // unbox via a primitive cast).
+            if (castET.isNumeric()
+                    && primitiveToExprType(resolved) != castET
+                    && genCtx.lastRawChain != null) {
+                final String primExpr = genCtx.lastRawChain;
+                sb.setLength(start);
+                sb.append("(").append(javaPrimitiveName(castET))
+                  .append(") (").append(primExpr).append(")");
+                recordPrimitiveResult(genCtx, primitiveClass(castET), sb, start);
+            }
             return;
         }
-        final ExprType castET = castToType(castType);
         if (!castET.isNumeric()) {
             return;
         }
@@ -1510,31 +1523,123 @@ final class LALValueCodegen {
     }
 
     /**
-     * Top-level binary-expression codegen. Branches by the inferred result type:
-     * numeric → Java arithmetic in the promoted primitive; STRING → string
-     * concat (only valid if the only operators are {@code +}); UNKNOWN with a
-     * non-{@code +} operator → compile-time error.
+     * Top-level binary-expression codegen. Mirrors Java's left-to-right
+     * evaluation: adjacent numeric operands accumulate into a primitive
+     * arithmetic expression; once a String operand appears, every subsequent
+     * {@code +} becomes string concatenation. This preserves the semantic
+     * difference between {@code 1 + 2 + "x"} (= {@code "3x"}) and
+     * {@code "" + 1 + 2 + "x"} (= {@code "12x"}).
      */
     private static void generateBinaryExpression(
             final StringBuilder sb,
             final List<LALScriptModel.ValueAccess> parts,
             final List<LALScriptModel.BinaryOp> ops,
             final LALClassGenerator.GenCtx genCtx) {
-        final ExprType resultType = inferBinaryType(parts, ops, genCtx);
-        if (resultType.isNumeric()) {
-            generateNumericExpression(sb, parts, ops, resultType, genCtx);
-            return;
-        }
-        // Validate operators — only `+` is legal for string concat.
-        for (final LALScriptModel.BinaryOp op : ops) {
+        // Render the first operand and seed the accumulator with its type.
+        ExprType accType = inferType(parts.get(0), genCtx);
+        final StringBuilder accBuf = new StringBuilder();
+        appendOperandRaw(accBuf, parts.get(0), accType, genCtx);
+        String accExpr = accBuf.toString();
+
+        for (int i = 1; i < parts.size(); i++) {
+            final LALScriptModel.BinaryOp op = ops.get(i - 1);
+            final ExprType rhsType = inferType(parts.get(i), genCtx);
+            final StringBuilder rhsBuf = new StringBuilder();
+            appendOperandRaw(rhsBuf, parts.get(i), rhsType, genCtx);
+            final String rhsExpr = rhsBuf.toString();
+
+            if (accType.isNumeric() && rhsType.isNumeric()) {
+                final ExprType promoted = promote(accType, rhsType);
+                final String widenedAcc = widenPrimitiveExpr(accExpr, accType, promoted);
+                final String widenedRhs = widenPrimitiveExpr(rhsExpr, rhsType, promoted);
+                accExpr = "(" + widenedAcc + " " + opSymbol(op) + " " + widenedRhs + ")";
+                accType = promoted;
+                continue;
+            }
             if (op != LALScriptModel.BinaryOp.PLUS) {
                 throw new IllegalArgumentException(
                     "Operator '" + opSymbol(op) + "' requires numeric operands; "
                         + "got non-numeric expression. Cast operands with "
                         + "'as Integer/Long/Float/Double' to enable arithmetic.");
             }
+            // String concat path. Coerce the accumulator to String when
+            // needed: a STRING accumulator is fine; a numeric accumulator
+            // is already in parens (so Java evaluates it before the concat,
+            // preserving `(1 + 2) + "x"` → `"3x"`); anything else needs a
+            // leading "" to make Java accept Object + Object.
+            if (accType != ExprType.STRING && !accType.isNumeric()) {
+                accExpr = "\"\" + " + accExpr;
+            }
+            accExpr = accExpr + " + " + rhsExpr;
+            accType = ExprType.STRING;
         }
-        generateStringConcat(sb, parts, genCtx);
+
+        if (accType.isNumeric()) {
+            // Expose the primitive form so the caller (numeric comparison)
+            // can avoid h.toX() unboxing; emit a boxed form into sb for
+            // Object contexts (tag assignments, def initialisers, ...).
+            genCtx.lastResolvedType = primitiveClass(accType);
+            genCtx.lastRawChain = accExpr;
+            genCtx.lastNullChecks = null;
+            sb.append(javaWrapperName(accType)).append(".valueOf(").append(accExpr).append(")");
+        } else {
+            sb.append(accExpr);
+        }
+    }
+
+    /**
+     * Render a single operand for use inside a binary expression — returning
+     * its raw form (primitive expression for numeric operands, Object/String
+     * form otherwise). Number literals emit with their declared suffix,
+     * paren-cast operands emit through the matching helper, paren-grouping
+     * recurses into the inner expression, and nested binary expressions
+     * reuse the inner accumulator's raw chain when numeric.
+     */
+    private static void appendOperandRaw(final StringBuilder sb,
+                                          final LALScriptModel.ValueAccess part,
+                                          final ExprType partType,
+                                          final LALClassGenerator.GenCtx genCtx) {
+        if (part.isNumberLiteral() && part.getChain().isEmpty()) {
+            sb.append(NumericLiteral.parse(part.getSegments().get(0)).javaText);
+            return;
+        }
+        if (part.getParenInner() != null && part.getParenCast() != null
+                && part.getChain().isEmpty() && partType.isNumeric()) {
+            generateCastedValueAccess(sb, part.getParenInner(),
+                javaWrapperName(partType), genCtx);
+            return;
+        }
+        if (part.getParenInner() != null && part.getParenCast() == null
+                && part.getChain().isEmpty()) {
+            final StringBuilder inner = new StringBuilder();
+            generateValueAccessObj(inner, part.getParenInner(), null, genCtx);
+            final Class<?> resolved = genCtx.lastResolvedType;
+            if (partType.isNumeric() && resolved != null && resolved.isPrimitive()
+                    && genCtx.lastRawChain != null) {
+                sb.append(genCtx.lastRawChain);
+            } else {
+                sb.append(inner);
+            }
+            return;
+        }
+        if (!part.getConcatParts().isEmpty()) {
+            final StringBuilder inner = new StringBuilder();
+            generateBinaryExpression(inner, part.getConcatParts(),
+                part.getConcatOps(), genCtx);
+            if (partType.isNumeric() && genCtx.lastRawChain != null) {
+                sb.append(genCtx.lastRawChain);
+            } else {
+                sb.append(inner);
+            }
+            return;
+        }
+        if (partType.isNumeric()) {
+            // Resolve untyped operand (e.g. tag(), parsed.x) into the
+            // expected primitive via h.toX().
+            generateCastedValueAccess(sb, part, javaWrapperName(partType), genCtx);
+        } else {
+            generateValueAccess(sb, part, genCtx);
+        }
     }
 
     private static String opSymbol(final LALScriptModel.BinaryOp op) {
@@ -1550,134 +1655,6 @@ final class LALValueCodegen {
             default:
                 return "?";
         }
-    }
-
-    /**
-     * Emit Java arithmetic in the promoted primitive type. Each operand is
-     * widened only when its declared type differs from the result type (no
-     * defensive INT → LONG bumps — respect the user's declared casts).
-     *
-     * <p>Two outputs are produced:
-     * <ul>
-     *   <li>The raw primitive expression is stored in
-     *       {@code genCtx.lastRawChain}, with {@code lastResolvedType} set
-     *       to the promoted primitive class. This lets
-     *       {@link #generateNumericComparison} emit an unboxed comparison.</li>
-     *   <li>{@code Wrapper.valueOf(rawExpr)} is appended to {@code sb} so
-     *       Object contexts (tag assignment, def initialiser, {@code h.toStr}
-     *       wrapping, etc.) receive a properly boxed value.</li>
-     * </ul>
-     */
-    private static void generateNumericExpression(
-            final StringBuilder sb,
-            final List<LALScriptModel.ValueAccess> parts,
-            final List<LALScriptModel.BinaryOp> ops,
-            final ExprType resultType,
-            final LALClassGenerator.GenCtx genCtx) {
-        final StringBuilder expr = new StringBuilder();
-        appendOperand(expr, parts.get(0), resultType, genCtx);
-        for (int i = 1; i < parts.size(); i++) {
-            expr.append(' ').append(opSymbol(ops.get(i - 1))).append(' ');
-            appendOperand(expr, parts.get(i), resultType, genCtx);
-        }
-        final String rawExpr = "(" + expr + ")";
-        genCtx.lastResolvedType = primitiveClass(resultType);
-        genCtx.lastRawChain = rawExpr;
-        genCtx.lastNullChecks = null;
-        sb.append(javaWrapperName(resultType)).append(".valueOf(").append(rawExpr).append(")");
-    }
-
-    /**
-     * Render one numeric operand into the promoted result type, casting only
-     * when the operand's declared type is narrower than the result.
-     */
-    private static void appendOperand(final StringBuilder sb,
-                                       final LALScriptModel.ValueAccess part,
-                                       final ExprType resultType,
-                                       final LALClassGenerator.GenCtx genCtx) {
-        final ExprType opType = inferType(part, genCtx);
-        // Number literal — emit in its source form, widened by suffix when needed.
-        if (part.isNumberLiteral() && part.getChain().isEmpty()) {
-            final NumericLiteral lit = NumericLiteral.parse(part.getSegments().get(0));
-            if (lit.type == resultType) {
-                sb.append(lit.javaText);
-                return;
-            }
-            // Widen via Java cast — e.g. INT literal `10000` in DOUBLE context → `(double) 10000`.
-            sb.append("(").append(javaPrimitiveName(resultType)).append(") ").append(lit.javaText);
-            return;
-        }
-        // Paren-cast operand — emit the cast call directly.
-        if (part.getParenInner() != null && part.getParenCast() != null
-                && part.getChain().isEmpty() && opType.isNumeric()) {
-            if (opType == resultType) {
-                generateCastedValueAccess(sb, part.getParenInner(),
-                    javaWrapperName(opType), genCtx);
-            } else {
-                sb.append("(").append(javaPrimitiveName(resultType)).append(") ");
-                generateCastedValueAccess(sb, part.getParenInner(),
-                    javaWrapperName(opType), genCtx);
-            }
-            return;
-        }
-        // Paren grouping without cast — recurse into the inner expression
-        // and unwrap to its primitive raw chain. Inner is typically a
-        // sub-arithmetic like (1 + 2) or a typed proto comparison.
-        if (part.getParenInner() != null && part.getParenCast() == null
-                && part.getChain().isEmpty() && opType.isNumeric()) {
-            final StringBuilder inner = new StringBuilder();
-            generateValueAccessObj(inner, part.getParenInner(), null, genCtx);
-            final Class<?> resolved = genCtx.lastResolvedType;
-            final String rawChain = genCtx.lastRawChain;
-            // Inner produced a primitive — reuse its raw chain.
-            if (rawChain != null && resolved != null
-                    && (resolved == int.class || resolved == long.class
-                        || resolved == float.class || resolved == double.class)) {
-                final ExprType from = primitiveToExprType(resolved);
-                sb.append(widenPrimitiveExpr(rawChain, from, resultType));
-            } else {
-                // Inner stayed boxed — wrap to the result primitive.
-                sb.append(wrapAsPrimitive(inner.toString(), resultType));
-            }
-            return;
-        }
-        // Nested binary expression — recurse, then unbox via the raw chain.
-        if (!part.getConcatParts().isEmpty()) {
-            final StringBuilder inner = new StringBuilder();
-            generateBinaryExpression(inner, part.getConcatParts(), part.getConcatOps(), genCtx);
-            // generateNumericExpression set lastRawChain to the primitive expression.
-            final String rawInner = genCtx.lastRawChain;
-            if (opType == resultType) {
-                sb.append(rawInner);
-            } else {
-                sb.append("(").append(javaPrimitiveName(resultType)).append(") ").append(rawInner);
-            }
-            // Don't let the inner expression's lastRawChain leak as the
-            // outermost result — the caller will overwrite it after this call.
-            return;
-        }
-        // def variable or other resolved value — fall back to a value access
-        // wrapped with the appropriate cast to the result type.
-        sb.append("(").append(javaPrimitiveName(resultType)).append(") ");
-        generateCastedValueAccess(sb, part, javaWrapperName(resultType), genCtx);
-    }
-
-    /**
-     * Emit a Java string concatenation: {@code ("" + a + b + ...)}. Used for
-     * legacy GString-style joins where at least one operand is a String (or
-     * UNKNOWN/OBJECT) and every operator is {@code +}.
-     */
-    private static void generateStringConcat(final StringBuilder sb,
-                                              final List<LALScriptModel.ValueAccess> parts,
-                                              final LALClassGenerator.GenCtx genCtx) {
-        sb.append("(\"\" + ");
-        for (int i = 0; i < parts.size(); i++) {
-            if (i > 0) {
-                sb.append(" + ");
-            }
-            generateValueAccess(sb, parts.get(i), genCtx);
-        }
-        sb.append(")");
     }
 
     /**

@@ -471,8 +471,12 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("\"\" +"),
-            "Expected string concatenation for uncast tags but got: " + source);
+        // Two tag() calls already return String, so the `+` is plain
+        // String concat in Java — no leading "" coercion needed.
+        assertTrue(source.contains("h.tagValue(\"a\") + h.tagValue(\"b\")"),
+            "Expected String + String concatenation but got: " + source);
+        assertFalse(source.contains("Long.valueOf(") || source.contains("Integer.valueOf("),
+            "Should not box uncast tag concat as numeric but got: " + source);
     }
 
     @Test
@@ -487,8 +491,29 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("\"\" +"),
-            "Expected string concatenation for String + Integer but got: " + source);
+        // String literal on the left makes Java's `+` string concat directly,
+        // no leading "" needed. The Integer side renders via h.toInt(...).
+        assertTrue(source.contains("\"count=\" + h.toInt(h.tagValue(\"n\"))"),
+            "Expected `\"count=\" + h.toInt(...)` form but got: " + source);
+    }
+
+    @Test
+    void compileNumericPrefixThenStringConcatPreservesJavaSemantics() throws Exception {
+        // Java evaluates `1 + 2 + "x"` left-to-right: (1 + 2) is numeric,
+        // then `+ "x"` is string concat → "3x". The compiler must NOT
+        // emit `"" + 1 + 2 + "x"` (which would yield "12x").
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'msg': 1 + 2 + \"x\"\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("(1 + 2)") && source.contains(" + \"x\""),
+            "Expected `(1 + 2) + \"x\"` form preserving numeric prefix but got: " + source);
+        assertFalse(source.contains("\"\" + 1 + 2 + \"x\""),
+            "Must NOT emit `\"\" + 1 + 2 + \"x\"` — that yields \"12x\" instead of \"3x\". Got: " + source);
     }
 
     @Test
@@ -774,6 +799,80 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         final String source = generator.generateSource(dsl);
         assertFalse(source.contains("1e6.0"),
             "Exponent literal must not be appended with `.0` but got: " + source);
+    }
+
+    @Test
+    void compileDefWithLongCastRoutesThroughHelper() throws Exception {
+        // tag() returns String at runtime — a plain Java cast `(Long) "..."`
+        // would throw ClassCastException. Ensure the def codegen routes
+        // scalar casts through h.toLong / h.toInt / h.toDouble / h.toFloat /
+        // h.toBool / h.toStr instead.
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    def n = tag(\"a\") as Long\n"
+            + "    tag 'x': n\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("Long.valueOf(h.toLong("),
+            "Expected def Long cast to use h.toLong but got: " + source);
+        assertFalse(source.contains("(java.lang.Long)") || source.contains("(Long)"),
+            "Should not emit a plain Java cast for scalar def cast but got: " + source);
+    }
+
+    @Test
+    void compileDefWithDoubleCastRoutesThroughHelper() throws Exception {
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    def r = tag(\"a\") as Double\n"
+            + "    tag 'x': r\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("Double.valueOf(h.toDouble("),
+            "Expected def Double cast to use h.toDouble but got: " + source);
+    }
+
+    @Test
+    void compileRpmRejectsSuffixedLiteral() {
+        // `rpm 100L` is not valid: rpm takes a plain integer, not a Java
+        // long literal. The parser must reject it with a clear message.
+        final String dsl = "filter {\n"
+            + "  sink {\n"
+            + "    sampler {\n"
+            + "      rateLimit(\"id\") { rpm 100L }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+        final IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class, () -> compileAndAssert(dsl));
+        assertTrue(ex.getMessage().contains("plain integer"),
+            "Expected 'plain integer' error but got: " + ex.getMessage());
+    }
+
+    @Test
+    void compileTopLevelIntegerCastNarrowsArithmeticResult() throws Exception {
+        // `(tag("a") as Long) + 1 as Integer` — the inner sum is long, but
+        // the outer `as Integer` cast must narrow it back to int before
+        // comparison, not silently keep the long value.
+        final String dsl = "filter {\n"
+            + "  if (((tag(\"a\") as Long) + 1) as Integer < 10) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final String source = generator.generateSource(dsl);
+        // After the (int) cast on the long sum, comparison happens in int
+        // (literal `10` stays without `L`).
+        assertTrue(source.contains("(int) ("),
+            "Expected `(int) (...)` narrowing but got: " + source);
+        assertTrue(source.contains("< 10") && !source.contains("< 10L"),
+            "Expected int comparison `< 10` but got: " + source);
+        compileAndAssert(dsl);
     }
 
     // ==================== P2 regression: paren grouping without cast ====================

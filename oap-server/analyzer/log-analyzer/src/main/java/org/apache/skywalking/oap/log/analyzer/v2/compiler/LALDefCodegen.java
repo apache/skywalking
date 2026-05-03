@@ -148,12 +148,51 @@ final class LALDefCodegen {
             });
         }
 
-        // Emit assignment in body (at the point where def appears)
+        // Emit assignment in body (at the point where def appears).
+        // For built-in scalar casts the initialiser usually returns String
+        // or Object (e.g. tag() returns String), so a plain Java cast would
+        // throw ClassCastException at runtime. Route through the runtime
+        // helper which performs the proper conversion. FQCN casts still use
+        // a direct Java cast — those name a concrete type the caller knows
+        // the initialiser already produces.
         sb.append("  ").append(javaVar).append(" = ");
         if (castType != null && !castType.isEmpty()) {
-            sb.append("(").append(resolvedType.getName()).append(") ");
+            final String conversion = scalarCastConversion(castType, initExpr);
+            if (conversion != null) {
+                sb.append(conversion);
+            } else {
+                sb.append("(").append(resolvedType.getName()).append(") ").append(initExpr);
+            }
+        } else {
+            sb.append(initExpr);
         }
-        sb.append(initExpr).append(";\n");
+        sb.append(";\n");
+    }
+
+    /**
+     * Render the boxed runtime-helper conversion for a scalar cast type
+     * (e.g. {@code Long.valueOf(h.toLong(<init>))}). Returns {@code null}
+     * for FQCN / unknown cast types so the caller can fall back to a
+     * direct Java cast.
+     */
+    private static String scalarCastConversion(final String castType,
+                                                 final CharSequence init) {
+        switch (castType) {
+            case "String":
+                return "h.toStr(" + init + ")";
+            case "Long":
+                return "Long.valueOf(h.toLong(" + init + "))";
+            case "Integer":
+                return "Integer.valueOf(h.toInt(" + init + "))";
+            case "Double":
+                return "Double.valueOf(h.toDouble(" + init + "))";
+            case "Float":
+                return "Float.valueOf(h.toFloat(" + init + "))";
+            case "Boolean":
+                return "Boolean.valueOf(h.toBool(" + init + "))";
+            default:
+                return null;
+        }
     }
 
     /**
