@@ -158,30 +158,34 @@ public final class LALScriptParser {
                 }
                 for (final LALParser.AbortOnFailureStatementContext abfCtx :
                         ctx.textBlock().textContent().abortOnFailureStatement()) {
-                    abortOnFail = "true".equals(abfCtx.boolValue().getText());
+                    abortOnFail = parseBoolText(abfCtx.boolValue().getText());
                 }
             }
             return new TextParser(pattern, abortOnFail);
         }
         if (ctx.jsonBlock() != null) {
-            boolean abortOnFail = false;
-            if (ctx.jsonBlock().jsonContent() != null
-                    && ctx.jsonBlock().jsonContent().abortOnFailureStatement() != null) {
-                abortOnFail = "true".equals(
-                    ctx.jsonBlock().jsonContent().abortOnFailureStatement()
-                        .boolValue().getText());
-            }
-            return new JsonParser(abortOnFail);
+            return new JsonParser(extractAbortOnFail(
+                ctx.jsonBlock().jsonContent() != null
+                    ? ctx.jsonBlock().jsonContent().abortOnFailureStatement() : null));
         }
-        // yaml
-        boolean abortOnFail = false;
-        if (ctx.yamlBlock().yamlContent() != null
-                && ctx.yamlBlock().yamlContent().abortOnFailureStatement() != null) {
-            abortOnFail = "true".equals(
-                ctx.yamlBlock().yamlContent().abortOnFailureStatement()
-                    .boolValue().getText());
-        }
-        return new YamlParser(abortOnFail);
+        return new YamlParser(extractAbortOnFail(
+            ctx.yamlBlock().yamlContent() != null
+                ? ctx.yamlBlock().yamlContent().abortOnFailureStatement() : null));
+    }
+
+    /**
+     * Extract the {@code abortOnFailure} flag from an optional
+     * {@code abortOnFailureStatement} node, defaulting to {@code false}
+     * when the statement is absent. Shared between the JSON and YAML
+     * parser blocks (text uses a list form, handled inline).
+     */
+    private static boolean extractAbortOnFail(
+            final LALParser.AbortOnFailureStatementContext ctx) {
+        return ctx != null && parseBoolText(ctx.boolValue().getText());
+    }
+
+    private static boolean parseBoolText(final String text) {
+        return "true".equals(text);
     }
 
     // ==================== Extractor block ====================
@@ -222,8 +226,7 @@ public final class LALScriptParser {
         }
         if (ctx.timestampStatement() != null) {
             final ValueAccess va = visitValueAccess(ctx.timestampStatement().valueAccess());
-            final String cast = ctx.timestampStatement().typeCast() != null
-                ? extractCastType(ctx.timestampStatement().typeCast()) : null;
+            final String cast = extractCastType(ctx.timestampStatement().typeCast());
             String format = null;
             if (ctx.timestampStatement().STRING() != null) {
                 format = stripQuotes(ctx.timestampStatement().STRING().getText());
@@ -248,7 +251,7 @@ public final class LALScriptParser {
             final LALParser.ValueAccessContext vaCtx,
             final LALParser.TypeCastContext tcCtx) {
         final ValueAccess va = visitValueAccess(vaCtx);
-        final String cast = tcCtx != null ? extractCastType(tcCtx) : null;
+        final String cast = extractCastType(tcCtx);
         return new FieldAssignment(type, va, cast, null);
     }
 
@@ -256,7 +259,7 @@ public final class LALScriptParser {
             final LALParser.OutputFieldStatementContext ctx) {
         final String fieldName = ctx.anyIdentifier().getText();
         final ValueAccess value = visitValueAccess(ctx.valueAccess());
-        final String castType = ctx.typeCast() != null ? extractCastType(ctx.typeCast()) : null;
+        final String castType = extractCastType(ctx.typeCast());
         return new LALScriptModel.OutputFieldAssignment(fieldName, value, castType);
     }
 
@@ -266,8 +269,7 @@ public final class LALScriptParser {
             final LALParser.DefStatementContext ctx) {
         final String varName = ctx.IDENTIFIER().getText();
         final ValueAccess initializer = visitValueAccess(ctx.valueAccess());
-        final String castType = ctx.typeCast() != null
-            ? extractCastType(ctx.typeCast()) : null;
+        final String castType = extractCastType(ctx.typeCast());
         return new DefStatement(varName, initializer, castType);
     }
 
@@ -279,14 +281,13 @@ public final class LALScriptParser {
             for (int i = 0; i < ctx.tagMap().anyIdentifier().size(); i++) {
                 final String key = ctx.tagMap().anyIdentifier(i).getText();
                 final ValueAccess va = visitValueAccess(ctx.tagMap().valueAccess(i));
-                final String cast = ctx.tagMap().typeCast(i) != null
-                    ? extractCastType(ctx.tagMap().typeCast(i)) : null;
+                final String cast = extractCastType(ctx.tagMap().typeCast(i));
                 tags.put(key, new TagValue(va, cast));
             }
         } else if (ctx.STRING() != null) {
             final String key = stripQuotes(ctx.STRING().getText());
             final ValueAccess va = visitValueAccess(ctx.valueAccess());
-            final String cast = ctx.typeCast() != null ? extractCastType(ctx.typeCast()) : null;
+            final String cast = extractCastType(ctx.typeCast());
             tags.put(key, new TagValue(va, cast));
         }
         return new TagAssignment(tags);
@@ -308,23 +309,20 @@ public final class LALScriptParser {
             }
             if (msc.metricsTimestampStatement() != null) {
                 timestampValue = visitValueAccess(msc.metricsTimestampStatement().valueAccess());
-                timestampCast = msc.metricsTimestampStatement().typeCast() != null
-                    ? extractCastType(msc.metricsTimestampStatement().typeCast()) : null;
+                timestampCast = extractCastType(msc.metricsTimestampStatement().typeCast());
             }
             if (msc.metricsLabelsStatement() != null) {
                 for (final LALParser.LabelEntryContext lec :
                         msc.metricsLabelsStatement().labelMap().labelEntry()) {
                     final String key = lec.anyIdentifier().getText();
                     final ValueAccess va = visitValueAccess(lec.valueAccess());
-                    final String cast = lec.typeCast() != null
-                        ? extractCastType(lec.typeCast()) : null;
+                    final String cast = extractCastType(lec.typeCast());
                     labels.put(key, new TagValue(va, cast));
                 }
             }
             if (msc.metricsValueStatement() != null) {
                 value = visitValueAccess(msc.metricsValueStatement().valueAccess());
-                valueCast = msc.metricsValueStatement().typeCast() != null
-                    ? extractCastType(msc.metricsValueStatement().typeCast()) : null;
+                valueCast = extractCastType(msc.metricsValueStatement().typeCast());
             }
         }
 
@@ -504,8 +502,7 @@ public final class LALScriptParser {
             final LALParser.CondValueAccessContext lva =
                 (LALParser.CondValueAccessContext) leftCtx;
             final ValueAccess left = visitValueAccess(lva.valueAccess());
-            final String leftCast = lva.typeCast() != null
-                ? extractCastType(lva.typeCast()) : null;
+            final String leftCast = extractCastType(lva.typeCast());
             return new ComparisonCondition(left, leftCast, op,
                 visitConditionExprAsValue(rightCtx));
         }
@@ -560,7 +557,7 @@ public final class LALScriptParser {
                     return new NullConditionValue();
                 }
             }
-            final String cast = va.typeCast() != null ? extractCastType(va.typeCast()) : null;
+            final String cast = extractCastType(va.typeCast());
             return new ValueAccessConditionValue(visitValueAccess(vaCtx), cast);
         }
         if (ctx instanceof LALParser.CondParenGroupContext) {
@@ -578,7 +575,7 @@ public final class LALScriptParser {
         if (ctx instanceof LALParser.CondValueAccessContext) {
             final LALParser.CondValueAccessContext va =
                 (LALParser.CondValueAccessContext) ctx;
-            final String cast = va.typeCast() != null ? extractCastType(va.typeCast()) : null;
+            final String cast = extractCastType(va.typeCast());
             return new ExprCondition(visitValueAccess(va.valueAccess()), cast);
         }
         if (ctx instanceof LALParser.CondFunctionCallContext) {
@@ -715,8 +712,7 @@ public final class LALScriptParser {
             final LALParser.ValueParenContext parenCtx =
                 (LALParser.ValueParenContext) primary;
             parenInner = visitValueAccess(parenCtx.valueAccess());
-            parenCast = parenCtx.typeCast() != null
-                ? extractCastType(parenCtx.typeCast()) : null;
+            parenCast = extractCastType(parenCtx.typeCast());
             segments.add("paren");
         } else {
             segments.add(primary.getText());
@@ -769,33 +765,37 @@ public final class LALScriptParser {
         for (final LALParser.FunctionArgContext fac : fi.functionArgList().functionArg()) {
             if (fac.valueAccess() != null) {
                 final ValueAccess va = visitValueAccess(fac.valueAccess());
-                final String cast = fac.typeCast() != null
-                    ? extractCastType(fac.typeCast()) : null;
+                final String cast = extractCastType(fac.typeCast());
                 args.add(new LALScriptModel.FunctionArg(va, cast));
             } else if (fac.STRING() != null) {
-                final String val = stripQuotes(fac.STRING().getText());
-                final ValueAccess va = new ValueAccess(
-                    List.of(val), false, false, false, true, false,
-                    List.of(), null, null);
-                args.add(new LALScriptModel.FunctionArg(va, null));
+                args.add(new LALScriptModel.FunctionArg(
+                    literalArg(stripQuotes(fac.STRING().getText()), true, false), null));
             } else if (fac.NUMBER() != null) {
-                final ValueAccess va = new ValueAccess(
-                    List.of(fac.NUMBER().getText()), false, false,
-                    false, false, true, List.of(), null, null);
-                args.add(new LALScriptModel.FunctionArg(va, null));
+                args.add(new LALScriptModel.FunctionArg(
+                    literalArg(fac.NUMBER().getText(), false, true), null));
             } else if (fac.boolValue() != null) {
-                final ValueAccess va = new ValueAccess(
-                    List.of(fac.boolValue().getText()), false, false,
-                    false, false, false, List.of(), null, null);
-                args.add(new LALScriptModel.FunctionArg(va, null));
+                args.add(new LALScriptModel.FunctionArg(
+                    literalArg(fac.boolValue().getText(), false, false), null));
             } else {
                 // NULL
-                final ValueAccess va = new ValueAccess(
-                    List.of("null"), false, false, List.of());
-                args.add(new LALScriptModel.FunctionArg(va, null));
+                args.add(new LALScriptModel.FunctionArg(
+                    new ValueAccess(List.of("null"), false, false, List.of()), null));
             }
         }
         return args;
+    }
+
+    /**
+     * Build a single-segment, no-chain {@link ValueAccess} for a literal
+     * function-argument value (string / number / boolean). Centralises the
+     * boolean-flag layout that would otherwise be repeated at each call site.
+     */
+    private static ValueAccess literalArg(final String text,
+                                            final boolean stringLiteral,
+                                            final boolean numberLiteral) {
+        return new ValueAccess(
+            List.of(text), false, false, false, stringLiteral, numberLiteral,
+            List.of(), null, null);
     }
 
     private static String resolveValueAsString(final LALParser.ValueAccessContext ctx) {
@@ -889,7 +889,18 @@ public final class LALScriptParser {
 
     // ==================== Utilities ====================
 
+    /**
+     * Resolve a {@code typeCast} context to its cast-name string
+     * ({@code "Integer"}, {@code "String"}, FQCN, …). Accepts a {@code null}
+     * context and returns {@code null} so call sites can pass the context
+     * directly without a guard — replaces the ubiquitous
+     * {@code extractCastType(ctx.typeCast())}
+     * idiom.
+     */
     private static String extractCastType(final LALParser.TypeCastContext ctx) {
+        if (ctx == null) {
+            return null;
+        }
         if (ctx.STRING_TYPE() != null) {
             return "String";
         }

@@ -352,10 +352,25 @@ public final class LALScriptModel {
      * The list of operators aligns with the gaps between parts: for N parts there
      * are N-1 operators, where {@code concatOps[i]} joins {@code concatParts[i]}
      * and {@code concatParts[i + 1]}.  Precedence is already encoded by the parser
-     * (mul-level expressions sit inside add-level parts).
+     * (mul-level expressions sit inside add-level parts). The {@code symbol}
+     * field carries the Java source token so the codegen doesn't need a parallel
+     * switch.
      */
     public enum BinaryOp {
-        PLUS, MINUS, STAR, SLASH
+        PLUS("+"),
+        MINUS("-"),
+        STAR("*"),
+        SLASH("/");
+
+        private final String symbol;
+
+        BinaryOp(final String symbol) {
+            this.symbol = symbol;
+        }
+
+        public String symbol() {
+            return symbol;
+        }
     }
 
     @Getter

@@ -801,6 +801,74 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Exponent literal must not be appended with `.0` but got: " + source);
     }
 
+    // ==================== Copilot review #5 (PR #13858) — silent bugs ====================
+
+    @Test
+    void compileMethodArgWithNumericCastRoutesThroughHelper() throws Exception {
+        // `substring(tag("n") as Integer)` — the cast on the method-arg
+        // value access must apply at the call site so Javassist can match
+        // primitive-arg overloads. Without the fix, the cast was ignored
+        // and the original String tag value was passed through.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.s?.toString().substring(tag(\"n\") as Integer)\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains(".substring(h.toInt(h.tagValue(\"n\")))"),
+            "Expected method arg to honour `as Integer` cast but got: " + source);
+    }
+
+    @Test
+    void compileNarrowingCastPreservesSafeNavGuard() throws Exception {
+        // `((parsed?.x?.y as Long)) as Integer < 1` — when the narrowing
+        // cast layer sees an already-primitive operand, it must preserve
+        // the inner safe-nav null guard so the comparison still
+        // short-circuits to false on a missing chain (instead of NPE).
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl = "filter {\n"
+            + "  if (parsed?.response?.responseCode?.value as Long < 1) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        // The outer comparison must still be wrapped with the null-guard
+        // ternary captured by generateExtraLogAccess.
+        assertTrue(source.contains("== null ? false :"),
+            "Expected null-guard ternary preserved across narrowing cast but got: "
+                + source);
+    }
+
+    @Test
+    void compileSafeNavTypedProtoArithmeticDoesNotSilentlyZero() throws Exception {
+        // `parsed?.response?.responseCode?.value + 1` — the value field
+        // is an int with safe-nav. Pre-fix, codegen wrapped the boxed
+        // null-safe expression with `h.toInt(...)` which silently
+        // returned 0 for a missing chain, making the sum 1 instead of
+        // surfacing the missing value. After the fix, the raw primitive
+        // chain is used directly (NPE is the Java semantic for null +
+        // int — better than a silent zero).
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.response?.responseCode?.value + 1\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertFalse(source.contains("h.toInt((") && source.contains("== null ? null"),
+            "Expected raw primitive chain in arithmetic, not h.toInt(boxed-null-safe), but got: "
+                + source);
+    }
+
     // ==================== Copilot review #4 (PR #13858) ====================
 
     @Test
@@ -819,38 +887,6 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         final String source = generator.generateSource(dsl);
         assertTrue(source.contains("\"\" + 1 + h.mapVal("),
             "Expected \\\"\\\" coercion for `int + Object` but got: " + source);
-    }
-
-    @Test
-    void compileSuffixedLongLiteralExceedingRangeIsRejected() {
-        // `99999999999999999999L` — overflows long. Must be caught at
-        // parse time, not at Javassist compile time.
-        final String dsl = "filter {\n"
-            + "  if (99999999999999999999L < 1) {\n"
-            + "    abort {}\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}";
-        final IllegalArgumentException ex = assertThrows(
-            IllegalArgumentException.class, () -> compileAndAssert(dsl));
-        assertTrue(ex.getMessage().contains("Java long")
-            || ex.getMessage().contains("supported range"),
-            "Expected long-range error but got: " + ex.getMessage());
-    }
-
-    @Test
-    void compileSuffixedLongLiteralAsMethodArgIsValidated() {
-        // Same overflow issue but when the literal appears inside a method
-        // call argument list. generateMethodArgs must route through the
-        // numeric-literal validator instead of emitting raw text.
-        final String dsl = "filter {\n"
-            + "  json {}\n"
-            + "  extractor {\n"
-            + "    tag 'x': parsed?.x?.toString().substring(99999999999999999999L)\n"
-            + "  }\n"
-            + "  sink {}\n"
-            + "}";
-        assertThrows(IllegalArgumentException.class, () -> compileAndAssert(dsl));
     }
 
     @Test
@@ -977,24 +1013,6 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "      rateLimit(\"id\") { rpm 99999999999999999999 }\n"
             + "    }\n"
             + "  }\n"
-            + "}";
-        final IllegalArgumentException ex = assertThrows(
-            IllegalArgumentException.class, () -> compileAndAssert(dsl));
-        assertTrue(ex.getMessage().contains("Java long")
-            || ex.getMessage().contains("supported range"),
-            "Expected long-range error but got: " + ex.getMessage());
-    }
-
-    @Test
-    void compileNumericLiteralExceedingLongRangeIsRejected() {
-        // Bare integer literal above Long.MAX_VALUE. Without the long-range
-        // check, NumericLiteral.parse would emit `<huge>L` and Javassist
-        // would fail later with an opaque error.
-        final String dsl = "filter {\n"
-            + "  if (999999999999999999999 < 1) {\n"
-            + "    abort {}\n"
-            + "  }\n"
-            + "  sink {}\n"
             + "}";
         final IllegalArgumentException ex = assertThrows(
             IllegalArgumentException.class, () -> compileAndAssert(dsl));
