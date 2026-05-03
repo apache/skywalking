@@ -1305,6 +1305,16 @@ final class LALValueCodegen {
             switch (suffix) {
                 case 'L':
                 case 'l':
+                    // Validate the body fits in a Java long — otherwise a
+                    // huge `<digits>L` token would slip through and surface
+                    // later as an opaque Javassist error.
+                    try {
+                        Long.parseLong(t);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException(
+                            "Long literal '" + numText + "' exceeds the "
+                                + "supported range (must fit in a Java long)");
+                    }
                     return new NumericLiteral(ExprType.LONG, t + "L");
                 case 'F':
                 case 'f':
@@ -1617,12 +1627,15 @@ final class LALValueCodegen {
                         + "got non-numeric expression. Cast operands with "
                         + "'as Integer/Long/Float/Double' to enable arithmetic.");
             }
-            // String concat path. Coerce the accumulator to String when
-            // needed: a STRING accumulator is fine; a numeric accumulator
-            // is already in parens (so Java evaluates it before the concat,
-            // preserving `(1 + 2) + "x"` → `"3x"`); anything else needs a
-            // leading "" to make Java accept Object + Object.
-            if (accType != ExprType.STRING && !accType.isNumeric()) {
+            // String concat path. Java's `+` only accepts the chain when
+            // at least one operand is statically a String; otherwise (e.g.
+            // `int + Object` or `Object + Object`) the source won't even
+            // compile. Prepend a leading `""` whenever neither side is
+            // statically String at the transition point. The numeric
+            // arithmetic prefix is already in parens, so `("" + (1 + 2))`
+            // still computes the sum first ("3"), preserving the
+            // semantics of `1 + 2 + parsed.x` (= "3<obj>").
+            if (accType != ExprType.STRING && rhsType != ExprType.STRING) {
                 accExpr = "\"\" + " + accExpr;
             }
             accExpr = accExpr + " + " + rhsExpr;
@@ -1762,11 +1775,34 @@ final class LALValueCodegen {
             }
             final LALScriptModel.FunctionArg arg = args.get(i);
             final LALScriptModel.ValueAccess va = arg.getValue();
+            // Binary expression node — happens when the user writes
+            // `foo.bar(1 + 2)` etc. Render via the standard value-access
+            // path so arithmetic / string-concat / paren grouping all
+            // work. When the result is a numeric primitive, use the raw
+            // chain form (`(1 + 2)`) instead of the boxed wrapper
+            // (`Integer.valueOf(...)`) — Javassist doesn't auto-unbox
+            // when matching method-arg overloads, so a primitive-arg
+            // method like {@code String.substring(int)} would otherwise
+            // fail to resolve.
+            if (!va.getConcatParts().isEmpty()) {
+                final StringBuilder buf = new StringBuilder();
+                generateValueAccess(buf, va, genCtx);
+                if (genCtx.lastRawChain != null) {
+                    sb.append(genCtx.lastRawChain);
+                } else {
+                    sb.append(buf);
+                }
+                continue;
+            }
             if (va.isStringLiteral()) {
                 sb.append("\"").append(LALCodegenHelper.escapeJava(
                     va.getSegments().get(0))).append("\"");
             } else if (va.isNumberLiteral()) {
-                sb.append(va.getSegments().get(0));
+                // Route through NumericLiteral.parse so out-of-range
+                // suffixed literals (`foo(99999999999999999999L)`) raise
+                // a clear parse error instead of letting Javassist fail
+                // at compile time.
+                sb.append(NumericLiteral.parse(va.getSegments().get(0)).javaText);
             } else if (!va.getSegments().isEmpty()) {
                 final String text = va.getSegments().get(0);
                 if ("true".equals(text) || "false".equals(text)
@@ -1777,6 +1813,14 @@ final class LALValueCodegen {
                         && genCtx.localVars.containsKey(text)) {
                     // Local def variable reference
                     sb.append(genCtx.localVars.get(text).javaVarName);
+                } else if (genCtx != null
+                        && (va.isParsedRef() || va.isLogRef()
+                            || !va.getChain().isEmpty()
+                            || va.getFunctionCallName() != null
+                            || va.getParenInner() != null)) {
+                    // tag(), parsed.*, log.*, paren-cast, or any value
+                    // access with a chain — render via the standard path.
+                    generateValueAccess(sb, va, genCtx);
                 } else {
                     throw new IllegalArgumentException(
                         "Unknown identifier used as method argument: '" + text + "'");

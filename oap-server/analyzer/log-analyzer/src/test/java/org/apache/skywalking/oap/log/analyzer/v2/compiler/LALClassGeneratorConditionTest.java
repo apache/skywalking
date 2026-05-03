@@ -801,6 +801,95 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Exponent literal must not be appended with `.0` but got: " + source);
     }
 
+    // ==================== Copilot review #4 (PR #13858) ====================
+
+    @Test
+    void compileNumericPrefixThenObjectStringConcatPrependsEmptyString() throws Exception {
+        // `1 + parsed.field` where parsed.field is Object (json/yaml mapVal
+        // returns Object) — Java rejects `int + Object` at compile time.
+        // The codegen must prepend "" to coerce string concat.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': 1 + parsed.field\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("\"\" + 1 + h.mapVal("),
+            "Expected \\\"\\\" coercion for `int + Object` but got: " + source);
+    }
+
+    @Test
+    void compileSuffixedLongLiteralExceedingRangeIsRejected() {
+        // `99999999999999999999L` — overflows long. Must be caught at
+        // parse time, not at Javassist compile time.
+        final String dsl = "filter {\n"
+            + "  if (99999999999999999999L < 1) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class, () -> compileAndAssert(dsl));
+        assertTrue(ex.getMessage().contains("Java long")
+            || ex.getMessage().contains("supported range"),
+            "Expected long-range error but got: " + ex.getMessage());
+    }
+
+    @Test
+    void compileSuffixedLongLiteralAsMethodArgIsValidated() {
+        // Same overflow issue but when the literal appears inside a method
+        // call argument list. generateMethodArgs must route through the
+        // numeric-literal validator instead of emitting raw text.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.x?.toString().substring(99999999999999999999L)\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        assertThrows(IllegalArgumentException.class, () -> compileAndAssert(dsl));
+    }
+
+    @Test
+    void compileBinaryExpressionAsMethodArgGenerates() throws Exception {
+        // `foo.bar(1 + 2)` — valueAccess inside a method arg now allows
+        // additive expressions thanks to the grammar change. Codegen must
+        // render the expression rather than throw "Unknown identifier".
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.s?.toString().substring(1 + 2)\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        // The arg `1 + 2` should be rendered through the binary path.
+        // Inner numeric arithmetic emits `Integer.valueOf((1 + 2))`.
+        assertTrue(source.contains(".substring((1 + 2))"),
+            "Expected substring((1 + 2)) — raw int form for primitive arg — but got: " + source);
+    }
+
+    @Test
+    void compileTagFunctionAsMethodArgGenerates() throws Exception {
+        // tag() / parsed.* etc. used as a method argument should also
+        // render through the standard value-access path, not throw.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.s?.toString().concat(tag(\"k\"))\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains(".concat(h.tagValue(\"k\"))"),
+            "Expected concat(h.tagValue(...)) but got: " + source);
+    }
+
     // ==================== Copilot review #3 (PR #13858) ====================
 
     @Test
