@@ -174,26 +174,26 @@ final class LALValueCodegen {
         final ExprType cmpType = pickComparisonType(lhsType, rhsType);
         final Class<?> cmpClass = primitiveClass(cmpType);
 
-        // Generate left side into a buffer to inspect what the codegen
-        // produced — typed proto fields and binary-expression results expose
-        // their primitive expression via genCtx.lastRawChain, which lets us
-        // skip the h.toX() unboxing wrapper. A top-level numeric cast on the
-        // comparison (`tag("a") as Integer < 1.5`) is honoured first so the
-        // operand is rendered in the user's declared primitive, not in the
-        // promoted comparison type.
+        // Render the LHS, then capture its primitive metadata BEFORE the RHS
+        // generator overwrites genCtx fields. A top-level numeric cast on
+        // the comparison (`tag("a") as Integer < 1.5`) is honoured first so
+        // the operand is rendered in the user's declared primitive, not in
+        // the promoted comparison type.
+        genCtx.lastNullChecks = null;
         final StringBuilder leftBuf = new StringBuilder();
         emitOperandRespectingCast(leftBuf, cc.getLeft(), cc.getLeftCast(), genCtx);
-
-        final Class<?> resolved = genCtx.lastResolvedType;
-        final boolean primitiveNumeric = resolved != null
-            && (resolved == int.class || resolved == long.class
-                || resolved == float.class || resolved == double.class);
+        final Class<?> lhsResolved = genCtx.lastResolvedType;
+        final String lhsRawChain = genCtx.lastRawChain;
+        final String lhsNullChecks = genCtx.lastNullChecks;
+        final boolean lhsPrimitive = lhsResolved != null
+            && (lhsResolved == int.class || lhsResolved == long.class
+                || lhsResolved == float.class || lhsResolved == double.class);
 
         final String leftExpr;
-        if (primitiveNumeric && genCtx.lastRawChain != null) {
+        if (lhsPrimitive && lhsRawChain != null) {
             // Already primitive — widen to cmpType only if narrower.
-            leftExpr = widenPrimitiveExpr(genCtx.lastRawChain,
-                primitiveToExprType(resolved), cmpType);
+            leftExpr = widenPrimitiveExpr(lhsRawChain,
+                primitiveToExprType(lhsResolved), cmpType);
         } else {
             // Untyped operand — wrap with the helper that produces the
             // chosen primitive type. h.toLong is no longer the universal
@@ -201,15 +201,41 @@ final class LALValueCodegen {
             leftExpr = wrapAsPrimitive(leftBuf.toString(), cmpType);
         }
 
-        if (genCtx.lastNullChecks != null && primitiveNumeric) {
-            sb.append("(").append(genCtx.lastNullChecks).append(" ? false : ")
-              .append(leftExpr).append(op);
-            generateConditionValueNumeric(sb, cc.getRight(), cmpClass, genCtx);
-            sb.append(")");
+        // Render the RHS into its own buffer so we can read back any null
+        // guards it produced (e.g. from a typed-proto chain like
+        // `parsed?.response?.responseCode?.value`) and apply them at the
+        // outer ternary alongside the LHS guards.
+        genCtx.lastNullChecks = null;
+        final StringBuilder rhsBuf = new StringBuilder();
+        generateConditionValueNumeric(rhsBuf, cc.getRight(), cmpClass, genCtx);
+        final String rhsNullChecks = genCtx.lastNullChecks;
+
+        final String combinedNullChecks = combineNullChecks(lhsNullChecks, rhsNullChecks);
+        if (combinedNullChecks != null) {
+            sb.append("(").append(combinedNullChecks).append(" ? false : ")
+              .append(leftExpr).append(op).append(rhsBuf).append(")");
         } else {
-            sb.append(leftExpr).append(op);
-            generateConditionValueNumeric(sb, cc.getRight(), cmpClass, genCtx);
+            sb.append(leftExpr).append(op).append(rhsBuf);
         }
+    }
+
+    /**
+     * Combine LHS / RHS null-guard expressions for a comparison. Either side
+     * may be {@code null} (no guard); the result is the disjunction so the
+     * comparison short-circuits to {@code false} as soon as any participant
+     * is null, mirroring the previous single-side behaviour.
+     */
+    private static String combineNullChecks(final String lhs, final String rhs) {
+        if (lhs == null && rhs == null) {
+            return null;
+        }
+        if (lhs == null) {
+            return rhs;
+        }
+        if (rhs == null) {
+            return lhs;
+        }
+        return lhs + " || " + rhs;
     }
 
     /**
@@ -465,13 +491,19 @@ final class LALValueCodegen {
         if (last == 'L' || last == 'F' || last == 'f' || last == 'd' || last == 'D') {
             body = body.substring(0, body.length() - 1);
         }
+        // Java treats `1`, `1.0`, and `1e0` as valid literals. We only need
+        // to append `.0` for INT-shaped bodies (no decimal AND no exponent)
+        // when widening to a fractional type — otherwise the body is
+        // already a valid float/double literal, just with a different suffix.
+        final boolean fractional = body.contains(".")
+            || body.contains("e") || body.contains("E");
         switch (to) {
             case LONG:
                 return body + "L";
             case FLOAT:
-                return (body.contains(".") ? body : body + ".0") + "f";
+                return (fractional ? body : body + ".0") + "f";
             case DOUBLE:
-                return body.contains(".") ? body : body + ".0";
+                return fractional ? body : body + ".0";
             case INT:
             default:
                 return body;
@@ -1356,12 +1388,70 @@ final class LALValueCodegen {
                 return ExprType.OBJECT;
             }
         }
-        // tag(), sourceAttribute(), parsed.* without typed input — String.
+        // tag() / sourceAttribute() — always return String at runtime.
         if ("tag".equals(part.getFunctionCallName())
                 || "sourceAttribute".equals(part.getFunctionCallName())) {
             return ExprType.STRING;
         }
+        // parsed.* — when the rule has a typed inputType (no JSON/YAML/TEXT
+        // parser), walk the proto getter chain via reflection so primitive
+        // numeric leaves participate in arithmetic and don't fall through
+        // to string concat. Mirrors {@link #generateExtraLogAccess} but
+        // does not emit code or local variables.
+        if (part.isParsedRef()
+                && genCtx.parserType == LALClassGenerator.ParserType.NONE
+                && genCtx.inputType != null) {
+            final Class<?> primitive = walkProtoChainPrimitiveType(
+                part.getChain(), genCtx.inputType);
+            if (primitive != null) {
+                if (primitive == int.class) {
+                    return ExprType.INT;
+                }
+                if (primitive == long.class) {
+                    return ExprType.LONG;
+                }
+                if (primitive == float.class) {
+                    return ExprType.FLOAT;
+                }
+                if (primitive == double.class) {
+                    return ExprType.DOUBLE;
+                }
+                if (primitive == boolean.class) {
+                    return ExprType.BOOLEAN;
+                }
+            }
+        }
         return ExprType.UNKNOWN;
+    }
+
+    /**
+     * Walk a {@code parsed.*} field-segment chain over the typed proto root
+     * via reflection, returning the primitive return type of the final getter
+     * if the chain is field-only and ends at a primitive accessor; {@code null}
+     * otherwise.
+     */
+    private static Class<?> walkProtoChainPrimitiveType(
+            final List<LALScriptModel.ValueAccessSegment> chain,
+            final Class<?> rootType) {
+        if (chain == null || chain.isEmpty()) {
+            return null;
+        }
+        Class<?> currentType = rootType;
+        for (int i = 0; i < chain.size(); i++) {
+            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
+            if (!(seg instanceof LALScriptModel.FieldSegment)) {
+                return null;
+            }
+            final String field = ((LALScriptModel.FieldSegment) seg).getName();
+            final String getter = "get" + Character.toUpperCase(field.charAt(0))
+                + field.substring(1);
+            try {
+                currentType = currentType.getMethod(getter).getReturnType();
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
+        }
+        return currentType.isPrimitive() ? currentType : null;
     }
 
     private static ExprType castToType(final String cast) {

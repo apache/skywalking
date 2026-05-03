@@ -696,6 +696,86 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected Integer RHS widened to double but got: " + source);
     }
 
+    // ==================== Copilot review (PR #13858) ====================
+
+    @Test
+    void compileTypedProtoNullSafeNumericComparisonGuardsBothSides() throws Exception {
+        // When BOTH sides of a numeric comparison are typed-proto chains
+        // with safe-navigation (?.), each side's null guard must propagate
+        // to the outer ternary. Otherwise an intermediate null on the RHS
+        // makes the comparison NPE instead of evaluating to false.
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl = "filter {\n"
+            + "  if (parsed?.response?.responseCode?.value as Integer"
+            + " < parsed?.response?.responseCode?.value as Integer) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        // The outer ternary should mention `== null` at least once for the
+        // safe-nav chain. The previous codegen lost the LHS guard once the
+        // RHS was generated and never recorded a guard for the RHS at all.
+        assertTrue(source.contains("== null ? false :"),
+            "Expected null-guard ternary on safe-nav comparison but got: " + source);
+    }
+
+    @Test
+    void compileTypedProtoUncastNumericFieldParticipatesInArithmetic() throws Exception {
+        // Uncast typed-proto numeric leaves should be inferred via reflection
+        // and accepted in arithmetic, not silently fall back to string concat.
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.response?.responseCode?.value + 1\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        // Final field returns int — arithmetic stays in int with `Integer.valueOf`.
+        assertTrue(source.contains("Integer.valueOf("),
+            "Expected boxed int result for typed-proto int + int but got: " + source);
+        assertFalse(source.contains("\"\" +"),
+            "Should not fall back to string concat for typed-proto numeric but got: " + source);
+    }
+
+    @Test
+    void compileTypedProtoUncastNumericFieldRejectsMinusOnString() throws Exception {
+        // Sanity check that the type-inference improvement doesn't accept
+        // arithmetic on non-numeric typed-proto fields — String getters
+        // should still produce a compile-time error for `-`.
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed?.commonProperties?.upstreamCluster - 1\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        assertThrows(IllegalArgumentException.class, () -> compileAndAssert(dsl));
+    }
+
+    @Test
+    void compileExponentLiteralDoesNotGetSpuriousDotZeroOnWidening() throws Exception {
+        // Exponent-form literals are already valid floats/doubles. Widening
+        // them must not append `.0` (which would produce `1e6.0`).
+        // Trigger via comparison: float-cast LHS vs. exponent literal on RHS.
+        final String dsl = "filter {\n"
+            + "  if (tag(\"a\") as Float < 1e6) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertFalse(source.contains("1e6.0"),
+            "Exponent literal must not be appended with `.0` but got: " + source);
+    }
+
     // ==================== P2 regression: paren grouping without cast ====================
 
     @Test
