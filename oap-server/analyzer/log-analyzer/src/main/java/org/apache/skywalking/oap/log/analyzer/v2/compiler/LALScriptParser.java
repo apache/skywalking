@@ -747,7 +747,7 @@ public final class LALScriptParser {
                 chain.add(new LALScriptModel.MethodSegment(
                     fi.functionName().getText(), visitFunctionArgs(fi), true));
             } else if (seg instanceof LALParser.SegmentIndexContext) {
-                final int index = (int) parseStrictInteger(
+                final int index = parseStrictInt(
                     ((LALParser.SegmentIndexContext) seg).NUMBER().getText(), "[index]");
                 segments.add("[" + index + "]");
                 chain.add(new IndexSegment(index));
@@ -833,8 +833,9 @@ public final class LALScriptParser {
      * grammar slots — {@code rateLimit { rpm N }} and {@code list[N]} —
      * which share the lexer NUMBER token with arithmetic expressions but
      * cannot accept the suffixes/forms supported there. Throws a clear
-     * compile-time error instead of letting NumberFormatException leak
-     * later.
+     * compile-time error for shape violations and for values that exceed
+     * Java's {@code long} range (rather than letting
+     * {@link NumberFormatException} leak from {@code Long.parseLong}).
      */
     private static long parseStrictInteger(final String numText, final String slot) {
         for (int i = 0; i < numText.length(); i++) {
@@ -845,7 +846,29 @@ public final class LALScriptParser {
                         + "' (suffixes / decimals / exponents are not accepted here)");
             }
         }
-        return Long.parseLong(numText);
+        try {
+            return Long.parseLong(numText);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                slot + " value '" + numText + "' exceeds the supported range "
+                    + "(must fit in a Java long)");
+        }
+    }
+
+    /**
+     * Like {@link #parseStrictInteger} but additionally requires the value
+     * to fit in a Java {@code int}. Used by the {@code [index]} grammar
+     * slot, where silent narrowing of an oversized literal would wrap to a
+     * negative index instead of producing a clear error.
+     */
+    private static int parseStrictInt(final String numText, final String slot) {
+        final long value = parseStrictInteger(numText, slot);
+        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                slot + " value '" + numText + "' exceeds the supported range "
+                    + "(must fit in a Java int)");
+        }
+        return (int) value;
     }
 
     /**

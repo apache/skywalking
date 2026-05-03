@@ -801,6 +801,119 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Exponent literal must not be appended with `.0` but got: " + source);
     }
 
+    // ==================== Copilot review #3 (PR #13858) ====================
+
+    @Test
+    void compileEqOnDualNumericCastsRoutesThroughIntComparison() throws Exception {
+        // `tag("a") as Integer == tag("b") as Integer` must compare ints,
+        // not delegate to Objects.equals on the original Strings.
+        final String dsl = "filter {\n"
+            + "  if (tag(\"a\") as Integer == tag(\"b\") as Integer) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("h.toInt(h.tagValue(\"a\")) == h.toInt(h.tagValue(\"b\"))"),
+            "Expected primitive int == int but got: " + source);
+        assertFalse(source.contains("Objects.equals"),
+            "Did not expect Objects.equals on dual Integer casts but got: " + source);
+    }
+
+    @Test
+    void compileNeqOnStringDoesNotRouteThroughNumeric() throws Exception {
+        // Regression for the network-profiling rule: `parsed.x as String != ""`
+        // must keep using Objects.equals — not be lured into numeric
+        // comparison just because castType is non-null.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  if (parsed.field as String != \"\") {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("!java.util.Objects.equals("),
+            "Expected Objects.equals path for String != but got: " + source);
+        assertFalse(source.contains("h.toInt(") || source.contains("h.toLong("),
+            "Did not expect primitive numeric helpers on String compare but got: " + source);
+    }
+
+    @Test
+    void compileStringConcatWithNumericInnerSetsStringResolvedType() throws Exception {
+        // `def msg = "count=" + (tag("n") as Integer)` ends up as a String
+        // concat. The compiler must declare _def_msg as String, not Integer
+        // (the inner numeric cast's leaked lastResolvedType).
+        final String dsl = "filter {\n"
+            + "  extractor {\n"
+            + "    def msg = \"count=\" + (tag(\"n\") as Integer)\n"
+            + "    tag 'm': msg\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        compileAndAssert(dsl);
+        final String source = generator.generateSource(dsl);
+        assertTrue(source.contains("java.lang.String _def_msg"),
+            "Expected _def_msg declared as String but got: " + source);
+    }
+
+    @Test
+    void compileIndexLiteralRejectsOutOfIntRange() {
+        // `[3000000000]` overflows int. Must produce a clear parse-time
+        // error, not silently wrap to a negative index.
+        final String dsl = "filter {\n"
+            + "  json {}\n"
+            + "  extractor {\n"
+            + "    tag 'x': parsed.items[3000000000] as String\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class, () -> compileAndAssert(dsl));
+        assertTrue(ex.getMessage().contains("Java int")
+            || ex.getMessage().contains("supported range"),
+            "Expected range error but got: " + ex.getMessage());
+    }
+
+    @Test
+    void compileRpmRejectsOutOfLongRange() {
+        // `rpm 99999999999999999999` overflows long. parseStrictInteger
+        // must catch the NumberFormatException and rethrow as a clear
+        // IllegalArgumentException naming the slot.
+        final String dsl = "filter {\n"
+            + "  sink {\n"
+            + "    sampler {\n"
+            + "      rateLimit(\"id\") { rpm 99999999999999999999 }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+        final IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class, () -> compileAndAssert(dsl));
+        assertTrue(ex.getMessage().contains("Java long")
+            || ex.getMessage().contains("supported range"),
+            "Expected long-range error but got: " + ex.getMessage());
+    }
+
+    @Test
+    void compileNumericLiteralExceedingLongRangeIsRejected() {
+        // Bare integer literal above Long.MAX_VALUE. Without the long-range
+        // check, NumericLiteral.parse would emit `<huge>L` and Javassist
+        // would fail later with an opaque error.
+        final String dsl = "filter {\n"
+            + "  if (999999999999999999999 < 1) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  sink {}\n"
+            + "}";
+        final IllegalArgumentException ex = assertThrows(
+            IllegalArgumentException.class, () -> compileAndAssert(dsl));
+        assertTrue(ex.getMessage().contains("Java long")
+            || ex.getMessage().contains("supported range"),
+            "Expected long-range error but got: " + ex.getMessage());
+    }
+
     @Test
     void compileDefWithLongCastRoutesThroughHelper() throws Exception {
         // tag() returns String at runtime — a plain Java cast `(Long) "..."`

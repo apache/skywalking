@@ -98,7 +98,7 @@ final class LALValueCodegen {
                 (LALScriptModel.ComparisonCondition) cond;
             switch (cc.getOp()) {
                 case EQ:
-                    if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
+                    if (isNumericComparison(cc, genCtx)) {
                         generateNumericComparison(sb, cc, " == ", genCtx);
                     } else {
                         sb.append("java.util.Objects.equals(");
@@ -109,7 +109,7 @@ final class LALValueCodegen {
                     }
                     break;
                 case NEQ:
-                    if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
+                    if (isNumericComparison(cc, genCtx)) {
                         generateNumericComparison(sb, cc, " != ", genCtx);
                     } else {
                         sb.append("!java.util.Objects.equals(");
@@ -236,6 +236,48 @@ final class LALValueCodegen {
             return lhs;
         }
         return lhs + " || " + rhs;
+    }
+
+    /**
+     * Decide whether an {@code ==} / {@code !=} comparison should be
+     * routed through numeric primitive comparison rather than
+     * {@code Objects.equals}. True when BOTH sides resolve to a numeric
+     * type (via explicit cast, paren-cast, or AST inference). A numeric
+     * literal RHS is enough on its own — Java promotes the LHS to match.
+     */
+    private static boolean isNumericComparison(
+            final LALScriptModel.ComparisonCondition cc,
+            final LALClassGenerator.GenCtx genCtx) {
+        if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
+            return true;
+        }
+        if (!(cc.getRight() instanceof LALScriptModel.ValueAccessConditionValue)) {
+            return false;
+        }
+        final LALScriptModel.ValueAccessConditionValue vacv =
+            (LALScriptModel.ValueAccessConditionValue) cc.getRight();
+        return numericTypeOrNull(cc.getLeft(), cc.getLeftCast(), genCtx) != null
+            && numericTypeOrNull(vacv.getValue(), vacv.getCastType(), genCtx) != null;
+    }
+
+    /**
+     * Return the operand's numeric {@link ExprType} if and only if it
+     * resolves to one of {@code INT / LONG / FLOAT / DOUBLE} via an
+     * explicit cast or compile-time inference; otherwise {@code null}.
+     * Used by {@link #isNumericComparison} to decide whether {@code ==} /
+     * {@code !=} should compare primitives — note this is strict (no
+     * {@code LONG} fallback like {@link #inferComparisonOperandType}).
+     */
+    private static ExprType numericTypeOrNull(
+            final LALScriptModel.ValueAccess value,
+            final String topLevelCast,
+            final LALClassGenerator.GenCtx genCtx) {
+        final ExprType fromCast = castToType(topLevelCast);
+        if (fromCast.isNumeric()) {
+            return fromCast;
+        }
+        final ExprType inferred = inferType(value, genCtx);
+        return inferred.isNumeric() ? inferred : null;
     }
 
     /**
@@ -1277,11 +1319,24 @@ final class LALValueCodegen {
                         return new NumericLiteral(ExprType.DOUBLE, t);
                     }
                     // Bare integer literal — INT if it fits, else LONG.
+                    // Reject values that don't fit in Java's long range
+                    // upfront so the parser raises a clear error rather
+                    // than letting Javassist fail later on `<huge>L`.
                     try {
                         Integer.parseInt(t);
                         return new NumericLiteral(ExprType.INT, t);
-                    } catch (NumberFormatException e) {
-                        return new NumericLiteral(ExprType.LONG, t + "L");
+                    } catch (NumberFormatException ignoredInt) {
+                        try {
+                            Long.parseLong(t);
+                            return new NumericLiteral(ExprType.LONG, t + "L");
+                        } catch (NumberFormatException ignoredLong) {
+                            throw new IllegalArgumentException(
+                                "Numeric literal '" + numText
+                                    + "' exceeds the supported range "
+                                    + "(must fit in a Java long; use a "
+                                    + "fractional or 'D'/'F'-suffixed form "
+                                    + "for larger magnitudes)");
+                        }
                     }
             }
         }
@@ -1583,6 +1638,15 @@ final class LALValueCodegen {
             genCtx.lastNullChecks = null;
             sb.append(javaWrapperName(accType)).append(".valueOf(").append(accExpr).append(")");
         } else {
+            // Non-numeric end state: a String concatenation. Update the
+            // genCtx metadata explicitly — otherwise a stale numeric
+            // resolved type from an inner operand would leak out and
+            // mis-type things like `def msg = "count=" + (tag("n") as Integer)`,
+            // which the def codegen reads from lastResolvedType to declare
+            // the local variable.
+            genCtx.lastResolvedType = String.class;
+            genCtx.lastRawChain = null;
+            genCtx.lastNullChecks = null;
             sb.append(accExpr);
         }
     }
