@@ -592,37 +592,25 @@ final class LALValueCodegen {
         // and the raw chain so callers (numeric comparisons, arithmetic
         // codegen) can skip a redundant h.toX() wrapper when the operand
         // already matches the target primitive.
+        final ExprType castET = castToType(castType);
+        if (castET.runtimeHelper == null) {
+            // FQCN or no cast — emit the raw value access.
+            generateValueAccess(sb, value, genCtx);
+            return;
+        }
+        // Skip h.toStr(<string-literal>) — it's a no-op.
+        if (castET == ExprType.STRING && isPlainStringLiteral(value)) {
+            generateValueAccess(sb, value, genCtx);
+            return;
+        }
         final int start = sb.length();
-        if ("String".equals(castType)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Long".equals(castType)) {
-            sb.append("h.toLong(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-            recordPrimitiveResult(genCtx, long.class, sb, start);
-        } else if ("Integer".equals(castType)) {
-            sb.append("h.toInt(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-            recordPrimitiveResult(genCtx, int.class, sb, start);
-        } else if ("Double".equals(castType)) {
-            sb.append("h.toDouble(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-            recordPrimitiveResult(genCtx, double.class, sb, start);
-        } else if ("Float".equals(castType)) {
-            sb.append("h.toFloat(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-            recordPrimitiveResult(genCtx, float.class, sb, start);
-        } else if ("Boolean".equals(castType)) {
-            sb.append("h.toBool(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else {
-            generateValueAccess(sb, value, genCtx);
+        sb.append(castET.runtimeHelper).append("(");
+        generateValueAccess(sb, value, genCtx);
+        sb.append(")");
+        // Numeric casts produce a primitive — capture the raw chain so the
+        // caller can avoid the redundant unbox wrapper.
+        if (castET.isNumeric()) {
+            recordPrimitiveResult(genCtx, castET.primitiveClass, sb, start);
         }
     }
 
@@ -637,58 +625,65 @@ final class LALValueCodegen {
 
     /**
      * Generates a value access that must produce a String result (used by
-     * tag assignments). Wraps the inner expression with {@code h.toStr()}.
+     * tag assignments). For numeric / boolean casts wraps the conversion
+     * helper with {@code String.valueOf(...)}; for String (or unspecified)
+     * wraps with {@code h.toStr(...)} — except when the value is already
+     * a Java {@code String} literal, in which case the wrapper is elided
+     * since {@code h.toStr("llm")} just returns {@code "llm"}.
      */
     static void generateStringValueAccess(final StringBuilder sb,
                                             final LALScriptModel.ValueAccess value,
                                             final String castType,
                                             final LALClassGenerator.GenCtx genCtx) {
-        if (castType == null || "String".equals(castType)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
-        } else if ("Long".equals(castType)) {
-            sb.append("String.valueOf(h.toLong(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else if ("Integer".equals(castType)) {
-            sb.append("String.valueOf(h.toInt(");
+        final ExprType castET = castToType(castType);
+        if (castET.isNumeric() || castET == ExprType.BOOLEAN) {
+            // String.valueOf(h.toX(value)) — primitive conversion then
+            // stringify. Drives off the runtime-helper field on ExprType
+            // instead of repeating a parallel switch.
+            sb.append("String.valueOf(").append(castET.runtimeHelper).append("(");
             generateValueAccess(sb, value, genCtx);
             sb.append("))");
-        } else if ("Double".equals(castType)) {
-            sb.append("String.valueOf(h.toDouble(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else if ("Float".equals(castType)) {
-            sb.append("String.valueOf(h.toFloat(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else if ("Boolean".equals(castType)) {
-            sb.append("String.valueOf(h.toBool(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-        } else {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append(")");
+            return;
         }
+        if (isPlainStringLiteral(value)) {
+            generateValueAccess(sb, value, genCtx);
+            return;
+        }
+        sb.append("h.toStr(");
+        generateValueAccess(sb, value, genCtx);
+        sb.append(")");
     }
 
     /**
      * Generates a value access that produces an Object (boxed) result.
-     * Only applies String cast; other casts pass through as-is.
+     * Only applies String cast; other casts pass through as-is. Skips
+     * the {@code h.toStr()} wrapper when the value is already a Java
+     * String literal.
      */
     static void generateValueAccessObj(final StringBuilder sb,
                                         final LALScriptModel.ValueAccess value,
                                         final String castType,
                                         final LALClassGenerator.GenCtx genCtx) {
-        if ("String".equals(castType)) {
+        if ("String".equals(castType) && !isPlainStringLiteral(value)) {
             sb.append("h.toStr(");
             generateValueAccess(sb, value, genCtx);
             sb.append(")");
         } else {
             generateValueAccess(sb, value, genCtx);
         }
+    }
+
+    /**
+     * True when the operand is a bare Java String literal (no chain,
+     * no concat, no paren wrapping). For these the value-access codegen
+     * already emits a {@code String}, so a {@code h.toStr()} wrapper
+     * adds nothing.
+     */
+    private static boolean isPlainStringLiteral(final LALScriptModel.ValueAccess value) {
+        return value.isStringLiteral()
+            && value.getChain().isEmpty()
+            && value.getConcatParts().isEmpty()
+            && value.getParenInner() == null;
     }
 
     /**
@@ -1758,10 +1753,8 @@ final class LALValueCodegen {
                 sb.append("\"").append(LALCodegenHelper.escapeJava(
                     va.getSegments().get(0))).append("\"");
             } else if (va.isNumberLiteral()) {
-                // Route through NumericLiteral.parse so out-of-range
-                // suffixed literals (`foo(99999999999999999999L)`) raise
-                // a clear parse error instead of letting Javassist fail
-                // at compile time.
+                // Normalise the literal text — e.g. `1f` → `1.0f`, `1d`
+                // → `1.0` — so the emitted Java is unambiguous.
                 sb.append(NumericLiteral.parse(va.getSegments().get(0)).javaText);
             } else if (!va.getSegments().isEmpty()) {
                 final String text = va.getSegments().get(0);
