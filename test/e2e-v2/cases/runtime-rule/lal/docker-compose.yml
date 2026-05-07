@@ -25,6 +25,7 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       SW_STORAGE: banyandb
       # Open the OTLP gRPC log receiver on the standard port (11800) — base-compose

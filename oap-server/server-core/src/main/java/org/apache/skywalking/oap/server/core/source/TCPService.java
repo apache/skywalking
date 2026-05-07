@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -76,5 +77,20 @@ public class TCPService extends Source {
 
     public String getTag(String key) {
         return originalTags.get(key);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("layer", layer == null ? null : layer.name());
+        obj.addProperty("serviceInstanceName", serviceInstanceName);
+        obj.addProperty("receivedBytes", receivedBytes);
+        obj.addProperty("sentBytes", sentBytes);
+        obj.addProperty("tlsMode", tlsMode);
+        return obj.toString();
     }
 }

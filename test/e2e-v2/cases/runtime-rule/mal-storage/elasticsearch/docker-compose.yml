@@ -37,6 +37,7 @@ services:
     environment:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       # Tighten the persistence timer for the e2e: every 10s (default 25s) so the
       # lifecycle flow's per-phase awaits land sooner.

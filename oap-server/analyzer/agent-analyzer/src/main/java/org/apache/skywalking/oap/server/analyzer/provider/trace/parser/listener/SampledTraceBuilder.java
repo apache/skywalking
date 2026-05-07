@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -155,6 +156,26 @@ public class SampledTraceBuilder implements LALOutputBuilder {
         final Record record = toRecord();
         RecordStreamProcessor.getInstance().in(record);
         sourceReceiver.receive(toEntity());
+    }
+
+    @Override
+    public String outputToJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("type", getClass().getSimpleName());
+        obj.addProperty("name", name());
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("uri", uri);
+        obj.addProperty("latency", latency);
+        obj.addProperty("reason", reason == null ? null : reason.name());
+        obj.addProperty("layer", layer);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("serviceInstanceName", serviceInstanceName);
+        obj.addProperty("processId", processId);
+        obj.addProperty("destProcessId", destProcessId);
+        obj.addProperty("componentId", componentId);
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("timestamp", timestamp);
+        return obj.toString();
     }
 
     public void validate() {

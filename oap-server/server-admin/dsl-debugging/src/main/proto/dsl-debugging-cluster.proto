@@ -1,0 +1,209 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+syntax = "proto3";
+
+package skywalking.v3.dsl_debugging;
+
+option java_multiple_files = true;
+option java_package = "org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1";
+
+// Cluster-internal RPCs the dsl-debugging session control plane uses to fan
+// out install / collect / stop / clientId-cleanup requests to every OAP
+// peer. Travels on the admin-internal gRPC bus owned by `admin-server`
+// (default port 17129), NOT on the public agent / cluster gRPC port
+// (`core.gRPCPort`, default 11800). Privileged admin RPCs stay isolated
+// from the agent network's blast radius. Peer discovery via
+// AdminClusterChannelManager (admin-server module service).
+//
+// LB-safe contract: any OAP node can receive the original REST request.
+// The receiving node mints the sessionId locally, calls these RPCs against
+// every peer, and aggregates the per-peer slices in the REST response —
+// so an L7 LB in front of the admin port can route any operator request
+// to any OAP without operators having to know which node owns which rule.
+//
+// Best-effort fan-out: a missed peer is logged in the response and falls out
+// via the per-node retention timeout. There is no cross-node merge or join —
+// every peer's slice is a self-contained "what arrived here, what the DSL did
+// with it" view, and the receiving node concatenates slices into nodes[].
+service DSLDebuggingClusterService {
+
+    // Bind a recorder for `sessionId` to the live rule artifact on this
+    // node, if the rule is loaded here. Receiving the same sessionId on
+    // every peer lets the later CollectDebugSamples fan-out collect every
+    // node's slice without a per-peer id mapping. Peers without the rule
+    // loaded return NOT_LOCAL — that's not an error, just "this peer
+    // contributes nothing to the session".
+    rpc InstallDebugSession(InstallDebugSessionRequest) returns (InstallDebugSessionAck);
+
+    // Return this node's captured slice for `sessionId`. Returns an empty
+    // slice with status="not_local" when the session was never installed
+    // here (peer was unreachable during InstallDebugSession or install was
+    // rejected). The original-receiving node concatenates every peer's
+    // slice into the REST response's nodes[] array.
+    rpc CollectDebugSamples(CollectDebugSamplesRequest) returns (CollectDebugSamplesAck);
+
+    // Stop a session locally. Idempotent — a missed stop falls out via
+    // the per-node retention timeout.
+    rpc StopDebugSession(StopDebugSessionRequest) returns (StopDebugSessionAck);
+
+    // Cluster-scope cleanup: terminate any locally-bound session whose
+    // clientId matches. The receiving node also runs the equivalent local
+    // sweep before broadcasting this RPC, so a repeated POST against the
+    // same clientId — whether routed to the same OAP twice or split across
+    // peers by the LB — replaces the prior session everywhere.
+    rpc StopByClientId(StopByClientIdRequest) returns (StopByClientIdAck);
+}
+
+// Same identity tuple the REST handler sends — typed RuleKey on the wire.
+message ClusterRuleKey {
+    string catalog = 1;
+    string name = 2;
+    string rule_name = 3;
+}
+
+message ClusterSessionLimits {
+    int32 record_cap = 1;
+    int64 retention_millis = 2;
+    // "block" (default) or "statement". Empty string is treated as block —
+    // an older peer that omits the field stays compatible.
+    string granularity = 3;
+}
+
+message InstallDebugSessionRequest {
+    string session_id = 1;
+    string client_id = 2;
+    ClusterRuleKey rule_key = 3;
+    ClusterSessionLimits limits = 4;
+    string sender_node_id = 5;
+    int64 issued_at_ms = 6;
+}
+
+enum InstallState {
+    INSTALL_STATE_UNSPECIFIED = 0;
+    // Recorder bound to a live holder on this node — capture is active.
+    INSTALLED = 1;
+    // No live holder for the rule on this node (rule not loaded here, or
+    // not yet propagated). Treated as "this peer simply contributes nothing
+    // to the session" — not an error.
+    NOT_LOCAL = 2;
+    // Idempotent replay — a session with this sessionId is already bound.
+    ALREADY_INSTALLED = 3;
+    // Receiver-side wiring bug (no recorder factory for the catalog). Logged
+    // and returned so the operator can correlate, but does not cancel the
+    // fan-out.
+    REJECTED = 4;
+    // The peer owns the rule but its active-session ceiling is full. Surfaced
+    // distinctly from NOT_LOCAL so the receiving node can aggregate cluster
+    // capacity correctly: the install only 429s when EVERY node that owns
+    // the rule is at capacity, not when one of them is.
+    TOO_MANY_SESSIONS = 5;
+}
+
+message InstallDebugSessionAck {
+    string node_id = 1;
+    InstallState state = 2;
+    string detail = 3;
+}
+
+message CollectDebugSamplesRequest {
+    string session_id = 1;
+    string sender_node_id = 2;
+}
+
+// One step inside a single rule execution — verbatim DSL fragment +
+// continueOn flag + hand-built JSON payload + 1-based source line. Mirrors
+// the local-side `Sample` so the receiving node can splice slices straight
+// into the nodes[].records[].samples[] array without per-element transforms.
+message ClusterSample {
+    // Verbatim DSL fragment for this step (e.g. "from(ServiceRelation.*)",
+    // ".filter(detectPoint == DetectPoint.SERVER)", ".cpm()"). Pulled from
+    // the ANTLR Interval slice at parse time. Empty when the probe doesn't
+    // map to a verbatim slice (LAL block-mode markers); the `type` field
+    // tells the UI what kind of step it is.
+    string source_text = 1;
+    // True when the rule kept going past this step, false when the step
+    // short-circuited (filter dropped, parser aborted, extractor abort()).
+    bool continue_on = 2;
+    // Hand-built JSON payload from the underlying domain object's
+    // toJson() — no Gson reflection on the hot path.
+    string payload_json = 3;
+    // 1-based source line for this step. 0 when the step doesn't map to a
+    // single line; the REST response omits the field in that case.
+    int32 source_line = 4;
+    // Coarse semantic step type — input / filter / function / aggregation /
+    // output. Lets the UI group/colour samples without parsing source_text.
+    string type = 5;
+}
+
+// One full pipeline execution — a single source/log/SampleFamily walked
+// end-to-end through a rule. The terminal probe (emit / meterEmit /
+// outputRecord / outputMetric) closes the record; pre-terminal samples
+// accumulate in samples[] in pipeline order.
+//
+// `dsl` carries the verbatim rule source as of the moment this record was
+// captured. Per-record (not envelope-level) so hot-update mid-session
+// stays unambiguous: every record carries the source the rule walked
+// through. Cluster slices that reach a node mid-rotation may carry
+// different revisions on different peers — keeping dsl per-record makes
+// that visible without a separate "which version did this peer have"
+// roundtrip.
+message ClusterExecutionRecord {
+    int64 started_at_ms = 1;
+    repeated ClusterSample samples = 2;
+    string dsl = 3;
+    // Catalog-specific structured rule metadata (MAL: metricPrefix /
+    // name / filter / exp / expSuffix; LAL: outputClass; OAL: empty).
+    // Per-record so hot-update mid-session keeps revisions distinguishable
+    // and cluster slices stay self-describing.
+    map<string, string> metadata = 4;
+}
+
+message CollectDebugSamplesAck {
+    string node_id = 1;
+    // "ok" when a recorder is bound on this node, "not_local" when the
+    // session was never installed (e.g. peer was unreachable during
+    // InstallDebugSession), "captured" when the recorder reached its caps.
+    string status = 2;
+    bool captured = 3;
+    int64 total_bytes = 4;
+    repeated ClusterExecutionRecord records = 5;
+    string detail = 6;
+}
+
+message StopDebugSessionRequest {
+    string session_id = 1;
+    string sender_node_id = 2;
+}
+
+message StopDebugSessionAck {
+    string node_id = 1;
+    bool stopped = 2;
+    string detail = 3;
+}
+
+message StopByClientIdRequest {
+    string client_id = 1;
+    string sender_node_id = 2;
+}
+
+message StopByClientIdAck {
+    string node_id = 1;
+    int32 stopped_count = 2;
+    repeated string stopped_session_ids = 3;
+}

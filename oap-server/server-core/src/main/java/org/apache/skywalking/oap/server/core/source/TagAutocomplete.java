@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -45,5 +46,17 @@ public class TagAutocomplete extends Source {
     @Setter
     @Getter
     private TagType tagType;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("tagKey", tagKey);
+        obj.addProperty("tagValue", tagValue);
+        obj.addProperty("tagType", tagType == null ? null : tagType.name());
+        return obj.toString();
+    }
 
 }

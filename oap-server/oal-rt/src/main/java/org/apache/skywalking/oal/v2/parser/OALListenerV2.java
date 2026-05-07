@@ -21,6 +21,8 @@ package org.apache.skywalking.oal.v2.parser;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Interval;
 import org.apache.skywalking.oal.rt.grammar.OALParser;
 import org.apache.skywalking.oal.rt.grammar.OALParserBaseListener;
 import org.apache.skywalking.oal.v2.model.FilterExpression;
@@ -100,9 +102,32 @@ public class OALListenerV2 extends OALParserBaseListener {
     }
 
     @Override
+    public void exitMetricStatement(OALParser.MetricStatementContext ctx) {
+        if (currentMetric != null) {
+            // Verbatim "from(SourceName.attr)" / "from(SourceName.*)" slice —
+            // ANTLR Interval from the FROM token through the FIRST closing
+            // paren that ends the source-attrs list. The dsl-debugging
+            // captureSource probe stamps this directly so the source sample's
+            // sourceText matches what the operator wrote in .oal byte-for-byte
+            // (no runtime reconstruction).
+            if (ctx.FROM() != null && ctx.RR_BRACKET() != null) {
+                final int start = ctx.FROM().getSymbol().getStartIndex();
+                final int stop = ctx.RR_BRACKET().getSymbol().getStopIndex();
+                currentMetric.fromText(
+                    ctx.getStart().getInputStream().getText(Interval.of(start, stop)));
+            }
+        }
+    }
+
+    @Override
     public void exitAggregationStatement(OALParser.AggregationStatementContext ctx) {
         if (currentMetric != null && currentSource != null) {
             currentMetric.source(currentSource.build());
+            // Verbatim ANTLR slice of the full assignment statement
+            // (e.g. "service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();")
+            // — captured straight from the input stream, threaded into the
+            // per-metric GateHolder for dsl-debugging.
+            currentMetric.sourceText(rawTextOf(ctx));
             metrics.add(currentMetric.build());
             currentMetric = null;
             currentSource = null;
@@ -188,6 +213,11 @@ public class OALListenerV2 extends OALParserBaseListener {
     @Override
     public void exitAggregateFunction(OALParser.AggregateFunctionContext ctx) {
         if (currentFunction != null && currentMetric != null) {
+            // Verbatim ANTLR slice — e.g. "cpm()", "percentile2(10)" — captured
+            // exactly as written (including any whitespace inside the parens),
+            // so the dsl-debugging UI can match an aggregation capture record
+            // back to the original .oal byte-for-byte.
+            currentFunction.sourceText(rawTextOf(ctx));
             currentMetric.aggregationFunction(currentFunction.build());
             currentFunction = null;
         }
@@ -531,9 +561,22 @@ public class OALListenerV2 extends OALParserBaseListener {
     @Override
     public void exitFilterStatement(OALParser.FilterStatementContext ctx) {
         if (currentFilter != null && currentMetric != null) {
+            // Verbatim ANTLR slice — e.g. "filter(detectPoint == DetectPoint.SERVER)" —
+            // captured byte-for-byte from the input stream so the dsl-debugging UI
+            // can highlight the exact filter clause that fired in the original .oal.
+            currentFilter.sourceText(rawTextOf(ctx));
             currentMetric.addFilter(currentFilter.build());
             currentFilter = null;
         }
+    }
+
+    /** Verbatim source slice of an ANTLR rule context. */
+    private static String rawTextOf(final ParserRuleContext ctx) {
+        if (ctx.getStart() == null || ctx.getStop() == null) {
+            return "";
+        }
+        return ctx.getStart().getInputStream().getText(
+            Interval.of(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()));
     }
 
     @Override

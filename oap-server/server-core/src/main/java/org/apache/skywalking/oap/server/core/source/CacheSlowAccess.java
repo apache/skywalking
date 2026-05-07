@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -65,6 +66,24 @@ public class CacheSlowAccess extends Source {
     @Override
     public String getEntityId() {
         return Const.EMPTY_STRING;
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("id", id);
+        obj.addProperty("cacheServiceId", cacheServiceId);
+        obj.addProperty("command", command);
+        obj.addProperty("key", key);
+        obj.addProperty("latency", latency);
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("status", status);
+        obj.addProperty("operation", operation == null ? null : operation.name());
+        obj.addProperty("timestamp", timestamp);
+        return obj.toString();
     }
 
 }

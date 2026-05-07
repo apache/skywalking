@@ -65,6 +65,22 @@ public interface LALSourceTypeProvider {
      * The Java type passed as {@code input} by the receiver plugin for
      * this layer. The compiler resolves getter chains on this type at
      * compile time.
+     *
+     * <p>The returned class must satisfy one of the LAL-supported
+     * input families:
+     * <ul>
+     *   <li>{@code LogData} or {@code LogData.Builder} — the standard
+     *       agent-side input shape (handled by the framework with no
+     *       provider override needed).</li>
+     *   <li>A {@code com.google.protobuf.Message} subclass — typed
+     *       receiver inputs like {@code HTTPAccessLogEntry}.</li>
+     *   <li>A class implementing
+     *       {@link org.apache.skywalking.oap.server.core.dsldebug.ToJson}
+     *       — explicit opt-in for custom POJO inputs.</li>
+     * </ul>
+     * The framework validates this at boot — providers declaring
+     * an out-of-family {@code inputType()} fail OAP startup with a
+     * pointer at this contract.
      */
     Class<?> inputType();
 

@@ -36,6 +36,7 @@ import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder;
 import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.server.core.WorkPath;
@@ -84,6 +85,13 @@ public final class LALClassGenerator {
     private Class<?> inputType;
     private Class<?> outputType;
     private String yamlSource;
+    /**
+     * Optional content hash threaded into every generated rule's {@code GateHolder}
+     * constructor argument. Stamped onto every captured debug record so a UI / CLI
+     * session can detect mid-session hot-update boundaries. Defaults to the empty
+     * string when callers don't supply one.
+     */
+    private String content = "";
 
     // ==================== Parser type detection ====================
 
@@ -117,6 +125,8 @@ public final class LALClassGenerator {
         final Class<?> outputType;
         final List<PrivateMethod> privateMethods = new ArrayList<>();
         final Map<String, Integer> methodCounts = new HashMap<>();
+        /** Rule's name — emitted as the first arg of every probe call site. */
+        String ruleName = "";
 
         // Set by generateExtraLogAccess for primitive optimization in callers.
         // Reset to null by generateValueAccess at the start of each value access.
@@ -242,6 +252,16 @@ public final class LALClassGenerator {
         this.yamlSource = yamlSource;
     }
 
+    /**
+     * Sets the content hash baked into the next compiled rule's
+     * {@code GateHolder} constructor argument. Caller-supplied so the
+     * runtime-rule hot-update path can pass its already-computed
+     * {@code ContentHash} through unchanged. {@code null} → empty string.
+     */
+    public void setContent(final String content) {
+        this.content = content == null ? "" : content;
+    }
+
     private String makeClassName(final String defaultPrefix) {
         if (classNameHint != null) {
             return dedupClassName(PACKAGE_PREFIX + buildHintedName());
@@ -298,6 +318,31 @@ public final class LALClassGenerator {
                 return candidate;
             }
         }
+    }
+
+    /**
+     * Adds the {@code public final GateHolder debug = new GateHolder("...")} instance
+     * field and the {@code debugHolder()} accessor on the generated rule class.
+     * Mandatory for every compiled rule because {@code execute()} embeds
+     * {@code if (this.debug.isGateOn()) LALDebug.captureXxx(this.debug, ...)} call sites
+     * that read the field directly.
+     */
+    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
+        if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            // Injection off — fall back to the LalExpression.debugHolder() default
+            // (null), no GateHolder field, no probe call sites.
+            return;
+        }
+        final String escapedContent = LALCodegenHelper.escapeJava(content);
+        // Per-rule capture binding — instance field, lowercase per Java
+        // convention (it's a final but not a static-final constant).
+        ctClass.addField(javassist.CtField.make(
+            "public final " + LALCodegenHelper.GATE_HOLDER_FQCN + " debug = new "
+                + LALCodegenHelper.GATE_HOLDER_FQCN + "(\"" + escapedContent + "\");",
+            ctClass));
+        ctClass.addMethod(CtNewMethod.make(
+            "public " + LALCodegenHelper.GATE_HOLDER_FQCN + " debugHolder() { return this.debug; }",
+            ctClass));
     }
 
     private void writeClassFile(final CtClass ctClass) {
@@ -502,6 +547,10 @@ public final class LALClassGenerator {
             "org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression"));
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
+        // Per-rule capture binding the generated probes read via this.debug.isGateOn().
+        // Symmetric with MAL's holder member; see LALCodegenHelper.emitCaptureCall.
+        emitDebugHolderMembers(ctClass);
+
         // Add private methods BEFORE execute so Javassist can resolve calls
         for (final PrivateMethod pm : genCtx.privateMethods) {
             final javassist.CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
@@ -534,10 +583,63 @@ public final class LALClassGenerator {
             classNameHint != null ? classNameHint : className));
 
         writeClassFile(ctClass);
+        writeSourceFile(ctClass, genCtx, executeBody);
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
         return (LalExpression) clazz.getDeclaredConstructor().newInstance();
+    }
+
+    /**
+     * Mirror of {@link #writeClassFile}: when {@code classOutputDir} is set
+     * (debug build), dump the Javassist-input Java source of the generated
+     * class as a sibling {@code <ClassName>.java} file. The {@code SourceFile}
+     * attribute on the {@code .class} points at this name, so IDEA's
+     * source-attach renders it directly without ever running FernFlower —
+     * the user sees the EXACT code that Javassist compiled, not a decompiler
+     * approximation.
+     */
+    private void writeSourceFile(final CtClass ctClass,
+                                 final GenCtx genCtx,
+                                 final String executeBody) {
+        if (classOutputDir == null) {
+            return;
+        }
+        if (!classOutputDir.exists()) {
+            classOutputDir.mkdirs();
+        }
+        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".java");
+        final StringBuilder sb = new StringBuilder();
+        sb.append("// Synthetic source — Javassist compile input for ")
+          .append(ctClass.getSimpleName()).append("\n")
+          .append("// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n")
+          .append("// source-attach to render the bytecode without FernFlower.\n\n");
+        sb.append("package ").append(ctClass.getPackageName()).append(";\n\n");
+        sb.append("public class ").append(ctClass.getSimpleName())
+          .append(" implements ")
+          .append(LalExpression.class.getName())
+          .append(" {\n\n");
+        if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            // Same escapedContent the bytecode emits — the verbatim LAL DSL
+            // for this rule, escaped for a Java string literal so the
+            // sidecar source compiles structurally identical to the .class.
+            sb.append("    public final ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
+              .append(" debug = new ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
+              .append("(\"").append(LALCodegenHelper.escapeJava(content))
+              .append("\");\n\n");
+            sb.append("    public ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
+              .append(" debugHolder() { return this.debug; }\n\n");
+        }
+        for (final PrivateMethod pm : genCtx.privateMethods) {
+            sb.append("    ").append(pm.source.replace("\n", "\n    ")).append("\n\n");
+        }
+        sb.append("    ").append(executeBody.replace("\n", "\n    ")).append("\n");
+        sb.append("}\n");
+        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
+            w.write(sb.toString());
+        } catch (Exception e) {
+            log.warn("Failed to write source file {}: {}", file, e.getMessage());
+        }
     }
 
     /**
@@ -591,6 +693,7 @@ public final class LALClassGenerator {
     private String generateExecuteMethod(final LALScriptModel model,
                                           final GenCtx genCtx) {
         genCtx.resetProtoVars();
+        genCtx.ruleName = classNameHint == null ? "lal" : classNameHint;
 
         // Generate body first so proto var declarations are collected
         final StringBuilder bodyContent = new StringBuilder();
@@ -603,9 +706,28 @@ public final class LALClassGenerator {
           .append(" filterSpec, ").append(EXEC_CTX).append(" ctx) {\n");
         sb.append("  ").append(H).append(" h = new ").append(H).append("(ctx);\n");
 
-        // Create the output object and store in ctx before extractor runs
+        // Create the output object and store in ctx before extractor runs.
+        // Then bind the typed input + metadata onto the builder eagerly so
+        // every downstream probe (extractor / per-statement / sink) sees a
+        // builder whose state already reflects the input — the merged
+        // tags[] view in outputToJson() is built from logData + lalTags,
+        // and would otherwise show only lalTags at the function probes
+        // since RecordSinkListener.parse() doesn't fire init() until sink
+        // time.
         sb.append("  h.ctx().setOutput(new ")
           .append(genCtx.outputType.getName()).append("());\n");
+        sb.append("  h.ctx().outputAsBuilder().bindInput(h.ctx().metadata(), h.ctx().input());\n");
+
+        // Push the rule's debug holder onto ctx so downstream analyzer wrappers
+        // (RecordSinkListener.parse, MetricExtractor.submitMetrics) fire their
+        // terminal-output probes without re-resolving the rule. Skipped entirely
+        // when injection is off — there's no debug field to read.
+        if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            sb.append("  ctx.setDebugHolder(this.debug);\n");
+        }
+
+        // Top-of-pipeline capture: raw log body view as the rule first sees it.
+        LALCodegenHelper.emitCaptureCall(sb, "Text", genCtx.ruleName, 0, "ctx", "");
 
         // Insert _p + proto var declarations if any proto field access was used
         if (genCtx.usedProtoAccess) {
@@ -639,15 +761,19 @@ public final class LALClassGenerator {
             } else {
                 sb.append("  filterSpec.text(ctx);\n");
             }
+            LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.JsonParser) {
             sb.append("  filterSpec.json(ctx);\n");
+            LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.YamlParser) {
             sb.append("  filterSpec.yaml(ctx);\n");
+            LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.AbortStatement) {
             sb.append("  filterSpec.abort(ctx);\n");
         } else if (stmt instanceof LALScriptModel.ExtractorBlock) {
             LALBlockCodegen.generateExtractorMethod(
                 sb, (LALScriptModel.ExtractorBlock) stmt, genCtx);
+            LALCodegenHelper.emitCaptureCall(sb, "Extractor", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.SinkBlock) {
             final LALScriptModel.SinkBlock sink = (LALScriptModel.SinkBlock) stmt;
             if (sink.getStatements().isEmpty()) {
@@ -655,6 +781,10 @@ public final class LALClassGenerator {
             } else {
                 LALBlockCodegen.generateSinkMethod(sb, sink, genCtx);
             }
+            // No probe at the sink boundary itself — the terminal capture happens
+            // downstream in RecordSinkListener.parse (output record) and
+            // MetricExtractor.submitMetrics (output metric), and only fires for
+            // records the sink kept. SWIP-13: A7.
         } else if (stmt instanceof LALScriptModel.IfBlock) {
             generateTopLevelIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
         } else if (stmt instanceof LALScriptModel.DefStatement) {

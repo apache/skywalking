@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.browser.source;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.ScopeDefaultColumn;
@@ -35,5 +36,16 @@ public class BrowserAppTraffic extends BrowserAppTrafficSource {
     @Override
     public String getEntityId() {
         return IDManager.ServiceID.buildId(name, true);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("layer", layer.name());
+        return obj.toString();
     }
 }

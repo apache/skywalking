@@ -41,7 +41,18 @@ class MALClassGeneratorTest {
 
     @BeforeEach
     void setUp() {
+        // Mirror the production toggle so a developer can rebuild with
+        // SW_DSL_DEBUGGING_INJECTION_ENABLED=true and inspect the
+        // debug-probe-injected generated classes (gate field +
+        // probe call sites) in target/mal-generated-classes/.
+        if ("true".equalsIgnoreCase(System.getenv("SW_DSL_DEBUGGING_INJECTION_ENABLED"))) {
+            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.enableInjection();
+        } else {
+            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.resetInjection();
+        }
         generator = new MALClassGenerator(new ClassPool(true));
+        generator.setClassOutputDir(
+            org.apache.skywalking.oap.server.testing.dsl.DslClassOutput.unitTestDir("mal"));
     }
 
     // ==================== Basic compilation tests ====================

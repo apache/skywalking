@@ -140,16 +140,51 @@ public final class MALExpressionModel {
         private final String namespace;
         private final String name;
         private final List<Argument> arguments;
+        /**
+         * 1-based line number of this call in the source MAL expression. Threaded
+         * from ANTLR's {@code ctx.getStart().getLine()} at parse time so debug
+         * captures can point UI / CLI clients at the exact source line that
+         * produced the SampleFamily snapshot.
+         * <p>{@code 0} means "unknown / synthetic" — synthesised method calls
+         * (e.g. unit-test helpers) skip line tracking. Probe emission sites
+         * fall back to {@code 0} gracefully; the recorder is free to render
+         * "unknown line" in the UI.
+         */
+        private final int sourceLine;
+        /**
+         * Verbatim slice of the original MAL expression for this call —
+         * pulled from the ANTLR input stream via the call's start/stop
+         * indices, so whitespace and operator/identifier spelling match the
+         * source byte-for-byte. Used as the {@code sourceText} of dsl-debugging
+         * captures so the UI can match a captured stage record against the
+         * original {@code .yaml}'s {@code exp:} body without any
+         * reconstruction. {@code ""} for synthesised calls (unit-test helpers)
+         * — the probe path tolerates an empty source-text gracefully.
+         */
+        private final String sourceText;
 
         public MethodCall(final String name, final List<Argument> arguments) {
-            this(null, name, arguments);
+            this(null, name, arguments, 0, "");
         }
 
         public MethodCall(final String namespace, final String name,
                           final List<Argument> arguments) {
+            this(namespace, name, arguments, 0, "");
+        }
+
+        public MethodCall(final String namespace, final String name,
+                          final List<Argument> arguments, final int sourceLine) {
+            this(namespace, name, arguments, sourceLine, "");
+        }
+
+        public MethodCall(final String namespace, final String name,
+                          final List<Argument> arguments, final int sourceLine,
+                          final String sourceText) {
             this.namespace = namespace;
             this.name = name;
             this.arguments = Collections.unmodifiableList(arguments);
+            this.sourceLine = sourceLine;
+            this.sourceText = sourceText == null ? "" : sourceText;
         }
 
         public boolean isExtension() {

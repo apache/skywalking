@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -54,7 +55,12 @@ public class TelegrafServiceHandler {
 
     public TelegrafServiceHandler(ModuleManager moduleManager, MeterSystem meterSystem, List<Rule> rules) {
 
-        this.metricConvert = rules.stream().map(r -> new MetricConvert(r, meterSystem)).collect(Collectors.toList());
+        this.metricConvert = rules.stream().map(r -> {
+            final MetricConvert convert = new MetricConvert(r, meterSystem);
+            // Static-loader debug-binding publish — no-op when dsl-debugging is disabled.
+            MalStaticBindingHook.publish("telegraf-rules", r.getName(), convert);
+            return convert;
+        }).collect(Collectors.toList());
 
         final MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                            .provider()

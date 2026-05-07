@@ -205,6 +205,13 @@ final class LALBlockCodegen {
                 LALDefCodegen.generateDefStatement(
                     sb, (LALScriptModel.DefStatement) stmt, genCtx);
             }
+            // Statement-level captureLine — opt-in on the recorder side via
+            // session granularity. The verbatim source text is paired with the
+            // line number so the UI can render "line N: <fragment>" without a
+            // round-trip to the source file. Block-mode recorders skip; the
+            // codegen-side helper is also a no-op when injection is off.
+            LALCodegenHelper.emitCaptureLine(
+                sb, genCtx.ruleName, stmt.getSourceLine(), stmt.getSourceText());
         }
     }
 

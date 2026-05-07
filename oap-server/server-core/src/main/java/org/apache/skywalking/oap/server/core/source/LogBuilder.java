@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,15 +98,20 @@ public class LogBuilder implements LALOutputBuilder {
     }
 
     @Override
-    public void init(final LogMetadata metadata, final Object input,
-                     final ModuleManager moduleManager) {
-        ensureInitialized(moduleManager);
+    public void bindInput(final LogMetadata metadata, final Object input) {
         if (input instanceof LogData) {
             this.logData = (LogData) input;
         } else if (input instanceof LogData.Builder) {
             this.logData = ((LogData.Builder) input).build();
         }
         initFromMetadata(metadata);
+    }
+
+    @Override
+    public void init(final LogMetadata metadata, final Object input,
+                     final ModuleManager moduleManager) {
+        ensureInitialized(moduleManager);
+        bindInput(metadata, input);
     }
 
     /**
@@ -273,6 +281,114 @@ public class LogBuilder implements LALOutputBuilder {
             return;
         }
         tags.add(tag);
+    }
+
+    /**
+     * Renders the builder's accumulated state shaped like the persisted
+     * {@code Log} row — the DB-bound fields the rule has set so far,
+     * plus {@code content} / {@code contentType} derived directly from
+     * {@code logData.body} (TEXT / YAML / JSON case), the same mapping
+     * {@link #toLog()} performs at sink time.
+     *
+     * <p>Read-only — does not allocate a {@link Log}, generate a UUID,
+     * or resolve service / instance / endpoint IDs. Safe to call on
+     * every probe-fired sample even for high-volume statement-mode
+     * captures.
+     */
+    @Override
+    public String outputToJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("type", getClass().getSimpleName());
+        obj.addProperty("name", name());
+        obj.addProperty("service", service);
+        obj.addProperty("serviceInstance", serviceInstance);
+        obj.addProperty("endpoint", endpoint);
+        obj.addProperty("layer", layer);
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("segmentId", segmentId);
+        if (spanId >= 0) {
+            obj.addProperty("spanId", spanId);
+        }
+        obj.addProperty("timestamp", timestamp);
+        appendBodyContent(obj);
+        appendMergedTags(obj);
+        appendOutputDebugFields(obj);
+        return obj.toString();
+    }
+
+    /**
+     * Mirrors {@link #buildMergedTagsRawData()}: emits a single merged
+     * {@code tags} array — the same shape that lands in the DB row's
+     * {@code tagsRawData} column at sink time. Each entry carries a
+     * {@code status} hint so the operator can see, at a glance, where
+     * the tag came from:
+     * <ul>
+     *   <li>{@code original} — copied verbatim from {@code logData.tags}.</li>
+     *   <li>{@code lal-added} — added by the LAL rule via {@code tag k:v}
+     *       and the input had no tag with this key.</li>
+     *   <li>{@code lal-override} — added by the LAL rule with a key that
+     *       ALSO exists on the input. Both entries land in the persisted
+     *       {@code tagsRawData} (the runtime concatenates rather than
+     *       replaces); the {@code lal-override} status flags the key
+     *       collision so it isn't mistaken for a clean override.</li>
+     * </ul>
+     */
+    private void appendMergedTags(final JsonObject obj) {
+        final boolean hasOriginal = logData != null && logData.getTags().getDataCount() > 0;
+        if (!hasOriginal && lalTags.isEmpty()) {
+            return;
+        }
+        final Set<String> inputKeys = new HashSet<>();
+        final JsonArray tags = new JsonArray();
+        if (hasOriginal) {
+            for (final KeyStringValuePair kv : logData.getTags().getDataList()) {
+                inputKeys.add(kv.getKey());
+                final JsonObject tag = new JsonObject();
+                tag.addProperty("key", kv.getKey());
+                tag.addProperty("value", kv.getValue());
+                tag.addProperty("status", "original");
+                tags.add(tag);
+            }
+        }
+        for (final String[] kv : lalTags) {
+            final JsonObject tag = new JsonObject();
+            tag.addProperty("key", kv[0]);
+            tag.addProperty("value", kv[1]);
+            tag.addProperty("status", inputKeys.contains(kv[0]) ? "lal-override" : "lal-added");
+            tags.add(tag);
+        }
+        obj.add("tags", tags);
+    }
+
+    /**
+     * Mirrors the body → content/contentType mapping in {@link #toLog()}
+     * without allocating a {@link Log}. Subclasses can override to swap
+     * in their own content source (e.g. envoy ALS substitutes the proto
+     * JSON when {@code logData} has no body).
+     */
+    protected void appendBodyContent(final JsonObject obj) {
+        if (logData == null) {
+            return;
+        }
+        final LogDataBody body = logData.getBody();
+        if (body.hasText()) {
+            obj.addProperty("contentType", ContentType.TEXT.name());
+            obj.addProperty("content", body.getText().getText());
+        } else if (body.hasYaml()) {
+            obj.addProperty("contentType", ContentType.YAML.name());
+            obj.addProperty("content", body.getYaml().getYaml());
+        } else if (body.hasJson()) {
+            obj.addProperty("contentType", ContentType.JSON.name());
+            obj.addProperty("content", body.getJson().getJson());
+        }
+    }
+
+    /**
+     * Hook for subclasses to add their typed output fields onto the
+     * snapshot built by {@link #outputToJson()} without overriding the
+     * full method. Default — no-op.
+     */
+    protected void appendOutputDebugFields(final JsonObject obj) {
     }
 
     private void addAutocompleteTags(final SourceReceiver sourceReceiver,

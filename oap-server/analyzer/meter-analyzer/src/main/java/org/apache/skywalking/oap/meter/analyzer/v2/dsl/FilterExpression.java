@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javassist.ClassPool;
+import lombok.Getter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 public class FilterExpression {
     private static final MALClassGenerator GENERATOR = new MALClassGenerator();
 
+    @Getter
     private final String literal;
     private final MalFilter malFilter;
 

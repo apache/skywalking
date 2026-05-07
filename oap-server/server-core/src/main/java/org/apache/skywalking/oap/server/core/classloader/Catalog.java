@@ -31,7 +31,8 @@ public enum Catalog {
     OTEL_RULES("otel-rules"),
     LOG_MAL_RULES("log-mal-rules"),
     TELEGRAF_RULES("telegraf-rules"),
-    LAL("lal");
+    LAL("lal"),
+    OAL("oal");
 
     @Getter
     private final String wireName;

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.hierarchy.instance;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -71,5 +72,24 @@ public class InstanceHierarchyRelation extends Source {
         relatedServiceId = IDManager.ServiceID.buildId(relatedServiceName, relatedServiceLayer.isNormal());
         instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
         relatedInstanceId = IDManager.ServiceInstanceID.buildId(relatedServiceId, relatedInstanceName);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("instanceName", instanceName);
+        obj.addProperty("instanceId", instanceId);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceLayer", serviceLayer == null ? null : serviceLayer.name());
+        obj.addProperty("relatedInstanceName", relatedInstanceName);
+        obj.addProperty("relatedInstanceId", relatedInstanceId);
+        obj.addProperty("relatedServiceName", relatedServiceName);
+        obj.addProperty("relatedServiceId", relatedServiceId);
+        obj.addProperty("relatedServiceLayer", relatedServiceLayer == null ? null : relatedServiceLayer.name());
+        return obj.toString();
     }
 }

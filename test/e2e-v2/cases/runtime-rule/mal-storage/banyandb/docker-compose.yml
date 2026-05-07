@@ -20,6 +20,7 @@ services:
       service: oap
     environment:
       # Hot-update receiver — opens the admin port on 17128. Default is "" (disabled).
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       # Steer OAP to BanyanDB. Reuses the standard env var the base-compose already wires.
       SW_STORAGE: banyandb

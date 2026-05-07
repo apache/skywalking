@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.skywalking.lal.rt.grammar.LALLexer;
@@ -201,28 +202,35 @@ public final class LALScriptParser {
 
     private static ExtractorStatement visitExtractorStatement(
             final LALParser.ExtractorStatementContext ctx) {
+        // Capture (line, raw text) once at the statement boundary so every
+        // dispatch below — through visitFieldAssignment / visitTagStatement /
+        // ... — can stamp the resulting AST node with the same source-origin
+        // pair. dsl-debugging's per-line probe reads these back out at codegen.
+        final int sourceLine = ctx.getStart().getLine();
+        final String sourceText = rawTextOf(ctx);
+
         if (ctx.defStatement() != null) {
-            return (ExtractorStatement) visitDefStatement(ctx.defStatement());
+            return visitDefStatement(ctx.defStatement()).withSource(sourceLine, sourceText);
         }
         if (ctx.serviceStatement() != null) {
             return visitFieldAssignment(FieldType.SERVICE, ctx.serviceStatement().valueAccess(),
-                ctx.serviceStatement().typeCast());
+                ctx.serviceStatement().typeCast()).withSource(sourceLine, sourceText);
         }
         if (ctx.instanceStatement() != null) {
             return visitFieldAssignment(FieldType.INSTANCE, ctx.instanceStatement().valueAccess(),
-                ctx.instanceStatement().typeCast());
+                ctx.instanceStatement().typeCast()).withSource(sourceLine, sourceText);
         }
         if (ctx.endpointStatement() != null) {
             return visitFieldAssignment(FieldType.ENDPOINT, ctx.endpointStatement().valueAccess(),
-                ctx.endpointStatement().typeCast());
+                ctx.endpointStatement().typeCast()).withSource(sourceLine, sourceText);
         }
         if (ctx.layerStatement() != null) {
             return visitFieldAssignment(FieldType.LAYER, ctx.layerStatement().valueAccess(),
-                ctx.layerStatement().typeCast());
+                ctx.layerStatement().typeCast()).withSource(sourceLine, sourceText);
         }
         if (ctx.traceIdStatement() != null) {
             return visitFieldAssignment(FieldType.TRACE_ID, ctx.traceIdStatement().valueAccess(),
-                ctx.traceIdStatement().typeCast());
+                ctx.traceIdStatement().typeCast()).withSource(sourceLine, sourceText);
         }
         if (ctx.timestampStatement() != null) {
             final ValueAccess va = visitValueAccess(ctx.timestampStatement().valueAccess());
@@ -231,19 +239,36 @@ public final class LALScriptParser {
             if (ctx.timestampStatement().STRING() != null) {
                 format = stripQuotes(ctx.timestampStatement().STRING().getText());
             }
-            return new FieldAssignment(FieldType.TIMESTAMP, va, cast, format);
+            return new FieldAssignment(FieldType.TIMESTAMP, va, cast, format)
+                .withSource(sourceLine, sourceText);
         }
         if (ctx.tagStatement() != null) {
-            return visitTagStatement(ctx.tagStatement());
+            return visitTagStatement(ctx.tagStatement()).withSource(sourceLine, sourceText);
         }
         if (ctx.metricsBlock() != null) {
-            return visitMetricsBlock(ctx.metricsBlock());
+            return visitMetricsBlock(ctx.metricsBlock()).withSource(sourceLine, sourceText);
         }
         if (ctx.outputFieldStatement() != null) {
-            return visitOutputFieldStatement(ctx.outputFieldStatement());
+            return visitOutputFieldStatement(ctx.outputFieldStatement())
+                .withSource(sourceLine, sourceText);
         }
-        // ifStatement
+        // ifStatement carries its own per-branch line info; surface the if-line
+        // here for the surrounding statement-level capture.
         return (ExtractorStatement) visitIfStatement(ctx.ifStatement());
+    }
+
+    /**
+     * Verbatim source text of an ANTLR rule context — pulls from the original
+     * input stream rather than re-concatenating tokens, so whitespace inside
+     * the statement is preserved (matters for the dsl-debugging UI rendering
+     * {@code "line N: <verbatim>"}).
+     */
+    private static String rawTextOf(final ParserRuleContext ctx) {
+        if (ctx.getStart() == null || ctx.getStop() == null) {
+            return "";
+        }
+        return ctx.getStart().getInputStream().getText(
+            Interval.of(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()));
     }
 
     private static FieldAssignment visitFieldAssignment(

@@ -17,13 +17,16 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
+import java.util.LinkedHashMap;
 import javassist.ClassPool;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -41,6 +44,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class DSL {
     private final String ruleName;
+    @Getter
     private final LalExpression expression;
     private final FilterSpec filterSpec;
 
@@ -96,7 +100,29 @@ public class DSL {
             generator.setOutputType(outputType);
             generator.setClassNameHint(ruleName);
             generator.setYamlSource(yamlSource);
+            // Pass the verbatim DSL text as the holder's "content" — dsl-debugging
+            // captures stamp this on every record so the UI renders the rule source
+            // inline. SHA-256 hash isn't useful to operators; raw text is.
+            generator.setContent(dsl);
             final LalExpression expression = generator.compile(dsl);
+            // Stamp the structured rule metadata onto the per-rule GateHolder so
+            // dsl-debugging records render {ruleName, layer, outputClass} alongside
+            // the verbatim DSL. Only effective when codegen injection is enabled
+            // (otherwise debugHolder() returns null on the compiled expression).
+            final GateHolder holder = expression.debugHolder();
+            if (holder != null) {
+                final LinkedHashMap<String, String> meta = new LinkedHashMap<>();
+                if (ruleName != null && !ruleName.isEmpty()) {
+                    meta.put("ruleName", ruleName);
+                }
+                if (outputType != null) {
+                    meta.put("outputClass", outputType.getName());
+                }
+                if (inputType != null) {
+                    meta.put("inputClass", inputType.getName());
+                }
+                holder.setMetadata(meta);
+            }
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new DSL(ruleName, expression, filterSpec);
         } catch (Exception e) {

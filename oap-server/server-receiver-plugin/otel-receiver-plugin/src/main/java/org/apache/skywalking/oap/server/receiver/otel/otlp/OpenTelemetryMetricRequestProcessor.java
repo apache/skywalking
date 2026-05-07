@@ -32,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
@@ -233,7 +234,12 @@ public class OpenTelemetryMetricRequestProcessor implements Service, MalConverte
         final MeterSystem meterSystem = manager.find(CoreModule.NAME).provider().getService(MeterSystem.class);
 
         for (final Rule rule : rules) {
-            addOrReplaceConverter(OTEL_CATALOG + ":" + rule.getName(), new MetricConvert(rule, meterSystem));
+            final MetricConvert convert = new MetricConvert(rule, meterSystem);
+            addOrReplaceConverter(OTEL_CATALOG + ":" + rule.getName(), convert);
+            // Publish per-metric debug holders into the dsl-debugging registry (no-op
+            // if the dsl-debugging module is not enabled — the hook's default sink
+            // discards the call).
+            MalStaticBindingHook.publish(OTEL_CATALOG, rule.getName(), convert);
         }
     }
 

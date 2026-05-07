@@ -643,23 +643,6 @@ receiver-telegraf:
   default:
     activeFiles: ${SW_RECEIVER_TELEGRAF_ACTIVE_FILES:vm}
 
-# Runtime rule admin surface for hot-update of MAL / LAL rule files.
-# DISABLED BY DEFAULT. Empty selector below keeps the provider unloaded. To enable, set
-# SW_RECEIVER_RUNTIME_RULE=default (or edit this block). Once enabled, the admin endpoint
-# binds on port 17128. SECURITY NOTICE: the endpoint has no authentication this iteration —
-# gateway-protect with IP allow-lists and never expose it to the public internet.
-receiver-runtime-rule:
-  selector: ${SW_RECEIVER_RUNTIME_RULE:-}
-  default:
-    restHost: ${SW_RECEIVER_RUNTIME_RULE_REST_HOST:0.0.0.0}
-    restPort: ${SW_RECEIVER_RUNTIME_RULE_REST_PORT:17128}
-    restContextPath: ${SW_RECEIVER_RUNTIME_RULE_REST_CONTEXT_PATH:/}
-    restIdleTimeOut: ${SW_RECEIVER_RUNTIME_RULE_REST_IDLE_TIMEOUT:30000}
-    restAcceptQueueSize: ${SW_RECEIVER_RUNTIME_RULE_REST_QUEUE_SIZE:0}
-    httpMaxRequestHeaderSize: ${SW_RECEIVER_RUNTIME_RULE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
-    reconcilerIntervalSeconds: ${SW_RECEIVER_RUNTIME_RULE_RECONCILER_INTERVAL_SECONDS:30}
-    selfHealThresholdSeconds: ${SW_RECEIVER_RUNTIME_RULE_SELF_HEAL_THRESHOLD_SECONDS:60}
-
 aws-firehose:
   selector: ${SW_RECEIVER_AWS_FIREHOSE:default}
   default:
@@ -681,3 +664,79 @@ ai-pipeline:
     uriRecognitionServerPort: ${SW_AI_PIPELINE_URI_RECOGNITION_SERVER_PORT:17128}
     baselineServerAddr: ${SW_API_PIPELINE_BASELINE_SERVICE_HOST:}
     baselineServerPort: ${SW_API_PIPELINE_BASELINE_SERVICE_PORT:18080}
+
+# *****************************************************************************
+# *                                                                           *
+# *           ADMIN APIs — DISABLED BY DEFAULT, READ BEFORE ENABLING          *
+# *                                                                           *
+# * Every section below mounts on the admin-server HTTP host (port 17128).    *
+# * The host has NO BUILT-IN AUTHENTICATION. Endpoints are read/write and     *
+# * directly mutate runtime state (rule hot-update, debug capture).           *
+# *                                                                           *
+# * BEFORE ENABLING IN ANY ENVIRONMENT:                                       *
+# *   - bind admin-server to a private interface, never the public internet  *
+# *   - put it behind an authenticating reverse proxy or service mesh         *
+# *   - apply an IP allow-list at the gateway                                 *
+# *                                                                           *
+# * Operator reference: docs/en/setup/backend/admin-api/readme.md             *
+# *****************************************************************************
+
+# admin-server is the shared HTTP host for admin / on-demand write APIs. Feature
+# modules (receiver-runtime-rule, dsl-debugging) register their REST routes onto
+# this single port. The empty selector below keeps the host closed by default;
+# enable with SW_ADMIN_SERVER=default.
+admin-server:
+  selector: ${SW_ADMIN_SERVER:-}
+  default:
+    host: ${SW_ADMIN_SERVER_HOST:0.0.0.0}
+    port: ${SW_ADMIN_SERVER_PORT:17128}
+    contextPath: ${SW_ADMIN_SERVER_CONTEXT_PATH:/}
+    idleTimeOut: ${SW_ADMIN_SERVER_IDLE_TIMEOUT:30000}
+    acceptQueueSize: ${SW_ADMIN_SERVER_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_ADMIN_SERVER_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # Admin-internal gRPC bus — peer-to-peer RPCs for runtime-rule
+    # (Suspend/Resume/Forward) and dsl-debugging (install/collect/stop).
+    # MUST be a private interface reachable between OAP nodes ONLY.
+    # MUST NEVER be exposed to operators or to the agent network. The bus
+    # is intentionally separate from the public agent / cluster gRPC port
+    # (`core.gRPCPort`, default 11800) so privileged admin RPCs stay out
+    # of the agent network's blast radius.
+    gRPCHost: ${SW_ADMIN_SERVER_GRPC_HOST:0.0.0.0}
+    gRPCPort: ${SW_ADMIN_SERVER_GRPC_PORT:17129}
+    gRPCMaxConcurrentCallsPerConnection: ${SW_ADMIN_SERVER_GRPC_MAX_CONCURRENT_CALL:0}
+    gRPCMaxMessageSize: ${SW_ADMIN_SERVER_GRPC_MAX_MSG_SIZE:52428800}
+    gRPCThreadPoolSize: ${SW_ADMIN_SERVER_GRPC_THREAD_POOL_SIZE:0}
+    gRPCSslEnabled: ${SW_ADMIN_SERVER_GRPC_SSL_ENABLED:false}
+    gRPCSslKeyPath: ${SW_ADMIN_SERVER_GRPC_SSL_KEY_PATH:""}
+    gRPCSslCertChainPath: ${SW_ADMIN_SERVER_GRPC_SSL_CERT_CHAIN_PATH:""}
+    gRPCSslTrustedCAsPath: ${SW_ADMIN_SERVER_GRPC_SSL_TRUSTED_CAS_PATH:""}
+    # Default per-call timeout (milliseconds) for admin-internal RPCs.
+    internalCommunicationTimeout: ${SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT:5000}
+
+# Runtime rule admin surface for hot-update of MAL / LAL rule files. Enable with
+# SW_RECEIVER_RUNTIME_RULE=default *and* SW_ADMIN_SERVER=default.
+receiver-runtime-rule:
+  selector: ${SW_RECEIVER_RUNTIME_RULE:-}
+  default:
+    # Period (seconds) of the runtime-rule refresh tick on each OAP node.
+    refreshRulesPeriod: ${SW_RECEIVER_RUNTIME_RULE_REFRESH_RULES_PERIOD:30}
+    # SUSPENDED state self-heal threshold (seconds).
+    selfHealThresholdSeconds: ${SW_RECEIVER_RUNTIME_RULE_SELF_HEAL_THRESHOLD_SECONDS:60}
+
+# DSL Debug API — sampling debugger for MAL / LAL / OAL rules. Read-only OAL
+# listing under /runtime/oal/*; session control plane under /dsl-debugging/*.
+# Enable with SW_DSL_DEBUGGING=default *and* SW_ADMIN_SERVER=default.
+#
+# injectionEnabled is a BOOT-TIME codegen switch. Default is true — once the
+# `dsl-debugging` module has been enabled (via SW_DSL_DEBUGGING=default), MAL / LAL /
+# OAL classes are generated WITH probe call sites + the GateHolder field, so debug
+# sessions actually capture samples. Setting this to false makes the DSL generators
+# emit bytecode byte-identical to a build without SWIP-13 — the REST surface still
+# serves /dsl-debugging/status (read-only), but POST /dsl-debugging/session returns
+# 503 injection_disabled. Flipping the flag requires an OAP restart — runtime-rule
+# reload only refreshes content, it doesn't regenerate codegen. See
+# docs/en/setup/backend/admin-api/dsl-debugging-*.md for per-DSL operator references.
+dsl-debugging:
+  selector: ${SW_DSL_DEBUGGING:-}
+  default:
+    injectionEnabled: ${SW_DSL_DEBUGGING_INJECTION_ENABLED:true}

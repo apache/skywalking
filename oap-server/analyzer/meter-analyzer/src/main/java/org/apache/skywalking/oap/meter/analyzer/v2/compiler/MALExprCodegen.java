@@ -48,13 +48,33 @@ final class MALExprCodegen {
 
     private final List<String> closureFieldNames;
     private final MALMethodChainCodegen chainCodegen;
+    private final String ruleName;
     private int closureFieldIndex;
     private int varCounter;
     private final Set<String> declaredVars = new HashSet<>();
 
     MALExprCodegen(final List<String> closureFieldNames) {
+        this(closureFieldNames, "");
+    }
+
+    /**
+     * @param closureFieldNames pre-computed companion class field names
+     * @param ruleName          rule identifier emitted as the first argument of every
+     *                          {@code MALDebug.captureXxx(...)} probe call site. Empty
+     *                          string when the codegen is being driven by a debug-only
+     *                          surface ({@link MALClassGenerator#generateSource}) where
+     *                          no class is actually compiled — the source view still
+     *                          includes the probe lines so debugging that path renders
+     *                          correctly.
+     */
+    MALExprCodegen(final List<String> closureFieldNames, final String ruleName) {
         this.closureFieldNames = closureFieldNames;
+        this.ruleName = ruleName == null ? "" : ruleName;
         this.chainCodegen = new MALMethodChainCodegen(this);
+    }
+
+    String getRuleName() {
+        return ruleName;
     }
 
     int getVarCount() {
@@ -175,6 +195,9 @@ final class MALExprCodegen {
           .append(") samples.getOrDefault(\"")
           .append(MALCodegenHelper.escapeJava(expr.getMetricName()))
           .append("\", ").append(SF).append(".EMPTY));\n");
+        // First read of an input metric — capture the SampleFamily as it enters the chain.
+        // The metric name itself is the sourceText: the UI shows "input: <metric>".
+        MALCodegenHelper.emitCaptureInput(sb, ruleName, expr.getMetricName(), var);
         chainCodegen.emitChainStatements(sb, var, expr.getMethodChain());
         return var;
     }
@@ -215,6 +238,19 @@ final class MALExprCodegen {
         final MALExpressionModel.Expr left = expr.getLeft();
         final MALExpressionModel.Expr right = expr.getRight();
         final MALExpressionModel.ArithmeticOp op = expr.getOp();
+        final String resultVar = emitBinaryExprBody(sb, left, right, op);
+        // Treat each binary op as one stage so the UI sees the value after the operator
+        // in the same waterfall column as named chain stages. The operator's method name
+        // (plus, minus, multiply, divide) is the verbatim DSL fragment.
+        MALCodegenHelper.emitCaptureStage(sb, ruleName,
+                                          MALCodegenHelper.opMethodName(op), resultVar);
+        return resultVar;
+    }
+
+    private String emitBinaryExprBody(final StringBuilder sb,
+                                      final MALExpressionModel.Expr left,
+                                      final MALExpressionModel.Expr right,
+                                      final MALExpressionModel.ArithmeticOp op) {
 
         final boolean leftIsScalar = isScalar(left);
         final boolean rightIsScalar = isScalar(right);
@@ -282,6 +318,7 @@ final class MALExprCodegen {
         final String var = emitExpr(sb, expr.getOperand());
         sb.append("  ").append(var).append(" = ")
           .append(var).append(".negative();\n");
+        MALCodegenHelper.emitCaptureStage(sb, ruleName, "negative", var);
         return var;
     }
 

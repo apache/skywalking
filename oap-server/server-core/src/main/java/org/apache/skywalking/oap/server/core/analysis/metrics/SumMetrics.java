@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
@@ -53,5 +54,10 @@ public abstract class SumMetrics extends Metrics implements LongValueHolder {
 
     @Override
     public void calculate() {
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("value", value);
     }
 }

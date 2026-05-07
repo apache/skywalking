@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.core.oal.rt;
 
 import java.lang.reflect.Constructor;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,15 @@ public class OALEngineLoaderService implements Service {
 
     private final Set<OALDefine> oalDefineSet = new HashSet<>();
     private final ModuleManager moduleManager;
+
+    /**
+     * Snapshot of every {@link OALDefine} that has been activated via {@link #load(OALDefine)}.
+     * Read-only — used by the DSL debug API to enumerate the loaded OAL bundles for the rule
+     * picker. Returns an unmodifiable view backed by the internal set; callers must not mutate.
+     */
+    public Set<OALDefine> getLoadedDefines() {
+        return Collections.unmodifiableSet(oalDefineSet);
+    }
 
     /**
      * Normally it is invoked in the {@link ModuleProvider#start()} of the receiver-plugin module.

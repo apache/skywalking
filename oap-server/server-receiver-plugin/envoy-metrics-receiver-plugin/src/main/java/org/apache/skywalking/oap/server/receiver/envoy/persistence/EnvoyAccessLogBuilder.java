@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
+import com.google.gson.JsonObject;
 import com.google.protobuf.Message;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
@@ -31,17 +32,23 @@ import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
  * LAL output builder for envoy access logs (both HTTP and TCP).
  *
  * <p>Extends {@link LogBuilder} to serialize the raw protobuf access log entry
- * as JSON content. The serialization is deferred to {@link #toLog()} so that
- * it only happens when the log is actually persisted (after LAL filtering).
- *
- * <p>The {@link #init} method stores the access log entry for JSON
- * serialization, then delegates to the base class for metadata-only
- * field population (no LogData in the envoy path).
+ * as JSON content. The serialization is converted once on {@link #init} into
+ * a cached string so the production sink path ({@link #toLog()}) and the
+ * dsl-debugging dump path ({@link #appendBodyContent}) both read it without
+ * re-walking the proto descriptor.
  */
 public class EnvoyAccessLogBuilder extends LogBuilder {
     public static final String NAME = "EnvoyAccessLog";
 
-    private Object accessLogEntry;
+    /**
+     * Proto-as-JSON form of the access log entry passed to {@link #init},
+     * computed once and reused by {@link #toLog()} (production path) and
+     * {@link #appendBodyContent} (debug path). The cache means
+     * dsl-debugging captures fired on every probe stage don't re-run
+     * {@code JsonFormat} per sample — the proto's descriptor walk
+     * happens at most once per log.
+     */
+    private String accessLogEntryJson;
 
     @Override
     public String name() {
@@ -49,23 +56,47 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
     }
 
     @Override
-    public void init(final LogMetadata metadata, final Object input,
-                     final ModuleManager moduleManager) {
+    @SneakyThrows
+    public void bindInput(final LogMetadata metadata, final Object input) {
         if (input != null) {
-            this.accessLogEntry = input;
+            this.accessLogEntryJson = ProtoBufJsonUtils.toJSON((Message) input);
         }
-        ensureInitialized(moduleManager);
+        // Envoy ALS doesn't deliver LogData, so skip super.bindInput's LogData
+        // cast branch and just run the metadata-derived field population.
         initFromMetadata(metadata);
     }
 
     @Override
     @SneakyThrows
+    public void init(final LogMetadata metadata, final Object input,
+                     final ModuleManager moduleManager) {
+        ensureInitialized(moduleManager);
+        bindInput(metadata, input);
+    }
+
+    @Override
     public Log toLog() {
         final Log log = super.toLog();
-        if (log.getContent() == null && accessLogEntry != null) {
+        if (log.getContent() == null && accessLogEntryJson != null) {
             log.setContentType(ContentType.JSON);
-            log.setContent(ProtoBufJsonUtils.toJSON((Message) accessLogEntry));
+            log.setContent(accessLogEntryJson);
         }
         return log;
+    }
+
+    /**
+     * Mirrors {@link #toLog()}'s content substitution: when the base
+     * {@code logData} body is empty (the envoy ALS path, where the proto
+     * is the only payload), the DB-bound {@code content} field is the
+     * proto JSON with {@code contentType=JSON}. Reads from the cache —
+     * no per-call descriptor walk.
+     */
+    @Override
+    protected void appendBodyContent(final JsonObject obj) {
+        super.appendBodyContent(obj);
+        if (!obj.has("content") && accessLogEntryJson != null) {
+            obj.addProperty("contentType", ContentType.JSON.name());
+            obj.addProperty("content", accessLogEntryJson);
+        }
     }
 }

@@ -17,7 +17,9 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry;
 
 /**
@@ -44,7 +46,7 @@ final class MALMethodChainCodegen {
      * Queue of pre-computed temp variable names for complex expression arguments.
      * Filled before each method call, consumed by {@link #generateArgument} in order.
      */
-    private java.util.Queue<String> preComputedArgs;
+    private Queue<String> preComputedArgs;
 
     MALMethodChainCodegen(final MALExprCodegen exprCodegen) {
         this.exprCodegen = exprCodegen;
@@ -73,9 +75,18 @@ final class MALMethodChainCodegen {
     void emitChainStatements(final StringBuilder sb,
                               final String var,
                               final List<MALExpressionModel.MethodCall> chain) {
+        final String rule = exprCodegen.getRuleName();
         for (final MALExpressionModel.MethodCall mc : chain) {
+            // Verbatim ANTLR slice of this chain segment, e.g.
+            // "sum(['service_name', 'step'])" or "tagEqual('region', 'us-east-1')".
+            // Captured directly from the input stream at parse time so the UI
+            // can match it byte-for-byte against the original .yaml's exp:
+            // body. Empty for synthesised calls (unit-test helpers).
+            final String stageText = mc.getSourceText();
+
             if (mc.isExtension()) {
                 emitExtensionCall(sb, var, mc);
+                MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var);
                 continue;
             }
             // Pre-compute complex expression arguments to temp variables
@@ -86,6 +97,8 @@ final class MALMethodChainCodegen {
             emitBuiltinArgs(sb, var, mc);
             sb.append(");\n");
             preComputedArgs = null;
+            // Capture the SampleFamily after this chain stage runs.
+            MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var);
         }
     }
 
@@ -201,9 +214,9 @@ final class MALMethodChainCodegen {
             } else {
                 sb.append((int) raw);
             }
-        } else if (java.util.List.class.isAssignableFrom(expectedType)) {
+        } else if (List.class.isAssignableFrom(expectedType)) {
             if (arg instanceof MALExpressionModel.StringListArgument) {
-                final java.util.List<String> values =
+                final List<String> values =
                     ((MALExpressionModel.StringListArgument) arg).getValues();
                 sb.append("java.util.Arrays.asList(new String[]{");
                 for (int i = 0; i < values.size(); i++) {
@@ -360,10 +373,10 @@ final class MALMethodChainCodegen {
      * Scans arguments for complex expressions and pre-computes them to temp variables.
      * Returns a queue of temp names consumed by {@link #generateArgument} in order.
      */
-    private java.util.Queue<String> preComputeComplexArgs(
+    private Queue<String> preComputeComplexArgs(
             final StringBuilder sb,
             final List<MALExpressionModel.Argument> args) {
-        final java.util.Queue<String> temps = new java.util.LinkedList<>();
+        final Queue<String> temps = new LinkedList<>();
         for (final MALExpressionModel.Argument arg : args) {
             if (!(arg instanceof MALExpressionModel.ExprArgument)) {
                 continue;

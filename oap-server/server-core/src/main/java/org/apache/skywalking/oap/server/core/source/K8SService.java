@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -84,5 +85,24 @@ public class K8SService extends K8SMetrics {
     public void decorate(String decorator) {
         ISourceDecorator<ISource> sourceDecorator = SourceDecoratorManager.DECORATOR_MAP.get(decorator);
         sourceDecorator.decorate(this);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("layer", layer == null ? null : layer.name());
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("type", getType());
+        obj.addProperty("attr0", attr0);
+        obj.addProperty("attr1", attr1);
+        obj.addProperty("attr2", attr2);
+        obj.addProperty("attr3", attr3);
+        obj.addProperty("attr4", attr4);
+        obj.addProperty("attr5", attr5);
+        return obj.toString();
     }
 }

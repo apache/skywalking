@@ -280,7 +280,16 @@ public class RuntimeOALGenerationTest {
                     models.add(model);
                 }
 
-                // Create generator with OALDefine (catalog determines dispatcher class name prefix)
+                // Create generator with OALDefine (catalog determines dispatcher class name prefix).
+                // Mirror the production toggle so a developer can rebuild with
+                // SW_DSL_DEBUGGING_INJECTION_ENABLED=true and inspect the
+                // debug-probe-injected dispatcher classes (per-metric GateHolder
+                // fields + probe call sites) in target/test-classes/dispatcher/.
+                if ("true".equalsIgnoreCase(System.getenv("SW_DSL_DEBUGGING_INJECTION_ENABLED"))) {
+                    org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.enableInjection();
+                } else {
+                    org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.resetInjection();
+                }
                 OALClassGeneratorV2 generator = new OALClassGeneratorV2(define, classPool);
                 generator.setOpenEngineDebug(true);
                 generator.setStorageBuilderFactory(new StorageBuilderFactory.Default());

@@ -30,12 +30,16 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
+import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LalStaticBindingHook;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
+import com.google.protobuf.Message;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
+import org.apache.skywalking.oap.server.core.dsldebug.ToJson;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
@@ -62,11 +66,23 @@ import org.apache.skywalking.oap.server.library.module.Service;
 public class LogFilterListener implements LogAnalysisListener {
     private final List<DSL> dsls;
     private final boolean autoMode;
+    /**
+     * Resolved SPI provider for this listener's layer (null for the
+     * default agent path). Threaded onto every {@link ExecutionContext}
+     * the listener creates so the compiler / runtime can read the
+     * layer's declared input and output types. Payload rendering for
+     * dsl-debugging is owned by the rule's
+     * {@link org.apache.skywalking.oap.server.core.source.LALOutputBuilder},
+     * not the provider.
+     */
+    private final LALSourceTypeProvider sourceTypeProvider;
     private List<ExecutionContext> contexts;
 
-    LogFilterListener(final Collection<DSL> dsls, final boolean autoMode) {
+    LogFilterListener(final Collection<DSL> dsls, final boolean autoMode,
+                      final LALSourceTypeProvider sourceTypeProvider) {
         this.dsls = new ArrayList<>(dsls);
         this.autoMode = autoMode;
+        this.sourceTypeProvider = sourceTypeProvider;
     }
 
     @Override
@@ -100,6 +116,7 @@ public class LogFilterListener implements LogAnalysisListener {
         contexts = new ArrayList<>(dsls.size());
         for (int i = 0; i < dsls.size(); i++) {
             final ExecutionContext ctx = new ExecutionContext().init(metadata, input);
+            ctx.setSourceTypeProvider(sourceTypeProvider);
             if (autoMode) {
                 ctx.autoLayerMode(true);
             }
@@ -178,6 +195,7 @@ public class LogFilterListener implements LogAnalysisListener {
             // the JDK's {@code ServiceLoader} — no moduleManager.find required, safe in prepare.
             this.spiProviders = new HashMap<>();
             for (final LALSourceTypeProvider p : ServiceLoader.load(LALSourceTypeProvider.class)) {
+                validateInputTypeContract(p);
                 spiProviders.put(p.layer(), p);
                 log.info("LALSourceTypeProvider: layer={}, inputType={}, outputType={}",
                     p.layer().name(), p.inputType().getName(),
@@ -221,6 +239,10 @@ public class LogFilterListener implements LogAnalysisListener {
                             "Layer " + compiled.layer.name() + " has already set " + c.getName() + " rule.");
                     }
                 }
+                // Publish per-rule debug holder into the dsl-debugging registry. Static and
+                // runtime-rule entries share the same (LAL, fileName, ruleName) key shape so
+                // a runtime-rule replace puts over the static binding without orphaning it.
+                LalStaticBindingHook.publish(c.getSourceName(), c.getName(), compiled.dsl.getExpression());
             }
             // Publish: readers from now on see the startup-complete registry.
             this.dsls = initDsls;
@@ -280,6 +302,27 @@ public class LogFilterListener implements LogAnalysisListener {
                     dsls = next;
                 }
             }
+        }
+
+        /**
+         * Look up the live {@link DSL} for {@code (layer, ruleName)}. Returns {@code null}
+         * when the key is not currently registered. {@code layer == null} routes to the
+         * auto-layer table the same way {@link #remove(Layer, String)} does.
+         *
+         * <p>Read-only — exposed so the dsl-debugging module can resolve a rule's
+         * {@code GateHolder} via the live DSL right after the LAL apply path commits.
+         * No write lock; the volatile {@code dsls} / {@code autoDsls} fields are
+         * publication-safe for snapshot reads.
+         */
+        public DSL find(final Layer layer, final String ruleName) {
+            if (ruleName == null) {
+                return null;
+            }
+            if (layer == null) {
+                return autoDsls.get(ruleName);
+            }
+            final Map<String, DSL> layerMap = dsls.get(layer);
+            return layerMap == null ? null : layerMap.get(ruleName);
         }
 
         /** Runtime remove. No-op when the key isn't present. */
@@ -382,6 +425,38 @@ public class LogFilterListener implements LogAnalysisListener {
             }
         }
 
+        /**
+         * Boot-time validation: every {@link LALSourceTypeProvider#inputType()}
+         * must satisfy one of the LAL-supported input families — {@code LogData} /
+         * {@code LogData.Builder} (default agent path), a protobuf {@code Message}
+         * subclass (typed receiver inputs), or a class implementing {@link ToJson}
+         * (custom POJO inputs). A provider that declares an out-of-family
+         * {@code inputType()} will fail downstream dispatch (the framework
+         * fallback {@code (LogData.Builder)} cast throws ClassCastException at
+         * runtime), so we surface the contract violation here at startup with a
+         * pointer at the SPI rather than letting it leak into the receiver hot path.
+         */
+        private static void validateInputTypeContract(final LALSourceTypeProvider provider) {
+            final Class<?> inputType = provider.inputType();
+            if (inputType == null) {
+                return;
+            }
+            if (LogData.class.isAssignableFrom(inputType)
+                || LogData.Builder.class.isAssignableFrom(inputType)
+                || Message.class.isAssignableFrom(inputType)
+                || Message.Builder.class.isAssignableFrom(inputType)
+                || ToJson.class.isAssignableFrom(inputType)) {
+                return;
+            }
+            throw new IllegalStateException(
+                "LALSourceTypeProvider " + provider.getClass().getName() + " for layer "
+                    + provider.layer() + " declared inputType " + inputType.getName()
+                    + " — LAL accepts only LogData / LogData.Builder (default agent path), "
+                    + "a protobuf Message subclass, or a type implementing "
+                    + ToJson.class.getName() + ". Update the provider's inputType() or "
+                    + "implement ToJson on " + inputType.getName() + ".");
+        }
+
         private static Class<?> resolveInputType(final LALConfig config,
                                                   final LALSourceTypeProvider spiProvider) throws ModuleStartException {
             final String yamlType = config.getInputType();
@@ -476,7 +551,8 @@ public class LogFilterListener implements LogAnalysisListener {
                 if (eligible.isEmpty()) {
                     return null;
                 }
-                return new LogFilterListener(eligible, true);
+                // auto-mode crosses layers — no single SPI provider applies
+                return new LogFilterListener(eligible, true, null);
             }
             final Map<String, DSL> dsl = dsls.get(layer);
             if (dsl == null) {
@@ -488,7 +564,7 @@ public class LogFilterListener implements LogAnalysisListener {
             if (eligible.isEmpty()) {
                 return null;
             }
-            return new LogFilterListener(eligible, false);
+            return new LogFilterListener(eligible, false, spiProviders.get(layer));
         }
 
         private static Collection<DSL> filterSuspended(final Map<String, DSL> source,

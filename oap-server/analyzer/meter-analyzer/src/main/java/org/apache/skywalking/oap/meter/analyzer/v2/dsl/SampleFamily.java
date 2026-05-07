@@ -57,6 +57,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import io.vavr.Function2;
 import io.vavr.Function3;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyFunctions.DecorateFunction;
@@ -117,6 +121,53 @@ public class SampleFamily {
     public SampleFamily debugDump() {
         log.info("{}", this);
         return this;
+    }
+
+    /**
+     * Field-by-field JSON payload for the dsl-debugging capture. Emits
+     * the complete sample list — name, labels, value, timestamp for
+     * every sample in this family. With kept-only capture (rejected
+     * executions are discarded before they reach the recorder), the
+     * family that lands here is by definition relevant to the operator,
+     * so the full payload is appropriate for a debug API.
+     *
+     * <p>Built via Gson's {@link JsonObject} —
+     * library-handled escaping, explicit field selection (no Gson
+     * reflection-based serialization).
+     */
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        if (this == EMPTY || samples == null || samples.length == 0) {
+            obj.addProperty("empty", true);
+            obj.addProperty("samples", 0);
+            obj.add("items", new JsonArray());
+            return obj.toString();
+        }
+        obj.addProperty("samples", samples.length);
+        final JsonArray items = new JsonArray();
+        for (final Sample s : samples) {
+            items.add(sampleToJson(s));
+        }
+        obj.add("items", items);
+        return obj.toString();
+    }
+
+    private static JsonElement sampleToJson(final Sample s) {
+        if (s == null) {
+            return JsonNull.INSTANCE;
+        }
+        final JsonObject item = new JsonObject();
+        item.addProperty("name", s.getName());
+        final JsonObject labels = new JsonObject();
+        if (s.getLabels() != null) {
+            for (final Map.Entry<String, String> e : s.getLabels().entrySet()) {
+                labels.addProperty(e.getKey(), e.getValue());
+            }
+        }
+        item.add("labels", labels);
+        item.addProperty("value", s.getValue());
+        item.addProperty("timestamp", s.getTimestamp());
+        return item;
     }
 
     /**

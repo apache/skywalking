@@ -23,8 +23,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
@@ -35,6 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 
 import static java.util.stream.Collectors.toList;
@@ -131,7 +134,7 @@ public class MetricConvert {
                 final MetricRuleConfig.RuleConfig r = rules.get(i);
                 final String yamlSource = sourceName != null
                     ? sourceName + ".yaml:" + i : null;
-                return prepareAnalyzer(
+                final Analyzer analyzer = prepareAnalyzer(
                     formatMetricName(rule, r.getName()),
                     filter,
                     formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
@@ -141,6 +144,23 @@ public class MetricConvert {
                     targetClassLoader,
                     storageOpt
                 );
+                // Stamp the rule's structured fields onto the per-metric
+                // GateHolder so dsl-debugging records render the rule as
+                // {metricPrefix, name, filter, exp, expSuffix} alongside
+                // the verbatim DSL. Only effective when codegen injection
+                // is enabled (otherwise debugHolder() returns null).
+                final GateHolder holder = analyzer.getExpression().debugHolder();
+                if (holder != null) {
+                    final LinkedHashMap<String, String> meta = new LinkedHashMap<>();
+                    putIfNonEmpty(meta, "metricPrefix", rule.getMetricPrefix());
+                    putIfNonEmpty(meta, "name", r.getName());
+                    putIfNonEmpty(meta, "filter", rule.getFilter());
+                    putIfNonEmpty(meta, "exp", r.getExp());
+                    putIfNonEmpty(meta, "expSuffix", rule.getExpSuffix());
+                    putIfNonEmpty(meta, "expPrefix", rule.getExpPrefix());
+                    holder.setMetadata(meta);
+                }
+                return analyzer;
             }
         ).collect(toList());
         // Phase 2 — register. Track each metric name as it's successfully registered so a
@@ -171,6 +191,16 @@ public class MetricConvert {
      */
     @Getter
     private final Set<String> registeredMetricNames;
+
+    /**
+     * Snapshot of every analyzer this convert owns, exposed for debug-API integration so the
+     * dsl-debugging module can iterate {@code (metricName, debugHolder)} pairs without
+     * reaching into the {@link Analyzer} internals. Read-only — mutating the list would
+     * corrupt the converter's broadcast loop.
+     */
+    public List<Analyzer> getAnalyzers() {
+        return Collections.unmodifiableList(analyzers);
+    }
 
     /**
      * Thrown from the ctor when phase-2 register throws after at least one metric was already
@@ -224,6 +254,13 @@ public class MetricConvert {
      * every rule's MAL expression is parsed + typed before any {@code MeterSystem.create}
      * call fires. Phase 2 runs {@link Analyzer#register} on the returned objects.
      */
+    private static void putIfNonEmpty(final Map<String, String> target,
+                                       final String key, final String value) {
+        if (value != null && !value.isEmpty()) {
+            target.put(key, value);
+        }
+    }
+
     Analyzer prepareAnalyzer(final String metricsName,
                               final FilterExpression filter,
                               final String exp,

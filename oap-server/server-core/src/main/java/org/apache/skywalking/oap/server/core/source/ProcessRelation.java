@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
@@ -64,4 +65,18 @@ public class ProcessRelation extends Source {
     @Setter
     @Getter
     private int componentId;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("instanceId", instanceId);
+        obj.addProperty("sourceProcessId", sourceProcessId);
+        obj.addProperty("destProcessId", destProcessId);
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("componentId", componentId);
+        return obj.toString();
+    }
 }

@@ -68,9 +68,11 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 13
+Next SWIP Number: 14
 
 ### Proposed SWIPs
+
+- [SWIP-13 Live Debugger for MAL / LAL / OAL](SWIP-13.md)
 
 ### Accepted SWIPs
 

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.browser.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
@@ -60,4 +61,19 @@ public class BrowserErrorLog extends Source {
     @Getter
     @Setter
     private byte[] dataBinary;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("uniqueId", uniqueId);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceVersionId", serviceVersionId);
+        obj.addProperty("pagePathId", pagePathId);
+        obj.addProperty("timestamp", timestamp);
+        obj.addProperty("errorCategory", errorCategory == null ? null : errorCategory.name());
+        return obj.toString();
+    }
 }

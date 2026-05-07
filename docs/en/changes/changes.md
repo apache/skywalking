@@ -2,6 +2,26 @@
 
 #### Project
 
+* **New `admin-server` module — shared host for admin / on-demand write APIs.** Runs on
+  **two ports**: an HTTP REST surface (default `17128`) for operator-facing endpoints,
+  and an **admin-internal gRPC bus** (default `17129`) for peer-to-peer cluster RPCs
+  (runtime-rule Suspend / Resume / Forward; DSL debug install / collect / stop /
+  stopByClientId). The admin-internal bus is a dedicated transport separate from the
+  public agent / cluster gRPC port (`core.gRPCPort`, default `11800`) so privileged
+  admin RPCs stay out of the agent network's blast radius — operators bind `gRPCHost`
+  to a private peer-to-peer interface only. Both the runtime-rule plugin and the new
+  DSL Debug API (below) mount onto this shared host. Disabled by default
+  (`SW_ADMIN_SERVER=default` to enable); has no built-in authentication and **must** be
+  gateway-protected with IP allow-lists, never exposed to the public internet (see the
+  [Admin API security notice](../setup/backend/admin-api/readme.md)). The runtime-rule
+  config block loses its `restHost`/`restPort`/`restContextPath`/`restIdleTimeOut`/
+  `restAcceptQueueSize`/`httpMaxRequestHeaderSize` keys (and the matching
+  `SW_RECEIVER_RUNTIME_RULE_REST_*` env vars); host-level knobs move under the new
+  `admin-server` block (`SW_ADMIN_SERVER_HOST` / `SW_ADMIN_SERVER_PORT` /
+  `SW_ADMIN_SERVER_GRPC_HOST` / `SW_ADMIN_SERVER_GRPC_PORT` /
+  `SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT` etc.). Operators upgrading to 10.5.0 with
+  `SW_RECEIVER_RUNTIME_RULE=default` must also set `SW_ADMIN_SERVER=default`; OAP
+  fails fast at startup otherwise.
 * **Runtime rule hot-update for MAL and LAL.** Operators can now ship metric (MAL) and log
   (LAL) rule changes without restarting OAP. A push to a new admin endpoint persists the rule
   to the configured storage backend, and every node in the cluster converges to the new
@@ -36,9 +56,44 @@
     as a tar.gz for backup / DR.
   Hot-updates survive OAP restart: at boot OAP merges bundled rule files with persisted
   runtime rules, so the cluster never silently regresses to the bundled defaults.
-  **The endpoint is disabled by default and listens on port `17128` when enabled. It has
-  no built-in authentication — operators must gateway-protect it with IP allow-lists and
-  never expose it to the public internet.**
+  All admin writes for a runtime-rule cluster serialize on a single "main" OAP
+  (deterministic sorted-first peer, no leader election) — non-main nodes that receive
+  an HTTP write transparently forward it to the main over the admin-internal gRPC bus,
+  so an L7 load balancer in front of the admin port can route any operator request to
+  any OAP. Cluster convergence on the periodic refresh tick is configurable via
+  `receiver-runtime-rule.refreshRulesPeriod` (default `30` s). **The endpoint is
+  disabled by default and listens on port `17128` (HTTP) when enabled. It has no
+  built-in authentication — operators must gateway-protect it with IP allow-lists and
+  never expose it to the public internet.** Routes mount on the new `admin-server`
+  HTTP host, so enabling the runtime-rule API requires both `SW_ADMIN_SERVER=default`
+  and `SW_RECEIVER_RUNTIME_RULE=default`.
+* **Live debugger for MAL / LAL / OAL** — implements [SWIP-13 Live Debugger for MAL / LAL / OAL](../swip/SWIP-13.md).
+  Sample-based runtime debugger that captures per-stage inputs/outputs as the three DSLs
+  process live ingest. Idle-path cost is one volatile-bool read per probe call site that
+  JIT eliminates after warm-up; active sessions fan out to every cluster peer over the
+  admin-internal gRPC bus so each peer captures its own slice. The fan-out is LB-safe:
+  any node can serve any verb (POST mints `sessionId` on the receiving node, broadcasts
+  install to peers, returns `404 rule_not_found` only when no node owns the rule), so an
+  L7 load balancer in front of the admin port routes operator requests freely. Mounts on
+  the shared `admin-server` host (`/dsl-debugging/*` for session control plane,
+  `/runtime/oal/*` for the OAL rule picker). Disabled by default; enable with
+  `SW_DSL_DEBUGGING=default` *and* `SW_ADMIN_SERVER=default`. `injectionEnabled` is a
+  boot-time codegen switch defaulting to `true` — once the module is enabled, probes
+  fire and sessions record samples; set `false` only if the REST surface is wanted but
+  no codegen-side probe overhead is acceptable. Per-session limits enforce hard caps
+  (`recordCap` ≤ 10000, `retentionMillis` ≤ 1 hour) — out-of-range requests return
+  `400 invalid_limits`. LAL sessions accept a per-session `granularity=block|statement`
+  flag — block mode captures the parser/extractor/sink stages; statement mode
+  additionally records one `line` entry per individual extractor statement, carrying
+  the source-line number and verbatim DSL text so the UI can highlight which statement
+  fired. MAL captures render the file-level filter's surviving SampleFamily map
+  (`{"families": N, "items": [...]}`), so multi-metric expressions show cross-family
+  filter narrowing in the captured payload. Capture payloads include raw log bodies and
+  parsed maps — treat the admin port as authenticated infrastructure per the
+  [Admin API security notice](../setup/backend/admin-api/readme.md). Per-DSL operator
+  references: [MAL](../setup/backend/admin-api/dsl-debugging-mal.md),
+  [OAL](../setup/backend/admin-api/dsl-debugging-oal.md),
+  [LAL](../setup/backend/admin-api/dsl-debugging-lal.md).
 * **BanyanDB schema mismatches are now visible at boot, not silent.** If BanyanDB already
   holds a resource whose shape doesn't match what the current rule declares (e.g., a rule
   was edited on disk while OAP was offline), OAP now skips that resource, logs an ERROR

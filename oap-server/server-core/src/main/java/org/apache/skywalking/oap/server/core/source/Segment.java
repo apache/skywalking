@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -71,4 +72,21 @@ public class Segment extends Source {
     @Setter
     @Getter
     private List<Tag> tags = new ArrayList<>();
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("segmentId", segmentId);
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceInstanceId", serviceInstanceId);
+        obj.addProperty("endpointId", endpointId);
+        obj.addProperty("startTime", startTime);
+        obj.addProperty("latency", latency);
+        obj.addProperty("isError", isError);
+        return obj.toString();
+    }
 }

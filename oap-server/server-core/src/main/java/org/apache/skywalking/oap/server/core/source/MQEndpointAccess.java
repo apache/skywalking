@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -73,5 +74,21 @@ public class MQEndpointAccess extends Source {
     @Override
     public void prepare() {
         this.serviceId = IDManager.ServiceID.buildId(serviceName, false);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("endpoint", endpoint);
+        obj.addProperty("typeId", typeId);
+        obj.addProperty("transmissionLatency", transmissionLatency);
+        obj.addProperty("status", status);
+        obj.addProperty("operation", operation == null ? null : operation.name());
+        return obj.toString();
     }
 }

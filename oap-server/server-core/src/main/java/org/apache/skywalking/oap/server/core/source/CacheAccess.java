@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -60,4 +61,18 @@ public class CacheAccess extends Source {
     @Getter
     @Setter
     private VirtualCacheOperation operation;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("cacheTypeId", cacheTypeId);
+        obj.addProperty("latency", latency);
+        obj.addProperty("status", status);
+        obj.addProperty("operation", operation == null ? null : operation.name());
+        return obj.toString();
+    }
 }

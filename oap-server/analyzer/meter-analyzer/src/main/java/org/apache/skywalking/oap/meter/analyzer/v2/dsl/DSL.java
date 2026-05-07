@@ -103,9 +103,14 @@ public final class DSL {
                 // yamlSource state that the shared GENERATOR carries between calls.
                 final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
                 perFile.setYamlSource(yamlSource);
+                // The verbatim MAL expression text is the rule's "content" — threaded
+                // into the GateHolder so dsl-debugging records carry the rule source
+                // inline. Same string ANTLR parsed; no extra plumbing.
+                perFile.setContent(expression);
                 malExpr = perFile.compile(metricName, expression);
             } else {
                 GENERATOR.setYamlSource(yamlSource);
+                GENERATOR.setContent(expression);
                 malExpr = GENERATOR.compile(metricName, expression);
             }
             return new Expression(metricName, expression, malExpr);

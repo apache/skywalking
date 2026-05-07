@@ -39,10 +39,22 @@ import lombok.Getter;
 public final class FunctionCall {
     private final String name;
     private final List<FunctionArgument> arguments;
+    /**
+     * Verbatim source text of the function call from the original {@code .oal}
+     * file (e.g. {@code "cpm()"} / {@code "percentile2(10)"}). Pulled from
+     * ANTLR's input stream at parse time. Used as the {@code sourceText} of
+     * dsl-debugging captures for the aggregation stage.
+     */
+    private final String sourceText;
 
     private FunctionCall(String name, List<FunctionArgument> arguments) {
+        this(name, arguments, "");
+    }
+
+    private FunctionCall(String name, List<FunctionArgument> arguments, String sourceText) {
         this.name = Objects.requireNonNull(name, "function name cannot be null");
         this.arguments = Collections.unmodifiableList(new ArrayList<>(arguments));
+        this.sourceText = sourceText == null ? "" : sourceText;
     }
 
     /**
@@ -92,9 +104,15 @@ public final class FunctionCall {
     public static class Builder {
         private String name;
         private List<FunctionArgument> arguments = new ArrayList<>();
+        private String sourceText;
 
         public Builder name(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder sourceText(String sourceText) {
+            this.sourceText = sourceText;
             return this;
         }
 
@@ -124,7 +142,7 @@ public final class FunctionCall {
         }
 
         public FunctionCall build() {
-            return new FunctionCall(name, arguments);
+            return new FunctionCall(name, arguments, sourceText);
         }
     }
 }

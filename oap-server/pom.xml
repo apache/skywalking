@@ -30,6 +30,7 @@
     <modules>
         <module>server-core</module>
         <module>analyzer</module>
+        <module>server-admin</module>
         <module>server-receiver-plugin</module>
         <module>server-cluster-plugin</module>
         <module>server-storage-plugin</module>

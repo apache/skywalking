@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,4 +68,21 @@ public class ServiceInstanceCLRThread extends Source {
     @Getter
     @Setter
     private long maxWorkerThreads;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("id", id);
+        obj.addProperty("name", name);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("availableCompletionPortThreads", availableCompletionPortThreads);
+        obj.addProperty("availableWorkerThreads", availableWorkerThreads);
+        obj.addProperty("maxCompletionPortThreads", maxCompletionPortThreads);
+        obj.addProperty("maxWorkerThreads", maxWorkerThreads);
+        return obj.toString();
+    }
 }

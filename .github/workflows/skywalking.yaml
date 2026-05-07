@@ -407,6 +407,14 @@ jobs:
             config: test/e2e-v2/cases/runtime-rule/lal/e2e.yaml
           - name: Runtime Rule Cluster Convergence
             config: test/e2e-v2/cases/runtime-rule/cluster/e2e.yaml
+          - name: DSL Debug API — MAL
+            config: test/e2e-v2/cases/dsl-debugging/mal/e2e.yaml
+          - name: DSL Debug API — OAL
+            config: test/e2e-v2/cases/dsl-debugging/oal/e2e.yaml
+          - name: DSL Debug API — LAL block
+            config: test/e2e-v2/cases/dsl-debugging/lal-block/e2e.yaml
+          - name: DSL Debug API — LAL statement
+            config: test/e2e-v2/cases/dsl-debugging/lal-statement/e2e.yaml
 
           - name: Alarm ES
             config: test/e2e-v2/cases/alarm/es/e2e.yaml

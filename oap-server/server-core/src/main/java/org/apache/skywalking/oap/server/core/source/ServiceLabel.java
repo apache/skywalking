@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -62,5 +63,18 @@ public class ServiceLabel extends Source {
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, isServiceNormal);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceNormal", isServiceNormal);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("label", label);
+        return obj.toString();
     }
 }

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
 
@@ -47,4 +48,17 @@ public class PprofProfilingData extends Source {
     private long uploadTime;
     private PprofEventType eventType;
     private Object frameTree;
-} 
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("taskId", taskId);
+        obj.addProperty("instanceId", instanceId);
+        obj.addProperty("uploadTime", uploadTime);
+        obj.addProperty("eventType", eventType == null ? null : eventType.name());
+        return obj.toString();
+    }
+}

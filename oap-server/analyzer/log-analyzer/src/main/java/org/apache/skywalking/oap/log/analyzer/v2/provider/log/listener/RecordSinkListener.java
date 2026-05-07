@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 import lombok.SneakyThrows;
 
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
+import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LALDebug;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -91,6 +93,15 @@ public class RecordSinkListener implements LogSinkListener {
         }
         builder = ctx.outputAsBuilder();
         builder.init(metadata, input, moduleManager);
+        // Terminal-output probe: typed builder is fully populated, complete()
+        // hasn't fired yet. The probe pulls the rule's debug holder off ctx so
+        // this wrapper layer doesn't need its own LalExpression reference.
+        // Fires only for records the sink kept (parse() is bypassed otherwise).
+        final GateHolder debugHolder = ctx.getDebugHolder();
+        if (debugHolder != null && debugHolder.isGateOn()) {
+            LALDebug.captureOutputRecord(
+                debugHolder, "", 0, ctx, builder.getClass().getSimpleName());
+        }
         return this;
     }
 

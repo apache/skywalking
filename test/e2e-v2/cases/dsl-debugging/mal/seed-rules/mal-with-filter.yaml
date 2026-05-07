@@ -1,0 +1,44 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Seed MAL rule applied via runtime-rule for the dsl-debugging mal e2e.
+#
+# The `exp:` body intentionally combines TWO metric references —
+# `e2e_rr_request_count_total` (counter) and `e2e_rr_pool_size` (gauge) —
+# so the captured pipeline shows TWO `input` samples (one per metric ref)
+# and one combined `function` sample after the binary `+`. The OTLP
+# emitter pushes both metrics under the primary service_name plus
+# additional noise (service_name, instance) pairs so the multi-item
+# SampleFamily is visible in the input payload before the file-level
+# filter narrows it.
+#
+# A top-level `filter:` clause runs the captureFilter probe BEFORE the
+# expression body, so the captured records cover input + filter + every
+# stage (including the final meterEmit). The filter accepts every sample
+# whose service_name matches the primary so the downstream pipeline
+# keeps producing meterEmit captures.
+filter: "{ tags -> tags.service_name == 'e2e-dsldbg-mal-svc' }"
+metricPrefix: e2e_dsldbg
+expSuffix: service(['service_name'], Layer.GENERAL)
+metricsRules:
+  - name: filtered_requests
+    # Three metric references in one expression. The OTel emitter pushes
+    # `e2e_rr_request_count_total` and `e2e_rr_pool_size` under the
+    # primary service_name (filter survives) and `e2e_rr_decoy_total`
+    # under a secondary service (filter rejects). The captured `filter`
+    # sample's payload reports families=2 — the decoy is visibly
+    # absent from the surviving families list, demonstrating the filter
+    # narrowing across SampleFamilies (not just within a single family).
+    exp: e2e_rr_request_count_total.sum(['service_name']) + e2e_rr_pool_size.sum(['service_name']) + e2e_rr_decoy_total.sum(['service_name'])

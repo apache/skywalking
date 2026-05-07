@@ -48,12 +48,38 @@ public interface LALOutputBuilder {
     String name();
 
     /**
-     * Pre-populate standard fields before custom output fields are applied.
-     * Called once per log entry.
+     * Cache the typed input + populate standard metadata-derived fields
+     * the LAL extractor hasn't already set (service, instance, endpoint,
+     * layer, trace context, timestamp). Called by the generated LAL
+     * {@code execute()} body immediately after {@code ctx.setOutput(...)},
+     * so the builder is fully populated before the extractor runs and
+     * before any debug probe fires.
      *
-     * @param metadata      uniform metadata (service, layer, timestamp, trace context, etc.)
-     * @param input         source-specific input object ({@code LogData} for standard logs,
-     *                      {@code HTTPAccessLogEntry} for envoy access logs, etc.)
+     * <p>Does NOT require {@link ModuleManager}: this is the lightweight
+     * lifecycle step. The {@code moduleManager}-dependent setup
+     * (e.g. {@code NamingControl} resolution) happens at sink time via
+     * {@link #init} which composes {@code ensureInitialized + bindInput}.
+     *
+     * <p>Default — no-op (subclasses override to cache their typed
+     * input). Idempotent: safe to call multiple times per log; the
+     * second call from {@link #init} re-runs the same logic without
+     * harm.
+     *
+     * @param metadata uniform metadata (service, layer, timestamp, trace context, ...)
+     * @param input    source-specific input object ({@code LogData} for standard logs,
+     *                 {@code HTTPAccessLogEntry} for envoy access logs, etc.)
+     */
+    default void bindInput(LogMetadata metadata, Object input) {
+    }
+
+    /**
+     * Full lifecycle init — runs {@code ensureInitialized(moduleManager)}
+     * for first-call static caching (e.g. {@code NamingControl}), then
+     * {@link #bindInput}. Called by the sink-stage receiver
+     * ({@code RecordSinkListener.parse}) after the LAL extractor finishes.
+     *
+     * @param metadata      uniform metadata
+     * @param input         source-specific input object
      * @param moduleManager module manager for resolving services (e.g., NamingControl)
      */
     void init(LogMetadata metadata, Object input, ModuleManager moduleManager);
@@ -64,4 +90,23 @@ public interface LALOutputBuilder {
      */
     void complete(SourceReceiver sourceReceiver);
 
+    /**
+     * Render the output entity this builder constructed as a debug JSON
+     * string. The implementer reads its own typed fields (the columns
+     * it copied from input + the LAL extractor's output assignments)
+     * and emits them directly — Gson {@code JsonObject} field-by-field,
+     * no reflection.
+     *
+     * <p>Called from {@code ExecutionContext.outputPayloadJson} on every
+     * non-input sample (block / statement / function / output) — must be
+     * cheap; do not allocate the final entity (no {@code toLog()}). For
+     * envoy ALS, {@code EnvoyAccessLogBuilder} caches the proto-as-JSON
+     * on init so this method is a constant-time field read.
+     *
+     * <p>The framework renders the raw input directly off
+     * {@code ctx.input()} on the first (input-type) sample using its
+     * native dispatcher; the builder is not consulted there because
+     * {@link #init} has not yet fired at that probe.
+     */
+    String outputToJson();
 }

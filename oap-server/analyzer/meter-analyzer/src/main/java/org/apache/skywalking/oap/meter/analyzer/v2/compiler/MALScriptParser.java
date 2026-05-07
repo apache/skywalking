@@ -23,11 +23,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.BaseErrorListener;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.misc.Interval;
 import org.apache.skywalking.mal.rt.grammar.MALLexer;
 import org.apache.skywalking.mal.rt.grammar.MALParser;
 import org.apache.skywalking.mal.rt.grammar.MALParserBaseVisitor;
@@ -261,7 +263,24 @@ public final class MALScriptParser {
             }
             final List<Argument> args = ctx.argumentList() != null
                 ? visitArgList(ctx.argumentList()) : Collections.emptyList();
-            return new MethodCall(namespace, name, args);
+            // Verbatim ANTLR slice of the call (e.g. "sum(['service_name', 'step'])").
+            // Pulled from the input stream so whitespace and identifier spelling are
+            // exactly what the operator wrote. Used as the captured stage's sourceText.
+            return new MethodCall(namespace, name, args,
+                ctx.getStart().getLine(), rawTextOf(ctx));
+        }
+
+        /**
+         * Verbatim source slice of an ANTLR rule context — pulls from the
+         * original input stream rather than re-concatenating tokens, so
+         * whitespace inside the call is preserved.
+         */
+        private static String rawTextOf(final ParserRuleContext ctx) {
+            if (ctx.getStart() == null || ctx.getStop() == null) {
+                return "";
+            }
+            return ctx.getStart().getInputStream().getText(
+                Interval.of(ctx.getStart().getStartIndex(), ctx.getStop().getStopIndex()));
         }
 
         private List<Argument> visitArgList(final MALParser.ArgumentListContext ctx) {

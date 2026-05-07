@@ -44,6 +44,21 @@ public final class MetricDefinition {
     private final FunctionCall aggregationFunction;
     private final Optional<String> decorator;
     private final SourceLocation location;
+    /**
+     * Verbatim text of this metric's full statement in the {@code .oal} file —
+     * the ANTLR Interval slice covering {@code <name> = from(...).filter(...).<func>();}.
+     * Threaded into the per-metric {@code GateHolder} so dsl-debugging records
+     * carry the rule source inline. {@code ""} for synthesised metrics.
+     */
+    private final String sourceText;
+    /**
+     * Verbatim text of just the {@code from(SourceName.attr)} /
+     * {@code from(SourceName.*)} segment — the ANTLR Interval slice from the
+     * FROM token through the closing source-paren. The dsl-debugging
+     * captureSource probe stamps this as the source sample's
+     * {@code sourceText} so the operator sees what they literally wrote.
+     */
+    private final String fromText;
 
     private MetricDefinition(Builder builder) {
         this.name = Objects.requireNonNull(builder.name, "name cannot be null");
@@ -53,6 +68,8 @@ public final class MetricDefinition {
         this.aggregationFunction = Objects.requireNonNull(builder.aggregationFunction, "aggregationFunction cannot be null");
         this.decorator = Optional.ofNullable(builder.decorator);
         this.location = builder.location != null ? builder.location : SourceLocation.UNKNOWN;
+        this.sourceText = builder.sourceText == null ? "" : builder.sourceText;
+        this.fromText = builder.fromText == null ? "" : builder.fromText;
     }
 
     public static Builder builder() {
@@ -92,6 +109,18 @@ public final class MetricDefinition {
         private FunctionCall aggregationFunction;
         private String decorator;
         private SourceLocation location;
+        private String sourceText;
+        private String fromText;
+
+        public Builder sourceText(String sourceText) {
+            this.sourceText = sourceText;
+            return this;
+        }
+
+        public Builder fromText(String fromText) {
+            this.fromText = fromText;
+            return this;
+        }
 
         public Builder name(String name) {
             this.name = name;

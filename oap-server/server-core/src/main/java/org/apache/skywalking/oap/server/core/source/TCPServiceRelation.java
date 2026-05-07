@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -99,5 +100,25 @@ public class TCPServiceRelation extends Source {
     public void prepare() {
         sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceLayer.isNormal());
         destServiceId = IDManager.ServiceID.buildId(destServiceName, destLayer.isNormal());
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("sourceServiceName", sourceServiceName);
+        obj.addProperty("sourceServiceInstanceName", sourceServiceInstanceName);
+        obj.addProperty("sourceLayer", sourceLayer == null ? null : sourceLayer.name());
+        obj.addProperty("destServiceName", destServiceName);
+        obj.addProperty("destServiceInstanceName", destServiceInstanceName);
+        obj.addProperty("destLayer", destLayer == null ? null : destLayer.name());
+        obj.addProperty("componentId", componentId);
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("tlsMode", tlsMode);
+        obj.addProperty("receivedBytes", receivedBytes);
+        obj.addProperty("sentBytes", sentBytes);
+        return obj.toString();
     }
 }

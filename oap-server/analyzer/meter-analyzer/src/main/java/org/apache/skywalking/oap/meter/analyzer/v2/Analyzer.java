@@ -43,8 +43,10 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MALDebug;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
@@ -222,6 +224,7 @@ public class Analyzer {
 
     private final FilterExpression filterExpression;
 
+    @Getter
     private final Expression expression;
 
     private final MeterSystem meterSystem;
@@ -268,8 +271,37 @@ public class Analyzer {
             }
             return;
         }
+        // Resolve the rule's capture binding once per ingest pass. When dsl-debugging
+        // codegen injection is off the expression returns null (no probe field on the
+        // generated class); the hand-written probe sites in this method must therefore
+        // null-check before consulting the gate, otherwise an injection-off cluster
+        // NPEs on the very first MAL pass and silently drops every metric.
+        final GateHolder debugHolder = expression.debugHolder();
+        final boolean debugOn = debugHolder != null && debugHolder.isGateOn();
+        // Per-execution boundary: one analysis pass = one captured record.
+        // begin marks the start (flushing any prior orphan); end fires in
+        // finally so a thrown exception still publishes the partial record.
+        if (debugOn) {
+            MALDebug.captureBeginAnalysis(debugHolder, metricName);
+        }
+        try {
         if (filterExpression != null) {
+            // File-level filter probe: capture the FULL post-filter map keyed
+            // by metric name. A rule that combines `metric_a + metric_b + ...`
+            // shows up to N entries here — every metric whose samples
+            // survived the filter, plus none of the ones that filtered to
+            // EMPTY. Pre-filter view is passed as the captured map only when
+            // the filter short-circuits the rule (kept=false), so the
+            // operator can see which families went in but didn't make it out.
+            final Map<String, SampleFamily> preFilter = input;
             input = filterExpression.filter(input);
+            if (debugOn) {
+                final boolean kept = !input.isEmpty();
+                MALDebug.captureFilter(debugHolder, metricName,
+                                       filterExpression.getLiteral(),
+                                       kept ? input : preFilter,
+                                       kept);
+            }
             if (input.isEmpty()) {
                 if (log.isDebugEnabled()) {
                     log.debug("{} is ignored due to mismatch of filter {}", expression, filterExpression);
@@ -294,12 +326,18 @@ public class Analyzer {
         }
         SampleFamily.RunningContext ctx = r.getData().context;
         Map<MeterEntity, Sample[]> meterSamples = ctx.getMeterSamples();
+        // No `scope` probe here — the verbatim scope-binding DSL is already captured by the
+        // preceding chain `stage` record (e.g. "service(['service_name'], Layer.GENERAL)"),
+        // and the per-entity grouping is observable from the meterBuild records' payloads.
+        // A separate scope record would carry only the metric type ("single"/"labeled"/…),
+        // which is internal classification, not anything the operator authored.
         meterSamples.forEach((meterEntity, ss) -> {
             generateTraffic(meterEntity);
             switch (metricType) {
                 case single:
                     AcceptableValue<Long> sv = meterSystem.buildMetrics(metricName, Long.class);
                     sv.accept(meterEntity, getValue(ss[0]));
+                    captureMeterEmit(debugHolder, meterEntity, sv, ss[0].getTimestamp());
                     send(sv, ss[0].getTimestamp());
                     break;
                 case labeled:
@@ -312,6 +350,7 @@ public class Analyzer {
                         dt.put(dataLabel, getValue(each));
                     }
                     lv.accept(meterEntity, dt);
+                    captureMeterEmit(debugHolder, meterEntity, lv, ss[0].getTimestamp());
                     send(lv, ss[0].getTimestamp());
                     break;
                 case histogram:
@@ -341,17 +380,49 @@ public class Analyzer {
                                   AcceptableValue<BucketedValues> v = meterSystem.buildMetrics(
                                       metricName, BucketedValues.class);
                                   v.accept(meterEntity, bv);
+                                  captureMeterEmit(debugHolder, meterEntity, v, time);
                                   send(v, time);
                                   return;
                               }
                               AcceptableValue<PercentileArgument> v = meterSystem.buildMetrics(
                                   metricName, PercentileArgument.class);
                               v.accept(meterEntity, new PercentileArgument(bv, percentiles));
+                              captureMeterEmit(debugHolder, meterEntity, v, time);
                               send(v, time);
                           });
                     break;
             }
         });
+        } finally {
+            if (debugOn) {
+                MALDebug.captureEndAnalysis(debugHolder, metricName);
+            }
+        }
+    }
+
+    /**
+     * Fires the {@code captureMeterBuild} + {@code captureMeterEmit} probe pair right
+     * before {@code send(...)} hands the value to {@code MeterSystem.doStreamingCalculation}
+     * — i.e., the L1-bound boundary that ends MAL's debugger scope. Pulled into one helper
+     * so the four metric-type branches above share one capture shape (no copy-pasted
+     * gate check, no drift between branches).
+     */
+    /**
+     * Terminal capture for a meter: by the time we reach this site, the typed
+     * {@code AcceptableValue} has been constructed and {@code accept()}-populated
+     * in one step, so a separate "build" probe would duplicate the same value
+     * state. OAL splits build vs aggregation because its entry function mutates
+     * the {@code Metrics} between them; MAL has nothing equivalent.
+     */
+    private void captureMeterEmit(final GateHolder debugHolder,
+                                  final MeterEntity entity,
+                                  final AcceptableValue<?> value,
+                                  final long sourceTimestamp) {
+        if (debugHolder == null || !debugHolder.isGateOn()) {
+            return;
+        }
+        MALDebug.captureMeterEmit(debugHolder, metricName, entity, metricName,
+                                  value, TimeBucket.getMinuteTimeBucket(sourceTimestamp));
     }
 
     private long getValue(Sample sample) {

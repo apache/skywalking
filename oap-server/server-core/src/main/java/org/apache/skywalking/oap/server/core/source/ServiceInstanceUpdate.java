@@ -49,4 +49,15 @@ public class ServiceInstanceUpdate extends Source {
     @Getter
     @Setter
     private JsonObject properties;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("name", name);
+        return obj.toString();
+    }
 }

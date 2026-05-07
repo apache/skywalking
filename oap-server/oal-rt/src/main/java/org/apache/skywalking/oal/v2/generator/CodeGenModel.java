@@ -115,6 +115,32 @@ public class CodeGenModel {
     private String functionName;
 
     /**
+     * Verbatim OAL aggregation clause for debug-capture sourceText —
+     * e.g. {@code "cpm()"} or {@code "percentile2(10)"}. Lets the UI
+     * highlight the aggregation step in the original {@code .oal} source.
+     */
+    private String aggregationSourceText;
+
+    /**
+     * 1-based source line of this rule in the {@code .oal} file. Threaded
+     * from the parser's {@code SourceLocation} at enrichment time and
+     * spliced into every dsl-debugging probe call site so captured records
+     * carry an in-source pointer alongside the verbatim {@code sourceText}.
+     */
+    @Builder.Default
+    private int sourceLine = 0;
+
+    /**
+     * Verbatim text of this metric's full {@code .oal} statement —
+     * {@code "service_relation_server_cpm = from(ServiceRelation.*).filter(...).cpm();"}
+     * — captured from the ANTLR input stream at parse time. Threaded into
+     * the per-metric {@code GateHolder} so dsl-debugging records render the
+     * rule source inline. Empty for synthesised metrics.
+     */
+    @Builder.Default
+    private String metricSourceText = "";
+
+    /**
      * Metrics function class name.
      * Example: "LongAvgMetrics"
      */
@@ -369,6 +395,14 @@ public class CodeGenModel {
         private String left;
         /** Right operand expression (literal or source getter). */
         private String right;
+        /**
+         * Verbatim OAL filter clause for debug-capture sourceText —
+         * e.g. {@code "filter(detectPoint == DetectPoint.SERVER)"}. The UI
+         * uses this to highlight the filter clause in the original .oal
+         * source; the matcher class name on its own ({@code expressionObject})
+         * is generated and meaningless to operators.
+         */
+        private String sourceText;
     }
 
     /**
@@ -384,6 +418,14 @@ public class CodeGenModel {
         private String sourceName;
         /** Scope ID for this source type. */
         private int sourceScopeId;
+        /**
+         * Verbatim {@code from(SourceName.attr)} or {@code from(SourceName.*)}
+         * slice — what the operator literally wrote in the .oal file.
+         * Threaded into the dsl-debugging capture so the source sample's
+         * {@code sourceText} matches the original source clause byte-for-byte
+         * (the matcher / scope-id are generated and meaningless to operators).
+         */
+        private String fromText;
     }
 
     /**

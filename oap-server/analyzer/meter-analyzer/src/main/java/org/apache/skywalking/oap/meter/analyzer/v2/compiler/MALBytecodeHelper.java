@@ -196,6 +196,39 @@ final class MALBytecodeHelper {
         }
     }
 
+    /**
+     * Writes the Javassist-input Java source for a generated class as a
+     * sibling {@code <ClassName>.java} file when {@code classOutputDir} is
+     * set. The {@code SourceFile} attribute on the {@code .class} points at
+     * this name, so IDE source-attach renders it directly without going
+     * through FernFlower / a decompiler — operators see the EXACT code
+     * Javassist compiled. Caller passes pre-formatted Java source built
+     * during codegen (the {@code makeClass(...)}/{@code make(...)} input
+     * strings concatenated with the public class envelope).
+     */
+    void writeSourceFile(final CtClass ctClass, final String javaSource) {
+        if (classOutputDir == null || javaSource == null) {
+            return;
+        }
+        if (!classOutputDir.exists()) {
+            classOutputDir.mkdirs();
+        }
+        final File file = new File(
+            classOutputDir, ctClass.getSimpleName() + ".java");
+        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
+            w.write("// Synthetic source — Javassist compile input for ");
+            w.write(ctClass.getSimpleName());
+            w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
+            w.write("// source-attach to render the bytecode without FernFlower.\n\n");
+            w.write(javaSource);
+            if (!javaSource.endsWith("\n")) {
+                w.write("\n");
+            }
+        } catch (Exception e) {
+            log.warn("Failed to write source file {}: {}", file, e.getMessage(), e);
+        }
+    }
+
     // ==================== Bytecode attributes ====================
 
     /**

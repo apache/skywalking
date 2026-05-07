@@ -18,7 +18,16 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-public interface ISource {
+import org.apache.skywalking.oap.server.core.dsldebug.ToJson;
+
+/**
+ * Every source-of-truth event that flows through the OAP analysis
+ * pipeline. Implementers must hand-build a debug payload via
+ * {@link #toJson()} — the contract is intentionally explicit (no
+ * reflection-based default) so each Source surfaces the columns that
+ * matter for its operator-facing semantics.
+ */
+public interface ISource extends ToJson {
     int scope();
 
     long getTimeBucket();
@@ -32,4 +41,16 @@ public interface ISource {
      */
     default void prepare() {
     }
+
+    /**
+     * Hand-built JSON payload for the dsl-debugging capture. Required
+     * on every concrete source; no reflection-based default. Implementers
+     * should expose the columns an operator typically reads when reading
+     * captured records (entity ids, classification fields, value
+     * columns) and build the payload via Gson's
+     * {@link com.google.gson.JsonObject} field-by-field — Gson handles
+     * string escaping with no runtime reflection.
+     */
+    @Override
+    String toJson();
 }

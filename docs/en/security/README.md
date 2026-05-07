@@ -51,36 +51,46 @@ those fields, causing XSS or even Remote Code Execution (RCE) issues.
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
 
-## Runtime Rule Admin Surface (port 17128)
+## Admin API Surface (ports 17128 + 17129)
 
-The `skywalking-runtime-rule-receiver-plugin` exposes an HTTP admin API on port 17128 that
-lets operators **add, override, inactivate, and delete MAL/LAL rule files at runtime** without
-restarting OAP. Rules are compiled and loaded into the OAP JVM on the fly. This surface is
-**far more powerful than the telemetry receiver ports** — a request can register new Javassist-
-compiled bytecode, mutate `MeterSystem` state, and drop backend schema (BanyanDB measures).
+The `admin-server` module hosts a shared HTTP port (default `17128`) for admin / on-demand
+write APIs. Today this includes the **Runtime Rule Hot-Update API** (add, override, inactivate,
+delete MAL/LAL rule files at runtime — rules are compiled and loaded into the OAP JVM on the
+fly) and the **DSL Debug API** (sampling debugger that captures live MAL/LAL/OAL rule
+executions, including the raw payloads each rule processed). This surface is **far more
+powerful than the telemetry receiver ports** — a request can register new Javassist-compiled
+bytecode, mutate `MeterSystem` state, drop backend schema (BanyanDB measures), or inspect
+operationally-sensitive payloads (raw log bodies, parsed maps, metric source events).
 
-The module is **disabled by default**. Enabling it (via `SW_RECEIVER_RUNTIME_RULE=default` or
-the YAML selector) opens port 17128 with **no authentication**. This is intentional for now —
-the design goal is a simple admin socket that a gateway / service mesh wraps with the
-operator's existing auth story.
+`admin-server` also opens an **admin-internal gRPC bus** (default `17129`) for peer-to-peer
+cluster RPCs between OAP nodes — runtime-rule `Suspend / Resume / Forward`, DSL debug
+`install / collect / stop`. This is intentionally a **separate transport** from the public
+agent / cluster gRPC port (`core.gRPCPort`, default `11800`). An attacker who reaches `11800`
+to submit telemetry MUST NOT be able to invoke privileged admin RPCs.
+
+`admin-server` is **disabled by default**. Enabling it (`SW_ADMIN_SERVER=default` plus the
+relevant feature module's selector) opens both ports with **no built-in authentication**.
+This is intentional for now — the design goal is a simple admin socket that a gateway /
+service mesh wraps with the operator's existing auth story.
 
 Required operator actions when enabling:
 
-1. **Never expose port 17128 to the public internet.** Bind to a private network interface or
-   `localhost` and reach it through an operator-controlled gateway.
-2. **Gateway-protect with IP allow-list + authentication.** Only the operator team should be
-   able to reach the endpoint.
-3. **Audit every request.** Rule content is arbitrary YAML that compiles into the OAP JVM —
+1. **Never expose port 17128 (HTTP) to the public internet.** Bind to a private network
+   interface or `localhost` and reach it through an operator-controlled gateway.
+2. **Never expose port 17129 (admin gRPC) to operators or the agent network.** Bind
+   `gRPCHost` to a private peer-to-peer interface reachable ONLY between OAP nodes. This
+   port has the same blast radius as port 17128; do not gateway-publish it.
+3. **Gateway-protect 17128 with IP allow-list + authentication.** Only the operator team
+   should be able to reach the HTTP endpoint.
+4. **Audit every request.** Rule content is arbitrary YAML that compiles into the OAP JVM —
    a malicious rule could exfiltrate data, spike resource use, or create metric-name
-   collisions. Treat `POST /runtime/rule/*` as equivalent to shell access on the OAP host.
-4. **Keep the port off the cluster-external interface even in cluster mode.** The cluster-
-   internal Suspend RPC is registered on the OAP cluster-bus gRPC server (shared with
-   RemoteService / HealthCheck) — that is a separate transport from 17128 and follows the
-   same security posture as the rest of the cluster bus.
+   collisions. Captured DSL-debug payloads include sensitive operational state. Treat
+   `POST /runtime/rule/*` and `POST /dsl-debugging/*` as equivalent to shell access on the
+   OAP host.
 
-Without these protections an attacker with network reach to port 17128 can execute arbitrary
-code inside the OAP JVM. See `docs/en/setup/backend/backend-runtime-rule-api.md` for the full
-API surface.
+Without these protections an attacker with network reach to port 17128 or 17129 can execute
+arbitrary code inside the OAP JVM. See `docs/en/setup/backend/admin-api/readme.md` for the
+full security notice and per-feature API surface.
 
 ## Client-Side Monitoring
 

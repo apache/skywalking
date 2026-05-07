@@ -17,11 +17,35 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
+import org.apache.skywalking.oap.server.core.query.type.ContentType;
+
 @ScopeDeclaration(id = DefaultScopeDefine.LOG, name = "Log")
 public class Log extends AbstractLog {
 
     @Override
     public int scope() {
         return DefaultScopeDefine.LOG;
+    }
+
+    @Override
+    public String toJson() {
+        final ContentType contentType = getContentType();
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("uniqueId", getUniqueId());
+        obj.addProperty("timestamp", getTimestamp());
+        obj.addProperty("serviceId", getServiceId());
+        obj.addProperty("serviceInstanceId", getServiceInstanceId());
+        obj.addProperty("endpointId", getEndpointId());
+        obj.addProperty("traceId", getTraceId());
+        obj.addProperty("traceSegmentId", getTraceSegmentId());
+        obj.addProperty("spanId", getSpanId());
+        obj.addProperty("contentType", contentType == null ? null : contentType.name());
+        obj.addProperty("content", getContent());
+        obj.addProperty("error", isError());
+        return obj.toString();
     }
 }

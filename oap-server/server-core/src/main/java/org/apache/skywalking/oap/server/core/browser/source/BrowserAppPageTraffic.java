@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.browser.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -51,5 +52,18 @@ public class BrowserAppPageTraffic extends BrowserAppTrafficSource {
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, true);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("layer", layer.name());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceName", serviceName);
+        return obj.toString();
     }
 }

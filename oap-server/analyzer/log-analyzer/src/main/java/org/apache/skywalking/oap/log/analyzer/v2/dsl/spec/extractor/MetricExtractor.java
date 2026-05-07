@@ -27,7 +27,9 @@ import java.util.stream.Collectors;
 import lombok.experimental.Delegate;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LALDebug;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleProvider;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
@@ -75,6 +77,14 @@ public class MetricExtractor extends AbstractSpec {
         }
         final Sample sample = builder.build();
         final SampleFamily sampleFamily = SampleFamilyBuilder.newBuilder(sample).build();
+
+        // Terminal metric-output probe: capture the family right at the LAL→MAL hand-off.
+        // The debugger does NOT chain into the MAL pipeline that consumes this family —
+        // that's a separate session boundary.
+        final GateHolder debugHolder = ctx.getDebugHolder();
+        if (debugHolder != null && debugHolder.isGateOn()) {
+            LALDebug.captureOutputMetric(debugHolder, "", 0, ctx, sampleFamily);
+        }
 
         final Optional<List<SampleFamily>> possibleMetricsContainer = ctx.metricsContainer();
 

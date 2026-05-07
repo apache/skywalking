@@ -29,7 +29,11 @@ import org.apache.skywalking.oap.server.receiver.envoy.persistence.EnvoyAccessLo
  *
  * <p>Also declares {@link EnvoyAccessLogBuilder} as the default output type,
  * so that the raw access log entry is serialized as JSON content only when
- * the log is actually persisted (after LAL filtering).
+ * the log is actually persisted (after LAL filtering). The builder renders
+ * its own dsl-debugging output payload via
+ * {@link EnvoyAccessLogBuilder#outputToJson()}; the input payload is
+ * rendered by the framework directly from {@code ctx.input()} on the
+ * first sample of every execution.
  */
 public class EnvoyHTTPLALSourceTypeProvider implements LALSourceTypeProvider {
     @Override

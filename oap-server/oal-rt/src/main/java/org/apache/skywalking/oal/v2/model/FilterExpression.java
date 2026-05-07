@@ -40,12 +40,23 @@ public final class FilterExpression {
     private final FilterOperator operator;
     private final FilterValue value;
     private final SourceLocation location;
+    /**
+     * Verbatim source text of the filter clause from the original {@code .oal}
+     * file (e.g. {@code "filter(detectPoint == DetectPoint.SERVER)"}). Pulled
+     * from ANTLR's input stream at parse time, so whitespace and identifier
+     * spelling match the source byte-for-byte. Used as the {@code sourceText}
+     * of dsl-debugging captures so the UI matches a captured filter record
+     * against the original source byte-for-byte. Empty for filters constructed
+     * programmatically (test helpers); the codegen path tolerates {@code ""}.
+     */
+    private final String sourceText;
 
     private FilterExpression(Builder builder) {
         this.fieldName = Objects.requireNonNull(builder.fieldName, "fieldName cannot be null");
         this.operator = Objects.requireNonNull(builder.operator, "operator cannot be null");
         this.value = Objects.requireNonNull(builder.value, "value cannot be null");
         this.location = builder.location != null ? builder.location : SourceLocation.UNKNOWN;
+        this.sourceText = builder.sourceText == null ? "" : builder.sourceText;
     }
 
     public static Builder builder() {
@@ -109,6 +120,12 @@ public final class FilterExpression {
         private FilterOperator operator;
         private FilterValue value;
         private SourceLocation location;
+        private String sourceText;
+
+        public Builder sourceText(String sourceText) {
+            this.sourceText = sourceText;
+            return this;
+        }
 
         public Builder fieldName(String fieldName) {
             this.fieldName = fieldName;

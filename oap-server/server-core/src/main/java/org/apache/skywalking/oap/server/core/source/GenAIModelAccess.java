@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -67,5 +68,23 @@ public class GenAIModelAccess extends Source {
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, Layer.VIRTUAL_GENAI.isNormal());
         entityId = IDManager.ServiceInstanceID.buildId(serviceId, modelName);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("modelName", modelName);
+        obj.addProperty("inputTokens", inputTokens);
+        obj.addProperty("outputTokens", outputTokens);
+        obj.addProperty("totalEstimatedCost", totalEstimatedCost);
+        obj.addProperty("timeToFirstToken", timeToFirstToken);
+        obj.addProperty("latency", latency);
+        obj.addProperty("status", status);
+        return obj.toString();
     }
 }

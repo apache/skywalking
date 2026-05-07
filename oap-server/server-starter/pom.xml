@@ -196,7 +196,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>skywalking-runtime-rule-receiver-plugin</artifactId>
+            <artifactId>admin-server</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>runtime-rule</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>dsl-debugging</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

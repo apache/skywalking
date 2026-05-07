@@ -374,14 +374,17 @@ oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/lal/test-lal/
 
 ## Debug Output
 
-When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection. Each `.class` is paired with a `<ClassName>.java` sidecar — the verbatim Java source the codegen fed Javassist:
 
 ```
 {skywalking}/lal-rt/
   *.class          - Generated LalExpression .class files
+  *.java           - Javassist compile input (synthetic; for IDE source-attach)
 ```
 
-This is the same env variable used by OAL. Useful for debugging code generation issues or comparing V1 vs V2 output. In tests, use `setClassOutputDir(dir)` instead.
+The `.java` sidecar exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate field, probe call sites, the `_extractor()` / `_sink()` private methods, the lot.
+
+When `SW_DSL_DEBUGGING_INJECTION_ENABLED=true` is also set, the codegen emits the per-rule `GateHolder debug` field plus `LALDebug.captureXxx(...)` probe sites at every block / per-statement boundary. Both `.class` and `.java` reflect the with-debug shape. The two env vars are independent: `SW_DYNAMIC_CLASS_ENGINE_DEBUG` controls disk dump; `SW_DSL_DEBUGGING_INJECTION_ENABLED` controls codegen branch. In tests, use `setClassOutputDir(dir)` instead.
 
 ## Testing Framework (server-testing module)
 

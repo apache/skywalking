@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.browser.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -50,5 +51,32 @@ public class BrowserAppSingleVersionPerf extends BrowserAppPerfSource {
     @Override
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, true);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("name", name);
+        obj.addProperty("layer", layer.name());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("redirectTime", getRedirectTime());
+        obj.addProperty("dnsTime", getDnsTime());
+        obj.addProperty("ttfbTime", getTtfbTime());
+        obj.addProperty("tcpTime", getTcpTime());
+        obj.addProperty("transTime", getTransTime());
+        obj.addProperty("domAnalysisTime", getDomAnalysisTime());
+        obj.addProperty("fptTime", getFptTime());
+        obj.addProperty("domReadyTime", getDomReadyTime());
+        obj.addProperty("loadPageTime", getLoadPageTime());
+        obj.addProperty("resTime", getResTime());
+        obj.addProperty("sslTime", getSslTime());
+        obj.addProperty("ttlTime", getTtlTime());
+        obj.addProperty("firstPackTime", getFirstPackTime());
+        obj.addProperty("fmpTime", getFmpTime());
+        return obj.toString();
     }
 }

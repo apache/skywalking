@@ -106,6 +106,15 @@ public final class MALClassGenerator {
         this.bytecodeHelper.setPerFileClassLoader(targetClassLoader != null);
     }
 
+    /**
+     * Optional content hash threaded into every generated rule's {@code GateHolder}
+     * constructor argument. Stamped onto every captured debug record so a
+     * UI / CLI session can detect mid-session hot-update boundaries. Defaults
+     * to the empty string when callers don't supply one (boot-time loaders that
+     * don't track per-rule hashes).
+     */
+    private String content = "";
+
     public void setClassOutputDir(final File dir) {
         bytecodeHelper.setClassOutputDir(dir);
     }
@@ -116,6 +125,18 @@ public final class MALClassGenerator {
 
     public void setYamlSource(final String yamlSource) {
         bytecodeHelper.setYamlSource(yamlSource);
+    }
+
+    /**
+     * Sets the content hash baked into the next compiled rule's
+     * {@code GateHolder} constructor argument. Caller-supplied so the
+     * runtime-rule hot-update path can pass its already-computed
+     * {@code ContentHash} value through unchanged. Pass {@code null} or
+     * the empty string to skip the stamp — the generated holder still works,
+     * but captured records carry an empty hash.
+     */
+    public void setContent(final String content) {
+        this.content = content == null ? "" : content;
     }
 
     // Package-private accessors for MALClosureCodegen back-reference
@@ -186,10 +207,22 @@ public final class MALClassGenerator {
                     ? bytecodeHelper.getClassNameHint() : "filter"));
 
         bytecodeHelper.writeClassFile(ctClass);
+        bytecodeHelper.writeSourceFile(ctClass, wrapMalFilterSource(ctClass, filterBody));
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
         return (MalFilter) clazz.getDeclaredConstructor().newInstance();
+    }
+
+    /** Wraps the filter test() method body as a compilable class envelope. */
+    private static String wrapMalFilterSource(final CtClass ctClass, final String filterBody) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("package ").append(ctClass.getPackageName()).append(";\n\n");
+        sb.append("public class ").append(ctClass.getSimpleName())
+          .append(" implements org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter {\n\n");
+        sb.append("    ").append(filterBody.replace("\n", "\n    ")).append("\n");
+        sb.append("}\n");
+        return sb.toString();
     }
 
     /**
@@ -281,8 +314,15 @@ public final class MALClassGenerator {
 
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
-        // 3. Generate run() method
-        final MALExprCodegen exprCodegen = new MALExprCodegen(closureFieldNames);
+        // 2.5. Emit the per-rule GateHolder instance field + accessor so the
+        // run() body's gate-checks have a target to read. Field is final +
+        // initialized inline so the value is stamped at construction; the
+        // accessor returns the same instance every call (no per-call alloc).
+        emitDebugHolderMembers(ctClass);
+
+        // 3. Generate run() method — pass metricName as ruleName so probe call sites
+        // emitted by MALExprCodegen and MALMethodChainCodegen carry it as their first arg.
+        final MALExprCodegen exprCodegen = new MALExprCodegen(closureFieldNames, metricName);
         final String runBody = exprCodegen.generateRunMethod(ast);
 
         // 4. Extract metadata
@@ -327,11 +367,70 @@ public final class MALClassGenerator {
         }
 
         bytecodeHelper.writeClassFile(ctClass);
+        bytecodeHelper.writeSourceFile(ctClass, wrapMalExpressionSource(
+            ctClass, closureFieldNames, closureInterfaceTypes, runBody, metadataBody));
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
 
         return (MalExpression) clazz.getDeclaredConstructor().newInstance();
+    }
+
+    /**
+     * Wraps the run() / metadata() method bodies plus closure field stubs
+     * + GateHolder field as a compilable class envelope.
+     */
+    private static String wrapMalExpressionSource(
+            final CtClass ctClass,
+            final List<String> closureFieldNames,
+            final List<String> closureInterfaceTypes,
+            final String runBody,
+            final String metadataBody) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("package ").append(ctClass.getPackageName()).append(";\n\n");
+        sb.append("public class ").append(ctClass.getSimpleName())
+          .append(" implements org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression {\n\n");
+        for (int i = 0; i < closureFieldNames.size(); i++) {
+            sb.append("    public static final ").append(closureInterfaceTypes.get(i))
+              .append(' ').append(closureFieldNames.get(i)).append(";\n");
+        }
+        if (org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            sb.append("    public final org.apache.skywalking.oap.server.core.dsldebug.GateHolder debug;\n");
+            sb.append("    public org.apache.skywalking.oap.server.core.dsldebug.GateHolder debugHolder() { return this.debug; }\n");
+        }
+        sb.append("\n    ").append(runBody.replace("\n", "\n    ")).append("\n\n");
+        sb.append("    ").append(metadataBody.replace("\n", "\n    ")).append("\n");
+        sb.append("}\n");
+        return sb.toString();
+    }
+
+    /**
+     * Adds the {@code public final GateHolder debug} instance field and
+     * the {@code debugHolder()} accessor on the generated rule class.
+     * Both are mandatory for every compiled rule because the {@code run()}
+     * codegen embeds {@code if (this.debug.isGateOn()) MALDebug.captureXxx(this.debug, ...)}
+     * call sites that read the field directly. The constructor arg is the
+     * configured {@link #content}, escaped as a Java string literal.
+     */
+    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
+        if (!org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            // Injection off — generated class inherits MalExpression.debugHolder()'s
+            // default null return, no GateHolder field is emitted, and the captureXxx
+            // call sites the helpers below would emit are also skipped. The compiled
+            // bytecode is byte-identical to a build without SWIP-13.
+            return;
+        }
+        final String holderFqcn = "org.apache.skywalking.oap.server.core.dsldebug.GateHolder";
+        final String escapedContent = MALCodegenHelper.escapeJava(content);
+        // Per-rule capture binding — instance field, lowercase per Java
+        // convention (it's a final but not a static-final constant).
+        ctClass.addField(javassist.CtField.make(
+            "public final " + holderFqcn + " debug = new " + holderFqcn
+                + "(\"" + escapedContent + "\");",
+            ctClass));
+        ctClass.addMethod(CtNewMethod.make(
+            "public " + holderFqcn + " debugHolder() { return this.debug; }",
+            ctClass));
     }
 
     // ==================== Debug/source generation ====================
@@ -357,6 +456,8 @@ public final class MALClassGenerator {
             fieldNames.add("_" + suffix);
         }
 
+        // Source view (debug helper) — no compiled class, so ruleName is empty and the
+        // emitted source still includes probe lines with an empty rule string.
         final MALExprCodegen exprCodegen = new MALExprCodegen(fieldNames);
         return exprCodegen.generateRunMethod(ast);
     }

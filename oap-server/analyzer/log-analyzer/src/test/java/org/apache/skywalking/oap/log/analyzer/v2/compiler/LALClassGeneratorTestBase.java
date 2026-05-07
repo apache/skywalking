@@ -42,6 +42,15 @@ abstract class LALClassGeneratorTestBase {
 
     @BeforeEach
     void setUp(final TestInfo testInfo) {
+        // Mirror the production toggle so a developer can rebuild with
+        // SW_DSL_DEBUGGING_INJECTION_ENABLED=true and inspect the
+        // debug-probe-injected generated classes (gate field +
+        // probe call sites) in target/lal-generated-classes/.
+        if ("true".equalsIgnoreCase(System.getenv("SW_DSL_DEBUGGING_INJECTION_ENABLED"))) {
+            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.enableInjection();
+        } else {
+            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.resetInjection();
+        }
         generator = new LALClassGenerator(new ClassPool(true));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("lal"));
         // Build hint from test class + method for readable .class file names

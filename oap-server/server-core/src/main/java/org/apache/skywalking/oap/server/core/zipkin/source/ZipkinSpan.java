@@ -104,4 +104,31 @@ public class ZipkinSpan extends Source {
     @Setter
     @Getter
     private List<String> query = new ArrayList<>();
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("parentId", parentId);
+        obj.addProperty("name", name);
+        obj.addProperty("duration", duration);
+        obj.addProperty("spanId", spanId);
+        obj.addProperty("kind", kind);
+        obj.addProperty("timestampMillis", timestampMillis);
+        obj.addProperty("timestamp", timestamp);
+        obj.addProperty("localEndpointServiceName", localEndpointServiceName);
+        obj.addProperty("localEndpointIPV4", localEndpointIPV4);
+        obj.addProperty("localEndpointIPV6", localEndpointIPV6);
+        obj.addProperty("localEndpointPort", localEndpointPort);
+        obj.addProperty("remoteEndpointServiceName", remoteEndpointServiceName);
+        obj.addProperty("remoteEndpointIPV4", remoteEndpointIPV4);
+        obj.addProperty("remoteEndpointIPV6", remoteEndpointIPV6);
+        obj.addProperty("remoteEndpointPort", remoteEndpointPort);
+        obj.addProperty("debug", debug);
+        obj.addProperty("shared", shared);
+        return obj.toString();
+    }
 }

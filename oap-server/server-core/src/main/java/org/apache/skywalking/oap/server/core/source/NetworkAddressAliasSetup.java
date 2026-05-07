@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -54,5 +55,16 @@ public class NetworkAddressAliasSetup extends Source {
     public void prepare() {
         representServiceId = IDManager.ServiceID.buildId(representService, isRepresentServiceNormal);
         representServiceInstanceId = IDManager.ServiceInstanceID.buildId(representServiceId, representServiceInstance);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("address", address);
+        obj.addProperty("representServiceId", representServiceId);
+        obj.addProperty("representServiceInstanceId", representServiceInstanceId);
+        return obj.toString();
     }
 }

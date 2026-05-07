@@ -85,4 +85,22 @@ public class Process extends Source {
         serviceId = IDManager.ServiceID.buildId(serviceName, isServiceNormal);
         instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
     }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("instanceId", instanceId);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("name", name);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("instanceName", instanceName);
+        obj.addProperty("serviceNormal", isServiceNormal);
+        obj.addProperty("agentId", agentId);
+        obj.addProperty("detectType", detectType == null ? null : detectType.name());
+        obj.addProperty("profilingSupportStatus", profilingSupportStatus == null ? null : profilingSupportStatus.name());
+        return obj.toString();
+    }
 }

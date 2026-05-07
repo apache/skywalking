@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
@@ -73,5 +74,12 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     @Override
     public int getValue() {
         return percentage;
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("total", total);
+        obj.addProperty("match", match);
+        obj.addProperty("percentage", percentage);
     }
 }

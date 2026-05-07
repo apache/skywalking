@@ -40,6 +40,13 @@ services:
       interval: 5s
       timeout: 60s
       retries: 120
+      # OAP installs ~3000 BanyanDB measure schemas at boot — under Docker
+      # Desktop on Mac (or any rate-limited daemon) the install can take
+      # 60-120s before the gRPC port is ready. start_period gives that
+      # initial window without counting failed probes against the retry
+      # budget; without it, sequential compose-up/down cycles flake on
+      # the second/third case in a batch.
+      start_period: 90s
 
   ui:
     image: skywalking/ui:latest

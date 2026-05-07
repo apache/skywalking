@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
@@ -49,5 +50,19 @@ public class EBPFProfilingData extends Source {
     private String stackIdList;
     private EBPFProfilingTargetType targetType;
     private byte[] dataBinary;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("scheduleId", scheduleId);
+        obj.addProperty("taskId", taskId);
+        obj.addProperty("uploadTime", uploadTime);
+        obj.addProperty("stackIdList", stackIdList);
+        obj.addProperty("targetType", targetType == null ? null : targetType.name());
+        return obj.toString();
+    }
 
 }

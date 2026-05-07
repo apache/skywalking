@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
@@ -60,6 +61,12 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     @Override
     public void calculate() {
         this.value = total / getDurationInMinute();
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("total", total);
+        obj.addProperty("value", value);
     }
 }
 

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -67,4 +68,21 @@ public class ServiceInstanceCLRGC extends Source {
     @Getter
     @Setter
     private long heapMemory;
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("id", id);
+        obj.addProperty("name", name);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("gen0CollectCount", gen0CollectCount);
+        obj.addProperty("gen1CollectCount", gen1CollectCount);
+        obj.addProperty("gen2CollectCount", gen2CollectCount);
+        obj.addProperty("heapMemory", heapMemory);
+        return obj.toString();
+    }
 }

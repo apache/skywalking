@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.log.LogAnalyzerService
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogFilterListener;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -156,7 +157,10 @@ public class LogAnalyzerModuleProvider extends ModuleProvider {
             // Use the catalog:name key convention so a runtime-rule /addOrUpdate for the same
             // (catalog, name) replaces this static entry in place instead of running two
             // converters against the same sample stream.
-            addOrReplaceMetricConvert("log-mal-rules:" + rule.getName(), new MetricConvert(rule, meterSystem));
+            final MetricConvert convert = new MetricConvert(rule, meterSystem);
+            addOrReplaceMetricConvert("log-mal-rules:" + rule.getName(), convert);
+            // Static-loader debug-binding publish — no-op when dsl-debugging is disabled.
+            MalStaticBindingHook.publish("log-mal-rules", rule.getName(), convert);
         }
         try {
             // Light up the Factory now that all peer modules are past prepare:

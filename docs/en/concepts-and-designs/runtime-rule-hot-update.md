@@ -5,7 +5,7 @@ persist in management storage, survive reboots, and propagate across every node 
 an OAP cluster within a bounded window. This page explains the contract: what the
 feature guarantees, how the cluster stays consistent, and what to expect when
 something goes wrong. The HTTP surface is documented separately in
-[Runtime Rule Hot-Update API](../setup/backend/backend-runtime-rule-api.md).
+[Runtime Rule Hot-Update API](../setup/backend/admin-api/runtime-rule.md).
 
 ## Vocabulary
 
@@ -391,7 +391,7 @@ the entire diagnostic surface.
 - **OAL hot-update** is out of scope (see "Scope" above).
 - **Authentication** is not built in. The admin endpoint is disabled by default;
   when enabled it must be gateway-protected. See the
-  [API doc](../setup/backend/backend-runtime-rule-api.md) for setup guidance.
+  [API doc](../setup/backend/admin-api/runtime-rule.md) for setup guidance.
 - **Bulk import.** `/dump` produces a tar.gz for backup, but restore is "extract
   one file, POST it to `/addOrUpdate`". There is no single-call cluster import.
 - **Rule rollback.** Storage is last-write-wins; there is no automatic

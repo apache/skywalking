@@ -131,8 +131,24 @@ public class MetricDefinitionEnricher {
             .from(CodeGenModel.FromStmtV2.builder()
                 .sourceName(metric.getSource().getName())
                 .sourceScopeId(sourceScopeId)
+                // ANTLR Interval slice captured at parse time on the
+                // metricStatement context (see OALListenerV2.exitMetricStatement)
+                // — already byte-identical to what the operator wrote, no
+                // runtime reconstruction needed at the capture call site.
+                .fromText(metric.getFromText())
                 .build())
             .functionName(metric.getAggregationFunction().getName())
+            // Verbatim ANTLR slice from the parser — e.g. "cpm()", "percentile2(10)".
+            // Captured byte-for-byte from the original .oal so the UI can match an
+            // aggregation capture record against the source.
+            .aggregationSourceText(metric.getAggregationFunction().getSourceText())
+            // 1-based source line in core.oal — threaded into every dsl-debugging
+            // probe call site so captured records carry an in-source pointer.
+            .sourceLine(metric.getLocation().getLine())
+            // Verbatim ANTLR slice of this metric's full statement — used as the
+            // per-metric GateHolder's content so dsl-debugging records carry the
+            // rule source inline.
+            .metricSourceText(metric.getSourceText())
             .metricsClassName(metricsClassName)
             .filters(CodeGenModel.FiltersV2.builder()
                 .filterExpressions(filterExpressions)
@@ -565,10 +581,15 @@ public class MetricDefinitionEnricher {
             String matcherClass = getMatcherClassName(filter);
             String left = buildFilterLeft(filter);
             String right = buildFilterRight(filter);
+            // Verbatim ANTLR slice from the parser — e.g.
+            // "filter(detectPoint == DetectPoint.SERVER)". Used as the
+            // captured filter record's sourceText so the UI matches against
+            // the original .oal source byte-for-byte.
             result.add(CodeGenModel.FilterExpressionV2.builder()
                 .expressionObject(matcherClass)
                 .left(left)
                 .right(right)
+                .sourceText(filter.getSourceText())
                 .build());
         }
         return result;

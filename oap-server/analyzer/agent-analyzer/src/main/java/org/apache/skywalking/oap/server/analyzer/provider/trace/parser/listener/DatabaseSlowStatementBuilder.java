@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -129,6 +130,22 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
 
     public void prepare() {
         this.serviceName = NAMING_CONTROL.formatServiceName(serviceName);
+    }
+
+    @Override
+    public String outputToJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("type", getClass().getSimpleName());
+        obj.addProperty("name", name());
+        obj.addProperty("id", id);
+        obj.addProperty("traceId", traceId);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("layer", layer == null ? null : layer.name());
+        obj.addProperty("statement", statement);
+        obj.addProperty("latency", latency);
+        obj.addProperty("timestamp", timestamp);
+        obj.addProperty("timeBucket", timeBucket);
+        return obj.toString();
     }
 
     public DatabaseSlowStatement toDatabaseSlowStatement() {

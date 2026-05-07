@@ -93,7 +93,10 @@ public class OALEngineV2 implements OALEngine {
         // Prepare temp folder for generated classes
         classGeneratorV2.prepareRTTempFolder();
 
-        // Load OAL script, parse, and generate classes with proper resource management
+        // Load OAL script, parse, and generate classes. Per-metric content for
+        // dsl-debugging is captured by the parser as an ANTLR Interval slice over
+        // each metric's full statement (see OALListenerV2.exitAggregationStatement)
+        // — no whole-file plumbing needed.
         try (Reader reader = ResourceUtils.read(oalDefine.getConfigFile())) {
             // Parse using V2 parser
             OALScriptParserV2 v2Parser;

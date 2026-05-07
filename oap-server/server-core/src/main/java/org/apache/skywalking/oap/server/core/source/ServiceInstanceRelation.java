@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -121,5 +122,30 @@ public class ServiceInstanceRelation extends Source {
         destServiceId = IDManager.ServiceID.buildId(destServiceName, destServiceLayer.isNormal());
         sourceServiceInstanceId = IDManager.ServiceInstanceID.buildId(sourceServiceId, sourceServiceInstanceName);
         destServiceInstanceId = IDManager.ServiceInstanceID.buildId(destServiceId, destServiceInstanceName);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("sourceServiceName", sourceServiceName);
+        obj.addProperty("sourceServiceLayer", sourceServiceLayer == null ? null : sourceServiceLayer.name());
+        obj.addProperty("sourceServiceInstanceName", sourceServiceInstanceName);
+        obj.addProperty("destServiceName", destServiceName);
+        obj.addProperty("destServiceLayer", destServiceLayer == null ? null : destServiceLayer.name());
+        obj.addProperty("destServiceInstanceName", destServiceInstanceName);
+        obj.addProperty("endpoint", endpoint);
+        obj.addProperty("componentId", componentId);
+        obj.addProperty("latency", latency);
+        obj.addProperty("status", status);
+        obj.addProperty("responseCode", responseCode);
+        obj.addProperty("httpResponseStatusCode", httpResponseStatusCode);
+        obj.addProperty("rpcStatusCode", rpcStatusCode);
+        obj.addProperty("type", type == null ? null : type.name());
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("tlsMode", tlsMode);
+        return obj.toString();
     }
 }

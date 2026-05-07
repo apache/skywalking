@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -44,5 +45,23 @@ public class CiliumService extends CiliumMetrics {
     @Override
     public void prepare() {
         entityId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("layer", layer == null ? null : layer.name());
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("verdict", getVerdict());
+        obj.addProperty("type", getType());
+        obj.addProperty("direction", getDirection());
+        obj.addProperty("dropReason", getDropReason());
+        obj.addProperty("duration", getDuration());
+        obj.addProperty("success", isSuccess());
+        return obj.toString();
     }
 }

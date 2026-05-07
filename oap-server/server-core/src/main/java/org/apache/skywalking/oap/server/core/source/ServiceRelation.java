@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -109,5 +110,33 @@ public class ServiceRelation extends Source {
     public void prepare() {
         sourceServiceId = IDManager.ServiceID.buildId(sourceServiceName, sourceLayer.isNormal());
         destServiceId = IDManager.ServiceID.buildId(destServiceName, destLayer.isNormal());
+    }
+
+    /**
+     * Field-by-field JSON payload for the dsl-debugging capture. Built
+     * via Gson's {@link JsonObject} — explicit field selection (no
+     * reflection-based serialization) with library-handled string
+     * escaping. Exposes the service-pair endpoints, per-side layer, and
+     * the call attributes operators reach for when reading captured
+     * filter / source samples.
+     */
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("sourceServiceName", sourceServiceName);
+        obj.addProperty("destServiceName", destServiceName);
+        obj.addProperty("sourceLayer", sourceLayer == null ? null : sourceLayer.name());
+        obj.addProperty("destLayer", destLayer == null ? null : destLayer.name());
+        obj.addProperty("detectPoint", detectPoint == null ? null : detectPoint.name());
+        obj.addProperty("type", type == null ? null : type.name());
+        obj.addProperty("endpoint", endpoint);
+        obj.addProperty("componentId", componentId);
+        obj.addProperty("latency", latency);
+        obj.addProperty("status", status);
+        obj.addProperty("httpResponseStatusCode", httpResponseStatusCode);
+        return obj.toString();
     }
 }

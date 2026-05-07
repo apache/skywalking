@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import com.google.gson.JsonObject;
 import lombok.Data;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -56,5 +57,21 @@ public class K8SEndpoint extends K8SMetrics.ProtocolMetrics {
     public void prepare() {
         serviceId = IDManager.ServiceID.buildId(serviceName, layer.isNormal());
         entityId = IDManager.EndpointID.buildId(serviceId, endpointName);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject obj = new JsonObject();
+        obj.addProperty("scope", scope());
+        obj.addProperty("entityId", getEntityId());
+        obj.addProperty("timeBucket", getTimeBucket());
+        obj.addProperty("serviceId", serviceId);
+        obj.addProperty("serviceName", serviceName);
+        obj.addProperty("layer", layer == null ? null : layer.name());
+        obj.addProperty("endpointName", endpointName);
+        obj.addProperty("duration", duration);
+        obj.addProperty("type", getType());
+        obj.addProperty("success", isSuccess());
+        return obj.toString();
     }
 }

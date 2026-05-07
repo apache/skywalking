@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.MetricsFunction;
@@ -133,5 +134,11 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
                                .stream()
                                .flatMapToInt(l -> IntStream.of(l.intValue()))
                                .toArray();
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("precision", precision);
+        // percentileValues and dataset skipped: DataTable composite type
     }
 }

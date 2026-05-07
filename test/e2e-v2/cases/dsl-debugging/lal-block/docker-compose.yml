@@ -1,0 +1,60 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# DSL Debug API e2e — single OAP + BanyanDB + an OTLP log emitter. The flow
+# applies the same multi-statement LAL the lal-statement case uses (via the
+# runtime-rule receiver) and opens the debug session with granularity=block
+# so the diff between block and statement granularity is visible by
+# diffing /tmp/dsldbg-lal-block-response.json with /tmp/dsldbg-lal-statement-response.json.
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_ADMIN_SERVER: default
+      SW_DSL_DEBUGGING: default
+      SW_DSL_DEBUGGING_INJECTION_ENABLED: "true"
+      SW_OTEL_LOG_RECEIVER: default
+      SW_RECEIVER_RUNTIME_RULE: default
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    networks:
+      - e2e
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  log-emitter:
+    build:
+      context: ./log-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap:11800
+      EMITTER_SERVICE: e2e-dsldbg-svc
+      EMITTER_INSTANCE: e2e-dsldbg-i1
+      EMITTER_INTERVAL_S: "1"
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

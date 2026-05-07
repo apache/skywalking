@@ -46,6 +46,27 @@ public final class LALScriptModel {
     // ==================== Filter statements ====================
 
     public interface FilterStatement {
+        /**
+         * 1-based source line number of this AST statement, or {@code 0} when
+         * the statement was synthesised (e.g. a default sink). Threaded from
+         * {@code ctx.getStart().getLine()} at parse time.
+         */
+        default int getSourceLine() {
+            return 0;
+        }
+
+        /**
+         * Verbatim source text of the original DSL statement
+         * (e.g. {@code "tag 'status.code': parsed.code"}). The dsl-debugging
+         * codegen pairs this with {@link #getSourceLine()} on every
+         * statement-level capture so the UI can render
+         * "line N: {sourceText}" without round-tripping back to the source
+         * file. Returns the empty string when the statement carries no
+         * source-text origin (synthesised statements).
+         */
+        default String getSourceText() {
+            return "";
+        }
     }
 
     // ==================== Parser blocks ====================
@@ -89,6 +110,8 @@ public final class LALScriptModel {
         private final String varName;
         private final ValueAccess initializer;
         private final String castType;
+        private int sourceLine;
+        private String sourceText = "";
 
         public DefStatement(final String varName,
                             final ValueAccess initializer,
@@ -96,6 +119,12 @@ public final class LALScriptModel {
             this.varName = varName;
             this.initializer = initializer;
             this.castType = castType;
+        }
+
+        public DefStatement withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
         }
     }
 
@@ -119,6 +148,8 @@ public final class LALScriptModel {
         private final ValueAccess value;
         private final String castType;
         private final String formatPattern;
+        private int sourceLine;
+        private String sourceText = "";
 
         public FieldAssignment(final FieldType fieldType,
                                final ValueAccess value,
@@ -129,6 +160,12 @@ public final class LALScriptModel {
             this.castType = castType;
             this.formatPattern = formatPattern;
         }
+
+        public FieldAssignment withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
+        }
     }
 
     @Getter
@@ -136,6 +173,8 @@ public final class LALScriptModel {
         private final String fieldName;
         private final ValueAccess value;
         private final String castType;
+        private int sourceLine;
+        private String sourceText = "";
 
         public OutputFieldAssignment(final String fieldName,
                                      final ValueAccess value,
@@ -143,6 +182,12 @@ public final class LALScriptModel {
             this.fieldName = fieldName;
             this.value = value;
             this.castType = castType;
+        }
+
+        public OutputFieldAssignment withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
         }
     }
 
@@ -154,9 +199,17 @@ public final class LALScriptModel {
     @Getter
     public static final class TagAssignment implements ExtractorStatement, FilterStatement {
         private final Map<String, TagValue> tags;
+        private int sourceLine;
+        private String sourceText = "";
 
         public TagAssignment(final Map<String, TagValue> tags) {
             this.tags = Collections.unmodifiableMap(tags);
+        }
+
+        public TagAssignment withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
         }
     }
 
@@ -179,6 +232,8 @@ public final class LALScriptModel {
         private final Map<String, TagValue> labels;
         private final ValueAccess value;
         private final String valueCast;
+        private int sourceLine;
+        private String sourceText = "";
 
         public MetricsBlock(final String name,
                             final ValueAccess timestampValue,
@@ -192,6 +247,12 @@ public final class LALScriptModel {
             this.labels = labels != null ? Collections.unmodifiableMap(labels) : Collections.emptyMap();
             this.value = value;
             this.valueCast = valueCast;
+        }
+
+        public MetricsBlock withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
         }
     }
 

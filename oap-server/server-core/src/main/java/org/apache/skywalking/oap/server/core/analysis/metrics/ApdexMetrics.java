@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.ConfigurationDictionary;
@@ -101,5 +102,13 @@ public abstract class ApdexMetrics extends Metrics implements IntValueHolder {
     @Override
     public int getValue() {
         return value;
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("totalNum", totalNum);
+        obj.addProperty("sNum", sNum);
+        obj.addProperty("tNum", tNum);
+        obj.addProperty("value", value);
     }
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 import java.util.Map;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 
 /**
  * Wraps a compiled {@link MalExpression} with runtime state management.
@@ -49,6 +50,16 @@ public class Expression {
 
     public String generatedClassName() {
         return expression.getClass().getName();
+    }
+
+    /**
+     * Returns the per-rule capture binding the compiled rule carries. The
+     * {@code Analyzer.doAnalysis} hand-written probes read it once per ingest
+     * pass and then gate-guard {@code MALDebug.captureXxx(...)} calls on
+     * the holder's volatile {@code gate} field.
+     */
+    public GateHolder debugHolder() {
+        return expression.debugHolder();
     }
 
     /**

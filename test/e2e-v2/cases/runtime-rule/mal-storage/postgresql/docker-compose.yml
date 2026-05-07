@@ -23,6 +23,7 @@ services:
       SW_JDBC_URL: jdbc:postgresql://postgres:5432/swtest
       SW_DATA_SOURCE_USER: postgres
       SW_DATA_SOURCE_PASSWORD: root@1234
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       # Tighten the persistence timer for the e2e: every 10s (default 25s) so the
       # lifecycle flow's per-phase awaits land sooner.

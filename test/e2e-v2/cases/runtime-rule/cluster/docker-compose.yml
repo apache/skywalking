@@ -45,6 +45,7 @@ services:
       service: oap
     hostname: oap1
     environment:
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       SW_STORAGE: banyandb
       SW_CLUSTER: zookeeper
@@ -69,6 +70,7 @@ services:
       service: oap
     hostname: oap2
     environment:
+      SW_ADMIN_SERVER: default
       SW_RECEIVER_RUNTIME_RULE: default
       SW_STORAGE: banyandb
       SW_CLUSTER: zookeeper

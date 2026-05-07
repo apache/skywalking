@@ -1,0 +1,78 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# DSL Debug API — MAL. OAP + BanyanDB + an OTLP metric emitter (the same
+# Python emitter the runtime-rule mal-storage e2e uses). The flow applies a
+# MAL rule with an explicit filter clause via runtime-rule, then opens a
+# debug session against the resulting metric and asserts captureInput /
+# captureFilter / captureMeterEmit records carry SampleFamily payloads.
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_ADMIN_SERVER: default
+      SW_DSL_DEBUGGING: default
+      SW_DSL_DEBUGGING_INJECTION_ENABLED: "true"
+      SW_RECEIVER_RUNTIME_RULE: default
+      SW_OTEL_RECEIVER: default
+      SW_OTEL_RECEIVER_ENABLED_OC_RULES: oap
+      # Tighten persistence so the bucket-flush gap doesn't dominate the wait.
+      SW_CORE_PERSISTENT_PERIOD: "10"
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+      - "17128:17128"
+    networks:
+      - e2e
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  otlp-emitter:
+    build:
+      context: ../../runtime-rule/mal-storage/otlp-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap:11800
+      EMITTER_SERVICE: e2e-dsldbg-mal-svc
+      EMITTER_INSTANCE: e2e-dsldbg-mal-i1
+      STEP_DEFAULT: probe
+      # Noise samples under additional (service.name, service.instance.id)
+      # pairs so the downstream MAL SampleFamily has MULTIPLE items per
+      # scrape window. The rule's file-level filter narrows back to the
+      # primary service — the captured `filter` sample shows N items in
+      # at the input probe and 1 (or 2 with multi-step) item after the
+      # filter, demonstrating filter behaviour in the wire payload.
+      EMITTER_NOISE_PAIRS: "e2e-dsldbg-mal-other=e2e-dsldbg-mal-other-i1,e2e-dsldbg-mal-third=e2e-dsldbg-mal-third-i1"
+      # Decoy metric pushed under a secondary service so the MAL rule's
+      # file-level filter rejects its family entirely. The captured
+      # filter sample's `families` count is then 2 (request_count +
+      # pool_size survived) rather than 3 — the decoy is visibly
+      # filtered out of the wire payload.
+      EMITTER_DECOY_METRIC: "e2e_rr_decoy_total"
+      EMITTER_DECOY_SERVICE: "e2e-dsldbg-mal-decoy"
+      EMITTER_DECOY_INSTANCE: "e2e-dsldbg-mal-decoy-i1"
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

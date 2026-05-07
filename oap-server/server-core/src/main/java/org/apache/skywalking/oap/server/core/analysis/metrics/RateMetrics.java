@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Entrance;
@@ -77,5 +78,12 @@ public abstract class RateMetrics extends Metrics implements IntValueHolder {
     @Override
     public int getValue() {
         return percentage;
+    }
+
+    @Override
+    protected void appendDebugFields(final JsonObject obj) {
+        obj.addProperty("denominator", denominator);
+        obj.addProperty("numerator", numerator);
+        obj.addProperty("percentage", percentage);
     }
 }
