@@ -227,28 +227,33 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
      * calculate() here the labeled value column would be an empty map for
      * histogram-percentile rules — exactly when operators most need to
      * verify what the rule emits. We force calculate() at probe time so
-     * the captured value matches what the storage row will contain. This
-     * is safe and zero-cost when debug is off:
-     * <ul>
-     *   <li>The probe site itself is gated; when no operator has installed
-     *       a session the call into this method is dead code that the JIT
-     *       elides on hot-path inlining.</li>
-     *   <li>{@code calculate()} is idempotent via the function's
-     *       {@code isCalculated} guard, so the streaming pipeline's later
-     *       call is a no-op rather than double work.</li>
-     *   <li>Cross-node {@code combine()} resets {@code isCalculated=false},
-     *       so the post-merge calculate on combined state still happens
-     *       on read — pre-computing here on the local snapshot doesn't
-     *       leak stale values into the cluster.</li>
-     * </ul>
+     * the captured value matches what the storage row will contain.
+     *
+     * <p>The cost is bounded but real: calling calculate() twice runs the
+     * computation twice. Most {@code Metrics.calculate()} implementations
+     * have no idempotence guard
+     * ({@code AvgFunction}, {@code CPMMetrics}, {@code SumMetrics} just
+     * recompute every call), and the histogram-percentile pair
+     * ({@code AvgHistogramPercentileFunction},
+     * {@code SumHistogramPercentileFunction}) check {@code isCalculated}
+     * at entry but never set it to {@code true} on exit, so even those
+     * re-run on the streaming pipeline's later call. The cost is paid
+     * only when a debug session is installed: the probe site is gated
+     * (the JIT elides the call into this recorder on the hot path when
+     * the gate is off), and a single emission's calculate() is bounded
+     * (one source-tick of percentile work, not a stream's worth). On
+     * cluster paths, {@code combine()} resets {@code isCalculated=false}
+     * before a peer reads — pre-computing here on the local snapshot
+     * doesn't leak stale values into the cluster.
      */
     private static void appendValue(final JsonObject obj, final AcceptableValue<?> value) {
         if (value == null) {
             return;
         }
         // Force two-phase functions to compute their user-visible reading
-        // before we read getValue(). See the javadoc above for why this is
-        // safe and only paid when a debug session is active.
+        // before we read getValue(). One extra calculate() per probed
+        // emission per debug session — see the javadoc above for the cost
+        // model and why we don't rely on isCalculated as a no-op guard.
         if (value instanceof Metrics) {
             ((Metrics) value).calculate();
         }
