@@ -235,6 +235,14 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                        long total;
                        total = subDataset.sumOfValues();
 
+                    if (total <= 0) {
+                        for (int rankIdx = 0; rankIdx < ranks.size(); rankIdx++) {
+                            labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                            percentileValues.put(labels, 0L);
+                        }
+                        return;
+                    }
+
                     int[] roofs = new int[ranks.size()];
                     for (int i = 0; i < ranks.size(); i++) {
                         roofs[i] = Math.round(total * ranks.get(i) * 1.0f / 100);
@@ -253,13 +261,8 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                             int roof = roofs[rankIdx];
 
                             if (count >= roof) {
-                                if (labels.isEmpty()) {
-                                    labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
-                                    percentileValues.put(labels, Long.parseLong(key));
-                                } else {
-                                    labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
-                                    percentileValues.put(labels, Long.parseLong(key));
-                                }
+                                labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
+                                percentileValues.put(labels, Long.parseLong(key));
                                 loopIndex++;
                             } else {
                                 break;

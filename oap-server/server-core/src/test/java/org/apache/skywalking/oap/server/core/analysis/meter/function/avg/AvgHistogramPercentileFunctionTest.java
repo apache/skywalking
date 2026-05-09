@@ -255,6 +255,59 @@ public class AvgHistogramPercentileFunctionTest {
         );
     }
 
+    @Test
+    public void testFunctionWithNoData() {
+        PercentileFunctionInst inst = new PercentileFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            new PercentileArgument(
+                new BucketedValues(
+                    BUCKETS,
+                    new long[] {
+                        0,
+                        0,
+                        0,
+                        0
+                    }
+                ),
+                RANKS
+            )
+        );
+
+        inst.calculate();
+        // No samples observed in any bucket — every rank should report 0
+        // rather than collapsing to the smallest bucket boundary.
+        Assertions.assertEquals(new DataTable("{p=50},0|{p=90},0"), inst.getValue());
+    }
+
+    @Test
+    public void testFunctionWithNoDataAndLabels() {
+        BucketedValues bucketedValues = new BucketedValues(
+            BUCKETS,
+            new long[] {
+                0,
+                0,
+                0,
+                0
+            }
+        );
+        bucketedValues.getLabels().put("service_name", "ai-gateway");
+        PercentileFunctionInst inst = new PercentileFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            new PercentileArgument(
+                bucketedValues,
+                RANKS
+            )
+        );
+
+        inst.calculate();
+        Assertions.assertEquals(
+            new DataTable("{service_name=ai-gateway,p=50},0|{service_name=ai-gateway,p=90},0"),
+            inst.getValue()
+        );
+    }
+
     private static class PercentileFunctionInst extends AvgHistogramPercentileFunction {
         @Override
         public AcceptableValue<PercentileArgument> createNew() {
