@@ -186,7 +186,7 @@ public class DebugSessionRegistryTest {
         final RuleKey key = new RuleKey(Catalog.OTEL_RULES, "vm", "cpu");
         final GateHolder holder = new GateHolder("hash-1");
         final DebugSessionRegistry registry = registryWith(holder, key);
-        final SessionLimits shortRetention = new SessionLimits(1_000, 1L);
+        final SessionLimits shortRetention = new SessionLimits(SessionLimits.MAX_RECORD_CAP, 1L);
         registry.install(key, "client-a", shortRetention);
         Thread.sleep(5);
 

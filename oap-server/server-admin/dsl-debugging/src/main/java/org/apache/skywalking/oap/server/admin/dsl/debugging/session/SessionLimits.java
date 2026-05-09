@@ -40,12 +40,13 @@ public final class SessionLimits {
 
     /**
      * Hard upper bound on per-session retained records. The recorder appends
-     * one record per probe pass and stops once the count reaches the cap;
-     * payloads can be ~10 KiB for richly-tagged MAL/LAL flows, so 10k records
-     * caps the per-session heap footprint at ~100 MiB even before the
-     * captured-at-cap auto-detach kicks in.
+     * one record per probe pass and stops once the count reaches the cap.
+     * Payloads can be ~10 KiB for richly-tagged MAL/LAL flows, so 100 records
+     * caps the per-session heap footprint at ~1 MiB and keeps the rendered
+     * UI page readable — operators inspect a handful of executions, not a
+     * paginated firehose, so a small cap is the right product shape.
      */
-    public static final int MAX_RECORD_CAP = 10_000;
+    public static final int MAX_RECORD_CAP = 100;
 
     /**
      * Hard upper bound on the per-session retention window (1 hour). Sessions
@@ -55,7 +56,7 @@ public final class SessionLimits {
     public static final long MAX_RETENTION_MILLIS = 60L * 60 * 1000;
 
     public static final SessionLimits DEFAULT =
-        new SessionLimits(1_000, 5L * 60 * 1000, Granularity.DEFAULT);
+        new SessionLimits(MAX_RECORD_CAP, 5L * 60 * 1000, Granularity.DEFAULT);
 
     private final int recordCap;
     private final long retentionMillis;

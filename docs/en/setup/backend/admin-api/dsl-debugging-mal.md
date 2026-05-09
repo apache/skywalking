@@ -181,7 +181,17 @@ A trimmed slice (one record = one scrape window):
         { "type": "output",
           "sourceText": "e2e_demo_filtered_requests",
           "continueOn": true,
-          "payload": { /* terminal meter sample — metric, entity, value, timeBucket */ } }
+          "payload": {
+            "metric": "e2e_demo_filtered_requests",
+            "entity": "MeterEntity(scopeType=SERVICE, serviceName=my-svc, …)",
+            "valueType": "sum",
+            "timeBucket": 202605091036,
+            "value": 42                /* shape depends on valueType:
+                                          number for Sum/Avg/Max/Min/CPM/Latest…,
+                                          object {bucket: count} for histograms /
+                                          *Labeled functions, omitted for non-scalar
+                                          holders. NaN/±Infinity render as strings. */
+          } }
       ]
     }]
   }]

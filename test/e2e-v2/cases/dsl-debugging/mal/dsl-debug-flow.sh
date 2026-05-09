@@ -199,6 +199,21 @@ last_with_metric="$(echo "${collect_body}" | jq --arg n "${METRIC_NAME}" \
 [ "${last_with_metric}" -gt 0 ] \
     || fail "no execution closes with a meterEmit sample carrying payload.metric=${METRIC_NAME}"
 
+# meterEmit must surface the actual reading on payload.value. The seed rule
+# expression is `request_count + pool_size + decoy.sum(['service_name'])` —
+# all three operands are LongValueHolder Sum/Avg outputs, so the reading
+# resolves to a JSON number (not a labeled DataTable, not NaN). Asserting
+# the field is present and numeric proves operators see the actual MAL
+# emission, not just the function name.
+missing_value="$(echo "${collect_body}" | jq --arg n "${METRIC_NAME}" \
+    '[.nodes[].records[] | .samples[-1]
+      | select(.payload.metric == $n)
+      | select(has("payload"))
+      | select((.payload.value == null) or ((.payload.value | type) != "number"))]
+      | length')"
+[ "${missing_value}" = "0" ] \
+    || fail "${missing_value} terminal meterEmit sample(s) missing numeric payload.value"
+
 log "✓ MAL shape valid (${records_count} records, ${total_samples} samples)"
 
 # --- Phase 6: stop session ------------------------------------------------------------

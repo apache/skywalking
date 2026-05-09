@@ -191,7 +191,7 @@ object but hasn't yet entered the streaming/aggregation kernel.
 `kind`, `component`) and in a multi-tenant or multi-component flow a
 rule routinely rejects 99% of the traffic routed to it by metric
 name. Publishing every rejected execution would burn `recordCap`
-(default 1000) on noise within seconds and never reach a row that
+(default 100) on noise within seconds and never reach a row that
 demonstrates the rule's actual processing. So for MAL the contract
 is: **every record represents one `SampleFamily` that passed the
 rule's filter and walked through to `meterEmit`**. Implementation:
@@ -2434,7 +2434,7 @@ disappearance.
 | Cap                                  | Default                              | Mechanism                                                              |
 |--------------------------------------|--------------------------------------|------------------------------------------------------------------------|
 | **Max active sessions per node**     | **200**                              | hard ceiling; `POST /dsl-debugging/session` returns 429 too_many_sessions when full |
-| **Records per session**              | **default 1000, hard cap 10000**     | recorder stops appending once the count is hit and moves the session to CAPTURED. Out-of-range request returns 400 invalid_limits. |
+| **Records per session**              | **default 100, hard cap 100**        | recorder stops appending once the count is hit and moves the session to CAPTURED. Out-of-range request returns 400 invalid_limits. The cap is deliberately small — operators inspect a handful of executions, not a paginated firehose; per-session heap stays at ~1 MiB and the rendered UI page stays readable. |
 | Capture window (retention)           | default 5 min, hard cap 1 hour       | per-session retention timeout; sweeper drops the payload at window end |
 | Capture-call cost when idle          | one volatile-load + branch (gate)    | JIT eliminates the call site when gate is false                        |
 
@@ -2452,19 +2452,19 @@ captures.
 #### Why 200 active sessions is the right ceiling
 
 200 sessions is a defensible upper bound for an OAP node. With the
-hard `recordCap = 10000` and a typical per-record JSON payload of
+hard `recordCap = 100` and a typical per-record JSON payload of
 ~10 KiB (MAL is the largest of the three), the worst-case footprint
 across all active sessions on one node is roughly:
 
 ```
 worst-case heap ≈ MAX_ACTIVE_SESSIONS × MAX_RECORD_CAP × per-record-bytes
-                ≈ 200 × 10 000 × 10 KiB ≈ 20 GiB (theoretical)
+                ≈ 200 × 100 × 10 KiB ≈ 200 MiB (theoretical)
 ```
 
-That's the worst-case product; realistic usage is one to two orders of
-magnitude below because most captures stop on retention (5 min default)
-or operator stop long before hitting `recordCap`, and most records are
-several KiB rather than the worst-case 10. The 200 default leaves
+That's the worst-case product; realistic usage is well below it
+because most captures stop on retention (5 min default) or operator
+stop long before hitting `recordCap`, and most records are several
+KiB rather than the worst-case 10. The 200 default leaves
 headroom for many concurrent operators (one debug context = one
 sessionId; the UI maintains a single session per debug widget and
 reuses it for polls) without letting a runaway script exhaust the
@@ -2591,9 +2591,10 @@ knobs — they are hard-coded SWIP contract values:
   receiving node also runs the prior-session cleanup pass for the
   supplied `clientId` BEFORE counting toward this ceiling, so a single
   client repeatedly clicking Start sampling cannot itself trigger 429.
-- `MAX_RECORD_CAP = 10000` per session — request bodies asking for more
-  return `400 invalid_limits`. Session retention is similarly capped
-  at 1 hour (`MAX_RETENTION_MILLIS`).
+- `MAX_RECORD_CAP = 100` per session — request bodies asking for more
+  return `400 invalid_limits`. The default also resolves to 100 (capped
+  by the hard ceiling). Session retention is similarly capped at 1 hour
+  (`MAX_RETENTION_MILLIS`).
 
 There is intentionally **no per-session byte cap and no structural
 char / sample / label sub-caps**. Operators sizing for memory pressure
