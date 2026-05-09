@@ -89,7 +89,16 @@ public class OALClassGeneratorV2 {
         "deserialize",
         "getMeta",
         "toHour",
-        "toDay"
+        "toDay",
+        // Emits the source's @ScopeDefaultColumn fields (the codegen-
+        // materialised dynamic @Column fields on the generated subclass)
+        // onto the dsl-debugging `output` sample. For a Service-style
+        // scope that is exactly entityId + attr0..attr5 — nothing about
+        // the metric's own value, which is delegated upward via
+        // super.appendDebugFields(obj) to the family parent's override
+        // (CPMMetrics emits total + value, SumMetrics emits value,
+        // LongAvgMetrics emits summation + count + value, …).
+        "appendDebugFields"
     };
     private static final String[] METRICS_BUILDER_CLASS_METHODS = {
         "entity2Storage",
