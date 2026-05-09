@@ -28,6 +28,12 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimit
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DoubleValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
 
@@ -185,7 +191,103 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
         obj.addProperty("entity", entity == null ? null : entity.toString());
         obj.addProperty("valueType", resolveFunctionName(value));
         obj.addProperty("timeBucket", timeBucket);
+        appendValue(obj, value);
         return obj.toString();
+    }
+
+    /**
+     * Surface the metric's terminal reading on the captured {@code output}
+     * sample so the operator sees the actual MAL emission, not just the
+     * function name. The shape of {@code "value"} depends on the holder
+     * the generated function class implements:
+     * <ul>
+     *   <li>{@link LongValueHolder} / {@link IntValueHolder} → JSON number
+     *       (Sum, Avg, Max, Min, Latest, SumPerMin, …).</li>
+     *   <li>{@link DoubleValueHolder} → JSON number; non-finite values
+     *       (NaN, ±Infinity) render as the corresponding string so the
+     *       wire stays valid JSON and the reading is still visible.</li>
+     *   <li>{@link LabeledValueHolder} → JSON object {@code {key: long}}
+     *       — labeled metrics ({@code *Labeled}) and histogram/percentile
+     *       functions ({@code AvgHistogramPercentileFunction},
+     *       {@code SumHistogramPercentileFunction}) whose reading is a
+     *       {@link DataTable}. Keys are label combos for {@code *Labeled},
+     *       {@code p=<rank>} entries for percentile functions.</li>
+     * </ul>
+     * If {@code value} is null or not one of the recognised holders the
+     * field is omitted; the operator still sees {@code valueType} and can
+     * tell from the function name that the shape is non-scalar.
+     *
+     * <p><b>Two-phase functions.</b> Some functions split work between
+     * {@code accept()} and {@code calculate()} — accept() populates raw
+     * aggregates (e.g. {@code summation} + {@code count} for histogram-
+     * percentile), and calculate() turns those into the user-visible
+     * field returned by {@code getValue()} (e.g. {@code percentileValues}).
+     * The MAL {@code captureMeterEmit} probe fires AFTER accept() but
+     * BEFORE the streaming pipeline calls calculate(), so without forcing
+     * calculate() here the labeled value column would be an empty map for
+     * histogram-percentile rules — exactly when operators most need to
+     * verify what the rule emits. We force calculate() at probe time so
+     * the captured value matches what the storage row will contain.
+     *
+     * <p>The cost is bounded but real: calling calculate() twice runs the
+     * computation twice. Most {@code Metrics.calculate()} implementations
+     * have no idempotence guard
+     * ({@code AvgFunction}, {@code CPMMetrics}, {@code SumMetrics} just
+     * recompute every call), and the histogram-percentile pair
+     * ({@code AvgHistogramPercentileFunction},
+     * {@code SumHistogramPercentileFunction}) check {@code isCalculated}
+     * at entry but never set it to {@code true} on exit, so even those
+     * re-run on the streaming pipeline's later call. The cost is paid
+     * only when a debug session is installed: the probe site is gated
+     * (the JIT elides the call into this recorder on the hot path when
+     * the gate is off), and a single emission's calculate() is bounded
+     * (one source-tick of percentile work, not a stream's worth). On
+     * cluster paths, {@code combine()} resets {@code isCalculated=false}
+     * before a peer reads — pre-computing here on the local snapshot
+     * doesn't leak stale values into the cluster.
+     */
+    private static void appendValue(final JsonObject obj, final AcceptableValue<?> value) {
+        if (value == null) {
+            return;
+        }
+        // Force two-phase functions to compute their user-visible reading
+        // before we read getValue(). One extra calculate() per probed
+        // emission per debug session — see the javadoc above for the cost
+        // model and why we don't rely on isCalculated as a no-op guard.
+        if (value instanceof Metrics) {
+            ((Metrics) value).calculate();
+        }
+        // Order matters: LabeledValueHolder is checked before scalar holders
+        // because some labeled functions could in principle implement both;
+        // the labeled (DataTable) view is the operator-meaningful one.
+        if (value instanceof LabeledValueHolder) {
+            final DataTable table = ((LabeledValueHolder) value).getValue();
+            if (table == null) {
+                return;
+            }
+            final JsonObject map = new JsonObject();
+            for (final String key : table.keys()) {
+                final Long v = table.get(key);
+                if (v != null) {
+                    map.addProperty(key, v);
+                }
+            }
+            obj.add("value", map);
+        } else if (value instanceof LongValueHolder) {
+            obj.addProperty("value", ((LongValueHolder) value).getValue());
+        } else if (value instanceof IntValueHolder) {
+            obj.addProperty("value", ((IntValueHolder) value).getValue());
+        } else if (value instanceof DoubleValueHolder) {
+            final double v = ((DoubleValueHolder) value).getValue();
+            if (Double.isFinite(v)) {
+                obj.addProperty("value", v);
+            } else {
+                // Gson rejects NaN / ±Infinity as numbers — surface them as
+                // strings so an operator inspecting a divide-by-zero or
+                // empty-window emit can still see the actual reading.
+                obj.addProperty("value", Double.toString(v));
+            }
+        }
     }
 
     /**

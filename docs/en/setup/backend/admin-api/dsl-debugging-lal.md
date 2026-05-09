@@ -293,16 +293,17 @@ No cross-node merge — each peer's slice is self-contained.
 
 ## Limits
 
-| Field             | Default       | Purpose                                          |
-|-------------------|---------------|--------------------------------------------------|
-| `recordCap`       | `1000`        | Max records before the recorder refuses appends. |
-| `retentionMillis` | `300000` (5m) | Wall-clock retention.                            |
-| `granularity`     | `block`       | `block` or `statement` (LAL only).               |
+| Field             | Default       | Hard cap        | Purpose                                          |
+|-------------------|---------------|-----------------|--------------------------------------------------|
+| `recordCap`       | `100`         | `100`           | Max records before the recorder refuses appends. |
+| `retentionMillis` | `300000` (5m) | `3600000` (1h)  | Wall-clock retention.                            |
+| `granularity`     | `block`       | n/a             | `block` or `statement` (LAL only).               |
 
-Override per-session in the install body:
+Out-of-range values return `400 invalid_limits`. Override per-session (within
+the caps above) in the install body:
 
 ```json
-{ "recordCap": 200, "retentionMillis": 600000, "granularity": "statement" }
+{ "recordCap": 50, "retentionMillis": 600000, "granularity": "statement" }
 ```
 
 ## See also

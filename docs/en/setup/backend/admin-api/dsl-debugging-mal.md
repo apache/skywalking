@@ -181,7 +181,17 @@ A trimmed slice (one record = one scrape window):
         { "type": "output",
           "sourceText": "e2e_demo_filtered_requests",
           "continueOn": true,
-          "payload": { /* terminal meter sample — metric, entity, value, timeBucket */ } }
+          "payload": {
+            "metric": "e2e_demo_filtered_requests",
+            "entity": "MeterEntity(scopeType=SERVICE, serviceName=my-svc, …)",
+            "valueType": "sum",
+            "timeBucket": 202605091036,
+            "value": 42                /* shape depends on valueType:
+                                          number for Sum/Avg/Max/Min/CPM/Latest…,
+                                          object {bucket: count} for histograms /
+                                          *Labeled functions, omitted for non-scalar
+                                          holders. NaN/±Infinity render as strings. */
+          } }
       ]
     }]
   }]
@@ -222,15 +232,16 @@ No cross-node merge — each slice is self-contained.
 
 ## Limits
 
-| Field                  | Default     | Purpose                                                                       |
-|------------------------|-------------|-------------------------------------------------------------------------------|
-| `recordCap`            | `1000`      | Max records before the recorder marks itself `captured` and refuses appends.   |
-| `retentionMillis`      | `300000` (5m) | Wall-clock retention; the session is reaped after the deadline whether or not it was explicitly stopped. |
+| Field                  | Default     | Hard cap     | Purpose                                                                       |
+|------------------------|-------------|--------------|-------------------------------------------------------------------------------|
+| `recordCap`            | `100`       | `100`        | Max records before the recorder marks itself `captured` and refuses appends.   |
+| `retentionMillis`      | `300000` (5m) | `3600000` (1h) | Wall-clock retention; the session is reaped after the deadline whether or not it was explicitly stopped. |
 
-Override per-session in the `POST /dsl-debugging/session` body:
+Out-of-range values return `400 invalid_limits` from `POST /dsl-debugging/session`.
+Override per-session (within the caps above) in the request body:
 
 ```json
-{ "recordCap": 200, "retentionMillis": 600000 }
+{ "recordCap": 50, "retentionMillis": 600000 }
 ```
 
 ## See also

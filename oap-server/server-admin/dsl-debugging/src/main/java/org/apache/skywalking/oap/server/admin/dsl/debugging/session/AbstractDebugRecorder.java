@@ -167,7 +167,7 @@ public abstract class AbstractDebugRecorder implements DebugRecorder {
      * predicate for OAL) decides whether the rule actually processes it.
      * On tag-discriminating rules the rejection ratio can hit 99% — most
      * traffic isn't relevant to the rule. If we published rejected
-     * executions, recordCap (default 1000) would fill with garbage before
+     * executions, recordCap (default 100) would fill with garbage before
      * any meaningful "what did the rule actually do" record showed up. So we
      * publish only kept executions: every record in {@code records[]}
      * represents one source/family that survived the rule's filter and
