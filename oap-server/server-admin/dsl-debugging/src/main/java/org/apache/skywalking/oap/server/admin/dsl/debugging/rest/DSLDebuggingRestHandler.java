@@ -399,7 +399,6 @@ public class DSLDebuggingRestHandler {
     public HttpResponse status() {
         final JsonObject body = new JsonObject();
         body.addProperty("module", "dsl-debugging");
-        body.addProperty("phase", "phase-4");
         body.addProperty("nodeId", selfNodeId);
         body.addProperty("injectionEnabled", moduleConfig.isInjectionEnabled());
         body.addProperty("activeSessions", sessionRegistry.snapshotActive().size());

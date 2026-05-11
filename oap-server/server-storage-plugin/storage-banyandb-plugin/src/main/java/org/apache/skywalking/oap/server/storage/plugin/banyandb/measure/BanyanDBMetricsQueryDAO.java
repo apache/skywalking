@@ -23,10 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
+import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -162,6 +164,44 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(metricsName)
         );
+    }
+
+    @Override
+    public List<String> listEntityIdsInRange(final String metricName,
+                                             final String valueColumnName,
+                                             final Duration duration,
+                                             final int limit) throws IOException {
+        final boolean isColdStage = duration != null && duration.isColdStage();
+        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(metricName, duration.getStep());
+        if (schema == null) {
+            throw new IOException("schema is not registered");
+        }
+        final MeasureQueryResponse resp = query(
+            isColdStage, schema,
+            ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName),
+            getTimestampRange(duration),
+            new QueryBuilder<MeasureQuery>() {
+                @Override
+                protected void apply(final MeasureQuery query) {
+                    // Most-recent-first ordering must be explicit — without it BanyanDB returns
+                    // arbitrary order and a hot entity that ingested late can be dropped before
+                    // the LIMIT cap is reached.
+                    query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
+                    query.limit(limit);
+                }
+            }
+        );
+        if (resp.size() == 0) {
+            return Collections.emptyList();
+        }
+        // BanyanDB returns one DataPoint per (timestamp, entity_id); if the same entity has rows
+        // in multiple time buckets within the range, we'd see it more than once. LinkedHashSet
+        // dedups while preserving the server-side timestamp-DESC ordering.
+        final LinkedHashSet<String> entityIds = new LinkedHashSet<>();
+        for (final DataPoint dp : resp.getDataPoints()) {
+            entityIds.add(dp.getTagValue(Metrics.ENTITY_ID));
+        }
+        return new ArrayList<>(entityIds);
     }
 
     @Override

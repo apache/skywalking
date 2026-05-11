@@ -34,10 +34,13 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: postgresql
       SW_JDBC_URL: "jdbc:postgresql://postgres:5432/skywalking"
     ports:
       - 12800
+      - 17128
     depends_on:
       postgres:
         condition: service_healthy

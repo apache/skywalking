@@ -56,8 +56,8 @@ What the three DSLs share:
   `admin-server` HTTP host (default port `17128`). The shape of session
   lifecycle (install, poll, stop) is identical across DSLs — only the
   rule-key tuple and payload schema differ.
-- **One enable contract**: requires `SW_ADMIN_SERVER=default` and
-  `SW_DSL_DEBUGGING=default`. Probe insertion is gated by the boot-time
+- **One enable contract**: requires `SW_DSL_DEBUGGING=default`
+  (`admin-server` itself is enabled by default). Probe insertion is gated by the boot-time
   switch `SW_DSL_DEBUGGING_INJECTION_ENABLED` (default `true` — once the
   module is enabled, probes fire and sessions record samples). Set this
   to `false` only if the REST surface is wanted but probe overhead is
@@ -144,7 +144,7 @@ table. The DSL-debug-relevant keys:
 
 | Key                                  | Default | Purpose                                                       |
 |--------------------------------------|---------|---------------------------------------------------------------|
-| `SW_ADMIN_SERVER`                    | (empty) | Enables the shared admin HTTP host. Must be set.              |
+| `SW_ADMIN_SERVER`                    | `default` | Shared admin HTTP host. On by default; set empty to disable.  |
 | `SW_DSL_DEBUGGING`                   | (empty) | Enables the DSL debug API.                                    |
 | `SW_DSL_DEBUGGING_INJECTION_ENABLED` | `true`  | Boot-time codegen switch. Set `false` to disable probes.      |
 

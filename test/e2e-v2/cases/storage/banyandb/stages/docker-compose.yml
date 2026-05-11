@@ -67,6 +67,8 @@ services:
       file: ../../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: banyandb
       SW_STORAGE_BANYANDB_TARGETS: "liaison:17912"
       SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_WARM_STAGE: "true"
@@ -82,6 +84,7 @@ services:
     ports:
       - 12800:12800
       - 11800:11800
+      - 17128:17128
     depends_on:
       liaison:
         condition: service_healthy

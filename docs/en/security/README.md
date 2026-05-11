@@ -68,12 +68,13 @@ cluster RPCs between OAP nodes — runtime-rule `Suspend / Resume / Forward`, DS
 agent / cluster gRPC port (`core.gRPCPort`, default `11800`). An attacker who reaches `11800`
 to submit telemetry MUST NOT be able to invoke privileged admin RPCs.
 
-`admin-server` is **disabled by default**. Enabling it (`SW_ADMIN_SERVER=default` plus the
-relevant feature module's selector) opens both ports with **no built-in authentication**.
-This is intentional for now — the design goal is a simple admin socket that a gateway /
-service mesh wraps with the operator's existing auth story.
+`admin-server` is **enabled by default** so the bundled `status` and `inspect` feature
+modules are reachable out of the box. Both ports open with **no built-in authentication**
+— the design goal is a simple admin socket that a gateway / service mesh wraps with the
+operator's existing auth story. Set `SW_ADMIN_SERVER=` (empty) to keep the host closed
+if no admin-side API is needed.
 
-Required operator actions when enabling:
+Required operator actions:
 
 1. **Never expose port 17128 (HTTP) to the public internet.** Bind to a private network
    interface or `localhost` and reach it through an operator-controlled gateway.

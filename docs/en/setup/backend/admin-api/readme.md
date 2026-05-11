@@ -16,8 +16,10 @@ endpoint hosted there.
 >
 > 1. **Gateway-protect the admin port** with an IP allow-list and an
 >    authenticating reverse proxy (sidecar, gateway, mTLS terminator).
->    SkyWalking ships `admin-server` *disabled by default* (`SW_ADMIN_SERVER`
->    selector empty); enabling it is an explicit operator decision.
+>    SkyWalking ships `admin-server` **enabled by default** so the status
+>    feature module is reachable out of the box; the host binds to
+>    `0.0.0.0:17128` by default. Set `SW_ADMIN_SERVER=` (empty) to disable
+>    entirely.
 > 2. **Bind to a private interface.** Set `SW_ADMIN_SERVER_HOST` to a private
 >    address (or `127.0.0.1`) — never the public-facing interface.
 > 3. **Never expose the admin port to the public internet.** No exception.
@@ -33,14 +35,13 @@ endpoint hosted there.
 ## Endpoints by feature
 
 `admin-server` itself only provides the HTTP host. Each feature module
-registers its own routes on it. Today there are two:
+registers its own routes on it. Today there are four:
 
 ### [Runtime Rule Hot-Update API](runtime-rule.md)
 
 Operators add, override, inactivate, and delete MAL / LAL rule files at
 runtime without restarting OAP. Routes live under `/runtime/rule/*`.
-Requires `SW_RECEIVER_RUNTIME_RULE=default` (which in turn requires
-`SW_ADMIN_SERVER=default`).
+Requires `SW_RECEIVER_RUNTIME_RULE=default` (`admin-server` is on by default).
 
 Common operations:
 
@@ -58,8 +59,7 @@ Operators run sampling debug sessions that capture how MAL / LAL / OAL
 rules transform live ingest, with per-stage / per-block payloads
 available for inspection. Routes live under `/dsl-debugging/*` and
 `/runtime/oal/*` (read-only OAL rule listing for the debugger's rule
-picker). Requires `SW_DSL_DEBUGGING=default` (which in turn requires
-`SW_ADMIN_SERVER=default`).
+picker). Requires `SW_DSL_DEBUGGING=default` (`admin-server` is on by default).
 
 Common operations:
 
@@ -73,13 +73,60 @@ Common operations:
 Design reference: [SWIP-13](../../../swip/SWIP-13.md).
 Operator reference: [DSL Debug API](dsl-debugging.md).
 
+### [Inspect API](inspect.md)
+
+Operators browse the live metric catalog and the entities currently emitting
+values for a given metric, getting MQE-ready output that pastes directly into
+the public GraphQL `execExpression` mutation. Routes live under `/inspect/*`.
+Enabled by default (both `SW_INSPECT=default` and `SW_ADMIN_SERVER=default` are on
+by default); set `SW_INSPECT=` (empty) to disable.
+
+Common operations:
+
+- `GET /inspect/metrics` — metric catalog with type / scope / supported downsamplings.
+- `GET /inspect/entities?metric=&start=&end=&step=` — capped (≤300) list of
+  entities holding values, decoded into MQE-ready form.
+
+Operator reference: [Inspect API](inspect.md).
+
+### [Status API](status.md)
+
+Cluster, alarm, TTL, and per-query debug-trace endpoints. Hosted by the
+`status` feature module — relocated from the legacy `status-query-plugin`
+in 10.5.0. **Dual-bound**: always on the public REST port (`core.restPort`,
+default `12800`, where skywalking-ui consumes it) and additionally on the
+admin-server port (default `17128`). Both `status` and `admin-server` are
+enabled by default — no opt-in required.
+
+Common operations:
+
+- `GET /status/cluster/nodes` — OAP cluster peer list.
+- `GET /status/alarm/rules`, `/status/alarm/{ruleId}`, `/status/alarm/{ruleId}/{entityName}` — alarm runtime state.
+- `GET /status/config/ttl` — effective TTL configuration.
+- `GET /debugging/config/dump` — effective configuration dump (also serves as the REST-URL discovery primitive for inspect clients).
+- `GET /debugging/query/...` — run a named query path with debug tracing enabled.
+
+Operator reference: [Status API](status.md).
+
+### Admin UI (community)
+
+SkyWalking does not ship an official admin UI; operators drive the
+endpoints above with `curl`, `swctl`, or a front-end of their choice.
+[Vantage Studio](https://github.com/SkyAPM/vantage-studio) is a
+community-built web UI (under the SkyAPM organization, authored by
+[Sheng Wu](https://github.com/wu-sheng)) that consumes the Admin API
+surface. See [Admin UI](admin-ui.md) for the operator note.
+
 ## Enabling
 
-`admin-server` and its feature modules ship disabled by default. Enable
-the features the deployment needs:
+`admin-server` itself is enabled by default; the feature modules that
+mount onto it are individually opt-in. Enable the features the deployment
+needs:
 
 ```bash
-export SW_ADMIN_SERVER=default            # the shared HTTP host
+# SW_ADMIN_SERVER=default is on by default — see security notice above.
+# SW_STATUS=default is on by default — see [Status API](status.md).
+# SW_INSPECT=default is on by default — see [Inspect API](inspect.md).
 export SW_RECEIVER_RUNTIME_RULE=default   # to use /runtime/rule/*
 export SW_DSL_DEBUGGING=default           # to use /dsl-debugging/* and /runtime/oal/*
 ```
@@ -106,7 +153,7 @@ Operators MUST:
 
 ```yaml
 admin-server:
-  selector: ${SW_ADMIN_SERVER:-}
+  selector: ${SW_ADMIN_SERVER:default}
   default:
     # HTTP REST surface (operator API).
     host: ${SW_ADMIN_SERVER_HOST:0.0.0.0}

@@ -1,0 +1,376 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.admin.inspect.handler;
+
+import com.linecorp.armeria.common.HttpResponse;
+import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.MediaType;
+import com.linecorp.armeria.server.annotation.Get;
+import com.linecorp.armeria.server.annotation.Param;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.admin.inspect.decoder.EntityDecoder;
+import org.apache.skywalking.oap.server.admin.inspect.response.EntitiesResponse;
+import org.apache.skywalking.oap.server.admin.inspect.response.EntityRow;
+import org.apache.skywalking.oap.server.admin.inspect.response.ErrorResponse;
+import org.apache.skywalking.oap.server.admin.inspect.response.MetricRow;
+import org.apache.skywalking.oap.server.admin.inspect.response.MetricsResponse;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.UnexpectedException;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.MetricsMetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
+import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
+import org.apache.skywalking.oap.server.core.query.enumeration.Step;
+import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.type.Service;
+import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+
+/**
+ * REST handler for the inspect API.
+ *
+ * <p>{@code GET /inspect/metrics} surfaces the metric catalog (filtered to
+ * remove internal NOT_VALUE columns and {@link Scope#All} entries).
+ * {@code GET /inspect/entities} enumerates entities holding values for a
+ * metric in a time range, decoded into MQE-ready form.
+ */
+@Slf4j
+public class InspectRestHandler {
+
+    private static final int LIMIT_DEFAULT = 300;
+    private static final int LIMIT_MAX = 300;
+
+    private final ModuleManager moduleManager;
+
+    public InspectRestHandler(final ModuleManager moduleManager) {
+        this.moduleManager = moduleManager;
+    }
+
+    @Get("/inspect/metrics")
+    public HttpResponse listMetrics(@Param("regex") final Optional<String> regex,
+                                    @Param("type") final Optional<List<String>> types,
+                                    @Param("catalog") final Optional<List<String>> catalogs,
+                                    @Param("mqeQueryable") final Optional<Boolean> mqeQueryableOpt) {
+        final Pattern namePattern;
+        try {
+            namePattern = regex.map(Pattern::compile).orElse(null);
+        } catch (final PatternSyntaxException e) {
+            // Bad operator input: surface as the inspect ErrorResponse shape (400),
+            // matching every other client-input validation in this handler. Without
+            // this catch the framework would render a generic 500.
+            return error(HttpStatus.BAD_REQUEST,
+                "regex is not a valid Java regular expression: " + e.getDescription());
+        }
+        final Set<String> typeFilter = toSet(types);
+        final Set<String> catalogFilter = toSet(catalogs);
+        final boolean mqeQueryable = mqeQueryableOpt.orElse(false);
+
+        // Group all registered Models by metric name → set of downsamplings. One pass.
+        final Map<String, Set<DownSampling>> downsamplingsByMetric =
+            modelManager().allModels().stream()
+                .collect(Collectors.groupingBy(
+                    Model::getName,
+                    Collectors.mapping(Model::getDownsampling, Collectors.toCollection(HashSet::new))));
+
+        final List<MetricRow> rows = new ArrayList<>();
+        for (final Map.Entry<String, ValueColumnMetadata.ValueColumn> entry
+            : ValueColumnMetadata.INSTANCE.getAllMetadata().entrySet()) {
+            final String name = entry.getKey();
+            final ValueColumnMetadata.ValueColumn vc = entry.getValue();
+
+            // NOT_VALUE: persisted-but-not-queryable internal columns (topology lines,
+            // service entries) per Column.java:93-97. Never appears in inspect.
+            if (vc.getDataType() == Column.ValueDataType.NOT_VALUE) {
+                continue;
+            }
+
+            final Scope scope = Scope.Finder.valueOf(vc.getScopeId());
+            // Scope.All is deprecated and not routable through MQE; skip silently.
+            if (scope == Scope.All) {
+                continue;
+            }
+
+            if (namePattern != null && !namePattern.matcher(name).matches()) {
+                continue;
+            }
+
+            final MetricsType type = MetricsMetadataQueryService.typeOfMetrics(name);
+            final String typeName = type.name();
+            if (!typeFilter.isEmpty() && !typeFilter.contains(typeName)) {
+                continue;
+            }
+            // `mqeQueryable=true` is a strict alias for "row would be accepted by
+            // /inspect/entities". Filter MUST mirror that handler's reject set exactly:
+            // type ∈ {REGULAR_VALUE, LABELED_VALUE} AND scope ∈ {Service, ServiceInstance,
+            // Endpoint, ServiceRelation, ServiceInstanceRelation, EndpointRelation}.
+            // Without the scope check, a Process-scope REGULAR_VALUE (e.g., a continuous-
+            // profiling MAL metric) would survive this filter and then 400 at the entities
+            // endpoint.
+            if (mqeQueryable
+                && (!isMqeDispatchableType(type) || !isSupportedScope(scope))) {
+                continue;
+            }
+
+            final String catalog = DefaultScopeDefine.catalogOf(vc.getScopeId());
+            if (!catalogFilter.isEmpty() && !catalogFilter.contains(catalog)) {
+                continue;
+            }
+
+            final List<String> downs = sortedDownsamplingNames(
+                downsamplingsByMetric.getOrDefault(name, Collections.emptySet()));
+
+            rows.add(new MetricRow(
+                name, typeName, catalog, vc.getScopeId(), scope.name(),
+                vc.getValueCName(), downs));
+        }
+        return HttpResponse.ofJson(MediaType.JSON_UTF_8, new MetricsResponse(rows));
+    }
+
+    @Get("/inspect/entities")
+    public HttpResponse listEntities(@Param("metric") final String metric,
+                                     @Param("start") final String start,
+                                     @Param("end") final String end,
+                                     @Param("step") final String stepStr,
+                                     @Param("limit") final Optional<Integer> limitOpt) {
+        // Resolve metadata.
+        final Optional<ValueColumnMetadata.ValueColumn> vcOpt =
+            ValueColumnMetadata.INSTANCE.readValueColumnDefinition(metric);
+        if (vcOpt.isEmpty()) {
+            return error(HttpStatus.BAD_REQUEST, "unknown metric: " + metric);
+        }
+        final ValueColumnMetadata.ValueColumn vc = vcOpt.get();
+
+        if (vc.getDataType() == Column.ValueDataType.NOT_VALUE) {
+            return error(HttpStatus.BAD_REQUEST, "unknown metric: " + metric);
+        }
+
+        final MetricsType type = MetricsMetadataQueryService.typeOfMetrics(metric);
+        if (type == MetricsType.HEATMAP) {
+            return error(HttpStatus.BAD_REQUEST,
+                "metric type HEATMAP is not MQE-queryable; /inspect/entities only "
+                    + "accepts REGULAR_VALUE and LABELED_VALUE");
+        }
+        if (type == MetricsType.SAMPLED_RECORD) {
+            return error(HttpStatus.BAD_REQUEST,
+                "metric type SAMPLED_RECORD is out of scope for /inspect/entities");
+        }
+
+        final Scope scope = Scope.Finder.valueOf(vc.getScopeId());
+        if (!isSupportedScope(scope)) {
+            if (scope == Scope.Process || scope == Scope.ProcessRelation) {
+                return error(HttpStatus.BAD_REQUEST, "process scope is out of scope");
+            }
+            return error(HttpStatus.BAD_REQUEST, "scope " + scope + " is out of scope");
+        }
+
+        // Validate step. SECOND is rejected explicitly even though Step.valueOf("SECOND")
+        // would parse, because second-precision is not in the inspect API contract — the
+        // docs and error message advertise MINUTE / HOUR / DAY only.
+        final Step step;
+        try {
+            step = Step.valueOf(stepStr.toUpperCase());
+        } catch (Exception e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step must be one of MINUTE / HOUR / DAY (got " + stepStr + ")");
+        }
+        if (step == Step.SECOND) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step must be one of MINUTE / HOUR / DAY (got SECOND)");
+        }
+        final Set<DownSampling> supported = supportedDownsamplings(metric);
+        if (!supported.contains(stepToDownsampling(step))) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step " + step + " not supported by metric " + metric
+                    + " (" + sortedDownsamplingNames(supported) + ")");
+        }
+
+        // Validate limit.
+        final int limit = limitOpt.orElse(LIMIT_DEFAULT);
+        if (limit < 1 || limit > LIMIT_MAX) {
+            return error(HttpStatus.BAD_REQUEST, "limit must be between 1 and " + LIMIT_MAX);
+        }
+
+        final Duration duration = new Duration();
+        duration.setStart(start);
+        duration.setEnd(end);
+        duration.setStep(step);
+
+        // Validate the date strings up front by triggering the same parse the storage path will
+        // run. Joda throws IllegalArgumentException on bad format; the framework's
+        // verifyDateTimeString throws UnexpectedException on unsupported steps. Catch both here
+        // so a malformed `start`/`end` returns 400 instead of bubbling out as a 500.
+        try {
+            duration.getStartTimeBucket();
+            duration.getEndTimeBucket();
+        } catch (IllegalArgumentException | UnexpectedException e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "start / end must follow the step's date format (DAY: yyyy-MM-dd, HOUR: "
+                    + "yyyy-MM-dd HH, MINUTE: yyyy-MM-dd HHmm, SECOND: yyyy-MM-dd HHmmss): "
+                    + e.getMessage());
+        }
+
+        final List<String> entityIds;
+        try {
+            entityIds = metricsQueryDAO()
+                .listEntityIdsInRange(metric, vc.getValueCName(), duration, limit);
+        } catch (IOException e) {
+            log.warn("listEntityIdsInRange failed for metric={} step={}", metric, step, e);
+            return error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+        final List<EntityRow> rows = new ArrayList<>();
+        for (final String entityId : entityIds) {
+            final EntityDecoder.Decoded decoded;
+            try {
+                decoded = EntityDecoder.decode(scope, entityId);
+            } catch (Exception e) {
+                // Malformed id from storage — skip but keep the response well-formed.
+                log.warn("Failed to decode entity_id={} for scope={}", entityId, scope, e);
+                continue;
+            }
+            final List<String> layers = lookupLayers(decoded.serviceIdForLayer);
+            if (layers.isEmpty()) {
+                rows.add(new EntityRow(entityId, decoded.decodedFields, null, decoded.mqeEntity));
+            } else {
+                for (final String layer : layers) {
+                    rows.add(new EntityRow(entityId, decoded.decodedFields, layer, decoded.mqeEntity));
+                }
+            }
+        }
+
+        final EntitiesResponse body = new EntitiesResponse(metric, scope.name(),
+            step.name(), start, end, rows);
+        return HttpResponse.ofJson(MediaType.JSON_UTF_8, body);
+    }
+
+    /**
+     * Mirror of the {@code /inspect/entities} type acceptance set. Kept in one place so
+     * the {@code mqeQueryable=true} filter on {@code /inspect/metrics} and the actual
+     * rejection in {@code /inspect/entities} cannot drift.
+     */
+    private static boolean isMqeDispatchableType(final MetricsType type) {
+        return type == MetricsType.REGULAR_VALUE || type == MetricsType.LABELED_VALUE;
+    }
+
+    private boolean isSupportedScope(final Scope scope) {
+        switch (scope) {
+            case Service:
+            case ServiceInstance:
+            case Endpoint:
+            case ServiceRelation:
+            case ServiceInstanceRelation:
+            case EndpointRelation:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private List<String> lookupLayers(final String serviceId) {
+        if (serviceId == null) {
+            return Collections.emptyList();
+        }
+        try {
+            final Service svc = metadataQueryService().getService(serviceId);
+            if (svc == null || svc.getLayers() == null || svc.getLayers().isEmpty()) {
+                return Collections.emptyList();
+            }
+            // Stable ordering across rows so multi-layer responses don't shuffle.
+            return new ArrayList<>(new TreeSet<>(svc.getLayers()));
+        } catch (Exception e) {
+            log.debug("Layer lookup failed for serviceId={}", serviceId, e);
+            return Collections.emptyList();
+        }
+    }
+
+    private static DownSampling stepToDownsampling(final Step step) {
+        switch (step) {
+            case DAY:
+                return DownSampling.Day;
+            case HOUR:
+                return DownSampling.Hour;
+            case MINUTE:
+                return DownSampling.Minute;
+            case SECOND:
+                return DownSampling.Second;
+            default:
+                throw new IllegalArgumentException("unsupported step: " + step);
+        }
+    }
+
+    private Set<DownSampling> supportedDownsamplings(final String metricName) {
+        final Set<DownSampling> result = new HashSet<>();
+        for (final Model m : modelManager().allModels()) {
+            if (metricName.equals(m.getName())) {
+                result.add(m.getDownsampling());
+            }
+        }
+        return result;
+    }
+
+    private static List<String> sortedDownsamplingNames(final Set<DownSampling> set) {
+        // None / Second / Minute / Hour / Day — sort by ordinal so MINUTE precedes HOUR precedes DAY
+        // in the response, matching the API contract example shape.
+        final List<DownSampling> list = new ArrayList<>(set);
+        list.sort((a, b) -> Integer.compare(a.ordinal(), b.ordinal()));
+        return list.stream().map(DownSampling::name).map(String::toUpperCase).collect(Collectors.toList());
+    }
+
+    private static Set<String> toSet(final Optional<List<String>> opt) {
+        if (opt.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return new HashSet<>(opt.get());
+    }
+
+    private static HttpResponse error(final HttpStatus status, final String message) {
+        return HttpResponse.ofJson(status, MediaType.JSON_UTF_8, new ErrorResponse(message));
+    }
+
+    private IModelManager modelManager() {
+        return moduleManager.find(CoreModule.NAME).provider().getService(IModelManager.class);
+    }
+
+    private IMetricsQueryDAO metricsQueryDAO() {
+        return moduleManager.find(StorageModule.NAME).provider().getService(IMetricsQueryDAO.class);
+    }
+
+    private MetadataQueryService metadataQueryService() {
+        return moduleManager.find(CoreModule.NAME).provider().getService(MetadataQueryService.class);
+    }
+}

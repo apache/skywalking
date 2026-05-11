@@ -22,7 +22,7 @@ with actual query results as context, then structurally compared via `go-cmp`.
 | Protocol | Port | Query Tool | Schema/Spec |
 |----------|------|------------|-------------|
 | GraphQL / MQE | `${oap_12800}` | `swctl --display yaml` | `query-protocol/*.graphqls` |
-| Status / Debug | `${oap_12800}` | `curl` | `status-query-plugin` handlers |
+| Status / Debug | `${oap_12800}` | `curl` | `server-admin/status` handlers |
 | PromQL | `${oap_9090}` | `curl` | Prometheus API v1 |
 | LogQL | `${oap_3100}` | `curl` | Loki API v1 |
 | TraceQL | `${oap_3200}` | `curl` | Tempo API |
