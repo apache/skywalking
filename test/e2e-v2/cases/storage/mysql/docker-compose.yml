@@ -35,10 +35,13 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: mysql
       SW_JDBC_URL: jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
     ports:
       - 12800
+      - 17128
     entrypoint: ['sh', '-c', '/download-mysql.sh /skywalking/oap-libs && /skywalking/docker-entrypoint.sh']
     networks:
       - e2e

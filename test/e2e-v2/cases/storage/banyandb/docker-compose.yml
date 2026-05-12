@@ -34,6 +34,8 @@ services:
     volumes:
       - ./config/bydb-topn.yml:/skywalking/config/bydb-topn.yml
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: banyandb
       SW_STORAGE_BANYANDB_USER: admin
       SW_STORAGE_BANYANDB_PASSWORD: admin
@@ -42,6 +44,7 @@ services:
       SW_STORAGE_BANYANDB_METRICS_MINUTE_ENABLE_COLD_STAGE: "true"
     ports:
       - 12800
+      - 17128
     depends_on:
       banyandb:
         condition: service_healthy

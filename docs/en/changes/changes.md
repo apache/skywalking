@@ -10,18 +10,18 @@
   public agent / cluster gRPC port (`core.gRPCPort`, default `11800`) so privileged
   admin RPCs stay out of the agent network's blast radius — operators bind `gRPCHost`
   to a private peer-to-peer interface only. Both the runtime-rule plugin and the new
-  DSL Debug API (below) mount onto this shared host. Disabled by default
-  (`SW_ADMIN_SERVER=default` to enable); has no built-in authentication and **must** be
+  DSL Debug API (below) mount onto this shared host. **Enabled by default** so the
+  status feature module is reachable out of the box; the host binds to
+  `0.0.0.0:17128` and has no built-in authentication and **must** be
   gateway-protected with IP allow-lists, never exposed to the public internet (see the
-  [Admin API security notice](../setup/backend/admin-api/readme.md)). The runtime-rule
+  [Admin API security notice](../setup/backend/admin-api/readme.md)). Set
+  `SW_ADMIN_SERVER=` (empty) to disable entirely. The runtime-rule
   config block loses its `restHost`/`restPort`/`restContextPath`/`restIdleTimeOut`/
   `restAcceptQueueSize`/`httpMaxRequestHeaderSize` keys (and the matching
   `SW_RECEIVER_RUNTIME_RULE_REST_*` env vars); host-level knobs move under the new
   `admin-server` block (`SW_ADMIN_SERVER_HOST` / `SW_ADMIN_SERVER_PORT` /
   `SW_ADMIN_SERVER_GRPC_HOST` / `SW_ADMIN_SERVER_GRPC_PORT` /
-  `SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT` etc.). Operators upgrading to 10.5.0 with
-  `SW_RECEIVER_RUNTIME_RULE=default` must also set `SW_ADMIN_SERVER=default`; OAP
-  fails fast at startup otherwise.
+  `SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT` etc.).
 * **Runtime rule hot-update for MAL and LAL.** Operators can now ship metric (MAL) and log
   (LAL) rule changes without restarting OAP. A push to a new admin endpoint persists the rule
   to the configured storage backend, and every node in the cluster converges to the new
@@ -65,8 +65,8 @@
   disabled by default and listens on port `17128` (HTTP) when enabled. It has no
   built-in authentication — operators must gateway-protect it with IP allow-lists and
   never expose it to the public internet.** Routes mount on the new `admin-server`
-  HTTP host, so enabling the runtime-rule API requires both `SW_ADMIN_SERVER=default`
-  and `SW_RECEIVER_RUNTIME_RULE=default`.
+  HTTP host, which is on by default; enable the runtime-rule feature with
+  `SW_RECEIVER_RUNTIME_RULE=default`.
 * **Live debugger for MAL / LAL / OAL** — implements [SWIP-13 Live Debugger for MAL / LAL / OAL](../swip/SWIP-13.md).
   Sample-based runtime debugger that captures per-stage inputs/outputs as the three DSLs
   process live ingest. Idle-path cost is one volatile-bool read per probe call site that
@@ -77,7 +77,8 @@
   L7 load balancer in front of the admin port routes operator requests freely. Mounts on
   the shared `admin-server` host (`/dsl-debugging/*` for session control plane,
   `/runtime/oal/*` for the OAL rule picker). Disabled by default; enable with
-  `SW_DSL_DEBUGGING=default` *and* `SW_ADMIN_SERVER=default`. `injectionEnabled` is a
+  `SW_DSL_DEBUGGING=default` (admin-server itself is on by default).
+  `injectionEnabled` is a
   boot-time codegen switch defaulting to `true` — once the module is enabled, probes
   fire and sessions record samples; set `false` only if the REST surface is wanted but
   no codegen-side probe overhead is acceptable. Per-session limits enforce hard caps
@@ -112,6 +113,39 @@
   `4.2.10.Final` → `4.2.12.Final`, Netty-tcnative `2.0.75` → `2.0.77`, pgv (protoc-gen-validate)
   `1.2.1` → `1.3.0`. Driven by the new BanyanDB schema-consistency RPCs whose generated
   validation code requires the `protobuf-java 4.x` runtime.
+* **Inspect API on admin-server.** Two new admin-only HTTP endpoints for
+  browsing the live metric catalog and the entities currently emitting
+  values for a given metric. `GET /inspect/metrics` lists every registered
+  metric with its type / scope / catalog / value-column name / supported
+  downsamplings (pure metadata, no I/O). `GET /inspect/entities` runs the
+  storage backend's entity scan for a metric over a time range + step
+  (capped at 300 rows) and returns each entity decoded into an MQE-ready
+  payload — the response includes a `mqeEntity` block the operator pastes
+  verbatim into the public GraphQL `execExpression` mutation, plus the
+  source service's layer(s) (multi-layer services emit one row per layer).
+  Restricted to `REGULAR_VALUE` / `LABELED_VALUE` metrics and to non-Process
+  scopes; `HEATMAP` / `SAMPLED_RECORD` / `Process` / `ProcessRelation`
+  return 400. Adds `IMetricsQueryDAO.listEntityIdsInRange` as an abstract
+  method on the interface — any 3rd party storage backend must explicitly
+  override or the build fails. **Enabled by default** (both `SW_INSPECT` and
+  `SW_ADMIN_SERVER` are on by default); set `SW_INSPECT=` empty to disable.
+  Operator reference: [Inspect API](../setup/backend/admin-api/inspect.md).
+* **Status API relocated onto `server-admin/`.** The legacy
+  `status-query-plugin` is replaced by a new `status` feature module under
+  `server-admin/`. Every existing route — `/status/cluster/nodes`,
+  `/status/alarm/*`, `/status/config/ttl`, `/debugging/config/dump`,
+  `/debugging/query/*` — keeps its URI and payload unchanged. The module
+  dual-binds the handlers: always on the public REST register (preserving
+  the `core.restPort` binding `skywalking-ui` consumes) and additionally
+  on the admin-server register when admin-server is enabled, so operators
+  driving the admin host get the same surface alongside `/inspect/*` /
+  `/dsl-debugging/*` / `/runtime/rule/*`. The selector renames from the
+  QUERY-plugin form (`SW_QUERY=…,status-query-plugin`) to a top-level
+  `SW_STATUS=default` (on by default); custom `application.yml` overrides
+  referencing `status-query` need to repoint to `status`. Default
+  deployments need no change. Status docs move from `docs/en/status/` to
+  [admin-api/status.md](../setup/backend/admin-api/status.md); the legacy
+  `docs/en/status/status_apis.md` keeps a one-cycle redirect stub.
 
 #### OAP Server
 * Fix: remove the redundant tags from the `envoy-ai-gateway.yaml` LAL configuration.

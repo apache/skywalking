@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.RangeQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
+import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.Document;
 import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
@@ -190,6 +192,42 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             ids,
             ValueColumnMetadata.INSTANCE.getDefaultValue(metricName)
         );
+    }
+
+    @Override
+    public List<String> listEntityIdsInRange(final String metricName,
+                                             final String valueColumnName,
+                                             final Duration duration,
+                                             final int limit) {
+        final SearchBuilder search = Search.builder().size(limit);
+        // Most-recent-first ordering must be explicit — without sort the hit set is
+        // score / index-internal ordered, so a hot entity that ingested late can be dropped
+        // before the limit is reached.
+        search.sort(Metrics.TIME_BUCKET, Sort.Order.DESC);
+        final BoolQueryBuilder query = Query.bool().must(Query.range(Metrics.TIME_BUCKET)
+                                                              .lte(duration.getEndTimeBucket())
+                                                              .gte(duration.getStartTimeBucket()));
+        if (IndexController.LogicIndicesRegister.isMergedTable(metricName)) {
+            query.must(Query.term(
+                IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
+                metricName
+            ));
+        }
+        search.query(query);
+        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+            IndexController.LogicIndicesRegister.getPhysicalTableName(metricName),
+            duration.getStartTimeBucketInSec(),
+            duration.getEndTimeBucketInSec()), search.build());
+        // Top-N hits across the time range, dedup client-side on entity_id. LinkedHashSet
+        // preserves the time_bucket-DESC ordering ES returned.
+        final LinkedHashSet<String> entityIds = new LinkedHashSet<>();
+        for (final SearchHit searchHit : response.getHits()) {
+            final Object eid = searchHit.getSource().get(Metrics.ENTITY_ID);
+            if (eid instanceof String) {
+                entityIds.add((String) eid);
+            }
+        }
+        return new ArrayList<>(entityIds);
     }
 
     @Override

@@ -201,6 +201,60 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
 
     @Override
     @SneakyThrows
+    public List<String> listEntityIdsInRange(final String metricName,
+                                             final String valueColumnName,
+                                             final Duration duration,
+                                             final int limit) {
+        final var tables = tableHelper.getTablesForRead(
+            metricName,
+            duration.getStartTimeBucket(),
+            duration.getEndTimeBucket()
+        );
+        // For each entity_id, track the latest time_bucket seen across every day-partitioned
+        // table the range touches. Per-table query shape is GROUP BY entity_id with MAX(time_bucket)
+        // and ORDER BY that max — portable across H2 / MySQL / PostgreSQL (Postgres rejects
+        // ORDER BY on a column that is not in a SELECT DISTINCT list, so the GROUP BY shape is
+        // the right one). Each table is independently capped at `limit`; we then merge by latest
+        // time_bucket globally before applying the global `limit`, so a range that spans many
+        // day partitions cannot fill the result with stale entities from older partitions before
+        // newer partitions are queried.
+        final var latestByEntity = new HashMap<String, Long>();
+        for (final var table : tables) {
+            final var sql = new StringBuilder("select ")
+                .append(Metrics.ENTITY_ID).append(", max(").append(Metrics.TIME_BUCKET)
+                .append(") as latest_time_bucket")
+                .append(" from ").append(table)
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ")
+                .append(" and ").append(Metrics.TIME_BUCKET).append(" >= ? ")
+                .append(" and ").append(Metrics.TIME_BUCKET).append(" <= ? ")
+                .append(" group by ").append(Metrics.ENTITY_ID)
+                .append(" order by latest_time_bucket desc ")
+                .append(" limit ").append(limit);
+
+            jdbcClient.executeQuery(
+                sql.toString(),
+                resultSet -> {
+                    while (resultSet.next()) {
+                        final String eid = resultSet.getString(Metrics.ENTITY_ID);
+                        if (eid == null) {
+                            continue;
+                        }
+                        final long latest = resultSet.getLong("latest_time_bucket");
+                        latestByEntity.merge(eid, latest, Math::max);
+                    }
+                    return null;
+                },
+                metricName, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        }
+        return latestByEntity.entrySet().stream()
+            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+            .limit(limit)
+            .map(Map.Entry::getKey)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    @SneakyThrows
     public HeatMap readHeatMap(final MetricsCondition condition,
                                final String valueColumnName,
                                final Duration duration) {

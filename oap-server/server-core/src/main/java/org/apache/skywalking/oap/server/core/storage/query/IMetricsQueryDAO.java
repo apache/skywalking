@@ -115,6 +115,32 @@ public interface IMetricsQueryDAO extends DAO {
                                                               List<KeyValue> labels,
                                                               Duration duration) throws IOException;
 
+    /**
+     * List distinct {@code entity_id}s that have at least one row for the given metric in the
+     * given time range, capped at {@code limit}. Used by the {@code /inspect/entities}
+     * admin-server endpoint to enumerate the entities currently emitting values for a metric —
+     * feeds the decoded {@code mqeEntity} payload the inspect API hands back to operators so
+     * they can follow up with a public-GraphQL MQE query.
+     *
+     * <p>Order: most recent timestamp first within the range so callers see live entities ahead
+     * of stale ones. Backends dedup by {@code entity_id} before returning. The {@code limit}
+     * argument is a server-side cap on the rows scanned, not a guarantee on distinct entities
+     * (300 rows ≈ 10 buckets × 30 entities).
+     *
+     * <p>Abstract on purpose — any 3rd party storage backend that implements
+     * {@code IMetricsQueryDAO} after 10.5.0 MUST provide this override. A default
+     * (empty list or thrown exception) would let a missing override slip through
+     * compilation and surface as a runtime "no entities" or 500 the first time the
+     * inspect API hit that backend; the breaking-at-compile signal is the safer
+     * contract for the inspect storage path.
+     *
+     * @since 10.5.0
+     */
+    List<String> listEntityIdsInRange(String metricName,
+                                      String valueColumnName,
+                                      Duration duration,
+                                      int limit) throws IOException;
+
     HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException;
 
     class Util {

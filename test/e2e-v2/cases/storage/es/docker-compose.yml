@@ -35,10 +35,13 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: es:9200
     ports:
       - 12800
+      - 17128
     depends_on:
       es:
         condition: service_healthy

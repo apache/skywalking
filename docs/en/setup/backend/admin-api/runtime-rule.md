@@ -19,11 +19,10 @@ binding, the public-internet posture, and access auditing.
 
 ## Enabling the module
 
-Set the selectors to `default` in `application.yml` or via env vars (the runtime-rule
-routes mount on the shared `admin-server` HTTP host, so both modules must be enabled):
+The runtime-rule routes mount on the shared `admin-server` HTTP host, which is
+enabled by default. Turn on the runtime-rule feature module:
 
 ```bash
-SW_ADMIN_SERVER=default
 SW_RECEIVER_RUNTIME_RULE=default
 ```
 

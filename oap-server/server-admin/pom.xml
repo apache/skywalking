@@ -31,6 +31,8 @@
         <module>admin-server</module>
         <module>runtime-rule</module>
         <module>dsl-debugging</module>
+        <module>status</module>
+        <module>inspect</module>
     </modules>
 
     <dependencies>

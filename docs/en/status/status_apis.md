@@ -1,34 +1,27 @@
 # Status APIs
 
-Status APIs are a set of APIs that allow you to get the status of the OAP status and measurements of queries.
-They are useful for monitoring the health of the OAP server and to diagnose and troubleshoot issues caused by
-configurations and performance bottlenecks.
+> **Moved.** As of 10.5.0 the Status API documentation has consolidated under
+> [admin-api/status.md](../setup/backend/admin-api/status.md), alongside the
+> rest of the admin-server endpoints (Inspect, Runtime Rule, DSL Debug).
+>
+> Per-endpoint pages that previously lived here:
+>
+> - **Dump Effective Initial Configurations API** — see
+>   [`/debugging/config/dump`](../setup/backend/admin-api/status.md#debuggingconfigdump)
+>   in the new consolidated page.
+> - **Tracing Query Execution APIs** — see
+>   [`/debugging/query/...`](../setup/backend/admin-api/status.md#debuggingquery)
+>   in the new consolidated page.
+> - **Get Effective TTL Configurations API** — see
+>   [`/status/config/ttl`](../setup/backend/admin-api/status.md#statusconfigttl).
+> - **Query Cluster Nodes API** — see
+>   [`/status/cluster/nodes`](../setup/backend/admin-api/status.md#statusclusternodes).
+> - **Get Alarm Runtime Status API** — see
+>   [`/status/alarm/rules`](../setup/backend/admin-api/status.md#statusalarmrules)
+>   and the per-rule / per-entity drill-downs.
+>
+> The new Inspect API (10.5.0) is documented
+> at [admin-api/inspect.md](../setup/backend/admin-api/inspect.md).
 
-Since v10, we begin to add status APIs to help users to understand the status of the OAP server, besides looking the raw
-logs and self-observability solutions.
-
-- [Dump Effective Initial Configurations API](../debugging/config_dump.md)
-- [Tracing Query Execution APIs](../debugging/query-tracing.md)
-- [Get Effective TTL Configurations API](query_ttl_setup.md)
-- [Query Cluster Nodes API](query_cluster_nodes.md)
-- [Get Alarm Runtime Status API](query_alarm_runtime_status.md)
-
-If you have a proposal about new status API, please don't hesitate
-to [create a discussion](https://github.com/apache/skywalking/discussions/new?category=ideas).
-The basic principles for a status API are
-
-1. It should be useful for users to understand the status of the OAP server or the reason of the performance behavior,
-   rather than a function feature.
-2. It should be on-demand and not impact the performance of the OAP server too much, especially in the production
-   environment.
-3. HTTP APIs are preferred unless there is a special reason to use other.
-
-## Disable Status APIs
-
-By default, this service is open for helping users to debug and diagnose. If you want to disable it, you need to disable
-the whole `status-query` module through setting `selector=-`.
-
-```yaml
-status-query:
-  selector: ${SW_STATUS_QUERY:default}
-```
+This stub will be removed in a future minor release. Please update any
+links pointing here.

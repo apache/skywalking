@@ -608,12 +608,6 @@ health-checker:
   default:
     checkIntervalSeconds: ${SW_HEALTH_CHECKER_INTERVAL_SECONDS:30}
 
-status-query:
-  selector: ${SW_STATUS_QUERY:default}
-  default:
-    # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
-    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
-
 configuration-discovery:
   selector: ${SW_CONFIGURATION_DISCOVERY:default}
   default:
@@ -682,11 +676,14 @@ ai-pipeline:
 # *****************************************************************************
 
 # admin-server is the shared HTTP host for admin / on-demand write APIs. Feature
-# modules (receiver-runtime-rule, dsl-debugging) register their REST routes onto
-# this single port. The empty selector below keeps the host closed by default;
-# enable with SW_ADMIN_SERVER=default.
+# modules (receiver-runtime-rule, dsl-debugging, inspect, status) register their
+# REST routes onto this single port. Enabled by default so the status feature
+# module is reachable out-of-the-box; the host binds to 0.0.0.0:17128 by
+# default and has NO built-in authentication — operators MUST gateway-protect
+# it with an IP allow-list and authenticating reverse proxy, or bind it to a
+# private interface only. Set SW_ADMIN_SERVER empty to disable.
 admin-server:
-  selector: ${SW_ADMIN_SERVER:-}
+  selector: ${SW_ADMIN_SERVER:default}
   default:
     host: ${SW_ADMIN_SERVER_HOST:0.0.0.0}
     port: ${SW_ADMIN_SERVER_PORT:17128}
@@ -740,3 +737,23 @@ dsl-debugging:
   selector: ${SW_DSL_DEBUGGING:-}
   default:
     injectionEnabled: ${SW_DSL_DEBUGGING_INJECTION_ENABLED:true}
+
+# Status feature module — cluster nodes / alarm runtime status / TTL config / debug
+# query trace endpoints. Dual-binds: always on the public REST register (preserving
+# the binding skywalking-ui consumes today) and additionally on admin-server's
+# register when admin-server is enabled. Enabled by default; set SW_STATUS empty to
+# disable. AdminServerModule is consulted reflectively, so this module survives
+# admin-server being off.
+status:
+  selector: ${SW_STATUS:default}
+  default:
+    # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
+    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+
+# Inspect API — admin-only metric catalog + per-metric entity enumeration.
+# Routes live under /inspect/*. Enabled by default; mounts onto admin-server
+# (also on by default). Set SW_INSPECT= empty to disable. Operator reference:
+# docs/en/setup/backend/admin-api/inspect.md.
+inspect:
+  selector: ${SW_INSPECT:default}
+  default:

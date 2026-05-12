@@ -103,6 +103,8 @@ services:
       file: ../../../script/docker-compose/base-compose.yml
       service: oap
     environment:
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
       SW_ES_USER: admin
@@ -114,6 +116,7 @@ services:
       SW_STORAGE_ES_SSL_KEY_STORE_PASS: changeit
     ports:
       - 12800
+      - 17128
     volumes:
       - ./certs:/etc/skywalking/certs:ro
     depends_on:

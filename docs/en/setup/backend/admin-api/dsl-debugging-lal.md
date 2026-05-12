@@ -78,11 +78,10 @@ volatile-bool reads — idle cost is effectively free.
 
 ## Enabling
 
-Two selectors must be enabled — the shared admin HTTP host (`admin-server`)
-and the DSL-debug feature on top of it:
+The shared admin HTTP host (`admin-server`) is enabled by default; turn on the
+DSL-debug feature on top of it:
 
 ```bash
-SW_ADMIN_SERVER=default
 SW_DSL_DEBUGGING=default
 ```
 
