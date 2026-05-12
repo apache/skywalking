@@ -23,6 +23,9 @@ on:
   schedule:
     - cron: '0 18 * * *'  # TimeZone: UTC 0
 
+permissions:
+  contents: read
+
 concurrency:
   group: dlc-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
