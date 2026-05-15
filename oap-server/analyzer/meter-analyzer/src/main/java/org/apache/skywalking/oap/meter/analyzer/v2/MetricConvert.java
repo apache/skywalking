@@ -302,10 +302,6 @@ public class MetricConvert {
      * metric refs inside arguments (e.g. the {@code b} in
      * {@code a.sum(['s']).safeDiv(b.sum(['s']))}) are not skipped — a naive
      * splice-after-first-dot would only rewrite {@code a}.
-     *
-     * <p>Visible for testing — {@link
-     * org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGeneratorScopeTest}
-     * compiles the formatted string directly.
      */
     public static String formatExp(final String expPrefix, final String expSuffix,
                                     final String exp) {
