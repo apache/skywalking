@@ -19,11 +19,13 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -84,6 +86,97 @@ import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.U
 public final class MALScriptParser {
 
     private MALScriptParser() {
+    }
+
+    /**
+     * Splice {@code expPrefix} into every metric source in {@code exp}.
+     *
+     * <p>The MAL {@code expPrefix} (e.g. {@code tag({tags -> tags.service = ...})})
+     * is a method-call snippet that must apply to every metric reference, not
+     * only the first one. A naive string splice at the first dot misses metrics
+     * nested in arguments — e.g. the second metric in
+     * {@code a.sum(['s']).safeDiv(b.sum(['s']))}.
+     *
+     * <p>This walker parses {@code exp}, finds every {@code primary} whose child
+     * is a bare {@code IDENTIFIER} (i.e. a metric leaf — not a function call or
+     * parenthesised group), and replaces it with {@code (<id>.<expPrefix>)}.
+     * Downsampling-type constants ({@code SUM}, {@code AVG}, {@code LATEST},
+     * {@code SUM_PER_MIN}, {@code MAX}, {@code MIN}) look syntactically identical
+     * to metric sources but are recognised by name and skipped — wrapping them
+     * with the prefix would turn them into bogus SampleFamily references.
+     *
+     * @param exp the MAL expression to rewrite (must parse successfully)
+     * @param expPrefix the method-call snippet to inject (e.g. {@code tag({...})})
+     * @return the rewritten expression, or {@code exp} unchanged when
+     *         {@code expPrefix} is null or empty
+     */
+    public static String injectExpPrefix(final String exp, final String expPrefix) {
+        if (expPrefix == null || expPrefix.isEmpty()) {
+            return exp;
+        }
+        final MALLexer lexer = new MALLexer(CharStreams.fromString(exp));
+        final CommonTokenStream tokens = new CommonTokenStream(lexer);
+        final MALParser parser = new MALParser(tokens);
+        final List<String> errors = new ArrayList<>();
+        parser.removeErrorListeners();
+        parser.addErrorListener(new BaseErrorListener() {
+            @Override
+            public void syntaxError(final Recognizer<?, ?> recognizer,
+                                    final Object offendingSymbol,
+                                    final int line,
+                                    final int charPositionInLine,
+                                    final String msg,
+                                    final RecognitionException e) {
+                errors.add(line + ":" + charPositionInLine + " " + msg);
+            }
+        });
+        final MALParser.ExpressionContext tree = parser.expression();
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(
+                "MAL expression parsing failed while injecting expPrefix: "
+                    + String.join("; ", errors) + " in expression: " + exp);
+        }
+        final List<int[]> ranges = new ArrayList<>();
+        collectMetricSourceRanges(tree, ranges);
+        // Splice from right to left so earlier indices remain valid.
+        ranges.sort(Comparator.comparingInt((int[] r) -> r[0]).reversed());
+        final StringBuilder sb = new StringBuilder(exp);
+        for (final int[] range : ranges) {
+            final String name = sb.substring(range[0], range[1] + 1);
+            sb.replace(range[0], range[1] + 1, "(" + name + "." + expPrefix + ")");
+        }
+        return sb.toString();
+    }
+
+    private static void collectMetricSourceRanges(final ParseTree node,
+                                                  final List<int[]> ranges) {
+        if (node instanceof MALParser.PrimaryContext) {
+            final MALParser.PrimaryContext primary = (MALParser.PrimaryContext) node;
+            // Three primary alternatives: bare IDENTIFIER (metric source),
+            // functionCall, and L_PAREN additiveExpression R_PAREN. Only the
+            // first is a metric ref.
+            if (primary.IDENTIFIER() != null
+                    && primary.functionCall() == null
+                    && primary.L_PAREN() == null) {
+                final TerminalNode id = primary.IDENTIFIER();
+                final String text = id.getText();
+                // Bare-identifier downsampling constants (SUM, AVG, LATEST,
+                // SUM_PER_MIN, MAX, MIN) parse as IDENTIFIER primaries but
+                // codegen treats them as enum values via
+                // MALCodegenHelper.isDownsamplingType — skip them so we don't
+                // turn them into bogus SampleFamily refs.
+                if (!MALCodegenHelper.isDownsamplingType(text)) {
+                    ranges.add(new int[]{
+                        id.getSymbol().getStartIndex(),
+                        id.getSymbol().getStopIndex()
+                    });
+                }
+                return;
+            }
+        }
+        for (int i = 0; i < node.getChildCount(); i++) {
+            collectMetricSourceRanges(node.getChild(i), ranges);
+        }
     }
 
     /**
