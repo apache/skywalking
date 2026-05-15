@@ -18,16 +18,19 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
 import javassist.ClassPool;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Full-expression compilation tests combining expPrefix + exp + expSuffix via formatExp.
- * Covers endpoint, service, instance, serviceRelation scope suffixes,
- * forEach closures with if/else-if/else chains, sum() with >10 label keys,
- * and tag() closure chained with service() suffix.
+ * Full-expression compilation tests combining expPrefix + exp + expSuffix via
+ * {@link MetricConvert#formatExp(String, String, String)}. Covers endpoint, service,
+ * instance, serviceRelation scope suffixes, forEach closures with if/else-if/else
+ * chains, sum() with &gt;10 label keys, and tag() closure prefix + chained service
+ * suffix (envoy-ai-gateway shape).
  */
 class MALClassGeneratorScopeTest {
 
@@ -38,31 +41,9 @@ class MALClassGeneratorScopeTest {
         generator = new MALClassGenerator(new ClassPool(true));
     }
 
-    /**
-     * Simulates MetricConvert.formatExp() to build the full expression
-     * from expPrefix + exp + expSuffix.
-     */
-    private static String formatExp(String expPrefix, String expSuffix, String exp) {
-        String ret = exp;
-        if (expPrefix != null && !expPrefix.isEmpty()) {
-            int dotIdx = exp.indexOf('.');
-            if (dotIdx > 0) {
-                ret = String.format("(%s.%s)", exp.substring(0, dotIdx), expPrefix);
-                String after = exp.substring(dotIdx + 1);
-                if (!after.isEmpty()) {
-                    ret = String.format("(%s.%s)", ret, after);
-                }
-            }
-        }
-        if (expSuffix != null && !expSuffix.isEmpty()) {
-            ret = String.format("(%s).%s", ret, expSuffix);
-        }
-        return ret;
-    }
-
     private void compileRule(String name, String expPrefix, String expSuffix, String exp)
             throws Exception {
-        final String full = formatExp(expPrefix, expSuffix, exp);
+        final String full = MetricConvert.formatExp(expPrefix, expSuffix, exp);
         assertNotNull(generator.compile(name, full));
     }
 
@@ -150,6 +131,32 @@ class MALClassGeneratorScopeTest {
             compileRule("svc_tcp_" + metric, null, suffix,
                 "metric_tcp_" + metric + ".downsampling(SUM_PER_MIN)");
         }
+    }
+
+    @Test
+    void tagClosurePrefixWithServiceSuffix() throws Exception {
+        // Mirrors otel-rules/envoy-ai-gateway/gateway-service.yaml shape, exercising
+        // the request_latency_avg rule which divides two metrics — every metric
+        // source must receive the tag prefix, not just the leading one:
+        //   filter:       { tags -> tags.job_name == 'envoy-ai-gateway' }
+        //   expPrefix:    tag({tags -> tags.service = tags.service_name + '|' + tags.cluster_name})
+        //   expSuffix:    service(['service'], Layer.ENVOY_AI_GATEWAY)
+        //   metricPrefix: meter_envoy_ai_gw
+        //   request_latency_avg = (sum / count over PT1M) * 1000 (ms)
+        final String prefix = "tag({tags -> tags.service = tags.service_name + '|' + tags.cluster_name})";
+        final String suffix = "service(['service'], Layer.ENVOY_AI_GATEWAY)";
+        final String exp = "gen_ai_server_request_duration_sum.sum(['service_name']).increase('PT1M')"
+            + ".safeDiv(gen_ai_server_request_duration_count.sum(['service_name']).increase('PT1M')) * 1000";
+        final String formatted = MetricConvert.formatExp(prefix, suffix, exp);
+        // Both the _sum and _count metric sources must carry the tag closure.
+        assertTrue(
+            formatted.contains("(gen_ai_server_request_duration_sum." + prefix + ")"),
+            "expected prefix on _sum metric, got: " + formatted);
+        assertTrue(
+            formatted.contains("(gen_ai_server_request_duration_count." + prefix + ")"),
+            "expected prefix on _count metric (inside safeDiv), got: " + formatted);
+        assertNotNull(generator.compile("meter_envoy_ai_gw_request_latency_avg", formatted));
+        assertNotNull(generator.compileFilter("{ tags -> tags.job_name == 'envoy-ai-gateway' }"));
     }
 
     @Test
