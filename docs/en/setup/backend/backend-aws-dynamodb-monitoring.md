@@ -35,4 +35,4 @@ Each DynamoDB table is cataloged as an `Endpoint` in OAP.
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/aws-dynamodb`.
-The DynamoDB dashboard panel configurations are found in `/config/ui-initialized-templates/aws_dynamodb`.
+The DynamoDB dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

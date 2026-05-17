@@ -58,9 +58,6 @@ import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupingRu
 import org.apache.skywalking.oap.server.core.config.group.openapi.EndpointNameGroupingRule4OpenapiWatcher;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.logging.LoggingConfigWatcher;
-import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuInitializer;
-import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
-import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateInitializer;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.DisableOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
@@ -386,8 +383,6 @@ public class CoreModuleProvider extends ModuleProvider {
         // Management
         this.registerServiceImplementation(
             UITemplateManagementService.class, new UITemplateManagementService(getManager()));
-        this.registerServiceImplementation(
-            UIMenuManagementService.class, new UIMenuManagementService(getManager(), moduleConfig));
 
         if (moduleConfig.getMetricsDataTTL() < 2) {
             throw new ModuleStartException(
@@ -504,17 +499,11 @@ public class CoreModuleProvider extends ModuleProvider {
 
         CacheUpdateTimer.INSTANCE.start(getManager(), moduleConfig.getMetricsDataTTL());
 
-        try {
-            new UITemplateInitializer(getManager()).initAll();
-        } catch (IOException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
-
-        try {
-            new UIMenuInitializer(getManager()).init();
-        } catch (IOException e) {
-            throw new ModuleStartException(e.getMessage(), e);
-        }
+        // UI templates and the menu tree are no longer boot-time seeded.
+        // SkyWalking ships only the OAP backend; the official Horizon UI
+        // (apache/skywalking-horizon-ui) owns its own dashboard and menu
+        // assets and pushes them through the admin host's /ui-management
+        // REST surface when an operator deploys or customizes them.
         hierarchyService.startAutoMatchingServiceHierarchy();
 
         watermarkWatcher.start(getManager().find(TelemetryModule.NAME).provider().getService(MetricsCollector.class));

@@ -442,8 +442,6 @@ query:
     # Maximum complexity allowed for the GraphQL query that can be used to
     # abort a query if the total number of data fields queried exceeds the defined threshold.
     maxQueryComplexity: ${SW_QUERY_MAX_QUERY_COMPLEXITY:3000}
-    # Allow user add, disable and update UI template
-    enableUpdateUITemplate: ${SW_ENABLE_UPDATE_UI_TEMPLATE:false}
     # "On demand log" allows users to fetch Pod containers' log in real time,
     # because this might expose secrets in the logs (if any), users need
     # to enable this manually, and add permissions to OAP cluster role.
@@ -710,10 +708,11 @@ admin-server:
     # Default per-call timeout (milliseconds) for admin-internal RPCs.
     internalCommunicationTimeout: ${SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT:5000}
 
-# Runtime rule admin surface for hot-update of MAL / LAL rule files. Enable with
-# SW_RECEIVER_RUNTIME_RULE=default *and* SW_ADMIN_SERVER=default.
+# Runtime rule admin surface for hot-update of MAL / LAL rule files. Enabled by
+# default — mounts onto admin-server (also on by default). Set
+# SW_RECEIVER_RUNTIME_RULE= empty to disable.
 receiver-runtime-rule:
-  selector: ${SW_RECEIVER_RUNTIME_RULE:-}
+  selector: ${SW_RECEIVER_RUNTIME_RULE:default}
   default:
     # Period (seconds) of the runtime-rule refresh tick on each OAP node.
     refreshRulesPeriod: ${SW_RECEIVER_RUNTIME_RULE_REFRESH_RULES_PERIOD:30}
@@ -722,10 +721,9 @@ receiver-runtime-rule:
 
 # DSL Debug API — sampling debugger for MAL / LAL / OAL rules. Read-only OAL
 # listing under /runtime/oal/*; session control plane under /dsl-debugging/*.
-# Enable with SW_DSL_DEBUGGING=default *and* SW_ADMIN_SERVER=default.
+# Enabled by default; mounts onto admin-server. Set SW_DSL_DEBUGGING= empty to disable.
 #
-# injectionEnabled is a BOOT-TIME codegen switch. Default is true — once the
-# `dsl-debugging` module has been enabled (via SW_DSL_DEBUGGING=default), MAL / LAL /
+# injectionEnabled is a BOOT-TIME codegen switch. Default is true — MAL / LAL /
 # OAL classes are generated WITH probe call sites + the GateHolder field, so debug
 # sessions actually capture samples. Setting this to false makes the DSL generators
 # emit bytecode byte-identical to a build without SWIP-13 — the REST surface still
@@ -734,16 +732,13 @@ receiver-runtime-rule:
 # reload only refreshes content, it doesn't regenerate codegen. See
 # docs/en/setup/backend/admin-api/dsl-debugging-*.md for per-DSL operator references.
 dsl-debugging:
-  selector: ${SW_DSL_DEBUGGING:-}
+  selector: ${SW_DSL_DEBUGGING:default}
   default:
     injectionEnabled: ${SW_DSL_DEBUGGING_INJECTION_ENABLED:true}
 
 # Status feature module — cluster nodes / alarm runtime status / TTL config / debug
-# query trace endpoints. Dual-binds: always on the public REST register (preserving
-# the binding skywalking-ui consumes today) and additionally on admin-server's
-# register when admin-server is enabled. Enabled by default; set SW_STATUS empty to
-# disable. AdminServerModule is consulted reflectively, so this module survives
-# admin-server being off.
+# query trace endpoints. Mounts onto admin-server (admin-host only — no public REST
+# binding). Enabled by default; set SW_STATUS= empty to disable.
 status:
   selector: ${SW_STATUS:default}
   default:
@@ -756,4 +751,13 @@ status:
 # docs/en/setup/backend/admin-api/inspect.md.
 inspect:
   selector: ${SW_INSPECT:default}
+  default:
+
+# UI Management REST surface — add / change / disable / list dashboard
+# templates. Mounts onto admin-server (admin-host only). The sidebar menu
+# is NOT served from OAP in 11.0.0+; Horizon UI owns it client-side.
+# Enabled by default; set SW_UI_MANAGEMENT= empty to disable. Operator
+# reference: docs/en/setup/backend/admin-api/ui-management.md.
+ui-management:
+  selector: ${SW_UI_MANAGEMENT:default}
   default:

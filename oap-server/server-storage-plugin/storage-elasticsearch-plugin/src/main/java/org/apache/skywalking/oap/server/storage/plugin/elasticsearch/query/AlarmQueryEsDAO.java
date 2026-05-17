@@ -29,7 +29,9 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.input.EntityIdConstraint;
 import org.apache.skywalking.oap.server.core.query.type.AlarmMessage;
 import org.apache.skywalking.oap.server.core.query.type.Alarms;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
@@ -94,6 +96,75 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
 
         Alarms alarms = new Alarms();
 
+        for (SearchHit searchHit : response.getHits().getHits()) {
+            AlarmRecord.Builder builder = new AlarmRecord.Builder();
+            AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));
+            AlarmMessage alarmMessage = buildAlarmMessage(alarmRecord);
+            if (!CollectionUtils.isEmpty(alarmRecord.getTagsRawData())) {
+                parseDataBinary(alarmRecord.getTagsRawData(), alarmMessage.getTags());
+            }
+            alarms.getMsgs().add(alarmMessage);
+        }
+        updateAlarmRecoveryTime(alarms, duration);
+        return alarms;
+    }
+
+    @Override
+    public Alarms queryAlarms(final AlarmQueryCondition condition, final int limit, final int from) throws IOException {
+        if (condition == null || condition.getDuration() == null) {
+            return new Alarms();
+        }
+        final Duration duration = condition.getDuration();
+        long startTB = duration.getStartTimeBucketInSec();
+        long endTB = duration.getEndTimeBucketInSec();
+        final String index =
+                IndexController.LogicIndicesRegister.getPhysicalTableName(AlarmRecord.INDEX_NAME);
+        final BoolQueryBuilder query = Query.bool();
+        if (IndexController.LogicIndicesRegister.isMergedTable(AlarmRecord.INDEX_NAME)) {
+            query.must(Query.term(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME, AlarmRecord.INDEX_NAME));
+        }
+        if (startTB != 0 && endTB != 0) {
+            query.must(Query.range(AlarmRecord.TIME_BUCKET).gte(startTB).lte(endTB));
+        }
+        if (!Strings.isNullOrEmpty(condition.getKeyword())) {
+            String matchCName = MatchCNameBuilder.INSTANCE.build(AlarmRecord.ALARM_MESSAGE);
+            query.must(Query.matchPhrase(matchCName, condition.getKeyword()));
+        }
+        if (CollectionUtils.isNotEmpty(condition.getLayers())) {
+            query.must(Query.terms(AlarmRecord.LAYER, condition.getLayers()));
+        }
+        if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
+            query.must(Query.terms(AlarmRecord.RULE_NAME, condition.getRuleNames()));
+        }
+        final List<EntityIdConstraint> entityConstraints = resolveEntityFilters(condition.getEntities());
+        if (!entityConstraints.isEmpty()) {
+            // Each constraint = AND of id0/id1 predicates; across the list = OR.
+            // Non-relation entities emit (id0=X) and (id1=X) as separate
+            // constraints (OR back to "primary OR relation-dest"); relation
+            // entities emit a single (id0=src AND id1=dest) constraint for
+            // exact match.
+            final BoolQueryBuilder entityFilter = Query.bool();
+            for (final EntityIdConstraint c : entityConstraints) {
+                final BoolQueryBuilder one = Query.bool();
+                if (c.getId0() != null) {
+                    one.must(Query.term(AlarmRecord.ID0, c.getId0()));
+                }
+                if (c.getId1() != null) {
+                    one.must(Query.term(AlarmRecord.ID1, c.getId1()));
+                }
+                entityFilter.should(one);
+            }
+            query.must(entityFilter);
+        }
+        if (CollectionUtils.isNotEmpty(condition.getTags())) {
+            condition.getTags().forEach(tag -> query.must(Query.term(AlarmRecord.TAGS, tag.toString())));
+        }
+        final SearchBuilder search =
+                Search.builder().query(query)
+                        .size(limit).from(from)
+                        .sort(AlarmRecord.START_TIME, Sort.Order.DESC);
+        SearchResponse response = getClient().search(index, search.build());
+        Alarms alarms = new Alarms();
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecord.Builder builder = new AlarmRecord.Builder();
             AlarmRecord alarmRecord = builder.storage2Entity(new ElasticSearchConverter.ToEntity(AlarmRecord.INDEX_NAME, searchHit.getSource()));

@@ -50,4 +50,4 @@ Self observability monitoring provides monitoring of the status and resources of
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/fetcher-prom-rules/self.yaml` and `config/otel-rules/oap.yaml`.
-The self observability dashboard panel configurations are found in `/config/ui-initialized-templates/so11y_oap`.
+The self observability dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

@@ -104,4 +104,4 @@ the OAP. In each cluster, the broker is represented as `Instance` and the destin
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `otel-rules/activemq/activemq-cluster.yaml, otel-rules/activemq/activemq-broker.yaml, otel-rules/activemq/activemq-destination.yaml`.
-The ActiveMQ dashboard panel configurations are found in `ui-initialized-templates/activemq`.
+The ActiveMQ dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

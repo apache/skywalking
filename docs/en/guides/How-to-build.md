@@ -58,16 +58,12 @@ or
 If you intend to compile a single plugin, such as one in the dev stage, you could
 >  cd plugin_module_dir & mvn clean package
 
-- Compile UI and package
->  ./mvnw package -Pui,dist
-
-or
-
-> make build.ui
-
+The web UI is no longer built from this repository — see
+[apache/skywalking-horizon-ui](https://github.com/apache/skywalking-horizon-ui)
+for the standalone UI build.
 
 ### Building docker images
-You can build docker images of `backend` and `ui` with `Makefile` located in root folder.
+You can build the OAP docker image with `Makefile` located in root folder.
 
 Refer to [Build docker image](../../../docker) for more details.
 

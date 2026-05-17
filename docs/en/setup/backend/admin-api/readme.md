@@ -92,11 +92,10 @@ Operator reference: [Inspect API](inspect.md).
 ### [Status API](status.md)
 
 Cluster, alarm, TTL, and per-query debug-trace endpoints. Hosted by the
-`status` feature module — relocated from the legacy `status-query-plugin`
-in 10.5.0. **Dual-bound**: always on the public REST port (`core.restPort`,
-default `12800`, where skywalking-ui consumes it) and additionally on the
-admin-server port (default `17128`). Both `status` and `admin-server` are
-enabled by default — no opt-in required.
+`status` feature module on the admin-server REST port (default `17128`),
+alongside `/ui-management/*`, `/inspect/*`, `/dsl-debugging/*`, and
+`/runtime/rule/*`. Both `status` and `admin-server` are enabled by
+default — no opt-in required.
 
 Common operations:
 
@@ -108,10 +107,33 @@ Common operations:
 
 Operator reference: [Status API](status.md).
 
-### Admin UI (community)
+### [UI Management API](ui-management.md)
 
-SkyWalking does not ship an official admin UI; operators drive the
-endpoints above with `curl`, `swctl`, or a front-end of their choice.
+REST surface for dashboard templates (consumed by
+[Horizon UI](https://github.com/apache/skywalking-horizon-ui)). Routes
+live under `/ui-management/templates/*`. Enabled by default
+(`SW_UI_MANAGEMENT=default`, `admin-server` is on by default).
+
+Common operations:
+
+- `GET /ui-management/templates` — list all templates.
+- `GET /ui-management/templates/{id}` — fetch a single template.
+- `POST /ui-management/templates` — add a new template (server-allocated UUID).
+- `PUT /ui-management/templates` — update an existing template.
+- `POST /ui-management/templates/{id}/disable` — soft-disable a template.
+
+The sidebar menu is **not** served from OAP — Horizon UI owns it
+client-side and uses `listServices(layer: ...)` on the metadata query
+surface for dynamic "layer has services" gating.
+
+Operator reference: [UI Management API](ui-management.md).
+
+### Admin UI
+
+The official web UI is [Horizon UI](https://github.com/apache/skywalking-horizon-ui),
+a SkyWalking sub-project. Operators who prefer not to deploy a web UI can
+also drive every admin endpoint above with `curl`, `swctl`, or a front-end
+of their choice.
 [Vantage Studio](https://github.com/SkyAPM/vantage-studio) is a
 community-built web UI (under the SkyAPM organization, authored by
 [Sheng Wu](https://github.com/wu-sheng)) that consumes the Admin API

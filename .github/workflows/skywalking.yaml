@@ -131,7 +131,6 @@ jobs:
             oap:
             - '!**/*.md'
             - '!**/*.txt'
-            - '!skywalking-ui/**'
             - '!.asf.yaml'
             - '!.dlc.json'
             - '!.gitignore'
@@ -148,15 +147,12 @@ jobs:
             - '!component-libraries.yml'
             pom:
             - '**/pom.xml'
-            ui: # dorny/paths-filter doesn't support submodule changes detection, anyway keep it here to remind us of https://github.com/dorny/paths-filter/issues/143
-            - 'skywalking-ui/**'
       - name: List all modified files
         if: steps.filter.outputs.oap == 'true' || steps.filter.outputs.pom == 'true' || steps.filter.outputs.pom == 'true'
         run: |
           echo "Files that have changed or modified:"
           echo "OAP: ${{ steps.filter.outputs.oap_files }}"
           echo "POM: ${{ steps.filter.outputs.pom_files }}"
-          echo "UI: ${{ steps.filter.outputs.ui_files }}"
 
   dist-tar:
     if: |
@@ -222,7 +218,6 @@ jobs:
         run: |
           make docker.all || make docker.all
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
-          docker save -o docker-images-skywalking-ui.tar skywalking/ui:latest
       - name: Upload docker images
         uses: actions/upload-artifact@v4
         with:

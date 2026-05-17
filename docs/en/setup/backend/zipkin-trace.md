@@ -69,8 +69,10 @@ query-zipkin:
 ```
 
 ## Lens UI
-Lens UI is Zipkin native UI. SkyWalking webapp has bundled it in the binary distribution.
-`{webapp IP}:{webapp port}/zipkin` is exposed and accessible for the browser.
-Meanwhile, `Iframe` UI component could be used to host Zipkin Lens UI on the SkyWalking booster UI dashboard.(link=/zipkin) 
+Lens UI is Zipkin's native browser UI. The OAP distribution does not bundle
+it; deploy a standalone Zipkin Lens container against the OAP Zipkin
+endpoints if you want a Lens-style trace view. SkyWalking
+[Horizon UI](https://github.com/apache/skywalking-horizon-ui) renders its
+own trace views over the same OAP trace data.
 
 Zipkin Lens UI source codes could be found [here](https://github.com/openzipkin/zipkin/tree/master/zipkin-lens).

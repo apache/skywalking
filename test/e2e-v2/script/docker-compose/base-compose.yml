@@ -48,16 +48,6 @@ services:
       # the second/third case in a batch.
       start_period: 90s
 
-  ui:
-    image: skywalking/ui:latest
-    expose:
-      - 8080
-    networks:
-      - e2e
-    environment:
-      - SW_OAP_ADDRESS=http://oap:12800
-      - SW_ZIPKIN_ADDRESS=http://oap:9412
-
   banyandb:
     image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}"
     networks:

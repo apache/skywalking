@@ -59,6 +59,7 @@ public class AlarmRecord extends Record {
     public static final String TAGS = "tags";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
     public static final String SNAPSHOT = "snapshot";
+    public static final String LAYER = "layer";
 
     @Override
     public StorageID id() {
@@ -73,10 +74,13 @@ public class AlarmRecord extends Record {
     private int scope;
     @Column(name = NAME, storageOnly = true, length = 512)
     private String name;
-    @Column(name = ID0, storageOnly = true, length = 512)
+    // id0/id1 carry the alarmed entity's primary (id0) and relation-destination
+    // (id1) IDs. Indexed (storageOnly removed in 11.0.0) so `queryAlarms` can
+    // filter alarms by serviceId / instanceId / endpointId / relation ends.
+    @Column(name = ID0, length = 512)
     @BanyanDB.SeriesID(index = 0)
     private String id0;
-    @Column(name = ID1, storageOnly = true)
+    @Column(name = ID1)
     private String id1;
     @ElasticSearch.EnableDocValues
     @Column(name = START_TIME)
@@ -96,6 +100,16 @@ public class AlarmRecord extends Record {
     private String snapshot;
     @Column(name = UUID)
     private String uuid;
+    /**
+     * The layer the alarmed entity belonged to at alarm-mint time. A service can be
+     * observed under multiple layers simultaneously (e.g., GENERAL + K8S_SERVICE); we
+     * record the first one resolved by {@code MetadataQueryService} here. The
+     * GraphQL response surface {@code AlarmMessage.layers: [String!]!} wraps this in
+     * a single-element list so the wire shape stays forward-compatible with a future
+     * native multi-value storage column.
+     */
+    @Column(name = LAYER, length = 64)
+    private String layer;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override
@@ -112,6 +126,7 @@ public class AlarmRecord extends Record {
             record.setRuleName((String) converter.get(RULE_NAME));
             record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             record.setSnapshot((String) converter.get(SNAPSHOT));
+            record.setLayer((String) converter.get(LAYER));
             // Don't read the TAGS as they are only for query.
             return record;
         }
@@ -130,6 +145,7 @@ public class AlarmRecord extends Record {
             converter.accept(TAGS_RAW_DATA, storageData.getTagsRawData());
             converter.accept(TAGS, storageData.getTagsInString());
             converter.accept(SNAPSHOT, storageData.getSnapshot());
+            converter.accept(LAYER, storageData.getLayer());
         }
     }
 }

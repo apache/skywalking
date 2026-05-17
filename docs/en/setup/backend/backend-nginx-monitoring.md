@@ -110,7 +110,7 @@ You can customize your own metrics/expression/dashboard panel.
 
 The metrics definition and expression rules are found in `/config/otel-rules/nginx-service.yaml, /config/otel-rules/nginx-instance.yaml, /config/otel-rules/nginx-endpoint.yaml`.
 
-The Nginx dashboard panel configurations are found in `/config/ui-initialized-templates/nginx`.
+The Nginx dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
 
 ## Collect nginx access and error log
 SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting access log and error log of Nginx.
@@ -138,4 +138,4 @@ You can customize your own metrics/expression/dashboard panel.
 
 The log collect and analyse rules are found in `/config/lal/nginx.yaml`, `/config/log-mal-rules/nginx.yaml`.
 
-The Nginx dashboard panel configurations are found in `/config/ui-initialized-templates/nginx`.
+The Nginx dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

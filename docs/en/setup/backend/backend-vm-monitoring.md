@@ -51,7 +51,7 @@ VM entity as a `Service` in OAP and on the `Layer: OS_LINUX`.
 ## Customizing
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/vm.yaml` and `/config/telegraf-rules/vm.yaml`.
-The dashboard panel confirmations are found in `/config/ui-initialized-templates/os_linux`.
+The dashboard panel confirmations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
 
 ## Blog
 For more details, see the blog article [SkyWalking 8.4 provides infrastructure monitoring](https://skywalking.apache.org/blog/2021-02-07-infrastructure-monitoring/).

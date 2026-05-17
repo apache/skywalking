@@ -125,4 +125,4 @@ Moreover, it ensures that a single Cilium node is not monitored by multiple OAP 
 ## Customizations
 You can customize your own metrics/dashboard panel.
 The metrics definition and expression rules are found in `/config/oal/cilium.oal`, please refer the [Scope Declaration Documentation](../../concepts-and-designs/scope-definitions.md#scopes-with-cilium-prefix).
-The Cilium dashboard panel configurations are found in `/config/ui-initialized-templates/cilium_service`.
+The Cilium dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

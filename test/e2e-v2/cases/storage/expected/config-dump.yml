@@ -220,4 +220,3 @@ promql.default.buildInfoBuildUser=******
 aws-firehose.default.enableTLS=false
 ai-pipeline.default.baselineServerPort=18080
 core.default.activeExtraModelColumns=false
-query.graphql.enableUpdateUITemplate=false

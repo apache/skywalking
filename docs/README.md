@@ -1,6 +1,6 @@
 # Welcome
 
-**This is the official documentation of SkyWalking 10. Welcome to the SkyWalking community!**
+**This is the official documentation of SkyWalking 11. Welcome to the SkyWalking community!**
 
 SkyWalking is an open source observability platform for collecting, analyzing, aggregating, and visualizing data from services and cloud native infrastructures. It provides distributed tracing, service mesh telemetry analysis, metrics aggregation, alerting, and visualization capabilities.
 

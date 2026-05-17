@@ -19,8 +19,7 @@
 PRG="$0"
 PRGDIR=`dirname "$PRG"`
 OAP_EXE=oapService.sh
-WEBAPP_EXE=webappService.sh
 
+# As of 11.0.0 the bundled web UI is removed; the OAP backend ships only
+# the OAP process. See apache/skywalking-horizon-ui for the standalone UI.
 "$PRGDIR"/"$OAP_EXE" 1> /dev/null &
-
-"$PRGDIR"/"$WEBAPP_EXE" 1> /dev/null &

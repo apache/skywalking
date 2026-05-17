@@ -1,10 +1,33 @@
 # Marketplace
 
-The **Marketplace** provides an overview of all out-of-box monitoring features available in SkyWalking. It is also the first UI menu on the SkyWalking native UI.
+The **Marketplace** is SkyWalking's catalog of out-of-box monitoring
+capabilities — the technologies, platforms, and protocols the OAP backend
+already knows how to receive, analyze, and expose as metrics, traces, logs,
+and entities.
+
+As of 11.0.0 the OAP backend ships only the **data plane** of the
+marketplace: receivers, analyzers, metrics definitions, layer entities,
+and the query surfaces (GraphQL / MQE / REST) that expose them. The
+**visualization layer** — dashboards, the marketplace UI, sidebar menu,
+i18n — lives in
+[apache/skywalking-horizon-ui](https://github.com/apache/skywalking-horizon-ui)
+and ships independently.
+
+In short:
+
+| | OAP backend (this repo) | Horizon UI (separate repo) |
+|---|---|---|
+| Metrics, traces, logs, entities, layers | ✓ | — |
+| Receivers, analyzers, OAL / MAL / LAL rules | ✓ | — |
+| GraphQL / MQE / admin REST query surfaces | ✓ | — |
+| Dashboards, widgets, marketplace UI | — | ✓ |
+| Sidebar menu, i18n keys, layout templates | — | ✓ |
 
 ## Out-of-Box Monitoring Features
 
-SkyWalking provides ready-to-use monitoring capabilities for a wide range of technologies and platforms:
+The OAP backend provides metric, trace, and entity coverage for the
+following technology layers. Each layer entry below is a *data* contract —
+the matching dashboard / visualization lives in Horizon UI.
 
 - **General Services** - Application monitoring with language agents (Java, Python, Go, Node.js, PHP, .NET, etc.), including tracing, metrics, and profiling
 - **Service Mesh** - Observability for Istio and Envoy-based service meshes through Access Log Service (ALS) or metrics
@@ -20,17 +43,25 @@ SkyWalking provides ready-to-use monitoring capabilities for a wide range of tec
 
 ## How It Works
 
-1. Browse the Marketplace sections in this documentation to find your target technology
-2. Follow the setup guide to configure the required agents, receivers, or integrations
-3. Once SkyWalking detects services of the configured type, the corresponding menu and dashboards will appear automatically in the UI
+1. Browse the marketplace sections in this documentation to find your target technology.
+2. Follow the setup guide to configure the required agents, receivers, or integrations on the OAP backend.
+3. Once OAP detects services / instances / endpoints of the configured layer, the corresponding entities show up under `listServices(layer: ...)` and the metrics light up for query.
+4. Horizon UI auto-discovers the new layer through its own dashboard library and renders the matching menu entries / dashboards. Dashboard layouts and i18n updates ship from the Horizon UI repository on its own release cadence.
 
-Each monitoring feature comes with pre-built dashboards, metrics, and alerting capabilities.
+Each layer comes with pre-defined metrics (OAL / MAL), trace shapes, and
+alerting templates on the OAP side; dashboards that render those metrics
+ship from Horizon UI.
 
-## Advanced: Custom Dashboards
+## Advanced: Custom Metrics
 
-For users who need to visualize custom metrics or create specialized dashboards beyond the out-of-box features:
+For users who need to extend SkyWalking beyond the out-of-box features:
 
-1. Set up data collection following the Tracing, Logging, or Metrics documentation
-2. Configure custom analysis pipelines using the Customization documentation
-3. Create custom UI dashboards following the [UI Customization documentation](../../ui/README.md)
+1. Set up data collection following the Tracing, Logging, or Metrics
+   documentation.
+2. Configure custom analysis pipelines using the Customization
+   documentation (custom OAL, MAL, LAL).
+3. Push custom dashboards through OAP's UI Management REST surface
+   ([UI Management API](admin-api/ui-management.md)) or contribute
+   them upstream to [Horizon UI](https://github.com/apache/skywalking-horizon-ui).
 
+See [UI Customization](../../ui/README.md) for the dashboard-side workflow.

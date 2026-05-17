@@ -36,7 +36,6 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
-import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerMutationService;
@@ -196,8 +195,6 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         // Management
         this.registerServiceImplementation(UITemplateManagementService.class, new UITemplateManagementService(getManager()));
-        this.registerServiceImplementation(
-            UIMenuManagementService.class, new UIMenuManagementService(getManager(), moduleConfig));
 
         this.registerServiceImplementation(EventQueryService.class, new EventQueryService(getManager()));
         this.registerServiceImplementation(RecordQueryService.class, new RecordQueryService(getManager()));

@@ -74,7 +74,7 @@ the OAP. In each cluster, the kafka brokers are represented as `Instance`.
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `/config/otel-rules/kafka/kafka-cluster.yaml, /config/otel-rules/kafka/kafka-node.yaml`.
-The Kafka dashboard panel configurations are found in `/config/ui-initialized-templates/kafka`.
+The Kafka dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
 
 ## Reference
 For more details on monitoring Kafka and the metrics to focus on, see the following articles:

@@ -216,6 +216,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
+            <artifactId>ui-management</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
             <artifactId>skywalking-telegraf-receiver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -366,7 +371,6 @@
                         <exclude>meter-analyzer-config/</exclude>
                         <exclude>openapi-definitions/</exclude>
                         <exclude>otel-rules/</exclude>
-                        <exclude>ui-initialized-templates/</exclude>
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
                         <exclude>log-mal-rules/</exclude>

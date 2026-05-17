@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import com.google.gson.JsonObject;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -50,6 +51,12 @@ public class AlarmMessage {
     private String expression;
     private JsonObject mqeMetricsSnapshot;
     private String uuid;
+    /**
+     * The layer(s) the alarmed entity belongs to at alarm-mint time.
+     * Empty list when the layer is unknown (rare; covers entities for which
+     * MetadataQueryService returns no layer mapping).
+     */
+    private List<String> layers = Collections.emptyList();
 
     public AlarmMessage(String uuid) {
         this.uuid = uuid;

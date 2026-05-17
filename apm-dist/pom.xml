@@ -53,19 +53,6 @@
                 </dependency>
             </dependencies>
         </profile>
-        <profile>
-            <id>ui</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.skywalking</groupId>
-                    <artifactId>apm-webapp</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
     </profiles>
 
     <build>

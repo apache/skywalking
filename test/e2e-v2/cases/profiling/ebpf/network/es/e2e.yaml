@@ -22,13 +22,12 @@ setup:
   init-system-environment: ../../../../../script/env
   kind:
     import-images:
-      - skywalking/ui:latest
       - skywalking/oap:latest
       - test/network:test
     expose-ports:
       - namespace: istio-system
-        resource: service/skywalking-ui
-        port: 80
+        resource: service/skywalking-oap
+        port: 12800
       - namespace: default
         resource: service/service
         port: 80
@@ -61,8 +60,7 @@ setup:
           --set fullnameOverride=skywalking \
           --set eckOperator.enabled=false \
           --set oap.replicas=1 \
-          --set ui.image.repository=skywalking/ui \
-          --set ui.image.tag=latest \
+          --set ui.enabled=false \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=elasticsearch \

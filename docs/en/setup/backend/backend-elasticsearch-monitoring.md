@@ -112,4 +112,4 @@ Elasticsearch monitoring provides multidimensional metrics monitoring of Elastic
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `/config/otel-rules/elasticsearch/elasticsearch-cluster.yaml, /config/otel-rules/elasticsearch/elasticsearch-node.yaml, /config/otel-rules/elasticsearch/elasticsearch-index.yaml`.
-The Elasticsearch dashboard panel configurations are found in `/config/ui-initialized-templates/elasticsearch`.
+The Elasticsearch dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

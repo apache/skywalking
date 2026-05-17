@@ -61,21 +61,6 @@ services:
       oap1:
         condition: service_healthy
 
-  ui:
-    extends:
-      file: ../../script/docker-compose/base-compose.yml
-      service: ui
-    environment:
-      - SW_OAP_ADDRESS=http://oap1:12800,http://oap2:12800
-      - SW_ZIPKIN_ADDRESS=http://oap1:9412,http://oap2:9412
-    depends_on:
-      oap1:
-        condition: service_healthy
-      oap2:
-        condition: service_healthy
-    ports:
-      - 8080
-
   provider1:
     extends:
       file: ../../script/docker-compose/base-compose.yml

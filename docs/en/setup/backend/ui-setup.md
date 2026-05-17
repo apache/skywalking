@@ -1,40 +1,39 @@
 # UI
-SkyWalking UI distribution is already included in our Apache official release.
 
-## Startup
-Startup script is also in `/bin/webappService.sh`(.bat). UI runs as a Java process, powered-by Armeria.
+The SkyWalking web UI ships from a dedicated project,
+[apache/skywalking-horizon-ui](https://github.com/apache/skywalking-horizon-ui).
+This OAP distribution does not bundle a UI.
 
-## Settings
-The settings file of UI is  `webapp/webapp.yml` in the distribution package. It has three parts.
+Horizon UI **releases independently** of the OAP backend. The two projects
+advance on separate schedules, are matched at deploy time (not at release
+time), and the OAP `x.y.z` tag has no implied Horizon UI counterpart. Pin
+the UI image tag explicitly in your deployment.
 
-1. Listening port.
-1. Backend connect info.
+## Run Horizon UI with Docker
 
-```yaml
-serverPort: ${SW_SERVER_PORT:-8080}
-
-# Comma separated list of OAP addresses, with `http://` or `https://` prefix.
-oapServices: ${SW_OAP_ADDRESS:-http://localhost:12800}
-zipkinServices: ${SW_ZIPKIN_ADDRESS:http://localhost:9412}
-```
-
-## Start with Docker Image
-
-Start a container to connect OAP server whose address is `http://oap:12800`.
+Container images are published to
+[`ghcr.io/apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui/pkgs/container/skywalking-horizon-ui).
+Operators pin to a commit SHA for reproducibility, or use `latest` for tracking.
 
 ```shell
-export version=9.0.0
-docker run --name oap --restart always -d -e SW_OAP_ADDRESS=http://oap:12800 -e SW_ZIPKIN_ADDRESS=http://oap:9412 apache/skywalking-ui:$version
+docker run --name skywalking-ui --restart always -d \
+  -p 8080:8080 \
+  -e SW_OAP_ADDRESS=http://oap:12800 \
+  -e SW_ADMIN_ADDRESS=http://oap:17128 \
+  -e SW_ZIPKIN_ADDRESS=http://oap:9412 \
+  ghcr.io/apache/skywalking-horizon-ui:latest
 ```
 
-### Configuration
+### Environment variables
 
-We could set up environment variables to configure this image.
+| Variable | Default | Description |
+|---|---|---|
+| `SW_OAP_ADDRESS` | `http://127.0.0.1:12800` | OAP public GraphQL / REST surface — read-side queries (services, metrics, traces, logs, alarms, MQE). |
+| `SW_ADMIN_ADDRESS` | `http://127.0.0.1:17128` | OAP admin host — `/ui-management/templates/*` (dashboard templates; menu is owned by Horizon UI client-side), `/status/*`, `/inspect/*`, `/dsl-debugging/*`, `/runtime/rule/*`. |
+| `SW_ZIPKIN_ADDRESS` | `http://127.0.0.1:9412` | OAP Zipkin v2 query endpoint, for trace ingestion paths that target the Zipkin compatibility layer. |
 
-### SW_OAP_ADDRESS
+## Building UI assets
 
-The address of your OAP server. The default value is `http://127.0.0.1:12800`.
-
-### SW_ZIPKIN_ADDRESS
-
-The address of your Zipkin server. The default value is `http://127.0.0.1:9412`.
+The Horizon UI repository owns its own build, release, and CI workflow. To
+contribute dashboards, menus, widgets, or i18n, see the
+[Horizon UI contributing guide](https://github.com/apache/skywalking-horizon-ui#contributing).

@@ -147,7 +147,8 @@ public class RunningRule {
         }
 
         AlarmEntity entity = new AlarmEntity(
-                meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1());
+                meta.getScope(), meta.getScopeId(), meta.getName(), meta.getId0(), meta.getId1(),
+                meta.getLayers());
 
         Window window = windows.computeIfAbsent(entity, ignored -> new Window(entity, this.period,
                 this.silencePeriod, this.recoveryObservationPeriod, this.additionalPeriod));
@@ -410,6 +411,7 @@ public class RunningRule {
             alarmMessage.setHooks(hooks);
             alarmMessage.setExpression(expression);
             alarmMessage.setMqeMetricsSnapshot(mqeMetricsSnapshot);
+            alarmMessage.setLayers(entity.getLayers());
             return alarmMessage;
         }
 

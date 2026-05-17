@@ -33,6 +33,7 @@
         <module>dsl-debugging</module>
         <module>status</module>
         <module>inspect</module>
+        <module>ui-management</module>
     </modules>
 
     <dependencies>

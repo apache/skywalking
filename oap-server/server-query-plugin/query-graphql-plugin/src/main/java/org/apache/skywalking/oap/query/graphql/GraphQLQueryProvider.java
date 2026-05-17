@@ -55,7 +55,6 @@ import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQueryV2;
-import org.apache.skywalking.oap.query.graphql.resolver.UIConfigurationManagement;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -139,8 +138,6 @@ public class GraphQLQueryProvider extends ModuleProvider {
                      )
                      .file("query-protocol/profile.graphqls")
                      .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
-                     .file("query-protocol/ui-configuration.graphqls")
-                     .resolvers(new UIConfigurationManagement(getManager(), config))
                      .file("query-protocol/browser-log.graphqls")
                      .resolvers(new BrowserLogQuery(getManager()))
                      .file("query-protocol/event.graphqls")

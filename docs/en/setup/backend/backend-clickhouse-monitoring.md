@@ -137,4 +137,4 @@ used, this section of parameters can be omitted.
 
 You can customize your own metrics/expression/dashboard panel. The metrics definition and expression rules are found
 in `/config/otel-rules/clickhouse`. The ClickHouse dashboard panel configurations are found
-in `/config/ui-initialized-templates/clickhouse`.
+from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui).

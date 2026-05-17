@@ -63,6 +63,7 @@ services:
     ports:
       - "11800:11800"
       - "12800:12800"
+      - "17128:17128"
     networks:
       - demo
     healthcheck:
@@ -102,8 +103,12 @@ services:
       SW_STORAGE: banyandb
       SW_STORAGE_BANYANDB_TARGETS: banyandb:17912
 
+  # SkyWalking Horizon UI — official web UI as of 10.5.0.
+  # Source: https://github.com/apache/skywalking-horizon-ui
+  # Talks to OAP via the public GraphQL/REST port (12800) and to admin-server
+  # for write APIs (UI templates, runtime-rule, dsl-debugging, status, inspect).
   ui:
-    image: ${UI_IMAGE:-ghcr.io/apache/skywalking/ui:latest}
+    image: ${UI_IMAGE:-ghcr.io/apache/skywalking-horizon-ui:latest}
     container_name: ui
     ports:
       - "8080:8080"
@@ -111,6 +116,7 @@ services:
       - demo
     environment:
       SW_OAP_ADDRESS: http://oap:12800
+      SW_ADMIN_ADDRESS: http://oap:17128
       SW_ZIPKIN_ADDRESS: http://oap:9412
 
 networks:

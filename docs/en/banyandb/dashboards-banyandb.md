@@ -46,4 +46,4 @@ Self observability monitoring provides monitoring of the status and resources of
 | Count | meter_banyandb_total_document                 | Total Document Count | BanyanDB |
 
 ## Customizations
-You can customize your own metrics/expression/dashboard panel.The metrics definition and expression rules are found in `/config/otel-rules/banyandb`.The [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/) dashboard panel configurations are found in `/config/ui-initialized-templates/banyandb`.
+You can customize your own metrics/expression/dashboard panel.The metrics definition and expression rules are found in `/config/otel-rules/banyandb`.The [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/next/readme/) dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

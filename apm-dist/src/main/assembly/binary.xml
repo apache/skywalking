@@ -69,8 +69,6 @@
                 <include>zabbix-rules/*.yaml</include>
                 <include>openapi-definitions/*/*.yaml</include>
                 <include>otel-rules/**</include>
-                <include>ui-initialized-templates/*/*.json</include>
-                <include>ui-initialized-templates/menu.yaml</include>
                 <include>lal/*</include>
                 <include>log-mal-rules/**</include>
                 <include>telegraf-rules/*</include>
@@ -132,21 +130,4 @@
             <outputDirectory/>
         </fileSet>
     </fileSets>
-    <files>
-        <file>
-            <source>${project.basedir}/../apm-webapp/target/skywalking-webapp.jar</source>
-            <outputDirectory>webapp</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-        <file>
-            <source>${project.basedir}/../apm-webapp/src/main/resources/application.yml</source>
-            <outputDirectory>webapp</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-        <file>
-            <source>${project.basedir}/../apm-webapp/src/main/assembly/log4j2.xml</source>
-            <outputDirectory>webapp</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-    </files>
 </assembly>

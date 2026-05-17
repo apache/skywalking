@@ -28,13 +28,16 @@ SkyWalking OAP provides the metrics/trace/log/topology query tracing to help use
 
 
 ## Debugging through HTTP APIs
-The query tracing service is provided within the OAP rest server, 
-which could be accessed through HTTP GET `http://{core restHost}:{core restPort}/debugging/query/...`.
+The query tracing routes live on the admin host (default port `17128`);
+they are reachable via HTTP GET
+`http://{admin-server host}:{admin-server port}/debugging/query/...`.
+Gateway-protect the admin port per the
+[admin-server security notice](../setup/backend/admin-api/readme.md#-security-notice).
 
 **Note:** The `layer` of the service is optional, but if the service is virtual then required, such the `layer` is `UNDEFINED/VIRTUAL_DATABASE/VIRTUAL_MQ/VIRTUAL_GATEWAY`.
 
 ### Tracing MQE Execution
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/mqe?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/mqe?{parameters}`.
 - Parameters
 
 | Field               | Description                                                                 | Required           | 
@@ -63,7 +66,7 @@ The time and step parameters are follow the [Duration](../api/query-protocol.md#
 Tracing an avg query with the MQE query expression `avg(service_sla)` from 2024-07-03 to 2024-07-03 with the step DAY for the service `mock_a_service` and the service layer `GENERAL`.
 
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/mqe?dumpDBRsp=true&expression=avg(service_sla)&startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&serviceLayer=GENERAL'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/mqe?dumpDBRsp=true&expression=avg(service_sla)&startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&serviceLayer=GENERAL'
 ```
 
 Response will include query result and the debuggingTrace information:
@@ -182,7 +185,7 @@ childSpans:
 
 #### Tracing SkyWalking API queryBasicTraces
 
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/queryBasicTraces?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/queryBasicTraces?{parameters}`.
 - Parameters
 
   | Field              | Description                                                               | Required |
@@ -206,7 +209,7 @@ The time and step parameters are follow the [Duration](../api/query-protocol.md#
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryBasicTraces?startTime=2024-06-26%200900&endTime=2024-06-26%200915&step=MINUTE&service=mock_a_service&serviceInstance=mock_a_service_instance&traceState=ALL&queryOrder=BY_DURATION&pageNum=1&pageSize=15&tags=http.status_code%3D404%2Chttp.method%3Dget' 
+curl -X GET 'http://127.0.0.1:17128/debugging/query/trace/queryBasicTraces?startTime=2024-06-26%200900&endTime=2024-06-26%200915&step=MINUTE&service=mock_a_service&serviceInstance=mock_a_service_instance&traceState=ALL&queryOrder=BY_DURATION&pageNum=1&pageSize=15&tags=http.status_code%3D404%2Chttp.method%3Dget'
 ```
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
 
@@ -218,7 +221,7 @@ debuggingTrace:
 ```
 
 #### Tracing SkyWalking API queryTrace
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/trace/queryTrace?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/trace/queryTrace?{parameters}`.
 - Parameters
 
   | Field           | Description                      | Required        |
@@ -230,7 +233,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/trace/queryTrace?traceId=8211a1d1-de0f-4485-8766-c88866a8f034&startTime=2025-09-28&endTime=2025-09-28%200915&step=DAY'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/trace/queryTrace?traceId=8211a1d1-de0f-4485-8766-c88866a8f034&startTime=2025-09-28&endTime=2025-09-28%200915&step=DAY'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -245,7 +248,7 @@ debuggingTrace:
 ### Tracing Zipkin Trace Query
 
 #### Tracing Zipkin API /api/v2/traces
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/zipkin/api/v2/traces?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/zipkin/api/v2/traces?{parameters}`.
 - Parameters
   
   | Field             | Description                       | Required                       |
@@ -265,7 +268,7 @@ debuggingTrace:
 - Example
 
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/zipkin/api/v2/traces?serviceName=frontend'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/zipkin/api/v2/traces?serviceName=frontend'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -278,7 +281,7 @@ debuggingTrace:
 ```
 
 #### Tracing /api/v2/trace/{traceId}
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/zipkin/api/v2/trace?{parameters}`
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/zipkin/api/v2/trace?{parameters}`
 - Parameters
 
   | Field             | Description         | Required           |
@@ -287,7 +290,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/zipkin/api/v2/trace?traceId=fcb10b060c6b2492`
+curl -X GET 'http://127.0.0.1:17128/debugging/query/zipkin/api/v2/trace?traceId=fcb10b060c6b2492`
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -302,7 +305,7 @@ debuggingTrace:
 ### Tracing Topology Query
 
 #### Tracing SkyWalking API getGlobalTopology
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getGlobalTopology?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/topology/getGlobalTopology?{parameters}`.
 - Parameters
 
   | Field         | Description                                                             | Required |
@@ -315,7 +318,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getGlobalTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&serviceLayer=GENERAL'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/topology/getGlobalTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&serviceLayer=GENERAL'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -330,7 +333,7 @@ debuggingTrace:
 ```
 
 #### Tracing SkyWalking API getServicesTopology
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getServicesTopology?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/topology/getServicesTopology?{parameters}`.
 - Parameters
 
   | Field         | Description                                                                 | Required |
@@ -344,7 +347,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServicesTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&services=mock_a_service%2Cmock_b_service'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/topology/getServicesTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&services=mock_a_service%2Cmock_b_service'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -359,7 +362,7 @@ debuggingTrace:
 ```
 
 #### Tracing SkyWalking API getServiceInstanceTopology
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getServiceInstanceTopology?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/topology/getServiceInstanceTopology?{parameters}`.
 - Parameters
 
   | Field              | Description                                                             | Required |
@@ -375,7 +378,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getServiceInstanceTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&clientService=mock_a_service&serverService=mock_b_service'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/topology/getServiceInstanceTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&clientService=mock_a_service&serverService=mock_b_service'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -390,7 +393,7 @@ debuggingTrace:
 ```
 
 #### Tracing SkyWalking API getEndpointDependencies
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getEndpointDependencies?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/topology/getEndpointDependencies?{parameters}`.
 - Parameters
 
   | Field          | Description                                                             | Required |
@@ -406,7 +409,7 @@ debuggingTrace:
 - Example
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getEndpointDependencies?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&endpoint=%2Fdubbox-case%2Fcase%2Fdubbox-rest%2F404-test'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/topology/getEndpointDependencies?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&endpoint=%2Fdubbox-case%2Fcase%2Fdubbox-rest%2F404-test'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -421,7 +424,7 @@ debuggingTrace:
 ```
 
 #### Tracing SkyWalking API getProcessTopology
-- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/topology/getProcessTopology?{parameters}`.
+- URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/topology/getProcessTopology?{parameters}`.
 - Parameters
 
   | Field        | Description                                                             | Required |
@@ -436,7 +439,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/topology/getProcessTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&instance=mock_a_service_instance'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/topology/getProcessTopology?startTime=2024-07-03&endTime=2024-07-03&step=DAY&service=mock_a_service&instance=mock_a_service_instance'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:
@@ -453,7 +456,7 @@ debuggingTrace:
 ### Tracing Log Query
 
 #### Tracing SkyWalking API queryLogs
- URL: HTTP GET `http://{core restHost}:{core restPort}/debugging/query/log/queryLogs?{parameters}`.
+ URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/log/queryLogs?{parameters}`.
  Parameters
 
   | Field                      | Description                                                             | Required                      |
@@ -478,7 +481,7 @@ debuggingTrace:
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:12800/debugging/query/log/queryLogs?service=e2e-service-provider&startTime=2024-07-09&endTime=2024-07-09&step=DAY&pageNum=1&pageSize=15&queryOrder=ASC&tags=level%3DINFO'
+curl -X GET 'http://127.0.0.1:17128/debugging/query/log/queryLogs?service=e2e-service-provider&startTime=2024-07-09&endTime=2024-07-09&step=DAY&pageNum=1&pageSize=15&queryOrder=ASC&tags=level%3DINFO'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:

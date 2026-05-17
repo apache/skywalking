@@ -216,11 +216,6 @@ public class CoreModuleConfig extends ModuleConfig {
     private int maxHttpUrisNumberPerService = 3000;
 
     /**
-     * The UI menu should activate fetch interval, default 20s
-     */
-    private int uiMenuRefreshInterval = 20;
-
-    /**
      * The service cache refresh interval, default 10s
      */
     @Setter
