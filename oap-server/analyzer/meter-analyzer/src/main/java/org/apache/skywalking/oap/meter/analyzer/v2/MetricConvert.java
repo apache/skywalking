@@ -33,7 +33,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALScriptParser;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -294,15 +294,18 @@ public class MetricConvert {
         return new FilterExpression(filterText, "filter", yamlSource, pool, targetClassLoader);
     }
 
-    private String formatExp(final String expPrefix, String expSuffix, String exp) {
-        String ret = exp;
-        if (!Strings.isNullOrEmpty(expPrefix)) {
-            ret = String.format("(%s.%s)", StringUtils.substringBefore(exp, "."), expPrefix);
-            final String after = StringUtils.substringAfter(exp, ".");
-            if (!Strings.isNullOrEmpty(after)) {
-                ret = String.format("(%s.%s)", ret, after);
-            }
-        }
+    /**
+     * Build the final MAL expression from {@code expPrefix} + {@code exp} + {@code expSuffix}.
+     *
+     * <p>The prefix is injected at every metric source via
+     * {@link MALScriptParser#injectExpPrefix(String, String)} so secondary
+     * metric refs inside arguments (e.g. the {@code b} in
+     * {@code a.sum(['s']).safeDiv(b.sum(['s']))}) are not skipped — a naive
+     * splice-after-first-dot would only rewrite {@code a}.
+     */
+    public static String formatExp(final String expPrefix, final String expSuffix,
+                                    final String exp) {
+        String ret = MALScriptParser.injectExpPrefix(exp, expPrefix);
         if (!Strings.isNullOrEmpty(expSuffix)) {
             ret = String.format("(%s).%s", ret, expSuffix);
         }
