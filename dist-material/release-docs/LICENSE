@@ -185,20 +185,6 @@ licenses.
 
 
 ========================================================================
-(Apache-2.0 OR MIT) licenses
-========================================================================
-The following components are provided under the (Apache-2.0 OR MIT) License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-
-========================================================================
-0BSD licenses
-========================================================================
-The following components are provided under the 0BSD License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-
-========================================================================
 Apache-2.0 licenses
 ========================================================================
 The following components are provided under the Apache-2.0 License. See project link for details.
@@ -217,7 +203,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.20.1 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.12.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.20.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
@@ -330,7 +316,6 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.vavr/vavr/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.vavr/vavr-match/0.10.3 Apache-2.0
     https://mvnrepository.com/artifact/io.zipkin.zipkin2/zipkin/2.24.1 Apache-2.0
-    https://mvnrepository.com/artifact/io.zipkin/zipkin-lens/2.24.1 Apache-2.0
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.4.4 Apache-2.0
@@ -397,6 +382,7 @@ The following components are provided under the CC0-1.0 License. See project lin
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/org.latencyutils/LatencyUtils/2.0.3 CC0-1.0
+    https://mvnrepository.com/artifact/org.reactivestreams/reactive-streams/1.0.3 CC0-1.0
 
 ========================================================================
 CC0-1.0 and BSD-2-Clause licenses
@@ -405,13 +391,6 @@ The following components are provided under the CC0-1.0 and BSD-2-Clause License
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/org.hdrhistogram/HdrHistogram/2.2.2 CC0-1.0 and BSD-2-Clause
-
-========================================================================
-ISC licenses
-========================================================================
-The following components are provided under the ISC License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
 
 ========================================================================
 MIT licenses
@@ -444,13 +423,6 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/aopalliance/aopalliance/1.0 Public Domain
 
 ========================================================================
-Unlicense licenses
-========================================================================
-The following components are provided under the Unlicense License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-
-========================================================================
 https://golang.org/LICENSE licenses
 ========================================================================
 The following components are provided under the https://golang.org/LICENSE License. See project link for details.
@@ -465,14 +437,6 @@ The following components are provided under the https://opensource.org/licenses/
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
     https://mvnrepository.com/artifact/com.github.luben/zstd-jni/1.5.2-1 https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License
-
-========================================================================
-https://spdx.org/licenses/MIT-0.html licenses
-========================================================================
-The following components are provided under the https://spdx.org/licenses/MIT-0.html License. See project link for details.
-The text of each license is also included in licenses/LICENSE-[project].txt.
-
-    https://mvnrepository.com/artifact/org.reactivestreams/reactive-streams/1.0.4 https://spdx.org/licenses/MIT-0.html
 
 =======================================================================
 The zipkin-lens.jar dependency has more front-end dependencies in it and the front-end dependencies' licenses
