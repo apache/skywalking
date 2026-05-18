@@ -59,7 +59,12 @@ public class AlarmRecord extends Record {
     public static final String TAGS = "tags";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
     public static final String SNAPSHOT = "snapshot";
-    public static final String LAYER = "layer";
+    // Stored under `alarm_layer` (not `layer`) because the ES storage shares
+    // a single `records-all` index across all Record types — `Event.layer` is
+    // typed as the Layer enum (persisted as int) while AlarmRecord persists
+    // the layer name as String, so colliding on the same ES field name would
+    // fail the ModelInstaller type check at boot.
+    public static final String LAYER = "alarm_layer";
 
     @Override
     public StorageID id() {
