@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.status;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -138,7 +138,13 @@ public class ServerStatusService implements Service {
         return configValue;
     }
 
-    public static class ConfigList extends HashMap<String, String> {
+    /**
+     * Sorted alphabetically by key so the dump and the /debugging/config/dump
+     * text payload are stable across JVM versions and HashMap rehashes — the
+     * e2e config-dump expected files only stay matchable when the order is
+     * deterministic.
+     */
+    public static class ConfigList extends TreeMap<String, String> {
         @Override
         public String toString() {
             StringBuilder configList = new StringBuilder();
