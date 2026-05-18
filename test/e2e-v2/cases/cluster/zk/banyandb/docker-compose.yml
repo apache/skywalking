@@ -88,7 +88,7 @@ services:
   # Use `ports:` (not `expose:`) so infra-e2e can read the host-side
   # mapping and populate `${oap_host}` / `${oap_12800}`.
   oap:
-    image: nginx:1.25-alpine
+    image: nginx:${SW_NGINX_VERSION}
     networks:
       - e2e
     ports:
