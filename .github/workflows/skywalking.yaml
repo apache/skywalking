@@ -61,7 +61,7 @@ jobs:
   dependency-license:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true')
     name: Dependency licenses
     needs: [changes]
     runs-on: ubuntu-latest
@@ -114,7 +114,6 @@ jobs:
     outputs:
       oap: ${{ steps.filter.outputs.oap }}
       pom: ${{ steps.filter.outputs.pom }}
-      ui: ${{ steps.filter.outputs.ui }}
     steps:
       - uses: actions/checkout@v6 # required for push event
         with:
@@ -717,6 +716,9 @@ jobs:
 
           - name: OTLP Trace
             config: test/e2e-v2/cases/otlp-traces/e2e.yaml
+
+          - name: UI Management BanyanDB
+            config: test/e2e-v2/cases/ui-management/banyandb/e2e.yaml
 
           - name: Cilium Service
             config: test/e2e-v2/cases/cilium/e2e.yaml

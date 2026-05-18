@@ -131,13 +131,13 @@ Operator reference: [UI Management API](ui-management.md).
 ### Admin UI
 
 The official web UI is [Horizon UI](https://github.com/apache/skywalking-horizon-ui),
-a SkyWalking sub-project. Operators who prefer not to deploy a web UI can
-also drive every admin endpoint above with `curl`, `swctl`, or a front-end
-of their choice.
-[Vantage Studio](https://github.com/SkyAPM/vantage-studio) is a
-community-built web UI (under the SkyAPM organization, authored by
-[Sheng Wu](https://github.com/wu-sheng)) that consumes the Admin API
-surface. See [Admin UI](admin-ui.md) for the operator note.
+a SkyWalking sub-project. Horizon UI consumes both the public query
+surface (GraphQL / MQE on `core.restPort`, default `12800`) and every
+admin host endpoint listed above (`/ui-management/*`, `/status/*`,
+`/inspect/*`, `/dsl-debugging/*`, `/runtime/rule/*` on the admin port,
+default `17128`). Operators who prefer not to deploy a web UI can drive
+every admin endpoint with `curl`, `swctl`, or a front-end of their
+choice.
 
 ## Enabling
 

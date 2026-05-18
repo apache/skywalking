@@ -43,10 +43,13 @@ public class AlarmQueryCondition {
     private Duration duration;
     private Pagination paging;
     /**
-     * Each entity is resolved at query time to one or two IDs (one for
-     * non-relation scopes, source + dest for relations) and matched against
-     * the alarm record's id0 OR id1 columns. Across the list, matches OR
-     * together.
+     * Each entity is resolved at query time to one EntityIdConstraint:
+     * non-relation scopes produce {@code id0=X OR id1=X} (two-sided match,
+     * since a service can be in either column depending on the alarm rule
+     * that fired); relation scopes produce {@code id0=src AND id1=dest}
+     * (exact ordered match, NOT "any side"). Across the list, per-entity
+     * constraints are OR'd. See
+     * {@link org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO#resolveEntityFilters}.
      */
     private List<Entity> entities;
     /**

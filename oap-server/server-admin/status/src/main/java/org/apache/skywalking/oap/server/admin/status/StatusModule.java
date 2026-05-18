@@ -27,15 +27,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  * debugging trace endpoints. URI paths and response payloads are
  * preserved verbatim from the legacy plugin.
  *
- * <p>Dual-binds at start time: every handler is registered on the
- * public REST {@link org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister}
- * exposed by core (preserving the binding skywalking-ui already
- * consumes) and, when admin-server is enabled, additionally on the
- * admin-server's own register.
- *
- * <p>Designed to function with admin-server off — the public REST
- * binding is unconditional so existing UI deployments keep working
- * after the relocation.
+ * <p>Mounts on the admin-server REST host. {@code /status/config/ttl}
+ * is additionally bound on the public REST host (kept for
+ * baseline-predictor, which fetches TTL bounds before issuing
+ * /graphql); every other handler is admin-only.
  */
 public class StatusModule extends ModuleDefine {
     public static final String NAME = "status";

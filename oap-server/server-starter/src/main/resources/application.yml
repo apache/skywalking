@@ -737,8 +737,11 @@ dsl-debugging:
     injectionEnabled: ${SW_DSL_DEBUGGING_INJECTION_ENABLED:true}
 
 # Status feature module — cluster nodes / alarm runtime status / TTL config / debug
-# query trace endpoints. Mounts onto admin-server (admin-host only — no public REST
-# binding). Enabled by default; set SW_STATUS= empty to disable.
+# query trace endpoints. Mounts onto admin-server (default :17128). The single
+# exception is `/status/config/ttl`, which is also bound on the public REST host
+# (default :12800) so ecosystem tools like skywalking-baseline-predictor that
+# discover TTL via REST before issuing /graphql don't have to know about the
+# admin port. Enabled by default; set SW_STATUS= empty to disable.
 status:
   selector: ${SW_STATUS:default}
   default:

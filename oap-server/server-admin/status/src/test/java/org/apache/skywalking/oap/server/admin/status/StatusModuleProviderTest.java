@@ -40,8 +40,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifies the register-resolution helper on StatusModuleProvider. Status is
- * an admin-host module — handlers mount only on the admin-server REST host.
+ * Verifies the register-resolution helpers on StatusModuleProvider. Status is
+ * an admin-host module — handlers mount on the admin-server REST host — with
+ * the single exception of {@code /status/config/ttl}, which is also bound on
+ * the public REST host for baseline-predictor.
  */
 @ExtendWith(MockitoExtension.class)
 class StatusModuleProviderTest {
@@ -54,6 +56,12 @@ class StatusModuleProviderTest {
 
     @Mock
     private HTTPHandlerRegister adminRegister;
+
+    @Mock
+    private ModuleProviderHolder coreHolder;
+
+    @Mock
+    private HTTPHandlerRegister publicRegister;
 
     private StatusModuleProvider provider;
 
@@ -71,6 +79,17 @@ class StatusModuleProviderTest {
         final HTTPHandlerRegister resolved = provider.adminRestRegister();
 
         assertSame(adminRegister, resolved);
+    }
+
+    @Test
+    void publicRestRegisterResolvesViaCoreModule() {
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(coreHolder);
+        when(coreHolder.provider()).thenReturn(stubProviderExposing(publicRegister));
+
+        final HTTPHandlerRegister resolved = provider.publicRestRegister();
+
+        assertSame(publicRegister, resolved,
+                   "/status/config/ttl is dual-bound — public binding must resolve via CoreModule");
     }
 
     @Test

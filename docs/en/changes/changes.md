@@ -90,12 +90,15 @@
   Operators who don't want a particular feature set its `SW_*` env var to empty. This
   closes a usability gap from 10.4.0 where the runtime-rule / dsl-debugging surfaces
   required explicit opt-in even though the admin host was already on.
-* **Status API is admin-host only — public REST dual-bind retired.** Status / debug
-  routes (`/status/*`, `/debugging/*`) now register only on the admin-server REST host
-  (default `17128`); they no longer mirror on `core.restPort` (default `12800`). This
-  aligns status with every other admin feature module (inspect, dsl-debugging,
-  runtime-rule, ui-management). Horizon UI consumes status from the admin host. URIs
-  and payloads are unchanged; only the host moved.
+* **Status API moved to admin-host.** Status / debug routes (`/status/*`, `/debugging/*`)
+  now register on the admin-server REST host (default `17128`); they no longer mirror
+  on `core.restPort` (default `12800`). Aligns status with every other admin feature
+  module (inspect, dsl-debugging, runtime-rule, ui-management). Horizon UI consumes
+  status from the admin host. URIs and payloads are unchanged; only the host moved.
+  **One exception:** `/status/config/ttl` is also bound on the public REST host
+  (12800) so apache/skywalking-baseline-predictor (and any other ecosystem tool that
+  discovers TTL bounds via REST before issuing /graphql) doesn't need to learn the
+  admin port.
 * **New `admin-server` module — shared host for admin / on-demand write APIs.** Runs on
   **two ports**: an HTTP REST surface (default `17128`) for operator-facing endpoints,
   and an **admin-internal gRPC bus** (default `17129`) for peer-to-peer cluster RPCs
