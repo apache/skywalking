@@ -95,11 +95,13 @@ services:
 
   # TCP LB on 12800 so tests address the clustered OAP through a single
   # `${oap_host}:${oap_12800}` regardless of which member answers.
+  # Use `ports:` (not `expose:`) so infra-e2e can read the host-side
+  # mapping and populate `${oap_host}` / `${oap_12800}`.
   oap:
     image: nginx:1.25-alpine
     networks:
       - e2e
-    expose:
+    ports:
       - 12800
     volumes:
       - ../../../../script/docker-compose/oap-lb.conf:/etc/nginx/nginx.conf:ro
