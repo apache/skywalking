@@ -68,6 +68,12 @@ public class StatusModuleProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         registerHandlers(adminRestRegister());
+        // /status/config/ttl stays on the public port too — kept from 10.x
+        // for baseline-predictor, which fetches it before any /graphql call.
+        publicRestRegister().addHandler(
+            new TTLConfigQueryHandler(getManager()),
+            Collections.singletonList(HttpMethod.GET)
+        );
     }
 
     @Override
@@ -116,6 +122,13 @@ public class StatusModuleProvider extends ModuleProvider {
      */
     HTTPHandlerRegister adminRestRegister() {
         return getManager().find(AdminServerModule.NAME)
+                           .provider()
+                           .getService(HTTPHandlerRegister.class);
+    }
+
+    /** Public REST register (agent / GraphQL port, 12800 by default). */
+    HTTPHandlerRegister publicRestRegister() {
+        return getManager().find(CoreModule.NAME)
                            .provider()
                            .getService(HTTPHandlerRegister.class);
     }

@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -70,22 +69,20 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
             // Persist a single layer per alarm row — the alarm record stores
-            // one VARCHAR/keyword column on every backend (BanyanDB, ES,
-            // JDBC). For a service observed under multiple layers we sort
-            // the resolved layer list alphabetically and store the first;
-            // this makes the persisted value deterministic across NotifyHandler
-            // calls (the resolver returns a Set in NotifyHandler.mergeLayers
-            // / layersOf, with no insertion-order guarantee otherwise).
+            // one VARCHAR/keyword column on every backend (BanyanDB, ES, JDBC).
+            // For a service observed under multiple layers we record the first
+            // entry in the resolver's natural order (NotifyHandler returns the
+            // metadata-service list as-is for single-entity scopes and a
+            // LinkedHashSet source-first union for relation scopes — both have
+            // a stable first element).
             //
-            // GraphQL queryAlarms `layers` filter matches the persisted single
-            // value, so a service in [GENERAL, K8S_SERVICE] alarms with
-            // layer=GENERAL and is only matched by layers:["GENERAL"], not
-            // by layers:["K8S_SERVICE"]. This is a documented v11.0.0 limitation
-            // — see docs/en/changes/changes.md for the multi-layer caveat.
+            // The GraphQL queryAlarms `layers` filter matches that single
+            // persisted value, so a service in [GENERAL, K8S_SERVICE] alarms
+            // with layer=GENERAL and is only matched by layers:["GENERAL"],
+            // not by layers:["K8S_SERVICE"]. Documented in
+            // docs/en/changes/changes.md under the multi-layer caveat.
             if (message.getLayers() != null && !message.getLayers().isEmpty()) {
-                final List<String> sorted = new ArrayList<>(message.getLayers());
-                Collections.sort(sorted);
-                record.setLayer(sorted.get(0));
+                record.setLayer(message.getLayers().get(0));
             }
             Collection<Tag> tags = appendSearchableTags(message.getTags());
             addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
