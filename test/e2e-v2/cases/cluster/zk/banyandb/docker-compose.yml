@@ -83,6 +83,22 @@ services:
       oap1:
         condition: service_healthy
 
+  # TCP LB on 12800 so tests address the clustered OAP through a single
+  # `${oap_host}:${oap_12800}` regardless of which member answers.
+  oap:
+    image: nginx:1.25-alpine
+    networks:
+      - e2e
+    expose:
+      - 12800
+    volumes:
+      - ../../../../script/docker-compose/oap-lb.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      oap1:
+        condition: service_healthy
+      oap2:
+        condition: service_healthy
+
   sender1:
     image: "eclipse-temurin:8-jre"
     volumes:
