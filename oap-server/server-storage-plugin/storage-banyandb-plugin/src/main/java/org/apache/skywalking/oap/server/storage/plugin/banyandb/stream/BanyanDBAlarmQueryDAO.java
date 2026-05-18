@@ -177,8 +177,8 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                         if (StringUtil.isNotEmpty(condition.getKeyword())) {
                             query.and(match(AlarmRecord.ALARM_MESSAGE, condition.getKeyword()));
                         }
-                        if (CollectionUtils.isNotEmpty(condition.getLayers())) {
-                            query.and(in(AlarmRecord.LAYER, condition.getLayers()));
+                        if (StringUtil.isNotEmpty(condition.getLayer())) {
+                            query.and(eq(AlarmRecord.LAYER, condition.getLayer()));
                         }
                         if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
                             query.and(in(AlarmRecord.RULE_NAME, condition.getRuleNames()));

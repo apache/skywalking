@@ -7,9 +7,10 @@
   `queryAlarms(condition: AlarmQueryCondition!): Alarms` accepts a single input type
   bundling every filter the alarm record stores: `entities: [Entity!]` (reuses the
   MQE `Entity` shape — pin to specific services / instances / endpoints / processes
-  or their relations, matched against alarm `id0` OR `id1`); `layers: [String!]`
-  (filter by the alarmed entity's layer); `ruleNames: [String!]` (filter by which
-  alarm rule fired); plus `keyword`, `tags`, `duration`, `paging`. Legacy `getAlarm`
+  or their relations, matched against alarm `id0` OR `id1`); `layer: String`
+  (filter by the alarmed entity's layer — single match, since alarm rows
+  persist one layer); `ruleNames: [String!]` (filter by which alarm rule
+  fired); plus `keyword`, `tags`, `duration`, `paging`. Legacy `getAlarm`
   is marked `@deprecated` but still routes to the same DAO — no client breakage.
   Backend additions: a new `layer` column on `AlarmRecord` populated at alarm-mint
   time via `MetadataQueryService.getService(serviceId).getLayers()`; the existing
@@ -24,12 +25,11 @@
   on either side. Wider "anything involving A" queries should pass the
   individual non-relation entity instead (`{scope: Service, serviceName: A}` —
   which expands to `id0=A OR id1=A`).
-  (2) **Single layer per alarm row.** Although the GraphQL schema doc was
-  written for multi-value, the persisted column stores ONE layer (the
-  alphabetically first when the alarmed service has multiple layers). A
-  service in `[GENERAL, K8S_SERVICE]` is filed under `GENERAL`; querying
-  `layers: ["K8S_SERVICE"]` will miss it. A follow-up upstream protocol doc
-  PR will update the schema text to reflect this.
+  (2) **Single layer per alarm row.** The persisted column stores ONE layer
+  (the first entry of the entity's resolved layer list — source-first for
+  relations). A service in `[GENERAL, K8S_SERVICE]` whose metadata
+  resolves to `GENERAL` first is filed under `GENERAL`; querying
+  `layer: "K8S_SERVICE"` will miss it.
   **Operator migration note:** existing pre-upgrade alarm rows continue to
   be filterable by the legacy `getAlarm` fields; the new entity / layer /
   rule filters in `queryAlarms` apply only to alarms written after the

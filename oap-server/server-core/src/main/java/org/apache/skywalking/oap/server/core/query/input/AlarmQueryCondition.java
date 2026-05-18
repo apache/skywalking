@@ -50,10 +50,11 @@ public class AlarmQueryCondition {
      */
     private List<Entity> entities;
     /**
-     * Multi-select layer filter. Matches the alarm record's stored layer
-     * column.
+     * Single-layer filter. Matches the alarm record's stored layer column
+     * exactly — alarms persist one layer per row (the first entry of the
+     * entity's resolved layer list).
      */
-    private List<String> layers;
+    private String layer;
     /**
      * Filter by the alarm rule(s) that fired the alarm. Matches the alarm
      * record's rule_name column exactly.

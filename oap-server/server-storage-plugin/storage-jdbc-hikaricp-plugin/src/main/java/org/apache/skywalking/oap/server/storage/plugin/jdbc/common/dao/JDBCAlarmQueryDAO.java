@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
@@ -220,10 +221,9 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
             sql.append(" and ").append(AlarmRecord.ALARM_MESSAGE).append(" like concat('%',?,'%') ");
             parameters.add(condition.getKeyword());
         }
-        if (CollectionUtils.isNotEmpty(condition.getLayers())) {
-            sql.append(" and ").append(AlarmRecord.LAYER).append(" in ")
-               .append(condition.getLayers().stream().map(it -> "?").collect(joining(", ", "(", ")")));
-            parameters.addAll(condition.getLayers());
+        if (StringUtil.isNotEmpty(condition.getLayer())) {
+            sql.append(" and ").append(AlarmRecord.LAYER).append(" = ?");
+            parameters.add(condition.getLayer());
         }
         if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
             sql.append(" and ").append(AlarmRecord.RULE_NAME).append(" in ")
