@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# queryAlarms ruleNames=[service_resp_time_increase_alarm] — every returned
+# queryAlarms ruleNames=[service_resp_time_rule] — every returned
 # alarm's name must be a service that fired this specific rule. The rule
 # fires per-service so msgs[*].name is a service name; we just assert
 # non-empty (any service name is acceptable, but the list must be

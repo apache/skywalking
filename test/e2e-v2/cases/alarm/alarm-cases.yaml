@@ -64,11 +64,12 @@
           -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { scope name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"entities":[{"scope":"Service","serviceName":"e2e-service-provider","normal":true}]}}}' | yq -P '.data.queryAlarms'
       expected: expected/queryAlarms-entity-provider.yml
     # queryAlarms: ruleNames filter — return only alarms fired by the
-    # service_resp_time_increase_alarm rule, regardless of entity.
+    # service_resp_time_rule rule (the YAML key in alarm-settings.yml
+    # is the rule name as stored on AlarmRecord), regardless of entity.
     - query: |
         curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
           -H 'Content-Type: application/json' \
-          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"ruleNames":["service_resp_time_increase_alarm"]}}}' | yq -P '.data.queryAlarms'
+          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"ruleNames":["service_resp_time_rule"]}}}' | yq -P '.data.queryAlarms'
       expected: expected/queryAlarms-rule-resptime.yml
     # queryAlarms: layers filter — only alarms whose alarmed entity belongs
     # to the GENERAL layer. The provider / consumer services e2e installs
