@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition;
@@ -223,7 +224,7 @@ public class JDBCAlarmQueryDAO implements IAlarmQueryDAO {
         }
         if (StringUtil.isNotEmpty(condition.getLayer())) {
             sql.append(" and ").append(AlarmRecord.LAYER).append(" = ?");
-            parameters.add(condition.getLayer());
+            parameters.add(Layer.nameOf(condition.getLayer()).value());
         }
         if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
             sql.append(" and ").append(AlarmRecord.RULE_NAME).append(" in ")

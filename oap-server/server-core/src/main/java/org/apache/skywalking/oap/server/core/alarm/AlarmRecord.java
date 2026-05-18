@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
@@ -59,12 +60,7 @@ public class AlarmRecord extends Record {
     public static final String TAGS = "tags";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
     public static final String SNAPSHOT = "snapshot";
-    // Stored under `alarm_layer` (not `layer`) because the ES storage shares
-    // a single `records-all` index across all Record types — `Event.layer` is
-    // typed as the Layer enum (persisted as int) while AlarmRecord persists
-    // the layer name as String, so colliding on the same ES field name would
-    // fail the ModelInstaller type check at boot.
-    public static final String LAYER = "alarm_layer";
+    public static final String LAYER = "layer";
 
     @Override
     public StorageID id() {
@@ -108,13 +104,13 @@ public class AlarmRecord extends Record {
     /**
      * The layer the alarmed entity belonged to at alarm-mint time. A service can be
      * observed under multiple layers simultaneously (e.g., GENERAL + K8S_SERVICE); we
-     * record the first one resolved by {@code MetadataQueryService} here. The
-     * GraphQL response surface {@code AlarmMessage.layers: [String!]!} wraps this in
-     * a single-element list so the wire shape stays forward-compatible with a future
-     * native multi-value storage column.
+     * record the first one resolved by {@code MetadataQueryService} here. Typed as
+     * the {@link Layer} enum (persisted as int) so the field shares the canonical
+     * encoding used by {@code Event.layer} and avoids ES-storage column-type
+     * collisions on the shared {@code records-all} index.
      */
-    @Column(name = LAYER, length = 64)
-    private String layer;
+    @Column(name = LAYER)
+    private Layer layer;
 
     public static class Builder implements StorageBuilder<AlarmRecord> {
         @Override
@@ -131,7 +127,9 @@ public class AlarmRecord extends Record {
             record.setRuleName((String) converter.get(RULE_NAME));
             record.setTagsRawData(converter.getBytes(TAGS_RAW_DATA));
             record.setSnapshot((String) converter.get(SNAPSHOT));
-            record.setLayer((String) converter.get(LAYER));
+            if (converter.get(LAYER) != null) {
+                record.setLayer(Layer.valueOf(((Number) converter.get(LAYER)).intValue()));
+            }
             // Don't read the TAGS as they are only for query.
             return record;
         }
@@ -150,7 +148,8 @@ public class AlarmRecord extends Record {
             converter.accept(TAGS_RAW_DATA, storageData.getTagsRawData());
             converter.accept(TAGS, storageData.getTagsInString());
             converter.accept(SNAPSHOT, storageData.getSnapshot());
-            converter.accept(LAYER, storageData.getLayer());
+            Layer layer = storageData.getLayer();
+            converter.accept(LAYER, layer != null ? layer.value() : Layer.UNDEFINED.value());
         }
     }
 }

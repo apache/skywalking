@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -82,7 +83,7 @@ public class AlarmStandardPersistence implements AlarmCallback {
             // not by layers:["K8S_SERVICE"]. Documented in
             // docs/en/changes/changes.md under the multi-layer caveat.
             if (message.getLayers() != null && !message.getLayers().isEmpty()) {
-                record.setLayer(message.getLayers().get(0));
+                record.setLayer(Layer.nameOf(message.getLayers().get(0)));
             }
             Collection<Tag> tags = appendSearchableTags(message.getTags());
             addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));

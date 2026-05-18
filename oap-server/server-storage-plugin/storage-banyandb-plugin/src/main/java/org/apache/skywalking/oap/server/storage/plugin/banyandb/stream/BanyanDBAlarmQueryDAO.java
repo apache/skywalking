@@ -25,6 +25,7 @@ import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -178,7 +179,7 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                             query.and(match(AlarmRecord.ALARM_MESSAGE, condition.getKeyword()));
                         }
                         if (StringUtil.isNotEmpty(condition.getLayer())) {
-                            query.and(eq(AlarmRecord.LAYER, condition.getLayer()));
+                            query.and(eq(AlarmRecord.LAYER, (long) Layer.nameOf(condition.getLayer()).value()));
                         }
                         if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
                             query.and(in(AlarmRecord.RULE_NAME, condition.getRuleNames()));

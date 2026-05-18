@@ -27,6 +27,7 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition;
@@ -132,7 +133,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
             query.must(Query.matchPhrase(matchCName, condition.getKeyword()));
         }
         if (StringUtil.isNotEmpty(condition.getLayer())) {
-            query.must(Query.term(AlarmRecord.LAYER, condition.getLayer()));
+            query.must(Query.term(AlarmRecord.LAYER, Layer.nameOf(condition.getLayer()).value()));
         }
         if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
             query.must(Query.terms(AlarmRecord.RULE_NAME, condition.getRuleNames()));
