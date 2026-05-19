@@ -61,7 +61,7 @@ jobs:
   dependency-license:
     if: |
       ( always() && ! cancelled() ) &&
-      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true' || needs.changes.outputs.ui == 'true')
+      ((github.event_name == 'schedule' && github.repository == 'apache/skywalking') || needs.changes.outputs.pom == 'true')
     name: Dependency licenses
     needs: [changes]
     runs-on: ubuntu-latest
@@ -114,7 +114,6 @@ jobs:
     outputs:
       oap: ${{ steps.filter.outputs.oap }}
       pom: ${{ steps.filter.outputs.pom }}
-      ui: ${{ steps.filter.outputs.ui }}
     steps:
       - uses: actions/checkout@v6 # required for push event
         with:
@@ -131,7 +130,6 @@ jobs:
             oap:
             - '!**/*.md'
             - '!**/*.txt'
-            - '!skywalking-ui/**'
             - '!.asf.yaml'
             - '!.dlc.json'
             - '!.gitignore'
@@ -148,15 +146,12 @@ jobs:
             - '!component-libraries.yml'
             pom:
             - '**/pom.xml'
-            ui: # dorny/paths-filter doesn't support submodule changes detection, anyway keep it here to remind us of https://github.com/dorny/paths-filter/issues/143
-            - 'skywalking-ui/**'
       - name: List all modified files
         if: steps.filter.outputs.oap == 'true' || steps.filter.outputs.pom == 'true' || steps.filter.outputs.pom == 'true'
         run: |
           echo "Files that have changed or modified:"
           echo "OAP: ${{ steps.filter.outputs.oap_files }}"
           echo "POM: ${{ steps.filter.outputs.pom_files }}"
-          echo "UI: ${{ steps.filter.outputs.ui_files }}"
 
   dist-tar:
     if: |
@@ -222,7 +217,6 @@ jobs:
         run: |
           make docker.all || make docker.all
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
-          docker save -o docker-images-skywalking-ui.tar skywalking/ui:latest
       - name: Upload docker images
         uses: actions/upload-artifact@v4
         with:
@@ -720,22 +714,11 @@ jobs:
           - name: Flink
             config: test/e2e-v2/cases/flink/e2e.yaml
 
-          - name: UI Menu BanyanDB
-            config: test/e2e-v2/cases/menu/banyandb/e2e.yaml
-          - name: UI Menu ES
-            config: test/e2e-v2/cases/menu/es/e2e.yaml
-          - name: UI Menu Sharding ES
-            config: test/e2e-v2/cases/menu/es/es-sharding/e2e.yaml
-          - name: UI Menu MySQL
-            config: test/e2e-v2/cases/menu/mysql/e2e.yaml
-          - name: UI Menu Postgres
-            config: test/e2e-v2/cases/menu/postgres/e2e.yaml
-          - name: UI Menu OpenSearch 2.4.0
-            config: test/e2e-v2/cases/menu/opensearch/e2e.yaml
-            env: OPENSEARCH_VERSION=2.4.0
-
           - name: OTLP Trace
             config: test/e2e-v2/cases/otlp-traces/e2e.yaml
+
+          - name: UI Management BanyanDB
+            config: test/e2e-v2/cases/ui-management/banyandb/e2e.yaml
 
           - name: Cilium Service
             config: test/e2e-v2/cases/cilium/e2e.yaml

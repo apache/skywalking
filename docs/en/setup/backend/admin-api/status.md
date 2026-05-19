@@ -2,37 +2,20 @@
 
 The Status API is a set of read-only HTTP endpoints for inspecting cluster
 membership, alarm runtime state, effective configuration / TTL settings,
-and per-query debug traces. Hosted by the `status` feature module.
-
-Status API is **bi-host**: every route is published on **both** the public
-REST surface (`core.restPort`, default `12800` — where `skywalking-ui` and
-any existing operator scripts already reach it) and the admin-server
-surface (default `17128`) when admin-server is enabled. Operators can drive
-status from whichever surface their network policy allows; URIs and
-payloads are identical on both hosts. See [Hosting](#hosting) for the
-selector and the dual-bind contract.
-
-> The legacy `status-query-plugin` was relocated into
-> `server-admin/status` in 10.5.0. URI paths and response payloads are
-> unchanged. See the [10.5.0 changelog](../../../changes/changes.md).
+and per-query debug traces. Hosted by the `status` feature module on the
+admin-server REST host (default `17128`), alongside `/ui-management/*`,
+`/inspect/*`, `/dsl-debugging/*`, and `/runtime/rule/*`. One handler —
+`/status/config/ttl` — is also bound on the public REST host
+(default `12800`) so ecosystem tools that discover TTL via REST before
+issuing `/graphql` can fetch it without being aware of the admin port.
 
 ## Hosting
 
-The `status` feature module **dual-binds** every handler:
-
-* **Always on the public REST surface** (`core.restPort`, default `12800`,
-  or the sharing-server REST port if configured). This preserves the
-  binding `skywalking-ui` and any existing operator scripts already use.
-* **Additionally on the admin-server surface** (default `17128`).
-  `admin-server` is enabled by default, and the admin port is
-  gateway-protected per the [admin-server security notice](readme.md#security-notice),
-  so operators that lock down their public REST surface can drive status
-  from the same private host as `/inspect/*`, `/dsl-debugging/*`, and
-  `/runtime/rule/*`. Set `SW_ADMIN_SERVER=` (empty) to close the admin
-  port — the public REST binding still serves `/status/*`.
-
-The module is enabled by default — the legacy posture is preserved. To
-disable explicitly, unset `SW_STATUS`:
+`status` registers all handlers on the admin-server REST host (default port
+`17128`). Both `status` and `admin-server` are enabled by default, so the
+surface is reachable out of the box. The admin port is gateway-protected per
+the [admin-server security notice](readme.md#security-notice). To disable
+status explicitly, unset `SW_STATUS`:
 
 ```bash
 export SW_STATUS=                       # disable
@@ -59,7 +42,7 @@ Returns the OAP cluster peer list as the cluster module sees it. Useful
 for confirming that every node has joined and is reporting back.
 
 ```bash
-curl http://oap:12800/status/cluster/nodes
+curl http://oap:17128/status/cluster/nodes
 ```
 
 ### `/status/alarm/rules`
@@ -78,6 +61,9 @@ Drill-down: status of one specific entity under a given rule.
 ### `/status/config/ttl`
 
 Returns the effective TTL configuration the OAP loaded at boot.
+**Reachable on both ports** — `:17128` (admin) and `:12800` (public) —
+so ecosystem tools can call it without admin-port knowledge. Every
+other `/status/*` handler is admin-only.
 
 ### `/debugging/config/dump`
 

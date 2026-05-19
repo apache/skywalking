@@ -86,15 +86,6 @@
             </modules>
         </profile>
         <profile>
-            <id>ui</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>apm-webapp</module>
-            </modules>
-        </profile>
-        <profile>
             <id>dist</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -111,7 +102,6 @@
             <modules>
                 <module>oap-server</module>
                 <module>oap-server-bom</module>
-                <module>apm-webapp</module>
                 <module>apm-dist</module>
             </modules>
             <build>
@@ -146,7 +136,7 @@
     </profiles>
 
     <properties>
-        <revision>10.5.0-SNAPSHOT</revision>
+        <revision>11.0.0-SNAPSHOT</revision>
 
         <!-- Built in properties -->
         <maven.compiler.release>11</maven.compiler.release>

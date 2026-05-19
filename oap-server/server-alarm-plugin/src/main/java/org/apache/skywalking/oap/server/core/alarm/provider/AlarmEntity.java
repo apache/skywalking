@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -31,4 +33,16 @@ public class AlarmEntity {
     private final String name;
     private final String id0;
     private final String id1;
+    /**
+     * Layers the alarmed entity belongs to at alarm-mint time. Excluded from
+     * equality / hashCode so two events on the same entity coalesce into the
+     * same Window even if the metadata layer list is transient.
+     */
+    @EqualsAndHashCode.Exclude
+    private final List<String> layers;
+
+    public AlarmEntity(final String scope, final int scopeId, final String name,
+                       final String id0, final String id1) {
+        this(scope, scopeId, name, id0, id1, Collections.emptyList());
+    }
 }

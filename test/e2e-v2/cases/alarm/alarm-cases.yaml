@@ -54,3 +54,35 @@
         sleep 60;
         curl -s -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/recovery-after-observation-webhook.yml
+    # queryAlarms (11.0.0): comprehensive query API, entity-filtered to alarms
+    # whose alarmed entity is e2e-service-provider. id0/id1 are indexed in
+    # 11.0.0 so the entity filter pushes down to storage. Replaces the legacy
+    # getAlarm category-scope filter with an Entity-typed multi-select.
+    - query: |
+        curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+          -H 'Content-Type: application/json' \
+          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { scope name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"entities":[{"scope":"Service","serviceName":"e2e-service-provider","normal":true}]}}}' | yq -P '.data.queryAlarms'
+      expected: expected/queryAlarms-entity-provider.yml
+    # queryAlarms: ruleNames filter — return only alarms fired by the
+    # service_resp_time_rule rule (the YAML key in alarm-settings.yml
+    # is the rule name as stored on AlarmRecord), regardless of entity.
+    - query: |
+        curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+          -H 'Content-Type: application/json' \
+          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"ruleNames":["service_resp_time_rule"]}}}' | yq -P '.data.queryAlarms'
+      expected: expected/queryAlarms-rule-resptime.yml
+    # queryAlarms: layer filter — only alarms whose alarmed entity belongs
+    # to the GENERAL layer. The provider / consumer services e2e installs
+    # report as GENERAL via the Java agent.
+    - query: |
+        curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+          -H 'Content-Type: application/json' \
+          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { scope name } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50},"layer":"GENERAL"}}}' | yq -P '.data.queryAlarms'
+      expected: expected/queryAlarms-layer-general.yml
+    # queryAlarms: no filters beyond duration/paging — should return the
+    # same set as the legacy getAlarm without scope.
+    - query: |
+        curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+          -H 'Content-Type: application/json' \
+          -d '{"query":"query ($cond: AlarmQueryCondition!) { queryAlarms(condition: $cond) { msgs { scope } } }","variables":{"cond":{"duration":{"start":"'"$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')"'","end":"'"$(date -u '+%Y-%m-%d %H%M')"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50}}}}' | yq -P '.data.queryAlarms'
+      expected: expected/queryAlarms-unfiltered.yml

@@ -124,11 +124,17 @@ svn co https://dist.apache.org/repos/dist/release/skywalking/$SW_VERSION release
 export CONTEXT=release
 export HUB=apache
 export OAP_NAME=skywalking-oap-server
-export UI_NAME=skywalking-ui
 export TAG=$SW_VERSION
 export DIST=<the binary package name inside (1), e.g. apache-skywalking-apm-8.8.0.tar.gz>
 make docker.push
 ```
+
+> Note: this repository no longer builds the UI Docker image. The official
+> web UI ships from [`apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui),
+> which has its own release cadence and publishes images independently
+> under `ghcr.io/apache/skywalking-horizon-ui`. The OAP release described
+> above is independent of any Horizon UI release — they advance on
+> separate schedules and are matched at deploy time, not at release time.
 
 ## Clean up the old releases
 Once the latest release has been published, you should clean up the old releases from the mirror system.

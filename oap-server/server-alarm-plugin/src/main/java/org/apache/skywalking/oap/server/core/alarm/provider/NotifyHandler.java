@@ -20,8 +20,12 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceRelationMetaInAlarm;
@@ -31,6 +35,8 @@ import org.apache.skywalking.oap.server.core.alarm.MetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
 import org.apache.skywalking.oap.server.core.alarm.ServiceInstanceMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.ServiceMetaInAlarm;
+import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
+import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.alarm.provider.dingtalk.DingtalkHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordHookCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.feishu.FeishuHookCallback;
@@ -52,11 +58,61 @@ public class NotifyHandler implements MetricsNotify {
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
     private final ModuleManager manager;
+    private MetadataQueryService metadataQueryService;
 
     public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher, ModuleManager manager) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         core = new AlarmCore(alarmRulesWatcher);
         this.manager = manager;
+    }
+
+    private MetadataQueryService metadata() {
+        if (metadataQueryService == null) {
+            try {
+                metadataQueryService = manager.find(CoreModule.NAME)
+                                              .provider()
+                                              .getService(MetadataQueryService.class);
+            } catch (Throwable e) {
+                // CoreModule not loaded (e.g., bare-mock test harness) — alarm
+                // path proceeds without layer info; caller falls back to empty.
+                return null;
+            }
+        }
+        return metadataQueryService;
+    }
+
+    /**
+     * Resolve the layers of a service via {@link MetadataQueryService}. Returns
+     * an empty list when the service is unknown, the lookup fails, or the
+     * core module is not yet loaded — alarm persistence MUST NOT block on
+     * metadata-query errors. The empty list also keeps unit tests that mock
+     * a bare {@link ModuleManager} unchanged: the alarm path proceeds, the
+     * `layer` column on the resulting record is just null.
+     */
+    private List<String> layersOf(final String serviceId) {
+        try {
+            final MetadataQueryService service = metadata();
+            if (service == null) {
+                return Collections.emptyList();
+            }
+            final Service entity = service.getService(serviceId);
+            return entity == null || entity.getLayers() == null
+                ? Collections.emptyList()
+                : new ArrayList<>(entity.getLayers());
+        } catch (Throwable e) {
+            log.warn("Failed to resolve layers for serviceId={} during alarm; using empty list", serviceId, e);
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Union of two services' layers, deduplicated and order-preserving (source
+     * first). Used for relation scopes where the alarmed edge spans two services.
+     */
+    private List<String> mergeLayers(final List<String> a, final List<String> b) {
+        final Set<String> merged = new LinkedHashSet<>(a);
+        merged.addAll(b);
+        return new ArrayList<>(merged);
     }
 
     @Override
@@ -80,6 +136,7 @@ public class NotifyHandler implements MetricsNotify {
             serviceMetaInAlarm.setMetricsName(meta.getMetricsName());
             serviceMetaInAlarm.setId(serviceId);
             serviceMetaInAlarm.setName(serviceIDDefinition.getName());
+            serviceMetaInAlarm.setLayers(layersOf(serviceId));
             metaInAlarm = serviceMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceInstanceCatalog(scope)) {
             final String instanceId = meta.getId();
@@ -91,6 +148,7 @@ public class NotifyHandler implements MetricsNotify {
             instanceMetaInAlarm.setMetricsName(meta.getMetricsName());
             instanceMetaInAlarm.setId(instanceId);
             instanceMetaInAlarm.setName(instanceIDDefinition.getName() + " of " + serviceIDDefinition.getName());
+            instanceMetaInAlarm.setLayers(layersOf(instanceIDDefinition.getServiceId()));
             metaInAlarm = instanceMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointCatalog(scope)) {
             final String endpointId = meta.getId();
@@ -104,6 +162,7 @@ public class NotifyHandler implements MetricsNotify {
             endpointMetaInAlarm.setId(meta.getId());
             endpointMetaInAlarm.setName(
                 endpointIDDefinition.getEndpointName() + " in " + serviceIDDefinition.getName());
+            endpointMetaInAlarm.setLayers(layersOf(endpointIDDefinition.getServiceId()));
             metaInAlarm = endpointMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceRelationCatalog(scope)) {
             final String serviceRelationId = meta.getId();
@@ -117,6 +176,9 @@ public class NotifyHandler implements MetricsNotify {
             serviceRelationMetaInAlarm.setMetricsName(meta.getMetricsName());
             serviceRelationMetaInAlarm.setId(serviceRelationId);
             serviceRelationMetaInAlarm.setName(sourceIdDefinition.getName() + " to " + destIdDefinition.getName());
+            serviceRelationMetaInAlarm.setLayers(mergeLayers(
+                layersOf(serviceRelationDefine.getSourceId()),
+                layersOf(serviceRelationDefine.getDestId())));
             metaInAlarm = serviceRelationMetaInAlarm;
         } else if (DefaultScopeDefine.inServiceInstanceRelationCatalog(scope)) {
             final String instanceRelationId = meta.getId();
@@ -137,6 +199,9 @@ public class NotifyHandler implements MetricsNotify {
             instanceRelationMetaInAlarm.setId(instanceRelationId);
             instanceRelationMetaInAlarm.setName(sourceIdDefinition.getName() + " of " + sourceServiceId.getName()
                 + " to " + destIdDefinition.getName() + " of " + destServiceId.getName());
+            instanceRelationMetaInAlarm.setLayers(mergeLayers(
+                layersOf(sourceIdDefinition.getServiceId()),
+                layersOf(destIdDefinition.getServiceId())));
             metaInAlarm = instanceRelationMetaInAlarm;
         } else if (DefaultScopeDefine.inEndpointRelationCatalog(scope)) {
             final String endpointRelationId = meta.getId();
@@ -152,6 +217,9 @@ public class NotifyHandler implements MetricsNotify {
             endpointRelationMetaInAlarm.setId(endpointRelationId);
             endpointRelationMetaInAlarm.setName(endpointRelationDefine.getSource() + " in " + sourceService.getName()
                 + " to " + endpointRelationDefine.getDest() + " in " + destService.getName());
+            endpointRelationMetaInAlarm.setLayers(mergeLayers(
+                layersOf(endpointRelationDefine.getSourceServiceId()),
+                layersOf(endpointRelationDefine.getDestServiceId())));
             metaInAlarm = endpointRelationMetaInAlarm;
         } else {
             return;

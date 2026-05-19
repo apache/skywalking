@@ -12,7 +12,14 @@ The compatibility with previous releases is as below.
 Notice **Incompatibility (1)**, the UI template configuration protocol is incompatible.
 
 ## Incompatibility
-1. The [UI configuration protocol](https://github.com/apache/skywalking-query-protocol/blob/master/ui-configuration.graphqls) has been changed by following the design of new [booster UI](https://github.com/apache/skywalking-booster-ui). So, the RocketBot UI can't work with the v9 backend. You need to remove `ui_template` index/template/table in your chosen storage, and reboot OAP in `default` or `init` mode.
+1. The UI configuration protocol (the historical
+   `ui-configuration.graphqls` schema, removed from
+   `apache/skywalking-query-protocol` in 11.0.0 when dashboard template
+   CRUD moved to the REST `ui-management` surface on the admin host) was
+   redesigned in v9 to follow the booster UI shape. So, the RocketBot UI
+   can't work with the v9 backend. You need to remove `ui_template`
+   index/template/table in your chosen storage, and reboot OAP in
+   `default` or `init` mode.
 2. MAL: [metric level function](../../../docs/en/concepts-and-designs/mal.md) add an required argument `Layer`. Previous MAL expressions should add this argument.
 3. LAL: [Extractor](../../../docs/en/concepts-and-designs/lal.md) add function `layer`. If don't set it manual, the default layer is `GENERAL` and the logs from `ALS` the
    default layer is `mesh`.

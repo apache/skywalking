@@ -17,6 +17,7 @@
 @echo off
 
 setlocal
+@REM As of 11.0.0 the bundled web UI is removed; the OAP backend ships only
+@REM the OAP process. See apache/skywalking-horizon-ui for the standalone UI.
 call "%~dp0"\oapService.bat start
-call "%~dp0"\webappService.bat start
 endlocal

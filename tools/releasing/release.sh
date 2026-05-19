@@ -179,8 +179,10 @@ generate_vote_email() {
     local BIN_SHA512=$(cat "${BIN_TAR}.sha512")
     local VOTE_DATE=$(date +"%B %d, %Y")
 
-    # Extract submodule commit IDs from the cloned release repo
-    local UI_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- skywalking-ui | awk '{print $1}' | tr -d '+-')
+    # Extract submodule commit IDs from the cloned release repo.
+    # As of 11.0.0 the `skywalking-ui` (booster UI) submodule is removed —
+    # the official web UI lives in apache/skywalking-horizon-ui with its
+    # own release cadence and is not part of this OAP release.
     local PROTOCOL_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- apm-protocol/apm-network/src/main/proto | awk '{print $1}' | tr -d '+-')
     local QUERY_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol | awk '{print $1}' | tr -d '+-')
 
@@ -215,7 +217,6 @@ Release CommitID :
 
  * https://github.com/apache/skywalking/tree/${TAG}
  * Git submodule
-   * skywalking-ui: https://github.com/apache/skywalking-booster-ui/tree/${UI_COMMIT}
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/${PROTOCOL_COMMIT}
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/${QUERY_COMMIT}
 

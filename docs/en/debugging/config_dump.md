@@ -8,11 +8,14 @@ and their default values. However, it is still hard to know the runtime value.
 
 Dump Effective Initial Configurations API is designed to help users to understand the effective configurations, no matter
 they are initialized in the `application.yml`, or override through system environments.
-- URL, `http://{core restHost}:{core restPort}/debugging/config/dump`
+- URL, `http://{admin-server host}:{admin-server port}/debugging/config/dump`
+  (default `http://127.0.0.1:17128/debugging/config/dump`). Gateway-protect
+  the admin port per the
+  [admin-server security notice](../setup/backend/admin-api/readme.md#-security-notice).
 - HTTP GET method.
 
 ```shell
-> curl http://127.0.0.1:12800/debugging/config/dump
+> curl http://127.0.0.1:17128/debugging/config/dump
 cluster.provider=standalone
 core.provider=default
 core.default.prepareThreads=2
@@ -38,7 +41,7 @@ All booting configurations with their runtime values are listed, including the s
 This API also provides the response in JSON format, which is more friendly for programmatic usage.
 
 ```shell
-> curl -X GET 'http://127.0.0.1:12800/debugging/config/dump' \
+> curl -X GET 'http://127.0.0.1:17128/debugging/config/dump' \
    -H 'Accept: application/json'
 
 // The following JSON is manually formatted for better readability.
@@ -75,7 +78,7 @@ storage:
 It would be masked and shown as `********` in the dump result.
 
 ```shell
-> curl http://127.0.0.1:12800/debugging/config/dump
+> curl http://127.0.0.1:17128/debugging/config/dump
 ...
 storage.elasticsearch.password=********
 ...

@@ -29,4 +29,4 @@ Self observability monitoring provides monitoring of the runtime performance of 
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/meter-analyzer-config/java-agent.yaml`
-The self observability dashboard panel configurations are found in `/config/ui-initialized-templates/so11y_java_agent`.
+The self observability dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

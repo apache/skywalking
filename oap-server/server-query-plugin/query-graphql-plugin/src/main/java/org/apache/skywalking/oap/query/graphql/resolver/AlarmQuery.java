@@ -131,6 +131,47 @@ public class AlarmQuery implements GraphQLQueryResolver {
         });
     }
 
+    /**
+     * Comprehensive alarm query — entity / layer / ruleName / keyword / tag
+     * filters bundled under {@link org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition}.
+     * Mirrors GraphQL {@code queryAlarms(condition)}.
+     *
+     * @since 11.0.0
+     */
+    public CompletableFuture<Alarms> queryAlarms(
+            final org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition condition,
+            final DataFetchingEnvironment env) {
+        return queryAsync(() -> {
+            final EventQueryCondition.EventQueryConditionBuilder conditionPrototype =
+                EventQueryCondition.builder()
+                                   .paging(new Pagination(1, IEventQueryDAO.MAX_SIZE));
+            if (nonNull(condition.getDuration())) {
+                conditionPrototype.time(condition.getDuration());
+            }
+            Alarms alarms = getQueryService().queryAlarms(condition);
+
+            alarms.getMsgs().forEach(msg -> {
+                msg.getSnapshot().getMetrics().forEach(metric -> {
+                    metric.getResults().forEach(mqeValues -> {
+                        mqeValues.getValues().forEach(mqeValue -> {
+                            if (!mqeValue.isEmptyValue()) {
+                                mqeValue.setValue(valueFormat.format(mqeValue.getDoubleValue()));
+                            }
+                        });
+                    });
+                });
+            });
+
+            final boolean selectEvents = env.getSelectionSet().contains("**/events/**");
+
+            if (selectEvents) {
+                return findRelevantEvents(alarms, conditionPrototype);
+            }
+
+            return alarms;
+        });
+    }
+
     public CompletableFuture<Set<String>> queryAlarmTagAutocompleteKeys(final Duration queryDuration) {
         return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.ALARM, queryDuration));
     }

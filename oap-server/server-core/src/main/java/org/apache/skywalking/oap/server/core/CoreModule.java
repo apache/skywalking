@@ -33,7 +33,6 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
-import org.apache.skywalking.oap.server.core.management.ui.menu.UIMenuManagementService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerMutationService;
@@ -129,7 +128,6 @@ public class CoreModule extends ModuleDefine {
 
     private void addManagementService(List<Class> classes) {
         classes.add(UITemplateManagementService.class);
-        classes.add(UIMenuManagementService.class);
     }
 
     private void addProfileService(List<Class> classes) {

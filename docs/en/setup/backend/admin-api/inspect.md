@@ -1,7 +1,5 @@
 # Inspect API
 
-> Available since 10.5.0.
-
 The Inspect API lives on `admin-server` and exposes two browse endpoints that
 let operators answer two questions without writing exploratory MQE:
 

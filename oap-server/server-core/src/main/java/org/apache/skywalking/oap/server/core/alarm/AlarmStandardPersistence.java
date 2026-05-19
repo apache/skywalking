@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm;
 import com.google.common.base.Charsets;
 import com.google.gson.Gson;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -68,6 +69,22 @@ public class AlarmStandardPersistence implements AlarmCallback {
             record.setStartTime(message.getStartTime());
             record.setTimeBucket(TimeBucket.getRecordTimeBucket(message.getStartTime()));
             record.setRuleName(message.getRuleName());
+            // Persist a single layer per alarm row — the alarm record stores
+            // one VARCHAR/keyword column on every backend (BanyanDB, ES, JDBC).
+            // For a service observed under multiple layers we record the first
+            // entry in the resolver's natural order (NotifyHandler returns the
+            // metadata-service list as-is for single-entity scopes and a
+            // LinkedHashSet source-first union for relation scopes — both have
+            // a stable first element).
+            //
+            // The GraphQL queryAlarms `layers` filter matches that single
+            // persisted value, so a service in [GENERAL, K8S_SERVICE] alarms
+            // with layer=GENERAL and is only matched by layers:["GENERAL"],
+            // not by layers:["K8S_SERVICE"]. Documented in
+            // docs/en/changes/changes.md under the multi-layer caveat.
+            if (message.getLayers() != null && !message.getLayers().isEmpty()) {
+                record.setLayer(Layer.nameOf(message.getLayers().get(0)));
+            }
             Collection<Tag> tags = appendSearchableTags(message.getTags());
             addAutocompleteTags(tags, TimeBucket.getMinuteTimeBucket(message.getStartTime()));
             record.setTagsRawData(gson.toJson(message.getTags()).getBytes(Charsets.UTF_8));

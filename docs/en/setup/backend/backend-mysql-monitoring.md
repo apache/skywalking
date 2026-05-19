@@ -34,7 +34,7 @@ Each MySQL/MariaDB server is cataloged as an `Instance` in OAP.
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/mysql`.
-The MySQL dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
+The MySQL dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
 
 ## Collect sampled slow SQLs
 SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from MySQL/MariaDB.
@@ -60,4 +60,4 @@ Slow SQL monitoring provides monitoring of the slow SQL statements of the MySQL/
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The slowsql expression rules are found in `/config/lal/mysql-slowsql.yaml`
-The MySQL/MariaDB dashboard panel configurations are found in `/config/ui-initialized-templates/mysql`.
+The MySQL/MariaDB dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

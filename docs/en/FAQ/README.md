@@ -8,7 +8,6 @@ These are known and frequently asked questions about SkyWalking. We welcome you 
 ## Compiling
 * [Protoc plugin fails in maven build](Protoc-Plugin-Fails-When-Build.md)
 * [Required items could not be found when importing project into Eclipse](Import-Project-Eclipse-RequireItems-Exception.md)
-* [Maven compilation failure with error such as `python2 not found`](maven-compile-npm-failure.md)
 * [Compiling issues on Mac's M1 chip](How-to-build-with-mac-m1.md)
 
 ## Runtime

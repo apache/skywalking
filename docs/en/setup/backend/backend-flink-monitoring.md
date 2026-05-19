@@ -102,4 +102,4 @@ the OAP. In each cluster, the taskManager is represented as `Instance` and the j
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `otel-rules/flink/flink-jobManager.yaml, otel-rules/flink/flink-taskManager.yaml, otel-rules/flink/flink-job.yaml`.
-The Flink dashboard panel configurations are found in `ui-initialized-templates/flink`.
+The Flink dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

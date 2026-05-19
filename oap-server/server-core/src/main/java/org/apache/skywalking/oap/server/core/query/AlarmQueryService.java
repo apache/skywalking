@@ -51,4 +51,14 @@ public class AlarmQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
         return getAlarmQueryDAO().getAlarm(scopeId, keyword, page.getLimit(), page.getFrom(), duration, tags);
     }
+
+    /**
+     * Comprehensive alarm query. Mirrors GraphQL {@code queryAlarms(condition)}.
+     *
+     * @since 11.0.0
+     */
+    public Alarms queryAlarms(final org.apache.skywalking.oap.server.core.query.input.AlarmQueryCondition condition) throws IOException {
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        return getAlarmQueryDAO().queryAlarms(condition, page.getLimit(), page.getFrom());
+    }
 }

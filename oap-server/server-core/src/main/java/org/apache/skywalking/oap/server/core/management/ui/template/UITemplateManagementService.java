@@ -45,7 +45,7 @@ public class UITemplateManagementService implements Service {
 
     public DashboardConfiguration getTemplate(String id) throws IOException {
         DashboardConfiguration configuration = getUITemplateManagementDAO().getTemplate(id);
-        if (configuration.isDisabled()) {
+        if (configuration == null || configuration.isDisabled()) {
             return null;
         }
         return configuration;

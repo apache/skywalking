@@ -47,7 +47,7 @@ PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each 
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/postgresql`.
-The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
+The PostgreSQL dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
 
 ## Collect sampled slow SQLs
 SkyWalking leverages [fluentbit](https://fluentbit.io/) or other log agents for collecting slow SQL statements from PostgreSQL.
@@ -73,4 +73,4 @@ Each PostgreSQL server is cataloged as an `Instance` in OAP.
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The slowsql expression rules are found in `/config/lal/pgsql-slowsql.yaml`
-The PostgreSQL dashboard panel configurations are found in `/config/ui-initialized-templates/postgresql`.
+The PostgreSQL dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

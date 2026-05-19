@@ -99,4 +99,4 @@ Based on each transfer data analysis, extract the information of the 7-layer net
 ## Customizations
 You can customize your own metrics/dashboard panel.
 The metrics definition and expression rules are found in `/config/oal/ebpf.oal`, please refer the [Scope Declaration Documentation](../../concepts-and-designs/scope-definitions.md#scopes-with-k8s-prefix).
-The K8s dashboard panel configurations are found in `/config/ui-initialized-templates/k8s_service`.
+The K8s dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

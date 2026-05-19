@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
@@ -30,6 +32,7 @@ public class EndpointMetaInAlarm extends MetaInAlarm {
 
     private String id;
     private String name;
+    private List<String> layers = Collections.emptyList();
 
     @Override
     public String getScope() {

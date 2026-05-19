@@ -63,6 +63,33 @@ public abstract class ManagementCRUDEsDAO extends EsDAO {
     }
 
     /**
+     * Upsert: insert when the doc is missing, force-update when it exists.
+     * Use for management data whose source of truth is an external caller
+     * (e.g., UI menu pushed by Horizon UI through {@code POST /ui-management/menu})
+     * where every call must take effect.
+     *
+     * @return {@code true} when the call inserted a new doc, {@code false}
+     *         when it overwrote an existing one.
+     */
+    public boolean upsert(String modelName, ManagementData managementData) throws IOException {
+        final String index =
+            IndexController.LogicIndicesRegister.getPhysicalTableName(modelName);
+
+        final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(modelName);
+        storageBuilder.entity2Storage(managementData, toStorage);
+        final String docId = IndexController.INSTANCE.generateDocId(modelName, managementData.id().build());
+        final Map<String, Object> source =
+            IndexController.INSTANCE.appendTableColumn4ManagementData(modelName, toStorage.obtain());
+        final boolean exist = getClient().existDoc(index, docId);
+        if (exist) {
+            getClient().forceUpdate(index, docId, source);
+            return false;
+        }
+        getClient().forceInsert(index, docId, source);
+        return true;
+    }
+
+    /**
      * @param modelName the name of the model
      * @param id       the id of the data
      * @return null if not found

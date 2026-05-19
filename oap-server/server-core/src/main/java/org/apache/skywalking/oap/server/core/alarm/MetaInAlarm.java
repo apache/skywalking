@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class MetaInAlarm {
@@ -42,6 +44,22 @@ public abstract class MetaInAlarm {
      * Only exist in multiple IDs case, Such as ServiceRelation, id1 represents the dest service id
      */
     public abstract String getId1();
+
+    /**
+     * The layer(s) the alarmed entity belongs to at the time the alarm was raised.
+     * A service can be observed under multiple normal layers simultaneously
+     * (e.g., GENERAL + K8S_SERVICE), so this is a list rather than a single value.
+     * For Service*Relation* scopes the list is the set union of source ∪ dest layers.
+     * <p>
+     * Default implementation returns an empty list — subclasses that can resolve the
+     * layer override this. NotifyHandler is responsible for populating the field when
+     * it instantiates the concrete MetaInAlarm.
+     *
+     * @return non-null list of layer names; empty when the layer is unknown.
+     */
+    public List<String> getLayers() {
+        return Collections.emptyList();
+    }
 
     @Override
     public boolean equals(Object o) {

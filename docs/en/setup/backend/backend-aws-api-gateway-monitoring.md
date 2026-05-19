@@ -43,4 +43,4 @@ SkyWalking observes CloudWatch metrics of the AWS API Gateway, which is cataloge
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/aws-gateway/`.
-The AWS Cloud EKS dashboard panel configurations are found in `/config/ui-initialized-templates/aws_gateway`.
+The AWS Cloud EKS dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

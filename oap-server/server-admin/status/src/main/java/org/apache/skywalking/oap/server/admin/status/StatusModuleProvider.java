@@ -30,10 +30,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 
-/**
- * Provider for the {@link StatusModule}. Skeleton in this commit — handler
- * relocation and dual-bind logic land in the next commits.
- */
 public class StatusModuleProvider extends ModuleProvider {
     public static final String NAME = "default";
 
@@ -71,11 +67,13 @@ public class StatusModuleProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        registerHandlers(publicRestRegister());
-        final HTTPHandlerRegister adminRegister = adminRestRegisterOrNull();
-        if (adminRegister != null) {
-            registerHandlers(adminRegister);
-        }
+        registerHandlers(adminRestRegister());
+        // /status/config/ttl stays on the public port too — kept from 10.x
+        // for ecosystem tools that discover TTL via REST before /graphql.
+        publicRestRegister().addHandler(
+            new TTLConfigQueryHandler(getManager()),
+            Collections.singletonList(HttpMethod.GET)
+        );
     }
 
     @Override
@@ -86,24 +84,15 @@ public class StatusModuleProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             CoreModule.NAME,
+            AdminServerModule.NAME,
         };
     }
 
     /**
-     * Register all status / debug HTTP handlers on the supplied
-     * {@link HTTPHandlerRegister}. Same set the legacy
-     * {@code status-query-plugin} hosted, in the same order. Called for each
-     * surface the module dual-binds onto:
-     * <ul>
-     *   <li>the public REST register exposed by {@link CoreModule} — always,
-     *       so skywalking-ui (which calls {@code /status/cluster/nodes},
-     *       {@code /status/config/ttl}, {@code /debugging/config/dump} on
-     *       {@code core.restPort}) keeps working;</li>
-     *   <li>the admin-server register, when admin-server is enabled, so
-     *       operators driving admin-host see the same surface alongside
-     *       {@code /inspect/*}, {@code /dsl-debugging/*}, and
-     *       {@code /runtime/rule/*}.</li>
-     * </ul>
+     * Register all status / debug HTTP handlers on the admin-server REST host.
+     * Status, cluster, alarm-debug, TTL config, and per-query debug-trace
+     * routes are admin-host endpoints — they share the admin port with
+     * {@code /inspect/*}, {@code /dsl-debugging/*}, and {@code /runtime/rule/*}.
      */
     void registerHandlers(final HTTPHandlerRegister register) {
         final ModuleManager manager = getManager();
@@ -126,33 +115,21 @@ public class StatusModuleProvider extends ModuleProvider {
     }
 
     /**
-     * Resolve the public REST {@link HTTPHandlerRegister} via {@link CoreModule}.
-     * This binding is unconditional — the public surface preserves the URI
-     * binding {@code skywalking-ui} consumes today.
+     * Resolve the admin-server REST {@link HTTPHandlerRegister}.
+     * {@link AdminServerModule} is declared in {@link #requiredModules()}, so
+     * the framework guarantees admin-server's {@code prepare()} (which
+     * registers this service) has run before any provider's {@code start()}.
      */
-    HTTPHandlerRegister publicRestRegister() {
-        return getManager().find(CoreModule.NAME)
+    HTTPHandlerRegister adminRestRegister() {
+        return getManager().find(AdminServerModule.NAME)
                            .provider()
                            .getService(HTTPHandlerRegister.class);
     }
 
-    /**
-     * Resolve the admin-server {@link HTTPHandlerRegister} when admin-server
-     * is loaded; return {@code null} otherwise. {@link AdminServerModule} is
-     * deliberately NOT in {@link #requiredModules()} so that admin-server
-     * may stay off without breaking the public-REST status binding.
-     * Admin-server registers its {@link HTTPHandlerRegister} service in
-     * {@code prepare()} (admin-server/.../AdminServerModuleProvider.java:116),
-     * which the framework guarantees has run before any provider's
-     * {@code start()}, so this lookup is safe at start-time.
-     */
-    HTTPHandlerRegister adminRestRegisterOrNull() {
-        final ModuleManager manager = getManager();
-        if (!manager.has(AdminServerModule.NAME)) {
-            return null;
-        }
-        return manager.find(AdminServerModule.NAME)
-                      .provider()
-                      .getService(HTTPHandlerRegister.class);
+    /** Public REST register (agent / GraphQL port, 12800 by default). */
+    HTTPHandlerRegister publicRestRegister() {
+        return getManager().find(CoreModule.NAME)
+                           .provider()
+                           .getService(HTTPHandlerRegister.class);
     }
 }

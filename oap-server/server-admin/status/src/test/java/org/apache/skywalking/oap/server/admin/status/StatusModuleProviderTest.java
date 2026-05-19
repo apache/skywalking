@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.admin.status;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -33,18 +35,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 /**
- * Verifies the dual-bind register-resolution helpers on StatusModuleProvider.
- * Handler instantiation itself is exercised end-to-end by the e2e suite —
- * unit-mocking every {@code manager.find(...)} chain inside each handler's
- * constructor would test the upstream services more than the registration logic.
+ * Verifies the register-resolution helpers on StatusModuleProvider. Status is
+ * an admin-host module — handlers mount on the admin-server REST host — with
+ * the single exception of {@code /status/config/ttl}, which is also bound on
+ * the public REST host for ecosystem tools that fetch TTL before /graphql.
  */
 @ExtendWith(MockitoExtension.class)
 class StatusModuleProviderTest {
@@ -53,16 +52,16 @@ class StatusModuleProviderTest {
     private ModuleManager moduleManager;
 
     @Mock
-    private ModuleProviderHolder coreHolder;
-
-    @Mock
     private ModuleProviderHolder adminHolder;
 
     @Mock
-    private HTTPHandlerRegister publicRegister;
+    private HTTPHandlerRegister adminRegister;
 
     @Mock
-    private HTTPHandlerRegister adminRegister;
+    private ModuleProviderHolder coreHolder;
+
+    @Mock
+    private HTTPHandlerRegister publicRegister;
 
     private StatusModuleProvider provider;
 
@@ -73,37 +72,33 @@ class StatusModuleProviderTest {
     }
 
     @Test
+    void adminRestRegisterResolvesViaAdminServerModule() {
+        when(moduleManager.find(AdminServerModule.NAME)).thenReturn(adminHolder);
+        when(adminHolder.provider()).thenReturn(stubProviderExposing(adminRegister));
+
+        final HTTPHandlerRegister resolved = provider.adminRestRegister();
+
+        assertSame(adminRegister, resolved);
+    }
+
+    @Test
     void publicRestRegisterResolvesViaCoreModule() {
         when(moduleManager.find(CoreModule.NAME)).thenReturn(coreHolder);
         when(coreHolder.provider()).thenReturn(stubProviderExposing(publicRegister));
 
         final HTTPHandlerRegister resolved = provider.publicRestRegister();
 
-        assertSame(publicRegister, resolved);
-        verify(moduleManager).find(CoreModule.NAME);
+        assertSame(publicRegister, resolved,
+                   "/status/config/ttl is dual-bound — public binding must resolve via CoreModule");
     }
 
     @Test
-    void adminRestRegisterReturnsNullWhenAdminServerNotLoaded() {
-        when(moduleManager.has(AdminServerModule.NAME)).thenReturn(false);
-
-        assertNull(provider.adminRestRegisterOrNull());
-        // Critical: must NOT touch find() if has() said no. AdminServerModule is
-        // intentionally absent from requiredModules() so admin-server can stay
-        // off without breaking status's public-REST binding for skywalking-ui.
-        verify(moduleManager, never()).find(AdminServerModule.NAME);
-    }
-
-    @Test
-    void adminRestRegisterResolvesAdminRegisterWhenAdminServerLoaded() {
-        when(moduleManager.has(AdminServerModule.NAME)).thenReturn(true);
-        when(moduleManager.find(AdminServerModule.NAME)).thenReturn(adminHolder);
-        when(adminHolder.provider()).thenReturn(stubProviderExposing(adminRegister));
-
-        final HTTPHandlerRegister resolved = provider.adminRestRegisterOrNull();
-
-        assertNotNull(resolved);
-        assertSame(adminRegister, resolved);
+    void requiredModulesDeclaresCoreAndAdminServer() {
+        final List<String> required = Arrays.asList(provider.requiredModules());
+        assertTrue(required.contains(CoreModule.NAME),
+                   "CoreModule must remain in requiredModules() for ID resolution / metadata");
+        assertTrue(required.contains(AdminServerModule.NAME),
+                   "AdminServerModule must be in requiredModules() because handlers register on the admin REST host");
     }
 
     /**

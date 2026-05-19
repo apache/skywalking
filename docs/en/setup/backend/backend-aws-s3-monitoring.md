@@ -36,4 +36,4 @@ SkyWalking observes CloudWatch metrics of the S3 bucket, which is cataloged as a
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/aws-s3/`.
-The AWS Cloud EKS dashboard panel configurations are found in `/config/ui-initialized-templates/aws_s3`.
+The AWS Cloud EKS dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

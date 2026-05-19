@@ -93,20 +93,23 @@ services:
       oap1:
         condition: service_healthy
 
-  ui:
-    extends:
-      file: ../../../../script/docker-compose/base-compose.yml
-      service: ui
-    environment:
-      - SW_OAP_ADDRESS=http://oap1:12800,http://oap2:12800
-      - SW_ZIPKIN_ADDRESS=http://oap1:9412,http://oap2:9412
+  # TCP LB on 12800 so tests address the clustered OAP through a single
+  # `${oap_host}:${oap_12800}` regardless of which member answers.
+  # Use `ports:` (not `expose:`) so infra-e2e can read the host-side
+  # mapping and populate `${oap_host}` / `${oap_12800}`.
+  oap:
+    image: nginx:${SW_NGINX_VERSION}
+    networks:
+      - e2e
+    ports:
+      - 12800
+    volumes:
+      - ../../../../script/docker-compose/oap-lb.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       oap1:
         condition: service_healthy
       oap2:
         condition: service_healthy
-    ports:
-    - 8080
 
   sender1:
     image: "eclipse-temurin:8-jre"

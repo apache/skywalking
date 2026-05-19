@@ -77,4 +77,4 @@ Notice , if you don't specify `skywalking_service` attribute, SkyWalking OAP wou
 ### Customizations
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found in `/config/otel-rules/apisix.yaml`.
-The APISIX dashboard panel configurations are found in `/config/ui-initialized-templates/apisix`.
+The APISIX dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.

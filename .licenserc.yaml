@@ -29,6 +29,10 @@ header:
     - '.lift'
     - '.mvn'
     - 'apm-protocol/apm-network/src/main/proto/.gitignore'
+    - 'apm-protocol/apm-network/src/main/proto'
+    - 'oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol'
+    - 'oap-server/server-library/library-banyandb-client/src/main/proto'
+    - 'test/e2e-v2/java-test-service/e2e-protocol/src/main/proto'
     - 'codeStyle.xml'
     - 'docker/.env'
     - 'dist'
@@ -46,13 +50,6 @@ header:
     - '**/*.txt'
     - 'LICENSE'
     - 'NOTICE'
-    - 'skywalking-ui/dist'
-    - 'skywalking-ui/node_modules'
-    - 'skywalking-ui/node'
-    - 'skywalking-ui/.browserslistrc'
-    - 'skywalking-ui/.prettierrc'
-    - 'skywalking-ui/src/types/auto-imports.d.ts'
-    - 'skywalking-ui/src/types/components.d.ts'
     - '**/src/main/fbs/istio/**'
     - '**/src/main/proto/envoy/**'
     - '**/src/main/proto/udpa/**'
@@ -77,7 +74,6 @@ header:
 dependency:
   files:
     - pom.xml
-    - skywalking-ui/package.json
   excludes:
     - name: org.openjdk.jmh:jmh-core # We don't distribute the dependencies, they are just for the build process
       recursive: true

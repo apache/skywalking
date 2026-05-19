@@ -635,7 +635,7 @@ Add to `oap-server/server-starter/src/main/resources/ui-initialized-templates/me
 
 #### Dashboard Templates
 
-Create dashboards under `ui-initialized-templates/ios/`:
+Create dashboards under `apache/skywalking-horizon-ui dashboard bundle`:
 
 **ios-root.json** — Root list view of all iOS app services.
 

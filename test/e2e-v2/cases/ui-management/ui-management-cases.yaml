@@ -1,0 +1,73 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# REST surface for dashboard templates, mounted on the admin-server REST host
+# (default :17128). The cases below walk add → get → list → change → disable →
+# list-default vs. list-with-disabled to exercise the full CRUD cycle. Each
+# step writes the new id to /tmp/uitpl.id so the following step can refer to
+# the server-allocated UUID.
+
+cases:
+  # 1. POST a new template — server allocates the UUID.
+  - query: |
+      curl -s -X POST http://${oap_host}:${oap_17128}/ui-management/templates \
+        -H 'Content-Type: application/json' \
+        -d '{"configuration":"{\"name\":\"e2e-tpl\",\"v\":1}"}' \
+        | tee /tmp/uitpl-add.json \
+        | yq -P '. | {"status": .status, "hasId": (.id != null and .id != "")}'
+    expected: expected/template-write-success.yml
+
+  # 2. GET the template by the id returned from step 1.
+  - query: |
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
+      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
+        | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
+    expected: expected/template-fetched.yml
+
+  # 3. PUT to update the configuration. Same id, new body.
+  - query: |
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
+      curl -s -X PUT http://${oap_host}:${oap_17128}/ui-management/templates \
+        -H 'Content-Type: application/json' \
+        -d "{\"id\":\"$ID\",\"configuration\":\"{\\\"name\\\":\\\"e2e-tpl\\\",\\\"v\\\":2}\"}" \
+        | yq -P '. | {"status": .status, "id": .id}'
+    expected: expected/template-changed.yml
+
+  # 4. GET again — configuration should now reflect the PUT body.
+  - query: |
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
+      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
+        | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
+    expected: expected/template-updated.yml
+
+  # 5. POST .../disable — soft-delete.
+  - query: |
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
+      curl -s -X POST http://${oap_host}:${oap_17128}/ui-management/templates/$ID/disable \
+        | yq -P '. | {"status": .status, "id": .id}'
+    expected: expected/template-changed.yml
+
+  # 6. Default list excludes disabled — should be empty.
+  - query: |
+      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates \
+        | yq -P '. | length'
+    expected: expected/template-list-empty.yml
+
+  # 7. includingDisabled=true returns the soft-deleted entry.
+  - query: |
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
+      curl -s -X GET "http://${oap_host}:${oap_17128}/ui-management/templates?includingDisabled=true" \
+        | yq -P '.[] | select(.id == "'"$ID"'") | {"disabled": .disabled}'
+    expected: expected/template-list-disabled.yml

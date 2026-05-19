@@ -21,12 +21,11 @@ setup:
   init-system-environment: ../../../../../script/env
   kind:
     import-images:
-      - skywalking/ui:latest
       - skywalking/oap:latest
     expose-ports:
       - namespace: istio-system
-        resource: service/skywalking-ui
-        port: 80
+        resource: service/skywalking-oap
+        port: 12800
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
@@ -40,24 +39,23 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
     - name: Install kubectl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
-    - name: Install ECK operator
+    - name: Install ECK operator CRDs
       command: |
         kubectl create namespace istio-system
         helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
         helm dep up skywalking-helm
-        helm -n istio-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz
-        kubectl -n istio-system rollout status --watch --timeout=120s statefulset/elastic-operator
+        tar xzf skywalking-helm/charts/eck-operator-3.3.1.tgz -C /tmp eck-operator/charts/eck-operator-crds
+        helm -n istio-system install eck-crds /tmp/eck-operator/charts/eck-operator-crds
     - name: Install SkyWalking
       command: |
         helm -n istio-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
-          --set eckOperator.enabled=false \
+          --set eck-operator.installCRDs=false \
           --set oap.replicas=1 \
-          --set ui.image.repository=skywalking/ui \
-          --set ui.image.tag=latest \
+          --set ui.enabled=false \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=elasticsearch \

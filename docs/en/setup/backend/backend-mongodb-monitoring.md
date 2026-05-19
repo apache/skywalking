@@ -76,4 +76,4 @@ MongoDB monitoring provides multidimensional metrics monitoring of MongoDB clust
 You can customize your own metrics/expression/dashboard panel.
 The metrics definition and expression rules are found
 in `/config/otel-rules/mongodb/mongodb-cluster.yaml, /config/otel-rules/mongodb/mongodb-node.yaml`.
-The MongoDB dashboard panel configurations are found in `/config/ui-initialized-templates/mongodb`.
+The MongoDB dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
