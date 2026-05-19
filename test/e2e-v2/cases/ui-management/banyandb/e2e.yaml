@@ -29,8 +29,12 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
 
 verify:
+  # ui-management's start() waits on BanyanDB to install the ui_template
+  # property schema — the REST handler can land on the admin port up to
+  # ~60s after the container reports healthy. Budget for that here so
+  # the first POST doesn't time out before the route is registered.
   retry:
-    count: 10
+    count: 30
     interval: 3s
   cases:
     - includes:
