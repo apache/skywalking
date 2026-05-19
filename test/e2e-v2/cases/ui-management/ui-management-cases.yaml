@@ -31,14 +31,14 @@ cases:
 
   # 2. GET the template by the id returned from step 1.
   - query: |
-      ID=$(yq -P '.id' /tmp/uitpl-add.json);
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
       curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
         | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
     expected: expected/template-fetched.yml
 
   # 3. PUT to update the configuration. Same id, new body.
   - query: |
-      ID=$(yq -P '.id' /tmp/uitpl-add.json);
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
       curl -s -X PUT http://${oap_host}:${oap_17128}/ui-management/templates \
         -H 'Content-Type: application/json' \
         -d "{\"id\":\"$ID\",\"configuration\":\"{\\\"name\\\":\\\"e2e-tpl\\\",\\\"v\\\":2}\"}" \
@@ -47,14 +47,14 @@ cases:
 
   # 4. GET again — configuration should now reflect the PUT body.
   - query: |
-      ID=$(yq -P '.id' /tmp/uitpl-add.json);
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
       curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
         | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
     expected: expected/template-updated.yml
 
   # 5. POST .../disable — soft-delete.
   - query: |
-      ID=$(yq -P '.id' /tmp/uitpl-add.json);
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
       curl -s -X POST http://${oap_host}:${oap_17128}/ui-management/templates/$ID/disable \
         | yq -P '. | {"status": .status, "id": .id}'
     expected: expected/template-changed.yml
@@ -67,7 +67,7 @@ cases:
 
   # 7. includingDisabled=true returns the soft-deleted entry.
   - query: |
-      ID=$(yq -P '.id' /tmp/uitpl-add.json);
+      ID=$(yq -r '.id' /tmp/uitpl-add.json);
       curl -s -X GET "http://${oap_host}:${oap_17128}/ui-management/templates?includingDisabled=true" \
         | yq -P '.[] | select(.id == "'"$ID"'") | {"disabled": .disabled}'
     expected: expected/template-list-disabled.yml

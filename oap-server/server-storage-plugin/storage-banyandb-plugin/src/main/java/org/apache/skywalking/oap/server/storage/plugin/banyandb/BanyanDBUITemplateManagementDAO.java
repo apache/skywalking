@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.storage.management.UITemplateManagementDAO;
+import org.apache.skywalking.oap.server.library.util.BooleanUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
 
 import java.io.IOException;
@@ -98,6 +99,7 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
                     .build();
         }
         UITemplate uiTemplate = parse(oldProperty);
+        uiTemplate.setDisabled(BooleanUtils.TRUE);
         try {
             this.getClient().apply(applyStatus(uiTemplate));
             return TemplateChangeStatus.builder()
