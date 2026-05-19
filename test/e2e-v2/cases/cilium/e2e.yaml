@@ -46,21 +46,21 @@ setup:
         bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh cilium
         cilium install --wait
         cilium status --wait
-    - name: Install ECK operator
+    - name: Install ECK operator CRDs
       command: |
         helm pull oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" --untar
         helm dep up skywalking-helm
-        helm -n kube-system install eck-operator skywalking-helm/charts/eck-operator-*.tgz \
+        tar xzf skywalking-helm/charts/eck-operator-3.3.1.tgz -C /tmp eck-operator/charts/eck-operator-crds
+        helm -n kube-system install eck-crds /tmp/eck-operator/charts/eck-operator-crds \
           --create-namespace
-        kubectl -n kube-system rollout status --watch --timeout=120s statefulset/elastic-operator
     - name: Install SkyWalking
       command: |
         helm -n kube-system install skywalking \
           oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
           --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
           --set fullnameOverride=skywalking \
-          --set eckOperator.enabled=false \
+          --set eck-operator.installCRDs=false \
           --set oap.replicas=1 \
           --set ui.enabled=false \
           --set oap.image.tag=latest \
