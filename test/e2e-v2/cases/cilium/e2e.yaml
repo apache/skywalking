@@ -25,7 +25,7 @@ setup:
     import-images:
       - skywalking/oap:latest
     expose-ports:
-      - namespace: istio-system
+      - namespace: kube-system
         resource: service/skywalking-oap
         port: 12800
   steps:
