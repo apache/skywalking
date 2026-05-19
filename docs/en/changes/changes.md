@@ -96,9 +96,8 @@
   module (inspect, dsl-debugging, runtime-rule, ui-management). Horizon UI consumes
   status from the admin host. URIs and payloads are unchanged; only the host moved.
   **One exception:** `/status/config/ttl` is also bound on the public REST host
-  (12800) so apache/skywalking-baseline-predictor (and any other ecosystem tool that
-  discovers TTL bounds via REST before issuing /graphql) doesn't need to learn the
-  admin port.
+  (12800) so ecosystem tools that discover TTL bounds via REST before issuing
+  /graphql don't need to learn the admin port.
 * **New `admin-server` module — shared host for admin / on-demand write APIs.** Runs on
   **two ports**: an HTTP REST surface (default `17128`) for operator-facing endpoints,
   and an **admin-internal gRPC bus** (default `17129`) for peer-to-peer cluster RPCs

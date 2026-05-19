@@ -28,9 +28,9 @@ import org.apache.skywalking.oap.server.library.module.ModuleDefine;
  * preserved verbatim from the legacy plugin.
  *
  * <p>Mounts on the admin-server REST host. {@code /status/config/ttl}
- * is additionally bound on the public REST host (kept for
- * baseline-predictor, which fetches TTL bounds before issuing
- * /graphql); every other handler is admin-only.
+ * is additionally bound on the public REST host so ecosystem tools that
+ * discover TTL via REST before issuing /graphql don't have to learn the
+ * admin port; every other handler is admin-only.
  */
 public class StatusModule extends ModuleDefine {
     public static final String NAME = "status";

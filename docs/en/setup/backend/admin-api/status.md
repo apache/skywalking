@@ -6,9 +6,8 @@ and per-query debug traces. Hosted by the `status` feature module on the
 admin-server REST host (default `17128`), alongside `/ui-management/*`,
 `/inspect/*`, `/dsl-debugging/*`, and `/runtime/rule/*`. One handler —
 `/status/config/ttl` — is also bound on the public REST host
-(default `12800`) so ecosystem tools (e.g.,
-[skywalking-baseline-predictor](https://github.com/apache/skywalking-baseline-predictor))
-can fetch TTL bounds without being aware of the admin port.
+(default `12800`) so ecosystem tools that discover TTL via REST before
+issuing `/graphql` can fetch it without being aware of the admin port.
 
 ## Hosting
 
@@ -63,8 +62,8 @@ Drill-down: status of one specific entity under a given rule.
 
 Returns the effective TTL configuration the OAP loaded at boot.
 **Reachable on both ports** — `:17128` (admin) and `:12800` (public) —
-so ecosystem tools (e.g., baseline-predictor) can call it without
-admin-port knowledge. Every other `/status/*` handler is admin-only.
+so ecosystem tools can call it without admin-port knowledge. Every
+other `/status/*` handler is admin-only.
 
 ### `/debugging/config/dump`
 

@@ -65,8 +65,6 @@ setup:
           --set oap.envoy.als.enabled=true \
           --set oap.replicas=1 \
           --set ui.enabled=false \
-          --set ui.image.repository=placeholder \
-          --set ui.image.tag=disabled \
           --set oap.image.tag=latest \
           --set oap.image.repository=skywalking/oap \
           --set oap.storageType=banyandb \

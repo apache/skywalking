@@ -43,7 +43,7 @@ import static org.mockito.Mockito.when;
  * Verifies the register-resolution helpers on StatusModuleProvider. Status is
  * an admin-host module — handlers mount on the admin-server REST host — with
  * the single exception of {@code /status/config/ttl}, which is also bound on
- * the public REST host for baseline-predictor.
+ * the public REST host for ecosystem tools that fetch TTL before /graphql.
  */
 @ExtendWith(MockitoExtension.class)
 class StatusModuleProviderTest {

@@ -69,7 +69,7 @@ public class StatusModuleProvider extends ModuleProvider {
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         registerHandlers(adminRestRegister());
         // /status/config/ttl stays on the public port too — kept from 10.x
-        // for baseline-predictor, which fetches it before any /graphql call.
+        // for ecosystem tools that discover TTL via REST before /graphql.
         publicRestRegister().addHandler(
             new TTLConfigQueryHandler(getManager()),
             Collections.singletonList(HttpMethod.GET)
