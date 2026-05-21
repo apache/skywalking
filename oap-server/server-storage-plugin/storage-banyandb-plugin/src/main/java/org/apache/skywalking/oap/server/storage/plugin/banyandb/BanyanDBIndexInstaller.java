@@ -789,7 +789,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                        .equals(measure.toBuilder().clearMetadata().build());
             if (!equals) {
                 if (!opt.getFlags().isUpdateOnMismatch()) {
-                    if (canBootReshape(model) && isPurelyAdditiveMeasure(measure, hisMeasure)) {
+                    if (canBootReshape(model, opt) && isPurelyAdditiveMeasure(measure, hisMeasure)) {
                         opt.recordModRevision(client.update(measure));
                         log.info("boot reshape (additive) Measure: {} — applied @Stream(allowBootReshape=true). backend={}, declared={}",
                             hisMeasure.getMetadata().getName(), hisMeasure, measure);
@@ -833,7 +833,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                       .equals(stream.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build());
             if (!equals) {
                 if (!opt.getFlags().isUpdateOnMismatch()) {
-                    if (canBootReshape(model) && isPurelyAdditiveStream(stream, hisStream)) {
+                    if (canBootReshape(model, opt) && isPurelyAdditiveStream(stream, hisStream)) {
                         opt.recordModRevision(client.update(stream));
                         log.info("boot reshape (additive) Stream: {} — applied @Stream(allowBootReshape=true). backend={}, declared={}",
                             hisStream.getMetadata().getName(), hisStream, stream);
@@ -858,13 +858,23 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Gate for boot-time reshape: the model must opt in via
-     * {@link Model#isAllowBootReshape()} AND this OAP must not be in {@code no-init} mode.
-     * Non-init OAPs leave DDL to the init / standalone OAP and converge via the poll-wait
-     * loop in {@link org.apache.skywalking.oap.server.core.storage.model.ModelInstaller#whenCreating}.
+     * Gate for boot-time reshape: three conditions, all required.
+     * <ul>
+     *   <li>The model opts in via {@link Model#isAllowBootReshape()}.</li>
+     *   <li>The opt is the static-boot policy ({@link StorageManipulationOpt#isSchemaCreateIfAbsent()}).
+     *       Restricting the reshape branch to this single mode keeps the policy boundary
+     *       explicit — {@code verifySchemaOnly()} must stay read-only even if a future
+     *       caller flips {@code updateOnMismatch} off, and {@code withSchemaChange()}
+     *       already takes the existing on-demand reshape path above.</li>
+     *   <li>This OAP must not be in {@code no-init} mode. Non-init OAPs leave DDL to the
+     *       init / standalone OAP and converge via the poll-wait loop in
+     *       {@link org.apache.skywalking.oap.server.core.storage.model.ModelInstaller#whenCreating}.</li>
+     * </ul>
      */
-    private boolean canBootReshape(Model model) {
-        return model.isAllowBootReshape() && !RunningMode.isNoInitMode();
+    private boolean canBootReshape(Model model, StorageManipulationOpt opt) {
+        return model.isAllowBootReshape()
+            && opt.isSchemaCreateIfAbsent()
+            && !RunningMode.isNoInitMode();
     }
 
     /**

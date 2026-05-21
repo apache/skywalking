@@ -24,12 +24,15 @@ import com.google.common.collect.Lists;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
+import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
@@ -248,11 +251,13 @@ public class BanyanDBIT {
         config.getMetricsMin().setTtl(config.getMetricsMin().getTtl() + 3);
         BanyanDBIndexInstaller newInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
         newInstaller.isExists(updatedModel, StorageManipulationOpt.withSchemaChange());
-        //test Group update
+        //test Group update — assert the live group now reflects the values we set on config,
+        //rather than hard-coding the post-mutation numbers (which would couple the test to the
+        //defaults shipped in bydb.yml).
         BanyandbCommon.Group updatedGroup = client.client.findGroup(groupName);
-        assertEquals(updatedGroup.getResourceOpts().getShardNum(), 3);
-        assertEquals(updatedGroup.getResourceOpts().getSegmentInterval().getNum(), 3);
-        assertEquals(updatedGroup.getResourceOpts().getTtl().getNum(), 10);
+        assertEquals(config.getMetricsMin().getShardNum(), updatedGroup.getResourceOpts().getShardNum());
+        assertEquals(config.getMetricsMin().getSegmentInterval(), updatedGroup.getResourceOpts().getSegmentInterval().getNum());
+        assertEquals(config.getMetricsMin().getTtl(), updatedGroup.getResourceOpts().getTtl().getNum());
         //test Measure update
         BanyandbDatabase.Measure updatedMeasure = client.client.findMeasure(groupName, "testMetric_minute");
         assertEquals("storage-only", updatedMeasure.getTagFamilies(0).getName());
@@ -303,14 +308,20 @@ public class BanyanDBIT {
             MeasureQueryResponse updatedResp = client.query(updatedQuery);
             assertNotNull(updatedResp);
             assertEquals(2, updatedResp.getDataPoints().size());
-            assertEquals("service1", updatedResp.getDataPoints().get(0).getTagValue("service_id"));
-            assertEquals("tag1", updatedResp.getDataPoints().get(0).getTagValue("tag"));
-            assertEquals(100, (Long) updatedResp.getDataPoints().get(0).getFieldValue("value"));
-            assertEquals("service2", updatedResp.getDataPoints().get(1).getTagValue("service_id"));
-            assertEquals("tag1", updatedResp.getDataPoints().get(1).getTagValue("tag"));
-            assertEquals("new_tag1", updatedResp.getDataPoints().get(1).getTagValue("new_tag"));
-            assertEquals(101, (Long) updatedResp.getDataPoints().get(1).getFieldValue("value"));
-            assertEquals(1000, (Long) updatedResp.getDataPoints().get(1).getFieldValue("new_value"));
+            // Index by service_id so the assertions don't depend on server-side ordering
+            // (MeasureQuery doesn't set an orderBy and BanyanDB result order is not contractually stable).
+            Map<String, DataPoint> byService = updatedResp.getDataPoints().stream()
+                .collect(Collectors.toMap(dp -> (String) dp.getTagValue("service_id"), dp -> dp));
+            DataPoint dp1 = byService.get("service1");
+            assertNotNull(dp1);
+            assertEquals("tag1", dp1.getTagValue("tag"));
+            assertEquals(100, (Long) dp1.getFieldValue("value"));
+            DataPoint dp2 = byService.get("service2");
+            assertNotNull(dp2);
+            assertEquals("tag1", dp2.getTagValue("tag"));
+            assertEquals("new_tag1", dp2.getTagValue("new_tag"));
+            assertEquals(101, (Long) dp2.getFieldValue("value"));
+            assertEquals(1000, (Long) dp2.getFieldValue("new_value"));
         });
     }
 
