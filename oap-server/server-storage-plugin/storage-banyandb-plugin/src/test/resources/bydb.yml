@@ -43,6 +43,7 @@ global:
   # The batch size for querying profile data.
   profileDataQueryBatchSize: ${SW_STORAGE_BANYANDB_QUERY_PROFILE_DATA_BATCH_SIZE:100}
   asyncProfilerTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_ASYNC_PROFILER_TASK_QUERY_MAX_SIZE:200}
+  pprofTaskQueryMaxSize: ${SW_STORAGE_BANYANDB_PPROF_TASK_QUERY_MAX_SIZE:200}
   user: ${SW_STORAGE_BANYANDB_USER:""}
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
@@ -52,6 +53,9 @@ global:
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".
   # OAP will create BanyanDB Groups using the format of "{namespace}_{group name}", such as "sw_records".
   namespace: ${SW_NAMESPACE:"sw"}
+  # The compatible server API versions of BanyanDB.
+  # The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.10"}
 
 groups:
   # The group settings of record.

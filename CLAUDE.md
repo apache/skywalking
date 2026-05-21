@@ -246,6 +246,10 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `changes/changes.md` - Changelog (update when making changes)
 - `swip/` - SkyWalking Improvement Proposals
 
+## Handling Existing Tests
+
+If existing test code (UT, IT, or E2E) fails to pass, try to fix it. If any test cases need to be modified, or test code needs to be deleted, the change must be double-checked by a human before it is applied — surface the proposed modification or deletion and the reasoning, and wait for explicit approval rather than changing or removing the test yourself.
+
 ## Submitting Pull Requests
 
 Use the `/gh-pull-request` skill for committing and pushing to a PR branch. It runs pre-flight checks (compile, checkstyle, license headers) before every push, and creates the PR if one doesn't exist yet.

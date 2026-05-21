@@ -160,6 +160,27 @@ explicit ERROR, boot always continues, the affected metric is disabled, and the
 operator reconciles explicitly through the on-demand workflow. The same shape is
 visible across every backend.
 
+### Code-defined stream opt-in (narrow exception)
+
+The "boot never reshapes" rule above applies to **runtime-rule (MAL / LAL)**
+registration — those rules ride the `/addOrUpdate` REST workflow when their
+backing schema needs to change.
+
+Streams whose schema lives in OAP source code (e.g. `AlarmRecord`) can opt in
+to **additive** boot-time reshape via
+`@Stream(allowBootReshape = true)`. When the flag is on and the diff is
+purely additive (new tag / new field; no type changes, no drops, no entity /
+interval / sharding-key flips), the installer calls `client.update` at boot
+to append the new column to the live measure / stream; non-additive
+divergences still record `SKIPPED_SHAPE_MISMATCH` and require an operator
+drop+recreate. Only the init / standalone OAP performs the reshape; non-init
+peers continue through the existing poll-and-wait loop so a single node
+drives DDL during a rolling restart.
+
+This opt-in is **BanyanDB-only**. JDBC and Elasticsearch are append-only on
+the data path and already accept additive column / mapping additions at boot
+without operator intervention, so the flag is unread on those backends.
+
 ## On-demand workflow
 
 Triggered by an HTTP call to one of the admin endpoints. A request arriving at any

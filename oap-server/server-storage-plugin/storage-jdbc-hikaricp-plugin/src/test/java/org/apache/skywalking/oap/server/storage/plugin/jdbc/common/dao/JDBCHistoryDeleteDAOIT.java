@@ -107,7 +107,7 @@ class JDBCHistoryDeleteDAOIT {
                     new SQLDatabaseExtension(), null, null),
                 new ModelColumn(new ColumnName(timeBucketColumn), Long.class, Long.class, false, false, false, 0,
                     new SQLDatabaseExtension(), null, null)
-            ), 1, DownSampling.Minute, false, ServiceTraffic.class, false, new SQLDatabaseModelExtension(),
+            ), 1, DownSampling.Minute, false, ServiceTraffic.class, false, false, new SQLDatabaseModelExtension(),
             new BanyanDBModelExtension(), new ElasticSearchModelExtension());
 
         TableMetaInfo.addModel(model);
