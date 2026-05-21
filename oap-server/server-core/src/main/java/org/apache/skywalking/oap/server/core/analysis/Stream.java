@@ -27,6 +27,8 @@ import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.TopNStreamProcessor;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
+import org.apache.skywalking.oap.server.core.storage.model.ModelInstaller;
+import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 /**
@@ -59,4 +61,28 @@ public @interface Stream {
      * TopNStreamProcessor} and {@link NoneStreamProcessor} for more details.
      */
     Class<? extends StreamProcessor> processor();
+
+    /**
+     * Opt-in to additive boot-time reshape of the backend resource for this stream class.
+     * <strong>BanyanDB only</strong> — JDBC and Elasticsearch are append-only on the data
+     * path and don't refuse additive column / mapping additions at boot, so they don't
+     * need (and don't read) this flag.
+     *
+     * <p>Default is {@code false} — boot follows the standard {@code schemaCreateIfAbsent}
+     * policy and records {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} on
+     * any shape divergence, leaving reconciliation to the operator (the only workflow that
+     * may change backend schema).
+     *
+     * <p>When set to {@code true}, the BanyanDB installer is allowed to apply
+     * <strong>purely additive</strong> changes (new tag, new field) during boot via
+     * {@code client.update}. Type changes, drops, kind flips, entity / interval /
+     * sharding-key changes are still refused with {@code SKIPPED_SHAPE_MISMATCH} and
+     * require a manual drop+recreate (identity-breaking edits are explicit operator
+     * actions, not boot side-effects).
+     *
+     * <p>Only the init / standalone OAP performs the reshape; non-init peers continue
+     * through the existing poll-and-wait loop in {@link ModelInstaller#whenCreating} so a
+     * single node drives DDL during a rolling restart.
+     */
+    boolean allowBootReshape() default false;
 }

@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.server.core.storage.model;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -169,6 +170,9 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
         seriesIDChecker.check(storage.getModelName());
         shardingKeyChecker.check(storage.getModelName());
 
+        final Stream streamAnnotation = aClass.getAnnotation(Stream.class);
+        final boolean allowBootReshape = streamAnnotation != null && streamAnnotation.allowBootReshape();
+
         Model model = new Model(
             storage.getModelName(),
             modelColumns,
@@ -177,6 +181,7 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
             isSuperDatasetModel(aClass),
             aClass,
             storage.isTimeRelativeID(),
+            allowBootReshape,
             sqlDBModelExtension,
             banyanDBModelExtension,
             elasticSearchModelExtension
