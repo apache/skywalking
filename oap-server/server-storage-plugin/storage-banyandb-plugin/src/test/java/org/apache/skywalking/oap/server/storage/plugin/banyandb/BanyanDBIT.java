@@ -609,6 +609,143 @@ public class BanyanDBIT {
     }
 
     /**
+     * Toggling {@code storageOnly} on an existing {@code @Column} moves the tag from
+     * {@code storage-only} → {@code searchable} (or vice versa). Although the live tag
+     * family no longer contains the tag at its old position, the tag identity + type are
+     * preserved, so {@link BanyanDBIndexInstaller#isPurelyAdditiveStream} (via
+     * {@code isPurelyAdditiveTagFamilies}) should accept the relocation when
+     * {@code allowBootReshape = true} and the OAP is in the init / standalone path. The
+     * dependent IndexRule for the now-indexed tag should also be created.
+     */
+    @Test
+    public void testStreamStorageOnlyTogglePathBootReshape() throws Exception {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+
+        StorageModels models = new StorageModels();
+        Model baseModel = models.add(TestStreamStorageOnly.class, DefaultScopeDefine.SERVICE,
+                                     new Storage("relocStream", true, DownSampling.Second),
+                                     StorageManipulationOpt.withSchemaChange());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(baseModel, StorageManipulationOpt.withSchemaChange());
+        installer.createTable(baseModel);
+
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.StreamGroup.RECORDS_LOG.getName());
+        BanyandbDatabase.Stream initial = client.client.findStream(groupName, "relocStream");
+        // payload starts in storage-only family
+        assertTrue(initial.getTagFamiliesList().stream()
+                .filter(f -> "storage-only".equals(f.getName()))
+                .flatMap(f -> f.getTagsList().stream())
+                .anyMatch(t -> "payload".equals(t.getName())),
+            "expected payload tag in storage-only family initially, got " + initial);
+
+        models.remove(TestStreamStorageOnly.class, StorageManipulationOpt.withSchemaChange());
+        Model reshapedModel = models.add(TestStreamStorageOnlyOff.class, DefaultScopeDefine.SERVICE,
+                                         new Storage("relocStream", true, DownSampling.Second),
+                                         StorageManipulationOpt.withSchemaChange());
+        assertTrue(reshapedModel.isAllowBootReshape());
+
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
+
+        BanyandbDatabase.Stream reshaped = client.client.findStream(groupName, "relocStream");
+        // payload is now in searchable family
+        assertTrue(reshaped.getTagFamiliesList().stream()
+                .filter(f -> "searchable".equals(f.getName()))
+                .flatMap(f -> f.getTagsList().stream())
+                .anyMatch(t -> "payload".equals(t.getName())),
+            "expected payload tag relocated to searchable family after reshape, got " + reshaped);
+        assertFalse(reshaped.getTagFamiliesList().stream()
+                .filter(f -> "storage-only".equals(f.getName()))
+                .flatMap(f -> f.getTagsList().stream())
+                .anyMatch(t -> "payload".equals(t.getName())),
+            "expected payload tag no longer in storage-only family after reshape, got " + reshaped);
+
+        boolean updatedRecorded = bootOpt.getOutcomes().stream()
+            .anyMatch(o -> "stream".equals(o.getResourceType())
+                && "relocStream".equals(o.getResourceName())
+                && o.getStatus() == StorageManipulationOpt.Outcome.UPDATED);
+        assertTrue(updatedRecorded, "expected UPDATED outcome for storageOnly relocation, got " + bootOpt.getOutcomes());
+    }
+
+    /**
+     * Initial state for {@link #testStreamStorageOnlyTogglePathBootReshape}: {@code payload}
+     * declared with {@code storageOnly = true}, so it lands in the {@code storage-only}
+     * tag family.
+     */
+    @Stream(name = "relocStream", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestStreamStorageOnly.Builder.class, processor = RecordStreamProcessor.class)
+    @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_LOG)
+    @BanyanDB.TimestampColumn("timestamp")
+    private static class TestStreamStorageOnly extends Record {
+        @Column(name = "service_id")
+        @BanyanDB.SeriesID(index = 0)
+        private String serviceId;
+        @Column(name = "payload", storageOnly = true)
+        private String payload;
+        @Column(name = "timestamp")
+        private long timestamp;
+
+        @Override
+        public StorageID id() {
+            return new StorageID();
+        }
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+            }
+        }
+    }
+
+    /**
+     * Reshape target: same {@code payload} column, but {@code storageOnly} is gone so the
+     * tag relocates to the {@code searchable} family. Opted in via
+     * {@code allowBootReshape = true}.
+     */
+    @Stream(name = "relocStream", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestStreamStorageOnlyOff.Builder.class, processor = RecordStreamProcessor.class,
+        allowBootReshape = true)
+    @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_LOG)
+    @BanyanDB.TimestampColumn("timestamp")
+    private static class TestStreamStorageOnlyOff extends Record {
+        @Column(name = "service_id")
+        @BanyanDB.SeriesID(index = 0)
+        private String serviceId;
+        @Column(name = "payload")
+        private String payload;
+        @Column(name = "timestamp")
+        private long timestamp;
+
+        @Override
+        public StorageID id() {
+            return new StorageID();
+        }
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+            }
+        }
+    }
+
+    /**
      * Non-additive variant: {@code tag} is now {@code long} (TAG_TYPE_INT) where the live
      * stream has it as {@code String} (TAG_TYPE_STRING). Boot must refuse to reshape even
      * with {@code allowBootReshape = true}.
