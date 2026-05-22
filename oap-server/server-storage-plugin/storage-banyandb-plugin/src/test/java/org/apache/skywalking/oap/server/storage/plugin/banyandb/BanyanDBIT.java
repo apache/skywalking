@@ -672,6 +672,18 @@ public class BanyanDBIT {
                 && "relocStream".equals(o.getResourceName())
                 && o.getStatus() == StorageManipulationOpt.Outcome.UPDATED);
         assertTrue(updatedRecorded, "expected UPDATED outcome for storageOnly relocation, got " + bootOpt.getOutcomes());
+
+        // Relocation is "additive" → checkStream returns true → dependent index-rule
+        // reconciliation runs. Verify the IndexRule for the newly-indexed `payload` tag was
+        // created and that the IndexRuleBinding now references it. This is the behavior the
+        // dependent-reconcile gate is supposed to permit when the primary shape change is
+        // accepted.
+        BanyandbDatabase.IndexRule payloadIndexRule = client.client.findIndexRule(groupName, "payload");
+        assertNotNull(payloadIndexRule, "expected IndexRule 'payload' to be created after relocation");
+        BanyandbDatabase.IndexRuleBinding binding = client.client.findIndexRuleBinding(groupName, "relocStream");
+        assertNotNull(binding, "expected IndexRuleBinding for relocStream to be present after relocation");
+        assertTrue(binding.getRulesList().contains("payload"),
+            "expected IndexRuleBinding to reference 'payload', got rules=" + binding.getRulesList());
     }
 
     /**

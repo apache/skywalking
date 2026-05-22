@@ -779,13 +779,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * NOT reshape the backend by default — reshape is an explicit operator action.
      *
      * <p>Exception: when the model opts in via {@link Model#isAllowBootReshape()} and the diff
-     * is purely additive (new tag / new field, no type changes, no drops, identity preserved),
-     * the init OAP is allowed to apply the additive update during boot. Non-init OAPs continue
-     * through the poll-and-wait loop in
+     * is purely additive (new tag / new field, or tag relocation between families via a
+     * {@code storageOnly} toggle; no type changes, no drops, identity preserved), the init OAP
+     * is allowed to apply the additive update during boot. Non-init OAPs continue through the
+     * poll-and-wait loop in
      * {@link org.apache.skywalking.oap.server.core.storage.model.ModelInstaller#whenCreating}
      * so only one node races on the DDL.
-     */
-    /**
+     *
      * @return {@code true} when the live measure is now aligned with the declared shape
      *         (either it already matched, or the installer successfully applied an update);
      *         {@code false} when the shape diverged and the installer recorded
@@ -813,7 +813,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             hisMeasure.getMetadata().getName(), hisMeasure, measure);
                         opt.recordOutcome("measure", hisMeasure.getMetadata().getName(),
                             StorageManipulationOpt.Outcome.UPDATED,
-                            "additive boot reshape: new tag / field added");
+                            "additive boot reshape: new tag / field added or tag relocated between families");
                         return true;
                     }
                     log.error("BanyanDB measure {} shape mismatch at boot — backend holds a "
@@ -835,11 +835,10 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Check if the stream exists and update (or record shape mismatch) per mode.
-     * See {@link #checkMeasure} for the create-if-absent vs full-install contract,
-     * including the {@link Model#isAllowBootReshape()} additive opt-in.
-     */
-    /**
+     * Check if the stream exists and update (or record shape mismatch) per mode. See
+     * {@link #checkMeasure} for the create-if-absent vs full-install contract, including the
+     * {@link Model#isAllowBootReshape()} additive opt-in.
+     *
      * @return {@code true} when the live stream is now aligned with the declared shape
      *         (already matched or successfully updated); {@code false} when the installer
      *         recorded {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}. See
@@ -865,7 +864,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             hisStream.getMetadata().getName(), hisStream, stream);
                         opt.recordOutcome("stream", hisStream.getMetadata().getName(),
                             StorageManipulationOpt.Outcome.UPDATED,
-                            "additive boot reshape: new tag added");
+                            "additive boot reshape: new tag added or tag relocated between families");
                         return true;
                     }
                     log.error("BanyanDB stream {} shape mismatch at boot — backend holds a "
@@ -906,8 +905,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Record a parallel {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} for the
-     * index-rule + binding (+ TopN, for measures) resources of a stream / measure / trace
-     * whose primary {@code check*} just skipped. Calling
+     * dependent {@code indexRule} + {@code indexRuleBinding} resources of a stream / measure
+     * / trace whose primary {@code check*} just skipped. Calling
      * {@code checkIndexRules} / {@code checkIndexRuleBinding} unconditionally after a primary
      * skip would silently update the binding to reference the new declared rule list while
      * the underlying schema still carries the old shape — operators end up with a binding
@@ -917,14 +916,20 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      *
      * <p>Skipping the dependent reconcile keeps live state coherent: either everything
      * matches the declared shape, or nothing on this resource is touched until the operator
-     * drops + recreates.
+     * drops + recreates. The resource-type labels (`indexRule`, `indexRuleBinding`) match the
+     * names {@link StorageManipulationOpt.ResourceOutcome} uses elsewhere so operator-facing
+     * outcome filtering stays consistent.
+     *
+     * <p>{@code TopNAggregation} doesn't need a parallel skip — it's only invoked for
+     * measures, only when the primary {@code checkMeasure} returns {@code true}, and its
+     * own gating cascades through the dispatch in {@link #isExists}.
      */
     private void skipDependentReconcile(StorageManipulationOpt opt, String resourceType, String resourceName) {
         log.warn("BanyanDB {} {} shape mismatch — skipping dependent IndexRule / IndexRuleBinding "
                 + "reconciliation to avoid partial reshape (binding would point at the new tag "
                 + "list while the live tag families still carry the old shape).",
             resourceType, resourceName);
-        opt.recordOutcome("indexRules", resourceName,
+        opt.recordOutcome("indexRule", resourceName,
             StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
             resourceType + " shape mismatch; index-rule reconcile skipped");
         opt.recordOutcome("indexRuleBinding", resourceName,
