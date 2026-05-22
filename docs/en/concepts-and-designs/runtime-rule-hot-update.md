@@ -169,17 +169,42 @@ backing schema needs to change.
 Streams whose schema lives in OAP source code (e.g. `AlarmRecord`) can opt in
 to **additive** boot-time reshape via
 `@Stream(allowBootReshape = true)`. When the flag is on and the diff is
-purely additive (new tag / new field; no type changes, no drops, no entity /
-interval / sharding-key flips), the installer calls `client.update` at boot
-to append the new column to the live measure / stream; non-additive
-divergences still record `SKIPPED_SHAPE_MISMATCH` and require an operator
-drop+recreate. Only the init / standalone OAP performs the reshape; non-init
-peers continue through the existing poll-and-wait loop so a single node
-drives DDL during a rolling restart.
+purely additive, the installer calls `client.update` at boot to extend the
+live measure / stream; non-additive divergences still record
+`SKIPPED_SHAPE_MISMATCH` and require an operator drop+recreate. Only the
+init / standalone OAP performs the reshape; non-init peers continue through
+the existing poll-and-wait loop so a single node drives DDL during a rolling
+restart.
+
+"Additive" includes two cases:
+
+1. **New tag / new field** — a brand-new `@Column` is appended to the live
+   tag family (or fields list, for measures).
+2. **Tag relocation between families** — a `@Column`'s `storageOnly` flag
+   flips, moving the tag between the `storage-only` and `searchable`
+   families. The tag identity and type are preserved; only its on-disk
+   family location changes.
+
+Drops, tag-type changes, kind flips (tag↔field), and entity / interval /
+sharding-key changes are still rejected with `SKIPPED_SHAPE_MISMATCH`.
+
+When the primary `check*` records `SKIPPED_SHAPE_MISMATCH`, the dependent
+`IndexRule` and `IndexRuleBinding` reconciliation is **also skipped**. This
+preserves coherence between the stream / measure tag layout and the binding
+that points into it — without the gate, the binding would silently update to
+reference the new declared tag list while the live tag families still carry
+the old shape, leaving operators with a binding routing to tags that don't
+exist in the live family layout.
 
 This opt-in is **BanyanDB-only**. JDBC and Elasticsearch are append-only on
 the data path and already accept additive column / mapping additions at boot
 without operator intervention, so the flag is unread on those backends.
+
+> **Operator caveat:** BanyanDB does not physically migrate existing rows
+> when a tag's family changes. Pre-existing data for the relocated tag stays
+> in its original on-disk family location; new writes go to the declared
+> family. Queries that route through a new IndexRule on the relocated tag
+> will only see post-reshape rows until historical data ages out via TTL.
 
 ## On-demand workflow
 
