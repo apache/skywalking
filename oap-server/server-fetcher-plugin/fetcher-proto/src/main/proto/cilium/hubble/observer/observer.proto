@@ -175,8 +175,7 @@ message GetAgentEventsRequest {
     // printing the last N agent events.
     bool follow = 2;
 
-    // TODO: do we want to be able to specify blocklist/allowlist (previously
-    // known as blacklist/whitelist)?
+    // Filtering by allow/block lists is not supported for agent events.
 
     // Since this time for returned agent events. Incompatible with `number`.
     google.protobuf.Timestamp since = 7;
@@ -208,8 +207,7 @@ message GetDebugEventsRequest {
     // printing the last N debug events.
     bool follow = 2;
 
-    // TODO: do we want to be able to specify blocklist/allowlist (previously
-    // known as blacklist/whitelist)?
+    // Filtering by allow/block lists is not supported for debug events.
 
     // Since this time for returned debug events. Incompatible with `number`.
     google.protobuf.Timestamp since = 7;
