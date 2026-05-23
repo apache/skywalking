@@ -303,14 +303,14 @@ MAL should instruct meter-system on how to downsample for metrics. It doesn't on
 
 Down sampling function is called `downsampling` in MAL, and it accepts the following types:
 
- - AVG
- - SUM
- - LATEST
- - SUM_PER_MIN
- - MIN
- - MAX
- - MEAN (TODO)
- - COUNT (TODO)
+- `AVG`: Calculates the average value of the samples.
+- `SUM`: Calculates the total sum of the samples.
+- `LATEST`: Selects the most recent sample value.
+- `SUM_PER_MIN`: Calculates the sum of the samples specifically per minute.
+- `MIN`: Selects the minimum sample value.
+- `MAX`: Selects the maximum sample value.
+- `MEAN`: Calculates the mathematical mean of all sample values.
+- `COUNT`: Computes the total number of metric data points or events recorded.
 
 The default type is `AVG`.
 

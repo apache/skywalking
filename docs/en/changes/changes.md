@@ -291,5 +291,6 @@
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
 * Add iOS app monitoring setup documentation.
 * Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
+* Improve downsampling documentation
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.0.0)
