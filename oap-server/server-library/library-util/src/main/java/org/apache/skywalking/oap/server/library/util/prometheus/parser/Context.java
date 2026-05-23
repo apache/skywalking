@@ -90,7 +90,7 @@ public class Context {
         metricFamilyBuilder.setHelp(help);
         metricFamilyBuilder.setType(type);
 
-        if (samples.size() < 1) {
+        if (samples.isEmpty()) {
             return;
         }
         switch (type) {
@@ -100,7 +100,7 @@ public class Context {
                         .name(name)
                         .value(convertStringToDouble(textSample.getValue()))
                         .labels(textSample.getLabels())
-                        .timestamp(now)
+                        .timestamp(resolveTimestamp(textSample))
                         .build()));
                 break;
             case COUNTER:
@@ -109,7 +109,7 @@ public class Context {
                         .name(name)
                         .value(convertStringToDouble(textSample.getValue()))
                         .labels(textSample.getLabels())
-                        .timestamp(now)
+                        .timestamp(resolveTimestamp(textSample))
                         .build()));
                 break;
             case HISTOGRAM:
@@ -120,18 +120,20 @@ public class Context {
                         return Pair.of(labels, sample);
                     })
                     .collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
-                    .forEach((labels, samples) -> {
+                    .forEach((labels, groupedSamples) -> {
                         Histogram.HistogramBuilder hBuilder = Histogram.builder();
-                        hBuilder.name(name).timestamp(now);
+                        long metricTimestamp = groupedSamples.isEmpty() ? now : resolveTimestamp(groupedSamples.get(0));
+
+                        hBuilder.name(name).timestamp(metricTimestamp);
                         hBuilder.labels(labels);
-                        samples.forEach(textSample -> {
+                        groupedSamples.forEach(textSample -> {
                             if (textSample.getName().endsWith("_count")) {
                                 hBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
                             } else if (textSample.getName().endsWith("_sum")) {
                                 hBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
                             } else if (textSample.getLabels().containsKey("le")) {
                                 hBuilder.bucket(
-                                    convertStringToDouble(textSample.getLabels().remove("le")),
+                                convertStringToDouble(textSample.getLabels().get("le")),
                                     (long) convertStringToDouble(textSample.getValue())
                                 );
                             }
@@ -147,18 +149,20 @@ public class Context {
                         return Pair.of(labels, sample);
                     })
                     .collect(groupingBy(Pair::getLeft, mapping(Pair::getRight, toList())))
-                    .forEach((labels, samples) -> {
+                    .forEach((labels, groupedSamples) -> {
                         Summary.SummaryBuilder sBuilder = Summary.builder();
-                        sBuilder.name(name).timestamp(now);
+                        long metricTimestamp = groupedSamples.isEmpty() ? now : resolveTimestamp(groupedSamples.get(0));
+
+                        sBuilder.name(name).timestamp(metricTimestamp);
                         sBuilder.labels(labels);
-                        samples.forEach(textSample -> {
+                        groupedSamples.forEach(textSample -> {
                             if (textSample.getName().endsWith("_count")) {
                                 sBuilder.sampleCount((long) convertStringToDouble(textSample.getValue()));
                             } else if (textSample.getName().endsWith("_sum")) {
                                 sBuilder.sampleSum(convertStringToDouble(textSample.getValue()));
                             } else if (textSample.getLabels().containsKey("quantile")) {
                                 sBuilder.quantile(
-                                    convertStringToDouble(textSample.getLabels().remove("quantile")),
+                                    convertStringToDouble(textSample.getLabels().get("quantile")),
                                     convertStringToDouble(textSample.getValue())
                                 );
                             }
@@ -183,5 +187,16 @@ public class Context {
             doubleValue = Double.parseDouble(valueString);
         }
         return doubleValue;
+    }
+
+    private long resolveTimestamp(TextSample textSample) {
+        if (textSample.getTimestamp() != null && !textSample.getTimestamp().isEmpty()) {
+            try {
+                return Long.parseLong(textSample.getTimestamp());
+            } catch (NumberFormatException e) {
+                LOG.debug("Invalid timestamp provided in metric line, falling back to 'now': {}", textSample.getTimestamp(), e);
+            }
+        }
+        return now;
     }
 }

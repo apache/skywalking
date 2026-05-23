@@ -27,8 +27,10 @@ import org.apache.skywalking.oap.server.library.util.prometheus.metrics.Summary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -53,14 +55,14 @@ public class TextParserTest {
                                                 .label("method", "post")
                                                 .label("code", "200")
                                                 .value(1027D)
-                                                .timestamp(now)
+                                                .timestamp(1395066363000L)
                                                 .build())
                               .addMetric(Counter.builder()
                                                 .name("http_requests_total")
                                                 .label("method", "post")
                                                 .label("code", "400")
                                                 .value(3D)
-                                                .timestamp(now)
+                                                .timestamp(1395066363000L)
                                                 .build())
                               .build());
         expectedMfs.offer(new MetricFamily.Builder()
@@ -125,6 +127,40 @@ public class TextParserTest {
                 assertThat(mf).isEqualTo(expected);
             }
             assertThat(mfNum).isEqualTo(3);
+        }
+    }
+
+    @Test
+    public void parseTextWithExplicitTimestampsSuccessfully() throws IOException {
+        String prometheusData = "# HELP explicit_timestamp_total A counter with explicit timestamps.\n" +
+          "# TYPE explicit_timestamp_total counter\n" +
+          "explicit_timestamp_total{method=\"get\"} 10.0 1621832400000\n" +
+          "explicit_timestamp_total{method=\"post\"} 20.0 1621832405000   \n";
+
+        MetricFamily expected = new MetricFamily.Builder()
+          .setName("explicit_timestamp_total")
+          .setType(MetricType.COUNTER)
+          .setHelp("A counter with explicit timestamps.")
+          .addMetric(Counter.builder()
+            .name("explicit_timestamp_total")
+            .label("method", "get")
+            .value(10.0D)
+            .timestamp(1621832400000L)
+            .build())
+          .addMetric(Counter.builder()
+            .name("explicit_timestamp_total")
+            .label("method", "post")
+            .value(20.0D)
+            .timestamp(1621832405000L)
+            .build())
+          .build();
+
+        try (InputStream is = new ByteArrayInputStream(prometheusData.getBytes(StandardCharsets.UTF_8))) {
+            TextParser parser = new TextParser(is);
+            MetricFamily mf = parser.parse(now);
+
+            assertNotNull(mf);
+            assertThat(mf).isEqualTo(expected);
         }
     }
 }

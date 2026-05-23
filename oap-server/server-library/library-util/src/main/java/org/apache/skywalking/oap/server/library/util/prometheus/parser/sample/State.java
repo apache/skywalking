@@ -147,23 +147,45 @@ enum State {
         @Override
         State nextState(final char c, final Context ctx) {
             if (State.isWhitespace(c)) {
-                // TODO: timestamps
-                return END;
+                return END_OF_VALUE;
             }
             ctx.value.append(c);
+            return this;
+        }
+    },
+    END_OF_VALUE {
+        @Override
+        State nextState(final char c, final Context ctx) {
+            if (State.isWhitespace(c)) {
+                return this;
+            }
+            ctx.timestamp.append(c);
+            return TIMESTAMP;
+        }
+    },
+    TIMESTAMP {
+        @Override
+        State nextState(final char c, final Context ctx) {
+            if (State.isWhitespace(c)) {
+                return END;
+            }
+            ctx.timestamp.append(c);
             return this;
         }
     },
     END {
         @Override
         State nextState(final char c, final Context ctx) {
-            throw new IllegalStateException();
+            if (State.isWhitespace(c)) {
+                return this;
+            }
+            throw new IllegalStateException("Invalid character encountered after parsing completed.");
         }
     },
     INVALID {
         @Override
         State nextState(final char c, final Context ctx) {
-            throw new IllegalStateException();
+            throw new IllegalStateException("Invalid state reached during parsing.");
         }
     };
 

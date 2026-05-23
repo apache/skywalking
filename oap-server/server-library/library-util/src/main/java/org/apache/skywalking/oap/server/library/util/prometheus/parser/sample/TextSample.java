@@ -30,6 +30,7 @@ public class TextSample {
     private final String name;
     private final Map<String, String> labels;
     private final String value;
+    private final String timestamp;
     private final String line;
 
     public static TextSample parse(String line) {
@@ -44,6 +45,13 @@ public class TextSample {
                 break;
             }
         }
-        return new TextSample(ctx.name.toString(), ctx.labels, ctx.value.toString(), line);
+
+        return new TextSample(
+          ctx.name.toString(),
+          ctx.labels,
+          ctx.value.toString(),
+          ctx.timestamp.toString(),
+          line
+        );
     }
 }

@@ -26,5 +26,6 @@ class Context {
     StringBuilder labelname = new StringBuilder();
     StringBuilder labelvalue = new StringBuilder();
     StringBuilder value = new StringBuilder();
+    StringBuilder timestamp = new StringBuilder();
     Map<String, String> labels = new LinkedHashMap<>();
 }
