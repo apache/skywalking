@@ -167,6 +167,14 @@ public class XxxModuleProvider extends ModuleProvider {
   re-narrate the body. Multi-paragraph rationale belongs in the design doc, not
   the source.
 
+**Tests:**
+- Always use JUnit assertions (`assertTrue`, `assertEquals`, `assertThrows`, …).
+  Never write bare Java `assert` statements in tests. Although surefire defaults
+  `enableAssertions=true` so bare `assert` does fire in this project's tests,
+  JUnit assertions are the convention everywhere else in the codebase, survive
+  any test-runner configuration, and produce a structured failure that names
+  the actual value instead of a context-free `AssertionError`.
+
 ### License Header
 Java, XML, and YAML/YML files must include the Apache 2.0 license header (see `HEADER` file).
 JSON and Markdown files are excluded (JSON doesn't support comments, see `.licenserc.yaml`).
