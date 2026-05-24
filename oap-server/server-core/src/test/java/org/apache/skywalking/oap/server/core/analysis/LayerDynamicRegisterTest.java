@@ -52,8 +52,10 @@ class LayerDynamicRegisterTest {
             IllegalArgumentException.class,
             () -> Layer.registerDynamic("DYN_FLOOR_REJECT", 99_999, true));
         // Message must surface the ordinal so the operator can correlate with their yaml.
-        assert ex.getMessage().contains("99999") || ex.getMessage().contains("99_999");
-        assert ex.getMessage().contains("100000") || ex.getMessage().contains("100_000");
+        assertTrue(ex.getMessage().contains("99999") || ex.getMessage().contains("99_999"),
+                   "message must quote the offending ordinal: " + ex.getMessage());
+        assertTrue(ex.getMessage().contains("100000") || ex.getMessage().contains("100_000"),
+                   "message must quote the floor: " + ex.getMessage());
     }
 
     @Test
@@ -135,8 +137,8 @@ class LayerDynamicRegisterTest {
         final IllegalStateException ex = assertThrows(
             IllegalStateException.class,
             () -> Layer.unregisterDynamic("MESH"));
-        assert ex.getMessage().contains("MESH");
-        assert ex.getMessage().contains("non-dynamic");
+        assertTrue(ex.getMessage().contains("MESH"), ex.getMessage());
+        assertTrue(ex.getMessage().contains("non-dynamic"), ex.getMessage());
         // The built-in is still in the registry after the failed removal attempt.
         assertSame(Layer.MESH, Layer.nameOf("MESH"));
     }
@@ -170,8 +172,8 @@ class LayerDynamicRegisterTest {
         final IllegalStateException ex = assertThrows(
             IllegalStateException.class,
             () -> Layer.unregisterDynamic("DYN_OPERATOR_AT_RUNTIME_TIER"));
-        assert ex.getMessage().contains("DYN_OPERATOR_AT_RUNTIME_TIER");
-        assert ex.getMessage().contains("non-dynamic");
+        assertTrue(ex.getMessage().contains("DYN_OPERATOR_AT_RUNTIME_TIER"), ex.getMessage());
+        assertTrue(ex.getMessage().contains("non-dynamic"), ex.getMessage());
         // Still in the registry, still resolvable.
         assertNotSame(Layer.UNDEFINED, Layer.nameOf("DYN_OPERATOR_AT_RUNTIME_TIER"));
     }
