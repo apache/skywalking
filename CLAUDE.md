@@ -155,6 +155,26 @@ public class XxxModuleProvider extends ModuleProvider {
 - Use Lombok annotations (`@Getter`, `@Setter`, `@Builder`, `@Data`, `@Slf4j`, etc.)
 - Follow existing patterns in similar files
 
+**Comments:**
+- Don't explain what the code already says. Comment only when reading the code is
+  not enough — invariants that aren't visible in this method, cross-cutting
+  ordering, why a non-obvious branch exists, why a seemingly redundant call is
+  required. If the code is clear, no comment.
+- Connect logic that lives in different places. A check here that exists only
+  because of a guarantee made elsewhere deserves a one-line pointer to that
+  guarantee. A workaround for a known bug elsewhere deserves a link.
+- Trim restated javadoc. Method-level docs should describe the contract, not
+  re-narrate the body. Multi-paragraph rationale belongs in the design doc, not
+  the source.
+
+**Tests:**
+- Always use JUnit assertions (`assertTrue`, `assertEquals`, `assertThrows`, …).
+  Never write bare Java `assert` statements in tests. Although surefire defaults
+  `enableAssertions=true` so bare `assert` does fire in this project's tests,
+  JUnit assertions are the convention everywhere else in the codebase, survive
+  any test-runner configuration, and produce a structured failure that names
+  the actual value instead of a context-free `AssertionError`.
+
 ### License Header
 Java, XML, and YAML/YML files must include the Apache 2.0 license header (see `HEADER` file).
 JSON and Markdown files are excluded (JSON doesn't support comments, see `.licenserc.yaml`).

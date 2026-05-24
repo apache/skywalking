@@ -19,16 +19,22 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.extension;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.rule.ext.RuntimeRuleOverrideResolver;
+import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.yaml.snakeyaml.Yaml;
 
 /**
  * Serves operator-supplied rule overrides (rows in the {@code runtime_rule} management table)
@@ -145,14 +151,81 @@ public final class DbOverrideRuntimeRuleResolver implements RuntimeRuleOverrideR
             if ("INACTIVE".equalsIgnoreCase(row.getStatus())) {
                 result.put(row.getName(), Resolution.inactive());
             } else {
-                // STATUS_ACTIVE (default) or any non-INACTIVE status — treat as active substitution.
+                // STATUS_ACTIVE (default) or any non-INACTIVE status — active substitution.
                 final byte[] bytes = row.getContent() == null
                     ? new byte[0]
                     : row.getContent().getBytes(StandardCharsets.UTF_8);
+                // Layer overrides are never permitted on top of a bundled rule. If the
+                // override carries layerDefinitions AND the disk twin exists, drop the
+                // override so the bundled content loads as-is. Operators get the boot
+                // error; the /addOrUpdate REST handler rejects the same combination
+                // pre-persist for fresh pushes.
+                if (isLayerOverrideOnBundled(catalog, row.getName(), bytes)) {
+                    log.error("runtime-rule boot resolver: rule {}/{} declares layerDefinitions "
+                        + "AND has a bundled disk twin. The substitution is dropped so the "
+                        + "static loader serves the bundled disk content (bundled layer "
+                        + "ownership preserved). The runtime row is still in the DAO and will "
+                        + "be applied dynamically post-seal by RuleSync (its layerDefinitions "
+                        + "go through the runtime channel and are operator-removable via "
+                        + "/inactivate + /delete). Operator action: remove layerDefinitions "
+                        + "from the runtime row, OR /delete the row and re-create it as a "
+                        + "pure-runtime rule with a different name.",
+                        catalog, row.getName());
+                    continue;
+                }
                 result.put(row.getName(), Resolution.active(bytes));
             }
         }
         log.info("Runtime-rule boot resolver loaded {} override(s) for catalog {}", result.size(), catalog);
         return result;
+    }
+
+    /** True when content has a non-empty layerDefinitions block AND the disk twin
+     *  exists. The static loader records every disk entry into {@link StaticRuleRegistry}
+     *  before resolvers run, so the registry is authoritative for disk-twin presence. */
+    public static boolean isLayerOverrideOnBundled(final String catalog, final String name,
+                                            final byte[] bytes) {
+        if (bytes == null || bytes.length == 0) {
+            return false;
+        }
+        final StaticRuleRegistry registry = StaticRuleRegistry.active();
+        if (registry == null || !registry.find(catalog, name).isPresent()) {
+            return false;
+        }
+        return contentHasLayerDefinitions(catalog, new String(bytes, StandardCharsets.UTF_8));
+    }
+
+    /** YAML peek for the {@code layerDefinitions:} block. MAL catalogs bind into
+     *  {@link Rule}; LAL into {@link LALConfigs}. Unknown catalogs return false (no
+     *  catalog-specific parsing → can't enforce; caller treats as no layers). */
+    public static boolean contentHasLayerDefinitions(final String catalog, final String content) {
+        if (content == null || content.isEmpty()) {
+            return false;
+        }
+        try (StringReader reader = new StringReader(content)) {
+            final List<LayerDefinition> defs;
+            switch (catalog) {
+                case "otel-rules":
+                case "log-mal-rules":
+                case "telegraf-rules": {
+                    final Rule rule = new Yaml().loadAs(reader, Rule.class);
+                    defs = rule == null ? null : rule.getLayerDefinitions();
+                    break;
+                }
+                case "lal": {
+                    final LALConfigs configs = new Yaml().loadAs(reader, LALConfigs.class);
+                    defs = configs == null ? null : configs.getLayerDefinitions();
+                    break;
+                }
+                default:
+                    return false;
+            }
+            return defs != null && !defs.isEmpty();
+        } catch (final RuntimeException ex) {
+            // YAML malformed: not our problem here. The applier surfaces the parse error
+            // with a clearer message; the layer-override check is a no-op for unparseable
+            // content (the apply will reject the row anyway).
+            return false;
+        }
     }
 }

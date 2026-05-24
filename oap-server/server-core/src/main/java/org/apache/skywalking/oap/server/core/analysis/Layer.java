@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -35,35 +36,69 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  * {@link #valueOf(String)}) or by ordinal ({@link #valueOf(int)}); {@link #values()} returns
  * every registered layer sorted by ordinal.
  *
- * <p>Layers are persisted by ordinal (int). Built-in ordinals 0–49 are frozen forever and
- * must never be reused. Ordinals 50–999 are reserved by convention for future built-ins;
- * external extensions are <strong>recommended</strong> to start at {@code 1000} to avoid
- * colliding with future built-ins on OAP upgrade. The recommendation is informational and
- * not enforced — any non-colliding ordinal is accepted — but a future built-in landing on
- * the same ordinal as an extension layer will cause OAP boot to fail loudly via the
- * ordinal uniqueness check, which is the upgrade-time detection mechanism.
+ * <p>Layers are persisted by ordinal (int). The ordinal space is partitioned by tier so
+ * each registration channel has a non-overlapping range:
+ * <ul>
+ *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..49} in
+ *       use; the rest of the range is reserved for future built-ins. Ordinals already
+ *       persisted in storage are frozen forever and must never be reused.</li>
+ *   <li>{@code 10_000 – 99_999} — boot-time external layers: {@code layer-extensions.yml},
+ *       {@code LayerExtension} SPI, and bundled MAL/LAL {@code layerDefinitions:} blocks.
+ *       Registered through {@link #register} before {@link #seal()}.</li>
+ *   <li>{@code 100_000 – Integer.MAX_VALUE} — runtime DSL dynamic layers introduced by
+ *       MAL/LAL hot-update {@code layerDefinitions:} blocks. Registered through
+ *       {@link #registerDynamic} after {@link #seal()} and removable through
+ *       {@link #unregisterDynamic} when the last declaring rule is removed.</li>
+ * </ul>
+ * The tier boundaries are enforced for {@link #registerDynamic} / {@link #unregisterDynamic}
+ * (ordinal must be {@code >= 100_000}). {@link #register} accepts any non-colliding ordinal
+ * for backward compatibility, but operator-managed extensions <strong>should</strong> use
+ * the {@code 10_000+} tier to leave the {@code 100_000+} space for runtime DSL.
  *
- * <p>Registration paths (all funnel through {@link #register}):
+ * <p>Registration paths (all funnel through {@link #register} or {@link #registerDynamic}):
  * <ol>
  *   <li>Operator yaml — {@code layer-extensions.yml} on the OAP classpath/config dir.</li>
  *   <li>Java SPI — {@code LayerExtension} discovered via {@code ServiceLoader}.</li>
- *   <li>DSL inline — MAL/LAL rule files declaring a top-level {@code layerDefinitions:}
- *       block; the DSL loader funnels each entry through this method before compiling.</li>
+ *   <li>DSL inline (boot) — MAL/LAL rule files declaring a top-level {@code layerDefinitions:}
+ *       block; the DSL loader funnels each entry through {@link #register} before compiling.</li>
+ *   <li>DSL inline (runtime) — runtime-rule MAL/LAL hot-update files declaring
+ *       {@code layerDefinitions:}; funneled through {@link #registerDynamic}. The runtime-rule
+ *       module's {@code RuntimeLayerRegistry} refcounts these per declaring rule file and
+ *       invokes {@link #unregisterDynamic} when the last claim drops.</li>
  * </ol>
  * The registry is sealed at the start of {@code CoreModuleProvider.notifyAfterCompleted()};
- * any registration attempt after that throws.
+ * after seal, only {@link #registerDynamic} and {@link #unregisterDynamic} can mutate the
+ * registry.
  */
 public final class Layer {
 
     private static final Pattern NAME_PATTERN = Pattern.compile("[A-Z][A-Z0-9_]*");
 
+    /**
+     * Lowest ordinal allowed for runtime DSL dynamic layers. Ordinals below this value are
+     * reserved for built-in {@code Layer.*} constants ({@code 0–9_999}) and boot-time
+     * external extensions ({@code 10_000–99_999}). See class javadoc for the full tier
+     * convention.
+     */
+    public static final int RUNTIME_DYNAMIC_MIN_ORDINAL = 100_000;
+
     private static final Map<Integer, Layer> BY_VALUE = new ConcurrentHashMap<>();
     private static final Map<String, Layer> BY_NAME = new ConcurrentHashMap<>();
+    /**
+     * Explicit ownership marker: every name added through {@link #registerDynamic} lands
+     * here, and {@link #unregisterDynamic} consults this set to refuse removing layers
+     * that came through the boot-time {@link #register} channel. Distinguishing by ordinal
+     * range alone (the original heuristic) was unsafe — operator yaml or bundled MAL/LAL
+     * can land in the {@code >=100_000} range and would have been wrongly considered
+     * removable. Adding here is idempotent on re-registration.
+     */
+    private static final Set<String> DYNAMIC_NAMES = ConcurrentHashMap.newKeySet();
     private static volatile boolean SEALED = false;
     /**
-     * Snapshot of all registered layers sorted by ordinal, frozen at {@link #seal()}.
-     * Before seal, {@link #values()} computes on the fly so newly registered layers are
-     * visible; after seal, {@link #values()} returns a clone of this cached array.
+     * Snapshot of all registered layers sorted by ordinal. Populated once at {@link #seal()};
+     * after seal, {@link #registerDynamic} / {@link #unregisterDynamic} rebuild this array
+     * so {@link #values()} reflects post-seal mutations. Before seal, {@link #values()}
+     * throws because the registry may still grow via boot-time {@link #register} calls.
      */
     private static volatile Layer[] CACHED_VALUES = null;
 
@@ -341,16 +376,133 @@ public final class Layer {
     }
 
     /**
-     * Closes the registry. Subsequent {@link #register} calls throw. Called by
-     * {@code CoreModuleProvider.notifyAfterCompleted()} after every module's prepare/start
-     * has run, so MAL/LAL/SPI/yaml all had their full window. Idempotent.
+     * Closes the registry. Subsequent {@link #register} calls throw; only
+     * {@link #registerDynamic} / {@link #unregisterDynamic} can mutate the registry after
+     * seal. Called by {@code CoreModuleProvider.notifyAfterCompleted()} after every
+     * module's prepare/start has run, so MAL/LAL/SPI/yaml all had their full window.
+     * Idempotent.
      */
     public static synchronized void seal() {
+        rebuildCachedValues();
+        SEALED = true;
+    }
+
+    /**
+     * Post-seal registration entry point for runtime DSL hot-update. Mirrors
+     * {@link #register} (same name regex, name uniqueness, ordinal uniqueness, idempotent
+     * on identical re-registration) but bypasses the seal check so the runtime-rule module
+     * can introduce layers during a hot-update apply.
+     *
+     * <p>Enforces {@code ordinal >= }{@link #RUNTIME_DYNAMIC_MIN_ORDINAL} so runtime layers
+     * cannot collide with built-in ordinals or boot-time external extensions. The caller
+     * (runtime-rule module's {@code RuntimeLayerRegistry}) is responsible for refcounting
+     * declarations and invoking {@link #unregisterDynamic} when the last declaring rule is
+     * removed.
+     *
+     * <p>Rebuilds the {@link #values()} snapshot so post-seal additions are visible to
+     * subsequent iterators.
+     *
+     * @throws IllegalArgumentException if name shape is invalid or {@code value < }
+     *         {@link #RUNTIME_DYNAMIC_MIN_ORDINAL}
+     * @throws IllegalStateException    on name/ordinal conflict with an existing layer
+     */
+    public static synchronized Layer registerDynamic(final String name, final int value, final boolean isNormal) {
+        if (value < RUNTIME_DYNAMIC_MIN_ORDINAL) {
+            throw new IllegalArgumentException(
+                "Runtime dynamic layer ordinal must be >= " + RUNTIME_DYNAMIC_MIN_ORDINAL
+                    + " (received " + value + " for layer '" + name + "'). "
+                    + "Reserved ranges: 0-9999 = built-in Layer constants, "
+                    + "10_000-99_999 = layer-extensions.yml + bundled MAL/LAL layerDefinitions.");
+        }
+        if (name == null || !NAME_PATTERN.matcher(name).matches()) {
+            throw new IllegalArgumentException(
+                "Layer name must match [A-Z][A-Z0-9_]*: " + name);
+        }
+        final Layer existingByName = BY_NAME.get(name);
+        if (existingByName != null) {
+            if (existingByName.value == value && existingByName.isNormal == isNormal) {
+                return existingByName;
+            }
+            throw new IllegalStateException(
+                "Layer name conflict: " + name + " already registered as ordinal=" + existingByName.value
+                    + ", normal=" + existingByName.isNormal
+                    + "; refused re-registration as ordinal=" + value + ", normal=" + isNormal);
+        }
+        final Layer existingByValue = BY_VALUE.get(value);
+        if (existingByValue != null) {
+            throw new IllegalStateException(
+                "Layer ordinal conflict at " + value
+                    + ": existing=" + existingByValue.name + ", new=" + name);
+        }
+        final Layer layer = new Layer(name, value, isNormal);
+        BY_VALUE.put(value, layer);
+        BY_NAME.put(name, layer);
+        DYNAMIC_NAMES.add(name);
+        rebuildCachedValues();
+        return layer;
+    }
+
+    /**
+     * Remove a layer added via {@link #registerDynamic}. No-op if the name is not currently
+     * registered. Throws if the named layer was NOT registered through the dynamic
+     * channel — built-in {@code Layer.*} constants, {@code layer-extensions.yml} entries,
+     * and bundled MAL/LAL {@code layerDefinitions:} blocks all funnel through
+     * {@link #register} and are non-removable because their ordinals are baked into
+     * persisted entity primary keys (e.g. {@code ServiceTraffic.id}).
+     *
+     * <p>Ownership is tracked explicitly through {@link #DYNAMIC_NAMES}, not inferred from
+     * the ordinal range — operators are free to put boot-time external layers anywhere in
+     * the registry's accepted range, so an ordinal-only check would wrongly accept removal
+     * of a boot-time layer that happens to live in the {@code >=100_000} tier.
+     *
+     * <p>Rebuilds the {@link #values()} snapshot.
+     *
+     * @throws IllegalStateException if the named layer was not registered via
+     *         {@link #registerDynamic}
+     */
+    public static synchronized void unregisterDynamic(final String name) {
+        if (name == null) {
+            return;
+        }
+        final Layer existing = BY_NAME.get(name);
+        if (existing == null) {
+            return;
+        }
+        if (!DYNAMIC_NAMES.contains(name)) {
+            throw new IllegalStateException(
+                "Refusing to unregister non-dynamic layer " + name + " (ordinal="
+                    + existing.value + "). Only layers registered through "
+                    + "registerDynamic are removable; this one came through register "
+                    + "(built-in Layer constant, layer-extensions.yml, or bundled "
+                    + "MAL/LAL layerDefinitions).");
+        }
+        BY_NAME.remove(name);
+        BY_VALUE.remove(existing.value);
+        DYNAMIC_NAMES.remove(name);
+        rebuildCachedValues();
+    }
+
+    /**
+     * True when the named layer was registered through {@link #registerDynamic} — i.e.
+     * owned by the runtime-rule module's {@code RuntimeLayerRegistry} rather than by the
+     * boot-time {@link #register} channel. Used by the boot-time MAL/LAL static loaders
+     * to skip {@code layerDefinitions:} entries the runtime path has already handled.
+     */
+    public static boolean isDynamic(final String name) {
+        return name != null && DYNAMIC_NAMES.contains(name);
+    }
+
+    /**
+     * Recompute {@link #CACHED_VALUES} from {@link #BY_VALUE}, sorted by ordinal. Called on
+     * {@link #seal()} and on every post-seal mutation through {@link #registerDynamic} /
+     * {@link #unregisterDynamic}. Pre-seal callers iterating {@link #values()} still hit
+     * the "not yet sealed" guard because {@link #SEALED} flips only inside {@link #seal()}.
+     */
+    private static void rebuildCachedValues() {
         CACHED_VALUES = BY_VALUE.values()
                                 .stream()
                                 .sorted(Comparator.comparingInt(Layer::value))
                                 .toArray(Layer[]::new);
-        SEALED = true;
     }
 
     public static Layer valueOf(final int value) {
@@ -383,6 +535,17 @@ public final class Layer {
     }
 
     /**
+     * Lenient ordinal lookup — returns {@code null} when no layer is registered at the
+     * given ordinal. Intended for callers that need to probe the registry without paying
+     * the cost (or noise) of catching {@link UnexpectedException} thrown by
+     * {@link #valueOf(int)}. Used by the runtime-rule conflict checker when validating
+     * dynamic-layer declarations before any registration is attempted.
+     */
+    public static Layer peekByValue(final int value) {
+        return BY_VALUE.get(value);
+    }
+
+    /**
      * Snapshot of all registered layers, sorted by ordinal value. Returns a fresh array each
      * call to preserve enum-style mutation safety; the underlying snapshot is computed once
      * at {@link #seal()} so calls only pay the array-clone cost.
@@ -394,7 +557,7 @@ public final class Layer {
      * or defer the iteration to a post-boot phase.
      */
     public static Layer[] values() {
-        if (CACHED_VALUES == null) {
+        if (!SEALED) {
             throw new IllegalStateException(
                 "Layer.values() called before the registry was sealed. "
                     + "External layers may still register during module prepare()/start(); "

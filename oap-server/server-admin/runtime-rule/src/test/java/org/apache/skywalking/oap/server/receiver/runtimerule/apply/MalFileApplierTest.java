@@ -22,8 +22,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javassist.ClassPool;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -205,6 +208,84 @@ class MalFileApplierTest {
                 + "    exp: m.sum(['host'])\n";
         final MalFileApplier.Applied applied = applier.apply(yaml, "otel-rules/myfile", "h");
         assertEquals(setOf("meter_x_one"), applied.getRegisteredMetricNames());
+    }
+
+    @Test
+    void applyWithLayerDefinitionsRegistersLayerAndCarriesAppliedClaims() throws Exception {
+        // Happy path: a runtime MAL rule that declares a new layer in layerDefinitions
+        // with a properly pinned ordinal in the runtime tier (>=100_000) must:
+        //   (a) register the layer through the dynamic channel (Layer.isDynamic = true);
+        //   (b) carry the AppliedClaims token on the returned Applied artifact so the
+        //       structural commit coordinator can roll it back on persist failure;
+        //   (c) populate the layer-registry refcount with this rule as the claimant.
+        // Uses an isolated RuntimeLayerRegistry to avoid touching JVM-wide state.
+        // `normal:` is intentionally omitted to exercise the LayerDefinition default
+        // (true) — same operator ergonomics the bundled yaml + layer-extensions tier
+        // already enjoy.
+        final RuntimeLayerRegistry isolatedRegistry = new RuntimeLayerRegistry();
+        final MalFileApplier layerApplier = new MalFileApplier(meterSystem, isolatedRegistry);
+        final String yaml =
+            "metricPrefix: meter_hl\n"
+                + "layerDefinitions:\n"
+                + "  - name: MAL_APPLIER_HAPPY_LAYER\n"
+                + "    ordinal: 100600\n"
+                + "expSuffix: service(['host'], Layer.OS_LINUX)\n"
+                + "metricsRules:\n"
+                + "  - name: ok\n"
+                + "    exp: m.sum(['host'])\n";
+        final MalFileApplier.Applied applied =
+            layerApplier.apply(yaml, "otel-rules/happy_layer_mal", "hashHL");
+        try {
+            // (a) layer registered through the dynamic channel with the default normal
+            assertEquals(100_600, Layer.nameOf("MAL_APPLIER_HAPPY_LAYER").value());
+            assertTrue(Layer.nameOf("MAL_APPLIER_HAPPY_LAYER").isNormal(),
+                       "omitted normal: defaults to true, same as the other tiers");
+            assertTrue(Layer.isDynamic("MAL_APPLIER_HAPPY_LAYER"));
+            // (b) AppliedClaims carried for orchestrator rollback
+            assertNotNull(applied.appliedLayerClaims());
+            assertTrue(applied.appliedLayerClaims().getCurrentLayerNames()
+                              .contains("MAL_APPLIER_HAPPY_LAYER"));
+            assertTrue(applied.appliedLayerClaims().getNewlyRegistered()
+                              .contains("MAL_APPLIER_HAPPY_LAYER"));
+            // (c) refcount tracks this rule as the claimant
+            assertTrue(isolatedRegistry.snapshot().get("MAL_APPLIER_HAPPY_LAYER")
+                                       .contains("otel-rules/happy_layer_mal"));
+        } finally {
+            // Clean up so JVM-wide Layer state stays sane for sibling tests.
+            isolatedRegistry.removeRule("otel-rules/happy_layer_mal");
+        }
+    }
+
+    @Test
+    void applyWithLayerOrdinalBelowFloorThrowsLayerConflict() {
+        // Sad path mirror of the happy-path test: ordinal=99_999 (the last ordinal of
+        // the boot-time external tier — one slot below the 100_000 runtime floor) must
+        // be rejected with layer_ordinal_out_of_range. The boundary value is the most
+        // realistic operator mistake: the operator remembers "external layers go in
+        // 10_000-99_999" and reuses that convention for a runtime rule. The applier
+        // wraps the LayerConflictException through; the REST handler maps it to HTTP
+        // 400 with the structured envelope. This proves the validation gate fires
+        // BEFORE compile so no MeterSystem.create runs for a rule we're going to
+        // reject.
+        final RuntimeLayerRegistry isolatedRegistry = new RuntimeLayerRegistry();
+        final MalFileApplier layerApplier = new MalFileApplier(meterSystem, isolatedRegistry);
+        final String yaml =
+            "metricPrefix: meter_bad_floor\n"
+                + "layerDefinitions:\n"
+                + "  - name: MAL_APPLIER_BAD_FLOOR\n"
+                + "    ordinal: 99999\n"
+                + "expSuffix: service(['host'], Layer.OS_LINUX)\n"
+                + "metricsRules:\n"
+                + "  - name: ok\n"
+                + "    exp: m.sum(['host'])\n";
+        final LayerConflictException ex = assertThrows(
+            LayerConflictException.class,
+            () -> layerApplier.apply(yaml, "otel-rules/bad_floor", "h"));
+        assertEquals(LayerConflictException.Status.LAYER_ORDINAL_OUT_OF_RANGE, ex.getStatus());
+        // MeterSystem.create was never invoked because validation fired first.
+        verify(meterSystem, Mockito.never())
+            .create(anyString(), anyString(), any(), any(ClassPool.class), any(ClassLoader.class),
+                    any(StorageManipulationOpt.class));
     }
 
     @Test

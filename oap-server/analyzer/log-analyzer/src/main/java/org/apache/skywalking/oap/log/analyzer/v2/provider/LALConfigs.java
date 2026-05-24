@@ -71,12 +71,13 @@ public class LALConfigs {
      *
      * <p>Compared with the legacy disk-only path:
      * <ul>
-     *   <li>Files in {@code files} but missing on disk are still loaded if a resolver
-     *       contributes ACTIVE content for them (DB-only LAL rules).</li>
      *   <li>Files on disk + in allow-list with an INACTIVE resolver entry are skipped.</li>
      *   <li>Files on disk + in allow-list with an ACTIVE resolver entry are parsed from
      *       resolver bytes (override).</li>
      *   <li>Files on disk + in allow-list with no resolver opinion are parsed from disk.</li>
+     *   <li>Files in resolver contributions but not on disk are NOT loaded here — pure
+     *       runtime LAL rules go through {@code RuleSync.runOnce} post-seal via the
+     *       dynamic layer channel, which preserves operator-removable ownership.</li>
      * </ul>
      */
     public static List<LALConfigs> load(final String path, final List<String> files,
@@ -155,7 +156,7 @@ public class LALConfigs {
      * Funnel any inline {@code layerDefinitions:} entries through {@code Layer.register}.
      * Conflict checks (reserved-range, name uniqueness, ordinal uniqueness, sealed-state) live
      * in {@code Layer.register}; failures here surface with the offending rule name in
-     * the stack trace, which is enough for an operator to find the bad file.
+     * the stack trace.
      */
     private static void registerInlineLayers(final String ruleName, final LALConfigs configs) {
         final List<LayerDefinition> defs = configs.getLayerDefinitions();

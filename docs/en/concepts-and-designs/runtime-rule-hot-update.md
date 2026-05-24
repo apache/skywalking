@@ -432,6 +432,89 @@ status, per-node `localState`, and `lastApplyError` for any rule whose most rece
 apply failed. There is no separate alert channel — `/list` plus the OAP log are
 the entire diagnostic surface.
 
+## Dynamic layers
+
+Runtime MAL/LAL rules MAY introduce new layer names through the same
+`layerDefinitions:` block bundled rule files use:
+
+```yaml
+layerDefinitions:
+  - name: MY_NEW_LAYER
+    ordinal: 100050         # required, runtime tier (>=100_000)
+    # normal: true          # optional; defaults to true
+metricPrefix: my_prefix
+metricsRules:
+  - name: requests
+    exp: any.sum(['service', 'instance'])
+```
+
+### Ordinal tier — operator-pinned
+
+| Range                        | Channel                                                                |
+|------------------------------|------------------------------------------------------------------------|
+| `0 – 9_999`                  | Built-in `Layer.*` constants                                           |
+| `10_000 – 99_999`            | `layer-extensions.yml` + bundled MAL/LAL `layerDefinitions:`           |
+| `100_000 – Integer.MAX_VALUE`| Runtime DSL dynamic layers                                             |
+
+The OAP does NOT auto-allocate. Ordinals land in persisted `ServiceTraffic` primary
+keys; they must be operator-stable across restarts.
+
+### Lifecycle
+
+`RuntimeLayerRegistry` refcounts each runtime claim per declaring rule. When the last
+runtime claim is removed (`/delete` of the rule, or `/addOrUpdate` that drops the
+entry), the layer is unregistered if it was originally registered through the runtime
+channel.
+
+### Limitations
+
+- **Runtime overrides of bundled rules cannot declare `layerDefinitions:`**. Bundled
+  and runtime are separate layer-ownership channels — never overwrite, never share. The
+  REST handler rejects `/addOrUpdate` of a rule whose name matches a bundled disk file
+  AND whose body carries a non-empty `layerDefinitions:` block with `applyStatus =
+  layer_override_forbidden` (HTTP 400). Operators wanting new layers on a bundled rule
+  must either edit the bundled source on disk and restart, OR push a pure-runtime rule
+  with a different name that declares the layer.
+- **Legacy override rows** (persisted before the rejection was introduced) are handled
+  at boot: the static-loader substitution is dropped so the bundled disk content loads
+  with its original layers, and `RuleSync` then applies the runtime row dynamically
+  post-seal — the runtime row's `layerDefinitions` go through the dynamic channel and
+  are operator-removable via `/inactivate` + `/delete`.
+- **Pure runtime rules (no bundled twin) ARE fully removable**. The layer registers
+  through the runtime channel and `unregisterDynamic` succeeds when the refcount hits
+  zero.
+- **Removing a layer with historical `ServiceTraffic` rows orphans those rows** — the
+  persisted ordinal no longer resolves and reads throw `Unknown Layer value`. Operator
+  must migrate or purge the data before removal; the feature does not auto-clean.
+- **No redeclaration of built-in or boot-time-external layers** at runtime. Use the
+  existing name in your rule body (`layer: GENERAL`, `dest: ...Layer.MESH...`) — do
+  not list those names under `layerDefinitions:`.
+
+### Conflict rules
+
+Validation runs before any apply lands and returns HTTP 400 with the standard
+`{applyStatus, catalog, name, message}` envelope.
+
+| `applyStatus`                | Trigger                                                                                                    |
+|------------------------------|------------------------------------------------------------------------------------------------------------|
+| `layer_ordinal_out_of_range` | `ordinal:` missing (default 0) or `< 100_000`.                                                             |
+| `layer_name_invalid`         | `name` does not match `[A-Z][A-Z0-9_]*`.                                                                   |
+| `layer_name_conflict`        | Same `name` already registered with a different `(ordinal, normal)` by another rule (bundled or runtime). Also raised for same-batch duplicate names with different triples, and for self-edit triple changes when another runtime rule shares the layer. |
+| `layer_ordinal_collision`    | Different `name`, same `ordinal` already in use. Also raised for same-batch duplicate ordinals, and for self-edit ordinal reuse when another runtime rule still holds the prior layer at that ordinal. |
+| `layer_override_forbidden`   | `/addOrUpdate` on a rule with a bundled disk twin where the body contains `layerDefinitions:`. Bundled rules own their layer declarations; runtime overrides may only change the rule body. |
+
+Same triple as an existing bundled layer is permitted as a soft claim (see Limitations
+above). Same triple as an existing runtime layer is a no-op refcount-add. Self-edits
+(changing the triple of a layer this rule already owns) are permitted only when the
+rule is the sole claimant; if other rules share the name, the operator must align both
+sides in lockstep or remove the prior declaration first.
+
+INACTIVE rules hold no layer claims — their refcount entries are dropped at
+`/inactivate`. Reactivation (`/addOrUpdate` against an INACTIVE row) runs full
+validation; if another rule started claiming the name in the meantime,
+`layer_name_conflict` surfaces and the operator must edit or `/delete` the inactive
+rule before it can come back.
+
 ## What this feature does not do
 
 - **OAL hot-update** is out of scope (see "Scope" above).

@@ -72,4 +72,5 @@ class LALConfigsLayerDefinitionsTest {
 
         assertEquals(1300, Layer.nameOf("TEST_LAL_LAYER_A").value());
     }
+
 }

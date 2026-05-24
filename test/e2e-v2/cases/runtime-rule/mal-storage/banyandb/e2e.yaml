@@ -22,9 +22,10 @@
 # the runtime-rule HTTP handler accepts seed rules that derive SkyWalking
 # metrics from those signals; the flow script drives the full lifecycle —
 # CREATE → UPDATE-FILTER → UPDATE-STRUCTURAL → DUMP → ILLEGAL × 4 →
-# SHAPE-BREAK → INACTIVATE → ACTIVATE → DELETE → DUMP — and asserts each
-# phase against /list, swctl, the BanyanDB-side measure existence, and the
-# step-label-attributed query results.
+# LAYER-REJECTION × 3 → LAYER-ROUND-TRIP → SHAPE-BREAK → INACTIVATE →
+# ACTIVATE → DELETE → DUMP — and asserts each phase against /list, swctl,
+# the BanyanDB-side measure existence, and the step-label-attributed
+# query results.
 
 setup:
   env: compose

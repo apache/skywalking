@@ -51,6 +51,8 @@ import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOp
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DSLDelta;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DeltaClassifier;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.MalFileApplier;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyInputs;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.Classification;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.CompiledDSL;
@@ -606,6 +608,14 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
     @Override
     public void rollback(final CompiledDSL compiled, final MalApplyContext ctx) {
         final CompiledMalDSL c = (CompiledMalDSL) compiled;
+        // Drop layer claims FIRST so a failed registry rollback doesn't strand metrics
+        // pointing at layers we don't know about. The registry's rollback is bounded —
+        // worst case it logs and proceeds — so this ordering is safe.
+        final AppliedClaims layerClaims = c.getNewApplied() == null
+            ? null : c.getNewApplied().appliedLayerClaims();
+        if (layerClaims != null && !layerClaims.isNoOp()) {
+            RuntimeLayerRegistry.INSTANCE.rollback(layerClaims);
+        }
         if (c.getAddedPlusShapeBreak().isEmpty()) {
             return;
         }
@@ -658,6 +668,11 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
     public void unregister(final String catalog, final String name, final MalApplyContext ctx) {
         final String key = DSLScriptKey.key(catalog, name);
         final String sourceName = catalog + "/" + name;
+        // Drop every layer this rule claimed. Net-zero layers cascade through
+        // RuntimeLayerRegistry.removeRule → Layer.unregisterDynamic. Safe to call before
+        // the metric teardown below — layers and metrics are independent registries.
+        RuntimeLayerRegistry.INSTANCE.removeRule(
+            RuntimeLayerRegistry.ruleId(catalog, name));
 
         // Always drop the MalConverterRegistry entry for this (catalog, name). The key
         // namespace is shared between boot-time and runtime converters, so this single call

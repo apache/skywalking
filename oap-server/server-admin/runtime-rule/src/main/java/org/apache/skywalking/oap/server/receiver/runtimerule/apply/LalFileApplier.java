@@ -31,12 +31,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogFilterListener;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerClaim;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.EngineApplied;
 import org.yaml.snakeyaml.Yaml;
 
@@ -54,9 +58,17 @@ import org.yaml.snakeyaml.Yaml;
 public class LalFileApplier {
 
     private final LogFilterListener.Factory factory;
+    private final RuntimeLayerRegistry layerRegistry;
 
     public LalFileApplier(final LogFilterListener.Factory factory) {
+        this(factory, RuntimeLayerRegistry.INSTANCE);
+    }
+
+    /** Test-friendly constructor — pass a dedicated registry to isolate from JVM-wide state. */
+    public LalFileApplier(final LogFilterListener.Factory factory,
+                          final RuntimeLayerRegistry layerRegistry) {
         this.factory = factory;
+        this.layerRegistry = layerRegistry;
     }
 
     /**
@@ -69,9 +81,10 @@ public class LalFileApplier {
      * later inside {@link #apply}).
      */
     public List<RegisteredRule> planKeys(final String yamlContent, final String sourceName) throws ApplyException {
-        final List<LALConfig> configs = parse(yamlContent, sourceName);
-        final List<RegisteredRule> keys = new ArrayList<>(configs.size());
-        for (final LALConfig c : configs) {
+        final LALConfigs configs = parse(yamlContent, sourceName);
+        final List<LALConfig> rules = configs.getRules();
+        final List<RegisteredRule> keys = new ArrayList<>(rules.size());
+        for (final LALConfig c : rules) {
             final boolean isAuto = LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer());
             final Layer layer = isAuto
                 ? null
@@ -116,7 +129,18 @@ public class LalFileApplier {
     public Applied apply(final String yamlContent, final String sourceName,
                          final String contentHash,
                          final DSLClassLoaderManager.Kind kind) throws ApplyException {
-        final List<LALConfig> configs = parse(yamlContent, sourceName);
+        final LALConfigs configs = parse(yamlContent, sourceName);
+        final List<LALConfig> rules = configs.getRules();
+        final List<LayerClaim> layerClaims = extractLayerClaims(configs);
+
+        // Register any declared layers FIRST so the LAL `layer:` field on rules in this file
+        // can resolve against the freshly-introduced names before Phase 1 compile starts.
+        // Conflicts throw LayerConflictException (REST handler translates to HTTP 400 with
+        // the structured envelope); atomic — validate() rejects before any registration.
+        final String catalogStr = deriveCatalog(sourceName);
+        final String ruleNameStr = deriveRuleName(sourceName);
+        final AppliedClaims appliedClaims = layerRegistry.apply(
+            RuntimeLayerRegistry.ruleId(catalogStr, ruleNameStr), layerClaims);
 
         // One per-file RuleClassLoader for the whole file — every rule inside shares it, so all
         // generated LalExpression classes (one per rule) drop together on unregister when the
@@ -148,13 +172,16 @@ public class LalFileApplier {
         //   volatile map write; a partial-failure window here is theoretical (Map.put
         //   doesn't throw). We still track progress per-rule so if somehow the JVM throws
         //   during phase 2, the caller's rollback list is accurate.
-        final List<LogFilterListener.Factory.CompiledLAL> compiled = new ArrayList<>(configs.size());
-        for (final LALConfig c : configs) {
+        final List<LogFilterListener.Factory.CompiledLAL> compiled = new ArrayList<>(rules.size());
+        for (final LALConfig c : rules) {
             c.setSourceName(sourceName);
             try {
                 compiled.add(factory.compile(c, pool, ruleLoader));
             } catch (final Throwable t) {
                 // Compile-phase failure: zero registrations landed, so partial is empty.
+                // Roll back the layer registrations done above so a failed compile does not
+                // leak runtime-layer state.
+                layerRegistry.rollback(appliedClaims);
                 throw new ApplyException(
                     "LAL compile failed for rule '" + c.getName() + "' in " + sourceName,
                     t, Collections.emptyList());
@@ -172,12 +199,51 @@ public class LalFileApplier {
                 factory.addOrReplace(x);
                 registered.add(new RegisteredRule(x.layer, x.ruleName));
             } catch (final Throwable t) {
+                // Roll back registrations made so far AND the layer claims. Rule-registration
+                // partial state survives in the caller's `partial` list for unwinding.
+                layerRegistry.rollback(appliedClaims);
                 throw new ApplyException(
                     "LAL register failed for rule '" + x.ruleName + "' in " + sourceName,
                     t, Collections.unmodifiableList(new ArrayList<>(registered)));
             }
         }
-        return new Applied(sourceName, Collections.unmodifiableList(registered), ruleLoader);
+        return new Applied(sourceName, Collections.unmodifiableList(registered), ruleLoader,
+                           appliedClaims);
+    }
+
+    /** Split {@code "catalog/name"} → catalog half. Falls back to {@code lal} for bare
+     *  source names (legacy / test callers). */
+    private static String deriveCatalog(final String sourceName) {
+        final int idx = sourceName.indexOf('/');
+        return idx > 0 ? sourceName.substring(0, idx) : "lal";
+    }
+
+    private static String deriveRuleName(final String sourceName) {
+        final int idx = sourceName.indexOf('/');
+        return idx > 0 ? sourceName.substring(idx + 1) : sourceName;
+    }
+
+    /**
+     * Build {@link LayerClaim}s for every entry in {@code configs.layerDefinitions}.
+     * Empty input returns an empty list — callers may pass it straight to
+     * {@link RuntimeLayerRegistry#apply}, which is a no-op for an empty list.
+     *
+     * <p>{@code ordinal:} is mandatory in runtime DSL — the registry-side validation
+     * rejects any entry whose ordinal is below {@link Layer#RUNTIME_DYNAMIC_MIN_ORDINAL}
+     * (including the default {@code 0} that an omitted-yaml-key produces) with applyStatus
+     * {@code layer_ordinal_out_of_range}. {@code normal:} is optional and defaults to
+     * {@code true}.
+     */
+    private static List<LayerClaim> extractLayerClaims(final LALConfigs configs) {
+        final List<LayerDefinition> defs = configs.getLayerDefinitions();
+        if (defs == null || defs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final List<LayerClaim> out = new ArrayList<>(defs.size());
+        for (final LayerDefinition def : defs) {
+            out.add(new LayerClaim(def.getName(), def.getOrdinal(), def.isNormal()));
+        }
+        return out;
     }
 
     /**
@@ -249,7 +315,7 @@ public class LalFileApplier {
         }
     }
 
-    private List<LALConfig> parse(final String yamlContent, final String sourceName) throws ApplyException {
+    private LALConfigs parse(final String yamlContent, final String sourceName) throws ApplyException {
         try (StringReader reader = new StringReader(yamlContent)) {
             final LALConfigs configs = new Yaml().loadAs(reader, LALConfigs.class);
             if (configs == null || configs.getRules() == null || configs.getRules().isEmpty()) {
@@ -257,16 +323,10 @@ public class LalFileApplier {
                     "LAL YAML parsed to empty/malformed — no rules list in " + sourceName,
                     null, Collections.emptyList());
             }
-            if (configs.getLayerDefinitions() != null && !configs.getLayerDefinitions().isEmpty()) {
-                throw new ApplyException(
-                    "LAL rule " + sourceName + " declares `layerDefinitions:`, which is only "
-                        + "permitted in bundled rule files loaded at OAP boot. Layer extensions "
-                        + "cannot be added at runtime — the registry is sealed once OAP startup "
-                        + "completes. Declare the layer in `layer-extensions.yml` or a bundled "
-                        + "MAL/LAL file, restart OAP, then retry this update.",
-                    null, Collections.emptyList());
-            }
-            return configs.getRules();
+            // layerDefinitions: are now permitted in runtime LAL rules; the apply path
+            // funnels them through the runtime-layer registry. The rejection that used to
+            // live here was removed when runtime dynamic layers became a first-class feature.
+            return configs;
         } catch (final ApplyException e) {
             throw e;
         } catch (final Throwable t) {
@@ -290,16 +350,27 @@ public class LalFileApplier {
          */
         @Getter
         private final RuleClassLoader ruleClassLoader;
+        /** {@code null} when this LAL file declared no {@code layerDefinitions:}; otherwise
+         *  the rollback token for the runtime-layer registry mutation this apply effected. */
+        @Getter
+        private final AppliedClaims appliedLayerClaims;
 
         public Applied(final String sourceName, final List<RegisteredRule> registered) {
-            this(sourceName, registered, null);
+            this(sourceName, registered, null, null);
         }
 
         public Applied(final String sourceName, final List<RegisteredRule> registered,
                        final RuleClassLoader ruleClassLoader) {
+            this(sourceName, registered, ruleClassLoader, null);
+        }
+
+        public Applied(final String sourceName, final List<RegisteredRule> registered,
+                       final RuleClassLoader ruleClassLoader,
+                       final AppliedClaims appliedLayerClaims) {
             this.sourceName = sourceName;
             this.registered = registered;
             this.ruleClassLoader = ruleClassLoader;
+            this.appliedLayerClaims = appliedLayerClaims;
         }
 
         @Override
@@ -363,6 +434,11 @@ public class LalFileApplier {
         @Override
         public Set<String> alarmResetTargets() {
             return Collections.emptySet();
+        }
+
+        @Override
+        public AppliedClaims appliedLayerClaims() {
+            return appliedLayerClaims;
         }
 
         private List<String> ruleKeys() {

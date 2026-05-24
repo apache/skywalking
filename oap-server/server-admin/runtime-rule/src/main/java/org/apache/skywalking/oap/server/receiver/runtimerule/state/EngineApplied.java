@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.state;
 
 import java.util.Set;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
 
 /**
  * Engine-opaque per-rule applied artefact slot on {@link AppliedRuleScript}. Every engine's
@@ -93,4 +94,20 @@ public interface EngineApplied {
      * @return immutable, possibly empty set of metric names
      */
     Set<String> alarmResetTargets();
+
+    /**
+     * Snapshot of the {@link AppliedClaims} produced by this apply's interaction with the
+     * runtime-layer registry, or {@code null} when the apply declared no
+     * {@code layerDefinitions:} (the common case for bundled / non-layer rules). The
+     * structural commit coordinator calls
+     * {@link org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry#rollback}
+     * with this token on a persist / commit-tail failure that lands outside the applier's
+     * own try/catch.
+     *
+     * <p>Default returns {@code null} so existing engines (and any future engines that
+     * do not own layer state) need no implementation change.
+     */
+    default AppliedClaims appliedLayerClaims() {
+        return null;
+    }
 }

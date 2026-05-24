@@ -165,6 +165,12 @@ public final class DSLRuntimeApply {
         final CompiledDSL compiled;
         try {
             compiled = engine.compile(file, classification, kind, ctx);
+        } catch (final org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException lce) {
+            // Layer-declaration conflicts (operator-actionable, structured 400 at the REST
+            // layer) bypass the generic compile-failed path so RuntimeRuleService can
+            // surface the typed applyStatus + message. Re-thrown unchanged; the REST
+            // handler's catch already maps to badRequest with the structured envelope.
+            throw lce;
         } catch (final EngineCompileException ece) {
             log.error("runtime-rule apply: compile FAILED for {}/{}: {}",
                 file.getCatalog(), file.getName(), ece.getMessage(), ece);

@@ -43,6 +43,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.EngineApplied
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DeltaClassifier;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.LalFileApplier;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyInputs;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.Classification;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.CompiledDSL;
@@ -413,6 +415,14 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
     @Override
     public void rollback(final CompiledDSL compiled, final LalApplyContext ctx) {
         final CompiledLalDSL c = (CompiledLalDSL) compiled;
+        // Drop layer claims first so a failed factory rollback below does not strand
+        // runtime-layer state. Safe ordering: layer registry mutations are independent
+        // of the LogFilter factory's rule-key map.
+        final AppliedClaims layerClaims = c.getNewApplied() == null
+            ? null : c.getNewApplied().appliedLayerClaims();
+        if (layerClaims != null && !layerClaims.isNoOp()) {
+            RuntimeLayerRegistry.INSTANCE.rollback(layerClaims);
+        }
         if (c.getNewApplied() == null || c.getNewApplied().getRegistered().isEmpty()) {
             return;
         }
@@ -490,6 +500,10 @@ public final class LalRuleEngine implements RuleEngine<LalApplyContext> {
     public void unregister(final String catalog, final String name, final LalApplyContext ctx) {
         final String key = DSLScriptKey.key(catalog, name);
         final String sourceName = catalog + "/" + name;
+        // Drop every layer this rule claimed. Net-zero layers cascade to
+        // Layer.unregisterDynamic. Independent of the factory teardown below.
+        RuntimeLayerRegistry.INSTANCE.removeRule(
+            RuntimeLayerRegistry.ruleId(catalog, name));
 
         final LalFileApplier.Applied priorLal = appliedFor(ctx.getRules(), key);
         if (priorLal != null) {
