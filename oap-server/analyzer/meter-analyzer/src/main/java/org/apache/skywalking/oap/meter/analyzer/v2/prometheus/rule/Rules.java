@@ -131,8 +131,9 @@ public class Rules {
         }
 
         // Merge with classpath-discovered resolvers (runtime-rule DB, plus any future
-        // priority-ranked source). Resolvers contributing INACTIVE drop their entries;
-        // ACTIVE substitutes content. Resolver-only rules (not on disk) are included.
+        // priority-ranked source). ACTIVE substitutes existing disk entries; INACTIVE
+        // drops them. Resolver-only rules (no disk twin) are NOT merged here — they're
+        // applied by RuleSync.runOnce post-seal via the dynamic layer channel.
         final Map<String, byte[]> merged = useInstalledManager
             ? RuleSetMerger.merge(path, diskBytes)
             : RuleSetMerger.merge(path, diskBytes, manager);
@@ -161,7 +162,7 @@ public class Rules {
      * Funnel any inline {@code layerDefinitions:} entries through {@code Layer.register}.
      * Conflict checks (reserved-range, name uniqueness, ordinal uniqueness, sealed-state) live
      * in {@code Layer.register}; failures here surface with the offending rule name in
-     * the stack trace, which is enough for an operator to find the bad file.
+     * the stack trace.
      */
     private static void registerInlineLayers(final String ruleName, final Rule rule) {
         final List<LayerDefinition> defs = rule.getLayerDefinitions();

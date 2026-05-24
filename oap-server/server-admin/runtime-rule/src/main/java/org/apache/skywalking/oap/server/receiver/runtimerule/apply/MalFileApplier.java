@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.apply;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javassist.ClassPool;
@@ -32,12 +34,16 @@ import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.MetricsRule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerClaim;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.EngineApplied;
 import org.yaml.snakeyaml.Yaml;
 
@@ -63,9 +69,18 @@ import org.yaml.snakeyaml.Yaml;
 public class MalFileApplier {
 
     private final MeterSystem meterSystem;
+    private final RuntimeLayerRegistry layerRegistry;
 
     public MalFileApplier(final MeterSystem meterSystem) {
+        this(meterSystem, RuntimeLayerRegistry.INSTANCE);
+    }
+
+    /** Test-friendly constructor: injects a dedicated layer registry so unit / integration
+     *  tests don't share JVM-wide state with sibling tests. Production callers go through
+     *  the singleton-binding constructor above. */
+    public MalFileApplier(final MeterSystem meterSystem, final RuntimeLayerRegistry layerRegistry) {
         this.meterSystem = meterSystem;
+        this.layerRegistry = layerRegistry;
     }
 
     /**
@@ -100,6 +115,18 @@ public class MalFileApplier {
                          final DSLClassLoaderManager.Kind kind) throws ApplyException {
         final Rule rule = parse(yamlContent, sourceName);
         final Set<String> metricNames = enumerateMetricNames(rule);
+        final List<LayerClaim> layerClaims = extractLayerClaims(rule);
+
+        // Register any declared layers FIRST. Conflicts throw LayerConflictException
+        // (caller translates to HTTP 400 with the structured envelope); per-apply atomic
+        // because validate() runs before any registration lands. After this call, the
+        // Layer registry knows the new layer names; MeterSystem registration below can
+        // safely reference them. On any failure further down we roll back through
+        // RuntimeLayerRegistry.rollback(appliedClaims).
+        final AppliedClaims appliedClaims =
+            layerRegistry.apply(RuntimeLayerRegistry.ruleId(deriveCatalog(sourceName),
+                                                            deriveRuleName(sourceName)),
+                                layerClaims);
 
         // Per-file RuleClassLoader + Javassist ClassPool. The pool is parented to the default
         // pool so shipped ancestor classes (SumFunction, HistogramFunction, ...) resolve via
@@ -127,7 +154,9 @@ public class MalFileApplier {
             // MeterSystem — the caller uses this set for rollback. Passing the full enumerated
             // set here would remove metrics the old bundle still owns (disastrous on
             // FILTER_ONLY edits, where by definition every metric name is also in the old
-            // bundle).
+            // bundle). The layer-registry changes are reverted now so a failed MeterSystem
+            // register does not leak a half-applied layer state.
+            layerRegistry.rollback(appliedClaims);
             throw new ApplyException(
                 "MAL register failed for " + sourceName + " (partial)",
                 pre.getCause() == null ? pre : pre.getCause(),
@@ -136,9 +165,22 @@ public class MalFileApplier {
             // Phase-1 compile failure or other pre-register throw. Nothing was registered with
             // MeterSystem, so rollback set is empty — passing a non-empty set would cause the
             // caller to unregister metrics the old bundle owns and this apply never touched.
+            layerRegistry.rollback(appliedClaims);
             throw new ApplyException("MAL compile failed for " + sourceName, t, Collections.emptySet());
         }
-        return new Applied(rule, convert, metricNames, ruleLoader);
+        return new Applied(rule, convert, metricNames, ruleLoader, appliedClaims);
+    }
+
+    /** Split {@code "catalog/name"} → catalog half. Falls back to {@code otel-rules} when the
+     *  source name is bare (legacy callers, tests). */
+    private static String deriveCatalog(final String sourceName) {
+        final int idx = sourceName.indexOf('/');
+        return idx > 0 ? sourceName.substring(0, idx) : "otel-rules";
+    }
+
+    private static String deriveRuleName(final String sourceName) {
+        final int idx = sourceName.indexOf('/');
+        return idx > 0 ? sourceName.substring(idx + 1) : sourceName;
     }
 
     /**
@@ -217,21 +259,41 @@ public class MalFileApplier {
             if (rule.getName() == null || rule.getName().isEmpty()) {
                 rule.setName(sourceName);
             }
-            if (rule.getLayerDefinitions() != null && !rule.getLayerDefinitions().isEmpty()) {
-                throw new ApplyException(
-                    "MAL rule " + sourceName + " declares `layerDefinitions:`, which is only "
-                        + "permitted in bundled rule files loaded at OAP boot. Layer extensions "
-                        + "cannot be added at runtime — the registry is sealed once OAP startup "
-                        + "completes. Declare the layer in `layer-extensions.yml` or a bundled "
-                        + "MAL/LAL file, restart OAP, then retry this update.",
-                    null, Collections.emptySet());
-            }
+            // layerDefinitions: are now permitted in runtime MAL rules; they're handled by
+            // the layer registry on the apply path below. The rejection that used to live
+            // here was removed when runtime dynamic layers became a first-class feature.
             return rule;
         } catch (final ApplyException e) {
             throw e;
         } catch (final Throwable t) {
             throw new ApplyException("YAML parse failure for " + sourceName, t, Collections.emptySet());
         }
+    }
+
+    /**
+     * Build {@link LayerClaim}s for every {@code layerDefinitions:} entry in {@code rule}.
+     * The list is ordered the same as the YAML for stable diagnostic output.
+     *
+     * <p>{@code ordinal:} is mandatory in runtime DSL — the registry-side validation rejects
+     * any entry whose ordinal is below {@link Layer#RUNTIME_DYNAMIC_MIN_ORDINAL} (including
+     * the default {@code 0} that an omitted-yaml-key produces) with applyStatus
+     * {@code layer_ordinal_out_of_range}. {@code normal:} is optional and defaults to
+     * {@code true} via {@link LayerDefinition}'s field initializer — same semantics as the
+     * bundled {@code layerDefinitions:} blocks and {@code layer-extensions.yml}.
+     *
+     * <p>An empty {@code layerDefinitions:} block returns an empty list — callers may pass
+     * it straight to {@link RuntimeLayerRegistry#apply}, which is a no-op for empty input.
+     */
+    private static List<LayerClaim> extractLayerClaims(final Rule rule) {
+        final List<LayerDefinition> defs = rule.getLayerDefinitions();
+        if (defs == null || defs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        final List<LayerClaim> out = new ArrayList<>(defs.size());
+        for (final LayerDefinition def : defs) {
+            out.add(new LayerClaim(def.getName(), def.getOrdinal(), def.isNormal()));
+        }
+        return out;
     }
 
     /**
@@ -299,14 +361,33 @@ public class MalFileApplier {
          */
         @Getter
         private final RuleClassLoader ruleClassLoader;
+        /**
+         * Snapshot of the {@link RuntimeLayerRegistry} mutation this apply effected. {@code
+         * null} for synthetic {@link Applied}s built by {@code recordBundledClaims} (boot-
+         * time static-rule shadow), which never touch runtime layers. The orchestrator's
+         * commit / discard tail calls {@link RuntimeLayerRegistry#rollback} with this
+         * token on external failure (persist, peer-rejected commit); inside
+         * {@link MalFileApplier#apply} a thrown {@code MetricConvert} construction already
+         * rolls back before re-throwing.
+         */
+        @Getter
+        private final AppliedClaims appliedLayerClaims;
 
         public Applied(final Rule rule, final MetricConvert metricConvert,
                        final Set<String> registeredMetricNames,
                        final RuleClassLoader ruleClassLoader) {
+            this(rule, metricConvert, registeredMetricNames, ruleClassLoader, null);
+        }
+
+        public Applied(final Rule rule, final MetricConvert metricConvert,
+                       final Set<String> registeredMetricNames,
+                       final RuleClassLoader ruleClassLoader,
+                       final AppliedClaims appliedLayerClaims) {
             this.rule = rule;
             this.metricConvert = metricConvert;
             this.registeredMetricNames = registeredMetricNames;
             this.ruleClassLoader = ruleClassLoader;
+            this.appliedLayerClaims = appliedLayerClaims;
         }
 
         @Override
@@ -361,6 +442,11 @@ public class MalFileApplier {
             return registeredMetricNames == null
                 ? Collections.emptySet()
                 : registeredMetricNames;
+        }
+
+        @Override
+        public AppliedClaims appliedLayerClaims() {
+            return appliedLayerClaims;
         }
     }
 

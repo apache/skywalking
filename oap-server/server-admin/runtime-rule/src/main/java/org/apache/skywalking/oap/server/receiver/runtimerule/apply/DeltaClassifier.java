@@ -131,17 +131,82 @@ public final class DeltaClassifier {
             }
         }
 
-        if (added.isEmpty() && removed.isEmpty() && shapeBreak.isEmpty()) {
-            // Same metric-name set, same shape for every one. Safe to skip DDL, alarm reset,
-            // and L1/L2 drain — the fast path.
-            return DSLDelta.filterOnly("body/filter/tag edits only (shapes unchanged)");
+        // layerDefinitions diff escalates to STRUCTURAL even when metric shape is unchanged.
+        // The runtime-layer registry must validate the change atomically with the apply, and
+        // the FILTER_ONLY fast path persists BEFORE apply — a layer conflict surfacing
+        // post-persist would leak a row that subsequently fails to register. STRUCTURAL
+        // runs apply first, so any LayerConflictException surfaces before persist.
+        final String layerDelta = describeMalLayerDelta(oldContent, newContent);
+
+        if (added.isEmpty() && removed.isEmpty() && shapeBreak.isEmpty() && layerDelta == null) {
+            // Same metric-name set, same shape for every one, layerDefinitions unchanged.
+            // Safe to skip DDL, alarm reset, and L1/L2 drain — the fast path.
+            return DSLDelta.filterOnly("body/filter/tag edits only (shapes + layers unchanged)");
         }
 
         final Set<String> shapeBreakFrozen = shapeBreak.isEmpty()
             ? Collections.emptySet()
             : Collections.unmodifiableSet(shapeBreak);
-        final String reason = reasonFor(added, removed, shapeBreakFrozen);
+        final String reason = layerDelta != null
+            ? reasonFor(added, removed, shapeBreakFrozen) + "; " + layerDelta
+            : reasonFor(added, removed, shapeBreakFrozen);
         return DSLDelta.structural(added, removed, shapeBreakFrozen, reason);
+    }
+
+    /**
+     * Describe the layer-definitions diff between two MAL YAML strings, or {@code null} when
+     * the lists are identical (or both absent). Both lists are read via the same SnakeYAML
+     * binding the applier uses; a parse failure on either side returns a conservative
+     * "layer parse failed" so the caller escalates rather than risking a partial apply.
+     */
+    private static String describeMalLayerDelta(final String oldContent, final String newContent) {
+        final Set<String> oldLayers = safeLayerSignatures(oldContent);
+        final Set<String> newLayers = safeLayerSignatures(newContent);
+        if (oldLayers.equals(newLayers)) {
+            return null;
+        }
+        final Set<String> added = new LinkedHashSet<>(newLayers);
+        added.removeAll(oldLayers);
+        final Set<String> removed = new LinkedHashSet<>(oldLayers);
+        removed.removeAll(newLayers);
+        if (added.isEmpty() && removed.isEmpty()) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder("layerDefinitions changed");
+        if (!added.isEmpty()) {
+            sb.append(" (added=").append(added).append(")");
+        }
+        if (!removed.isEmpty()) {
+            sb.append(" (removed=").append(removed).append(")");
+        }
+        return sb.toString();
+    }
+
+    /** Sticker for a single {@code LayerDefinition} encoding {@code (name, ordinal, normal)}.
+     *  Two stickers are equal iff every field matches — i.e., idempotent re-declarations of
+     *  the same triple produce identical strings and are correctly treated as no-op. */
+    private static Set<String> safeLayerSignatures(final String content) {
+        if (content == null || content.isEmpty()) {
+            return Collections.emptySet();
+        }
+        try (StringReader reader = new StringReader(content)) {
+            final Rule rule = new Yaml().loadAs(reader, Rule.class);
+            if (rule == null || rule.getLayerDefinitions() == null
+                || rule.getLayerDefinitions().isEmpty()) {
+                return Collections.emptySet();
+            }
+            final Set<String> out = new LinkedHashSet<>();
+            for (final org.apache.skywalking.oap.server.core.analysis.LayerDefinition d
+                    : rule.getLayerDefinitions()) {
+                out.add(d.getName() + ":" + d.getOrdinal() + ":" + d.isNormal());
+            }
+            return out;
+        } catch (final RuntimeException ex) {
+            // Conservative on parse failure: caller treats non-null as a change, so reporting
+            // an empty set when one side fails and a non-empty otherwise still escalates.
+            // Return a sentinel so equals() reports a diff regardless of the other side.
+            return Collections.singleton("__layer_parse_failed__:" + ex.getMessage());
+        }
     }
 
     /**
@@ -170,9 +235,62 @@ public final class DeltaClassifier {
             // prior windows existed).
             return DSLDelta.newRule(Collections.emptySet());
         }
+        // Layer-definition diffs are surfaced in the reason string so operators can see why
+        // a FILTER_ONLY-shaped edit was classified STRUCTURAL. LAL currently classifies all
+        // content changes as STRUCTURAL anyway (no per-rule shape extraction is implemented),
+        // so the layer diff just enriches the reason rather than changing the verdict.
+        final String layerDelta = describeLalLayerDelta(oldContent, newContent);
+        final String reason = layerDelta != null
+            ? "LAL content changed; " + layerDelta
+            : "LAL content changed";
         return DSLDelta.structural(
-            Collections.emptySet(), Collections.emptySet(), Collections.emptySet(),
-            "LAL content changed");
+            Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), reason);
+    }
+
+    /** LAL variant of {@link #describeMalLayerDelta} — reads from {@link LALConfigs}
+     *  instead of {@link Rule}. Identical semantics. */
+    private static String describeLalLayerDelta(final String oldContent, final String newContent) {
+        final Set<String> oldLayers = safeLalLayerSignatures(oldContent);
+        final Set<String> newLayers = safeLalLayerSignatures(newContent);
+        if (oldLayers.equals(newLayers)) {
+            return null;
+        }
+        final Set<String> added = new LinkedHashSet<>(newLayers);
+        added.removeAll(oldLayers);
+        final Set<String> removed = new LinkedHashSet<>(oldLayers);
+        removed.removeAll(newLayers);
+        if (added.isEmpty() && removed.isEmpty()) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder("layerDefinitions changed");
+        if (!added.isEmpty()) {
+            sb.append(" (added=").append(added).append(")");
+        }
+        if (!removed.isEmpty()) {
+            sb.append(" (removed=").append(removed).append(")");
+        }
+        return sb.toString();
+    }
+
+    private static Set<String> safeLalLayerSignatures(final String content) {
+        if (content == null || content.isEmpty()) {
+            return Collections.emptySet();
+        }
+        try (StringReader reader = new StringReader(content)) {
+            final LALConfigs configs = new Yaml().loadAs(reader, LALConfigs.class);
+            if (configs == null || configs.getLayerDefinitions() == null
+                || configs.getLayerDefinitions().isEmpty()) {
+                return Collections.emptySet();
+            }
+            final Set<String> out = new LinkedHashSet<>();
+            for (final org.apache.skywalking.oap.server.core.analysis.LayerDefinition d
+                    : configs.getLayerDefinitions()) {
+                out.add(d.getName() + ":" + d.getOrdinal() + ":" + d.isNormal());
+            }
+            return out;
+        } catch (final RuntimeException ex) {
+            return Collections.singleton("__layer_parse_failed__:" + ex.getMessage());
+        }
     }
 
     /**

@@ -65,6 +65,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DSLDelta;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DeltaClassifier;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.Classification;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngine;
+import org.apache.skywalking.oap.server.receiver.runtimerule.extension.DbOverrideRuntimeRuleResolver;
+import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.MainRouter;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.RuntimeRuleClusterClient;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
@@ -719,6 +721,19 @@ public class RuntimeRuleService {
         if (content.isEmpty()) {
             return badRequest("empty_body", catalog, name, "request body must be the raw rule content");
         }
+        // Runtime overrides of bundled rules MUST NOT declare layerDefinitions. Layer
+        // ownership is single-source-of-truth — bundled rules own bundled-tier layers,
+        // runtime rules own runtime-tier layers, no overwrite either way. Reject pre-
+        // persist so the bad row never reaches the DAO.
+        if (DbOverrideRuntimeRuleResolver.isLayerOverrideOnBundled(
+                catalog, name, content.getBytes(StandardCharsets.UTF_8))) {
+            return badRequest("layer_override_forbidden", catalog, name,
+                "Runtime override of bundled rule " + catalog + "/" + name + " declared "
+                    + "layerDefinitions. Bundled rules own their layer declarations; "
+                    + "runtime overrides may only change the rule body. Remove the "
+                    + "layerDefinitions block, or rename the rule so it becomes a pure-"
+                    + "runtime rule (no bundled twin).");
+        }
         // Single-main routing. Self is main → null → run local workflow. Non-main + not
         // forwarded → forward to main and relay response. Non-main + forwarded → fail-safe
         // 421 (cluster view split; refuse to re-forward).
@@ -900,6 +915,19 @@ public class RuntimeRuleService {
         try {
             postApply = dslManager.applyNowForRuleFile(ruleFile);
         } catch (final Throwable t) {
+            // Layer conflict on FILTER_ONLY is rare — DeltaClassifier escalates
+            // layerDefinitions changes to STRUCTURAL precisely so this path doesn't see
+            // them post-persist. The defensive unwrap-and-surface guards against a
+            // classifier miss (e.g. yaml-key reorder that doesn't change the signature
+            // but bypasses the equality check); operators still see the structured 400.
+            final LayerConflictException lce = findLayerConflict(t);
+            if (lce != null) {
+                log.error("runtime-rule FILTER_ONLY apply hit a layer conflict POST-persist "
+                    + "for {}/{} — the row is in DB but local apply was rejected. Operator "
+                    + "must reconcile (DELETE + re-POST with aligned layerDefinitions). "
+                    + "Conflict: {}", catalog, name, lce.getMessage());
+                return badRequest(lce.applyStatus(), catalog, name, lce.getMessage());
+            }
             log.error("runtime-rule FILTER_ONLY apply failed after persist for {}/{} — DB "
                 + "reflects the new content; this node will converge on the next dslManager "
                 + "tick (same path peers use).", catalog, name, t);
@@ -980,7 +1008,27 @@ public class RuntimeRuleService {
         final DSLRuntimeState postApply;
         try {
             postApply = dslManager.applyNowForRuleFile(ruleFile, true);
+        } catch (final LayerConflictException lce) {
+            // Runtime-DSL layer-declaration conflict — operator-actionable, not a server
+            // error. Resume local + peers immediately so the cluster keeps serving the
+            // prior bundle.
+            log.warn("runtime-rule STRUCTURAL apply rejected for {}/{} — layer conflict: {}",
+                catalog, name, lce.getMessage());
+            dslManager.getSuspendCoord().localResume(catalog, name);
+            broadcastResume(catalog, name, "layer_conflict");
+            return badRequest(lce.applyStatus(), catalog, name, lce.getMessage());
         } catch (final Throwable t) {
+            // Some exceptions wrap LayerConflictException as cause; unwrap so the operator
+            // still sees the structured 400 response. We probe to a small depth to avoid
+            // recursing through pathological cause chains.
+            final LayerConflictException wrapped = findLayerConflict(t);
+            if (wrapped != null) {
+                log.warn("runtime-rule STRUCTURAL apply rejected for {}/{} — layer conflict "
+                    + "(wrapped): {}", catalog, name, wrapped.getMessage());
+                dslManager.getSuspendCoord().localResume(catalog, name);
+                broadcastResume(catalog, name, "layer_conflict");
+                return badRequest(wrapped.applyStatus(), catalog, name, wrapped.getMessage());
+            }
             log.error("runtime-rule STRUCTURAL apply threw for {}/{}", catalog, name, t);
             dslManager.getSuspendCoord().localResume(catalog, name);
             // Peers went SUSPENDED on our earlier broadcast; let them know the apply
@@ -1739,6 +1787,24 @@ public class RuntimeRuleService {
                                            final String name, final String message) {
         return HttpResponse.of(HttpStatus.BAD_REQUEST, MediaType.JSON_UTF_8,
             jsonBody(applyStatus, catalog, name, message));
+    }
+
+    /**
+     * Walk up to 8 levels of cause chain looking for a {@link LayerConflictException}. The
+     * DSL engines wrap exceptions in {@code EngineCompileException} / {@code ApplyException},
+     * which in turn may be wrapped by infrastructure exceptions; surfacing the conflict's
+     * structured status / message regardless of wrapping depth keeps the operator-facing
+     * envelope consistent with the design intent that conflicts ARE bad-request shaped.
+     */
+    private static LayerConflictException findLayerConflict(final Throwable top) {
+        Throwable cursor = top;
+        for (int i = 0; cursor != null && i < 8; i++) {
+            if (cursor instanceof LayerConflictException) {
+                return (LayerConflictException) cursor;
+            }
+            cursor = cursor.getCause();
+        }
+        return null;
     }
 
     private static HttpResponse serverError(final String applyStatus, final String catalog,

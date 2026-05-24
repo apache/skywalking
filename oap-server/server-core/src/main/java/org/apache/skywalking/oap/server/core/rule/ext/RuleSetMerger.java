@@ -148,7 +148,14 @@ public final class RuleSetMerger {
                                 resolver.getClass().getName(), catalog, name);
                             return;
                         }
-                        out.put(name, res.getContent());
+                        // Only override existing disk entries. Pure-runtime rules (no disk
+                        // twin) are applied by RuleSync.runOnce post-seal via the dynamic
+                        // channel; injecting them into the static loader here would
+                        // register their layerDefinitions through Layer.register and
+                        // permanently lose operator-removable ownership.
+                        if (out.containsKey(name)) {
+                            out.put(name, res.getContent());
+                        }
                         break;
                     case INACTIVE:
                         out.remove(name);

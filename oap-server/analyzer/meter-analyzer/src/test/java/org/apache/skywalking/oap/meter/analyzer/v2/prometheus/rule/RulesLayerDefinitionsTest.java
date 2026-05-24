@@ -74,4 +74,5 @@ class RulesLayerDefinitionsTest {
 
         assertEquals(1200, Layer.nameOf("TEST_MAL_LAYER_A").value());
     }
+
 }

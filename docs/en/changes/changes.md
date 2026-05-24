@@ -238,6 +238,11 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
+  layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
+  refcount-tracked and unregistered when the last declaring rule is removed. See
+  [runtime-rule-hot-update.md#dynamic-layers](../concepts-and-designs/runtime-rule-hot-update.md)
+  for the conflict rules and limitations.
 * Fix: remove the redundant tags from the `envoy-ai-gateway.yaml` LAL configuration.
 * Add Zipkin Virtual GenAI e2e test. Use `zipkin_json` exporter to avoid protobuf dependency conflict
   between `opentelemetry-exporter-zipkin-proto-http` (protobuf~=3.12) and `opentelemetry-proto` (protobuf>=5.0).

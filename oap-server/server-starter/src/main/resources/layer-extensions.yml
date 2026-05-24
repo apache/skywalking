@@ -24,20 +24,35 @@
 # every OAP node in a cluster reads and writes the same data, every node MUST agree on
 # the (name, ordinal) mapping. Deploy this file identically to every node.
 #
-# Recommended ordinal range:
-#   0-999   reserved by convention for the OAP distribution's built-in layers.
-#   >= 1000 strongly recommended for external layers. Staying above 1000 avoids
-#           colliding with future built-in layers added by the OAP distribution.
-#           Conflicting ordinals or names cause OAP boot to fail with a clear error.
+# Ordinal-range convention (enforced for the runtime tier, recommended for the others):
+#
+#   0       – 9_999       built-in Layer.* constants. Currently 0..49 in use; the rest
+#                         of the range is reserved for future built-ins added by the
+#                         OAP distribution.
+#   10_000  – 99_999      boot-time external layers: this file (layer-extensions.yml),
+#                         LayerExtension SPI, and bundled MAL/LAL `layerDefinitions:`
+#                         blocks. Loaded before the registry is sealed.
+#   100_000 – 2_147_483_647
+#                         runtime DSL dynamic layers — introduced by MAL/LAL rules
+#                         pushed through the runtime-rule hot-update API. The ordinal
+#                         is operator-pinned (same as the other tiers — the OAP does
+#                         NOT auto-allocate; ordinals end up in persisted
+#                         ServiceTraffic primary keys and must be operator-stable
+#                         across restarts). Tracked through `RuntimeLayerRegistry`
+#                         with refcounted lifetime. NOT for use in this file.
+#
+# Conflicting ordinals or names cause OAP boot to fail with a clear error. Runtime DSL
+# rules that pin `ordinal:` below 100_000 are rejected at apply time with the
+# `layer_ordinal_out_of_range` status in the HTTP response.
 #
 # Name shape: must match the regex `[A-Z][A-Z0-9_]*` (upper-snake-case, leading letter).
 #
 # Field reference:
 #   name:    upper-snake-case identifier. MAL/LAL rules and UI templates reference
 #            the layer by this name.
-#   ordinal: stable integer. Once assigned and used to write data, this value is
-#            permanent — changing it orphans every previously stored row tagged with
-#            the old ordinal.
+#   ordinal: stable integer in 10_000-99_999 for entries declared here. Once assigned
+#            and used to write data, this value is permanent — changing it orphans
+#            every previously stored row tagged with the old ordinal.
 #   normal:  true  = services in this layer are agent-installed
 #            false = services are conjectured/virtual (e.g. inferred from upstream
 #                    calls). Defaults to true if omitted.
@@ -46,18 +61,22 @@
 #
 # layers:
 #   - name: IOT_FLEET
-#     ordinal: 1000
+#     ordinal: 10000
 #     normal: true
 #   - name: IOT_GATEWAY
-#     ordinal: 1001
+#     ordinal: 10001
 #     normal: true
 #   - name: VIRTUAL_IOT_DEVICE
-#     ordinal: 1002
+#     ordinal: 10002
 #     normal: false
 #
 # Other places a custom layer can be declared:
-#   - At the top of a MAL or LAL rule file via a `layerDefinitions:` block —
-#     recommended when a layer ships together with the rules that produce its telemetry.
-#   - As an in-process extension contributed by a plugin jar on the OAP classpath.
+#   - At the top of a bundled MAL or LAL rule file via a `layerDefinitions:` block —
+#     loaded at OAP boot, same 10_000-99_999 ordinal tier as this file.
+#   - At the top of a runtime MAL or LAL rule pushed via the hot-update API — operator
+#     pins an explicit ordinal in the 100_000+ tier; refcounted across declaring rules;
+#     unregistered when the last declaring rule is removed.
+#   - As an in-process extension contributed by a plugin jar on the OAP classpath via
+#     the LayerExtension SPI (boot-time tier).
 
 layers: []

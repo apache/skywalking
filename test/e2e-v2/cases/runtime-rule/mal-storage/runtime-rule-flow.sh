@@ -23,11 +23,15 @@
 #   2. UPDATE-FILTER       — POST rule v2 (body change ×10, same shape)
 #   3. UPDATE-STRUCTURAL   — POST rule v3 (adds 2nd metric)
 #   4. DUMP (mid-flight)   — GET /dump returns tar.gz with the live ruleset
-#   5. ILLEGAL-APPLY × 4   — verify rejection paths
+#   5. ILLEGAL-APPLY       — verify rejection paths
 #       5a. malformed YAML → 400 compile_failed
 #       5b. shape flip without allowStorageChange → 409
 #       5c. /delete on ACTIVE row → 409 requires_inactivate_first
 #       5d. sibling rule claims the same metric name → 409 ownership conflict
+#       5e. layerDefinitions ordinal <100_000 → 400 layer_ordinal_out_of_range
+#       5f. layerDefinitions name shape invalid → 400 layer_name_invalid
+#       5g. layerDefinitions redeclares built-in MESH → 400 layer_name_conflict
+#       5h. HAPPY-PATH dynamic-LAYER round-trip via swctl `layer ls`
 #   6. SHAPE-BREAK         — /inactivate → /delete → POST rule v4 (INSTANCE-scope)
 #   7. INACTIVATE          — POST /inactivate (soft-pause)
 #   8. ACTIVATE            — re-POST /addOrUpdate (lossless reactivate)
@@ -503,6 +507,113 @@ list_no_row "${SIBLING_NAME}"
 [[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
   || fail "5d: primary rule's contentHash moved after sibling-conflict rejection"
 assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 180
+
+# Phase 5e/f/g — dynamic-LAYER rejection paths. Each fixture targets one of the
+# new applyStatus codes (layer_ordinal_out_of_range, layer_name_invalid,
+# layer_name_conflict). Same invariant as 5a-d: response JSON carries the
+# expected applyStatus, /list shows no sibling row, the primary rule's
+# contentHash is unchanged, and structural-bucket aggregation keeps advancing.
+
+log "=== Phase 5e: ILLEGAL layer ordinal below runtime floor ==="
+struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
+resp="$(post_rule_expect_status \
+  "${SEED_RULES_DIR}/illegal-layer-out-of-range.yaml" "400" "" "${SIBLING_NAME}")"
+assert_apply_status "layer_ordinal_out_of_range" "${resp}"
+list_no_row "${SIBLING_NAME}"
+[[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
+  || fail "5e: primary rule's contentHash moved after layer-ordinal rejection"
+assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 180
+
+log "=== Phase 5f: ILLEGAL layer name shape ==="
+struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
+resp="$(post_rule_expect_status \
+  "${SEED_RULES_DIR}/illegal-layer-name-invalid.yaml" "400" "" "${SIBLING_NAME}")"
+assert_apply_status "layer_name_invalid" "${resp}"
+list_no_row "${SIBLING_NAME}"
+[[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
+  || fail "5f: primary rule's contentHash moved after layer-name-invalid rejection"
+assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 180
+
+log "=== Phase 5g: ILLEGAL layer name conflict (built-in MESH redeclared) ==="
+struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
+resp="$(post_rule_expect_status \
+  "${SEED_RULES_DIR}/illegal-layer-name-conflict.yaml" "400" "" "${SIBLING_NAME}")"
+assert_apply_status "layer_name_conflict" "${resp}"
+# Message must name the conflicting source so operators see what to align with.
+echo "${resp}" | jq -e '.message | test("built-in")' >/dev/null \
+  || fail "5g: response message did not label source as built-in: ${resp}"
+list_no_row "${SIBLING_NAME}"
+[[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
+  || fail "5g: primary rule's contentHash moved after layer-name-conflict rejection"
+assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 180
+
+# Phase 5h — HAPPY-PATH dynamic-LAYER round-trip + RESTART survival.
+# POST a sibling pure-runtime rule (no bundled twin) with layerDefinitions,
+# verify swctl layer ls lists it, RESTART the OAP container, verify the
+# layer survives the restart AND remains operator-removable through
+# /inactivate + /delete. Proves the runtime-channel ownership contract
+# end-to-end (the bug RuleSetMerger.merge fix addresses).
+log "=== Phase 5h: HAPPY-PATH + RESTART dynamic-LAYER round-trip ==="
+struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
+resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-sibling-with-layer.yaml" "" "${SIBLING_NAME}")"
+assert_apply_status "structural_applied" "${resp}"
+list_row "ACTIVE" "${SIBLING_NAME}" >/dev/null
+sleep 2
+layers_after_create="$(swctl --display yaml \
+  --base-url=http://${OAP_HOST}:${OAP_GQL_PORT}/graphql layer ls)"
+echo "${layers_after_create}" | grep -q "E2E_RR_DYN_LAYER" \
+  || fail "5h-create: layer ls missing E2E_RR_DYN_LAYER (got: ${layers_after_create})"
+log "  pre-restart: layer ls includes E2E_RR_DYN_LAYER"
+
+# Restart the OAP container. base-compose.yml pins the OAP image to
+# `skywalking/oap:latest`; filter by that. Do NOT fall back to a bare
+# `grep oap` match — on a shared dev/CI host that can hit unrelated
+# containers (e.g. another OAP, an agent test rig).
+log "  restarting OAP container..."
+oap_container="$(docker ps --filter "ancestor=skywalking/oap:latest" \
+                            --format '{{.Names}}' | head -1)"
+[ -n "${oap_container}" ] || fail "5h: no skywalking/oap:latest container found — refusing to guess"
+docker restart "${oap_container}" >/dev/null
+# Wait for the REST port to come back. Cap at 180s so a true hang surfaces.
+for i in $(seq 1 90); do
+  if curl -fsS "${REST_BASE}/runtime/rule/list" >/dev/null 2>&1; then
+    log "  OAP back up after ${i}*2s"
+    break
+  fi
+  sleep 2
+done
+curl -fsS "${REST_BASE}/runtime/rule/list" >/dev/null \
+  || fail "5h: OAP did not come back online after restart"
+
+# Critical assertion: the runtime layer must still be visible AND retain its
+# dynamic ownership (i.e. removable through /delete below). Without the
+# RuleSetMerger override-only fix, the pure-runtime rule's layerDefinitions
+# would be replayed through Layer.register at boot and the layer would be
+# stuck for the OAP process lifetime.
+sleep 2
+layers_after_restart="$(swctl --display yaml \
+  --base-url=http://${OAP_HOST}:${OAP_GQL_PORT}/graphql layer ls)"
+echo "${layers_after_restart}" | grep -q "E2E_RR_DYN_LAYER" \
+  || fail "5h-restart: layer ls missing E2E_RR_DYN_LAYER after restart (got: ${layers_after_restart})"
+list_row "ACTIVE" "${SIBLING_NAME}" >/dev/null
+log "  post-restart: layer + rule survived"
+
+# Now prove the layer is still removable through the dynamic channel.
+retry_curl_post "${REST_BASE}/runtime/rule/inactivate?catalog=${CATALOG}&name=${SIBLING_NAME}" >/dev/null \
+  || fail "5h: sibling inactivate failed"
+retry_curl_post "${REST_BASE}/runtime/rule/delete?catalog=${CATALOG}&name=${SIBLING_NAME}" >/dev/null \
+  || fail "5h: sibling delete failed"
+list_no_row "${SIBLING_NAME}"
+sleep 2
+layers_after_delete="$(swctl --display yaml \
+  --base-url=http://${OAP_HOST}:${OAP_GQL_PORT}/graphql layer ls)"
+echo "${layers_after_delete}" | grep -q "E2E_RR_DYN_LAYER" \
+  && fail "5h-delete: layer ls still includes E2E_RR_DYN_LAYER after sibling delete — runtime ownership lost across restart (RuleSetMerger merger bug?)"
+
+# Primary rule's contentHash unchanged throughout; aggregation resumed after restart.
+[[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
+  || fail "5h: primary rule's contentHash moved during dynamic-layer round-trip"
+assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 300
 
 # Phase 6 — SHAPE-BREAK via the supported route: /inactivate → /delete →
 # POST a new shape under the same (catalog, name).

@@ -36,7 +36,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  * {@code (name -> bytes)} map per catalog, with priority deciding ties:
  * <ul>
  *   <li>Lower {@link #priority} resolvers are applied first; higher priority overwrites.</li>
- *   <li>{@link Decision#ACTIVE} substitutes the resolver's content into the merged set.</li>
+ *   <li>{@link Decision#ACTIVE} substitutes the resolver's content into the merged set
+ *       <strong>only when the key already exists on disk</strong>. Resolver-only entries
+ *       (no disk twin) are dropped — they're handled by the runtime-rule reconciler post-seal
+ *       through {@code RuntimeLayerRegistry} so layerDefinitions go through the dynamic
+ *       channel and remain operator-removable. The merger drops them silently.</li>
  *   <li>{@link Decision#INACTIVE} removes the entry from the merged set — even if the disk
  *       file or a lower-priority resolver had content for that key.</li>
  *   <li>A resolver omits a key from {@link #loadAll} when it has no opinion; the next higher
@@ -48,11 +52,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *   Resolver A (priority 100, runtime-rule DB):
  *     "vm"          =&gt; Resolution(ACTIVE,    bytes-from-DB)
  *     "noisy-rule"  =&gt; Resolution(INACTIVE, null)
+ *     "new-rule"    =&gt; Resolution(ACTIVE,    bytes-from-DB)  // no disk twin
  *
  *   Result for catalog "otel-rules":
  *     - if disk has "vm.yaml":          merged["vm"]          = bytes-from-DB
  *     - if disk has "noisy-rule.yaml":  merged drops "noisy-rule" entirely
- *     - if disk lacks "new-rule.yaml":  merged["new-rule"]    = bytes-from-DB (DB-only rule)
+ *     - if disk lacks "new-rule.yaml":  merged does NOT contain "new-rule" (pure runtime —
+ *                                       applied by RuleSync post-seal via the dynamic channel)
  * </pre>
  */
 public interface RuntimeRuleOverrideResolver {
