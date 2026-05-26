@@ -28,7 +28,7 @@ export SW_STATUS=default                # default (enabled)
 status:
   selector: ${SW_STATUS:default}
   default:
-    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication}
 ```
 
 `keywords4MaskingSecretsOfConfig` is consumed by `/debugging/config/dump`
