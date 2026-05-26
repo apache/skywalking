@@ -746,7 +746,7 @@ status:
   selector: ${SW_STATUS:default}
   default:
     # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
-    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+    keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication}
 
 # Inspect API — admin-only metric catalog + per-metric entity enumeration.
 # Routes live under /inspect/*. Enabled by default; mounts onto admin-server

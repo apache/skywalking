@@ -88,5 +88,5 @@ By default, we mask the config keys through the following configurations.
 
 ```yaml
 # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
-keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,token,accessKey,secretKey,authentication}
+keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication}
 ```
