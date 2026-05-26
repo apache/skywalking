@@ -30,5 +30,5 @@ public class StatusModuleConfig extends ModuleConfig {
      *
      * @since 9.7.0
      */
-    private String keywords4MaskingSecretsOfConfig = "user,password,token,accessKey,secretKey,authentication";
+    private String keywords4MaskingSecretsOfConfig = "user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication";
 }
