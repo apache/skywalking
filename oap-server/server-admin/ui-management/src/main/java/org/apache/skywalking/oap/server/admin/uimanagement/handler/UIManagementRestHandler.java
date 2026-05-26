@@ -29,7 +29,6 @@ import com.linecorp.armeria.server.annotation.RequestObject;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.admin.uimanagement.response.ErrorResponse;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -108,17 +107,17 @@ public class UIManagementRestHandler {
     /**
      * Add a new template. Body shape:
      * <pre>{ "configuration": "&lt;JSON-encoded config&gt;" }</pre>
-     * The server allocates the template ID (UUID) — the request must not set it.
      */
     @Post("/ui-management/templates")
     public HttpResponse addTemplate(@RequestObject final DashboardSetting setting) {
-        if (setting == null || setting.getConfiguration() == null) {
+        if (setting == null || setting.getId() == null || setting.getId().isEmpty()) {
+            return errorResponse(HttpStatus.BAD_REQUEST, "missing_id",
+                                 "Request body must include 'id'.");
+        }
+        if (setting.getConfiguration() == null) {
             return errorResponse(HttpStatus.BAD_REQUEST, "missing_configuration",
                                  "Request body must include 'configuration'.");
         }
-        // Server-side ID allocation — preserves the legacy semantics of the
-        // GraphQL `addTemplate` mutation. Any client-supplied `id` is ignored.
-        setting.setId(UUID.randomUUID().toString());
         try {
             final TemplateChangeStatus status = templates().addTemplate(setting);
             return statusResponse(status);
