@@ -41,7 +41,7 @@ to redact configuration values whose key contains any listed substring.
 Returns the OAP cluster peer list as the cluster module sees it. Useful
 for confirming that every node has joined and is reporting back.
 
-The OAP cluster is a set of OAP servers that work together to provide a scalable and reliable service. The OAP cluster supports [various cluster coordinator](../backend-cluster.md) to manage the cluster membership and the communication. This API provides capability to query the node list in the cluster from every OAP node perspective. If the cluster coordinator doesn't work properly, the node list may be incomplete or incorrect. So, we recommend you to check the node list when set up a cluster.
+The OAP cluster is a set of OAP servers that work together to provide a scalable and reliable service. The OAP cluster supports [various cluster coordinators](../backend-cluster.md) to manage membership and communication. This API lets you query the node list from each OAP node’s perspective. If the cluster coordinator doesn’t work properly, the node list may be incomplete or incorrect, so we recommend checking it when setting up a cluster.
 
 - HTTP GET method.
 
@@ -206,9 +206,9 @@ Return the detailed information of the alarm running rule.
 }
 ```
 
-- `additonalPeriod` is the additional period if the expression includes the [increase/rate function](../../../api/metrics-query-expression.md#trend-operation). This additional period is used to enlarge window size for calculating the trend value.
-- `runningEntities` is the entities that have metrics data and being calculated by the alarm rule.
-- `formattedMessages` is the result message according to the message template and the affected running entities.
+- `additionalPeriod` is the additional period if the expression includes the [increase/rate function](../../../api/metrics-query-expression.md#trend-operation). This additional period is used to enlarge the window size for calculating the trend value.
+- `runningEntities` are the entities that have metrics data and are evaluated by the alarm rule.
+- `formattedMessage` is the rendered message based on the rule’s message template for each affected running entity.
 
 #### `/status/alarm/{ruleId}/{entityName}`
 
@@ -284,7 +284,7 @@ Return the running context of the alarm rule.
         "mqeMetricsSnapshot": {
           "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202511191511\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191512\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191513\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191514\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191515\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191516\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191517\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191518\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191519\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202511191520\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]"
         },
-        "lastAlarmTime": "1763536823628",
+        "lastAlarmTime": 1763536823628,
         "lastAlarmMessage": "Service mock_b_service response time is more than 1000ms of last 10 minutes.",
         "lastAlarmMqeMetricsSnapshot": {
           "service_resp_time": "[{\"metric\":{\"labels\":[]},\"values\":[{\"id\":\"202511191511\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191512\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191513\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191514\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191515\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191516\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191517\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191518\",\"doubleValue\":0.0,\"isEmptyValue\":true},{\"id\":\"202511191519\",\"doubleValue\":6000.0,\"isEmptyValue\":false},{\"id\":\"202511191520\",\"doubleValue\":0.0,\"isEmptyValue\":true}]}]"
