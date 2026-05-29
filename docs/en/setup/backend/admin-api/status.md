@@ -36,7 +36,7 @@ to redact configuration values whose key contains any listed substring.
 
 ## Endpoints
 
-### `/status/cluster/nodes`
+### /status/cluster/nodes
 
 Returns the OAP cluster peer list as the cluster module sees it. Useful
 for confirming that every node has joined and is reporting back.
@@ -79,7 +79,7 @@ OAP calculates the alarm conditions in the memory based on the alarm rules and t
 
 The following APIs are exposed to make the alerting running kernel visible.
 
-#### `/status/alarm/rules`
+#### /status/alarm/rules
 
 Return the list of alarm running rules.
 
@@ -118,7 +118,7 @@ Return the list of alarm running rules.
 }
 ```
 
-#### `/status/alarm/rules/{ruleId}`
+#### /status/alarm/rules/{ruleId}
 
 Return the detailed information of the alarm running rule.
 
@@ -338,7 +338,7 @@ If some errors occur when querying the status from OAP instances, the error mess
 }
 ```
 
-### `/status/config/ttl`
+### /status/config/ttl
 
 Returns the effective TTL configuration the OAP loaded at boot.
 **Reachable on both ports** — `:17128` (admin) and `:12800` (public) —
@@ -424,7 +424,7 @@ curl -X GET "http://oap:17128/status/config/ttl" \
 }
 ```
 
-### `/debugging/config/dump`
+### /debugging/config/dump
 
 Dumps the effective configuration that was applied at boot. Values whose
 key contains any substring listed in `keywords4MaskingSecretsOfConfig` are
@@ -435,7 +435,7 @@ clients parse the dump for `core.restHost` / `core.restPort` (or the
 sharing-server overrides) once at session start to learn where the public
 GraphQL / MQE surface lives.
 
-### `/debugging/query/...`
+### /debugging/query/...
 
 Runs a named query path with debug tracing enabled and returns the
 captured DAO / storage spans alongside the result. Useful for diagnosing
