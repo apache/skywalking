@@ -36,9 +36,11 @@ microservices, cloud native and container-based architectures.
 * AI Power Enabled
   * Machine Learning (ML) and Artificial Intelligence (AI) analyze observability data to identify patterns and enhance capabilities, such as recognizing HTTP URI patterns and automatically calculating metric baselines for intelligent alerting, improving anomaly detection.
 
-<img src="https://skywalking.apache.org/images/home/architecture.svg?t=20220516"/>
-
 # Live Demo
+
+[<img src="https://skywalking.apache.org/images/home/horizon-3d-map.png" alt="SkyWalking 3D Infrastructure Map"/>](https://skywalking.apache.org/3d-map-app/#/3d/map)
+
+- Explore the [SkyWalking 3D Infrastructure Map interactive demo](https://skywalking.apache.org/3d-map-app/#/3d/map), a 3D visualization of the service topology powered by [Horizon UI](https://github.com/apache/skywalking-horizon-ui).
 - Find the [SkyWalking live demo with native UI and Grafana](https://skywalking.apache.org/#demo), and [screenshots](https://skywalking.apache.org/#arch) on our website.
 - Follow the [showcase](https://skywalking.apache.org/docs/skywalking-showcase/next/readme/) to set up a preview deployment quickly.
 
