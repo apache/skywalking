@@ -34,9 +34,12 @@ Each area lives in the
 ## Bundled UI templates
 
 The OAP backend does **not** seed dashboard JSONs at boot anymore.
-Horizon UI owns the bundled template set — layer dashboards, overview
-templates, and alert views — and ships them in its own image. See
-[apache/skywalking-horizon-ui · apps/bff/src/bundled_templates](https://github.com/apache/skywalking-horizon-ui/tree/main/apps/bff/src/bundled_templates).
+Horizon UI owns and ships the entire bundled set in its own image: the
+default dashboard configurations for every supported layer, several
+cross-cutting overview and 3D infrastructure-map setups, the sidebar
+menu, and i18n translations. Operators customize these in the UI's admin
+pages; see the
+[Horizon UI documentation](https://skywalking.apache.org/docs/skywalking-horizon-ui/next/readme/).
 
 ## Editing dashboards from the UI
 

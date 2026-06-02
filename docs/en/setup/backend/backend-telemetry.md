@@ -68,8 +68,8 @@ Set this up following these steps:
                --set elasticsearch.minimumMasterNodes=1 \
                --set elasticsearch.imageTag=7.5.1 \
                --set oap.replicas=2 \
-               --set ui.image.repository=ghcr.io/apache/skywalking-horizon-ui \
-               --set ui.image.tag=$TAG \
+               --set ui.image.repository=apache/skywalking-ui \
+               --set ui.image.tag=latest \
                --set oap.image.tag=$TAG \
                --set oap.image.repository=$HUB/skywalking-oap \
                --set oap.storageType=elasticsearch \
