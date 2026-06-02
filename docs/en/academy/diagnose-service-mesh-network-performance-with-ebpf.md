@@ -199,7 +199,7 @@ helm -n istio-system install skywalking skywalking \
  --set elasticsearch.minimumMasterNodes=1 \
  --set elasticsearch.imageTag=7.5.1 \
  --set oap.replicas=1 \
- --set ui.image.repository=ghcr.io/apache/skywalking-horizon-ui \
+ --set ui.image.repository=apache/skywalking-ui \
  --set ui.image.tag=latest \
  --set oap.image.tag=9.2.0 \
  --set oap.envoy.als.enabled=true \

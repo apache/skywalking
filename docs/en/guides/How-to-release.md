@@ -131,8 +131,9 @@ make docker.push
 
 > Note: this repository no longer builds the UI Docker image. The official
 > web UI ships from [`apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui),
-> which has its own release cadence and publishes images independently
-> under `ghcr.io/apache/skywalking-horizon-ui`. The OAP release described
+> which has its own release cadence and publishes images independently:
+> released images to Docker Hub `apache/skywalking-ui`, per-commit development
+> images to `ghcr.io/apache/skywalking-horizon-ui`. The OAP release described
 > above is independent of any Horizon UI release — they advance on
 > separate schedules and are matched at deploy time, not at release time.
 

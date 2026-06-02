@@ -46,8 +46,10 @@
   or pushed the UI image. The official UI is now
   [**Horizon UI**](https://github.com/apache/skywalking-horizon-ui), a SkyWalking
   sub-project that **releases independently** of the OAP backend on its own
-  schedule, with container images published to
-  [`ghcr.io/apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui/pkgs/container/skywalking-horizon-ui).
+  schedule, with released container images on Docker Hub at
+  [`apache/skywalking-ui`](https://hub.docker.com/r/apache/skywalking-ui)
+  (tags `latest` / `horizon-<version>`; per-commit development images live on
+  `ghcr.io/apache/skywalking-horizon-ui`).
   There is no 1:1 mapping between OAP versions and Horizon UI versions —
   operators pin the UI image tag in their deployment and upgrade the two
   on separate cadences.
@@ -66,8 +68,10 @@
   `UIMenuManagementService`, `UIMenuManagementDAO`, `UIMenu`, `MenuItem`,
   and the storage impls are all removed; Horizon UI owns the menu
   client-side and uses `listServices(layer:...)` for dynamic "layer has
-  services" gating. Upgrade path: replace `skywalking/ui:<tag>` with
-  `ghcr.io/apache/skywalking-horizon-ui:<tag>` in your deployment, expose
+  services" gating. Upgrade path: replace `skywalking/ui:<tag>` with the
+  Horizon UI image `apache/skywalking-ui:latest` (or a `horizon-<version>`
+  tag — pick a version per Horizon UI's OAP-compatibility notes, OAP `11.0+`
+  is supported) in your deployment, expose
   port `17128` from the OAP container, and migrate any scripts that
   called the legacy GraphQL UI mutations to the REST endpoints under
   [UI Management API](../setup/backend/admin-api/ui-management.md). All
