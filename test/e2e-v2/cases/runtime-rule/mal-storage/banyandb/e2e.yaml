@@ -65,7 +65,7 @@ verify:
     # minimal so the harness reports the script's pass/fail directly. A trailing
     # /list smoke check confirms the receiver port is still serving after the
     # destructive phase (catches regressions where /delete crashes the handler).
-    - query: curl -fsS http://127.0.0.1:17128/runtime/rule/list >/dev/null && echo ok
+    - query: swctl --display json --admin-url=http://127.0.0.1:17128 admin runtime-rule list >/dev/null && echo ok
       expected: expected/ok.txt
 
 cleanup:

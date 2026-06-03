@@ -27,7 +27,7 @@ SW_BANYANDB_COMMIT=84b919efca3fee3d51df9e97a734a9f10ae6f1d2
 SW_AGENT_PHP_COMMIT=d1114e7be5d89881eec76e5b56e69ff844691e35
 SW_PREDICTOR_COMMIT=54a0197654a3781a6f73ce35146c712af297c994
 
-SW_CTL_COMMIT=9a1beab08413ce415a00a8547a238a14691c5655
+SW_CTL_COMMIT=b447211a9319eeb29a445335e9c2536f8c1aa23d
 
 # Third-party image versions used by e2e infrastructure (not skywalking
 # components). Pinned here so the matrix is reproducible.

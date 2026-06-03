@@ -13,61 +13,60 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# REST surface for dashboard templates, mounted on the admin-server REST host
-# (default :17128). The cases below walk add → get → list → change → disable →
-# list-default vs. list-with-disabled to exercise the full CRUD cycle. The
-# client supplies the template id on POST; subsequent steps read it back from
-# /tmp/uitpl-add.json.
+# Dashboard-template CRUD over the admin-server `ui-management` module, driven by
+# `swctl admin ui-template ...` instead of raw curl. The cases walk
+# create -> get -> update -> get -> disable -> list-default vs. list-with-disabled
+# to exercise the full cycle. The client supplies a fixed template id on create so
+# the later steps address it without reading it back.
 
 cases:
-  # 1. POST a new template — client supplies the id.
+  # 1. Create a new template — the client supplies the id; the configuration is
+  #    passed as a file (swctl reads the JSON-encoded body from --file).
   - query: |
-      curl -s -X POST http://${oap_host}:${oap_17128}/ui-management/templates \
-        -H 'Content-Type: application/json' \
-        -d '{"id":"e2e-tpl-id","configuration":"{\"name\":\"e2e-tpl\",\"v\":1}"}' \
-        | tee /tmp/uitpl-add.json \
-        | yq -P '. | {"status": .status, "hasId": (.id != null and .id != "")}'
+      printf '%s' '{"name":"e2e-tpl","v":1}' > /tmp/uitpl-cfg.json
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template create --id e2e-tpl-id -f /tmp/uitpl-cfg.json \
+        | yq -P '{"status": .status, "hasId": (.id != null and .id != "")}'
     expected: expected/template-write-success.yml
 
-  # 2. GET the template by the id returned from step 1.
+  # 2. Get the template by the fixed id.
   - query: |
-      ID=$(yq -r '.id' /tmp/uitpl-add.json);
-      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
-        | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template get e2e-tpl-id \
+        | yq -P '{"configuration": .configuration, "disabled": .disabled}'
     expected: expected/template-fetched.yml
 
-  # 3. PUT to update the configuration. Same id, new body.
+  # 3. Update the configuration. Same id, new body.
   - query: |
-      ID=$(yq -r '.id' /tmp/uitpl-add.json);
-      curl -s -X PUT http://${oap_host}:${oap_17128}/ui-management/templates \
-        -H 'Content-Type: application/json' \
-        -d "{\"id\":\"$ID\",\"configuration\":\"{\\\"name\\\":\\\"e2e-tpl\\\",\\\"v\\\":2}\"}" \
-        | yq -P '. | {"status": .status, "id": .id}'
+      printf '%s' '{"name":"e2e-tpl","v":2}' > /tmp/uitpl-cfg2.json
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template update --id e2e-tpl-id -f /tmp/uitpl-cfg2.json \
+        | yq -P '{"status": .status, "id": .id}'
     expected: expected/template-changed.yml
 
-  # 4. GET again — configuration should now reflect the PUT body.
+  # 4. Get again — configuration should now reflect the update.
   - query: |
-      ID=$(yq -r '.id' /tmp/uitpl-add.json);
-      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates/$ID \
-        | yq -P '. | {"configuration": .configuration, "disabled": .disabled}'
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template get e2e-tpl-id \
+        | yq -P '{"configuration": .configuration, "disabled": .disabled}'
     expected: expected/template-updated.yml
 
-  # 5. POST .../disable — soft-delete.
+  # 5. Disable — soft-delete.
   - query: |
-      ID=$(yq -r '.id' /tmp/uitpl-add.json);
-      curl -s -X POST http://${oap_host}:${oap_17128}/ui-management/templates/$ID/disable \
-        | yq -P '. | {"status": .status, "id": .id}'
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template disable e2e-tpl-id \
+        | yq -P '{"status": .status, "id": .id}'
     expected: expected/template-changed.yml
 
   # 6. Default list excludes disabled — should be empty.
   - query: |
-      curl -s -X GET http://${oap_host}:${oap_17128}/ui-management/templates \
-        | yq -P '. | length'
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template list | yq -P '. | length'
     expected: expected/template-list-empty.yml
 
-  # 7. includingDisabled=true returns the soft-deleted entry.
+  # 7. --include-disabled returns the soft-deleted entry.
   - query: |
-      ID=$(yq -r '.id' /tmp/uitpl-add.json);
-      curl -s -X GET "http://${oap_host}:${oap_17128}/ui-management/templates?includingDisabled=true" \
-        | yq -P '.[] | select(.id == "'"$ID"'") | {"disabled": .disabled}'
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template list --include-disabled \
+        | yq -P '.[] | select(.id == "e2e-tpl-id") | {"disabled": .disabled}'
     expected: expected/template-list-disabled.yml

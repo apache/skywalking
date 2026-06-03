@@ -38,6 +38,11 @@ OAP_HOST="${OAP_HOST:-127.0.0.1}"
 OAP_REST_PORT="${OAP_REST_PORT:-17128}"
 OAP_BASE="http://${OAP_HOST}:${OAP_REST_PORT}"
 
+# All admin-server REST calls go through swctl's `admin` command tree instead of
+# raw curl. `--display json` keeps the body shape identical to the old curl
+# output, so the downstream jq assertions are unchanged.
+admin() { swctl --display json --admin-url="${OAP_BASE}" admin "$@"; }
+
 SETTLE_SECONDS="${SETTLE_SECONDS:-300}"
 
 # OAL gate is per-metric. We target service_relation_server_cpm — a shipped
@@ -51,20 +56,20 @@ CLIENT_ID="e2e-dsldbg-oal-1"
 
 log "waiting for OAP admin port"
 deadline=$(( $(date +%s) + 120 ))
-until curl -fsS "${OAP_BASE}/dsl-debugging/status" >/dev/null 2>&1; do
+until admin dsl-debug status >/dev/null 2>&1; do
     if [ "$(date +%s)" -ge "${deadline}" ]; then fail "OAP admin not ready after 120s"; fi
     sleep 2
 done
 
 # --- Phase 0: status ------------------------------------------------------------------
-log "=== Phase 0: /dsl-debugging/status ==="
-curl -fsS "${OAP_BASE}/dsl-debugging/status" | jq -e '.injectionEnabled == true' >/dev/null \
+log "=== Phase 0: dsl-debug status ==="
+admin dsl-debug status | jq -e '.injectionEnabled == true' >/dev/null \
     || fail "injectionEnabled is not true"
 
 # --- Phase 1: install session ---------------------------------------------------------
 log "=== Phase 1: install session on (${CATALOG}, ${NAME}, ${METRIC}) ==="
-install_body="$(curl -fsS -XPOST \
-    "${OAP_BASE}/dsl-debugging/session?catalog=${CATALOG}&name=${NAME}&ruleName=${METRIC}&clientId=${CLIENT_ID}")"
+install_body="$(admin dsl-debug session start \
+    --catalog "${CATALOG}" --name "${NAME}" --rule-name "${METRIC}" --client-id "${CLIENT_ID}")"
 log "  install → ${install_body}"
 SESSION_ID="$(echo "${install_body}" | jq -r '.sessionId // empty')"
 [ -n "${SESSION_ID}" ] || fail "install did not return sessionId — body: ${install_body}"
@@ -76,7 +81,7 @@ deadline=$(( $(date +%s) + SETTLE_SECONDS ))
 records_count=0
 collect_body=""
 while (( $(date +%s) < deadline )); do
-    collect_body="$(curl -fsS "${OAP_BASE}/dsl-debugging/session/${SESSION_ID}")"
+    collect_body="$(admin dsl-debug session get "${SESSION_ID}")"
     records_count="$(echo "${collect_body}" | jq '[.nodes[].records[]] | length')"
     if [ "${records_count}" -gt 0 ]; then
         # Wait for at least one execution record with both source + filter samples.
@@ -197,7 +202,7 @@ log "✓ OAL shape valid (${records_count} records, ${total_samples} samples, so
 
 # --- Phase 5: stop session ------------------------------------------------------------
 log "=== Phase 5: stop session ==="
-curl -fsS -XPOST "${OAP_BASE}/dsl-debugging/session/${SESSION_ID}/stop" \
+admin dsl-debug session stop "${SESSION_ID}" \
     | jq -e '.localStopped == true' >/dev/null \
     || fail "localStopped != true"
 

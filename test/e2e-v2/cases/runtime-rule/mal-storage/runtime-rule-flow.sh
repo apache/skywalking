@@ -64,6 +64,14 @@ GQL_BASE="http://${OAP_HOST}:${OAP_GQL_PORT}"
 log()   { echo "[runtime-rule-flow] $*" >&2; }
 fail()  { echo "[runtime-rule-flow] FAIL: $*" >&2; exit 1; }
 
+# Every runtime-rule REST call goes through swctl's `admin` command tree instead
+# of raw curl. `--display json` keeps the response body byte-shape identical to
+# the old curl output (the runtime-rule endpoints are passed through verbatim),
+# so the jq assertions below are unchanged. On a non-2xx the CLI exits non-zero
+# and renders the typed error envelope — `admin API <url>: HTTP <code>
+# (<applyStatus>): <message>` — which the negative-path helpers grep for.
+admin() { swctl --display json --admin-url="${REST_BASE}" admin "$@"; }
+
 # Resolve the otlp-emitter container by name fragment so we don't need to know
 # the compose project name. Cached on first lookup.
 EMITTER_CONTAINER=""
@@ -89,101 +97,103 @@ step_set() {
   log "  step=${value}"
 }
 
-# Retry a 2xx-or-fail curl for up to RETRY_BUDGET_S seconds. Exists because the
-# cluster routing layer transiently returns 503 cluster_not_ready when its peer
+# Retry a runtime-rule admin call for up to RETRY_BUDGET_S seconds. Exists because
+# the cluster routing layer transiently returns 503 cluster_not_ready when its peer
 # refresh is in flight; happens reliably right after a STRUCTURAL apply (the
 # reconciler's cache may be paused). Operator retries after a few seconds work
-# in practice, so the e2e applies the same pattern automatically.
+# in practice, so the e2e applies the same pattern automatically. Pass the
+# runtime-rule subcommand and its flags, e.g.
+#   retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${NAME}"
 RETRY_BUDGET_S="${RETRY_BUDGET_S:-60}"
-retry_curl_post() {
-  local url="$1"
-  local body_arg="${2:-}"   # e.g. --data-binary @file ; empty for empty-body POST
+retry_admin() {
   local deadline=$(( $(date +%s) + RETRY_BUDGET_S ))
-  local out
+  local out rc
   while (( $(date +%s) < deadline )); do
-    if [[ -n "${body_arg}" ]]; then
-      # shellcheck disable=SC2086
-      out="$(curl -fsS -XPOST ${body_arg} -H "Content-Type: text/plain" "${url}" 2>&1)" && {
-        echo "${out}"; return 0;
-      }
-    else
-      out="$(curl -fsS -XPOST "${url}" 2>&1)" && { echo "${out}"; return 0; }
-    fi
-    if [[ "${out}" == *503* ]]; then
-      log "  transient 503 on ${url} — retrying"
+    out="$(admin "$@" 2>&1)" && { echo "${out}"; return 0; }
+    rc=$?
+    if echo "${out}" | grep -q "HTTP 503"; then
+      log "  transient 503 on 'admin $*' — retrying"
       sleep 2
       continue
     fi
     echo "${out}"
-    return 1
+    return "${rc}"
   done
   echo "${out}"
   return 1
 }
 
-# POST a rule file to /addOrUpdate. Echoes the JSON response. Asserts 200.
+# Apply a rule file via addOrUpdate. Echoes the JSON response. Asserts 2xx.
+# extra="allowStorageChange=true" maps to the --allow-storage-change flag.
 post_rule() {
   local file="$1"
-  local extra_qs="${2:-}"
+  local extra="${2:-}"
   local rule_name="${3:-${NAME}}"
-  local url="${REST_BASE}/runtime/rule/addOrUpdate?catalog=${CATALOG}&name=${rule_name}${extra_qs:+&${extra_qs}}"
-  log "POST ${url} (body=${file})"
+  local -a flags=(--catalog "${CATALOG}" --name "${rule_name}" -f "${file}")
+  [[ "${extra}" == *allowStorageChange=true* ]] && flags+=(--allow-storage-change)
+  log "runtime-rule add ${CATALOG}/${rule_name} (body=${file})"
   local resp
-  resp="$(curl -fsS -XPOST --data-binary "@${file}" -H "Content-Type: text/plain" "${url}")" \
+  resp="$(admin runtime-rule add "${flags[@]}")" \
     || fail "addOrUpdate of ${file} returned non-2xx"
   log "  → ${resp}"
   echo "${resp}"
 }
 
-# POST a rule that's expected to be REJECTED. Captures the HTTP status and the
-# response body via curl's separate -w / -o, asserts the status matches, and
-# echoes the body so callers can grep for a specific failure code/string.
+# Apply a rule that's expected to be REJECTED. swctl exits non-zero on a non-2xx
+# and renders the typed error envelope ("... HTTP <code> (<applyStatus>): <msg>")
+# to stdout; assert the HTTP code is present and echo the message so callers can
+# grep for a specific failure code / applyStatus / string.
 post_rule_expect_status() {
   local file="$1"
   local expected_status="$2"
-  local extra_qs="${3:-}"
+  local extra="${3:-}"
   local rule_name="${4:-${NAME}}"
-  local url="${REST_BASE}/runtime/rule/addOrUpdate?catalog=${CATALOG}&name=${rule_name}${extra_qs:+&${extra_qs}}"
-  log "POST ${url} (expect HTTP ${expected_status}, body=${file})"
-  local body_file http_status
-  body_file="$(mktemp)"
-  http_status="$(curl -sS -o "${body_file}" -w '%{http_code}' \
-    -XPOST --data-binary "@${file}" -H "Content-Type: text/plain" "${url}")"
-  local body
-  body="$(cat "${body_file}")"
-  rm -f "${body_file}"
-  log "  ← HTTP ${http_status} body=${body}"
-  [[ "${http_status}" == "${expected_status}" ]] \
-    || fail "expected HTTP ${expected_status}, got ${http_status} (body: ${body})"
-  echo "${body}"
+  local -a flags=(--catalog "${CATALOG}" --name "${rule_name}" -f "${file}")
+  [[ "${extra}" == *allowStorageChange=true* ]] && flags+=(--allow-storage-change)
+  log "runtime-rule add ${CATALOG}/${rule_name} (expect HTTP ${expected_status}, body=${file})"
+  local out rc
+  out="$(admin runtime-rule add "${flags[@]}" 2>&1)" && rc=0 || rc=$?
+  log "  ← rc=${rc} ${out}"
+  [[ "${rc}" -ne 0 ]] \
+    || fail "expected rejection (HTTP ${expected_status}) but add succeeded: ${out}"
+  echo "${out}" | grep -q "HTTP ${expected_status}" \
+    || fail "expected HTTP ${expected_status}, got: ${out}"
+  echo "${out}"
 }
 
-# POST a non-/addOrUpdate endpoint that's expected to be REJECTED. Same
-# semantics as post_rule_expect_status but takes an explicit URL.
-post_url_expect_status() {
-  local url="$1"
+# Delete a rule that's expected to be REJECTED (e.g. /delete on an ACTIVE row →
+# 409 requires_inactivate_first). Same envelope-grep semantics as
+# post_rule_expect_status.
+delete_expect_status() {
+  local rule_name="$1"
   local expected_status="$2"
-  log "POST ${url} (expect HTTP ${expected_status})"
-  local body_file http_status
-  body_file="$(mktemp)"
-  http_status="$(curl -sS -o "${body_file}" -w '%{http_code}' -XPOST "${url}")"
-  local body
-  body="$(cat "${body_file}")"
-  rm -f "${body_file}"
-  log "  ← HTTP ${http_status} body=${body}"
-  [[ "${http_status}" == "${expected_status}" ]] \
-    || fail "expected HTTP ${expected_status}, got ${http_status} (body: ${body})"
-  echo "${body}"
+  log "runtime-rule delete ${CATALOG}/${rule_name} (expect HTTP ${expected_status})"
+  local out rc
+  out="$(admin runtime-rule delete --catalog "${CATALOG}" --name "${rule_name}" 2>&1)" && rc=0 || rc=$?
+  log "  ← rc=${rc} ${out}"
+  [[ "${rc}" -ne 0 ]] \
+    || fail "expected delete rejection (HTTP ${expected_status}) but it succeeded: ${out}"
+  echo "${out}" | grep -q "HTTP ${expected_status}" \
+    || fail "expected HTTP ${expected_status}, got: ${out}"
+  echo "${out}"
 }
 
-# Assert the JSON response carries the expected applyStatus.
+# Assert the expected applyStatus. On the happy path the argument is the JSON
+# ApplyResult and the status comes from .applyStatus. On a rejection the argument
+# is swctl's error line, where the CLI's typed envelope renders the applyStatus in
+# parentheses, e.g. "... HTTP 400 (layer_ordinal_out_of_range): <msg>".
 assert_apply_status() {
   local expected="$1"
-  local actual_json="$2"
-  local actual
-  actual="$(echo "${actual_json}" | jq -r '.applyStatus // empty')"
-  [[ "${actual}" == "${expected}" ]] \
-    || fail "expected applyStatus=${expected}, got '${actual}' (full: ${actual_json})"
+  local actual="$2"
+  local parsed
+  parsed="$(echo "${actual}" | jq -r '.applyStatus // empty' 2>/dev/null || true)"
+  if [[ -n "${parsed}" ]]; then
+    [[ "${parsed}" == "${expected}" ]] \
+      || fail "expected applyStatus=${expected}, got '${parsed}' (full: ${actual})"
+    return 0
+  fi
+  echo "${actual}" | grep -q "(${expected})" \
+    || fail "expected applyStatus=${expected}, not found in: ${actual}"
 }
 
 # GET /runtime/rule/list and ensure the row matches the expected status. Returns
@@ -191,10 +201,10 @@ assert_apply_status() {
 list_row() {
   local expected_status="$1"
   local rule_name="${2:-${NAME}}"
-  log "GET /runtime/rule/list → looking for ${CATALOG}/${rule_name} status=${expected_status}"
+  log "runtime-rule list → looking for ${CATALOG}/${rule_name} status=${expected_status}"
   local lines
-  lines="$(curl -fsS "${REST_BASE}/runtime/rule/list")" \
-    || fail "GET /runtime/rule/list failed"
+  lines="$(admin runtime-rule list)" \
+    || fail "runtime-rule list failed"
   local match
   match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
   [[ -n "${match}" ]] \
@@ -209,10 +219,10 @@ list_row() {
 # Assert that /list does NOT have a row for the given (catalog, name).
 list_no_row() {
   local rule_name="${1:-${NAME}}"
-  log "GET /runtime/rule/list → expect NO row for ${CATALOG}/${rule_name}"
+  log "runtime-rule list → expect NO row for ${CATALOG}/${rule_name}"
   local lines match
-  lines="$(curl -fsS "${REST_BASE}/runtime/rule/list")" \
-    || fail "GET /runtime/rule/list failed"
+  lines="$(admin runtime-rule list)" \
+    || fail "runtime-rule list failed"
   match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
   if [[ -n "${match}" ]]; then
     local status
@@ -404,8 +414,8 @@ assert_dump_contains() {
   shift
   local tar_file
   tar_file="$(mktemp)"
-  curl -fsS "${REST_BASE}/runtime/rule/dump" -o "${tar_file}" \
-    || fail "GET /runtime/rule/dump failed (${label})"
+  admin runtime-rule dump -o "${tar_file}" >/dev/null \
+    || fail "runtime-rule dump failed (${label})"
   local entries
   entries="$(tar -tzf "${tar_file}" 2>&1)" \
     || { rm -f "${tar_file}"; fail "${label}: dump body is not a valid tar.gz: ${entries}"; }
@@ -422,7 +432,7 @@ assert_dump_contains() {
 
 log "waiting for OAP runtime-rule port ${OAP_REST_PORT}"
 for _ in $(seq 1 60); do
-  curl -fsS "${REST_BASE}/runtime/rule/list" >/dev/null 2>&1 && break
+  admin runtime-rule list >/dev/null 2>&1 && break
   sleep 2
 done
 
@@ -495,7 +505,7 @@ assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 
 
 log "=== Phase 5c: ILLEGAL /delete on ACTIVE row ==="
 struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
-post_url_expect_status "${REST_BASE}/runtime/rule/delete?catalog=${CATALOG}&name=${NAME}" "409" >/dev/null
+delete_expect_status "${NAME}" "409" >/dev/null
 [[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
   || fail "5c: row state changed after /delete-on-ACTIVE rejection"
 assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 180
@@ -540,7 +550,9 @@ resp="$(post_rule_expect_status \
   "${SEED_RULES_DIR}/illegal-layer-name-conflict.yaml" "400" "" "${SIBLING_NAME}")"
 assert_apply_status "layer_name_conflict" "${resp}"
 # Message must name the conflicting source so operators see what to align with.
-echo "${resp}" | jq -e '.message | test("built-in")' >/dev/null \
+# resp is swctl's plain-text error envelope ("... (layer_name_conflict): <msg>"),
+# not JSON, so grep the message directly rather than parsing it.
+echo "${resp}" | grep -q "built-in" \
   || fail "5g: response message did not label source as built-in: ${resp}"
 list_no_row "${SIBLING_NAME}"
 [[ "$(list_row ACTIVE | jq -r '.contentHash')" == "${hash_structural}" ]] \
@@ -576,13 +588,13 @@ oap_container="$(docker ps --filter "ancestor=skywalking/oap:latest" \
 docker restart "${oap_container}" >/dev/null
 # Wait for the REST port to come back. Cap at 180s so a true hang surfaces.
 for i in $(seq 1 90); do
-  if curl -fsS "${REST_BASE}/runtime/rule/list" >/dev/null 2>&1; then
+  if admin runtime-rule list >/dev/null 2>&1; then
     log "  OAP back up after ${i}*2s"
     break
   fi
   sleep 2
 done
-curl -fsS "${REST_BASE}/runtime/rule/list" >/dev/null \
+admin runtime-rule list >/dev/null \
   || fail "5h: OAP did not come back online after restart"
 
 # Critical assertion: the runtime layer must still be visible AND retain its
@@ -599,9 +611,9 @@ list_row "ACTIVE" "${SIBLING_NAME}" >/dev/null
 log "  post-restart: layer + rule survived"
 
 # Now prove the layer is still removable through the dynamic channel.
-retry_curl_post "${REST_BASE}/runtime/rule/inactivate?catalog=${CATALOG}&name=${SIBLING_NAME}" >/dev/null \
+retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${SIBLING_NAME}" >/dev/null \
   || fail "5h: sibling inactivate failed"
-retry_curl_post "${REST_BASE}/runtime/rule/delete?catalog=${CATALOG}&name=${SIBLING_NAME}" >/dev/null \
+retry_admin runtime-rule delete --catalog "${CATALOG}" --name "${SIBLING_NAME}" >/dev/null \
   || fail "5h: sibling delete failed"
 list_no_row "${SIBLING_NAME}"
 sleep 2
@@ -619,14 +631,12 @@ assert_metric_step_advanced "e2e_rr_requests" "structural" "${struct_baseline}" 
 # POST a new shape under the same (catalog, name).
 log "=== Phase 6: SHAPE-BREAK ==="
 step_set "shape_break_old"
-log "  /inactivate to release the old shape"
-inactivate_url="${REST_BASE}/runtime/rule/inactivate?catalog=${CATALOG}&name=${NAME}"
-retry_curl_post "${inactivate_url}" >/dev/null \
+log "  inactivate to release the old shape"
+retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
   || fail "shape-break: inactivate failed"
 list_row "INACTIVE" >/dev/null
-log "  /delete to drop the old measure"
-delete_url="${REST_BASE}/runtime/rule/delete?catalog=${CATALOG}&name=${NAME}"
-retry_curl_post "${delete_url}" >/dev/null \
+log "  delete to drop the old measure"
+retry_admin runtime-rule delete --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
   || fail "shape-break: delete failed"
 list_no_row
 
@@ -647,7 +657,7 @@ await_metric_for_step "e2e_rr_requests" "shape_break_new"
 # window where the rule is still active aggregates a few `step=inactivate`
 # samples and the soft-pause assertion below fails for the wrong reason.
 log "=== Phase 7: INACTIVATE (soft-pause) ==="
-retry_curl_post "${inactivate_url}" >/dev/null \
+retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
   || fail "phase-7: inactivate failed"
 list_row "INACTIVE" >/dev/null
 step_set "inactivate"
@@ -673,10 +683,10 @@ await_metric_for_step "e2e_rr_requests" "activate"
 # Phase 9 — DELETE (destructive).
 log "=== Phase 9: DELETE ==="
 step_set "delete_attempt"
-retry_curl_post "${inactivate_url}" >/dev/null \
+retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
   || fail "phase-9: inactivate-before-delete failed"
 list_row "INACTIVE" >/dev/null
-retry_curl_post "${delete_url}" >/dev/null \
+retry_admin runtime-rule delete --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
   || fail "phase-9: delete failed"
 list_no_row
 log "  ✓ row gone + backend probe agrees"

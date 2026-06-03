@@ -49,9 +49,15 @@ CONVERGE_TIMEOUT_S="${CONVERGE_TIMEOUT_S:-90}"
 
 [ -f "${SEED_NEW}" ] || fail "seed-rule.yaml missing at ${SEED_NEW}"
 
+# All runtime-rule REST calls go through swctl's `admin` command tree instead of
+# raw curl. This flow drives two OAP nodes, so the admin host (`--admin-url`) is
+# passed per call as the first argument. `--display json` keeps the body shape
+# identical to the old curl output, so the jq assertions are unchanged.
+admin() { local base="$1"; shift; swctl --display json --admin-url="${base}" admin "$@"; }
+
 list_row() {
     local base="$1"
-    curl -fsS "${base}/runtime/rule/list" 2>/dev/null \
+    admin "${base}" runtime-rule list 2>/dev/null \
         | jq -c '.rules[]
                  | select(.catalog == "'"${CATALOG}"'" and .name == "'"${NAME}"'")
                  | select(.status != "n/a")' \
@@ -113,12 +119,9 @@ await_absent() {
 
 apply_on() {
     local base="$1" body="$2" extra="${3:-}"
-    local query="catalog=${CATALOG}&name=${NAME}"
-    if [ -n "${extra}" ]; then
-        query="${query}&${extra}"
-    fi
-    local resp; resp="$(curl -fsS -XPOST -H 'Content-Type: text/plain' \
-        --data-binary "@${body}" "${base}/runtime/rule/addOrUpdate?${query}")" \
+    local -a flags=(--catalog "${CATALOG}" --name "${NAME}" -f "${body}")
+    [[ "${extra}" == *allowStorageChange=true* ]] && flags+=(--allow-storage-change)
+    local resp; resp="$(admin "${base}" runtime-rule add "${flags[@]}")" \
         || fail "addOrUpdate against ${base} failed"
     echo "${resp}"
 }
@@ -126,13 +129,13 @@ apply_on() {
 # --- Wait for both OAPs to come up -------------------------------------------------
 log "waiting for OAP-1 (${OAP1_BASE})"
 deadline=$(( $(date +%s) + 120 ))
-until curl -fsS "${OAP1_BASE}/runtime/rule/list" >/dev/null 2>&1; do
+until admin "${OAP1_BASE}" runtime-rule list >/dev/null 2>&1; do
     if [ "$(date +%s)" -ge "${deadline}" ]; then fail "OAP-1 not ready after 120s"; fi
     sleep 2
 done
 log "waiting for OAP-2 (${OAP2_BASE})"
 deadline=$(( $(date +%s) + 120 ))
-until curl -fsS "${OAP2_BASE}/runtime/rule/list" >/dev/null 2>&1; do
+until admin "${OAP2_BASE}" runtime-rule list >/dev/null 2>&1; do
     if [ "$(date +%s)" -ge "${deadline}" ]; then fail "OAP-2 not ready after 120s"; fi
     sleep 2
 done
@@ -159,7 +162,7 @@ log "OAP-2 converged to ${hash_struct:0:8}…"
 
 # --- Phase 3: inactivate on OAP-1, observe INACTIVE on OAP-2 -----------------------
 log "=== Phase 3: /inactivate on OAP-1 ==="
-curl -fsS -XPOST "${OAP1_BASE}/runtime/rule/inactivate?catalog=${CATALOG}&name=${NAME}" >/dev/null \
+admin "${OAP1_BASE}" runtime-rule inactivate --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
     || fail "inactivate against OAP-1 failed"
 await_status "${OAP1_BASE}" "INACTIVE"
 log "OAP-1 → INACTIVE"
@@ -168,7 +171,7 @@ log "OAP-2 converged to INACTIVE"
 
 # --- Phase 4: delete on OAP-1, observe row gone on OAP-2 ---------------------------
 log "=== Phase 4: /delete on OAP-1 ==="
-curl -fsS -XPOST "${OAP1_BASE}/runtime/rule/delete?catalog=${CATALOG}&name=${NAME}" >/dev/null \
+admin "${OAP1_BASE}" runtime-rule delete --catalog "${CATALOG}" --name "${NAME}" >/dev/null \
     || fail "delete against OAP-1 failed"
 await_absent "${OAP1_BASE}"
 log "OAP-1 → row gone"
