@@ -27,6 +27,20 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsSessionCache
  */
 @RequiredArgsConstructor
 public class SessionCacheCallback {
+    /**
+     * A no-op callback that does nothing. Used by secondary backends in multi-write mode
+     * to avoid duplicate cache updates.
+     */
+    public static final SessionCacheCallback NOOP = new SessionCacheCallback(null, null) {
+        @Override
+        public void onInsertCompleted() {
+        }
+
+        @Override
+        public void onUpdateFailure() {
+        }
+    };
+
     private final MetricsSessionCache sessionCache;
     private final Metrics metrics;
     /**

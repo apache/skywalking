@@ -146,9 +146,28 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.client.close();
     }
 
+    /**
+     * Resolve the management schema for {@code name}, failing with a checked {@link IOException}
+     * rather than NPE-ing when it is not registered yet. The management model is installed into
+     * {@link MetadataRegistry} when the storage module starts; callers that run earlier in boot
+     * (e.g. the runtime-rule boot resolver loading rule overrides from
+     * {@code RuleSetMerger.merge}) can hit this method before that install completes. Returning a
+     * checked exception lets those callers treat it as the transient boot failure it is and retry,
+     * instead of crashing OAP startup. Mirrors the null guard already in
+     * {@code BanyanDBRuntimeRuleManagementDAO.save}.
+     */
+    private MetadataRegistry.Schema requireManagementSchema(String name) throws IOException {
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+        if (schema == null) {
+            throw new IOException(
+                "BanyanDB management schema for [" + name + "] is not registered yet");
+        }
+        return schema;
+    }
+
     public List<Property> listProperties(String name) throws IOException {
         try {
-            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+            MetadataRegistry.Schema schema = requireManagementSchema(name);
             BanyandbProperty.QueryResponse resp
                 = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
                                                                  .addGroups(schema.getMetadata().getGroup())
@@ -170,7 +189,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public Property queryProperty(String name, String id) throws IOException {
         try {
-            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+            MetadataRegistry.Schema schema = requireManagementSchema(name);
             BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
                                                                                                  .addGroups(schema.getMetadata().getGroup())
                                                                                                  .setName(name)
@@ -194,7 +213,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     public DeleteResponse deleteProperty(String name, String id) throws IOException {
         try (HistogramMetrics.Timer timer = propertySingleDeleteHistogram.createTimer()) {
-            MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(name);
+            MetadataRegistry.Schema schema = requireManagementSchema(name);
             PropertyStore store = new PropertyStore(checkNotNull(client.getChannel()));
             DeleteResponse result = store.delete(schema.getMetadata().getGroup(), name, id);
             this.healthChecker.health();
