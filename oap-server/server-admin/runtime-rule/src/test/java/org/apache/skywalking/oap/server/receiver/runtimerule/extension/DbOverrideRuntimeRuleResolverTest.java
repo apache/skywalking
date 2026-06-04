@@ -21,12 +21,19 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.extension;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.module.RuntimeRuleModule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Covers the layer-override-forbidden guard {@link DbOverrideRuntimeRuleResolver}
@@ -43,6 +50,24 @@ class DbOverrideRuntimeRuleResolverTest {
         final Method m = StaticRuleRegistry.class.getDeclaredMethod("clear");
         m.setAccessible(true);
         m.invoke(StaticRuleRegistry.active());
+    }
+
+    @Test
+    void disabledModuleSkipsStorageRead() {
+        // receiver-runtime-rule not in the loaded module set: the resolver must short-circuit
+        // before any storage access so a disabled module never drives a runtime_rule DAO read
+        // on the MAL/LAL static load path.
+        final ModuleManager manager = mock(ModuleManager.class);
+        when(manager.has(RuntimeRuleModule.NAME)).thenReturn(false);
+
+        assertTrue(new DbOverrideRuntimeRuleResolver().loadAll("otel-rules", manager).isEmpty());
+        verify(manager, never()).find(anyString());
+    }
+
+    @Test
+    void nullManagerReturnsEmpty() {
+        // No module context (tests / static-loader call without a manager) — serve disk content.
+        assertTrue(new DbOverrideRuntimeRuleResolver().loadAll("otel-rules", null).isEmpty());
     }
 
     @Test

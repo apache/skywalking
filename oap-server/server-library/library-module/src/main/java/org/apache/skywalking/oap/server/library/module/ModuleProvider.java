@@ -31,9 +31,9 @@ import lombok.Setter;
 public abstract class ModuleProvider implements ModuleServiceHolder {
     @Setter
     private ModuleManager manager;
-    @Setter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PUBLIC)
     private ModuleDefine moduleDefine;
-    @Setter(AccessLevel.PACKAGE)
+    @Setter(AccessLevel.PUBLIC)
     private TerminalFriendlyTable bootingParameters;
     private final Map<Class<? extends Service>, Service> services = new HashMap<>();
 

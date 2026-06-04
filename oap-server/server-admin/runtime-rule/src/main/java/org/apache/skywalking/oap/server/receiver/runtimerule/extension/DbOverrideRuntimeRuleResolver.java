@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.module.RuntimeRuleModule;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -99,6 +100,14 @@ public final class DbOverrideRuntimeRuleResolver implements RuntimeRuleOverrideR
     public Map<String, Resolution> loadAll(final String catalog, final ModuleManager manager) {
         if (manager == null) {
             // Test path or static-loader call without module context — nothing we can do.
+            return Collections.emptyMap();
+        }
+        if (!manager.has(RuntimeRuleModule.NAME)) {
+            // receiver-runtime-rule disabled. This resolver ships in the runtime-rule jar and
+            // is always discovered by ServiceLoader, so RuleSetMerger.merge() would otherwise
+            // drive a runtime_rule DAO read on every MAL/LAL catalog load even though no part
+            // of the runtime-rule feature is running. With the module off there are no runtime
+            // overrides to apply — serve pure disk content and never touch storage.
             return Collections.emptyMap();
         }
         synchronized (this) {
