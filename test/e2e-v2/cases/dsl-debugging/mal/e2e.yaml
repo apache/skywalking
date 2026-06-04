@@ -50,7 +50,7 @@ verify:
     count: 1
     interval: 1s
   cases:
-    - query: curl -fsS http://127.0.0.1:17128/dsl-debugging/status >/dev/null && echo ok
+    - query: swctl --display json --admin-url=http://127.0.0.1:17128 admin dsl-debug status >/dev/null && echo ok
       expected: expected/ok.txt
 
 cleanup:

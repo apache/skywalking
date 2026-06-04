@@ -31,6 +31,8 @@ setup:
             https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
           chmod +x /tmp/skywalking-infra-e2e/bin/jq
         fi
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
     - name: drive cluster convergence flow
       command: |
         set -euo pipefail
@@ -42,7 +44,7 @@ verify:
     count: 1
     interval: 1s
   cases:
-    - query: curl -fsS http://127.0.0.1:17128/runtime/rule/list >/dev/null && echo ok
+    - query: swctl --display json --admin-url=http://127.0.0.1:17128 admin runtime-rule list >/dev/null && echo ok
       expected: expected/ok.txt
 
 cleanup:

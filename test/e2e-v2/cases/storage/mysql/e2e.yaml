@@ -69,8 +69,7 @@ verify:
             | yq e '.traces[0].traceids[0]' - \
         )
       expected: ../expected/trace-users-detail.yml
-    - query: curl -X GET http://${oap_host}:${oap_17128}/debugging/config/dump
+    - query: swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin config dump
       expected: ../expected/config-dump.yml
-    - query: |
-        curl -X GET http://${oap_host}:${oap_17128}/status/config/ttl -H "Accept: application/json"
+    - query: swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin config ttl
       expected: ../expected/ttl-config.yml

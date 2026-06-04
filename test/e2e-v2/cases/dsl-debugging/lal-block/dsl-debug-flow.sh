@@ -39,6 +39,11 @@ OAP_HOST="${OAP_HOST:-127.0.0.1}"
 OAP_REST_PORT="${OAP_REST_PORT:-17128}"
 OAP_BASE="http://${OAP_HOST}:${OAP_REST_PORT}"
 
+# All admin-server REST calls go through swctl's `admin` command tree instead of
+# raw curl. `--display json` keeps the body shape identical to the old curl
+# output, so the downstream jq assertions are unchanged.
+admin() { swctl --display json --admin-url="${OAP_BASE}" admin "$@"; }
+
 SETTLE_SECONDS="${SETTLE_SECONDS:-180}"
 
 # Reuse the same multi-statement seed the statement case uses, so comparing
@@ -57,27 +62,25 @@ CLIENT_ID="e2e-dsldbg-lal-block-1"
 
 log "waiting for OAP admin port"
 deadline=$(( $(date +%s) + 90 ))
-until curl -fsS "${OAP_BASE}/dsl-debugging/status" >/dev/null 2>&1; do
+until admin dsl-debug status >/dev/null 2>&1; do
     if [ "$(date +%s)" -ge "${deadline}" ]; then fail "OAP admin not ready after 90s"; fi
     sleep 2
 done
 
 # --- Phase 0: status check ------------------------------------------------------------
-log "=== Phase 0: /dsl-debugging/status ==="
-status_body="$(curl -fsS "${OAP_BASE}/dsl-debugging/status")"
+log "=== Phase 0: dsl-debug status ==="
+status_body="$(admin dsl-debug status)"
 echo "${status_body}" | jq -e '.injectionEnabled == true' >/dev/null \
     || fail "injectionEnabled is not true"
 
 # --- Phase 1: apply runtime-rule LAL --------------------------------------------------
 log "=== Phase 1: apply runtime-rule LAL seed (shared with lal-statement case) ==="
-curl -fsS -XPOST -H 'Content-Type: text/plain' \
-    --data-binary "@${SEED_LAL}" \
-    "${OAP_BASE}/runtime/rule/addOrUpdate?catalog=${RR_CATALOG}&name=${RR_NAME}" >/dev/null \
+admin runtime-rule add --catalog "${RR_CATALOG}" --name "${RR_NAME}" -f "${SEED_LAL}" >/dev/null \
     || fail "addOrUpdate ${RR_CATALOG}/${RR_NAME} failed"
 deadline=$(( $(date +%s) + 60 ))
 status=""
 while (( $(date +%s) < deadline )); do
-    status="$(curl -fsS "${OAP_BASE}/runtime/rule/list" 2>/dev/null \
+    status="$(admin runtime-rule list 2>/dev/null \
         | jq -r --arg c "${RR_CATALOG}" --arg n "${RR_NAME}" \
             '.rules[] | select(.catalog == $c and .name == $n) | .status' | head -1)"
     [ "${status}" = "ACTIVE" ] && break
@@ -88,8 +91,9 @@ log "✓ seed applied: ${RR_CATALOG}/${RR_NAME} ACTIVE"
 
 # --- Phase 2: install with granularity=block (default) --------------------------------
 log "=== Phase 2: install session with granularity=block ==="
-install_body="$(curl -fsS -XPOST \
-    "${OAP_BASE}/dsl-debugging/session?catalog=${DBG_CATALOG}&name=${DBG_NAME}&ruleName=${DBG_RULE_NAME}&clientId=${CLIENT_ID}&granularity=block")"
+install_body="$(admin dsl-debug session start \
+    --catalog "${DBG_CATALOG}" --name "${DBG_NAME}" --rule-name "${DBG_RULE_NAME}" \
+    --client-id "${CLIENT_ID}" --granularity block)"
 log "  install → ${install_body}"
 SESSION_ID="$(echo "${install_body}" | jq -r '.sessionId // empty')"
 [ -n "${SESSION_ID}" ] || fail "install did not return sessionId"
@@ -103,7 +107,7 @@ deadline=$(( $(date +%s) + SETTLE_SECONDS ))
 records_count=0
 collect_body=""
 while (( $(date +%s) < deadline )); do
-    collect_body="$(curl -fsS "${OAP_BASE}/dsl-debugging/session/${SESSION_ID}")"
+    collect_body="$(admin dsl-debug session get "${SESSION_ID}")"
     records_count="$(echo "${collect_body}" | jq '[.nodes[].records[]] | length')"
     if [ "${records_count}" -gt 0 ]; then
         # Block mode: a fully walked record has at minimum input + output samples.
@@ -160,13 +164,13 @@ log "✓ block-mode shape valid (${records_count} records; per-statement probes 
 
 # --- Phase 6: stop session ------------------------------------------------------------
 log "=== Phase 6: stop session ==="
-stop_body="$(curl -fsS -XPOST "${OAP_BASE}/dsl-debugging/session/${SESSION_ID}/stop")"
+stop_body="$(admin dsl-debug session stop "${SESSION_ID}")"
 echo "${stop_body}" | jq -e '.localStopped == true' >/dev/null \
     || fail "localStopped != true"
 
 # --- Phase 7: cleanup runtime-rule ----------------------------------------------------
 log "=== Phase 7: cleanup runtime-rule ==="
-curl -fsS -XPOST "${OAP_BASE}/runtime/rule/inactivate?catalog=${RR_CATALOG}&name=${RR_NAME}" >/dev/null || true
-curl -fsS -XPOST "${OAP_BASE}/runtime/rule/delete?catalog=${RR_CATALOG}&name=${RR_NAME}" >/dev/null || true
+admin runtime-rule inactivate --catalog "${RR_CATALOG}" --name "${RR_NAME}" >/dev/null || true
+admin runtime-rule delete --catalog "${RR_CATALOG}" --name "${RR_NAME}" >/dev/null || true
 
 log "=== ALL LAL BLOCK FLOW PHASES PASSED ==="

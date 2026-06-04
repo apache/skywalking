@@ -167,58 +167,61 @@ cases:
   # PostgreSQL).
   # =====================================================================
 
-  # /inspect/metrics — catalog endpoint, asserts service_cpm shows the
+  # inspect metrics — catalog endpoint, asserts service_cpm shows the
   # expected type / scope / catalog / supported downsamplings.
-  - query: curl -s "http://${oap_host}:${oap_17128}/inspect/metrics?regex=service_cpm" | yq -P
+  - query: swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect metrics --regex service_cpm | yq -P
     expected: expected/inspect-metrics.yml
-  # /inspect/entities — Service scope, step=DAY (single bucket = today UTC).
+  # inspect entities — Service scope, step=DAY (single bucket = today UTC).
   # Avoids the framework's MAX_TIME_RANGE=500 cap and works on any host shell
   # (BSD date on macOS, GNU date in CI; both accept `date -u +%Y-%m-%d`).
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_cpm&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_cpm --start "${DAY}" --end "${DAY}" --step DAY | yq -P
     expected: expected/inspect-entities-service-cpm.yml
   # ServiceInstance scope — instance-id decode + parent-service layer lookup.
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_instance_cpm&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_instance_cpm --start "${DAY}" --end "${DAY}" --step DAY | yq -P
     expected: expected/inspect-entities-service-instance-cpm.yml
   # Endpoint scope — endpoint-id decode.
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=endpoint_cpm&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric endpoint_cpm --start "${DAY}" --end "${DAY}" --step DAY | yq -P
     expected: expected/inspect-entities-endpoint-cpm.yml
   # ServiceRelation scope — analysisRelationId decode + paired source/destination
   # shape + MqeEntity dest* fields.
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_relation_client_cpm&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_relation_client_cpm --start "${DAY}" --end "${DAY}" --step DAY | yq -P
     expected: expected/inspect-entities-service-relation-cpm.yml
   # LABELED_VALUE metric — Service-scope entity decode is identical but the
   # storage value column shape differs (BanyanDB DataTable, ES JSON, JDBC
   # VARCHAR).
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_percentile&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_percentile --start "${DAY}" --end "${DAY}" --step DAY | yq -P
     expected: expected/inspect-entities-service-percentile.yml
   # step=MINUTE over a 20-minute window. Exercises minute-precision range.
   # python3 keeps the date math portable across BSD / GNU date.
   - query: |
-      START=$(python3 -c "import datetime as d; print((d.datetime.utcnow() - d.timedelta(minutes=20)).strftime('%Y-%m-%d %H%M'))" | sed 's/ /%20/')
-      END=$(python3 -c "import datetime as d; print(d.datetime.utcnow().strftime('%Y-%m-%d %H%M'))" | sed 's/ /%20/')
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_cpm&start=${START}&end=${END}&step=MINUTE" | yq -P
+      START=$(python3 -c "import datetime as d; print((d.datetime.utcnow() - d.timedelta(minutes=20)).strftime('%Y-%m-%d %H%M'))")
+      END=$(python3 -c "import datetime as d; print(d.datetime.utcnow().strftime('%Y-%m-%d %H%M'))")
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_cpm --start "${START}" --end "${END}" --step MINUTE | yq -P
     expected: expected/inspect-entities-service-cpm-minute.yml
   # step=HOUR over a full-day window (00 → 23 UTC). Avoids the flakiness of
   # a sliding 2-hour window — postgres / slow downsamplers may not have
   # populated the *current* HOUR bucket yet, but at least one earlier HOUR
   # bucket in today is guaranteed once the MINUTE case has data.
   - query: |
-      START=$(date -u +"%Y-%m-%d")%2000
-      END=$(date -u +"%Y-%m-%d")%2023
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=service_cpm&start=${START}&end=${END}&step=HOUR" | yq -P
+      DAY=$(date -u +"%Y-%m-%d")
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_cpm --start "${DAY} 00" --end "${DAY} 23" --step HOUR | yq -P
     expected: expected/inspect-entities-service-cpm-hour.yml
-  # Negative — unknown metric returns a 400-shaped error JSON.
+  # Negative — unknown metric: swctl exits non-zero and renders the typed error
+  # envelope ("... HTTP 400: unknown metric: <name>"). Reconstruct the original
+  # {error: ...} shape from the message so the expected file is unchanged.
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
-      curl -s "http://${oap_host}:${oap_17128}/inspect/entities?metric=nonexistent_metric_xyz&start=${DAY}&end=${DAY}&step=DAY" | yq -P
+      out=$(swctl --display yaml --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric nonexistent_metric_xyz --start "${DAY}" --end "${DAY}" --step DAY 2>&1 || true)
+      msg=$(echo "$out" | grep -o 'unknown metric: [a-z_0-9]*' | head -1)
+      yq -n ".error = \"${msg}\""
     expected: expected/inspect-entities-unknown-metric.yml

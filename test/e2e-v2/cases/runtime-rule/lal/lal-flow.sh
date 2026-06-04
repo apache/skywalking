@@ -58,9 +58,14 @@ SETTLE_SECONDS="${SETTLE_SECONDS:-360}"
 [ -f "${SEED_V2}" ]  || fail "seed v2 missing at ${SEED_V2}"
 [ -f "${SEED_MAL}" ] || fail "seed mal missing at ${SEED_MAL}"
 
+# All runtime-rule REST calls go through swctl's `admin` command tree instead of
+# raw curl. `--display json` keeps the response body shape identical to the old
+# curl output, so the jq assertions below are unchanged.
+admin() { swctl --display json --admin-url="${OAP_BASE}" admin "$@"; }
+
 list_row() {
     local catalog="$1" name="$2"
-    curl -fsS "${OAP_BASE}/runtime/rule/list" 2>/dev/null \
+    admin runtime-rule list 2>/dev/null \
         | jq -c '.rules[]
                  | select(.catalog == "'"${catalog}"'" and .name == "'"${name}"'")
                  | select(.status != "n/a")' \
@@ -73,22 +78,20 @@ list_field() {
 
 apply_rule() {
     local catalog="$1" name="$2" body="$3"
-    curl -fsS -XPOST -H 'Content-Type: text/plain' \
-        --data-binary "@${body}" \
-        "${OAP_BASE}/runtime/rule/addOrUpdate?catalog=${catalog}&name=${name}" >/dev/null \
+    admin runtime-rule add --catalog "${catalog}" --name "${name}" -f "${body}" >/dev/null \
         || fail "addOrUpdate ${catalog}/${name} from ${body} failed"
 }
 
 # Retries 503 cluster_not_ready for up to 60s — the reconciler's peer-refresh
 # window briefly returns 503 right after a structural reshape (e.g. LAL
-# delete that retires its dispatcher). Mirrors the MAL flow's pattern.
-retry_post() {
-    local url="$1"
+# delete that retires its dispatcher). Mirrors the MAL flow's pattern. Pass the
+# runtime-rule subcommand and its flags.
+retry_admin() {
     local deadline=$(( $(date +%s) + 60 ))
     local out
     while (( $(date +%s) < deadline )); do
-        out="$(curl -fsS -XPOST "${url}" 2>&1)" && return 0
-        if [[ "${out}" == *503* ]]; then
+        out="$(admin "$@" 2>&1)" && return 0
+        if echo "${out}" | grep -q "HTTP 503"; then
             sleep 2
             continue
         fi
@@ -101,13 +104,13 @@ retry_post() {
 
 inactivate_rule() {
     local catalog="$1" name="$2"
-    retry_post "${OAP_BASE}/runtime/rule/inactivate?catalog=${catalog}&name=${name}" >/dev/null \
+    retry_admin runtime-rule inactivate --catalog "${catalog}" --name "${name}" >/dev/null \
         || fail "inactivate ${catalog}/${name} failed"
 }
 
 delete_rule() {
     local catalog="$1" name="$2"
-    retry_post "${OAP_BASE}/runtime/rule/delete?catalog=${catalog}&name=${name}" >/dev/null \
+    retry_admin runtime-rule delete --catalog "${catalog}" --name "${name}" >/dev/null \
         || fail "delete ${catalog}/${name} failed"
 }
 
@@ -143,7 +146,7 @@ await_metric_for_step() {
 
 log "waiting for OAP runtime-rule port"
 deadline=$(( $(date +%s) + 90 ))
-until curl -fsS "${OAP_BASE}/runtime/rule/list" >/dev/null 2>&1; do
+until admin runtime-rule list >/dev/null 2>&1; do
     if [ "$(date +%s)" -ge "${deadline}" ]; then fail "OAP not ready after 90s"; fi
     sleep 2
 done

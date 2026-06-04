@@ -70,5 +70,5 @@ verify:
         )
       expected: ../expected/trace-users-detail.yml
     - query: |
-        curl -X GET http://${oap_host}:${oap_17128}/status/config/ttl -H "Accept: application/json"
+        swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin config ttl
       expected: ../expected/ttl-config.yml

@@ -13,216 +13,218 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-admin-server.default.acceptQueueSize=0
-admin-server.default.contextPath=/
-admin-server.default.gRPCHost=0.0.0.0
-admin-server.default.gRPCMaxConcurrentCallsPerConnection=0
-admin-server.default.gRPCMaxMessageSize=52428800
-admin-server.default.gRPCPort=17129
-admin-server.default.gRPCSslCertChainPath=
-admin-server.default.gRPCSslEnabled=false
-admin-server.default.gRPCSslKeyPath=
-admin-server.default.gRPCSslTrustedCAsPath=
-admin-server.default.gRPCThreadPoolSize=0
-admin-server.default.host=0.0.0.0
-admin-server.default.httpMaxRequestHeaderSize=8192
-admin-server.default.idleTimeOut=30000
-admin-server.default.internalCommunicationTimeout=5000
-admin-server.default.port=17128
-admin-server.provider=default
-agent-analyzer.default.forceSampleErrorSegment=true
-agent-analyzer.default.meterAnalyzerActiveFiles=datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent,ruby-runtime
-agent-analyzer.default.noUpstreamRealAddressAgents=6000,9000
-agent-analyzer.default.segmentStatusAnalysisStrategy=FROM_SPAN_STATUS
-agent-analyzer.default.slowCacheReadThreshold=default:20,redis:10
-agent-analyzer.default.slowCacheWriteThreshold=default:20,redis:10
-agent-analyzer.default.slowDBAccessThreshold=default:200,mongodb:100
-agent-analyzer.default.traceSamplingPolicySettingsFile=trace-sampling-policy-settings.yml
-agent-analyzer.provider=default
-ai-pipeline.default.baselineServerAddr=
-ai-pipeline.default.baselineServerPort=18080
-ai-pipeline.default.uriRecognitionServerAddr=
-ai-pipeline.default.uriRecognitionServerPort=17128
-ai-pipeline.provider=default
-alarm.provider=default
-aws-firehose.default.acceptQueueSize=0
-aws-firehose.default.contextPath=/
-aws-firehose.default.enableTLS=false
-aws-firehose.default.firehoseAccessKey=******
-aws-firehose.default.host=0.0.0.0
-aws-firehose.default.idleTimeOut=30000
-aws-firehose.default.maxRequestHeaderSize=8192
-aws-firehose.default.port=12801
-aws-firehose.default.tlsCertChainPath=
-aws-firehose.default.tlsKeyPath=
-aws-firehose.provider=default
-cluster.provider=standalone
-configuration-discovery.default.disableMessageDigest=false
-configuration-discovery.provider=default
-configuration.provider=none
-core.default.activeExtraModelColumns=false
-core.default.autocompleteTagKeysQueryMaxSize=100
-core.default.autocompleteTagValuesQueryMaxSize=100
-core.default.dataKeeperExecutePeriod=5
-core.default.downsampling=[Hour, Day]
-core.default.enableDataKeeperExecutor=true
-core.default.enableEndpointNameGroupingByOpenapi=true
-core.default.enableHierarchy=true
-core.default.endpointNameMaxLength=150
-core.default.gRPCHost=0.0.0.0
-core.default.gRPCPort=11800
-core.default.gRPCSslCertChainPath=
-core.default.gRPCSslEnabled=false
-core.default.gRPCSslKeyPath=
-core.default.gRPCSslTrustedCAPath=
-core.default.gRPCThreadPoolSize=-1
-core.default.httpMaxRequestHeaderSize=8192
-core.default.instanceNameMaxLength=70
-core.default.l1FlushPeriod=500
-core.default.maxConcurrentCallsPerConnection=0
-core.default.maxDirectMemoryUsage=-1
-core.default.maxHeapMemoryUsagePercent=96
-core.default.maxHttpUrisNumberPerService=3000
-core.default.maxMessageSize=52428800
-core.default.metricsDataTTL=7
-core.default.persistentPeriod=25
-core.default.prepareThreads=2
-core.default.recordDataTTL=3
-core.default.restAcceptQueueSize=0
-core.default.restContextPath=/
-core.default.restHost=0.0.0.0
-core.default.restIdleTimeOut=30000
-core.default.restPort=12800
-core.default.role=Mixed
-core.default.searchableAlarmTags=level
-core.default.searchableLogsTags=level,http.status_code,ai_route_type
-core.default.searchableTracesTags=http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker
-core.default.serviceCacheRefreshInterval=10
-core.default.serviceNameMaxLength=70
-core.default.storageSessionTimeout=70000
-core.default.syncPeriodHttpUriRecognitionPattern=10
-core.default.topNReportPeriod=10
-core.default.trainingPeriodHttpUriRecognitionPattern=60
-core.provider=default
-dsl-debugging.default.injectionEnabled=true
-dsl-debugging.provider=default
-envoy-metric.default.acceptMetricsService=true
-envoy-metric.default.alsHTTPAnalysis=
-envoy-metric.default.alsTCPAnalysis=
-envoy-metric.default.enabledEnvoyMetricsRules=envoy,envoy-svc-relation
-envoy-metric.default.gRPCHost=0.0.0.0
-envoy-metric.default.gRPCPort=0
-envoy-metric.default.gRPCSslCertChainPath=
-envoy-metric.default.gRPCSslEnabled=false
-envoy-metric.default.gRPCSslKeyPath=
-envoy-metric.default.gRPCSslTrustedCAsPath=
-envoy-metric.default.gRPCThreadPoolSize=0
-envoy-metric.default.istioServiceEntryIgnoredNamespaces=
-envoy-metric.default.istioServiceNameRule=${serviceEntry.metadata.name}.${serviceEntry.metadata.namespace}
-envoy-metric.default.k8sServiceNameRule=${pod.metadata.labels.(service.istio.io/canonical-name)}.${pod.metadata.namespace}
-envoy-metric.default.maxConcurrentCallsPerConnection=0
-envoy-metric.default.maxMessageSize=0
-envoy-metric.provider=default
-event-analyzer.provider=default
-gen-ai-analyzer.provider=default
-health-checker.default.checkIntervalSeconds=30
-health-checker.provider=default
-inspect.provider=default
-log-analyzer.default.lalFiles=envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,envoy-ai-gateway,miniprogram,default
-log-analyzer.default.malFiles=nginx,miniprogram-wechat,miniprogram-alipay
-log-analyzer.provider=default
-logql.default.restAcceptQueueSize=0
-logql.default.restContextPath=/
-logql.default.restHost=0.0.0.0
-logql.default.restIdleTimeOut=30000
-logql.default.restPort=3100
-logql.provider=default
-promql.default.buildInfoBranch=
-promql.default.buildInfoBuildDate=
-promql.default.buildInfoBuildUser=******
-promql.default.buildInfoGoVersion=
-promql.default.buildInfoRevision=
-promql.default.buildInfoVersion=2.45.0
-promql.default.restAcceptQueueSize=0
-promql.default.restContextPath=/
-promql.default.restHost=0.0.0.0
-promql.default.restIdleTimeOut=30000
-promql.default.restPort=9090
-promql.provider=default
-query.graphql.enableLogTestTool=false
-query.graphql.enableOnDemandPodLog=false
-query.graphql.maxQueryComplexity=3000
-query.provider=graphql
-receiver-async-profiler.default.jfrMaxSize=31457280
-receiver-async-profiler.default.memoryParserEnabled=true
-receiver-async-profiler.provider=default
-receiver-browser.default.sampleRate=10000
-receiver-browser.provider=default
-receiver-clr.provider=default
-receiver-ebpf.default.continuousPolicyCacheTimeout=60
-receiver-ebpf.default.gRPCHost=0.0.0.0
-receiver-ebpf.default.gRPCPort=0
-receiver-ebpf.default.gRPCSslCertChainPath=
-receiver-ebpf.default.gRPCSslEnabled=false
-receiver-ebpf.default.gRPCSslKeyPath=
-receiver-ebpf.default.gRPCSslTrustedCAsPath=
-receiver-ebpf.default.gRPCThreadPoolSize=0
-receiver-ebpf.default.maxConcurrentCallsPerConnection=0
-receiver-ebpf.default.maxMessageSize=0
-receiver-ebpf.provider=default
-receiver-event.provider=default
-receiver-jvm.provider=default
-receiver-log.provider=default
-receiver-meter.provider=default
-receiver-otel.default.enabledHandlers=otlp-traces,otlp-metrics,otlp-logs
-receiver-otel.default.enabledOtelMetricsRules=apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*
-receiver-otel.provider=default
-receiver-pprof.default.memoryParserEnabled=true
-receiver-pprof.default.pprofMaxSize=31457280
-receiver-pprof.provider=default
-receiver-profile.provider=default
-receiver-register.provider=default
-receiver-runtime-rule.default.refreshRulesPeriod=30
-receiver-runtime-rule.default.selfHealThresholdSeconds=60
-receiver-runtime-rule.provider=default
-receiver-sharing-server.default.authentication=******
-receiver-sharing-server.default.gRPCHost=0.0.0.0
-receiver-sharing-server.default.gRPCPort=0
-receiver-sharing-server.default.gRPCSslCertChainPath=
-receiver-sharing-server.default.gRPCSslEnabled=false
-receiver-sharing-server.default.gRPCSslKeyPath=
-receiver-sharing-server.default.gRPCSslTrustedCAsPath=
-receiver-sharing-server.default.gRPCThreadPoolSize=0
-receiver-sharing-server.default.httpMaxRequestHeaderSize=8192
-receiver-sharing-server.default.maxConcurrentCallsPerConnection=0
-receiver-sharing-server.default.maxMessageSize=52428800
-receiver-sharing-server.default.restAcceptQueueSize=0
-receiver-sharing-server.default.restContextPath=/
-receiver-sharing-server.default.restHost=0.0.0.0
-receiver-sharing-server.default.restIdleTimeOut=30000
-receiver-sharing-server.default.restPort=0
-receiver-sharing-server.provider=default
-receiver-telegraf.default.activeFiles=vm
-receiver-telegraf.provider=default
-receiver-trace.provider=default
-service-mesh.provider=default
-status.default.keywords4MaskingSecretsOfConfig=user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication
-status.provider=default
-storage.mysql.asyncBatchPersistentPoolSize=4
-storage.mysql.maxSizeOfBatchSql=2000
-storage.mysql.metadataQueryMaxSize=5000
-storage.mysql.properties.dataSource.cachePrepStmts=true
-storage.mysql.properties.dataSource.password=******
-storage.mysql.properties.dataSource.prepStmtCacheSize=250
-storage.mysql.properties.dataSource.prepStmtCacheSqlLimit=2048
-storage.mysql.properties.dataSource.useServerPrepStmts=true
-storage.mysql.properties.dataSource.user=******
-storage.mysql.properties.jdbcUrl=jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true
-storage.provider=mysql
-telemetry.prometheus.host=0.0.0.0
-telemetry.prometheus.port=1234
-telemetry.prometheus.sslCertChainPath=
-telemetry.prometheus.sslEnabled=false
-telemetry.prometheus.sslKeyPath=
-telemetry.provider=prometheus
-ui-management.provider=default
+{
+  "admin-server.default.acceptQueueSize": "0",
+  "admin-server.default.contextPath": "/",
+  "admin-server.default.gRPCHost": "0.0.0.0",
+  "admin-server.default.gRPCMaxConcurrentCallsPerConnection": "0",
+  "admin-server.default.gRPCMaxMessageSize": "52428800",
+  "admin-server.default.gRPCPort": "17129",
+  "admin-server.default.gRPCSslCertChainPath": "",
+  "admin-server.default.gRPCSslEnabled": "false",
+  "admin-server.default.gRPCSslKeyPath": "",
+  "admin-server.default.gRPCSslTrustedCAsPath": "",
+  "admin-server.default.gRPCThreadPoolSize": "0",
+  "admin-server.default.host": "0.0.0.0",
+  "admin-server.default.httpMaxRequestHeaderSize": "8192",
+  "admin-server.default.idleTimeOut": "30000",
+  "admin-server.default.internalCommunicationTimeout": "5000",
+  "admin-server.default.port": "17128",
+  "admin-server.provider": "default",
+  "agent-analyzer.default.forceSampleErrorSegment": "true",
+  "agent-analyzer.default.meterAnalyzerActiveFiles": "datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent,ruby-runtime",
+  "agent-analyzer.default.noUpstreamRealAddressAgents": "6000,9000",
+  "agent-analyzer.default.segmentStatusAnalysisStrategy": "FROM_SPAN_STATUS",
+  "agent-analyzer.default.slowCacheReadThreshold": "default:20,redis:10",
+  "agent-analyzer.default.slowCacheWriteThreshold": "default:20,redis:10",
+  "agent-analyzer.default.slowDBAccessThreshold": "default:200,mongodb:100",
+  "agent-analyzer.default.traceSamplingPolicySettingsFile": "trace-sampling-policy-settings.yml",
+  "agent-analyzer.provider": "default",
+  "ai-pipeline.default.baselineServerAddr": "",
+  "ai-pipeline.default.baselineServerPort": "18080",
+  "ai-pipeline.default.uriRecognitionServerAddr": "",
+  "ai-pipeline.default.uriRecognitionServerPort": "17128",
+  "ai-pipeline.provider": "default",
+  "alarm.provider": "default",
+  "aws-firehose.default.acceptQueueSize": "0",
+  "aws-firehose.default.contextPath": "/",
+  "aws-firehose.default.enableTLS": "false",
+  "aws-firehose.default.firehoseAccessKey": "******",
+  "aws-firehose.default.host": "0.0.0.0",
+  "aws-firehose.default.idleTimeOut": "30000",
+  "aws-firehose.default.maxRequestHeaderSize": "8192",
+  "aws-firehose.default.port": "12801",
+  "aws-firehose.default.tlsCertChainPath": "",
+  "aws-firehose.default.tlsKeyPath": "",
+  "aws-firehose.provider": "default",
+  "cluster.provider": "standalone",
+  "configuration-discovery.default.disableMessageDigest": "false",
+  "configuration-discovery.provider": "default",
+  "configuration.provider": "none",
+  "core.default.activeExtraModelColumns": "false",
+  "core.default.autocompleteTagKeysQueryMaxSize": "100",
+  "core.default.autocompleteTagValuesQueryMaxSize": "100",
+  "core.default.dataKeeperExecutePeriod": "5",
+  "core.default.downsampling": "[Hour, Day]",
+  "core.default.enableDataKeeperExecutor": "true",
+  "core.default.enableEndpointNameGroupingByOpenapi": "true",
+  "core.default.enableHierarchy": "true",
+  "core.default.endpointNameMaxLength": "150",
+  "core.default.gRPCHost": "0.0.0.0",
+  "core.default.gRPCPort": "11800",
+  "core.default.gRPCSslCertChainPath": "",
+  "core.default.gRPCSslEnabled": "false",
+  "core.default.gRPCSslKeyPath": "",
+  "core.default.gRPCSslTrustedCAPath": "",
+  "core.default.gRPCThreadPoolSize": "-1",
+  "core.default.httpMaxRequestHeaderSize": "8192",
+  "core.default.instanceNameMaxLength": "70",
+  "core.default.l1FlushPeriod": "500",
+  "core.default.maxConcurrentCallsPerConnection": "0",
+  "core.default.maxDirectMemoryUsage": "-1",
+  "core.default.maxHeapMemoryUsagePercent": "96",
+  "core.default.maxHttpUrisNumberPerService": "3000",
+  "core.default.maxMessageSize": "52428800",
+  "core.default.metricsDataTTL": "7",
+  "core.default.persistentPeriod": "25",
+  "core.default.prepareThreads": "2",
+  "core.default.recordDataTTL": "3",
+  "core.default.restAcceptQueueSize": "0",
+  "core.default.restContextPath": "/",
+  "core.default.restHost": "0.0.0.0",
+  "core.default.restIdleTimeOut": "30000",
+  "core.default.restPort": "12800",
+  "core.default.role": "Mixed",
+  "core.default.searchableAlarmTags": "level",
+  "core.default.searchableLogsTags": "level,http.status_code,ai_route_type",
+  "core.default.searchableTracesTags": "http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker",
+  "core.default.serviceCacheRefreshInterval": "10",
+  "core.default.serviceNameMaxLength": "70",
+  "core.default.storageSessionTimeout": "70000",
+  "core.default.syncPeriodHttpUriRecognitionPattern": "10",
+  "core.default.topNReportPeriod": "10",
+  "core.default.trainingPeriodHttpUriRecognitionPattern": "60",
+  "core.provider": "default",
+  "dsl-debugging.default.injectionEnabled": "true",
+  "dsl-debugging.provider": "default",
+  "envoy-metric.default.acceptMetricsService": "true",
+  "envoy-metric.default.alsHTTPAnalysis": "",
+  "envoy-metric.default.alsTCPAnalysis": "",
+  "envoy-metric.default.enabledEnvoyMetricsRules": "envoy,envoy-svc-relation",
+  "envoy-metric.default.gRPCHost": "0.0.0.0",
+  "envoy-metric.default.gRPCPort": "0",
+  "envoy-metric.default.gRPCSslCertChainPath": "",
+  "envoy-metric.default.gRPCSslEnabled": "false",
+  "envoy-metric.default.gRPCSslKeyPath": "",
+  "envoy-metric.default.gRPCSslTrustedCAsPath": "",
+  "envoy-metric.default.gRPCThreadPoolSize": "0",
+  "envoy-metric.default.istioServiceEntryIgnoredNamespaces": "",
+  "envoy-metric.default.istioServiceNameRule": "${serviceEntry.metadata.name}.${serviceEntry.metadata.namespace}",
+  "envoy-metric.default.k8sServiceNameRule": "${pod.metadata.labels.(service.istio.io/canonical-name)}.${pod.metadata.namespace}",
+  "envoy-metric.default.maxConcurrentCallsPerConnection": "0",
+  "envoy-metric.default.maxMessageSize": "0",
+  "envoy-metric.provider": "default",
+  "event-analyzer.provider": "default",
+  "gen-ai-analyzer.provider": "default",
+  "health-checker.default.checkIntervalSeconds": "30",
+  "health-checker.provider": "default",
+  "inspect.provider": "default",
+  "log-analyzer.default.lalFiles": "envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,envoy-ai-gateway,miniprogram,default",
+  "log-analyzer.default.malFiles": "nginx,miniprogram-wechat,miniprogram-alipay",
+  "log-analyzer.provider": "default",
+  "logql.default.restAcceptQueueSize": "0",
+  "logql.default.restContextPath": "/",
+  "logql.default.restHost": "0.0.0.0",
+  "logql.default.restIdleTimeOut": "30000",
+  "logql.default.restPort": "3100",
+  "logql.provider": "default",
+  "promql.default.buildInfoBranch": "",
+  "promql.default.buildInfoBuildDate": "",
+  "promql.default.buildInfoBuildUser": "******",
+  "promql.default.buildInfoGoVersion": "",
+  "promql.default.buildInfoRevision": "",
+  "promql.default.buildInfoVersion": "2.45.0",
+  "promql.default.restAcceptQueueSize": "0",
+  "promql.default.restContextPath": "/",
+  "promql.default.restHost": "0.0.0.0",
+  "promql.default.restIdleTimeOut": "30000",
+  "promql.default.restPort": "9090",
+  "promql.provider": "default",
+  "query.graphql.enableLogTestTool": "false",
+  "query.graphql.enableOnDemandPodLog": "false",
+  "query.graphql.maxQueryComplexity": "3000",
+  "query.provider": "graphql",
+  "receiver-async-profiler.default.jfrMaxSize": "31457280",
+  "receiver-async-profiler.default.memoryParserEnabled": "true",
+  "receiver-async-profiler.provider": "default",
+  "receiver-browser.default.sampleRate": "10000",
+  "receiver-browser.provider": "default",
+  "receiver-clr.provider": "default",
+  "receiver-ebpf.default.continuousPolicyCacheTimeout": "60",
+  "receiver-ebpf.default.gRPCHost": "0.0.0.0",
+  "receiver-ebpf.default.gRPCPort": "0",
+  "receiver-ebpf.default.gRPCSslCertChainPath": "",
+  "receiver-ebpf.default.gRPCSslEnabled": "false",
+  "receiver-ebpf.default.gRPCSslKeyPath": "",
+  "receiver-ebpf.default.gRPCSslTrustedCAsPath": "",
+  "receiver-ebpf.default.gRPCThreadPoolSize": "0",
+  "receiver-ebpf.default.maxConcurrentCallsPerConnection": "0",
+  "receiver-ebpf.default.maxMessageSize": "0",
+  "receiver-ebpf.provider": "default",
+  "receiver-event.provider": "default",
+  "receiver-jvm.provider": "default",
+  "receiver-log.provider": "default",
+  "receiver-meter.provider": "default",
+  "receiver-otel.default.enabledHandlers": "otlp-traces,otlp-metrics,otlp-logs",
+  "receiver-otel.default.enabledOtelMetricsRules": "apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*",
+  "receiver-otel.provider": "default",
+  "receiver-pprof.default.memoryParserEnabled": "true",
+  "receiver-pprof.default.pprofMaxSize": "31457280",
+  "receiver-pprof.provider": "default",
+  "receiver-profile.provider": "default",
+  "receiver-register.provider": "default",
+  "receiver-runtime-rule.default.refreshRulesPeriod": "30",
+  "receiver-runtime-rule.default.selfHealThresholdSeconds": "60",
+  "receiver-runtime-rule.provider": "default",
+  "receiver-sharing-server.default.authentication": "******",
+  "receiver-sharing-server.default.gRPCHost": "0.0.0.0",
+  "receiver-sharing-server.default.gRPCPort": "0",
+  "receiver-sharing-server.default.gRPCSslCertChainPath": "",
+  "receiver-sharing-server.default.gRPCSslEnabled": "false",
+  "receiver-sharing-server.default.gRPCSslKeyPath": "",
+  "receiver-sharing-server.default.gRPCSslTrustedCAsPath": "",
+  "receiver-sharing-server.default.gRPCThreadPoolSize": "0",
+  "receiver-sharing-server.default.httpMaxRequestHeaderSize": "8192",
+  "receiver-sharing-server.default.maxConcurrentCallsPerConnection": "0",
+  "receiver-sharing-server.default.maxMessageSize": "52428800",
+  "receiver-sharing-server.default.restAcceptQueueSize": "0",
+  "receiver-sharing-server.default.restContextPath": "/",
+  "receiver-sharing-server.default.restHost": "0.0.0.0",
+  "receiver-sharing-server.default.restIdleTimeOut": "30000",
+  "receiver-sharing-server.default.restPort": "0",
+  "receiver-sharing-server.provider": "default",
+  "receiver-telegraf.default.activeFiles": "vm",
+  "receiver-telegraf.provider": "default",
+  "receiver-trace.provider": "default",
+  "service-mesh.provider": "default",
+  "status.default.keywords4MaskingSecretsOfConfig": "user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication",
+  "status.provider": "default",
+  "storage.mysql.asyncBatchPersistentPoolSize": "4",
+  "storage.mysql.maxSizeOfBatchSql": "2000",
+  "storage.mysql.metadataQueryMaxSize": "5000",
+  "storage.mysql.properties.dataSource.cachePrepStmts": "true",
+  "storage.mysql.properties.dataSource.password": "******",
+  "storage.mysql.properties.dataSource.prepStmtCacheSize": "250",
+  "storage.mysql.properties.dataSource.prepStmtCacheSqlLimit": "2048",
+  "storage.mysql.properties.dataSource.useServerPrepStmts": "true",
+  "storage.mysql.properties.dataSource.user": "******",
+  "storage.mysql.properties.jdbcUrl": "jdbc:mysql://mysql:3306/swtest?allowMultiQueries=true",
+  "storage.provider": "mysql",
+  "telemetry.prometheus.host": "0.0.0.0",
+  "telemetry.prometheus.port": "1234",
+  "telemetry.prometheus.sslCertChainPath": "",
+  "telemetry.prometheus.sslEnabled": "false",
+  "telemetry.prometheus.sslKeyPath": "",
+  "telemetry.provider": "prometheus",
+  "ui-management.provider": "default"
+}
