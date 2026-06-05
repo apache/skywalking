@@ -298,6 +298,9 @@ public final class Layer {
     /** Alipay Mini Program monitoring via mini-program-monitor SDK */
     public static final Layer ALIPAY_MINI_PROGRAM = register("ALIPAY_MINI_PROGRAM", 49, true);
 
+    /** Apache Airflow workflow orchestration (native OpenTelemetry metrics via OTel Collector). */
+    public static final Layer AIRFLOW = register("AIRFLOW", 50, true);
+
     private final String name;
     private final int value;
     /**

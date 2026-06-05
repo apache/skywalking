@@ -152,6 +152,10 @@ catalog:
                 path: "/en/setup/backend/backend-rocketmq-monitoring"
               - name: "ActiveMQ"
                 path: "/en/setup/backend/backend-activemq-monitoring"
+          - name: "Workflow Scheduler"
+            catalog:
+              - name: "Airflow"
+                path: "/en/setup/backend/backend-airflow-monitoring"
           - name: "Data Processing Engine"
             catalog:
               - name: "Flink"

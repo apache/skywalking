@@ -176,7 +176,7 @@
   "receiver-log.provider": "default",
   "receiver-meter.provider": "default",
   "receiver-otel.default.enabledHandlers": "otlp-traces,otlp-metrics,otlp-logs",
-  "receiver-otel.default.enabledOtelMetricsRules": "apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*",
+  "receiver-otel.default.enabledOtelMetricsRules": "apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*",
   "receiver-otel.provider": "default",
   "receiver-pprof.default.memoryParserEnabled": "true",
   "receiver-pprof.default.pprofMaxSize": "31457280",
