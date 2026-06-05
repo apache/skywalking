@@ -33,9 +33,9 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_open_slots --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_pool_deferred_slots --service-name=airflow::airflow-e2e-cluster
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_pool_scheduled_slots --service-name=airflow::airflow-e2e-cluster
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_scheduler_heartbeat --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_scheduler_orphaned_tasks_cleared --service-name=airflow::airflow-e2e-cluster
@@ -45,13 +45,13 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dag_file_queue_size --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_open_slots --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-worker-1
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_deferred_slots --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-worker-1
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_running_slots --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-worker-1
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_scheduled_slots --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-scheduler
-    expected: expected/metrics-has-value.yml
+    expected: expected/metrics-has-value-label-poolname.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggerer_heartbeat --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-triggerer
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggers_succeeded --service-name=airflow::airflow-e2e-cluster --instance-name=airflow-triggerer
