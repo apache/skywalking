@@ -209,8 +209,8 @@ e2e run -c test/e2e-v2/cases/airflow/e2e.yaml
 ## Verification report
 
 Each cluster verify run writes a line-oriented report to
-[`cluster-e2e-report.txt`](cluster-e2e-report.txt) (overwritten). Full compose logs from local
-runs may be captured in [`cluster-e2e-run.log`](cluster-e2e-run.log).
+`cluster-e2e-report.txt` (overwritten, gitignored). Full compose logs from local runs may be
+captured in `cluster-e2e-run.log` (gitignored).
 
 ### Report format
 
@@ -242,7 +242,7 @@ point whose `value` is a non-null number (zero counts as pass).
 
 **Instance metrics (13)** — excludes `asset_updates`, `triggers_failed`, `triggers_blocked_main_thread`
 
-Full SWIP-7 (30 checks) baseline is the mock suite — see [`mock-e2e-report.txt`](mock-e2e-report.txt).
+Full SWIP-7 (30 checks) baseline is the mock suite — see `mock-e2e-report.txt` (gitignored).
 
 <details>
 <summary>Historical full cluster run (30 checks, superseded by split above)</summary>
@@ -267,7 +267,7 @@ Airflow without synthetic OTLP. Current cluster scope is the 26-check integratio
 | [`scripts/run-cluster-setup.sh`](scripts/run-cluster-setup.sh) | Tools + health + workload |
 | [`scripts/verify-cluster-e2e.sh`](scripts/verify-cluster-e2e.sh) | Cluster integration smoke (26 swctl checks) |
 | [`scripts/wait-scheduler-healthy.sh`](scripts/wait-scheduler-healthy.sh) | Scheduler health gate |
-| [`cluster-e2e-report.txt`](cluster-e2e-report.txt) | Generated verify report (gitignored in practice) |
+| `cluster-e2e-report.txt` | Generated verify report (gitignored) |
 
 ## CI
 

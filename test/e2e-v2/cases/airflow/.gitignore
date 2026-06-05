@@ -1,6 +1,5 @@
 # Runtime artifacts from local cluster e2e runs
 cluster/logs/**
-!cluster/logs/.gitkeep
 cluster/dags/__pycache__/
 cluster-e2e-report.txt
 cluster-e2e-run.log
