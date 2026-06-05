@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # Real Celery cluster integration verify (mirrors airflow-cluster-cases.yaml).
-# Topology: 1 service + 3 OTLP-exporting instances + 11 service metrics + 13 instance metrics = 26 checks.
+# Topology: 1 service + 3 OTLP-exporting instances + 10 service metrics + 13 instance metrics = 25 checks.
 # Full SWIP-7 (30 checks) is covered by the mock suite (airflow-cases.yaml).
 
 set -euo pipefail
@@ -124,14 +124,13 @@ for attempt in $(seq 1 "${RETRIES}"); do
 done
 
 log ""
-log "--- Service metrics (11) ---"
+log "--- Service metrics (10) ---"
 
 SERVICE_METRICS=(
   meter_airflow_scheduler_tasks_executable
   meter_airflow_executor_queued_tasks
   meter_airflow_executor_running_tasks
   meter_airflow_executor_open_slots
-  meter_airflow_pool_queued_slots
   meter_airflow_pool_deferred_slots
   meter_airflow_pool_scheduled_slots
   meter_airflow_scheduler_heartbeat

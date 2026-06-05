@@ -157,16 +157,18 @@ emitted the metrics.
 Two e2e cases cover Airflow monitoring (full coverage matrix and latest verify report:
 [test/e2e-v2/cases/airflow/README.md](../../../../test/e2e-v2/cases/airflow/README.md)):
 
-- **Mock (CI default, fast):** `test/e2e-v2/cases/airflow/e2e.yaml` replays OTLP JSON via
-  the case-local [`airflow-mock-sender`](../../../../test/e2e-v2/cases/airflow/mock-sender/)
+- **Mock (CI default, fast):** `test/e2e-v2/cases/airflow/e2e.yaml` replays OTLP JSON via a
+  Python sidecar ([`otlp_replay_server.py`](../../../../test/e2e-v2/cases/airflow/scripts/otlp_replay_server.py),
+  built from [`Dockerfile.mock-sender`](../../../../test/e2e-v2/cases/airflow/Dockerfile.mock-sender))
   with realistic `cluster` and `host.name` resource attributes.
 - **Real Celery cluster (production-like integration smoke):** `test/e2e-v2/cases/airflow/e2e-cluster.yaml`
   starts scheduler, two workers, and triggerer (`cluster=airflow-e2e-cluster`), seeds deferrable
-  and dataset DAGs plus load workload (~4 minutes), then verifies **26 integration checks**
+  and dataset DAGs plus load workload (~4 minutes), then verifies **25 integration checks**
   (native scheduler / executor / triggerer OTLP plus e2e Celery sidecar pool gauges on
   `airflow-worker-1`). Metrics that need synthetic OTLP or rare Airflow events
-  (`asset_updates`, `triggers_failed`, `triggers_blocked_main_thread`) are covered only in the
-  mock suite. See [e2e README](../../../../test/e2e-v2/cases/airflow/README.md).
+  (`asset_updates`, `pool_queued_slots`, `triggers_failed`, `triggers_blocked_main_thread`)
+  are covered only in the mock suite. See
+  [e2e README](../../../../test/e2e-v2/cases/airflow/README.md).
 
 ## Supported metrics
 

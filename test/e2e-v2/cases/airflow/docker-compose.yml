@@ -33,11 +33,13 @@ services:
       - 17912
 
   sender:
-    image: "eclipse-temurin:8-jre"
+    build:
+      context: .
+      dockerfile: Dockerfile.mock-sender
+      args:
+        PYTHON_IMAGE: python:3.11-slim
     volumes:
-      - ./mock-sender/target/airflow-mock-sender-2.0.0.jar:/airflow-mock-sender-2.0.0.jar
-      - ./mock-data:/data/otel-metrics
-    command: [ "java", "-jar", "/airflow-mock-sender-2.0.0.jar" ]
+      - ./mock-data:/data/otel-metrics:ro
     environment:
       OAP_HOST: oap
       OAP_GRPC_PORT: 11800

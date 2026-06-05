@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Real Airflow Celery cluster (scheduler + 2 workers + triggerer) with live OTLP metrics.
-# Slower than e2e.yaml (mock sender); verifies production-like OTLP integration (26 checks).
+# Slower than e2e.yaml (mock sender); verifies production-like OTLP integration (25 checks).
 # Full SWIP-7 metric matrix (30 checks) is in e2e.yaml (mock OTLP replay).
 
 setup:

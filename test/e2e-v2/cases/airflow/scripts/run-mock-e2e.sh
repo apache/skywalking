@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Local mock e2e (OAP + BanyanDB + OTLP JSON replay). Avoids infra-e2e CRLF env issues on
-# Windows and uses a locally available Temurin JRE image for the sender sidecar.
+# Local mock e2e (OAP + BanyanDB + Python OTLP JSON replay sidecar).
+# Set MOCK_E2E_USE_LOCAL_OVERRIDE=0 to mirror CI (docker-compose.yml only).
 
 set -euo pipefail
 
@@ -30,33 +30,25 @@ export PATH="/tmp/skywalking-infra-e2e/bin:/usr/bin:/bin:${PATH}"
 
 COMPOSE_FILE="${CASE_DIR}/docker-compose.yml"
 LOCAL_OVERRIDE="${CASE_DIR}/docker-compose.mock-local.yml"
-MOCK_SENDER_POM="${REPO_ROOT}/test/e2e-v2/cases/airflow/mock-sender/pom.xml"
-E2E_LIBS_POM="${REPO_ROOT}/test/e2e-v2/java-test-service/pom.xml"
-JAR="${REPO_ROOT}/test/e2e-v2/cases/airflow/mock-sender/target/airflow-mock-sender-2.0.0.jar"
+USE_LOCAL_OVERRIDE="${MOCK_E2E_USE_LOCAL_OVERRIDE:-1}"
 
 dc() {
-  docker compose -f "${COMPOSE_FILE}" -f "${LOCAL_OVERRIDE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  if [[ "${USE_LOCAL_OVERRIDE}" == "1" ]]; then
+    docker compose -f "${COMPOSE_FILE}" -f "${LOCAL_OVERRIDE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  else
+    docker compose -f "${COMPOSE_FILE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  fi
 }
 
-echo "=== Airflow mock e2e (project ${COMPOSE_PROJECT_NAME}) ==="
+echo "=== Airflow mock e2e (project ${COMPOSE_PROJECT_NAME}, local_override=${USE_LOCAL_OVERRIDE}) ==="
 
-build_mock_sender() {
-  echo "Building airflow-mock-sender dependencies..."
-  ./mvnw -B -q -f "${E2E_LIBS_POM}" -pl opentelemetry-proto -am install \
-    -Dcheckstyle.skip=true -Dgpg.skip=true -Dmaven.test.skip=true
-  echo "Building airflow-mock-sender..."
-  ./mvnw -B -q -f "${MOCK_SENDER_POM}" clean flatten:flatten package \
-    -Dcheckstyle.skip=true -Dgpg.skip=true
-}
-
-if [[ ! -f "${JAR}" ]]; then
-  build_mock_sender
-else
-  echo "Refreshing airflow-mock-sender jar..."
-  build_mock_sender
+dc down --remove-orphans 2>/dev/null || true
+echo "Building Python OTLP replay sender image..."
+BUILD_ARGS=()
+if [[ -n "${MOCK_SENDER_PYTHON_IMAGE:-}" ]]; then
+  BUILD_ARGS+=(--build-arg "PYTHON_IMAGE=${MOCK_SENDER_PYTHON_IMAGE}")
 fi
-
-docker compose -f "${COMPOSE_FILE}" -f "${LOCAL_OVERRIDE}" -p "${COMPOSE_PROJECT_NAME}" down --remove-orphans 2>/dev/null || true
+dc build "${BUILD_ARGS[@]}" sender
 dc up -d
 
 echo "Waiting for OAP and mock sender..."
@@ -89,7 +81,7 @@ trigger_loop &
 TRIGGER_PID=$!
 sleep 120
 
-VERIFY_RETRIES=20 VERIFY_INTERVAL_SECONDS=10 \
+VERIFY_RETRIES=20 VERIFY_INTERVAL_SECONDS=10 MOCK_E2E_USE_LOCAL_OVERRIDE="${USE_LOCAL_OVERRIDE}" \
   /usr/bin/bash "${SCRIPT_DIR}/verify-mock-e2e.sh" || VERIFY_EXIT=$?
 
 kill "${TRIGGER_PID}" 2>/dev/null || true

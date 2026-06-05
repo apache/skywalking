@@ -29,13 +29,18 @@ export PATH="/tmp/skywalking-infra-e2e/bin:/usr/bin:/bin:${PATH}"
 
 COMPOSE_FILE="${CASE_DIR}/docker-compose.yml"
 LOCAL_OVERRIDE="${CASE_DIR}/docker-compose.mock-local.yml"
+USE_LOCAL_OVERRIDE="${MOCK_E2E_USE_LOCAL_OVERRIDE:-1}"
 SERVICE="airflow::airflow-cluster"
 RETRIES="${VERIFY_RETRIES:-20}"
 INTERVAL="${VERIFY_INTERVAL_SECONDS:-10}"
 REPORT="${VERIFY_REPORT:-test/e2e-v2/cases/airflow/mock-e2e-report.txt}"
 
 dc() {
-  docker compose -f "${COMPOSE_FILE}" -f "${LOCAL_OVERRIDE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  if [[ "${USE_LOCAL_OVERRIDE}" == "1" ]]; then
+    docker compose -f "${COMPOSE_FILE}" -f "${LOCAL_OVERRIDE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  else
+    docker compose -f "${COMPOSE_FILE}" -p "${COMPOSE_PROJECT_NAME}" "$@"
+  fi
 }
 
 OAP_PORT="$(dc port oap 12800 | cut -d: -f2)"

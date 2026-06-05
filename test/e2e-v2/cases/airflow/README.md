@@ -5,8 +5,8 @@ share the same MAL rules but split responsibilities:
 
 | Suite | Entry | Checks | Airflow | CI matrix |
 |-------|-------|--------|---------|-----------|
-| **Mock (fast, full SWIP-7)** | [`e2e.yaml`](e2e.yaml) | **30** (2 topology + 28 metrics) | OTLP JSON replay via [`mock-sender/`](mock-sender/) | `Airflow` |
-| **Real Celery cluster (integration smoke)** | [`e2e-cluster.yaml`](e2e-cluster.yaml) | **26** (2 topology + 24 metrics) | Live Airflow 2.10 CeleryExecutor | `Airflow Cluster` |
+| **Mock (fast, full SWIP-7)** | [`e2e.yaml`](e2e.yaml) | **30** (2 topology + 28 metrics) | OTLP JSON replay via Python sidecar [`scripts/otlp_replay_server.py`](scripts/otlp_replay_server.py) + [`Dockerfile.mock-sender`](Dockerfile.mock-sender) | `Airflow` |
+| **Real Celery cluster (integration smoke)** | [`e2e-cluster.yaml`](e2e-cluster.yaml) | **25** (2 topology + 23 metrics) | Live Airflow 2.10 CeleryExecutor | `Airflow Cluster` |
 
 Query definitions: [`airflow-cases.yaml`](airflow-cases.yaml) (mock, full matrix) and
 [`airflow-cluster-cases.yaml`](airflow-cluster-cases.yaml) (cluster smoke). MAL rules:
@@ -74,15 +74,16 @@ gauge (0 when no orphans). Metrics that need synthetic OTLP or rare failure even
 |---------|----------------------------|----------------------------------------|
 | **Goal** | Full SWIP-7 MAL/MQE contract | Real Airflow → OTel → OAP integration |
 | **Topology** | 3 instances | 3 OTLP-exporting instances |
-| **Service metrics** | 12 | 11 (excludes `asset_updates`) |
+| **Service metrics** | 12 | 10 (excludes `asset_updates`, `pool_queued_slots`) |
 | **Instance metrics** | 16 | 13 (excludes `asset_updates`, `triggers_failed`, `triggers_blocked_main_thread`) |
-| **Total checks** | **30** | **26** |
+| **Total checks** | **30** | **25** |
 
 **Mock-only metrics** (synthetic OTLP in [`mock-data/otel-airflow-metrics.json`](mock-data/otel-airflow-metrics.json)):
 
 | Metric | Reason cluster omits it |
 |--------|-------------------------|
 | `meter_airflow_asset_updates` (service + instance) | Dataset producer timing is hard to stabilize; mock sender injects `airflow.dataset.updates` |
+| `meter_airflow_pool_queued_slots` (service) | Scheduler-only OTLP; default pool rarely queues under e2e load — unstable without synthetic OTLP |
 | `meter_airflow_instance_triggers_failed` | Airflow may not export the counter when no triggers fail (`null`, not `0`) |
 | `meter_airflow_instance_triggers_blocked_main_thread` | Same — absent unless a trigger blocks the main thread |
 
@@ -100,7 +101,7 @@ Each row is one `swctl metrics exec` assertion. Expected template:
 | # | Query | Expected |
 |---|-------|----------|
 | 1 | `swctl service ly AIRFLOW` | Service `airflow::airflow-e2e-cluster`, layer `AIRFLOW` — [`expected/service-cluster.yml`](expected/service-cluster.yml) |
-| 2 | `swctl instance ls --service-name=airflow::airflow-e2e-cluster` | 3 instances — [`expected/instance-cluster.yml`](expected/instance-cluster.yml) |
+| 2 | `swctl instance ls --service-name=airflow::airflow-e2e-cluster` | 3 instances — [`expected/instance.yml`](expected/instance.yml) |
 
 Mock suite uses `airflow::airflow-cluster` — [`expected/service.yml`](expected/service.yml),
 [`expected/instance.yml`](expected/instance.yml) (same 3 hosts). Cluster verify matches mock
@@ -114,7 +115,7 @@ instance bindings; worker-2 remains in compose for Celery realism but is not an 
 | 2 | `meter_airflow_executor_queued_tasks` | `airflow.executor.queued_tasks` | yes |
 | 3 | `meter_airflow_executor_running_tasks` | `airflow.executor.running_tasks` | yes |
 | 4 | `meter_airflow_executor_open_slots` | `airflow.executor.open_slots` | yes |
-| 5 | `meter_airflow_pool_queued_slots` | `airflow.pool.queued_slots` | yes |
+| 5 | `meter_airflow_pool_queued_slots` | `airflow.pool.queued_slots` | mock only |
 | 6 | `meter_airflow_pool_deferred_slots` | `airflow.pool.deferred_slots` | yes |
 | 7 | `meter_airflow_pool_scheduled_slots` | `airflow.pool.scheduled_slots` | yes |
 | 8 | `meter_airflow_scheduler_heartbeat` | `airflow.scheduler.heartbeat` | yes |
@@ -147,7 +148,7 @@ Instance-scoped queries use `--instance-name={host.name}`.
 | 16 | `meter_airflow_instance_asset_triggered_dagruns` | `airflow-scheduler` | yes |
 
 **Mock total: 30 checks** (2 topology + 28 metrics) = full SWIP-7 panel set.
-**Cluster total: 26 checks** (2 topology + 24 metrics) = integration smoke.
+**Cluster total: 25 checks** (2 topology + 23 metrics) = integration smoke.
 
 Both suites use the same instance bindings for triggerer (`airflow-triggerer`), dataset
 orphan/triggered DagRuns (`airflow-scheduler`), and worker pool gauges (`airflow-worker-1`).
@@ -224,21 +225,21 @@ OAP GraphQL: http://localhost:<port>/graphql
         detail: <on failure only>
 
 === Summary ===
-PASS: <n>  FAIL: <n>  TOTAL: 26
+PASS: <n>  FAIL: <n>  TOTAL: 25
 Report: test/e2e-v2/cases/airflow/cluster-e2e-report.txt
 ```
 
 Pass criteria per metric: `swctl metrics exec` returns `TIME_SERIES_VALUES` with at least one
 point whose `value` is a non-null number (zero counts as pass).
 
-### Cluster smoke checklist (26 checks)
+### Cluster smoke checklist (25 checks)
 
 **Topology (2)**
 
 - service ly AIRFLOW → `airflow::airflow-e2e-cluster`
 - instances: scheduler, worker-1, triggerer
 
-**Service metrics (11)** — all except `meter_airflow_asset_updates`
+**Service metrics (10)** — excludes `meter_airflow_asset_updates`, `meter_airflow_pool_queued_slots`
 
 **Instance metrics (13)** — excludes `asset_updates`, `triggers_failed`, `triggers_blocked_main_thread`
 
@@ -248,7 +249,7 @@ Full SWIP-7 (30 checks) baseline is the mock suite — see `mock-e2e-report.txt`
 <summary>Historical full cluster run (30 checks, superseded by split above)</summary>
 
 2026-06-02 run achieved 30/30 before the mock/cluster split; several checks were flaky on real
-Airflow without synthetic OTLP. Current cluster scope is the 26-check integration smoke.
+Airflow without synthetic OTLP. Current cluster scope is the 25-check integration smoke.
 
 </details>
 
@@ -259,13 +260,13 @@ Airflow without synthetic OTLP. Current cluster scope is the 26-check integratio
 | [`e2e.yaml`](e2e.yaml) | Mock suite entry (CI `Airflow`) |
 | [`e2e-cluster.yaml`](e2e-cluster.yaml) | Real cluster entry (CI `Airflow Cluster`, timeout 35m) |
 | [`docker-compose.yml`](docker-compose.yml) | Mock stack (OAP + mock sender) |
-| [`mock-sender/`](mock-sender/) | Case-local OTLP JSON replay sender (supports `increase('PT1M')` metrics) |
+| [`scripts/otlp_replay_server.py`](scripts/otlp_replay_server.py) | Python OTLP JSON replay sidecar (supports `increase('PT1M')` metrics; built via `Dockerfile.mock-sender`) |
 | [`docker-compose-cluster.yml`](docker-compose-cluster.yml) | Real Airflow Celery stack |
 | [`otel-collector-config.yaml`](otel-collector-config.yaml) | Collector → OAP pipeline |
 | [`mock-data/otel-airflow-metrics.json`](mock-data/otel-airflow-metrics.json) | Mock OTLP payload |
 | [`scripts/run-full-cluster-e2e.sh`](scripts/run-full-cluster-e2e.sh) | Local end-to-end driver |
 | [`scripts/run-cluster-setup.sh`](scripts/run-cluster-setup.sh) | Tools + health + workload |
-| [`scripts/verify-cluster-e2e.sh`](scripts/verify-cluster-e2e.sh) | Cluster integration smoke (26 swctl checks) |
+| [`scripts/verify-cluster-e2e.sh`](scripts/verify-cluster-e2e.sh) | Cluster integration smoke (25 swctl checks) |
 | [`scripts/wait-scheduler-healthy.sh`](scripts/wait-scheduler-healthy.sh) | Scheduler health gate |
 | `cluster-e2e-report.txt` | Generated verify report (gitignored) |
 

@@ -15,7 +15,6 @@
 
 # Local mock e2e overrides:
 # - BanyanDB stays internal-only (avoid host port 17912 clashes with other stacks).
-# - Sender uses a locally available Temurin 11 JRE (Docker Hub 8-jre may be unreachable).
 # - OAP loads SWIP-7 config/libs from deploy/skywalking (CI uses a dist-built image instead).
 
 services:
@@ -26,7 +25,6 @@ services:
       - ../../../../deploy/skywalking/config:/skywalking/config:ro
       - ../../../../deploy/skywalking/oap-libs:/skywalking/oap-libs:ro
   sender:
-    image: eclipse-temurin:11-jre
     healthcheck:
       test: ["CMD", "sh", "-c", "wget -qO- http://127.0.0.1:9093/otel-metrics/send >/dev/null 2>&1 || curl -sf http://127.0.0.1:9093/otel-metrics/send >/dev/null"]
       interval: 5s

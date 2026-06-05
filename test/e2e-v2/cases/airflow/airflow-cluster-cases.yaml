@@ -16,14 +16,14 @@
 # Real Celery cluster integration smoke (service airflow-e2e-cluster).
 # Full SWIP-7 matrix (30 checks) lives in airflow-cases.yaml (mock OTLP replay).
 # Cluster omits metrics that are flaky without synthetic OTLP: asset_updates,
-# triggers_blocked_main_thread, triggers_failed. Instance topology uses the three
+# pool_queued_slots, triggers_blocked_main_thread, triggers_failed. Instance topology uses the three
 # hosts that export OTLP in this compose layout (scheduler, worker-1, triggerer).
 
 cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly AIRFLOW
     expected: expected/service-cluster.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=airflow::airflow-e2e-cluster
-    expected: expected/instance-cluster.yml
+    expected: expected/instance.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_scheduler_tasks_executable --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_queued_tasks --service-name=airflow::airflow-e2e-cluster
@@ -31,8 +31,6 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_running_tasks --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_open_slots --service-name=airflow::airflow-e2e-cluster
-    expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_pool_queued_slots --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_pool_deferred_slots --service-name=airflow::airflow-e2e-cluster
     expected: expected/metrics-has-value.yml
