@@ -189,6 +189,7 @@ Apache-2.0 licenses
 ========================================================================
 The following components are provided under the Apache-2.0 License. See project link for details.
 The text of each license is the standard Apache 2.0 license.
+    https://mvnrepository.com/artifact/at.yawk.lz4/lz4-java/1.10.1 Apache-2.0
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/pgv-java-stub/1.3.0 Apache-2.0
     https://mvnrepository.com/artifact/build.buf.protoc-gen-validate/protoc-gen-validate/1.3.0 Apache-2.0
     https://mvnrepository.com/artifact/com.aayushatharva.brotli4j/brotli4j/1.20.0 Apache-2.0
@@ -198,8 +199,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-core/1.8.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.5 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.5 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.6 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.6 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
@@ -319,7 +320,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/javax.inject/javax.inject/1 Apache-2.0
     https://mvnrepository.com/artifact/joda-time/joda-time/2.10.5 Apache-2.0
     https://mvnrepository.com/artifact/net.jodah/failsafe/2.4.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.commons/commons-compress/1.21 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.commons/commons-compress/1.26.2 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.18.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.commons/commons-text/1.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.curator/curator-client/4.3.0 Apache-2.0
@@ -330,10 +331,10 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient/4.5.13 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.16 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/3.4.0 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.25.3 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.25.3 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.25.3 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/3.9.2 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.25.4 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.25.4 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.25.4 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.yetus/audience-annotations/0.5.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper/3.5.7 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper-jute/3.5.7 Apache-2.0
@@ -349,11 +350,10 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains/annotations/13.0 Apache-2.0
     https://mvnrepository.com/artifact/org.jspecify/jspecify/1.0.0 Apache-2.0
-    https://mvnrepository.com/artifact/org.lz4/lz4-java/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine/2.6 Apache-2.0
-    https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.8.4 Apache-2.0
+    https://mvnrepository.com/artifact/org.xerial.snappy/snappy-java/1.1.10.5 Apache-2.0
     https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.0 Apache-2.0
     https://mvnrepository.com/artifact/tools.profiler/async-profiler-converter/3.0 Apache-2.0
 
@@ -363,7 +363,7 @@ BSD-2-Clause licenses
 The following components are provided under the BSD-2-Clause License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://mvnrepository.com/artifact/org.postgresql/postgresql/42.4.4 BSD-2-Clause
+    https://mvnrepository.com/artifact/org.postgresql/postgresql/42.7.11 BSD-2-Clause
 
 ========================================================================
 BSD-3-Clause licenses
@@ -436,7 +436,7 @@ https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License li
 The following components are provided under the https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://mvnrepository.com/artifact/com.github.luben/zstd-jni/1.5.2-1 https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License
+    https://mvnrepository.com/artifact/com.github.luben/zstd-jni/1.5.6-4 https://opensource.org/licenses/BSD-2-Clause;description=BSD 2-Clause License
 
 =======================================================================
 The zipkin-lens.jar dependency has more front-end dependencies in it and the front-end dependencies' licenses
