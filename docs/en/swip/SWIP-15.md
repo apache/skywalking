@@ -327,7 +327,7 @@ units; disk% and memory% turn red at 80%). The per-node "health table" (uptime, 
 disk%) becomes the Instance-list columns on the Service view.
 
 This is **design only** — the production `banyandb.json` and its exact widget grid are deliberately left
-to the implementation PR in the `skywalking-horizon-ui` repository.
+to the implementation PR in the Horizon UI repository.
 
 ### 6. Horizon UI enhancement: `#entity` attribute predicate
 
@@ -352,7 +352,7 @@ Scope of the enhancement (design): (1) pass the selected instance's `attributes`
 `LayerDashboardsView` predicate context; (2) implement the `#entity.*` branch of `isVisible` to read
 that context; (3) extend the predicate parser with `==` / `!=` / `in`; (4) document it in the Horizon UI
 layer-template authoring docs. It is generic — any layer (K8s node roles, gateway tiers, …) benefits;
-BanyanDB is the first consumer. The exact code lands in the `skywalking-horizon-ui` repo.
+BanyanDB is the first consumer. The exact code lands in the Horizon UI repository.
 
 ## Feasibility and precedent
 
