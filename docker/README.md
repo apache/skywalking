@@ -77,6 +77,7 @@ docker compose --profile banyandb up
 such as the Docker image registry and tags.
 
 After the services are up and running, you can send telemetry data to
-`localhost:11800` and access the Horizon UI at <http://localhost:8080>. The OAP
-admin host is exposed on `localhost:17128` (UI templates, runtime-rule hot
-update, DSL debugging, status, inspect).
+`localhost:11800` and access the Horizon UI at <http://localhost:8080>
+(default login `admin` / `admin`, configured in [docker/horizon.yaml](./horizon.yaml)).
+The OAP admin host is exposed on `localhost:17128` (UI templates, runtime-rule
+hot update, DSL debugging, status, inspect).
