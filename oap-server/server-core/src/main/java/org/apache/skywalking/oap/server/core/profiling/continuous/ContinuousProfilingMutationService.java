@@ -119,7 +119,7 @@ public class ContinuousProfilingMutationService implements Service {
                 case PROCESS_CPU:
                     final int cpuPercent = Integer.parseInt(item.getThreshold());
                     if (cpuPercent <= 0 || cpuPercent > 100) {
-                        return "the process CPU percent should in (0-100]";
+                        return "the process CPU percent should be in (0-100]";
                     }
                     break;
                 case PROCESS_THREAD_COUNT:
@@ -137,7 +137,7 @@ public class ContinuousProfilingMutationService implements Service {
                 case HTTP_ERROR_RATE:
                     final int httpErrorRate = Integer.parseInt(item.getThreshold());
                     if (httpErrorRate <= 0 || httpErrorRate > 100) {
-                        return "the HTTP error rate should in (0-100]";
+                        return "the HTTP error rate should be in (0-100]";
                     }
                     break;
                 case HTTP_AVG_RESPONSE_TIME:
@@ -161,7 +161,7 @@ public class ContinuousProfilingMutationService implements Service {
             return "count must be bigger than zero";
         }
         if (item.getCount() > item.getPeriod()) {
-            return "count must be smaller than period";
+            return "count must be equal to or smaller than period";
         }
         return null;
     }
