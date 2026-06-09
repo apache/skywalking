@@ -68,10 +68,11 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 15
+Next SWIP Number: 16
 
 ### Proposed SWIPs
 
+- [SWIP-15 Redesign BanyanDB Self-Observability around the Cluster / Node / Group Model](SWIP-15.md)
 - [SWIP-14 Inspect API for Admin Server](SWIP-14.md)
 - [SWIP-13 Live Debugger for MAL / LAL / OAL](SWIP-13.md)
 
