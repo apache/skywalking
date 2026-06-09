@@ -16,7 +16,7 @@
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.providers.standard.operators.bash import BashOperator
 
 # Sustained load for real-cluster e2e (queued / running / scheduled gauges).
 with DAG(
@@ -25,10 +25,10 @@ with DAG(
     schedule=None,
     catchup=False,
     tags=["swip7", "e2e", "load"],
-    max_active_runs=3,
+    max_active_runs=4,
 ) as dag:
     for index in range(1, 9):
         BashOperator(
             task_id=f"sleep_{index}",
-            bash_command=f"echo load-{index}-start && sleep 90 && echo load-{index}-done",
+            bash_command=f"echo load-{index}-start && sleep 75 && echo load-{index}-done",
         )

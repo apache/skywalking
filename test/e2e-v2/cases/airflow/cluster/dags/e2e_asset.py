@@ -16,32 +16,32 @@
 from datetime import datetime
 
 from airflow import DAG
-from airflow.datasets import Dataset
-from airflow.operators.bash import BashOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.sdk import Asset
 
-E2E_DATASET = Dataset("file:///tmp/swip7-e2e-dataset")
+E2E_ASSET = Asset("file:///tmp/swip7-e2e-asset")
 
 with DAG(
-    dag_id="e2e_dataset_producer",
+    dag_id="e2e_asset_producer",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
-    tags=["swip7", "e2e", "dataset"],
+    tags=["swip7", "e2e", "asset"],
 ) as producer_dag:
     BashOperator(
         task_id="produce",
-        bash_command="echo swip7-dataset-produce",
-        outlets=[E2E_DATASET],
+        bash_command="echo swip7-asset-produce",
+        outlets=[E2E_ASSET],
     )
 
 with DAG(
-    dag_id="e2e_dataset_consumer",
+    dag_id="e2e_asset_consumer",
     start_date=datetime(2024, 1, 1),
-    schedule=[E2E_DATASET],
+    schedule=[E2E_ASSET],
     catchup=False,
-    tags=["swip7", "e2e", "dataset"],
+    tags=["swip7", "e2e", "asset"],
 ) as consumer_dag:
     BashOperator(
         task_id="consume",
-        bash_command="echo swip7-dataset-consume",
+        bash_command="echo swip7-asset-consume",
     )

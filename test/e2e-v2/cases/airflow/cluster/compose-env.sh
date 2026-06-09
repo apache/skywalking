@@ -17,7 +17,7 @@
 # Shared docker compose helpers for Airflow cluster e2e.
 # infra-e2e uses project name {workspace}_e2e (e.g. skywalking_e2e), not the case folder name.
 
-COMPOSE_FILE="${COMPOSE_FILE:-test/e2e-v2/cases/airflow/docker-compose-cluster.yml}"
+COMPOSE_FILE="${COMPOSE_FILE:-test/e2e-v2/cases/airflow/cluster/docker-compose.yml}"
 COMPOSE_OVERRIDE="${COMPOSE_OVERRIDE:-}"
 
 resolve_compose_project() {

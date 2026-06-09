@@ -16,7 +16,7 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.sensors.time_delta import TimeDeltaSensorAsync
+from airflow.providers.standard.sensors.time_delta import TimeDeltaSensor
 
 # Deferrable sensor so triggerer exports native triggers_* OTel counters.
 with DAG(
@@ -26,7 +26,8 @@ with DAG(
     catchup=False,
     tags=["swip7", "e2e", "deferrable"],
 ) as dag:
-    TimeDeltaSensorAsync(
+    TimeDeltaSensor(
         task_id="defer_wait",
         delta=timedelta(seconds=45),
+        deferrable=True,
     )

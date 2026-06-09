@@ -16,7 +16,7 @@
             }
           },
           {
-            "key": "host.name",
+            "key":           "host.name",
             "value": {
               "stringValue": "airflow-scheduler"
             }
@@ -27,6 +27,20 @@
         {
           "scope": {},
           "metrics": [
+            {
+              "name": "airflow.scheduler_heartbeat",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 6.0
+                  }
+                ]
+              }
+            },
             {
               "name": "airflow.scheduler.tasks.executable",
               "gauge": {
@@ -91,167 +105,6 @@
               }
             },
             {
-              "name": "airflow.pool.queued_slots",
-              "gauge": {
-                "dataPoints": [
-                  {
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 1.0,
-                    "attributes": [
-                      {
-                        "key": "pool_name",
-                        "value": {
-                          "stringValue": "default_pool"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.pool.deferred_slots",
-              "gauge": {
-                "dataPoints": [
-                  {
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 0.0,
-                    "attributes": [
-                      {
-                        "key": "pool_name",
-                        "value": {
-                          "stringValue": "default_pool"
-                        }
-                      }
-                    ]
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.scheduler.orphaned_tasks.cleared",
-              "sum": {
-                "aggregationTemporality": 2,
-                "isMonotonic": true,
-                "dataPoints": [
-                  {
-                    "startTimeUnixNano": "1676140244999000000",
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 2.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.scheduler.orphaned_tasks.adopted",
-              "sum": {
-                "aggregationTemporality": 2,
-                "isMonotonic": true,
-                "dataPoints": [
-                  {
-                    "startTimeUnixNano": "1676140244999000000",
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 1.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.scheduler_heartbeat",
-              "sum": {
-                "aggregationTemporality": 2,
-                "isMonotonic": true,
-                "dataPoints": [
-                  {
-                    "startTimeUnixNano": "1676140244999000000",
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 10.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.dag_processing.file_path_queue_size",
-              "gauge": {
-                "dataPoints": [
-                  {
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 4.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.dataset.updates",
-              "sum": {
-                "aggregationTemporality": 2,
-                "isMonotonic": true,
-                "dataPoints": [
-                  {
-                    "startTimeUnixNano": "1676140244999000000",
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 7.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.dataset.orphaned",
-              "gauge": {
-                "dataPoints": [
-                  {
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 1.0
-                  }
-                ]
-              }
-            },
-            {
-              "name": "airflow.dataset.triggered_dagruns",
-              "sum": {
-                "aggregationTemporality": 2,
-                "isMonotonic": true,
-                "dataPoints": [
-                  {
-                    "startTimeUnixNano": "1676140244999000000",
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 2.0
-                  }
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "resource": {
-        "attributes": [
-          {
-            "key": "service.name",
-            "value": {
-              "stringValue": "Airflow"
-            }
-          },
-          {
-            "key": "cluster",
-            "value": {
-              "stringValue": "airflow-cluster"
-            }
-          },
-          {
-            "key": "host.name",
-            "value": {
-              "stringValue": "airflow-worker-1"
-            }
-          }
-        ]
-      },
-      "scopeMetrics": [
-        {
-          "scope": {},
-          "metrics": [
-            {
               "name": "airflow.pool.deferred_slots",
               "gauge": {
                 "dataPoints": [
@@ -276,7 +129,7 @@
                 "dataPoints": [
                   {
                     "timeUnixNano": "1676140375004000000",
-                    "asDouble": 8.0,
+                    "asDouble": 128.0,
                     "attributes": [
                       {
                         "key": "pool_name",
@@ -295,7 +148,7 @@
                 "dataPoints": [
                   {
                     "timeUnixNano": "1676140375004000000",
-                    "asDouble": 2.0,
+                    "asDouble": 0.0,
                     "attributes": [
                       {
                         "key": "pool_name",
@@ -309,7 +162,51 @@
               }
             },
             {
-              "name": "airflow.dataset.updates",
+              "name": "airflow.dag_processing.file_path_queue_size",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 4.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.dag_processing.import_errors",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 1.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.dagbag_size",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 42.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.dag_processing.total_parse_time",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 3.5
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.dag_file_refresh_error",
               "sum": {
                 "aggregationTemporality": 2,
                 "isMonotonic": true,
@@ -317,7 +214,35 @@
                   {
                     "startTimeUnixNano": "1676140244999000000",
                     "timeUnixNano": "1676140375004000000",
-                    "asDouble": 4.0
+                    "asDouble": 1.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.asset.updates",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 7.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.asset.triggered_dagruns",
+              "sum": {
+                "aggregationTemporality": 2,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1676140244999000000",
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 2.0
                   }
                 ]
               }
@@ -354,17 +279,6 @@
           "scope": {},
           "metrics": [
             {
-              "name": "airflow.scheduler.tasks.executable",
-              "gauge": {
-                "dataPoints": [
-                  {
-                    "timeUnixNano": "1676140375004000000",
-                    "asDouble": 0.0
-                  }
-                ]
-              }
-            },
-            {
               "name": "airflow.triggerer_heartbeat",
               "sum": {
                 "aggregationTemporality": 2,
@@ -374,6 +288,28 @@
                     "startTimeUnixNano": "1676140244999000000",
                     "timeUnixNano": "1676140375004000000",
                     "asDouble": 5.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.triggers.running",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 2.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "airflow.triggerer.capacity_left",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 998.0
                   }
                 ]
               }

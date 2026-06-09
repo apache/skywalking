@@ -14,22 +14,29 @@
 # limitations under the License.
 
 # Real Airflow Celery cluster (scheduler + 2 workers + triggerer) with live OTLP metrics.
-# Slower than e2e.yaml (mock sender); verifies production-like OTLP integration (25 checks).
-# Full SWIP-7 metric matrix (30 checks) is in e2e.yaml (mock OTLP replay).
+# Slower than mock/e2e.yaml; verifies production-like OTLP integration smoke.
+# Full SWIP-7 metric matrix is in mock/e2e.yaml (OTLP JSON replay).
 
 setup:
   env: compose
-  file: docker-compose-cluster.yml
-  timeout: 35m
-  init-system-environment: ../../script/env
+  file: docker-compose.yml
+  timeout: 50m
+  init-system-environment: ../../../script/env
   steps:
-    - name: cluster setup (tools, workload, verify env)
-      command: /usr/bin/bash test/e2e-v2/cases/airflow/scripts/run-cluster-setup.sh
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: cluster setup (health + workload)
+      command: /usr/bin/bash test/e2e-v2/cases/airflow/cluster/setup.sh
 
 verify:
   retry:
     count: 60
-    interval: 10s
+    interval: 3s
+  fail-fast: false
   cases:
     - includes:
-        - ./airflow-cluster-cases.yaml
+        - ./airflow-cases.yaml

@@ -13,20 +13,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG PYTHON_IMAGE=python:3.11-slim
-FROM ${PYTHON_IMAGE}
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
 
-WORKDIR /app
+trigger:
+  action: http
+  interval: 3s
+  times: -1
+  url: http://${sender_host}:${sender_9093}/otel-metrics/send
+  method: GET
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends netcat-openbsd curl \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY scripts/requirements-replay.txt .
-RUN pip install --no-cache-dir -r requirements-replay.txt
-
-COPY scripts/otlp_replay_server.py .
-
-EXPOSE 9093
-
-CMD ["python", "otlp_replay_server.py"]
+verify:
+  retry:
+    count: 20
+    interval: 3s
+  cases:
+    - includes:
+        - ./airflow-cases.yaml

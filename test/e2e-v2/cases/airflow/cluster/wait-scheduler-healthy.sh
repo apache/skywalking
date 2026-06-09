@@ -17,8 +17,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=cluster-compose-env.sh
-source "${SCRIPT_DIR}/cluster-compose-env.sh"
+# shellcheck source=compose-env.sh
+source "${SCRIPT_DIR}/compose-env.sh"
 
 SCHEDULER="${AIRFLOW_SCHEDULER_SERVICE:-airflow-scheduler}"
 MAX_ATTEMPTS="${SCHEDULER_HEALTH_ATTEMPTS:-90}"

@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -13,20 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- contains . }}
-- id: {{ notEmpty .id }}
-  name: airflow-scheduler
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-- id: {{ notEmpty .id }}
-  name: airflow-worker-1
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-- id: {{ notEmpty .id }}
-  name: airflow-triggerer
-  instanceuuid: {{ notEmpty .instanceuuid }}
-  attributes: []
-  language: UNKNOWN
-{{- end }}
+# Cluster e2e setup: wait for scheduler health, then seed DAG workload.
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+/usr/bin/bash "${SCRIPT_DIR}/wait-scheduler-healthy.sh"
+/usr/bin/bash "${SCRIPT_DIR}/seed-workload.sh"
+
+echo "Airflow cluster setup finished."

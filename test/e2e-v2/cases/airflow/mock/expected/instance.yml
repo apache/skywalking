@@ -13,26 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-debuggingtrace: null
-type: TIME_SERIES_VALUES
-results:
-  {{- contains .results }}
-  - metric:
-      labels:
-        {{- contains .metric.labels }}
-        - key: pool_name
-          value: {{ notEmpty .value }}
-        {{- end}}
-    values:
-      {{- contains .values }}
-      - id: {{ notEmpty .id }}
-        value: {{ notEmpty .value }}
-        traceid: null
-        owner: null
-      - id: {{ notEmpty .id }}
-        value: null
-        traceid: null
-        owner: null
-      {{- end}}
-  {{- end}}
-error: null
+{{- contains . }}
+- id: {{ notEmpty .id }}
+  name: airflow-scheduler
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+- id: {{ notEmpty .id }}
+  name: airflow-triggerer
+  instanceuuid: {{ notEmpty .instanceuuid }}
+  attributes: []
+  language: UNKNOWN
+{{- end }}

@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Real Airflow Celery cluster e2e (4 metric nodes: scheduler + 2 workers + triggerer).
-# Airflow -> OTel Collector -> OAP (BanyanDB). Pair with e2e-cluster.yaml.
+# Real Airflow Celery cluster e2e (scheduler + triggerer native OTel; workers run tasks only).
+# Airflow -> OTel Collector -> OAP (BanyanDB). Pair with cluster/e2e.yaml.
 
 x-airflow-otel-env: &airflow-otel-env
   _PIP_ADDITIONAL_REQUIREMENTS: "apache-airflow[otel] opentelemetry-exporter-otlp-proto-http"
@@ -23,15 +23,20 @@ x-airflow-otel-env: &airflow-otel-env
   AIRFLOW__METRICS__OTEL_HOST: otel-collector
   AIRFLOW__METRICS__OTEL_PORT: "4318"
   AIRFLOW__METRICS__OTEL_SSL_ACTIVE: "False"
+  AIRFLOW__METRICS__OTEL_INTERVAL_MILLISECONDS: "15000"
+  AIRFLOW__METRICS__METRICS_ALLOW_LIST: "scheduler,executor,dagrun,pool,triggerer,triggers,celery,asset,dag_processing,dagbag,dag_file"
   OTEL_SERVICE_NAME: "Airflow"
   OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
   OTEL_METRICS_EXPORTER: otlp
   OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://otel-collector:4318/v1/metrics
-  OTEL_METRIC_EXPORT_INTERVAL: "30000"
+  OTEL_METRIC_EXPORT_INTERVAL: "15000"
   AIRFLOW_CLUSTER: "airflow-e2e-cluster"
+  # Cap running tasks so cluster_load keeps executor_queued / pool_scheduled non-zero.
+  AIRFLOW__CORE__PARALLELISM: "8"
+  AIRFLOW__CELERY__WORKER_CONCURRENCY: "2"
 
 x-airflow-common: &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.10.5-python3.11}
+  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.0.6-python3.11}
   environment: &airflow-common-env
     <<: *airflow-otel-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -39,16 +44,16 @@ x-airflow-common: &airflow-common
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
     AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__API_AUTH__JWT_SECRET: "swip7-e2e-airflow-jwt-secret"
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
     AIRFLOW__CORE__LOAD_EXAMPLES: "true"
-    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session"
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-api-server:8080/execution/
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
   volumes:
-    - ./cluster/dags:/opt/airflow/dags
-    - ./cluster/logs:/opt/airflow/logs
-    - ./cluster/config:/opt/airflow/config
-    - ./cluster/plugins:/opt/airflow/plugins
-    - ./cluster/scripts:/opt/airflow/scripts
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./config:/opt/airflow/config
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     redis:
@@ -61,7 +66,7 @@ x-airflow-common: &airflow-common
 services:
   oap:
     extends:
-      file: ../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: oap
     ports:
       - 12800
@@ -75,7 +80,7 @@ services:
 
   banyandb:
     extends:
-      file: ../../script/docker-compose/base-compose.yml
+      file: ../../../script/docker-compose/base-compose.yml
       service: banyandb
     ports:
       - 17912
@@ -139,6 +144,48 @@ services:
     depends_on:
       <<: *airflow-common-depends-on
 
+  airflow-api-server:
+    <<: *airflow-common
+    hostname: airflow-api-server
+    command: api-server
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__METRICS__OTEL_ON: "False"
+      OTEL_METRICS_EXPORTER: none
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/version"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    hostname: airflow-dag-processor
+    command: dag-processor
+    environment:
+      <<: *airflow-common-env
+      AIRFLOW__METRICS__OTEL_ON: "False"
+      OTEL_METRICS_EXPORTER: none
+    healthcheck:
+      test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    restart: always
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+      otel-collector:
+        condition: service_started
+
   airflow-scheduler:
     <<: *airflow-common
     hostname: airflow-scheduler
@@ -157,6 +204,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+      airflow-api-server:
+        condition: service_healthy
       otel-collector:
         condition: service_started
 
@@ -178,21 +227,19 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+      airflow-api-server:
+        condition: service_healthy
       otel-collector:
         condition: service_started
 
   airflow-worker-1:
     <<: *airflow-common
     hostname: airflow-worker-1
-    command:
-      - bash
-      - -c
-      - |
-        python /opt/airflow/scripts/worker_otel_reporter.py &
-        exec airflow celery worker
+    command: celery worker
     environment:
       <<: *airflow-common-env
-      OTEL_RESOURCE_ATTRIBUTES: "cluster=airflow-e2e-cluster,service.name=Airflow,host.name=airflow-worker-1"
+      AIRFLOW__METRICS__OTEL_ON: "False"
+      OTEL_METRICS_EXPORTER: none
       DUMB_INIT_SETSID: "0"
     healthcheck:
       test:
@@ -207,6 +254,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+      airflow-api-server:
+        condition: service_healthy
       otel-collector:
         condition: service_started
 
@@ -216,7 +265,8 @@ services:
     command: celery worker
     environment:
       <<: *airflow-common-env
-      OTEL_RESOURCE_ATTRIBUTES: "cluster=airflow-e2e-cluster,service.name=Airflow,host.name=airflow-worker-2"
+      AIRFLOW__METRICS__OTEL_ON: "False"
+      OTEL_METRICS_EXPORTER: none
       DUMB_INIT_SETSID: "0"
     healthcheck:
       test:
@@ -231,6 +281,8 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+      airflow-api-server:
+        condition: service_healthy
       otel-collector:
         condition: service_started
 

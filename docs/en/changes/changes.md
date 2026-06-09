@@ -276,7 +276,7 @@
 * Fix: TTL query add metadata TTL.
 * Fix: PersistentWorker used wrong TTL for metrics cache if the storage is BanyanDB.
 * Add iOS/iPadOS app monitoring via OpenTelemetry Swift SDK (SWIP-11). Includes the `IOS` layer, `IOSHTTPSpanListener` for outbound HTTP client metrics (supports OTel Swift `.old`/`.stable`/`.httpDup` semantic-convention modes via stable-then-legacy attribute fallback), `IOSMetricKitSpanListener` for daily MetricKit metrics (exit counts split by foreground/background, app-launch / hang-time percentile histograms with finite 30 s overflow ceiling), LAL rules for crash/hang diagnostics, Mobile menu, and iOS dashboards.
-* Add Apache Airflow monitoring via native OpenTelemetry metrics (SWIP-7). New `AIRFLOW` layer with Service (cluster) and Instance (host) dimensions, MAL rules under `otel-rules/airflow/`, setup docs, mock OTLP e2e (`cases/airflow/e2e.yaml`: full SWIP-7, 30 checks), and real Celery-cluster integration smoke (`e2e-cluster.yaml`: scheduler + two workers + triggerer; deferrable and dataset DAGs with ~4-minute live workload; 25 checks — native scheduler/executor/triggerer OTLP plus e2e Celery sidecar pool gauges on one worker; metrics needing synthetic OTLP or rare failure events such as `pool_queued_slots` are mock-only). See `test/e2e-v2/cases/airflow/README.md`. Horizon UI dashboards ship separately in `apache/skywalking-horizon-ui` under the Workflow Scheduler menu group.
+* Add Apache Airflow monitoring via native OpenTelemetry metrics (SWIP-7). New `AIRFLOW` layer with Service (cluster) and Instance (host) dimensions, MAL rules under `otel-rules/airflow/` (**27** metrics), [setup documentation](../setup/backend/backend-airflow-monitoring.md), mock OTLP e2e (`cases/airflow/mock/e2e.yaml`: 2 entity + 27 metric checks, 29 total), and real Celery-cluster integration smoke (`cases/airflow/cluster/e2e.yaml`: 2 entity + 14 metric checks, 16 total). See `test/e2e-v2/cases/airflow/README.md`. Horizon UI dashboards ship separately in `apache/skywalking-horizon-ui` under the Workflow Scheduler menu group.
 * Fix LAL `layer: auto` mode dropping logs after extractor set the layer. Codegen now propagates `layer "..."` assignments to `LogMetadata.layer` so `FilterSpec.doSink()` sees the script-decided layer.
 * Fix MetricKit histogram percentile metrics being reported at 1000× their true value — the listener now marks its `SampleFamily` with `defaultHistogramBucketUnit(MILLISECONDS)` so MAL's default SECONDS→MS rescale of `le` labels is not applied.
 * Add WeChat and Alipay Mini Program monitoring via the SkyAPM mini-program-monitor SDK (SWIP-12). Two new layers (`WECHAT_MINI_PROGRAM`, `ALIPAY_MINI_PROGRAM`); two new JavaScript componentIds (`WeChat-MiniProgram: 10002`, `AliPay-MiniProgram: 10003`). Service / instance / endpoint entities are produced by MAL + LAL, not trace analysis — mini-programs are client-side (exit-only) so `RPCAnalysisListener` stays unchanged (same pattern as browser and iOS). MAL rules per platform × scope under `otel-rules/miniprogram/` with explicit `.service(...)` / `.endpoint(...)` chains (empty `expSuffix` so endpoint-scope rules aren't overridden), histogram percentile via `.histogram("le", TimeUnit.MILLISECONDS)` to keep ms bucket bounds intact, and request-cpm derived from the histogram `_count` family. LAL `layer: auto` rule produces both layers via `miniprogram.platform` dispatch and emits error-count samples consumed by per-platform log-MAL rules. Per-layer menu entries and service / instance / endpoint dashboards with Trace and Log sub-tabs.
@@ -293,6 +293,7 @@
 * Mask keywords `trustStorePass`, `keyStorePass` by default.
 
 #### UI
+* Add Airflow layer dashboards and menu i18n under Workflow Scheduler in Horizon UI (SWIP-7).
 * Add mobile menu icon and i18n labels for the iOS layer.
 * Fix metric label rendering in multi-expression dashboard widgets.
 * Add i18n menu labels for WeChat Mini Program and Alipay Mini Program (en / zh / es) — sub-menus rendered as raw keys until this bump.
@@ -300,8 +301,8 @@
 
 #### Documentation
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
+* Add Airflow monitoring setup documentation (SWIP-7).
 * Add iOS app monitoring setup documentation.
-* Add Apache Airflow monitoring setup documentation (SWIP-7).
 * Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
 * Improve downsampling documentation
 

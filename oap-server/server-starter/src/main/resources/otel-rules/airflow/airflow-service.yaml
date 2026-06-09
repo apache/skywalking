@@ -28,19 +28,17 @@ metricsRules:
     exp: airflow_executor_running_tasks.sum(['cluster'])
   - name: executor_open_slots
     exp: airflow_executor_open_slots.sum(['cluster'])
-  - name: pool_queued_slots
-    exp: airflow_pool_queued_slots.sum(['cluster', 'pool_name'])
-  - name: pool_deferred_slots
-    exp: airflow_pool_deferred_slots.sum(['cluster', 'pool_name'])
   - name: pool_scheduled_slots
     exp: airflow_pool_scheduled_slots.sum(['cluster', 'pool_name'])
-  - name: scheduler_heartbeat
-    exp: airflow_scheduler_heartbeat.sum(['cluster']).increase('PT1M')
-  - name: scheduler_orphaned_tasks_cleared
-    exp: airflow_scheduler_orphaned_tasks_cleared.sum(['cluster']).increase('PT1M')
-  - name: scheduler_orphaned_tasks_adopted
-    exp: airflow_scheduler_orphaned_tasks_adopted.sum(['cluster']).increase('PT1M')
   - name: dag_file_queue_size
     exp: airflow_dag_processing_file_path_queue_size.sum(['cluster'])
+  - name: dag_import_errors
+    exp: airflow_dag_processing_import_errors.sum(['cluster'])
+  - name: dagbag_size
+    exp: airflow_dagbag_size.sum(['cluster'])
+  - name: dag_total_parse_time
+    exp: airflow_dag_processing_total_parse_time.sum(['cluster'])
+  - name: dag_file_refresh_error
+    exp: airflow_dag_file_refresh_error.sum(['cluster']).increase('PT1M')
   - name: asset_updates
-    exp: airflow_dataset_updates.sum(['cluster']).increase('PT1M')
+    exp: airflow_asset_updates.sum(['cluster']).increase('PT1M')

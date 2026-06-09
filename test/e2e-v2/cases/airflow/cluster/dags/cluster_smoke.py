@@ -16,7 +16,7 @@
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.providers.standard.operators.bash import BashOperator
 
 with DAG(
     dag_id="cluster_smoke",

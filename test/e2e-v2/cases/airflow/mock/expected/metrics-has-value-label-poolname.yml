@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -14,19 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Single setup entrypoint: infra-e2e does not persist PATH between setup steps on Windows.
-
-set -euo pipefail
-
-export PATH="/tmp/skywalking-infra-e2e/bin:/usr/bin:/bin:/mingw64/bin:${PATH}"
-
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
-cd "${REPO_ROOT}"
-
-/usr/bin/bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
-/usr/bin/bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-/usr/bin/bash test/e2e-v2/cases/airflow/scripts/wait-scheduler-healthy.sh
-/usr/bin/bash test/e2e-v2/cases/airflow/scripts/seed-e2e-cluster-workload.sh
-
-echo "Airflow cluster setup finished."
+debuggingtrace: null
+type: TIME_SERIES_VALUES
+results:
+  {{- contains .results }}
+  - metric:
+      labels:
+        {{- contains .metric.labels }}
+        - key: pool_name
+          value: {{ notEmpty .value }}
+        {{- end}}
+    values:
+      {{- contains .values }}
+      - id: {{ notEmpty .id }}
+        value: {{ notEmpty .value }}
+        traceid: null
+        owner: null
+      {{- end}}
+  {{- end}}
+error: null
