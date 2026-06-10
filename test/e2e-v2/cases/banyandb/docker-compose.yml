@@ -22,15 +22,12 @@
 #
 # BanyanDB 0.11+ is required: the FODC-proxy cluster observability and the queue / lifecycle metric
 # families this feature reads were introduced after 0.10, and 0.11 uses file/DNS node discovery
-# (no etcd). The image is pinned per-case to the latest 0.11-dev build the public demo runs
-# (commit 8a1936ce9); the repo-wide ${SW_BANYANDB_COMMIT} is an older build that predates the
-# queue/lifecycle metric families.
+# (no etcd). The image comes from the repo-wide ${SW_BANYANDB_COMMIT} (a 0.11+ build) via base-compose.
 services:
   data-hot:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: banyandb-data
-    image: "ghcr.io/apache/skywalking-banyandb:8a1936ce96653e89d3d13250a42abc6e3d42fae7-testing"
     hostname: data-hot
     command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=hot
     volumes:
@@ -42,7 +39,6 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: liaison
-    image: "ghcr.io/apache/skywalking-banyandb:8a1936ce96653e89d3d13250a42abc6e3d42fae7-testing"
     command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --data-node-selector type=hot
     volumes:
       - ./nodes.yaml:/etc/banyandb/nodes.yaml
