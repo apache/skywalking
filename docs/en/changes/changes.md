@@ -242,6 +242,14 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model
+  (requires BanyanDB 0.11+). `otel-rules/banyandb/` now models a BanyanDB cluster as one `Service`
+  (`service(['cluster'])`), each container as a `ServiceInstance` keyed on `pod_name` + `container_name`
+  (with `node_role` / `node_type` / `container_name` / `pod_name` as instance attributes), and each
+  storage group as an `Endpoint`. New `banyandb-endpoint.yaml`; `banyandb-service.yaml` and
+  `banyandb-instance.yaml` redesigned to mirror the upstream FODC-proxy Grafana boards. The stale
+  single-node `host_name` model and the removed `etcd_operation_rate` / `up`-derived `active_instance`
+  metrics are gone.
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See

@@ -13,25 +13,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# SWIP-15 BanyanDB self-observability e2e: a minimal CLUSTER (1 liaison + 1 hot data node), scraped
+# WITHOUT the FODC proxy. The OTel collector scrapes each node's own :2121 Prometheus endpoint
+# directly and injects the FODC-equivalent identity labels
+# (cluster / container_name / node_role / node_type / pod_name) as static per-scrape-job labels
+# (see otel-collector-config.yaml). The MAL rules read those tags regardless of origin, so the
+# cluster / instance / endpoint rule set is exercised without a FODC deployment.
+#
+# BanyanDB 0.11+ is required: the FODC-proxy cluster observability and the queue / lifecycle metric
+# families this feature reads were introduced after 0.10, and 0.11 uses file/DNS node discovery
+# (no etcd). The image is pinned per-case to the latest 0.11-dev build the public demo runs
+# (commit 8a1936ce9); the repo-wide ${SW_BANYANDB_COMMIT} is an older build that predates the
+# queue/lifecycle metric families.
 services:
-  oap:
+  data-hot:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: oap
-    expose:
-      - 11800
-    ports:
-      - "11800:11800"
-      - "12800:12800"
+      service: banyandb-data
+    image: "ghcr.io/apache/skywalking-banyandb:8a1936ce96653e89d3d13250a42abc6e3d42fae7-testing"
+    hostname: data-hot
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=hot
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
       - e2e
-  banyandb:
+
+  liaison:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: banyandb
-    ports:
-      - "17913:17913"
-      - "2121:2121"
+      service: liaison
+    image: "ghcr.io/apache/skywalking-banyandb:8a1936ce96653e89d3d13250a42abc6e3d42fae7-testing"
+    command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --data-node-selector type=hot
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
+    depends_on:
+      data-hot:
+        condition: service_healthy
+    networks:
+      - e2e
 
   otel-collector:
     image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
@@ -42,6 +61,27 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     expose:
       - 55678
+    depends_on:
+      liaison:
+        condition: service_healthy
+      data-hot:
+        condition: service_healthy
+
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "liaison:17912"
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    networks:
+      - e2e
+    depends_on:
+      liaison:
+        condition: service_healthy
 
 networks:
   e2e:

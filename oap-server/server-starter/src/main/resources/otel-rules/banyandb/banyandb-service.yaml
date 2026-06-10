@@ -13,74 +13,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This will parse a textual representation of a duration. The formats
-# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
-# with days considered to be exactly 24 hours.
-# <p>
-# Examples:
-# <pre>
-#    "PT20.345S" -- parses as "20.345 seconds"
-#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
-#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
-#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
-#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
-#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
-#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
-#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
-# </pre>
+# SWIP-15: BanyanDB self-observability, Service scope = one BanyanDB cluster.
+# The FODC proxy is the single scrape target; the collector injects one static label
+# `cluster` (the only label SkyWalking must add). Every BanyanDB-native family carries
+# the `banyandb_` prefix; only the Go-runtime / process exporter families (go_* / process_*)
+# are bare. All cluster KPIs collapse to the single `cluster` series via `.sum(['cluster'])`,
+# which is also what makes the heterogeneous error families joinable by MAL `+`
+# (MAL arithmetic inner-joins on exact label equality).
+# Source expressions mirror the upstream BanyanDB Grafana boards
+# (docs/operation/grafana-fodc-workload.json) so the SkyWalking dashboards stay in lockstep.
 filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
-expSuffix:  tag({tags -> tags.host_name = 'banyandb::' + tags.host_name}).service(['host_name'] , Layer.BANYANDB)
+expSuffix: service(['cluster'], Layer.BANYANDB)
 metricPrefix: meter_banyandb
 metricsRules:
-  - name: write_rate
-    exp: (banyandb_measure_total_written.sum(['host_name','service_instance_id']).rate('PT15S') + banyandb_stream_tst_total_written.sum(['host_name','service_instance_id']).rate('PT15S'))
-  - name: total_memory
-    exp: banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name'])
-  - name: disk_usage
-    exp: banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id'])
-  - name: query_rate
-    exp: banyandb_liaison_grpc_total_started.sum(['method','host_name','service_instance_id'])
-  - name: total_cpu
-    exp: banyandb_system_cpu_num.sum(['method','host_name','service_instance_id'])
-  - name: write_and_query_errors_rate
-    exp: banyandb_liaison_grpc_total_err.tagEqual('method','query').sum(['method','host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_queue_sub_total_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60
-  - name: etcd_operation_rate
-    exp: banyandb_liaison_grpc_total_registry_started.sum(['host_name','service_instance_id']).rate('PT15S') + banyandb_liaison_grpc_total_started.sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: active_instance
-    exp: up.sum(['host_name','service_instance_id']).downsampling(MIN)
-  - name: cpu_usage
-    exp: (((process_cpu_seconds_total.sum(['host_name','service_instance_id']).rate('PT15S') / banyandb_system_cpu_num.sum(['host_name','service_instance_id']))).max(['host_name','service_instance_id']))*1000
-  - name: rss_memory_usage
-    exp: ((process_resident_memory_bytes.sum(['host_name','service_instance_id']).downsampling(MAX) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: disk_usage_all
-    exp: ((banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id']) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: network_usage_recv
-    exp: banyandb_system_net_state.tagEqual('kind','bytes_recv').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: network_usage_sent
-    exp: banyandb_system_net_state.tagEqual('kind','bytes_sent').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: storage_write_rate
-    exp: banyandb_measure_total_written.sum(['group','host_name','service_instance_id']).rate('PT15S')*1000
-  - name: query_latency
-    exp: (banyandb_liaison_grpc_total_latency.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: total_data
-    exp: banyandb_measure_total_file_elements.sum(['group','host_name','service_instance_id'])
-  - name: merge_file_data
-    exp: banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S') * 60 *1000
-  - name: merge_file_latency
-    exp: (banyandb_measure_total_merge_latency.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: merge_file_partitions
-    exp: (banyandb_measure_total_merged_parts.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: series_write_rate
-    exp: (banyandb_measure_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: series_term_search_rate
-    exp: banyandb_stream_storage_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: total_series
-    exp: banyandb_measure_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
-  - name: stream_write_rate
-    exp: banyandb_stream_tst_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: term_search_rate
-    exp: banyandb_stream_tst_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')* 1000
-  - name: total_document
-    exp: banyandb_stream_tst_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
-
-
+  # cluster writes/s across the three data-model scopes (measure, stream, trace). Each scope's
+  # write counter is collapsed to one per-cluster series before `+`.
+  - name: cluster_write_rate
+    exp: (banyandb_measure_total_written.sum(['cluster']).rate('PT15S') + banyandb_stream_tst_total_written.sum(['cluster']).rate('PT15S') + banyandb_trace_tst_total_written.sum(['cluster']).rate('PT15S'))
+  # cluster queries/s. `service` on this family is BanyanDB's data-model facet
+  # (measure/stream/trace/property), not a SkyWalking service; method literal is "query".
+  - name: cluster_query_rate
+    exp: banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['cluster']).rate('PT15S')
+  # cluster errors/min. The seven liaison-side error families mirror the upstream Grafana
+  # "Error Rate" stat (grafana-fodc-workload.json). Each is pre-aggregated to ['cluster']
+  # BEFORE `+` because their wire label sets differ (stream_msg_received_err carries
+  # group/method/service, registry_err carries method/service, sync_loop_err carries group)
+  # and MAL `+` joins on exact label equality. On a healthy cluster most of these are lazily
+  # registered and emit no series; MAL treats an empty operand as the additive identity, so the
+  # sum emits from whatever has fired and renders absent-as-0 when nothing has.
+  - name: cluster_error_rate
+    exp: (banyandb_liaison_grpc_total_err.sum(['cluster']).rate('PT15S') + banyandb_liaison_grpc_total_registry_err.sum(['cluster']).rate('PT15S') + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['cluster']).rate('PT15S') + banyandb_queue_pub_total_err.sum(['cluster']).rate('PT15S') + banyandb_measure_total_sync_loop_err.sum(['cluster']).rate('PT15S') + banyandb_stream_tst_total_sync_loop_err.sum(['cluster']).rate('PT15S') + banyandb_trace_tst_total_sync_loop_err.sum(['cluster']).rate('PT15S')) * 60
+  # live container count by role. count(['cluster','container_name','pod_name']) groups by all
+  # three then re-groups excluding the last key (pod_name), yielding one sample per
+  # (cluster, container_name) whose value = distinct pod_name count -> data=N, liaison=M.
+  # Mirrors the upstream "Nodes by Role" stat (count(banyandb_system_up_time) by container_name).
+  # CAVEAT: banyandb_system_up_time has NO lifecycle series (the lifecycle sidecar runs its
+  # metric service without the system collector), so this never emits a lifecycle row.
+  - name: reporting_instances
+    exp: banyandb_system_up_time.count(['cluster','container_name','pod_name'])
+  # cluster CPU capacity = sum of per-container visible core counts (no lifecycle series).
+  - name: total_cpu_cores
+    exp: banyandb_system_cpu_num.sum(['cluster'])
+  # cluster memory used (bytes). kind='used' is a real wire value (kind in total/used/used_percent).
+  - name: total_memory_used
+    exp: banyandb_system_memory_state.tagEqual('kind','used').sum(['cluster'])
+  # cluster disk used (bytes). system_disk carries a `path` label with multiple data roots;
+  # .sum(['cluster']) collapses all paths into one cluster total.
+  - name: total_disk_used
+    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster'])

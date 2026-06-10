@@ -1,0 +1,96 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SWIP-15 section 3.3 Endpoint scope: a BanyanDB `group` (storage group, e.g. sw_metricsMinute,
+# sw_trace) is modeled as an Endpoint under the cluster Service. The `cluster` label is the
+# single static label the OTel collector injects per scrape job (it is NOT on the raw FODC
+# wire); `group` is carried natively by every family referenced below. Every metric here is
+# aggregated across all cluster nodes per group, so each rule's .sum() collapses the per-node /
+# per-seg / per-shard / per-operation / per-remote dimensions down to ['cluster','group']
+# before any rate/histogram/division. MAL arithmetic ('+', '/') inner-joins on exact label
+# equality, so every operand is reduced to the identical ['cluster','group'] (or
+# ['cluster','group','le'] for histograms) label set first.
+# Source expressions mirror the upstream BanyanDB Grafana "Workload" board
+# (docs/operation/grafana-fodc-workload.json).
+filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
+expSuffix: endpoint(['cluster'], ['group'], Layer.BANYANDB)
+metricPrefix: meter_banyandb_endpoint
+metricsRules:
+  # writes/s for the group, across the three data-model scopes (measure, stream, trace). The
+  # write counter carries `group` regardless of which role records it, so the by-group roll-up
+  # is exact.
+  - name: write_rate
+    exp: (banyandb_measure_total_written.sum(['cluster', 'group']).rate('PT1M') + banyandb_stream_tst_total_written.sum(['cluster', 'group']).rate('PT1M') + banyandb_trace_tst_total_written.sum(['cluster', 'group']).rate('PT1M'))
+
+  # mean query latency (ms) for the group = sum(latency) / sum(count). liaison_grpc_total_latency
+  # and _started are BOTH counters (not a histogram), so this is a ratio of cumulative counters,
+  # not a percentile. Both filtered to method='query' and reduced to ['cluster','group']
+  # (collapsing the `service` data-model facet) before the division joins on equal labels.
+  - name: query_latency
+    exp: (banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').sum(['cluster', 'group']) / banyandb_liaison_grpc_total_started.tagEqual('method', 'query').sum(['cluster', 'group'])) * 1000
+
+  # current total stored data elements for the group (gauge). Dimensioned by seg+shard+node_type
+  # across data nodes; .sum(['cluster','group']) collapses them into one per-group total.
+  - name: total_data
+    exp: (banyandb_measure_total_file_elements.sum(['cluster', 'group']) + banyandb_stream_tst_total_file_elements.sum(['cluster', 'group']) + banyandb_trace_tst_total_file_elements.sum(['cluster', 'group']))
+
+  # merge-loop iterations/min for the group (matches the upstream "Merge File Rate" rotrpm panel,
+  # which is rate(merge_loop_started) * 60). merge_loop_started carries node_type (NOT a `type`
+  # label), so no type filter applies here.
+  - name: merge_file_rate
+    exp: (banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M') + banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M') + banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) * 60
+
+  # mean file-merge latency (ms) per merge loop for the group. merge_latency carries a `type`
+  # label (file/hot/mem); type='file' selects on-disk merges and is DATA-only on the wire
+  # (liaison emits only type='mem'). Divide accumulated merge-seconds by merge loops, both
+  # type/scope-aligned to ['cluster','group']. Matches the upstream "Merge File Latency" panel.
+  - name: merge_file_latency
+    exp: ((banyandb_measure_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_stream_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_trace_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))) * 1000
+
+  # avg parts merged per merge loop on the on-disk merge path for the group (matches the upstream
+  # "Merge File Partitions" panel = rate(merged_parts{type=file}) / rate(merge_loop_started)).
+  # merged_parts carries `type`; type='file' is DATA-only (liaison emits only type='mem').
+  - name: merge_file_partitions
+    exp: ((banyandb_measure_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_stream_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_trace_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')))
+
+  # inverted-index updates/s for the group. NOTE: *_inverted_index_total_updates is # TYPE=gauge
+  # though cumulative; rate() over a cumulative gauge yields a per-window delta (updates/s). Stream
+  # uses two index scopes -- both stream_storage_* and stream_tst_* are summed in. Data-only family.
+  - name: series_write_rate
+    exp: (banyandb_measure_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M') + banyandb_stream_storage_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M') + banyandb_stream_tst_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M'))
+
+  # total inverted-index documents (series proxy) for the group (gauge, direct read, no rate).
+  # Both stream index scopes summed. Dimensioned by seg across data nodes; sum collapses to group.
+  - name: total_series
+    exp: (banyandb_measure_inverted_index_total_doc_count.sum(['cluster', 'group']) + banyandb_stream_storage_inverted_index_total_doc_count.sum(['cluster', 'group']) + banyandb_stream_tst_inverted_index_total_doc_count.sum(['cluster', 'group']))
+
+  # subscribe-side queue throughput (msgs/s) for the group, broken out by operation. queue_sub is
+  # emitted on BOTH data (operations batch-write/control/file-sync/query) and liaison
+  # (batch-write only); `operation` is kept in the group-by so the dashboard can split per op.
+  - name: queue_throughput
+    exp: banyandb_queue_sub_total_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+
+  # publish-side queue p99 latency for the group. queue_pub_total_latency IS a histogram on the
+  # wire (_bucket carries le); keep le + group + operation in the .sum() group-by, then
+  # .histogram().histogram_percentile([99]). queue_pub is liaison-only. Precedent:
+  # oap.yaml / nginx-endpoint.yaml histogram idiom.
+  - name: queue_latency_p99
+    exp: banyandb_queue_pub_total_latency.sum(['le', 'cluster', 'group', 'operation']).histogram().histogram_percentile([99])
+
+  # publish bytes/s for the group. Wire family is banyandb_queue_pub_sent_bytes -- NO `total`
+  # infix (unlike queue_pub_total_started/_finished). Liaison-only; sum collapses
+  # operation/remote_node/remote_role/remote_tier before the rate.
+  - name: publish_bytes
+    exp: banyandb_queue_pub_sent_bytes.sum(['cluster', 'group']).rate('PT1M')
