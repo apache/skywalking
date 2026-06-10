@@ -39,7 +39,7 @@ metricsRules:
   # not a percentile. Both filtered to method='query' and reduced to ['cluster','group']
   # (collapsing the `service` data-model facet) before the division joins on equal labels.
   - name: query_latency
-    exp: (banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').sum(['cluster', 'group']) / banyandb_liaison_grpc_total_started.tagEqual('method', 'query').sum(['cluster', 'group'])) * 1000
+    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').sum(['cluster', 'group']).safeDiv(banyandb_liaison_grpc_total_started.tagEqual('method', 'query').sum(['cluster', 'group'])) * 1000
 
   # current total stored data elements for the group (gauge). Dimensioned by seg+shard+node_type
   # across data nodes; .sum(['cluster','group']) collapses them into one per-group total.
@@ -57,13 +57,13 @@ metricsRules:
   # (liaison emits only type='mem'). Divide accumulated merge-seconds by merge loops, both
   # type/scope-aligned to ['cluster','group']. Matches the upstream "Merge File Latency" panel.
   - name: merge_file_latency
-    exp: ((banyandb_measure_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_stream_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_trace_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))) * 1000
+    exp: (banyandb_measure_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + banyandb_stream_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + banyandb_trace_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))) * 1000
 
   # avg parts merged per merge loop on the on-disk merge path for the group (matches the upstream
   # "Merge File Partitions" panel = rate(merged_parts{type=file}) / rate(merge_loop_started)).
   # merged_parts carries `type`; type='file' is DATA-only (liaison emits only type='mem').
   - name: merge_file_partitions
-    exp: ((banyandb_measure_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_stream_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + (banyandb_trace_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M') / banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')))
+    exp: (banyandb_measure_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + banyandb_stream_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) + banyandb_trace_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')))
 
   # inverted-index updates/s for the group. NOTE: *_inverted_index_total_updates is # TYPE=gauge
   # though cumulative; rate() over a cumulative gauge yields a per-window delta (updates/s). Stream
