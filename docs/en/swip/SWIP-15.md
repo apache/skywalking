@@ -82,7 +82,7 @@ dashboards.
  │  :2121 /metrics │ (sidecar)  │   :17913          (prometheus recv,   │ Instance: container,  │
  └────────────────┘            │   /metrics         adds `cluster`      │   adapts to role/tier │
  ┌─ data warm ────┐  FODC agent │   single target,  label) ──OTLP──►    │ Endpoint: group       │
- │  :2121 /metrics │ (sidecar)  │   per-node labels      │              └───────────────────────┘
+ │  :2121 /metrics │ (sidecar)  │   identity labels      │              └───────────────────────┘
  └────────────────┘            ┘   node_role/pod_name/   │                        ▲
  ┌─ data cold ────┐                container_name/        ▼                        │ MQE over
  │  :2121 /metrics │                node_type     receiver-otel ──► MAL            │ GraphQL
@@ -110,7 +110,7 @@ identity.
 | `Service` (Layer `BANYANDB`) | one BanyanDB **cluster**                  | `cluster` (injected by the collector)                  |
 | `ServiceInstance`            | one **container** on a node               | `pod_name` + `container_name` (composite)              |
 | &nbsp;&nbsp;↳ attribute `container_name` | container **role** (discriminator) | `liaison` / `data` / `lifecycle`                  |
-| &nbsp;&nbsp;↳ attribute `node_type` | data-node **tier**                 | `hot` / `warm` / `cold` (absent off data)              |
+| &nbsp;&nbsp;↳ attribute `node_type` | data-node **tier**                 | `hot` / `warm` / `cold` (data containers only; `n/a` elsewhere) |
 | &nbsp;&nbsp;↳ attribute `node_role` | role enum (coarse)                 | `ROLE_LIAISON` / `ROLE_DATA`                           |
 | &nbsp;&nbsp;↳ attribute `pod_name`  | host pod (sibling key)             | `demo-banyandb-data-hot-0`                             |
 | `Endpoint`                   | one **group** (storage partition)         | `group` (`sw_metricsMinute`, …)                        |
@@ -260,7 +260,7 @@ only, no metric code) documents the same catalog and defines the two boards this
 | `cluster_write_rate`        | cluster writes/s         | `rate(measure_total_written) + rate(stream_tst_total_written) + rate(trace_tst_total_written)` |
 | `cluster_query_rate`        | cluster queries/s        | `rate(liaison_grpc_total_started{method='query'})`                                          |
 | `cluster_error_rate`        | cluster errors/min       | `liaison_grpc_total_err + liaison_grpc_total_stream_msg_received_err + schema_server_grpc_total_err + queue_pub_total_err + Σ *_total_sync_loop_err` (×60; all lazily registered — see sketch notation above) |
-| `reporting_nodes`           | live container count by role | `count(system_up_time) by (container_name)`                                              |
+| `reporting_instances`       | live container count by role | `count(system_up_time) by (container_name)`                                              |
 | `total_cpu_cores`           | cluster CPU capacity     | `sum(system_cpu_num)`                                                                       |
 | `total_memory_used`         | cluster memory used      | `sum(system_memory_state{kind='used'})`                                                     |
 | `total_disk_used`           | cluster disk used        | `sum(system_disk{kind='used'})`                                                             |
@@ -308,9 +308,9 @@ only, no metric code) documents the same catalog and defines the two boards this
 
 | Metric (`meter_banyandb_instance_*`) | Source                                                              |
 | ------------------------------------ | ------------------------------------------------------------------ |
-| `lifecycle_cycles`                   | `banyandb_lifecycle_cycles_total` (cumulative migration cycles)    |
-| `lifecycle_last_run`                 | `banyandb_lifecycle_last_run_timestamp_seconds` — epoch of the last cycle's start; "time since last sync" = `time() - <metric>`, computed at ingest in the MAL rule (MQE has no `time()`) |
-| `lifecycle_last_run_success`         | `banyandb_lifecycle_last_run_success` (`1` = last cycle OK, `0` = failed) |
+| `lifecycle_cycles`                   | `lifecycle_cycles_total` (cumulative migration cycles)            |
+| `lifecycle_last_run`                 | `lifecycle_last_run_timestamp_seconds` — epoch of the last cycle's start; "time since last sync" = `time() - <metric>`, computed at ingest in the MAL rule (MQE has no `time()`) |
+| `lifecycle_last_run_success`         | `lifecycle_last_run_success` (`1` = last cycle OK, `0` = failed)  |
 
 > **Lifecycle last-run signals.** The two gauges above were added in BanyanDB
 > [#1167](https://github.com/apache/skywalking-banyandb/pull/1167) (merged to `main` on 2026-06-09,
@@ -407,7 +407,7 @@ BANYANDB layer
 ├─ Service (cluster)
 │   └─ Overview KPIs + "Cluster Workload Summary" + "Fleet Overview" capacity
 │       (cluster_write_rate, cluster_query_rate, cluster_error_rate,
-│        reporting_nodes by role, total_cpu/memory/disk)
+│        reporting_instances by role, total_cpu/memory/disk)
 ├─ Instance (container)   ← the "Nodes" board, made dynamic; instance = pod_name@container_name
 │   ├─ All roles: Resources (CPU/RSS/mem%/disk%), Disk by Path, Network, Go Runtime
 │   ├─ Liaison (entity gate container_name eq liaison): Ingestion/Query, Registry, Errors,
