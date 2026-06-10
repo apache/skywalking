@@ -38,6 +38,7 @@ If you want to customize it according to your own needs, please refer to [Servic
 | PULSAR           | K8S_SERVICE | [PULSAR On K8S_SERVICE](#pulsar-on-k8s_service)                   |
 | SO11Y_OAP        | K8S_SERVICE | [SO11Y_OAP On K8S_SERVICE](#so11y_oap-on-k8s_service)             |
 | KONG             | K8S_SERVICE | [KONG On K8S_SERVICE](#kong-on-k8s_service)                       |
+| AIRFLOW          | K8S_SERVICE | [AIRFLOW On K8S_SERVICE](#airflow-on-k8s_service)                 |
 
 - The following sections will describe the **default matching rules** in detail and use the `upper-layer On lower-layer` format. 
 - The example service name are based on SkyWalking [Showcase](https://github.com/apache/skywalking-showcase) default deployment.
@@ -228,6 +229,14 @@ If you want to customize it according to your own needs, please refer to [Servic
 - Matched Example:
   - KONG.service.name: `kong::kong.skywalking-showcase`
   - K8S_SERVICE.service.name: `skywalking-showcase::kong.skywalking-showcase`
+
+#### AIRFLOW On K8S_SERVICE
+- Rule name: `short-name`
+- Matching expression: `{ (u, l) -> u.shortName == l.shortName }`
+- Description: AIRFLOW.service.shortName == K8S_SERVICE.service.shortName
+- Matched Example:
+  - AIRFLOW.service.name: `airflow::airflow.skywalking-showcase`
+  - K8S_SERVICE.service.name: `skywalking-showcase::airflow.skywalking-showcase`
 
 ### Build Through Specific Agents
 Use agent tech involved(such as eBPF) and deployment tools(such as operator and agent injector) to detect the service hierarchy relations.

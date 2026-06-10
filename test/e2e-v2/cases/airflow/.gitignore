@@ -1,0 +1,19 @@
+# Runtime artifacts from local e2e runs (cluster compose mounts / ad-hoc local runs)
+cluster/logs/**
+cluster/**/__pycache__/
+cluster/docker-compose.wsl-override.yml
+infra-e2e-logs/**
+infra-e2e-wsl-*.log
+*-test.log
+*-e2e-report.txt
+*-e2e-*.log
+mock-e2e-*
+cluster-e2e-*
+logs/wsl/**
+preflight-wsl.log
+license-header-wsl.log
+run-tests-all.log
+
+# Local-only e2e overrides (use deploy/skywalking dist, not CI compose)
+**/e2e.local.yaml
+**/docker-compose.local-e2e.yml

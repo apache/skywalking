@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  * <p>Layers are persisted by ordinal (int). The ordinal space is partitioned by tier so
  * each registration channel has a non-overlapping range:
  * <ul>
- *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..49} in
+ *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..50} in
  *       use; the rest of the range is reserved for future built-ins. Ordinals already
  *       persisted in storage are frozen forever and must never be reused.</li>
  *   <li>{@code 10_000 – 99_999} — boot-time external layers: {@code layer-extensions.yml},
@@ -297,6 +297,9 @@ public final class Layer {
 
     /** Alipay Mini Program monitoring via mini-program-monitor SDK */
     public static final Layer ALIPAY_MINI_PROGRAM = register("ALIPAY_MINI_PROGRAM", 49, true);
+
+    /** Apache Airflow workflow orchestration (native OpenTelemetry metrics via OTel Collector). */
+    public static final Layer AIRFLOW = register("AIRFLOW", 50, true);
 
     private final String name;
     private final int value;

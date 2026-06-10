@@ -713,6 +713,10 @@ jobs:
             config: test/e2e-v2/cases/kong/e2e.yaml
           - name: Flink
             config: test/e2e-v2/cases/flink/e2e.yaml
+          - name: Airflow
+            config: test/e2e-v2/cases/airflow/mock/e2e.yaml
+          - name: Airflow Cluster
+            config: test/e2e-v2/cases/airflow/cluster/e2e.yaml
 
           - name: OTLP Trace
             config: test/e2e-v2/cases/otlp-traces/e2e.yaml

@@ -1,0 +1,44 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Airflow cluster-level metrics from native OpenTelemetry export (SWIP-7).
+# Requires resource attribute `cluster` (set via OTEL_RESOURCE_ATTRIBUTES or Collector transform).
+# OAP maps resource `service.name` (default "Airflow") to tag `job_name`.
+filter: "{ tags -> tags.job_name == 'Airflow' }"
+expSuffix: tag({tags -> tags.cluster = 'airflow::' + tags.cluster}).service(['cluster'], Layer.AIRFLOW)
+metricPrefix: meter_airflow
+metricsRules:
+  - name: scheduler_tasks_executable
+    exp: airflow_scheduler_tasks_executable.sum(['cluster'])
+  - name: executor_queued_tasks
+    exp: airflow_executor_queued_tasks.sum(['cluster'])
+  - name: executor_running_tasks
+    exp: airflow_executor_running_tasks.sum(['cluster'])
+  - name: executor_open_slots
+    exp: airflow_executor_open_slots.sum(['cluster'])
+  - name: pool_scheduled_slots
+    exp: airflow_pool_scheduled_slots.sum(['cluster', 'pool_name'])
+  - name: dag_file_queue_size
+    exp: airflow_dag_processing_file_path_queue_size.sum(['cluster'])
+  - name: dag_import_errors
+    exp: airflow_dag_processing_import_errors.sum(['cluster'])
+  - name: dagbag_size
+    exp: airflow_dagbag_size.sum(['cluster'])
+  - name: dag_total_parse_time
+    exp: airflow_dag_processing_total_parse_time.sum(['cluster'])
+  - name: dag_file_refresh_error
+    exp: airflow_dag_file_refresh_error.sum(['cluster']).increase('PT1M')
+  - name: asset_updates
+    exp: airflow_asset_updates.sum(['cluster']).increase('PT1M')
