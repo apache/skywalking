@@ -83,6 +83,7 @@ Next SWIP Number: 16
 - [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)
 - [SWIP-9 Support Flink Monitoring](SWIP-9.md)
 - [SWIP-8 Support Kong Monitoring](SWIP-8.md)
+- [SWIP-7 Support Apache Airflow Monitoring](SWIP-7.md)
 - [SWIP-6 Support ActiveMQ Monitoring](SWIP-6.md)
 - [SWIP-5 Support ClickHouse Monitoring](SWIP-5.md)
 - [SWIP-4 Support available layers of service in the topology](SWIP-4.md)

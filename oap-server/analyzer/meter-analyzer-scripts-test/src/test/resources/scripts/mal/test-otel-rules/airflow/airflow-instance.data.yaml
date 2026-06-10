@@ -1,0 +1,298 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/airflow/airflow-instance.yaml
+input:
+  airflow_pool_scheduled_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+        pool_name: default_pool
+      value: 1.0
+  airflow_pool_open_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+        pool_name: default_pool
+      value: 128.0
+  airflow_pool_deferred_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+        pool_name: default_pool
+      value: 0.0
+  airflow_pool_running_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+        pool_name: default_pool
+      value: 0.0
+  airflow_scheduler_heartbeat:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 6.0
+  airflow_executor_open_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 16.0
+  airflow_executor_queued_tasks:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 3.0
+  airflow_triggers_running:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 2.0
+  airflow_triggerer_capacity_left:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 998.0
+  airflow_triggerer_heartbeat:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 5.0
+  airflow_triggers_blocked_main_thread:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 0.0
+  airflow_triggers_failed:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 0.0
+  airflow_triggers_succeeded:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-triggerer
+      value: 3.0
+  airflow_executor_running_tasks:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 1.0
+  airflow_asset_updates:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 4.0
+  airflow_asset_triggered_dagruns:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        host_name: airflow-scheduler
+      value: 2.0
+expected:
+  meter_airflow_instance_pool_scheduled_slots:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+          pool_name: default_pool
+        value: 1.0
+  meter_airflow_instance_pool_open_slots:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+          pool_name: default_pool
+        value: 128.0
+  meter_airflow_instance_pool_deferred_slots:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+          pool_name: default_pool
+        value: 0.0
+  meter_airflow_instance_pool_running_slots:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+          pool_name: default_pool
+        value: 0.0
+  meter_airflow_instance_scheduler_heartbeat:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 3.0
+  meter_airflow_instance_executor_open_slots:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 16.0
+  meter_airflow_instance_executor_queued_tasks:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 3.0
+  meter_airflow_instance_triggerer_heartbeat:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 2.5
+  meter_airflow_instance_triggers_running:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 2.0
+  meter_airflow_instance_triggerer_capacity_left:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 998.0
+  meter_airflow_instance_triggers_blocked_main_thread:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 0.0
+  meter_airflow_instance_triggers_failed:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 0.0
+  meter_airflow_instance_triggers_succeeded:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-triggerer
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-triggerer
+        value: 1.5
+  meter_airflow_instance_executor_running_tasks:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 1.0
+  meter_airflow_instance_asset_updates:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 2.0
+  meter_airflow_instance_asset_triggered_dagruns:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'airflow::airflow-cluster'
+        instance: airflow-scheduler
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          host_name: airflow-scheduler
+        value: 1.0

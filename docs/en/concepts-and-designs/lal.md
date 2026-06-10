@@ -62,7 +62,7 @@ Notes:
   multiple LAL files (and additionally in a MAL file, in `layer-extensions.yml`, or via the
   `LayerExtension` SPI). Conflicting registrations cause OAP boot to fail loudly with the
   offending file in the stack trace.
-- **Ordinals 0–49** are in active use by the OAP distribution's built-in layers; **50–999**
+- **Ordinals 0–50** are in active use by the OAP distribution's built-in layers; **51–999**
   are reserved by convention for future built-ins. External layers should start at `>= 1000`
   — enforcement is not strict, but staying above the reserved band avoids upgrade-time
   collisions.
