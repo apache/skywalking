@@ -571,10 +571,9 @@ only — documents the same catalog). The live `/metrics` pull is the authoritat
   `liaison_grpc_total_stream_msg_received_err`, `*_total_sync_loop_err` and `queue_pub_total_err` are
   label-dimensioned counters that emit no series until the first error. The upstream Grafana "Error
   Rate" panel guards each term with PromQL's `or vector(0)`; the MAL rules need no guard — an absent
-  family is the identity for MAL's `+` (see the sketch-notation note in
-  [the metric catalog](#3-metric-catalog--mal-rules)) — the summed metric simply has no series until
-  the first error fires. Their non-error siblings (`_started` / `_finished` / `_latency` / `_bytes`)
-  are all present.
+  family is the identity for MAL's `+` (see the sketch-notation note in the metric catalog, section 3)
+  — the summed metric simply has no series until the first error fires. Their non-error siblings
+  (`_started` / `_finished` / `_latency` / `_bytes`) are all present.
 
 ## Imported Dependencies libs and their licenses
 
