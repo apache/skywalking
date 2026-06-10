@@ -29,7 +29,8 @@ Three things changed underneath it:
    dashboard JSON (dropped in #13877); BanyanDB has not yet been ported to Horizon UI at all. Horizon
    UI is config-driven, has a real **Service → Instance → Endpoint** hierarchy, surfaces per-instance
    attributes, and gates widget visibility through structured, server-evaluated `visibleWhen`
-   predicates — data presence and instance-**attribute** equality ship today (horizon-ui #46); a small
+   predicates — data presence and instance-**attribute** equality ship today
+   ([horizon-ui #46](https://github.com/apache/skywalking-horizon-ui/pull/46)); a small
    extension (membership / negation operators) completes role/tier-driven dashboards.
 
 The current feature does none of this. It models **each node as its own `Service`**
@@ -394,7 +395,8 @@ until it lands, two `eq`-gated widget variants.
 A net-new layer template `apps/bff/src/bundled_templates/layers/banyandb.json` (config-driven JSON, one
 file per layer keyed by its `key` field — `BANYANDB`, filename lowercased — with per-scope widget
 arrays and MQE expression strings). One menu touchpoint exists: Horizon UI currently hard-codes the
-`BANYANDB` layer out of the sidebar (`HIDDEN_LAYERS`); horizon-ui PR #47 replaces that with a
+`BANYANDB` layer out of the sidebar (`HIDDEN_LAYERS`);
+[horizon-ui #47](https://github.com/apache/skywalking-horizon-ui/pull/47) replaces that with a
 config-driven `layers.excluded` list that un-hides BanyanDB — this SWIP rides on that change (or an
 equivalent one-line un-hide). The design mirrors the upstream two boards across the SkyWalking
 hierarchy:
@@ -494,7 +496,7 @@ through `MeterEntity` / `ScopeType`, which ships `SERVICE_RELATION` and `PROCESS
 already powers the eBPF process topology via `network-profiling.yaml`) — but it has **no
 `SERVICE_INSTANCE_RELATION` scope** and no `SampleFamily.instanceRelation(...)` builder. So MAL cannot
 emit the instance-relation metric that `getServiceInstanceTopology` reads, and on a metrics-only
-BanyanDB the deployment graph is **empty** — the Horizon UI component (PR #47) renders that empty
+BanyanDB the deployment graph is **empty** — the Horizon UI component (horizon-ui PR #47) renders that empty
 state by design until the scope lands (its earlier preview mock has been dropped).
 Closing the gap means adding that third relation scope (a `SERVICE_INSTANCE_RELATION` `ScopeType` +
 `MeterEntity` factory + `instanceRelation(...)` builder + entity description, mirroring the two that
@@ -544,7 +546,8 @@ only — documents the same catalog). The live `/metrics` pull is the authoritat
   `process_*` runtime families — 50 families under `container_name=lifecycle` in the demo pull. The
   `last_run_timestamp_seconds` / `last_run_success` gauges (BanyanDB #1167) post-date the demo's
   deployed build, so they were absent from that pull but are present on `main` and emit once a migration
-  cycle runs (the showcase has since pinned the #1167 merge SHA, so a redeployed demo will expose them).
+  cycle runs (the showcase has since pinned the BanyanDB #1167 merge SHA, so a redeployed demo will
+  expose them).
 - **The queue model is confirmed verbatim.** `banyandb_queue_sub_*` / `queue_pub_*` carry
   `operation` ∈ {`batch-write`, `control`, `file-sync`, `query`}, plus `group`, `remote_node`,
   `remote_role` (`liaison` / `data`) and `remote_tier` (`hot` / …); `total_latency` is a histogram. The
@@ -560,7 +563,7 @@ only — documents the same catalog). The live `/metrics` pull is the authoritat
   `_err`; on the data container hosting the metadata/schema server). The `cluster_error_rate` and
   registry panels should pick one deliberately — they are different layers, not aliases. (An earlier
   draft claimed the `liaison_grpc_total_registry_*` series were absent; BanyanDB `main` has emitted
-  them since #517.)
+  them since BanyanDB #517.)
 - **`storage_retention_*` is a real data-only family** not in earlier drafts:
   `storage_retention_{measure,stream,trace}_disk_usage_percent{service}` and
   `_forced_retention_cooldown_seconds{service}` — the source for the data-container retention panels.
