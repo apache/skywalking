@@ -250,6 +250,14 @@
   `banyandb-instance.yaml` redesigned to mirror the upstream FODC-proxy Grafana boards. The stale
   single-node `host_name` model and the removed `etcd_operation_rate` / `up`-derived `active_instance`
   metrics are gone.
+* SWIP-15: add BanyanDB queue batch / message granularity metrics (requires BanyanDB 0.11.x with the
+  `queue_pub_total_batch_*` / `queue_sub_total_message_*` families, apache/skywalking-banyandb#1169). Instance scope gains
+  `publish_batch_throughput` / `publish_batch_latency_p99` (liaison publish-side batch granularity) and
+  `queue_sub_message_throughput` (data per-record subscribe rate); endpoint scope gains
+  `queue_batch_throughput` / `queue_message_throughput` per storage group (subscribe-side counters that
+  carry a real `group`). The subscribe-side batch counters and the publish-side batch-latency histogram
+  are not surfaced where they do not populate per their modeled scope (the data node ingests via the
+  per-message path, and `queue_pub_total_batch_latency` is emitted with an empty `group`).
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See

@@ -126,8 +126,10 @@ stay in lockstep with the BanyanDB catalog. The rule files are
 | r/s | `non_query_op_rate` | Registry / non-query operation rate |
 | w/s | `write_rate` | Write rate seen at the front door |
 | ops | `publish_throughput` | Tier-2 publish throughput by operation |
+| ops | `publish_batch_throughput` | Tier-2 publish batch throughput by operation |
 | Bytes/s | `publish_bytes` | Publish bytes |
 | s | `publish_latency_p99` | Publish send latency p99 |
+| s | `publish_batch_latency_p99` | Publish batch send latency p99 |
 | Count | `wqueue_pending` / `wqueue_file_parts` / `wqueue_mem_part` | Write-queue depth |
 
 **Data** (backend; the dashboard gates these on `container_name == 'data'`):
@@ -143,6 +145,7 @@ stay in lockstep with the BanyanDB catalog. The rule files are
 | o/s | `stream_tst_write_rate` / `stream_tst_term_search_rate` | Stream tst index write / term-search rate |
 | Count | `stream_tst_total_docs` | Stream tst index documents |
 | ops | `queue_sub_throughput` | Subscribe-queue throughput by operation |
+| ops | `queue_sub_message_throughput` | Subscribe-queue per-message throughput by operation |
 | s | `queue_sub_latency_p99` | Subscribe-queue latency p99 |
 | percent | `retention_measure_disk_usage_percent` / `retention_stream_disk_usage_percent` / `retention_trace_disk_usage_percent` | Retention disk-usage % per scope |
 
@@ -167,6 +170,8 @@ stay in lockstep with the BanyanDB catalog. The rule files are
 | o/s | `series_write_rate` | Inverted-index write rate for the group |
 | Count | `total_series` | Inverted-index documents for the group |
 | ops | `queue_throughput` | Subscribe-queue throughput by operation for the group |
+| ops | `queue_batch_throughput` | Subscribe-queue batch throughput by operation for the group |
+| ops | `queue_message_throughput` | Subscribe-queue per-message throughput by operation for the group |
 | s | `queue_latency_p99` | Publish-queue latency p99 for the group |
 | Bytes/s | `publish_bytes` | Publish bytes for the group |
 

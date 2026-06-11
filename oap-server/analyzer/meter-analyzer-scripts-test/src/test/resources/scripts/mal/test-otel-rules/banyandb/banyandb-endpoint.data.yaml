@@ -167,7 +167,31 @@ input:
         remote_role: 'data'
         remote_tier: 'hot'
       value: 12.0
+  banyandb_queue_sub_total_batch_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        remote_node: 'n1'
+        remote_role: 'data'
+      value: 100.0
   banyandb_queue_sub_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        remote_node: 'n1'
+        remote_role: 'data'
+      value: 100.0
+  banyandb_queue_sub_total_message_finished:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
@@ -369,6 +393,18 @@ expected:
         endpoint: test-group
         layer: BANYANDB
   meter_banyandb_endpoint_queue_latency_p99:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: test-group
+        layer: BANYANDB
+  meter_banyandb_endpoint_queue_batch_throughput:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: test-group
+        layer: BANYANDB
+  meter_banyandb_endpoint_queue_message_throughput:
     entities:
       - scope: ENDPOINT
         service: test-cluster

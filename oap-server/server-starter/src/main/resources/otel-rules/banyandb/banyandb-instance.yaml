@@ -100,6 +100,12 @@ metricsRules:
     exp: banyandb_queue_pub_sent_bytes.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
   - name: publish_latency_p99
     exp: banyandb_queue_pub_total_latency.sum(['cluster','pod_name','container_name','node_role','node_type','operation','le']).histogram().histogram_percentile([99])
+  # tier-2 publish, batch granularity (BanyanDB #1169): batches published/s by operation and the batch
+  # send-latency p99. total_batch_latency uses a coarser bucket set than the per-operation total_latency.
+  - name: publish_batch_throughput
+    exp: banyandb_queue_pub_total_batch_finished.sum(['cluster','pod_name','container_name','node_role','node_type','operation']).rate('PT15S')
+  - name: publish_batch_latency_p99
+    exp: banyandb_queue_pub_total_batch_latency.sum(['cluster','pod_name','container_name','node_role','node_type','operation','le']).histogram().histogram_percentile([99])
   # write-queue (wqueue) depth: pending records, on-disk file parts, in-memory parts. On the liaison
   # these reflect the write buffer; the same families on data containers reflect storage parts (the
   # dashboard gates on container_name). Gauges, summed to the instance.
@@ -145,6 +151,14 @@ metricsRules:
     exp: banyandb_queue_sub_total_finished.sum(['cluster','pod_name','container_name','node_role','node_type','operation']).rate('PT15S')
   - name: queue_sub_latency_p99
     exp: banyandb_queue_sub_total_latency.sum(['cluster','pod_name','container_name','node_role','node_type','operation','le']).histogram().histogram_percentile([99])
+  # subscribe-side per-message throughput (BanyanDB #1169). A data node ingests writes via the
+  # per-message dispatch path, which ticks only the message counter (sub_total_message_finished),
+  # NOT the batch counter -- the sub-side batch counters fire on the liaison's OAP-facing receive
+  # hop (handleEOF), not on the data node, so a per-node `queue_sub_batch_*` is empty on data and is
+  # intentionally not modeled here. Batch-level granularity lives on the liaison's publish side
+  # (publish_batch_throughput / publish_batch_latency_p99 above).
+  - name: queue_sub_message_throughput
+    exp: banyandb_queue_sub_total_message_finished.sum(['cluster','pod_name','container_name','node_role','node_type','operation']).rate('PT15S')
   # retention disk-usage % per data-model scope (0-100 gauge). Kept per scope rather than summed (a sum
   # of three percentages is meaningless). Not in the upstream Grafana boards; a SkyWalking addition.
   - name: retention_measure_disk_usage_percent

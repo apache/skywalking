@@ -54,12 +54,19 @@ cases:
     expected: expected/metrics-has-label-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_queue_sub_throughput --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
     expected: expected/metrics-has-label-value.yml
+  # per-message throughput on the data node (BanyanDB #1169). The data node ingests via the per-message
+  # dispatch path, so the sub-side message counter ticks (batch counters fire on the liaison hop, not here).
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_queue_sub_message_throughput --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+    expected: expected/metrics-has-label-value.yml
   # liaison node (banyandb-liaison-0@liaison)
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_node_uptime --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_write_rate --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
     expected: expected/metrics-has-label-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_publish_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+    expected: expected/metrics-has-label-value.yml
+  # publish-side batch throughput on the liaison (BanyanDB #1169).
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_publish_batch_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
     expected: expected/metrics-has-label-value.yml
 
   # ---- Endpoint scope (storage group sw_metricsMinute) ----
@@ -68,4 +75,9 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_endpoint_total_data --service-name=e2e-banyandb --endpoint-name=sw_metricsMinute
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_endpoint_queue_throughput --service-name=e2e-banyandb --endpoint-name=sw_metricsMinute
+    expected: expected/metrics-has-label-value.yml
+  # batch + message granularity per group (BanyanDB #1169).
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_endpoint_queue_batch_throughput --service-name=e2e-banyandb --endpoint-name=sw_metricsMinute
+    expected: expected/metrics-has-label-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_endpoint_queue_message_throughput --service-name=e2e-banyandb --endpoint-name=sw_metricsMinute
     expected: expected/metrics-has-label-value.yml

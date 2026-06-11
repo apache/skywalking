@@ -90,6 +90,17 @@ metricsRules:
   - name: queue_latency_p99
     exp: banyandb_queue_pub_total_latency.sum(['le', 'cluster', 'group', 'operation']).histogram().histogram_percentile([99])
 
+  # batch + message granularity per group (BanyanDB #1169). Both are subscribe-side counters that
+  # carry a real `group`, so they roll up per Endpoint: batch throughput is the per-group rate of
+  # write-batches finished (the liaison's OAP-facing receive hop contributes these), message
+  # throughput is the per-group per-record rate. (The publish-side batch latency histogram is NOT
+  # modeled here: queue_pub_total_batch_latency is emitted with group="" so it cannot roll up per
+  # group -- it is an instance-scope metric only, see banyandb-instance.yaml publish_batch_latency_p99.)
+  - name: queue_batch_throughput
+    exp: banyandb_queue_sub_total_batch_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+  - name: queue_message_throughput
+    exp: banyandb_queue_sub_total_message_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+
   # publish bytes/s for the group. Wire family is banyandb_queue_pub_sent_bytes -- NO `total`
   # infix (unlike queue_pub_total_started/_finished). Liaison-only; sum collapses
   # operation/remote_node/remote_role/remote_tier before the rate.
