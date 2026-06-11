@@ -13,74 +13,157 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This will parse a textual representation of a duration. The formats
-# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
-# with days considered to be exactly 24 hours.
-# <p>
-# Examples:
-# <pre>
-#    "PT20.345S" -- parses as "20.345 seconds"
-#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
-#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
-#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
-#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
-#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
-#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
-#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
-# </pre>
+# SWIP-15: BanyanDB self-observability, ServiceInstance scope = one container on a node.
+# The instance identity is pod_name + container_name (a data hot/warm pod co-hosts a data and a
+# lifecycle container under one pod_name), joined by '@'. role (container_name) and tier (node_type)
+# ride as instance attributes via the 6-arg instance() properties closure; node_type Elvis-defaults
+# to 'n/a' off data containers (it is absent on liaison samples, present on every ROLE_DATA sample).
+#
+# Every rule that aggregates keeps ['cluster','pod_name','container_name','node_role','node_type'] in
+# its .sum()/.avg()/.max() group-by: SampleFamily.aggregate() drops labels not in the group-by, and
+# the properties closure reads them from the post-aggregation sample (SampleFamily.java:810). node_type
+# rides on every ROLE_DATA sample (system_*, go_*, process_* included), so a data instance resolves a
+# stable tier across all rules; liaison families carry none, so liaison resolves 'n/a' consistently.
+#
+# Source expressions mirror the upstream BanyanDB Grafana "Nodes" board
+# (docs/operation/grafana-fodc-nodes.json) plus the liaison/data rows of the "Workload" board, so the
+# SkyWalking instance dashboard stays in lockstep with the upstream catalog.
 filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
-expSuffix:  tag({tags -> tags.host_name = 'banyandb::' + tags.host_name}).service(['host_name'] , Layer.BANYANDB).instance(['host_name'], ['service_instance_id'], Layer.BANYANDB)
-metricPrefix: meter_banyandb
+expSuffix: |-
+  service(['cluster'], Layer.BANYANDB)
+  .instance(['cluster'], '::', ['pod_name', 'container_name'], '@', Layer.BANYANDB, { tags -> ['node_role': tags.node_role, 'node_type': tags.node_type ?: 'n/a', 'pod_name': tags.pod_name, 'container_name': tags.container_name] })
+metricPrefix: meter_banyandb_instance
 metricsRules:
-  - name: instance_write_rate
-    exp: banyandb_measure_total_written.rate('PT15S')+banyandb_stream_tst_total_written.rate('PT15S')
-  - name: instance_total_memory
-    exp: banyandb_system_memory_state.tagEqual('kind','total')
-  - name: instance_disk_usage
-    exp: banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id'])
-  - name: instance_query_rate
-    exp: banyandb_liaison_grpc_total_started.sum(['method','host_name','service_instance_id'])
-  - name: instance_total_cpu
-    exp: banyandb_system_cpu_num
-  - name: instance_write_and_query_errors_rate
-    exp: banyandb_liaison_grpc_total_err.tagEqual('method','query').sum(['method','host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['host_name','service_instance_id']).rate('PT15S')*60 + banyandb_queue_sub_total_msg_sent_err.sum(['host_name','service_instance_id']).rate('PT15S')*60
-  - name: instance_etcd_operation_rate
-    exp: banyandb_liaison_grpc_total_registry_started.sum(['host_name','service_instance_id']).rate('PT15S') + banyandb_liaison_grpc_total_started.sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: instance_active_instance
-    exp: up.sum(['host_name','service_instance_id']).downsampling(MIN)
-  - name: instance_cpu_usage
-    exp: (((process_cpu_seconds_total.sum(['host_name','service_instance_id']).rate('PT15S') / banyandb_system_cpu_num.sum(['host_name','service_instance_id']))).max(['host_name','service_instance_id']))*1000
-  - name: instance_rss_memory_usage
-    exp: ((process_resident_memory_bytes.sum(['host_name','service_instance_id']).downsampling(MAX) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: instance_disk_usage_all
-    exp: ((banyandb_system_disk.tagEqual('kind','used').sum(['host_name','service_instance_id']) / banyandb_system_memory_state.tagEqual('kind','total').sum(['host_name','service_instance_id'])).max(['host_name','service_instance_id']))*1000
-  - name: instance_network_usage_recv
-    exp: banyandb_system_net_state.tagEqual('kind','bytes_recv').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: instance_network_usage_sent
-    exp: banyandb_system_net_state.tagEqual('kind','bytes_sent').sum(['host_name','service_instance_id']).rate('PT15S')
-  - name: instance_storage_write_rate
-    exp: banyandb_measure_total_written.sum(['group','host_name','service_instance_id']).rate('PT15S')*1000
-  - name: instance_query_latency
-    exp: (banyandb_liaison_grpc_total_latency.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: instance_total_data
-    exp: banyandb_measure_total_file_elements.sum(['group','host_name','service_instance_id'])
-  - name: instance_merge_file_data
-    exp: banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S') * 60 *1000
-  - name: instance_merge_file_latency
-    exp: (banyandb_measure_total_merge_latency.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: instance_merge_file_partitions
-    exp: (banyandb_measure_total_merged_parts.tagEqual('type','file').sum(['group','host_name','service_instance_id']).rate('PT15S') / banyandb_measure_total_merge_loop_started.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: instance_series_write_rate
-    exp: (banyandb_measure_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S'))*1000
-  - name: instance_series_term_search_rate
-    exp: banyandb_stream_storage_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: instance_total_series
-    exp: banyandb_measure_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
-  - name: instance_stream_write_rate
-    exp: banyandb_stream_tst_inverted_index_total_updates.sum(['group','host_name','service_instance_id']).rate('PT15S')
-  - name: instance_term_search_rate
-    exp: banyandb_stream_tst_inverted_index_total_term_searchers_started.sum(['group','host_name','service_instance_id']).rate('PT15S')* 1000
-  - name: instance_total_document
-    exp: banyandb_stream_tst_inverted_index_total_doc_count.sum(['group','host_name','service_instance_id'])
+  # ---- All roles: Resources / Disk by Path / Go Runtime (every container emits these) ----
+  # node uptime (s). Raw gauge; ABSENT on lifecycle containers (their binary runs the metric service
+  # without the system collector), so the lifecycle instance shows no uptime.
+  - name: node_uptime
+    exp: banyandb_system_up_time
+  # CPU usage (cores). process_* rides on every container including lifecycle.
+  - name: cpu_usage
+    exp: process_cpu_seconds_total.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  # resident memory (bytes). Raw gauge, present on all containers.
+  - name: rss_memory
+    exp: process_resident_memory_bytes
+  # system memory used %. kind='used_percent' is emitted directly (a 0-1 fraction; source divides by 100).
+  - name: system_memory_percent
+    exp: banyandb_system_memory_state.tagEqual('kind','used_percent')
+  # disk used % = Σused / Σtotal across the node's data paths (matches the Grafana "Disk Usage %" panel).
+  - name: disk_usage_percent
+    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type']).safeDiv(banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type']))
+  # disk used / total / used% broken out per mount path.
+  - name: disk_used_by_path
+    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type','path'])
+  - name: disk_total_by_path
+    exp: banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type','path'])
+  - name: disk_used_percent_by_path
+    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type','path']).safeDiv(banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type','path']))
+  # network throughput (bytes/s) by interface name.
+  - name: network_recv
+    exp: banyandb_system_net_state.tagEqual('kind','bytes_recv').sum(['cluster','pod_name','container_name','node_role','node_type','name']).rate('PT15S')
+  - name: network_sent
+    exp: banyandb_system_net_state.tagEqual('kind','bytes_sent').sum(['cluster','pod_name','container_name','node_role','node_type','name']).rate('PT15S')
+  # Go runtime.
+  - name: goroutines
+    exp: go_goroutines
+  # average GC pause (s) = rate(Σpause) / rate(Σcount). go_gc_duration_seconds is a summary (no buckets),
+  # so this ratio of _sum/_count is the only valid average — do not apply histogram_percentile to it.
+  - name: gc_pause_avg
+    exp: go_gc_duration_seconds_sum.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(go_gc_duration_seconds_count.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S'))
+  - name: heap_inuse
+    exp: go_memstats_heap_inuse_bytes
+  - name: heap_next_gc
+    exp: go_memstats_next_gc_bytes
+  - name: alloc_rate
+    exp: go_memstats_alloc_bytes_total.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
 
+  # ---- Liaison only (front door; the dashboard gates these on container_name == liaison) ----
+  # query rate (req/s) by data-model service (measure/stream/trace/property). method literal is "query".
+  - name: query_rate_by_service
+    exp: banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['cluster','pod_name','container_name','node_role','node_type','service']).rate('PT15S')
+  # gRPC errors/min. Three liaison-side error families (mirrors the Grafana "gRPC Error Rate" panel,
+  # which sums total_err + registry_err + stream_msg_received_err). All lazily registered -> empty on a
+  # healthy cluster; each pre-aggregated to the same label set before '+'.
+  - name: grpc_error_rate
+    exp: (banyandb_liaison_grpc_total_err.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_liaison_grpc_total_registry_err.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')) * 60
+  # non-query operation rate (req/s): registry ops + any non-query unary call. total_started is
+  # query-only on the wire, so tagNotEqual('method','query') is empty today; registry_started carries it.
+  - name: non_query_op_rate
+    exp: banyandb_liaison_grpc_total_registry_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_liaison_grpc_total_started.tagNotEqual('method','query').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  # write rate (writes/s) seen at the liaison front door. group label dropped (instance-level total).
+  - name: write_rate
+    exp: banyandb_measure_total_written.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_stream_tst_total_written.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_trace_tst_total_written.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  # tier-2 publish pipeline (liaison -> data): throughput by operation, bytes/s, and p99 send latency.
+  - name: publish_throughput
+    exp: banyandb_queue_pub_total_finished.sum(['cluster','pod_name','container_name','node_role','node_type','operation']).rate('PT15S')
+  - name: publish_bytes
+    exp: banyandb_queue_pub_sent_bytes.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  - name: publish_latency_p99
+    exp: banyandb_queue_pub_total_latency.sum(['cluster','pod_name','container_name','node_role','node_type','operation','le']).histogram().histogram_percentile([99])
+  # write-queue (wqueue) depth: pending records, on-disk file parts, in-memory parts. On the liaison
+  # these reflect the write buffer; the same families on data containers reflect storage parts (the
+  # dashboard gates on container_name). Gauges, summed to the instance.
+  - name: wqueue_pending
+    exp: banyandb_measure_pending_data_count.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_stream_tst_pending_data_count.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_trace_tst_pending_data_count.sum(['cluster','pod_name','container_name','node_role','node_type'])
+  - name: wqueue_file_parts
+    exp: banyandb_measure_total_file_parts.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_stream_tst_total_file_parts.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_trace_tst_total_file_parts.sum(['cluster','pod_name','container_name','node_role','node_type'])
+  - name: wqueue_mem_part
+    exp: banyandb_measure_total_mem_part.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_stream_tst_total_mem_part.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_trace_tst_total_mem_part.sum(['cluster','pod_name','container_name','node_role','node_type'])
 
+  # ---- Data only (backend; the dashboard gates these on container_name == data) ----
+  # total stored data elements (gauge).
+  - name: total_data
+    exp: banyandb_measure_total_file_elements.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_stream_tst_total_file_elements.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_trace_tst_total_file_elements.sum(['cluster','pod_name','container_name','node_role','node_type'])
+  # merge-loop iterations/s.
+  - name: merge_file_rate
+    exp: banyandb_measure_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_stream_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_trace_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  # avg parts merged per merge loop on the file path (matches Grafana = rate(merged_parts{type=file}) /
+  # rate(merge_loop_started)). type='file' is data-only on the wire (liaison emits only type='mem').
+  - name: merge_file_partitions
+    exp: banyandb_measure_total_merged_parts.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')) + banyandb_stream_tst_total_merged_parts.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')) + banyandb_trace_tst_total_merged_parts.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S'))
+  # avg file-merge latency (ms) per merge loop.
+  - name: merge_file_latency
+    exp: (banyandb_measure_total_merge_latency.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')) + banyandb_stream_tst_total_merge_latency.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')) + banyandb_trace_tst_total_merge_latency.tagEqual('type','file').sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S'))) * 1000
+  # inverted-index (series) write rate / term-search rate / total docs. *_inverted_index_total_* are
+  # # TYPE=gauge but cumulative, so rate() yields a per-window delta. Stream's series index is the
+  # storage scope (stream_storage_*); the tst scope is reported separately below.
+  - name: series_write_rate
+    exp: banyandb_measure_inverted_index_total_updates.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_stream_storage_inverted_index_total_updates.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  - name: series_term_search_rate
+    exp: banyandb_measure_inverted_index_total_term_searchers_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S') + banyandb_stream_storage_inverted_index_total_term_searchers_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  - name: total_series
+    exp: banyandb_measure_inverted_index_total_doc_count.sum(['cluster','pod_name','container_name','node_role','node_type']) + banyandb_stream_storage_inverted_index_total_doc_count.sum(['cluster','pod_name','container_name','node_role','node_type'])
+  # stream time-series-table (tst) index, distinct from the stream series (storage) index above.
+  - name: stream_tst_write_rate
+    exp: banyandb_stream_tst_inverted_index_total_updates.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  - name: stream_tst_term_search_rate
+    exp: banyandb_stream_tst_inverted_index_total_term_searchers_started.sum(['cluster','pod_name','container_name','node_role','node_type']).rate('PT15S')
+  - name: stream_tst_total_docs
+    exp: banyandb_stream_tst_inverted_index_total_doc_count.sum(['cluster','pod_name','container_name','node_role','node_type'])
+  # subscribe-side queue (data receives from liaison): throughput by operation + p99 latency.
+  - name: queue_sub_throughput
+    exp: banyandb_queue_sub_total_finished.sum(['cluster','pod_name','container_name','node_role','node_type','operation']).rate('PT15S')
+  - name: queue_sub_latency_p99
+    exp: banyandb_queue_sub_total_latency.sum(['cluster','pod_name','container_name','node_role','node_type','operation','le']).histogram().histogram_percentile([99])
+  # retention disk-usage % per data-model scope (0-100 gauge). Kept per scope rather than summed (a sum
+  # of three percentages is meaningless). Not in the upstream Grafana boards; a SkyWalking addition.
+  - name: retention_measure_disk_usage_percent
+    exp: banyandb_storage_retention_measure_disk_usage_percent
+  - name: retention_stream_disk_usage_percent
+    exp: banyandb_storage_retention_stream_disk_usage_percent
+  - name: retention_trace_disk_usage_percent
+    exp: banyandb_storage_retention_trace_disk_usage_percent
+
+  # ---- Lifecycle only (the tier-migration sidecar on hot/warm data pods; container_name == lifecycle) ----
+  # cumulative migration cycles. Compiled into build #1166 (BanyanDB #1164) but lazily registered:
+  # emits no series until the first migration cycle fires. Dashboard renders absent-as-0.
+  - name: lifecycle_cycles
+    exp: banyandb_lifecycle_cycles_total
+  # seconds since the last migration cycle started = now - epoch. time() is the MAL ingest-time scalar
+  # (MQE has no current-time function), computed when the rule runs. BUILD-GATED: the source gauge is
+  # BanyanDB #1167+, absent on build #1166 -> no series until the cluster runs >= #1167 AND a cycle ends.
+  - name: lifecycle_last_run
+    exp: (time() - banyandb_lifecycle_last_run_timestamp_seconds.max(['cluster','pod_name','container_name','node_role','node_type']))
+  # last cycle status (1 = OK, 0 = failed). Same #1167 build gate as lifecycle_last_run.
+  - name: lifecycle_last_run_success
+    exp: banyandb_lifecycle_last_run_success
