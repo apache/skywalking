@@ -22,7 +22,9 @@
 # other static labels arrive as datapoint attributes (tags). Hence:
 #   - one job_name "banyandb-monitoring" (matches the filter on all three rule files)
 #   - per-target: cluster (service key), container_name (role discriminator + instance key),
-#     node_role, pod_name, and node_type (data only; liaison Elvis-defaults it to 'n/a').
+#     node_role, pod_name, and node_type (the data node's tier; liaison has no tier, so it is set
+#     explicitly to 'n/a' here — matching the instance() closure default — so labeled liaison
+#     metrics carry node_type='n/a' rather than an empty string).
 receivers:
   prometheus:
     config:
@@ -35,6 +37,7 @@ receivers:
                 cluster: e2e-banyandb
                 container_name: liaison
                 node_role: ROLE_LIAISON
+                node_type: n/a
                 pod_name: banyandb-liaison-0
             - targets: ["data-hot:2121"]
               labels:
