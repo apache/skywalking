@@ -220,6 +220,59 @@ input:
         remote_role: 'data'
         remote_tier: 'hot'
       value: 100.0
+  banyandb_queue_pub_total_batch_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 100.0
+  banyandb_queue_pub_total_batch_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '50'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 5.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '100'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 10.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '500'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 12.0
   banyandb_queue_pub_total_finished:
     - labels:
         cluster: 'test-cluster'
@@ -322,6 +375,18 @@ input:
         remote_node: 'n1'
         remote_role: 'data'
       value: 12.0
+  banyandb_queue_sub_total_message_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        remote_node: 'n1'
+        remote_role: 'data'
+      value: 100.0
   banyandb_storage_retention_measure_disk_usage_percent:
     - labels:
         cluster: 'test-cluster'
@@ -834,6 +899,18 @@ expected:
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
+  meter_banyandb_instance_publish_batch_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-cluster
+        instance: test-pod@data
+        layer: BANYANDB
+  meter_banyandb_instance_publish_batch_latency_p99:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-cluster
+        instance: test-pod@data
+        layer: BANYANDB
   meter_banyandb_instance_wqueue_pending:
     entities:
       - scope: SERVICE_INSTANCE
@@ -919,6 +996,12 @@ expected:
         instance: test-pod@data
         layer: BANYANDB
   meter_banyandb_instance_queue_sub_latency_p99:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-cluster
+        instance: test-pod@data
+        layer: BANYANDB
+  meter_banyandb_instance_queue_sub_message_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
