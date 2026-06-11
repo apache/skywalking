@@ -36,9 +36,45 @@ and renders it on the `Layer: BANYANDB` dashboards in the Horizon UI:
    the **FODC proxy** enabled and the Prometheus metrics provider on (default). Standalone mode is the
    degenerate case — one cluster, one node, one `container_name=standalone`.
 2. Run an **OpenTelemetry Collector** whose `prometheus` receiver scrapes the FODC proxy `/metrics`
-   (`:17913`) as the single target and adds a static `cluster: <name>` label, exporting OTLP to OAP. For
-   a runnable example, see
-   [the e2e collector config](../../../test/e2e-v2/cases/banyandb/otel-collector-config.yaml).
+   (`:17913`) as the single target and adds a static `cluster: <name>` label, exporting OTLP to OAP.
+   The FODC proxy already stamps the per-node identity labels (`pod_name` / `container_name` /
+   `node_role` / `node_type`), so `cluster` is the only label the collector must inject.
+
+   > **The scrape `job_name` MUST be `banyandb-monitoring`.** Every rule file filters on
+   > `{ tags -> tags.job_name == 'banyandb-monitoring' }` (the OTel receiver maps the Prometheus `job`
+   > to the `job_name` tag), so a differently-named job produces no metrics.
+
+   ```yaml
+   receivers:
+     prometheus:
+       config:
+         scrape_configs:
+           - job_name: "banyandb-monitoring"          # REQUIRED — the rules filter on it
+             scrape_interval: 15s
+             static_configs:
+               - targets: ["<fodc-proxy-host>:17913"] # the FODC proxy aggregates every node's metrics
+                 labels:
+                   cluster: <your-cluster-name>        # the only label SkyWalking must inject
+   exporters:
+     otlp:
+       endpoint: <oap-host>:11800
+       tls:
+         insecure: true
+   service:
+     pipelines:
+       metrics:
+         receivers: [prometheus]
+         processors: [batch]
+         exporters: [otlp]
+   ```
+
+   Scrape the **FODC proxy**, not the individual nodes. The proxy resolves each node's identity from
+   the cluster and stamps `pod_name` / `container_name` / `node_role` and the data-node tier
+   (`node_type`) onto every sample — context the raw per-node `:2121` endpoints do not carry. Direct
+   per-node scraping is not recommended: it would have to hand-inject all of those identity labels for
+   every node. (The e2e does exactly that only because it runs no FODC proxy — see the
+   [test collector config](../../../test/e2e-v2/cases/banyandb/otel-collector-config.yaml) — and is not
+   a production pattern.)
 3. Enable SkyWalking's
    [OpenTelemetry receiver](https://skywalking.apache.org/docs/main/next/en/setup/backend/opentelemetry-receiver/).
    The `banyandb/*` rules are enabled by default in `enabledOtelMetricsRules`.
