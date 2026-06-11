@@ -34,12 +34,13 @@ metricsRules:
   - name: write_rate
     exp: (banyandb_measure_total_written.sum(['cluster', 'group']).rate('PT1M') + banyandb_stream_tst_total_written.sum(['cluster', 'group']).rate('PT1M') + banyandb_trace_tst_total_written.sum(['cluster', 'group']).rate('PT1M'))
 
-  # mean query latency (ms) for the group = sum(latency) / sum(count). liaison_grpc_total_latency
-  # and _started are BOTH counters (not a histogram), so this is a ratio of cumulative counters,
-  # not a percentile. Both filtered to method='query' and reduced to ['cluster','group']
-  # (collapsing the `service` data-model facet) before the division joins on equal labels.
+  # mean query latency (ms) for the group = rate(latency) / rate(count). liaison_grpc_total_latency
+  # and _started are BOTH counters (not a histogram), so a WINDOWED average is taken by rate()-ing
+  # both operands (matching the upstream Grafana "Query Latency" panel) rather than dividing the raw
+  # cumulative counters (which would give an all-time average). Both filtered to method='query' and
+  # reduced to ['cluster','group'] (collapsing the `service` facet); safeDiv yields 0 in idle windows.
   - name: query_latency
-    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').sum(['cluster', 'group']).safeDiv(banyandb_liaison_grpc_total_started.tagEqual('method', 'query').sum(['cluster', 'group'])) * 1000
+    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_liaison_grpc_total_started.tagEqual('method', 'query').sum(['cluster', 'group']).rate('PT1M')) * 1000
 
   # current total stored data elements for the group (gauge). Dimensioned by seg+shard+node_type
   # across data nodes; .sum(['cluster','group']) collapses them into one per-group total.
