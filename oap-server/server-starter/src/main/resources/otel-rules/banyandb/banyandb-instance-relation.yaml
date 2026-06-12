@@ -1,0 +1,86 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SWIP-15 section 7: intra-cluster instance topology (the Horizon UI "deployment" component) -- the OAP-native
+# equivalent of BanyanDB's Grafana "Topology: Pod-to-Pod Flows" view (docs/operation/grafana-fodc-nodes.json).
+# Builds the pod-to-pod flow graph WITHIN the single BanyanDB cluster service. Source AND destination service
+# are BOTH the cluster (service keys = ['cluster']), so getServiceInstanceTopology(svc, svc) -- a symmetric,
+# same-service query -- returns exactly these intra-cluster instance relations. Two edge kinds, each detected
+# from both ends (client + server resolve to the same relation id, so their metrics share one edge entity):
+#
+#   WRITE distribution (liaison <-> data, liaison <-> liaison): the liaison fans writes/queries out across the
+#     cluster. PUB (queue_pub_*, on the liaison) is the CLIENT side; SUB (queue_sub_*, on the peer) the SERVER
+#     side. operation in {control, batch-write, query, file-sync} (api/data/data.go).
+#   MIGRATION (lifecycle -> data, hot->warm->cold): the lifecycle sidecar on a data pod migrates that pod's
+#     data to the next tier. PUB (lifecycle_migration_*, container_name=lifecycle) is the CLIENT side; the
+#     receiving data node's queue_sub_* (remote_role=lifecycle) already provides the SERVER side via the
+#     queue_sub rules below. operation in {batch-write, file-sync}.
+#
+# Per-edge metrics (all keep `operation` as a label, matching the dashboard's per-operation rows):
+#   *_throughput        msg/s   rate('PT1M') of total_finished      (per-second, as the instance/endpoint queue metrics)
+#   *_latency_p99       ms      histogram p99 of total_latency      (the `le` bucket label is consumed by .histogram())
+#   *_error_throughput  err/s   rate('PT1M') of total_err
+#   *_bytes_throughput  B/s     rate('PT1M') of sent_bytes / received_bytes
+# msg/s uses total_finished (NOT total_message_finished): the live demo cluster's BanyanDB predates the #1169
+# per-message/per-batch split, so total_message_finished/total_batch_finished read 0 there while total_finished
+# populates on both ends -- total_finished is the cross-version-portable per-edge throughput.
+#
+# Peer identity: the `remote_node` label is the peer's network address -- on k8s the headless-service DNS
+# `<pod_name>.<headless>.<namespace>:port`, off-k8s `<host>:port`. Its FIRST segment is the peer's pod_name,
+# so `remote_node.replaceAll('[.:].*', '')` (strip from the first '.' or ':') yields the peer pod_name into
+# `remote_pod_name`; `remote_role` is the peer's container_name. The local side is `pod_name` +
+# `container_name`. Instances are keyed `pod_name '@' container_name` -- the SAME shape banyandb-instance.yaml
+# uses (`instance(['cluster'], '::', ['pod_name','container_name'], '@', ...)`), so the '@' delimiter below
+# MUST match for the relation endpoints to resolve to existing instance nodes. The Analyzer additionally emits
+# the ServiceInstanceRelation server/client-side topology rows the deployment graph reads.
+#
+# DEFERRED -- the lifecycle's last-migration TIMESTAMP and STATUS are not modeled here. They exist only as
+# label-less per-instance gauges (banyandb_lifecycle_last_run_timestamp_seconds / _success), with no
+# remote_node/remote_tier, so they cannot key a per-edge relation metric today. They will be added as relation
+# metrics in a follow-up once BanyanDB stamps the destination labels on those gauges. Until then the lifecycle
+# run health stays instance-scope (lifecycle_last_run / lifecycle_last_run_success / lifecycle_cycles in
+# banyandb-instance.yaml). The migration TRAFFIC (throughput/latency/error/bytes) below IS per-edge already.
+filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
+metricPrefix: meter_banyandb_instance_relation
+metricsRules:
+  # ---- WRITE / PUB side: the liaison publishes to its peers (CLIENT: source = local, dest = remote peer) ----
+  - name: publish_throughput
+    exp: banyandb_queue_pub_total_finished.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: publish_latency_p99
+    exp: banyandb_queue_pub_total_latency.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation', 'le']).histogram().histogram_percentile([99]).serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: publish_error_throughput
+    exp: banyandb_queue_pub_total_err.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: publish_bytes_throughput
+    exp: banyandb_queue_pub_sent_bytes.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  # ---- WRITE / SUB side: a node subscribes from its peers (SERVER: source = remote peer, dest = local). The
+  #      remote_role=lifecycle slice of this family is the migration edge's SERVER side. ----
+  - name: queue_sub_throughput
+    exp: banyandb_queue_sub_total_finished.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.SERVER, ['cluster'], ['remote_role', 'remote_pod_name'], ['cluster'], ['container_name', 'pod_name'], '@', Layer.BANYANDB, '')
+  - name: queue_sub_latency_p99
+    exp: banyandb_queue_sub_total_latency.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation', 'le']).histogram().histogram_percentile([99]).serviceInstanceRelation(DetectPoint.SERVER, ['cluster'], ['remote_role', 'remote_pod_name'], ['cluster'], ['container_name', 'pod_name'], '@', Layer.BANYANDB, '')
+  - name: queue_sub_error_throughput
+    exp: banyandb_queue_sub_total_err.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.SERVER, ['cluster'], ['remote_role', 'remote_pod_name'], ['cluster'], ['container_name', 'pod_name'], '@', Layer.BANYANDB, '')
+  - name: queue_sub_bytes_throughput
+    exp: banyandb_queue_sub_received_bytes.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.SERVER, ['cluster'], ['remote_role', 'remote_pod_name'], ['cluster'], ['container_name', 'pod_name'], '@', Layer.BANYANDB, '')
+  # ---- MIGRATION / PUB side: the lifecycle sidecar publishes migrated data to the next tier (CLIENT: source =
+  #      local lifecycle, dest = remote data node). The migration's SERVER side is the queue_sub rules above. ----
+  - name: migration_throughput
+    exp: banyandb_lifecycle_migration_total_finished.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: migration_latency_p99
+    exp: banyandb_lifecycle_migration_total_latency.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation', 'le']).histogram().histogram_percentile([99]).serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: migration_error_throughput
+    exp: banyandb_lifecycle_migration_total_err.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')
+  - name: migration_bytes_throughput
+    exp: banyandb_lifecycle_migration_sent_bytes.tag({ tags -> tags.remote_pod_name = tags['remote_node']?.replaceAll('[.:].*', '') }).sum(['cluster', 'container_name', 'pod_name', 'remote_role', 'remote_pod_name', 'operation']).rate('PT1M').serviceInstanceRelation(DetectPoint.CLIENT, ['cluster'], ['container_name', 'pod_name'], ['cluster'], ['remote_role', 'remote_pod_name'], '@', Layer.BANYANDB, '')

@@ -1,0 +1,47 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SWIP-15 section 7 intra-cluster instance topology (the Horizon UI "deployment" component): the same
+# BanyanDB cluster service appears on both sides of getServiceInstanceTopology (source == dest service),
+# so this returns the liaison <-> data instance call graph. We assert the two instance nodes exist and
+# the liaison -> data edge is present with both detect points (CLIENT from the publish-side rule, SERVER
+# from the subscribe-side rule). `contains` ignores extra edges (e.g. the liaison's self-queue edge).
+nodes:
+  {{- contains .nodes }}
+  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}
+    name: liaison@banyandb-liaison-0
+    serviceid: {{ b64enc "e2e-banyandb" }}.1
+    servicename: e2e-banyandb
+    type: ""
+    isreal: true
+  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
+    name: data@banyandb-data-hot-0
+    serviceid: {{ b64enc "e2e-banyandb" }}.1
+    servicename: e2e-banyandb
+    type: ""
+    isreal: true
+  {{- end }}
+calls:
+  {{- contains .calls }}
+  - source: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}
+    sourcecomponents: []
+    target: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
+    targetcomponents: []
+    id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}-{{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
+    detectpoints:
+      - CLIENT
+      - SERVER
+  {{- end }}
+debuggingtrace: null

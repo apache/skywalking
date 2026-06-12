@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.InstanceEntityDesc
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.ProcessEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.ProcessRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.ServiceEntityDescription;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.ServiceInstanceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.entity.ServiceRelationEntityDescription;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.tagOpt.K8sRetagType;
 import org.apache.skywalking.oap.server.core.Const;
@@ -640,6 +641,28 @@ public class SampleFamily {
         return createMeterSamples(new ServiceRelationEntityDescription(sourceServiceKeys, destServiceKeys, detectPoint, layer, delimiter, componentIdKey));
     }
 
+    public SampleFamily serviceInstanceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> sourceInstanceKeys, List<String> destServiceKeys, List<String> destInstanceKeys, Layer layer) {
+        Preconditions.checkArgument(sourceServiceKeys.size() > 0);
+        Preconditions.checkArgument(sourceInstanceKeys.size() > 0);
+        Preconditions.checkArgument(destServiceKeys.size() > 0);
+        Preconditions.checkArgument(destInstanceKeys.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ServiceInstanceRelationEntityDescription(sourceServiceKeys, sourceInstanceKeys, destServiceKeys, destInstanceKeys, detectPoint, layer, Const.POINT, null));
+    }
+
+    public SampleFamily serviceInstanceRelation(DetectPoint detectPoint, List<String> sourceServiceKeys, List<String> sourceInstanceKeys, List<String> destServiceKeys, List<String> destInstanceKeys, String delimiter, Layer layer, String componentIdKey) {
+        Preconditions.checkArgument(sourceServiceKeys.size() > 0);
+        Preconditions.checkArgument(sourceInstanceKeys.size() > 0);
+        Preconditions.checkArgument(destServiceKeys.size() > 0);
+        Preconditions.checkArgument(destInstanceKeys.size() > 0);
+        if (this == EMPTY) {
+            return EMPTY;
+        }
+        return createMeterSamples(new ServiceInstanceRelationEntityDescription(sourceServiceKeys, sourceInstanceKeys, destServiceKeys, destInstanceKeys, detectPoint, layer, delimiter, componentIdKey));
+    }
+
     public SampleFamily forEach(List<String> array, ForEachFunction each) {
         if (this == EMPTY) {
             return EMPTY;
@@ -839,6 +862,18 @@ public class SampleFamily {
                         InternalOps.dim(samples, serviceRelationEntityDescription.getSourceServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         InternalOps.dim(samples, serviceRelationEntityDescription.getDestServiceKeys(), serviceRelationEntityDescription.getDelimiter()),
                         serviceRelationEntityDescription.getDetectPoint(), serviceRelationEntityDescription.getLayer(), serviceRelationComponentId
+                    );
+                case SERVICE_INSTANCE_RELATION:
+                    ServiceInstanceRelationEntityDescription serviceInstanceRelationEntityDescription = (ServiceInstanceRelationEntityDescription) entityDescription;
+                    final String serviceInstanceRelationComponentValue = InternalOps.dim(samples,
+                        Collections.singletonList(serviceInstanceRelationEntityDescription.getComponentIdKey()), serviceInstanceRelationEntityDescription.getDelimiter());
+                    int serviceInstanceRelationComponentId = StringUtil.isNotEmpty(serviceInstanceRelationComponentValue) ? Integer.parseInt(serviceInstanceRelationComponentValue) : 0;
+                    return MeterEntity.newServiceInstanceRelation(
+                        InternalOps.dim(samples, serviceInstanceRelationEntityDescription.getSourceServiceKeys(), serviceInstanceRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, serviceInstanceRelationEntityDescription.getSourceInstanceKeys(), serviceInstanceRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, serviceInstanceRelationEntityDescription.getDestServiceKeys(), serviceInstanceRelationEntityDescription.getDelimiter()),
+                        InternalOps.dim(samples, serviceInstanceRelationEntityDescription.getDestInstanceKeys(), serviceInstanceRelationEntityDescription.getDelimiter()),
+                        serviceInstanceRelationEntityDescription.getDetectPoint(), serviceInstanceRelationEntityDescription.getLayer(), serviceInstanceRelationComponentId
                     );
                 case PROCESS_RELATION:
                     final ProcessRelationEntityDescription processRelationEntityDescription = (ProcessRelationEntityDescription) entityDescription;

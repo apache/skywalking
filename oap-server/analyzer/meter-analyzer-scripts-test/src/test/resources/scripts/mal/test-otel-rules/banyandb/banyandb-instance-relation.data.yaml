@@ -1,0 +1,304 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SWIP-15 section 7 intra-cluster instance topology rule (the pod-to-pod flow view). Three input families,
+# all building a SERVICE_INSTANCE_RELATION entity: the WRITE PUB side (liaison, queue_pub_*) -> CLIENT edge;
+# the WRITE SUB side (data, queue_sub_*) -> SERVER edge; the MIGRATION side (lifecycle, lifecycle_migration_*)
+# -> CLIENT edge (lifecycle -> next-tier data). The peer pod_name is extracted in-rule from `remote_node`
+# (`banyandb-data-hot-0:17912` -> `banyandb-data-hot-0`); `remote_role` is the peer container_name;
+# `operation` is kept as a metric label. The relation entity carries no plain serviceName/instanceName (those
+# are the source/dest fields), so the asserted entity is scope + layer.
+script: oap-server/server-starter/src/main/resources/otel-rules/banyandb/banyandb-instance-relation.yaml
+input:
+  # ---- WRITE PUB side: liaison -> data (queue_pub family) ----
+  banyandb_queue_pub_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+      value: 100.0
+  banyandb_queue_pub_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '50'
+      value: 5.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '100'
+      value: 10.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '500'
+      value: 12.0
+  banyandb_queue_pub_total_err:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        error_type: 'internal'
+      value: 2.0
+  banyandb_queue_pub_sent_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-liaison-0'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        remote_node: 'banyandb-data-hot-0:17912'
+        remote_role: 'data'
+        remote_tier: 'hot'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+      value: 1000.0
+  # ---- WRITE SUB side: data <- liaison (queue_sub family) ----
+  banyandb_queue_sub_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+      value: 100.0
+  banyandb_queue_sub_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '50'
+      value: 5.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '100'
+      value: 10.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        le: '500'
+      value: 12.0
+  banyandb_queue_sub_total_err:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+        error_type: 'internal'
+      value: 2.0
+  banyandb_queue_sub_received_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        remote_node: 'banyandb-liaison-0:18912'
+        remote_role: 'liaison'
+        group: 'sw_metricsMinute'
+        operation: 'batch-write'
+      value: 1000.0
+  # ---- MIGRATION side: lifecycle (on hot data pod) -> warm data (lifecycle_migration family) ----
+  banyandb_lifecycle_migration_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+      value: 50.0
+  banyandb_lifecycle_migration_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+        le: '50'
+      value: 3.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+        le: '100'
+      value: 6.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+        le: '500'
+      value: 8.0
+  banyandb_lifecycle_migration_total_err:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+        error_type: 'recv_error'
+      value: 1.0
+  banyandb_lifecycle_migration_sent_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'banyandb-data-hot-0'
+        container_name: 'lifecycle'
+        remote_node: 'banyandb-data-warm-0:17912'
+        remote_role: 'data'
+        remote_tier: 'warm'
+        group: 'sw_metricsMinute'
+        operation: 'file-sync'
+      value: 2048.0
+expected:
+  meter_banyandb_instance_relation_publish_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_publish_latency_p99:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_publish_error_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_publish_bytes_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_queue_sub_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_queue_sub_latency_p99:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_queue_sub_error_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_queue_sub_bytes_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_migration_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_migration_latency_p99:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_migration_error_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB
+  meter_banyandb_instance_relation_migration_bytes_throughput:
+    entities:
+      - scope: SERVICE_INSTANCE_RELATION
+        service: ""
+        layer: BANYANDB

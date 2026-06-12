@@ -28,17 +28,26 @@ services:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: banyandb-data
-    hostname: data-hot
+    # node identity == pod_name: the queue metrics' `remote_node` is this node's grpc address, whose
+    # first segment the instance-relation rule extracts as the peer pod_name. Keeping it equal to the
+    # collector-injected pod_name (banyandb-data-hot-0) lets the relation edge resolve to this instance
+    # node. The alias makes banyandb-data-hot-0 resolvable to peers (the liaison dials it for discovery).
+    hostname: banyandb-data-hot-0
     command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=hot
     volumes:
       - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
-      - e2e
+      e2e:
+        aliases:
+          - banyandb-data-hot-0
 
   liaison:
     extends:
       file: ../../script/docker-compose/base-compose.yml
       service: liaison
+    # node identity == pod_name (see data-hot above): keeps remote_node's first segment equal to the
+    # collector-injected pod_name (banyandb-liaison-0) so the relation edge resolves to this instance.
+    hostname: banyandb-liaison-0
     command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --data-node-selector type=hot
     volumes:
       - ./nodes.yaml:/etc/banyandb/nodes.yaml
@@ -46,7 +55,9 @@ services:
       data-hot:
         condition: service_healthy
     networks:
-      - e2e
+      e2e:
+        aliases:
+          - banyandb-liaison-0
 
   otel-collector:
     image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}

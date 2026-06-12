@@ -15,7 +15,7 @@
 
 # Static node-discovery file for the BanyanDB 0.11 cluster (file discovery mode; no etcd).
 nodes:
-  - name: data-hot
-    grpc_address: data-hot:17912
-  - name: liaison
-    grpc_address: liaison:17912
+  - name: banyandb-data-hot-0
+    grpc_address: banyandb-data-hot-0:17912
+  - name: banyandb-liaison-0
+    grpc_address: banyandb-liaison-0:17912

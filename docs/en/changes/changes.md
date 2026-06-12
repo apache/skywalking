@@ -242,22 +242,7 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
-* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model
-  (requires BanyanDB 0.11+). `otel-rules/banyandb/` now models a BanyanDB cluster as one `Service`
-  (`service(['cluster'])`), each container as a `ServiceInstance` keyed on `pod_name` + `container_name`
-  (with `node_role` / `node_type` / `container_name` / `pod_name` as instance attributes), and each
-  storage group as an `Endpoint`. New `banyandb-endpoint.yaml`; `banyandb-service.yaml` and
-  `banyandb-instance.yaml` redesigned to mirror the upstream FODC-proxy Grafana boards. The stale
-  single-node `host_name` model and the removed `etcd_operation_rate` / `up`-derived `active_instance`
-  metrics are gone.
-* SWIP-15: add BanyanDB queue batch / message granularity metrics (requires BanyanDB 0.11.x with the
-  `queue_pub_total_batch_*` / `queue_sub_total_message_*` families, apache/skywalking-banyandb#1169). Instance scope gains
-  `publish_batch_throughput` / `publish_batch_latency_p99` (liaison publish-side batch granularity) and
-  `queue_sub_message_throughput` (data per-record subscribe rate); endpoint scope gains
-  `queue_batch_throughput` / `queue_message_throughput` per storage group (subscribe-side counters that
-  carry a real `group`). The subscribe-side batch counters and the publish-side batch-latency histogram
-  are not surfaced where they do not populate per their modeled scope (the data node ingests via the
-  per-message path, and `queue_pub_total_batch_latency` is emitted with an empty `group`).
+* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model (requires BanyanDB 0.11+). A BanyanDB cluster is modeled as one `Service`, each container as a `ServiceInstance` (role/tier as attributes), and each storage group as an `Endpoint`. The `otel-rules/banyandb/` rules are category-separated by role (`node_*` / `liaison_*` / `data_*` / `lifecycle_*`) and by data type (`measure_*` / `stream_*` / `trace_*` / `property_*`), mirroring the upstream FODC-proxy Grafana boards, and include queue batch/message granularity (apache/skywalking-banyandb#1169). Adds a `SERVICE_INSTANCE_RELATION` MAL scope and `serviceInstanceRelation(...)` builder powering a new intra-cluster pod-to-pod deployment topology (`banyandb-instance-relation.yaml`). The stale single-node `host_name` model is removed.
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See
