@@ -242,15 +242,7 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
-* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model (requires
-  BanyanDB 0.11+). A BanyanDB cluster is modeled as one `Service`, each container as a `ServiceInstance`
-  (with role/tier as attributes), and each storage group as an `Endpoint`. The `otel-rules/banyandb/` rules
-  are category-separated by role (`node_*` / `liaison_*` / `data_*` / `lifecycle_*`) and by data type
-  (`measure_*` / `stream_*` / `trace_*` / `property_*`), mirroring the upstream FODC-proxy Grafana boards,
-  and include queue batch/message granularity (apache/skywalking-banyandb#1169). Adds a
-  `SERVICE_INSTANCE_RELATION` MAL scope and `serviceInstanceRelation(...)` builder powering a new
-  intra-cluster pod-to-pod deployment topology (`banyandb-instance-relation.yaml`). The stale single-node
-  `host_name` model is removed.
+* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model (requires BanyanDB 0.11+). A BanyanDB cluster is modeled as one `Service`, each container as a `ServiceInstance` (role/tier as attributes), and each storage group as an `Endpoint`. The `otel-rules/banyandb/` rules are category-separated by role (`node_*` / `liaison_*` / `data_*` / `lifecycle_*`) and by data type (`measure_*` / `stream_*` / `trace_*` / `property_*`), mirroring the upstream FODC-proxy Grafana boards, and include queue batch/message granularity (apache/skywalking-banyandb#1169). Adds a `SERVICE_INSTANCE_RELATION` MAL scope and `serviceInstanceRelation(...)` builder powering a new intra-cluster pod-to-pod deployment topology (`banyandb-instance-relation.yaml`). The stale single-node `host_name` model is removed.
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See

@@ -108,6 +108,25 @@ SkyWalking Resources:
 - Apache SkyWalking Team
 ```
 
+## Publish the GitHub release
+
+Create a GitHub release for the signed tag so the changelog is discoverable at
+`https://github.com/apache/skywalking/releases/tag/vx.y.z`:
+
+```shell
+gh release create vx.y.z --title "vx.y.z" --notes-file release-notes.md --verify-tag
+```
+
+Use the version's section of `docs/en/changes/changes.md` as the release body, with **one formatting
+step that matters**: GitHub renders release notes (like issues / PRs / comments) as GitHub-Flavored
+Markdown, where a **single newline inside a list item becomes a `<br>` line break** — unlike the
+documentation website, which reflows soft-wrapped lines into a paragraph. So a changelog bullet that is
+hard-wrapped across several source lines renders with jagged mid-sentence breaks on the release page.
+
+Before pasting, **collapse each bullet onto a single line** (join its wrapped continuation lines); keep
+one bullet per line and never hard-wrap within a bullet. Authoring `changes.md` entries as one line per
+bullet in the first place (as the released sections do) avoids this step entirely.
+
 ## Publish the Docker images
 
 We have a [GitHub workflow](../../../.github/workflows/publish-docker.yaml) to automatically publish the Docker images to

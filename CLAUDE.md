@@ -263,7 +263,11 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `setup/` - Installation and configuration guides
 - `api/` - Telemetry and query protocol documentation
 - `guides/` - Contributing guides, build instructions, testing
-- `changes/changes.md` - Changelog (update when making changes)
+- `changes/changes.md` - Changelog (update when making changes). Write each entry as **one line per
+  bullet** — never hard-wrap a bullet across source lines. The changelog becomes the GitHub release body,
+  which GitHub renders as GFM where a single newline becomes a `<br>`, so wrapped bullets show jagged
+  mid-sentence breaks on the release page (the docs website reflows, so it hides the problem). See
+  `guides/How-to-release.md`.
 - `swip/` - SkyWalking Improvement Proposals
 
 ### SWIP vs. operator docs
