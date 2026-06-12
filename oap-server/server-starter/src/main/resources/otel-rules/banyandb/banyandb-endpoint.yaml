@@ -132,10 +132,14 @@ metricsRules:
   # rate(merge_started) in ms. banyandb_property_inverted_index_total_merge_started carries
   # type=file/mem; .sum() collapses it (file is the on-disk merge). Property merge IS applicable,
   # unlike the _total_written-based write_rate which property never emits.
+  # UNIT: property's merge-latency gauge is the bluge inverted-index ZapTime, accumulated in
+  # NANOSECONDS (uint64(time.Since(...)), bluge index/merge.go) -- NOT seconds like the tst
+  # merge_file_latency rules (banyand/measure/merger.go incTotalMergeLatency(elapsed.Seconds())).
+  # So convert ns -> ms with /1000000, NOT the *1000 (s->ms) used by the tst latency rules.
   - name: property_index_merge_rate
     exp: banyandb_property_inverted_index_total_merge_started.sum(['cluster', 'group']).rate('PT1M') * 60
   - name: property_index_merge_latency
-    exp: banyandb_property_inverted_index_total_merge_latency.sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_property_inverted_index_total_merge_started.sum(['cluster', 'group']).rate('PT1M')) * 1000
+    exp: banyandb_property_inverted_index_total_merge_latency.sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_property_inverted_index_total_merge_started.sum(['cluster', 'group']).rate('PT1M')) / 1000000
 
   # ---- Series write rate (per data-model type) ----
   # inverted-index updates/s for the group (series-write proxy). NOTE: *_inverted_index_total_updates
