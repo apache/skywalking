@@ -266,6 +266,27 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `changes/changes.md` - Changelog (update when making changes)
 - `swip/` - SkyWalking Improvement Proposals
 
+### SWIP vs. operator docs
+
+A SWIP (`docs/en/swip/SWIP-N.md`) is the **stable design doc** for a feature. When the
+implementation of a SWIP lands, sync the SWIP once to what was actually built — every
+proposed change written in implemented/past tense, with **no `TODO` / "future work" /
+"open dependency" / "lands later" / "empty until X" language for anything in the SWIP's
+scope**. After that sync the SWIP is effectively **frozen**: further metrics, dashboards,
+and incremental enhancements go into the **operator doc**, not the SWIP. Only genuinely
+small, optional follow-ups may stay under a SWIP's "future work" — never a big change.
+
+- BanyanDB self-observability: the SWIP is `docs/en/swip/SWIP-15.md`; the living operator
+  catalog is `docs/en/banyandb/dashboards-banyandb.md` (menu: "BanyanDB self observability
+  dashboard"). New `meter_banyandb_*` rules → update the operator doc; leave the SWIP alone.
+
+### Doc cross-references
+
+Reference another section with a **Markdown anchor link** `[section title](#heading-slug)`,
+never the `§` symbol or a bare "section N". Verify every anchor resolves to a real heading
+(GitHub slug rules: lowercase, spaces → `-`, punctuation dropped) — a broken `[](#…)`
+silently renders as plain text on the website.
+
 ## Handling Existing Tests
 
 If existing test code (UT, IT, or E2E) fails to pass, try to fix it. If any test cases need to be modified, or test code needs to be deleted, the change must be double-checked by a human before it is applied — surface the proposed modification or deletion and the reasoning, and wait for explicit approval rather than changing or removing the test yourself.
