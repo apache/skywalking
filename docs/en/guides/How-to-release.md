@@ -119,13 +119,17 @@ gh release create vx.y.z --title "vx.y.z" --notes-file release-notes.md --verify
 
 Use the version's section of `docs/en/changes/changes.md` as the release body, with **one formatting
 step that matters**: GitHub renders release notes (like issues / PRs / comments) as GitHub-Flavored
-Markdown, where a **single newline inside a list item becomes a `<br>` line break** — unlike the
-documentation website, which reflows soft-wrapped lines into a paragraph. So a changelog bullet that is
-hard-wrapped across several source lines renders with jagged mid-sentence breaks on the release page.
+Markdown, where a **single newline that continues a bullet's prose becomes a `<br>` line break** —
+unlike the documentation website, which reflows soft-wrapped lines into a paragraph. So a bullet whose
+prose is hard-wrapped across several source lines renders with jagged mid-sentence breaks. This is real,
+not theoretical: on `v10.4.0` the wrapped `DrainBalancer` entry renders as
+`… drain rebalancing (DrainBalancer).<br>Designed to replace DataCarrier …`.
 
-Before pasting, **collapse each bullet onto a single line** (join its wrapped continuation lines); keep
-one bullet per line and never hard-wrap within a bullet. Authoring `changes.md` entries as one line per
-bullet in the first place (as the released sections do) avoids this step entirely.
+Before pasting, **collapse each bullet's prose onto a single line** (join its wrapped continuation
+lines). Nested sub-bullets (`  - …`) are **fine** — they are real list items and render as a clean nested
+list (this is how `v10.4.0` structures its multi-part entries); only *prose* continuation lines turn into
+`<br>`. Authoring `changes.md` entries this way in the first place — one line of prose per bullet, with
+sub-bullets for structure — avoids this step entirely.
 
 ## Publish the Docker images
 
