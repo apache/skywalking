@@ -56,19 +56,23 @@ metricsRules:
   # resident memory (bytes). Raw gauge, present on all containers.
   - name: rss_memory
     exp: process_resident_memory_bytes
-  # system memory used %. kind='used_percent' is emitted directly (a 0-1 fraction; source divides by 100).
+  # system memory used %. kind='used_percent' is a 0-1 fraction (BanyanDB already divides by 100), so *100
+  # back to a 0-100 percentage -- a bare fraction collapses to 0/1 in the integer meter-value store and
+  # renders as 0%/100%.
   - name: system_memory_percent
-    exp: banyandb_system_memory_state.tagEqual('kind','used_percent')
-  # disk used % = Σused / Σtotal across the node's data paths (matches the Grafana "Disk Usage %" panel).
+    exp: banyandb_system_memory_state.tagEqual('kind','used_percent') * 100
+  # disk used % -- use BanyanDB's own kind='used_percent' (gopsutil used/(used+free), a 0-1 fraction)
+  # rather than recomputing used/total (which ignores reserved blocks and under-reports). The node's data
+  # paths share one filesystem and report the same value, so avg() collapses them to one; *100 -> 0-100 %.
   - name: disk_usage_percent
-    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type']).safeDiv(banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type']))
+    exp: banyandb_system_disk.tagEqual('kind','used_percent').avg(['cluster','pod_name','container_name','node_role','node_type']) * 100
   # disk used / total / used% broken out per mount path.
   - name: disk_used_by_path
     exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type','path'])
   - name: disk_total_by_path
     exp: banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type','path'])
   - name: disk_used_percent_by_path
-    exp: banyandb_system_disk.tagEqual('kind','used').sum(['cluster','pod_name','container_name','node_role','node_type','path']).safeDiv(banyandb_system_disk.tagEqual('kind','total').sum(['cluster','pod_name','container_name','node_role','node_type','path']))
+    exp: banyandb_system_disk.tagEqual('kind','used_percent').avg(['cluster','pod_name','container_name','node_role','node_type','path']) * 100
   # network throughput (bytes/s) by interface name.
   - name: network_recv
     exp: banyandb_system_net_state.tagEqual('kind','bytes_recv').sum(['cluster','pod_name','container_name','node_role','node_type','name']).rate('PT15S')

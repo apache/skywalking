@@ -125,10 +125,10 @@ collector):
 | s | `node_uptime` | Node uptime |
 | Cores | `cpu_usage` | CPU usage |
 | Bytes | `rss_memory` | Resident memory |
-| percentunit | `system_memory_percent` | System memory used fraction |
-| percentunit | `disk_usage_percent` | Disk used fraction (Σused/Σtotal across the node's data paths) |
-| Bytes | `disk_used_by_path` / `disk_total_by_path` | Disk used / total by mount path |
-| percentunit | `disk_used_percent_by_path` | Disk used fraction by mount path |
+| percent | `system_memory_percent` | System memory used % |
+| percent | `disk_usage_percent` | Disk used % (BanyanDB `used_percent`, averaged across the node's data paths, which share one filesystem) |
+| Bytes | `disk_used_by_path` / `disk_total_by_path` | Disk used / total bytes by mount path |
+| percent | `disk_used_percent_by_path` | Disk used % by mount path |
 | Bytes/s | `network_recv` / `network_sent` | Network throughput by interface |
 | Count | `goroutines` | Go goroutines |
 | s | `gc_pause_avg` | Average GC pause |

@@ -291,9 +291,10 @@ disambiguated by `container_name` — each role rule reads only its own containe
 | `node_uptime`                        | `system_up_time`                                                 |
 | `cpu_usage`                          | `rate(process_cpu_seconds_total)`                               |
 | `rss_memory`                         | `process_resident_memory_bytes`                                 |
-| `system_memory_percent`             | `system_memory_state{kind='used_percent'}`                      |
-| `disk_usage_percent`                | `system_disk{kind='used'} / system_disk{kind='total'}`          |
-| `disk_used_by_path` / `disk_total_by_path` / `disk_used_percent_by_path` | `system_disk{...} by (path)`               |
+| `system_memory_percent`             | `system_memory_state{kind='used_percent'} * 100` (the gauge is a 0-1 fraction; `*100` → 0-100 %) |
+| `disk_usage_percent`                | `avg(system_disk{kind='used_percent'}) * 100` (per node; the data paths share one filesystem, so `avg` collapses them) |
+| `disk_used_by_path` / `disk_total_by_path` | `system_disk{kind='used'/'total'} by (path)` (bytes) |
+| `disk_used_percent_by_path`         | `system_disk{kind='used_percent'} * 100 by (path)`              |
 | `network_recv` / `network_sent`     | `rate(system_net_state{kind='bytes_recv'/'bytes_sent'}) by (name)` |
 | `goroutines`                        | `go_goroutines`                                                 |
 | `gc_pause_avg`                      | `rate(go_gc_duration_seconds_sum) / rate(go_gc_duration_seconds_count)` |
