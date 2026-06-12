@@ -247,9 +247,17 @@
   (`service(['cluster'])`), each container as a `ServiceInstance` keyed on `pod_name` + `container_name`
   (with `node_role` / `node_type` / `container_name` / `pod_name` as instance attributes), and each
   storage group as an `Endpoint`. New `banyandb-endpoint.yaml`; `banyandb-service.yaml` and
-  `banyandb-instance.yaml` redesigned to mirror the upstream FODC-proxy Grafana boards. The stale
-  single-node `host_name` model and the removed `etcd_operation_rate` / `up`-derived `active_instance`
-  metrics are gone.
+  `banyandb-instance.yaml` redesigned to mirror the upstream FODC-proxy Grafana boards. The instance and
+  endpoint rules are **category-separated** (a metric reads only the families that genuinely exist for its
+  category, instead of one unified rule that left empty panels): instance rules carry a role prefix on the
+  rule name (`node_*` shared resource/runtime, `liaison_*` front-door gRPC/publish, `data_*` storage/index/
+  subscribe-queue/retention, `lifecycle_*` migration health); endpoint rules carry a data-type prefix
+  (`measure_*` / `stream_*` / `stream_tst_*` / `trace_*` / `property_*`, with the operation-keyed
+  `queue_*` / `publish_bytes` metrics staying type-agnostic). This adds the previously-unmodeled
+  **property** data type (so `sw_property` groups stop rendering all-empty) and the trace storage
+  inverted-index series/term-search/total-series (previously silently dropped). The scope/entity keys are
+  unchanged. The stale single-node `host_name` model and the removed `etcd_operation_rate` / `up`-derived
+  `active_instance` metrics are gone.
 * SWIP-15: add BanyanDB queue batch / message granularity metrics (requires BanyanDB 0.11.x with the
   `queue_pub_total_batch_*` / `queue_sub_total_message_*` families, apache/skywalking-banyandb#1169). Instance scope gains
   `publish_batch_throughput` / `publish_batch_latency_p99` (liaison publish-side batch granularity) and
@@ -258,6 +266,15 @@
   carry a real `group`). The subscribe-side batch counters and the publish-side batch-latency histogram
   are not surfaced where they do not populate per their modeled scope (the data node ingests via the
   per-message path, and `queue_pub_total_batch_latency` is emitted with an empty `group`).
+* Add a `SERVICE_INSTANCE_RELATION` scope to the MAL engine and a `serviceInstanceRelation(...)` builder,
+  enabling MAL rules to emit intra-cluster (same-service) instance topology. The meter `Analyzer` bridges
+  these to the `ServiceInstanceRelation` server/client-side topology metrics, so `getServiceInstanceTopology`
+  renders the edges. SWIP-15 uses this for the BanyanDB deployment view (new
+  `otel-rules/banyandb/banyandb-instance-relation.yaml`): the pod-to-pod flow graph with per-edge,
+  per-operation metrics -- write distribution (liaison&harr;data via `publish_*` / `queue_sub_*`) and tier
+  migration (lifecycle&rarr;data via `migration_*`), each carrying throughput / p99 latency / error rate /
+  bytes rate. The lifecycle's last-migration timestamp &amp; status remain instance-scope until BanyanDB stamps
+  per-destination labels on those gauges.
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See

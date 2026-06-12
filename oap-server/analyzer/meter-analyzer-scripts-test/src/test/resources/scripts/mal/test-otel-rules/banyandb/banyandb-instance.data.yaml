@@ -13,8 +13,182 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Fixture for the role-separated banyandb-instance.yaml (SWIP-15). Every sample carries the
+# ['cluster','pod_name','container_name','node_role','node_type'] group-by labels that each rule's
+# .sum()/.avg()/.max() reduction keeps, so the instance() properties closure resolves a stable
+# identity (test-pod@data, layer BANYANDB) for every metric. container_name is held at 'data' across
+# all families: the role prefix on a rule NAME does not filter by container_name in the expression,
+# so each rule resolves on whatever container emits its source family and produces a non-empty result.
 script: oap-server/server-starter/src/main/resources/otel-rules/banyandb/banyandb-instance.yaml
 input:
+  # ---- All-roles resource / runtime families (unprefixed rules) ----
+  banyandb_system_up_time:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  process_cpu_seconds_total:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  process_resident_memory_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  banyandb_system_memory_state:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'used'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'total'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'used_percent'
+      value: 100.0
+  banyandb_system_disk:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'used'
+        path: '/tmp/measure'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'total'
+        path: '/tmp/measure'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'used_percent'
+        path: '/tmp/measure'
+      value: 100.0
+  banyandb_system_net_state:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'bytes_recv'
+        name: 'eth0'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        kind: 'bytes_sent'
+        name: 'eth0'
+      value: 100.0
+  go_goroutines:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  go_gc_duration_seconds_sum:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  go_gc_duration_seconds_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  go_memstats_heap_inuse_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  go_memstats_next_gc_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+  go_memstats_alloc_bytes_total:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+      value: 100.0
+
+  # ---- Liaison front-door families ----
+  banyandb_liaison_grpc_total_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        method: 'query'
+        service: 'measure'
+        group: 'test-group'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        method: 'query'
+        service: 'stream'
+        group: 'test-group'
+      value: 100.0
   banyandb_liaison_grpc_total_err:
     - labels:
         cluster: 'test-cluster'
@@ -27,6 +201,17 @@ input:
         group: 'test-group'
       value: 100.0
   banyandb_liaison_grpc_total_registry_err:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        method: 'get'
+        service: 'measure'
+        group: 'test-group'
+      value: 100.0
+  banyandb_liaison_grpc_total_stream_msg_received_err:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
@@ -47,157 +232,8 @@ input:
         method: 'list'
         service: 'measure'
       value: 100.0
-  banyandb_liaison_grpc_total_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        method: 'query'
-        service: 'measure'
-        group: 'test-group'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        method: 'write'
-        service: 'measure'
-        group: 'test-group'
-      value: 100.0
-  banyandb_liaison_grpc_total_stream_msg_received_err:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        method: 'query'
-        service: 'measure'
-        group: 'test-group'
-      value: 100.0
-  banyandb_lifecycle_cycles_total:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  banyandb_lifecycle_last_run_success:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  banyandb_lifecycle_last_run_timestamp_seconds:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  banyandb_measure_inverted_index_total_doc_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_measure_inverted_index_total_term_searchers_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_measure_inverted_index_total_updates:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_measure_pending_data_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_file_elements:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_file_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_mem_part:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_merge_latency:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_merge_loop_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_measure_total_merged_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
+
+  # ---- Liaison write-buffer / publish-pipeline families ----
   banyandb_measure_total_written:
     - labels:
         cluster: 'test-cluster'
@@ -206,6 +242,37 @@ input:
         node_role: 'ROLE_DATA'
         node_type: 'hot'
         group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_written:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_written:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_queue_pub_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
       value: 100.0
   banyandb_queue_pub_sent_bytes:
     - labels:
@@ -220,6 +287,46 @@ input:
         remote_role: 'data'
         remote_tier: 'hot'
       value: 100.0
+  banyandb_queue_pub_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '50'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 5.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '100'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 10.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'test-group'
+        le: '500'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 12.0
   banyandb_queue_pub_total_batch_finished:
     - labels:
         cluster: 'test-cluster'
@@ -273,59 +380,331 @@ input:
         remote_role: 'data'
         remote_tier: 'hot'
       value: 12.0
-  banyandb_queue_pub_total_finished:
+
+  # ---- Write-queue pending (shared family read under liaison_wqueue_pending and data_wqueue_pending) ----
+  banyandb_measure_pending_data_count:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
         container_name: 'data'
         node_role: 'ROLE_DATA'
         node_type: 'hot'
-        operation: 'batch-write'
         group: 'test-group'
-        remote_node: 'n1'
-        remote_role: 'data'
-        remote_tier: 'hot'
       value: 100.0
-  banyandb_queue_pub_total_latency:
+  banyandb_stream_tst_pending_data_count:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
         container_name: 'data'
         node_role: 'ROLE_DATA'
         node_type: 'hot'
-        operation: 'batch-write'
         group: 'test-group'
-        le: '50'
-        remote_node: 'n1'
-        remote_role: 'data'
-        remote_tier: 'hot'
-      value: 5.0
+      value: 100.0
+  banyandb_trace_tst_pending_data_count:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
         container_name: 'data'
         node_role: 'ROLE_DATA'
         node_type: 'hot'
-        operation: 'batch-write'
         group: 'test-group'
-        le: '100'
-        remote_node: 'n1'
-        remote_role: 'data'
-        remote_tier: 'hot'
-      value: 10.0
+      value: 100.0
+
+  # ---- Data storage families ----
+  banyandb_measure_total_file_elements:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
         container_name: 'data'
         node_role: 'ROLE_DATA'
         node_type: 'hot'
-        operation: 'batch-write'
         group: 'test-group'
-        le: '500'
-        remote_node: 'n1'
-        remote_role: 'data'
-        remote_tier: 'hot'
-      value: 12.0
+      value: 100.0
+  banyandb_stream_tst_total_file_elements:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_file_elements:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_measure_total_file_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_file_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_file_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_measure_total_mem_part:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_mem_part:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_mem_part:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_measure_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+      value: 100.0
+  banyandb_measure_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+  banyandb_measure_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+  banyandb_stream_tst_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+  banyandb_trace_tst_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'test-group'
+      value: 100.0
+
+  # ---- Data series (storage) inverted-index families: measure (no _storage_), stream/trace (_storage_) ----
+  banyandb_measure_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_measure_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_measure_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+
+  # ---- Stream tst inverted-index families (distinct from the stream storage series index above) ----
+  banyandb_stream_tst_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_tst_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_tst_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'test-group'
+        seg: 'seg1'
+      value: 100.0
+
+  # ---- Data subscribe-side queue families ----
   banyandb_queue_sub_total_finished:
     - labels:
         cluster: 'test-cluster'
@@ -387,6 +766,8 @@ input:
         remote_node: 'n1'
         remote_role: 'data'
       value: 100.0
+
+  # ---- Data retention disk-usage % per data-model scope ----
   banyandb_storage_retention_measure_disk_usage_percent:
     - labels:
         cluster: 'test-cluster'
@@ -414,213 +795,9 @@ input:
         node_type: 'hot'
         service: 'measure'
       value: 100.0
-  banyandb_stream_storage_inverted_index_total_doc_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_storage_inverted_index_total_term_searchers_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_storage_inverted_index_total_updates:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_tst_inverted_index_total_doc_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_tst_inverted_index_total_term_searchers_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_tst_inverted_index_total_updates:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-        seg: 'seg1'
-      value: 100.0
-  banyandb_stream_tst_pending_data_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_file_elements:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_file_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_mem_part:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_merge_latency:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_merge_loop_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_merged_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
-  banyandb_stream_tst_total_written:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_system_disk:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'used'
-        path: '/tmp/measure'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'total'
-        path: '/tmp/measure'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'used_percent'
-        path: '/tmp/measure'
-      value: 100.0
-  banyandb_system_memory_state:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'used'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'total'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'used_percent'
-      value: 100.0
-  banyandb_system_net_state:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'bytes_recv'
-        name: 'eth0'
-      value: 100.0
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        kind: 'bytes_sent'
-        name: 'eth0'
-      value: 100.0
-  banyandb_system_up_time:
+
+  # ---- Lifecycle migration-sidecar health families ----
+  banyandb_lifecycle_cycles_total:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
@@ -628,81 +805,7 @@ input:
         node_role: 'ROLE_DATA'
         node_type: 'hot'
       value: 100.0
-  banyandb_trace_tst_pending_data_count:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_file_elements:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_file_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_mem_part:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_merge_latency:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_merge_loop_started:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_merged_parts:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        type: 'file'
-        group: 'test-group'
-      value: 100.0
-  banyandb_trace_tst_total_written:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-        group: 'test-group'
-      value: 100.0
-  go_gc_duration_seconds_count:
+  banyandb_lifecycle_last_run_timestamp_seconds:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
@@ -710,55 +813,7 @@ input:
         node_role: 'ROLE_DATA'
         node_type: 'hot'
       value: 100.0
-  go_gc_duration_seconds_sum:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  go_goroutines:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  go_memstats_alloc_bytes_total:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  go_memstats_heap_inuse_bytes:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  go_memstats_next_gc_bytes:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  process_cpu_seconds_total:
-    - labels:
-        cluster: 'test-cluster'
-        pod_name: 'test-pod'
-        container_name: 'data'
-        node_role: 'ROLE_DATA'
-        node_type: 'hot'
-      value: 100.0
-  process_resident_memory_bytes:
+  banyandb_lifecycle_last_run_success:
     - labels:
         cluster: 'test-cluster'
         pod_name: 'test-pod'
@@ -767,6 +822,7 @@ input:
         node_type: 'hot'
       value: 100.0
 expected:
+  # ---- All-roles resource / runtime block (unprefixed) ----
   meter_banyandb_instance_node_uptime:
     entities:
       - scope: SERVICE_INSTANCE
@@ -857,175 +913,187 @@ expected:
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_query_rate_by_service:
+
+  # ---- Liaison-only ----
+  meter_banyandb_instance_liaison_query_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_grpc_error_rate:
+  meter_banyandb_instance_liaison_grpc_error_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_non_query_op_rate:
+  meter_banyandb_instance_liaison_registry_op_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_write_rate:
+  meter_banyandb_instance_liaison_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_publish_throughput:
+  meter_banyandb_instance_liaison_publish_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_publish_bytes:
+  meter_banyandb_instance_liaison_publish_bytes:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_publish_latency_p99:
+  meter_banyandb_instance_liaison_publish_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_publish_batch_throughput:
+  meter_banyandb_instance_liaison_publish_batch_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_publish_batch_latency_p99:
+  meter_banyandb_instance_liaison_publish_batch_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_wqueue_pending:
+  meter_banyandb_instance_liaison_wqueue_pending:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_wqueue_file_parts:
+
+  # ---- Data-only ----
+  meter_banyandb_instance_data_total_data:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_wqueue_mem_part:
+  meter_banyandb_instance_data_wqueue_file_parts:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_total_data:
+  meter_banyandb_instance_data_wqueue_mem_part:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_merge_file_rate:
+  meter_banyandb_instance_data_wqueue_pending:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_merge_file_partitions:
+  meter_banyandb_instance_data_merge_file_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_merge_file_latency:
+  meter_banyandb_instance_data_merge_file_partitions:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_series_write_rate:
+  meter_banyandb_instance_data_merge_file_latency:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_series_term_search_rate:
+  meter_banyandb_instance_data_series_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_total_series:
+  meter_banyandb_instance_data_series_term_search_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_stream_tst_write_rate:
+  meter_banyandb_instance_data_total_series:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_stream_tst_term_search_rate:
+  meter_banyandb_instance_data_stream_tst_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_stream_tst_total_docs:
+  meter_banyandb_instance_data_stream_tst_term_search_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_queue_sub_throughput:
+  meter_banyandb_instance_data_stream_tst_total_docs:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_queue_sub_latency_p99:
+  meter_banyandb_instance_data_queue_sub_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_queue_sub_message_throughput:
+  meter_banyandb_instance_data_queue_sub_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_retention_measure_disk_usage_percent:
+  meter_banyandb_instance_data_queue_sub_message_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_retention_stream_disk_usage_percent:
+  meter_banyandb_instance_data_retention_measure_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_retention_trace_disk_usage_percent:
+  meter_banyandb_instance_data_retention_stream_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
         instance: test-pod@data
         layer: BANYANDB
-  meter_banyandb_instance_lifecycle_cycles:
+  meter_banyandb_instance_data_retention_trace_disk_usage_percent:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-cluster
+        instance: test-pod@data
+        layer: BANYANDB
+
+  # ---- Lifecycle-only ----
+  meter_banyandb_instance_lifecycle_migration_cycles:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster

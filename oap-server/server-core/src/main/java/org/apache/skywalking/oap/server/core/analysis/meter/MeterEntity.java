@@ -46,6 +46,8 @@ public class MeterEntity {
     private String processName;
     private String sourceServiceName;
     private String destServiceName;
+    private String sourceInstanceName;
+    private String destInstanceName;
     private String sourceProcessId;
     private String destProcessId;
     private DetectPoint detectPoint;
@@ -90,6 +92,11 @@ public class MeterEntity {
                     sourceProcessId,
                     destProcessId
                 ));
+            case SERVICE_INSTANCE_RELATION:
+                return IDManager.ServiceInstanceID.buildRelationId(new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(
+                    sourceServiceInstanceId(),
+                    destServiceInstanceId()
+                ));
             default:
                 throw new UnexpectedException("Unexpected scope type of entity " + this.toString());
         }
@@ -109,6 +116,14 @@ public class MeterEntity {
 
     public String destServiceId() {
         return IDManager.ServiceID.buildId(destServiceName, true);
+    }
+
+    public String sourceServiceInstanceId() {
+        return IDManager.ServiceInstanceID.buildId(sourceServiceId(), sourceInstanceName);
+    }
+
+    public String destServiceInstanceId() {
+        return IDManager.ServiceInstanceID.buildId(destServiceId(), destInstanceName);
     }
 
     public static void setNamingControl(final NamingControl namingControl) {
@@ -172,6 +187,29 @@ public class MeterEntity {
         meterEntity.scopeType = ScopeType.SERVICE_RELATION;
         meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
         meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
+        meterEntity.detectPoint = detectPoint;
+        meterEntity.layer = layer;
+        meterEntity.componentId = componentId;
+        return meterEntity;
+    }
+
+    /**
+     * Create a service-instance-relation level meter entity. Both sides are identified by their
+     * service name + instance name; the relation id collides with agent-sourced instance relations
+     * by design (same {@link IDManager.ServiceInstanceID#buildRelationId} format), so MAL-defined and
+     * agent-defined instance topology merge.
+     */
+    public static MeterEntity newServiceInstanceRelation(String sourceServiceName,
+                                                         String sourceInstanceName,
+                                                         String destServiceName,
+                                                         String destInstanceName,
+                                                         DetectPoint detectPoint, Layer layer, int componentId) {
+        final MeterEntity meterEntity = new MeterEntity();
+        meterEntity.scopeType = ScopeType.SERVICE_INSTANCE_RELATION;
+        meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
+        meterEntity.sourceInstanceName = NAMING_CONTROL.formatInstanceName(sourceInstanceName);
+        meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
+        meterEntity.destInstanceName = NAMING_CONTROL.formatInstanceName(destInstanceName);
         meterEntity.detectPoint = detectPoint;
         meterEntity.layer = layer;
         meterEntity.componentId = componentId;
