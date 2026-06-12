@@ -205,7 +205,7 @@ expSuffix: service(['cluster'], Layer.BANYANDB)
 # banyandb-instance.yaml → container (a node may run >1 container), role + tier as attributes
 expSuffix: |-
   service(['cluster'], Layer.BANYANDB)
-  .instance(['cluster'], '::', ['pod_name', 'container_name'], '@', Layer.BANYANDB,
+  .instance(['cluster'], '::', ['container_name', 'pod_name'], '@', Layer.BANYANDB,
             { tags -> ['node_role':      tags.node_role,
                        'node_type':      tags.node_type ?: 'n/a',
                        'pod_name':       tags.pod_name,
@@ -215,10 +215,10 @@ expSuffix: |-
 expSuffix: endpoint(['cluster'], ['group'], Layer.BANYANDB)
 ```
 
-The instance key is the pair `['pod_name', 'container_name']` joined by `'@'` (signature
+The instance key is the pair `['container_name', 'pod_name']` joined by `'@'` (signature
 `instance(serviceKeys, serviceDelimiter, instanceKeys, instanceDelimiter, layer, propertiesExtractor)`),
-so the four `data` hot/warm pods surface as distinct `…@data` and `…@lifecycle` instances rather than
-colliding. The 6-argument overload's properties closure is the standard, precedented mechanism for
+so each pod's containers surface as distinct `data@…` / `lifecycle@…` / `liaison@…` instances rather than
+colliding, and the role (`container_name`) leads the instance name. The 6-argument overload's properties closure is the standard, precedented mechanism for
 attaching labels as instance attributes (the same shape used by `k8s-instance.yaml`). The attributes
 ride entirely on the scraped labels — no separate update API. (Two notes: the MAL v2
 grammar supports the Elvis operator inside a map-literal value, and `banyandb-instance.yaml` ships exactly
@@ -474,7 +474,7 @@ BANYANDB layer
 │   └─ Overview KPIs + "Cluster Workload Summary" + "Fleet Overview" capacity
 │       (cluster_write_rate, cluster_query_rate, cluster_error_rate,
 │        reporting_instances by role, total_cpu/memory/disk)
-├─ Instance (container)   ← the "Nodes" board, made dynamic; instance = pod_name@container_name
+├─ Instance (container)   ← the "Nodes" board, made dynamic; instance = container_name@pod_name
 │   ├─ All roles: Resources (CPU/RSS/mem%/disk%), Disk by Path, Network, Go Runtime
 │   ├─ Liaison (entity gate container_name eq liaison): Ingestion/Query, Registry, Errors,
 │   │     Publish throughput & p99, Write Queue (wqueue) depth
@@ -573,7 +573,7 @@ With it, `banyandb-instance-relation.yaml` emits **twelve per-edge metrics**
 in `_throughput` / `_latency_p99` / `_error_throughput` / `_bytes_throughput` forms), keyed by the queue
 `remote_node` / `remote_role` labels (the lifecycle sender identity now arrives per BanyanDB #1167). The
 peer's `remote_node` address is split to its `remote_pod_name` (first segment) so the relation endpoints
-resolve to the same `pod_name '@' container_name` instances `banyandb-instance.yaml` emits.
+resolve to the same `container_name '@' pod_name` instances `banyandb-instance.yaml` emits.
 `getServiceInstanceTopology` therefore renders the intra-cluster deployment graph live — the component,
 the query path, and the grouping contract above are all in place. (The lifecycle's last-run timestamp /
 status stay instance-scope: they are label-less per-instance gauges with no `remote_node`, so they
@@ -611,7 +611,7 @@ only — documents the same catalog). The live `/metrics` pull is the authoritat
   `ROLE_UNSPECIFIED` for unresolved or meta-only nodes), `container_name`
   (`liaison` / `data` / **`lifecycle`**), and — on **data containers only** — `node_type`
   (`hot` / `warm` / `cold`). Crucially, the four `data` hot/warm pods each run **two containers under
-  one `pod_name`** (`…@data` and `…@lifecycle`), so `pod_name` is not a unique instance key and
+  one `pod_name`** (`data@…` and `lifecycle@…`), so `pod_name` is not a unique instance key and
   `node_role` is not the discriminator (it reads `ROLE_DATA` on the lifecycle sidecar). This validates
   Service = `cluster`, Instance = `pod_name` + `container_name`, attributes `container_name` / `node_type`.
 - **The `lifecycle` migrator surfaces as its own container instance.** It co-locates on the `hot`/`warm`

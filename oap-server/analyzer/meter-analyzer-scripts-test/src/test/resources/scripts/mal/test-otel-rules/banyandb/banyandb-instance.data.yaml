@@ -16,7 +16,7 @@
 # Fixture for the role-separated banyandb-instance.yaml (SWIP-15). Every sample carries the
 # ['cluster','pod_name','container_name','node_role','node_type'] group-by labels that each rule's
 # .sum()/.avg()/.max() reduction keeps, so the instance() properties closure resolves a stable
-# identity (test-pod@data, layer BANYANDB) for every metric. container_name is held at 'data' across
+# identity (data@test-pod, layer BANYANDB) for every metric. container_name is held at 'data' across
 # all families: the role prefix on a rule NAME does not filter by container_name in the expression,
 # so each rule resolves on whatever container emits its source family and produces a non-empty result.
 script: oap-server/server-starter/src/main/resources/otel-rules/banyandb/banyandb-instance.yaml
@@ -827,91 +827,91 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_cpu_usage:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_rss_memory:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_system_memory_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_disk_used_by_path:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_disk_total_by_path:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_disk_used_percent_by_path:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_network_recv:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_network_sent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_goroutines:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_gc_pause_avg:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_heap_inuse:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_heap_next_gc:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_alloc_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
 
   # ---- Liaison-only ----
@@ -919,61 +919,61 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_grpc_error_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_registry_op_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_publish_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_publish_bytes:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_publish_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_publish_batch_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_publish_batch_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_liaison_wqueue_pending:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
 
   # ---- Data-only ----
@@ -981,115 +981,115 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_wqueue_file_parts:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_wqueue_mem_part:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_wqueue_pending:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_merge_file_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_merge_file_partitions:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_merge_file_latency:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_series_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_series_term_search_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_total_series:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_stream_tst_write_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_stream_tst_term_search_rate:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_stream_tst_total_docs:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_queue_sub_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_queue_sub_latency_p99:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_queue_sub_message_throughput:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_retention_measure_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_retention_stream_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_data_retention_trace_disk_usage_percent:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
 
   # ---- Lifecycle-only ----
@@ -1097,17 +1097,17 @@ expected:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_lifecycle_last_run:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB
   meter_banyandb_instance_lifecycle_last_run_success:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-cluster
-        instance: test-pod@data
+        instance: data@test-pod
         layer: BANYANDB

@@ -20,14 +20,14 @@
 # from the subscribe-side rule). `contains` ignores extra edges (e.g. the liaison's self-queue edge).
 nodes:
   {{- contains .nodes }}
-  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-liaison-0@liaison" }}
-    name: banyandb-liaison-0@liaison
+  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}
+    name: liaison@banyandb-liaison-0
     serviceid: {{ b64enc "e2e-banyandb" }}.1
     servicename: e2e-banyandb
     type: ""
     isreal: true
-  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-data-hot-0@data" }}
-    name: banyandb-data-hot-0@data
+  - id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
+    name: data@banyandb-data-hot-0
     serviceid: {{ b64enc "e2e-banyandb" }}.1
     servicename: e2e-banyandb
     type: ""
@@ -35,11 +35,11 @@ nodes:
   {{- end }}
 calls:
   {{- contains .calls }}
-  - source: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-liaison-0@liaison" }}
+  - source: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}
     sourcecomponents: []
-    target: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-data-hot-0@data" }}
+    target: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
     targetcomponents: []
-    id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-liaison-0@liaison" }}-{{ b64enc "e2e-banyandb" }}.1_{{ b64enc "banyandb-data-hot-0@data" }}
+    id: {{ b64enc "e2e-banyandb" }}.1_{{ b64enc "liaison@banyandb-liaison-0" }}-{{ b64enc "e2e-banyandb" }}.1_{{ b64enc "data@banyandb-data-hot-0" }}
     detectpoints:
       - CLIENT
       - SERVER

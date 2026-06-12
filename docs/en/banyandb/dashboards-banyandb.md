@@ -9,7 +9,7 @@ and renders it on the `Layer: BANYANDB` dashboards in the Horizon UI:
 | SkyWalking entity | BanyanDB concept | Identity |
 | ----------------- | ---------------- | -------- |
 | `Service` | one BanyanDB **cluster** | the `cluster` label |
-| `ServiceInstance` | one **container** on a node | `pod_name` + `container_name` (joined by `@`) |
+| `ServiceInstance` | one **container** on a node | `container_name` + `pod_name` (joined by `@`, e.g. `data@…-data-hot-0`) |
 | &nbsp;&nbsp;↳ attributes | role / tier | `container_name` (`liaison`/`data`/`lifecycle`), `node_type` (`hot`/`warm`/`cold`), `node_role`, `pod_name` |
 | `Endpoint` | one **group** (storage partition) | the `group` label (e.g. `sw_metricsMinute`) |
 

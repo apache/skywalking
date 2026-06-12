@@ -40,7 +40,7 @@
 filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
 expSuffix: |-
   service(['cluster'], Layer.BANYANDB)
-  .instance(['cluster'], '::', ['pod_name', 'container_name'], '@', Layer.BANYANDB, { tags -> ['node_role': tags.node_role, 'node_type': tags.node_type ?: 'n/a', 'pod_name': tags.pod_name, 'container_name': tags.container_name] })
+  .instance(['cluster'], '::', ['container_name', 'pod_name'], '@', Layer.BANYANDB, { tags -> ['node_role': tags.node_role, 'node_type': tags.node_type ?: 'n/a', 'pod_name': tags.pod_name, 'container_name': tags.container_name] })
 metricPrefix: meter_banyandb_instance
 metricsRules:
   # ---- All roles: Resources / Disk by Path / Go Runtime (every container emits these) ----

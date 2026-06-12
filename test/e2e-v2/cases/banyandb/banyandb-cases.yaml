@@ -17,7 +17,7 @@
 # oap-server/server-starter/src/main/resources/otel-rules/banyandb/{banyandb-service,banyandb-instance,banyandb-endpoint}.yaml
 # Entity identities come from the collector's injected labels (otel-collector-config.yaml):
 #   Service  = cluster                       -> e2e-banyandb
-#   Instance = pod_name '@' container_name    -> banyandb-liaison-0@liaison, banyandb-data-hot-0@data
+#   Instance = pod_name '@' container_name    -> liaison@banyandb-liaison-0, data@banyandb-data-hot-0
 #   Endpoint = group                          -> sw_metricsMinute (an OAP self-telemetry group)
 # Expected templates:
 #   metrics-has-value.yml        — single unlabeled series (the metric's .sum() collapses to the entity
@@ -29,8 +29,8 @@
 #
 # The instance and endpoint rules are CATEGORY-SEPARATED (SWIP-15 redesign): instance rules carry a
 # role prefix on the rule NAME -- shared resource/runtime metrics stay unprefixed (node_uptime,
-# cpu_usage, ...), front-door metrics use liaison_* (asserted on banyandb-liaison-0@liaison), storage /
-# index metrics use data_* (asserted on banyandb-data-hot-0@data); endpoint rules carry a data-model
+# cpu_usage, ...), front-door metrics use liaison_* (asserted on liaison@banyandb-liaison-0), storage /
+# index metrics use data_* (asserted on data@banyandb-data-hot-0); endpoint rules carry a data-model
 # type prefix (measure_* for the sw_metricsMinute MEASURE group), with the operation-keyed queue/publish
 # metrics staying type-agnostic. The scope/entity keys are unchanged.
 #
@@ -59,30 +59,30 @@ cases:
 
   # ---- Instance scope (role-prefixed rule names; labeled by node_role/node_type, and operation where applicable) ----
   # Shared resource/runtime metrics stay UNPREFIXED and resolve on whatever container emits them.
-  # data node (banyandb-data-hot-0@data): shared resources + data_* storage/index/queue metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_node_uptime --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+  # data node (data@banyandb-data-hot-0): shared resources + data_* storage/index/queue metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_node_uptime --service-name=e2e-banyandb --instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_cpu_usage --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_cpu_usage --service-name=e2e-banyandb --instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_total_data --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_total_data --service-name=e2e-banyandb --instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_queue_sub_throughput --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_queue_sub_throughput --service-name=e2e-banyandb --instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
   # per-message throughput on the data node (BanyanDB #1169). The data node ingests via the per-message
   # dispatch path, so the sub-side message counter ticks (batch counters fire on the liaison hop, not here).
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_queue_sub_message_throughput --service-name=e2e-banyandb --instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_data_queue_sub_message_throughput --service-name=e2e-banyandb --instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  # liaison node (banyandb-liaison-0@liaison): shared resources + liaison_* front-door metrics
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_node_uptime --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+  # liaison node (liaison@banyandb-liaison-0): shared resources + liaison_* front-door metrics
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_node_uptime --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0
     expected: expected/metrics-has-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_write_rate --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_write_rate --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_bytes --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_bytes --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0
     expected: expected/metrics-has-label-value.yml
   # publish-side batch throughput on the liaison (BanyanDB #1169).
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_batch_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_liaison_publish_batch_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0
     expected: expected/metrics-has-label-value.yml
 
   # ---- Endpoint scope (type-prefixed rule names; storage group sw_metricsMinute is a MEASURE group) ----
@@ -111,13 +111,13 @@ cases:
   # p99 and error_* / migration_* are exercised by the MAL unit fixture (no lifecycle / sparse here). Plus the
   # topology graph the Horizon UI deployment component reads via getServiceInstanceTopology (source service ==
   # dest service == the cluster).
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_publish_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison --dest-service-name=e2e-banyandb --dest-instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_publish_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0 --dest-service-name=e2e-banyandb --dest-instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_publish_bytes_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison --dest-service-name=e2e-banyandb --dest-instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_publish_bytes_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0 --dest-service-name=e2e-banyandb --dest-instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_queue_sub_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison --dest-service-name=e2e-banyandb --dest-instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_queue_sub_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0 --dest-service-name=e2e-banyandb --dest-instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_queue_sub_bytes_throughput --service-name=e2e-banyandb --instance-name=banyandb-liaison-0@liaison --dest-service-name=e2e-banyandb --dest-instance-name=banyandb-data-hot-0@data
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_instance_relation_queue_sub_bytes_throughput --service-name=e2e-banyandb --instance-name=liaison@banyandb-liaison-0 --dest-service-name=e2e-banyandb --dest-instance-name=data@banyandb-data-hot-0
     expected: expected/metrics-has-label-value.yml
   # the deployment-component topology call: liaison -> data, both detect points.
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency instance --service-name=e2e-banyandb --dest-service-name=e2e-banyandb
