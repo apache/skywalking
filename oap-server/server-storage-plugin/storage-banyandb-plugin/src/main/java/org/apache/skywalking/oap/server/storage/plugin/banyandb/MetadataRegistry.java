@@ -721,7 +721,7 @@ public enum MetadataRegistry {
                             model.getName(),
                             Kind.STREAM,
                             model.getDownsampling(),
-                            config.getRecordsBrowserErrorLog()
+                            config.getRecordsNormal()
                         );
                     default:
                         throw new IllegalStateException("unknown stream group " + streamGroup);
