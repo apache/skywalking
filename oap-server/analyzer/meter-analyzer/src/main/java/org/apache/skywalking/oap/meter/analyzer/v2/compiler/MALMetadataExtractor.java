@@ -99,6 +99,11 @@ public final class MALMetadataExtractor {
                         addAllStringListLabels(mc, scopeLabels);
                         addStringArgLabels(mc, scopeLabels);
                         break;
+                    case "serviceInstanceRelation":
+                        scopeType = ScopeType.SERVICE_INSTANCE_RELATION;
+                        addAllStringListLabels(mc, scopeLabels);
+                        addStringArgLabels(mc, scopeLabels);
+                        break;
                     case "processRelation":
                         scopeType = ScopeType.PROCESS_RELATION;
                         addAllStringListLabels(mc, scopeLabels);

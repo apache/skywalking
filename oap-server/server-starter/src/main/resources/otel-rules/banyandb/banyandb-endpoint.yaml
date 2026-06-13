@@ -1,0 +1,226 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SWIP-15 section 3.3 Endpoint scope: a BanyanDB `group` (storage group, e.g. sw_metricsMinute,
+# sw_trace) is modeled as an Endpoint under the cluster Service. The `cluster` label is the
+# single static label the OTel collector injects per scrape job (it is NOT on the raw FODC
+# wire); `group` is carried natively by every family referenced below. Every metric here is
+# aggregated across all cluster nodes per group, so each rule's .sum() collapses the per-node /
+# per-seg / per-shard / per-operation / per-remote dimensions down to ['cluster','group']
+# before any rate/histogram/division. MAL arithmetic ('+', '/') inner-joins on exact label
+# equality, so every operand is reduced to the identical ['cluster','group'] (or
+# ['cluster','group','le'] for histograms) label set first.
+#
+# TYPE-SEPARATED layout (SWIP-15 redesign): a group carries exactly one data-model type, and
+# each type emits a DIFFERENT family namespace. The previous design summed measure + stream +
+# trace into one unified rule per concept, which (a) rendered all-empty panels for a property
+# group (property emits none of *_total_written / *_tst_*) and (b) silently dropped the trace
+# inverted index from series_write_rate / total_series. This file replaces the unified rules
+# with per-type rules carrying a measure_/stream_/trace_/property_ prefix on the rule NAME, so
+# each rule reads ONLY the families its type genuinely emits. The Endpoint scope and entity key
+# are unchanged; the UI selects the panel set by the group's data-type. Family-name traps that
+# the per-type split must respect (verified against the live FODC scrape):
+#   - measure uses bare banyandb_measure_*; stream/trace storage tables use the _tst_ infix
+#     (banyandb_stream_tst_*, banyandb_trace_tst_*).
+#   - inverted index: measure = banyandb_measure_inverted_index_* (NO _storage_); stream/trace =
+#     banyandb_stream_storage_inverted_index_* / banyandb_trace_storage_inverted_index_* (extra
+#     _storage_); the trace tst table has NO inverted index (only the stream tst table does).
+#   - property has NO _total_written, NO tst, NO stream_storage scope: property "writes" are
+#     inverted-index updates and property is read via the registry term-search path, so write_rate /
+#     query_latency / total_data / tst-merge are genuinely N/A for property and are NOT modeled.
+#     Property is a dedicated property_* set reading banyandb_property_inverted_index_*.
+#   - banyandb_queue_pub_sent_bytes has no _total_ infix (unlike _total_started / _finished).
+# The queue/publish metrics stay type-agnostic (group + operation keyed, not data-model-type
+# keyed) and keep their bare names.
+# Source expressions mirror the upstream BanyanDB Grafana "Workload" board
+# (docs/operation/grafana-fodc-workload.json).
+filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
+expSuffix: endpoint(['cluster'], ['group'], Layer.BANYANDB)
+metricPrefix: meter_banyandb_endpoint
+metricsRules:
+  # ---- Write rate (per data-model type) ----
+  # writes/s for the group, split per data-model type. The write counter is the liaison-side
+  # write-buffer counter and carries `group` regardless of which role records it, so the
+  # by-group roll-up is exact. Property has no *_total_written (its "writes" are index updates --
+  # see property_index_write_rate), so write_rate is N/A for property.
+  - name: measure_write_rate
+    exp: banyandb_measure_total_written.sum(['cluster', 'group']).rate('PT1M')
+  - name: stream_write_rate
+    exp: banyandb_stream_tst_total_written.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_write_rate
+    exp: banyandb_trace_tst_total_written.sum(['cluster', 'group']).rate('PT1M')
+
+  # ---- Query latency (per data-model type) ----
+  # mean liaison query latency (ms) for the group = rate(latency) / rate(finished), split by the
+  # `service` facet (measure/stream/trace) on the liaison gRPC counters. liaison_grpc_total_latency
+  # and _finished are BOTH counters (not a histogram), so a WINDOWED average is taken by rate()-ing
+  # both operands (matching the upstream Grafana "Query Latency" panel) rather than dividing the raw
+  # cumulative counters (which would give an all-time average). Both filtered to method='query' and
+  # the matching service, then reduced to ['cluster','group']; safeDiv yields 0 in idle windows.
+  # Property is read via the registry/term-search path, NOT the liaison `query` method, so
+  # query_latency is N/A for property (see property_series_term_search_rate for property read load).
+  - name: measure_query_latency
+    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').tagEqual('service', 'measure').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_liaison_grpc_total_finished.tagEqual('method', 'query').tagEqual('service', 'measure').sum(['cluster', 'group']).rate('PT1M')) * 1000
+  - name: stream_query_latency
+    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').tagEqual('service', 'stream').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_liaison_grpc_total_finished.tagEqual('method', 'query').tagEqual('service', 'stream').sum(['cluster', 'group']).rate('PT1M')) * 1000
+  - name: trace_query_latency
+    exp: banyandb_liaison_grpc_total_latency.tagEqual('method', 'query').tagEqual('service', 'trace').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_liaison_grpc_total_finished.tagEqual('method', 'query').tagEqual('service', 'trace').sum(['cluster', 'group']).rate('PT1M')) * 1000
+
+  # ---- Total stored data (per data-model type) ----
+  # current total stored data elements for the group (gauge). Dimensioned by seg+shard+node_type
+  # across data nodes; .sum(['cluster','group']) collapses them into one per-group total. Property
+  # has no tst file elements, so total_data is N/A for property (see property_total_series).
+  - name: measure_total_data
+    exp: banyandb_measure_total_file_elements.sum(['cluster', 'group'])
+  - name: stream_total_data
+    exp: banyandb_stream_tst_total_file_elements.sum(['cluster', 'group'])
+  - name: trace_total_data
+    exp: banyandb_trace_tst_total_file_elements.sum(['cluster', 'group'])
+
+  # ---- Merge file rate (per data-model type) ----
+  # merge-loop iterations/min for the group (matches the upstream "Merge File Rate" rotrpm panel,
+  # which is rate(merge_loop_started) * 60). merge_loop_started carries node_type (NOT a `type`
+  # label), so no type filter applies here. For property the merge concept lives on the
+  # inverted-index merge counter (property has no tst merge loop) -- see property_index_merge_rate.
+  - name: measure_merge_file_rate
+    exp: banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: stream_merge_file_rate
+    exp: banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_merge_file_rate
+    exp: banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M') * 60
+
+  # ---- Merge file latency (per data-model type) ----
+  # mean file-merge latency (ms) per merge loop for the group. merge_latency carries a `type`
+  # label (file/hot/mem); type='file' selects on-disk merges and is DATA-only on the wire
+  # (liaison emits only type='mem'). Divide accumulated merge-seconds by merge loops, both
+  # type/scope-aligned to ['cluster','group']. Matches the upstream "Merge File Latency" panel.
+  # (The trace_tst merge family additionally carries a `lane` label, collapsed by .sum() here.)
+  - name: measure_merge_file_latency
+    exp: banyandb_measure_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) * 1000
+  - name: stream_merge_file_latency
+    exp: banyandb_stream_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) * 1000
+  - name: trace_merge_file_latency
+    exp: banyandb_trace_tst_total_merge_latency.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M')) * 1000
+
+  # ---- Merge file partitions (per data-model type) ----
+  # avg parts merged per merge loop on the on-disk merge path for the group (matches the upstream
+  # "Merge File Partitions" panel = rate(merged_parts{type=file}) / rate(merge_loop_started)).
+  # merged_parts carries `type`; type='file' is DATA-only (liaison emits only type='mem').
+  # (trace_tst merged_parts additionally carries `lane`, collapsed by .sum().)
+  - name: measure_merge_file_partitions
+    exp: banyandb_measure_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_measure_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))
+  - name: stream_merge_file_partitions
+    exp: banyandb_stream_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_stream_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))
+  - name: trace_merge_file_partitions
+    exp: banyandb_trace_tst_total_merged_parts.tagEqual('type', 'file').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_trace_tst_total_merge_loop_started.sum(['cluster', 'group']).rate('PT1M'))
+
+  # ---- Property index merge (property-only) ----
+  # property's merge concept is the inverted-index segment merge (property has NO tst merge loop).
+  # The merge rate is rate(merge_started) and the mean merge latency is rate(merge_latency) /
+  # rate(merge_started) in ms. banyandb_property_inverted_index_total_merge_started carries
+  # type=file/mem; .sum() collapses it (file is the on-disk merge). Property merge IS applicable,
+  # unlike the _total_written-based write_rate which property never emits.
+  # UNIT: property's merge-latency gauge is the bluge inverted-index ZapTime, accumulated in
+  # NANOSECONDS (uint64(time.Since(...)), bluge index/merge.go) -- NOT seconds like the tst
+  # merge_file_latency rules (banyand/measure/merger.go incTotalMergeLatency(elapsed.Seconds())).
+  # So convert ns -> ms with /1000000, NOT the *1000 (s->ms) used by the tst latency rules.
+  - name: property_index_merge_rate
+    exp: banyandb_property_inverted_index_total_merge_started.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: property_index_merge_latency
+    exp: banyandb_property_inverted_index_total_merge_latency.sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_property_inverted_index_total_merge_started.sum(['cluster', 'group']).rate('PT1M')) / 1000000
+
+  # ---- Series write rate (per data-model type) ----
+  # inverted-index updates/s for the group (series-write proxy). NOTE: *_inverted_index_total_updates
+  # is # TYPE=gauge though cumulative; rate() over a cumulative gauge yields a per-window delta
+  # (updates/s). Family-name traps: measure = banyandb_measure_inverted_index_* (no _storage_);
+  # stream/trace = banyandb_*_storage_inverted_index_* (extra _storage_); stream ALSO has a second,
+  # tst-scope index (stream_tst_index_write_rate) distinct from its storage-scope series index;
+  # the trace tst table has no inverted index. Property "writes" are registry index updates
+  # (property_index_write_rate); =0 in idle scrapes but valid. Data-only families.
+  - name: measure_series_write_rate
+    exp: banyandb_measure_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M')
+  - name: stream_series_write_rate
+    exp: banyandb_stream_storage_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M')
+  - name: stream_tst_index_write_rate
+    exp: banyandb_stream_tst_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_series_write_rate
+    exp: banyandb_trace_storage_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M')
+  - name: property_index_write_rate
+    exp: banyandb_property_inverted_index_total_updates.sum(['cluster', 'group']).rate('PT1M')
+
+  # ---- Series term-search rate (per data-model type) ----
+  # inverted-index term-searcher invocations/s for the group (index read pressure). Same family-name
+  # traps as series_write_rate. For property this is the REAL read-load signal: property is queried
+  # via the registry/term-search path (heavily populated), NOT the liaison `query` method, so
+  # property_series_term_search_rate is the property equivalent of the per-type query load. Data-only.
+  - name: measure_series_term_search_rate
+    exp: banyandb_measure_inverted_index_total_term_searchers_started.sum(['cluster', 'group']).rate('PT1M')
+  - name: stream_series_term_search_rate
+    exp: banyandb_stream_storage_inverted_index_total_term_searchers_started.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_series_term_search_rate
+    exp: banyandb_trace_storage_inverted_index_total_term_searchers_started.sum(['cluster', 'group']).rate('PT1M')
+  - name: property_series_term_search_rate
+    exp: banyandb_property_inverted_index_total_term_searchers_started.sum(['cluster', 'group']).rate('PT1M')
+
+  # ---- Total series (per data-model type) ----
+  # total inverted-index documents (series proxy) for the group (gauge, direct read, no rate).
+  # Dimensioned by seg/shard across data nodes; .sum() collapses to group. Stream carries TWO index
+  # scopes (storage-scope series index + tst-scope index), surfaced as distinct stream_total_series
+  # and stream_tst_total_series. Property's doc-count is its series total (populated).
+  - name: measure_total_series
+    exp: banyandb_measure_inverted_index_total_doc_count.sum(['cluster', 'group'])
+  - name: stream_total_series
+    exp: banyandb_stream_storage_inverted_index_total_doc_count.sum(['cluster', 'group'])
+  - name: stream_tst_total_series
+    exp: banyandb_stream_tst_inverted_index_total_doc_count.sum(['cluster', 'group'])
+  - name: trace_total_series
+    exp: banyandb_trace_storage_inverted_index_total_doc_count.sum(['cluster', 'group'])
+  - name: property_total_series
+    exp: banyandb_property_inverted_index_total_doc_count.sum(['cluster', 'group'])
+
+  # ---- Subscribe / publish queue (type-agnostic, group + operation keyed) ----
+  # These read the queue/publish families which key on `group` + `operation`, NOT on a data-model
+  # type. The split dimension is `operation`, so they stay as single type-agnostic rules (do NOT
+  # split per measure/stream/trace/property -- that would be modeling the wrong axis).
+
+  # subscribe-side queue throughput (msgs/s) for the group, broken out by operation. queue_sub is
+  # emitted on BOTH data (operations batch-write/control/file-sync/query) and liaison
+  # (batch-write only); `operation` is kept in the group-by so the dashboard can split per op.
+  - name: queue_throughput
+    exp: banyandb_queue_sub_total_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+
+  # publish-side queue p99 latency for the group. queue_pub_total_latency IS a histogram on the
+  # wire (_bucket carries le); keep le + group + operation in the .sum() group-by, then
+  # .histogram().histogram_percentile([99]). queue_pub is liaison-only. Precedent:
+  # oap.yaml / nginx-endpoint.yaml histogram idiom.
+  - name: queue_latency_p99
+    exp: banyandb_queue_pub_total_latency.sum(['le', 'cluster', 'group', 'operation']).histogram().histogram_percentile([99])
+
+  # batch + message granularity per group (BanyanDB #1169). Both are subscribe-side counters that
+  # carry a real `group`, so they roll up per Endpoint: batch throughput is the per-group rate of
+  # write-batches finished (the liaison's OAP-facing receive hop contributes these), message
+  # throughput is the per-group per-record rate. (The publish-side batch latency histogram is NOT
+  # modeled here: queue_pub_total_batch_latency is emitted with group="" so it cannot roll up per
+  # group -- it is an instance-scope metric only, see banyandb-instance.yaml publish_batch_latency_p99.)
+  - name: queue_batch_throughput
+    exp: banyandb_queue_sub_total_batch_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+  - name: queue_message_throughput
+    exp: banyandb_queue_sub_total_message_finished.sum(['cluster', 'group', 'operation']).rate('PT1M')
+
+  # publish bytes/s for the group. Wire family is banyandb_queue_pub_sent_bytes -- NO `total`
+  # infix (unlike queue_pub_total_started/_finished). Liaison-only; sum collapses
+  # operation/remote_node/remote_role/remote_tier before the rate.
+  - name: publish_bytes
+    exp: banyandb_queue_pub_sent_bytes.sum(['cluster', 'group']).rate('PT1M')

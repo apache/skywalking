@@ -13,25 +13,51 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# SWIP-15 BanyanDB self-observability e2e: a minimal CLUSTER (1 liaison + 1 hot data node), scraped
+# WITHOUT the FODC proxy. The OTel collector scrapes each node's own :2121 Prometheus endpoint
+# directly and injects the FODC-equivalent identity labels
+# (cluster / container_name / node_role / node_type / pod_name) as static per-scrape-job labels
+# (see otel-collector-config.yaml). The MAL rules read those tags regardless of origin, so the
+# cluster / instance / endpoint rule set is exercised without a FODC deployment.
+#
+# BanyanDB 0.11+ is required: the FODC-proxy cluster observability and the queue / lifecycle metric
+# families this feature reads were introduced after 0.10, and 0.11 uses file/DNS node discovery
+# (no etcd). The image comes from the repo-wide ${SW_BANYANDB_COMMIT} (a 0.11+ build) via base-compose.
 services:
-  oap:
+  data-hot:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: oap
-    expose:
-      - 11800
-    ports:
-      - "11800:11800"
-      - "12800:12800"
+      service: banyandb-data
+    # node identity == pod_name: the queue metrics' `remote_node` is this node's grpc address, whose
+    # first segment the instance-relation rule extracts as the peer pod_name. Keeping it equal to the
+    # collector-injected pod_name (banyandb-data-hot-0) lets the relation edge resolve to this instance
+    # node. The alias makes banyandb-data-hot-0 resolvable to peers (the liaison dials it for discovery).
+    hostname: banyandb-data-hot-0
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --node-labels type=hot
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
     networks:
-      - e2e
-  banyandb:
+      e2e:
+        aliases:
+          - banyandb-data-hot-0
+
+  liaison:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: banyandb
-    ports:
-      - "17913:17913"
-      - "2121:2121"
+      service: liaison
+    # node identity == pod_name (see data-hot above): keeps remote_node's first segment equal to the
+    # collector-injected pod_name (banyandb-liaison-0) so the relation edge resolves to this instance.
+    hostname: banyandb-liaison-0
+    command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --data-node-selector type=hot
+    volumes:
+      - ./nodes.yaml:/etc/banyandb/nodes.yaml
+    depends_on:
+      data-hot:
+        condition: service_healthy
+    networks:
+      e2e:
+        aliases:
+          - banyandb-liaison-0
 
   otel-collector:
     image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
@@ -42,6 +68,27 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
     expose:
       - 55678
+    depends_on:
+      liaison:
+        condition: service_healthy
+      data-hot:
+        condition: service_healthy
+
+  oap:
+    extends:
+      file: ../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "liaison:17912"
+    ports:
+      - "11800:11800"
+      - "12800:12800"
+    networks:
+      - e2e
+    depends_on:
+      liaison:
+        condition: service_healthy
 
 networks:
   e2e:

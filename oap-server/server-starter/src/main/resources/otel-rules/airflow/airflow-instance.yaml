@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Airflow component-level metrics from native OpenTelemetry export (SWIP-7).
+# Instance identity uses resource `host.name` (scheduler / triggerer hostname).
+filter: "{ tags -> tags.job_name == 'Airflow' }"
+expSuffix: tag({tags -> tags.cluster = 'airflow::' + tags.cluster}).instance(['cluster'], ['host_name'], Layer.AIRFLOW)
+metricPrefix: meter_airflow_instance
+metricsRules:
+  - name: pool_scheduled_slots
+    exp: airflow_pool_scheduled_slots.sum(['cluster', 'host_name', 'pool_name'])
+  - name: pool_open_slots
+    exp: airflow_pool_open_slots.sum(['cluster', 'host_name', 'pool_name'])
+  - name: pool_deferred_slots
+    exp: airflow_pool_deferred_slots.sum(['cluster', 'host_name', 'pool_name'])
+  - name: pool_running_slots
+    exp: airflow_pool_running_slots.sum(['cluster', 'host_name', 'pool_name'])
+  - name: scheduler_heartbeat
+    exp: airflow_scheduler_heartbeat.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: executor_open_slots
+    exp: airflow_executor_open_slots.sum(['cluster', 'host_name'])
+  - name: executor_queued_tasks
+    exp: airflow_executor_queued_tasks.sum(['cluster', 'host_name'])
+  - name: triggerer_heartbeat
+    exp: airflow_triggerer_heartbeat.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: triggers_running
+    exp: airflow_triggers_running.sum(['cluster', 'host_name'])
+  - name: triggerer_capacity_left
+    exp: airflow_triggerer_capacity_left.sum(['cluster', 'host_name'])
+  - name: triggers_blocked_main_thread
+    exp: airflow_triggers_blocked_main_thread.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: triggers_failed
+    exp: airflow_triggers_failed.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: triggers_succeeded
+    exp: airflow_triggers_succeeded.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: executor_running_tasks
+    exp: airflow_executor_running_tasks.sum(['cluster', 'host_name'])
+  - name: asset_updates
+    exp: airflow_asset_updates.sum(['cluster', 'host_name']).increase('PT1M')
+  - name: asset_triggered_dagruns
+    exp: airflow_asset_triggered_dagruns.sum(['cluster', 'host_name']).increase('PT1M')

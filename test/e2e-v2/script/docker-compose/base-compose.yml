@@ -71,7 +71,9 @@ services:
       - 17912
       - 2121
       - 6060
-    command: data --etcd-endpoints=http://etcd:2379
+    # BanyanDB 0.11+ uses file/DNS node discovery (no etcd). Cluster cases mount their own
+    # nodes.yaml at this path and add --node-labels / --data-node-selector as needed.
+    command: data --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml
     healthcheck:
       test: [ "CMD", "./bydbctl", "health", "--addr=http://127.0.0.1:17913" ]
       interval: 5s
@@ -87,7 +89,7 @@ services:
     expose:
       - 2121
       - 6060
-    command: liaison --etcd-endpoints=http://etcd:2379 --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m
+    command: liaison --node-discovery-mode=file --node-discovery-file-path=/etc/banyandb/nodes.yaml --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m
     healthcheck:
       test: [ "CMD", "./bydbctl", "health", "--addr=http://liaison:17913" ]
       interval: 5s

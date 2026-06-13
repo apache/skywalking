@@ -1,0 +1,174 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+script: oap-server/server-starter/src/main/resources/otel-rules/airflow/airflow-service.yaml
+input:
+  airflow_scheduler_tasks_executable:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 5.0
+  airflow_executor_queued_tasks:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 3.0
+  airflow_executor_running_tasks:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 2.0
+  airflow_executor_open_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 16.0
+  airflow_pool_scheduled_slots:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+        pool_name: default_pool
+      value: 1.0
+  airflow_dag_processing_file_path_queue_size:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 4.0
+  airflow_dag_processing_import_errors:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 0.0
+  airflow_dagbag_size:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 42.0
+  airflow_dag_processing_total_parse_time:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 3.5
+  airflow_dag_file_refresh_error:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 1.0
+  airflow_asset_updates:
+    - labels:
+        cluster: airflow-cluster
+        job_name: Airflow
+      value: 7.0
+expected:
+  meter_airflow_scheduler_tasks_executable:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 5.0
+  meter_airflow_executor_queued_tasks:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 3.0
+  meter_airflow_executor_running_tasks:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 2.0
+  meter_airflow_executor_open_slots:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 16.0
+  meter_airflow_pool_scheduled_slots:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+          pool_name: default_pool
+        value: 1.0
+  meter_airflow_dag_file_queue_size:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 4.0
+  meter_airflow_dag_import_errors:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 0.0
+  meter_airflow_dagbag_size:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 42.0
+  meter_airflow_dag_total_parse_time:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 3.5
+  meter_airflow_dag_file_refresh_error:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 0.5
+  meter_airflow_asset_updates:
+    entities:
+      - scope: SERVICE
+        service: 'airflow::airflow-cluster'
+        layer: AIRFLOW
+    samples:
+      - labels:
+          cluster: 'airflow::airflow-cluster'
+        value: 3.5

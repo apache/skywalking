@@ -1,0 +1,749 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock data for the TYPE-SEPARATED banyandb-endpoint.yaml (SWIP-15 redesign). Each data-model
+# type emits a DIFFERENT family namespace and maps to a different realistic storage group, so
+# every per-type rule resolves to exactly ONE Endpoint entity keyed on ['cluster','group']:
+#   measure  families -> group sw_metricsMinute  (endpoint sw_metricsMinute)
+#   stream   families -> group sw_records        (endpoint sw_records)        [storage + tst index]
+#   trace    families -> group sw_trace          (endpoint sw_trace)
+#   property families -> group sw_property        (endpoint sw_property)
+# The type-agnostic queue/publish families key on group+operation (not a data-model type); they
+# are given the measure write-target group sw_metricsMinute. Division rules (query_latency,
+# merge_file_latency/_partitions, property_index_merge_latency) inner-join two families of the
+# SAME namespace on ['cluster','group'], so both operands carry the same group here.
+script: oap-server/server-starter/src/main/resources/otel-rules/banyandb/banyandb-endpoint.yaml
+input:
+  # ---- Write rate (per data-model type) ----
+  banyandb_measure_total_written:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+      value: 100.0
+  banyandb_stream_tst_total_written:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+      value: 100.0
+  banyandb_trace_tst_total_written:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+      value: 100.0
+
+  # ---- Query latency (per data-model type, liaison gRPC method=query, by service facet) ----
+  banyandb_liaison_grpc_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'measure'
+        group: 'sw_metricsMinute'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'stream'
+        group: 'sw_records'
+      value: 100.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'trace'
+        group: 'sw_trace'
+      value: 100.0
+  banyandb_liaison_grpc_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'measure'
+        group: 'sw_metricsMinute'
+      value: 50.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'stream'
+        group: 'sw_records'
+      value: 50.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        method: 'query'
+        service: 'trace'
+        group: 'sw_trace'
+      value: 50.0
+
+  # ---- Total stored data (per data-model type) ----
+  banyandb_measure_total_file_elements:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+        seg: 'seg1'
+        shard: '0'
+      value: 100.0
+  banyandb_stream_tst_total_file_elements:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+        shard: '0'
+      value: 100.0
+  banyandb_trace_tst_total_file_elements:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+        seg: 'seg1'
+        shard: '0'
+      value: 100.0
+
+  # ---- Merge loop started (per data-model type; denominator for latency/partitions) ----
+  banyandb_measure_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+      value: 100.0
+  banyandb_stream_tst_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+      value: 100.0
+  banyandb_trace_tst_total_merge_loop_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+      value: 100.0
+
+  # ---- Merge file latency (per data-model type, type=file on-disk merges) ----
+  banyandb_measure_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'sw_metricsMinute'
+      value: 100.0
+  banyandb_stream_tst_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'sw_records'
+      value: 100.0
+  banyandb_trace_tst_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        lane: 'fast'
+        group: 'sw_trace'
+      value: 100.0
+
+  # ---- Merge file partitions (per data-model type, type=file) ----
+  banyandb_measure_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'sw_metricsMinute'
+      value: 100.0
+  banyandb_stream_tst_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'sw_records'
+      value: 100.0
+  banyandb_trace_tst_total_merged_parts:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        lane: 'fast'
+        group: 'sw_trace'
+      value: 100.0
+
+  # ---- Property index merge (property-only; inverted-index segment merge, NOT tst) ----
+  banyandb_property_inverted_index_total_merge_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        type: 'file'
+        group: 'sw_property'
+        shard: '0'
+      value: 100.0
+  banyandb_property_inverted_index_total_merge_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_property'
+        shard: '0'
+      value: 100.0
+
+  # ---- Series write rate (inverted-index updates, per data-model type) ----
+  # Family-name traps: measure = banyandb_measure_inverted_index_* (NO _storage_);
+  # stream/trace = banyandb_*_storage_inverted_index_* (extra _storage_); stream ALSO has a
+  # tst-scope index (banyandb_stream_tst_inverted_index_*); the trace tst table has no index.
+  banyandb_measure_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_tst_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_property_inverted_index_total_updates:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_property'
+        shard: '0'
+      value: 100.0
+
+  # ---- Series term-search rate (inverted-index term searchers, per data-model type) ----
+  banyandb_measure_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_property_inverted_index_total_term_searchers_started:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_property'
+        shard: '0'
+      value: 100.0
+
+  # ---- Total series (inverted-index doc count, per data-model type; gauge, no rate) ----
+  banyandb_measure_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_metricsMinute'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_storage_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_stream_tst_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_records'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_trace_storage_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_trace'
+        seg: 'seg1'
+      value: 100.0
+  banyandb_property_inverted_index_total_doc_count:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        group: 'sw_property'
+        shard: '0'
+      value: 100.0
+
+  # ---- Subscribe / publish queue (type-agnostic, group + operation keyed) ----
+  banyandb_queue_sub_total_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        remote_node: 'n1'
+        remote_role: 'liaison'
+      value: 100.0
+  banyandb_queue_pub_total_latency:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        le: '50'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 5.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        le: '100'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 10.0
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        le: '500'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 12.0
+  banyandb_queue_sub_total_batch_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        remote_node: 'n1'
+        remote_role: 'liaison'
+      value: 100.0
+  banyandb_queue_sub_total_message_finished:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'data'
+        node_role: 'ROLE_DATA'
+        node_type: 'hot'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        remote_node: 'n1'
+        remote_role: 'liaison'
+      value: 100.0
+  banyandb_queue_pub_sent_bytes:
+    - labels:
+        cluster: 'test-cluster'
+        pod_name: 'test-pod'
+        container_name: 'liaison'
+        node_role: 'ROLE_LIAISON'
+        operation: 'batch-write'
+        group: 'sw_metricsMinute'
+        remote_node: 'n1'
+        remote_role: 'data'
+        remote_tier: 'hot'
+      value: 100.0
+expected:
+  # ---- Write rate (per data-model type) ----
+  meter_banyandb_endpoint_measure_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Query latency (per data-model type) ----
+  meter_banyandb_endpoint_measure_query_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_query_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_query_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Total stored data (per data-model type) ----
+  meter_banyandb_endpoint_measure_total_data:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_total_data:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_total_data:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Merge file rate (per data-model type) ----
+  meter_banyandb_endpoint_measure_merge_file_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_merge_file_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_merge_file_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Merge file latency (per data-model type) ----
+  meter_banyandb_endpoint_measure_merge_file_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_merge_file_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_merge_file_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Merge file partitions (per data-model type) ----
+  meter_banyandb_endpoint_measure_merge_file_partitions:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_merge_file_partitions:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_merge_file_partitions:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  # ---- Property index merge (property-only) ----
+  meter_banyandb_endpoint_property_index_merge_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_property
+        layer: BANYANDB
+  meter_banyandb_endpoint_property_index_merge_latency:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_property
+        layer: BANYANDB
+  # ---- Series write rate (per data-model type) ----
+  meter_banyandb_endpoint_measure_series_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_series_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_tst_index_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_series_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  meter_banyandb_endpoint_property_index_write_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_property
+        layer: BANYANDB
+  # ---- Series term-search rate (per data-model type) ----
+  meter_banyandb_endpoint_measure_series_term_search_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_series_term_search_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_series_term_search_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  meter_banyandb_endpoint_property_series_term_search_rate:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_property
+        layer: BANYANDB
+  # ---- Total series (per data-model type) ----
+  meter_banyandb_endpoint_measure_total_series:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_total_series:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_stream_tst_total_series:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_records
+        layer: BANYANDB
+  meter_banyandb_endpoint_trace_total_series:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_trace
+        layer: BANYANDB
+  meter_banyandb_endpoint_property_total_series:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_property
+        layer: BANYANDB
+  # ---- Subscribe / publish queue (type-agnostic, group + operation keyed) ----
+  meter_banyandb_endpoint_queue_throughput:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_queue_latency_p99:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_queue_batch_throughput:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_queue_message_throughput:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB
+  meter_banyandb_endpoint_publish_bytes:
+    entities:
+      - scope: ENDPOINT
+        service: test-cluster
+        endpoint: sw_metricsMinute
+        layer: BANYANDB

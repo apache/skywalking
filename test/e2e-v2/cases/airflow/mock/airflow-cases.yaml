@@ -1,0 +1,77 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Full SWIP-7 metric matrix via mock OTLP replay (27 metrics; see cluster/airflow-cases.yaml for native smoke).
+# 2 entity-registration checks + 11 service + 16 instance metrics = 29 checks.
+
+cases:
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly AIRFLOW
+    expected: expected/service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance ls --service-name=airflow::airflow-cluster
+    expected: expected/instance.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_scheduler_tasks_executable --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_queued_tasks --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_running_tasks --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_executor_open_slots --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_pool_scheduled_slots --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value-label-poolname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dag_file_queue_size --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dag_import_errors --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dagbag_size --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dag_total_parse_time --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_dag_file_refresh_error --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_asset_updates --service-name=airflow::airflow-cluster
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_open_slots --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value-label-poolname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_deferred_slots --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value-label-poolname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_running_slots --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value-label-poolname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_pool_scheduled_slots --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value-label-poolname.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_executor_running_tasks --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_scheduler_heartbeat --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_executor_open_slots --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_executor_queued_tasks --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_asset_updates --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_asset_triggered_dagruns --service-name=airflow::airflow-cluster --instance-name=airflow-scheduler
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggerer_heartbeat --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggers_running --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggerer_capacity_left --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggers_blocked_main_thread --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggers_failed --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_airflow_instance_triggers_succeeded --service-name=airflow::airflow-cluster --instance-name=airflow-triggerer
+    expected: expected/metrics-has-value.yml

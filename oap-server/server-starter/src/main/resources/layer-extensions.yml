@@ -26,7 +26,7 @@
 #
 # Ordinal-range convention (enforced for the runtime tier, recommended for the others):
 #
-#   0       – 9_999       built-in Layer.* constants. Currently 0..49 in use; the rest
+#   0       – 9_999       built-in Layer.* constants. Currently 0..50 in use; the rest
 #                         of the range is reserved for future built-ins added by the
 #                         OAP distribution.
 #   10_000  – 99_999      boot-time external layers: this file (layer-extensions.yml),

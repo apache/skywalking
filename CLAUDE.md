@@ -263,8 +263,34 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
 - `setup/` - Installation and configuration guides
 - `api/` - Telemetry and query protocol documentation
 - `guides/` - Contributing guides, build instructions, testing
-- `changes/changes.md` - Changelog (update when making changes)
+- `changes/changes.md` - Changelog (update when making changes). Keep each bullet's **prose on one line**
+  — don't hard-wrap a sentence across source lines (nested sub-bullets `  - …` are fine; they're real list
+  items). The changelog becomes the GitHub release body, which GitHub renders as GFM where a single
+  newline continuing a bullet becomes a `<br>`, so prose-wrapped bullets show jagged mid-sentence breaks on
+  the release page (verified on v10.4.0; the docs website reflows and hides the problem). See
+  `guides/How-to-release.md`.
 - `swip/` - SkyWalking Improvement Proposals
+
+### SWIP vs. operator docs
+
+A SWIP (`docs/en/swip/SWIP-N.md`) is the **stable design doc** for a feature. When the
+implementation of a SWIP lands, sync the SWIP once to what was actually built — every
+proposed change written in implemented/past tense, with **no `TODO` / "future work" /
+"open dependency" / "lands later" / "empty until X" language for anything in the SWIP's
+scope**. After that sync the SWIP is effectively **frozen**: further metrics, dashboards,
+and incremental enhancements go into the **operator doc**, not the SWIP. Only genuinely
+small, optional follow-ups may stay under a SWIP's "future work" — never a big change.
+
+- BanyanDB self-observability: the SWIP is `docs/en/swip/SWIP-15.md`; the living operator
+  catalog is `docs/en/banyandb/dashboards-banyandb.md` (menu: "BanyanDB self observability
+  dashboard"). New `meter_banyandb_*` rules → update the operator doc; leave the SWIP alone.
+
+### Doc cross-references
+
+Reference another section with a **Markdown anchor link** `[section title](#heading-slug)`,
+never the `§` symbol or a bare "section N". Verify every anchor resolves to a real heading
+(GitHub slug rules: lowercase, spaces → `-`, punctuation dropped) — a broken `[](#…)`
+silently renders as plain text on the website.
 
 ## Handling Existing Tests
 

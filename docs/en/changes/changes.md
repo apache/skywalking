@@ -242,6 +242,7 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* SWIP-15: rebuild BanyanDB self-observability around the cluster / container / group model (requires BanyanDB 0.11+). A BanyanDB cluster is modeled as one `Service`, each container as a `ServiceInstance` (role/tier as attributes), and each storage group as an `Endpoint`. The `otel-rules/banyandb/` rules are category-separated by role (`node_*` / `liaison_*` / `data_*` / `lifecycle_*`) and by data type (`measure_*` / `stream_*` / `trace_*` / `property_*`), mirroring the upstream FODC-proxy Grafana boards, and include queue batch/message granularity (apache/skywalking-banyandb#1169). Adds a `SERVICE_INSTANCE_RELATION` MAL scope and `serviceInstanceRelation(...)` builder powering a new intra-cluster pod-to-pod deployment topology (`banyandb-instance-relation.yaml`). The stale single-node `host_name` model is removed.
 * Runtime MAL/LAL hot-update rules can declare `layerDefinitions:` to introduce new
   layers. Ordinals are operator-pinned in the `100_000+` tier; the layer is
   refcount-tracked and unregistered when the last declaring rule is removed. See
@@ -276,6 +277,7 @@
 * Fix: TTL query add metadata TTL.
 * Fix: PersistentWorker used wrong TTL for metrics cache if the storage is BanyanDB.
 * Add iOS/iPadOS app monitoring via OpenTelemetry Swift SDK (SWIP-11). Includes the `IOS` layer, `IOSHTTPSpanListener` for outbound HTTP client metrics (supports OTel Swift `.old`/`.stable`/`.httpDup` semantic-convention modes via stable-then-legacy attribute fallback), `IOSMetricKitSpanListener` for daily MetricKit metrics (exit counts split by foreground/background, app-launch / hang-time percentile histograms with finite 30 s overflow ceiling), LAL rules for crash/hang diagnostics, Mobile menu, and iOS dashboards.
+* Add Apache Airflow monitoring via native OpenTelemetry metrics (SWIP-7). New `AIRFLOW` layer with Service (cluster) and Instance (host) dimensions, MAL rules under `otel-rules/airflow/` (**27** metrics), [setup documentation](../setup/backend/backend-airflow-monitoring.md), mock OTLP e2e (`cases/airflow/mock/e2e.yaml`: 2 entity + 27 metric checks, 29 total), and real Celery-cluster integration smoke (`cases/airflow/cluster/e2e.yaml`: 2 entity + 14 metric checks, 16 total). See `test/e2e-v2/cases/airflow/README.md`. Horizon UI dashboards ship separately in `apache/skywalking-horizon-ui` under the Workflow Scheduler menu group.
 * Fix LAL `layer: auto` mode dropping logs after extractor set the layer. Codegen now propagates `layer "..."` assignments to `LogMetadata.layer` so `FilterSpec.doSink()` sees the script-decided layer.
 * Fix MetricKit histogram percentile metrics being reported at 1000× their true value — the listener now marks its `SampleFamily` with `defaultHistogramBucketUnit(MILLISECONDS)` so MAL's default SECONDS→MS rescale of `le` labels is not applied.
 * Add WeChat and Alipay Mini Program monitoring via the SkyAPM mini-program-monitor SDK (SWIP-12). Two new layers (`WECHAT_MINI_PROGRAM`, `ALIPAY_MINI_PROGRAM`); two new JavaScript componentIds (`WeChat-MiniProgram: 10002`, `AliPay-MiniProgram: 10003`). Service / instance / endpoint entities are produced by MAL + LAL, not trace analysis — mini-programs are client-side (exit-only) so `RPCAnalysisListener` stays unchanged (same pattern as browser and iOS). MAL rules per platform × scope under `otel-rules/miniprogram/` with explicit `.service(...)` / `.endpoint(...)` chains (empty `expSuffix` so endpoint-scope rules aren't overridden), histogram percentile via `.histogram("le", TimeUnit.MILLISECONDS)` to keep ms bucket bounds intact, and request-cpm derived from the histogram `_count` family. LAL `layer: auto` rule produces both layers via `miniprogram.platform` dispatch and emits error-count samples consumed by per-platform log-MAL rules. Per-layer menu entries and service / instance / endpoint dashboards with Trace and Log sub-tabs.
@@ -291,9 +293,11 @@
 * Add `@Stream(allowBootReshape = true)` opt-in for additive boot-time reshape of BanyanDB streams / measures. Code-defined stream classes (e.g. `AlarmRecord`) can now annotate their schema as eligible for in-place additive update at OAP boot — a new `@Column` is appended to the live tag-family / fields via `client.update` instead of being silently rejected with `SKIPPED_SHAPE_MISMATCH` (which previously forced operators to drop the measure / stream and lose historical rows). Additive includes both new tags / fields **and** relocating an existing tag between families when a `@Column`'s `storageOnly` flag flips (e.g. `id1` moving from `storage-only` → `searchable` when it becomes indexed). The opt-in is per-stream and gated by an `isPurelyAdditive` shape diff: tag type changes, tag drops, kind flips (tag↔field), entity / interval / sharding-key changes, and field re-typing still skip with `SKIPPED_SHAPE_MISMATCH`, so identity-breaking edits remain explicit operator actions. Only the init / standalone OAP performs the reshape; non-init peers continue through the existing poll-and-wait loop so a single node drives DDL. When a `check*` records `SKIPPED_SHAPE_MISMATCH` the dependent `IndexRule` / `IndexRuleBinding` reconciliation is also skipped — preventing the previous gap where the binding silently updated to a tag list that diverged from the live tag-family layout. `AlarmRecord` is opted in. Default remains `false` for all other models — boot-time reshape stays off unless the annotation is explicitly set. **Operator caveat:** BanyanDB does not physically migrate existing rows when a tag's family changes; pre-existing data stays in its original on-disk location while new writes go to the declared family — expect a backfill window for queries that route through new IndexRules on relocated tags.
 * Mask keywords `trustStorePass`, `keyStorePass` by default.
 * Bump up dependencies to clear CVE alerts on shipped OAP jars: log4j `2.25.3` → `2.25.4`, jackson `2.18.5` → `2.18.6`, kafka-clients `3.4.0` → `3.9.2`, postgresql `42.4.4` → `42.7.11`, commons-compress `1.21` → `1.26.2`.
+* Fix: continuous profiling policy validation now rejects a threshold / count of `0` to match the error messages and rover's `value >= threshold` trigger semantics (a `0` threshold would always trigger). CPU percent and HTTP error rate are tightened from `[0-100]` to `(0-100]`.
 * Fix wrong banyanDB resource options in record data. 
 
 #### UI
+* Add Airflow layer dashboards and menu i18n under Workflow Scheduler in Horizon UI (SWIP-7).
 * Add mobile menu icon and i18n labels for the iOS layer.
 * Fix metric label rendering in multi-expression dashboard widgets.
 * Add i18n menu labels for WeChat Mini Program and Alipay Mini Program (en / zh / es) — sub-menus rendered as raw keys until this bump.
@@ -301,8 +305,10 @@
 
 #### Documentation
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
+* Add Airflow monitoring setup documentation (SWIP-7).
 * Add iOS app monitoring setup documentation.
 * Add WeChat / Alipay Mini Program monitoring setup documentation, plus a client-side-monitoring section in the security guide covering public-internet ingress (OTLP + `/v3/segments`) for mobile / browser / mini-program SDKs.
 * Improve downsampling documentation
+* Fix the docker-compose quickstart: OAP healthcheck no longer calls `curl` (absent from the JRE image) and probes the query port via bash `/dev/tcp`; the Horizon UI service maps the correct container port (8081) and mounts a `horizon.yaml` (binding `0.0.0.0`, OAP URLs, demo `admin`/`admin` login) instead of non-existent `SW_*_ADDRESS` env vars.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.0.0)

@@ -67,11 +67,15 @@ services:
     networks:
       - demo
     healthcheck:
-      test: [ "CMD-SHELL", "curl http://localhost:12800/internal/l7check" ]
-      interval: 30s
+      # The OAP image (eclipse-temurin JRE) ships bash but no curl/wget/nc,
+      # so probe the query port with bash's built-in /dev/tcp instead.
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/12800" ]
+      interval: 15s
       timeout: 10s
-      retries: 3
-      start_period: 10s
+      retries: 10
+      # OAP can take 60-120s to boot (BanyanDB schema install); don't count
+      # failures against the retry budget during that window.
+      start_period: 90s
     environment: &oap-env
       SW_HEALTH_CHECKER: default
       SW_TELEMETRY: prometheus
@@ -111,13 +115,15 @@ services:
     image: ${UI_IMAGE:-ghcr.io/apache/skywalking-horizon-ui:latest}
     container_name: ui
     ports:
-      - "8080:8080"
+      # Horizon listens on 8081 inside the container (HORIZON_SERVER_PORT).
+      - "8080:8081"
     networks:
       - demo
-    environment:
-      SW_OAP_ADDRESS: http://oap:12800
-      SW_ADMIN_ADDRESS: http://oap:17128
-      SW_ZIPKIN_ADDRESS: http://oap:9412
+    volumes:
+      # Backend URLs (OAP query/admin/zipkin) and login users come ONLY from
+      # this file; there are no env vars for them. The image's HORIZON_CONFIG
+      # default points here.
+      - ./horizon.yaml:/app/horizon.yaml:ro
 
 networks:
   demo:

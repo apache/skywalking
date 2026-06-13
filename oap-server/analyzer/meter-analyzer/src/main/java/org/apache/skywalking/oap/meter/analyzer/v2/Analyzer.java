@@ -49,6 +49,8 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.process.ProcessRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
@@ -516,6 +518,9 @@ public class Analyzer {
                 case PROCESS_RELATION:
                     processRelationTraffic(entity);
                     break;
+                case SERVICE_INSTANCE_RELATION:
+                    serviceInstanceRelationTraffic(entity);
+                    break;
                 default:
             }
         } else {
@@ -620,6 +625,42 @@ public class Analyzer {
         metrics.setDestProcessId(entity.getDestProcessId());
         metrics.setEntityId(entity.id());
         metrics.setComponentId(entity.getComponentId());
+        MetricsStreamProcessor.getInstance().in(metrics);
+    }
+
+    private void serviceInstanceRelationTraffic(MeterEntity entity) {
+        switch (entity.getDetectPoint()) {
+            case SERVER:
+                toService(requireNonNull(entity.getDestServiceName()), entity.getLayer());
+                serviceInstanceRelationServerSide(entity);
+                break;
+            case CLIENT:
+                toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
+                serviceInstanceRelationClientSide(entity);
+                break;
+            default:
+        }
+    }
+
+    private void serviceInstanceRelationServerSide(MeterEntity entity) {
+        ServiceInstanceRelationServerSideMetrics metrics = new ServiceInstanceRelationServerSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setSourceServiceInstanceId(entity.sourceServiceInstanceId());
+        metrics.setDestServiceId(entity.destServiceId());
+        metrics.setDestServiceInstanceId(entity.destServiceInstanceId());
+        metrics.setEntityId(entity.id());
+        MetricsStreamProcessor.getInstance().in(metrics);
+    }
+
+    private void serviceInstanceRelationClientSide(MeterEntity entity) {
+        ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setSourceServiceId(entity.sourceServiceId());
+        metrics.setSourceServiceInstanceId(entity.sourceServiceInstanceId());
+        metrics.setDestServiceId(entity.destServiceId());
+        metrics.setDestServiceInstanceId(entity.destServiceInstanceId());
+        metrics.setEntityId(entity.id());
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 

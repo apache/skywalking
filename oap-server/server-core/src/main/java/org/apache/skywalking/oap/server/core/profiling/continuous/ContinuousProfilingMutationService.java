@@ -118,32 +118,32 @@ public class ContinuousProfilingMutationService implements Service {
             switch (item.getType()) {
                 case PROCESS_CPU:
                     final int cpuPercent = Integer.parseInt(item.getThreshold());
-                    if (cpuPercent < 0 || cpuPercent > 100) {
-                        return "the process CPU percent should in [0-100]";
+                    if (cpuPercent <= 0 || cpuPercent > 100) {
+                        return "the process CPU percent should be in (0-100]";
                     }
                     break;
                 case PROCESS_THREAD_COUNT:
                     final int threadCount = Integer.parseInt(item.getThreshold());
-                    if (threadCount < 0) {
-                        return "the process thread count must bigger than zero";
+                    if (threadCount <= 0) {
+                        return "the process thread count must be bigger than zero";
                     }
                     break;
                 case SYSTEM_LOAD:
                     final int systemLoad = Integer.parseInt(item.getThreshold());
-                    if (systemLoad < 0) {
-                        return "the system load must bigger than zero";
+                    if (systemLoad <= 0) {
+                        return "the system load must be bigger than zero";
                     }
                     break;
                 case HTTP_ERROR_RATE:
                     final int httpErrorRate = Integer.parseInt(item.getThreshold());
-                    if (httpErrorRate < 0 || httpErrorRate > 100) {
-                        return "the HTTP error rate should in [0-100]";
+                    if (httpErrorRate <= 0 || httpErrorRate > 100) {
+                        return "the HTTP error rate should be in (0-100]";
                     }
                     break;
                 case HTTP_AVG_RESPONSE_TIME:
                     final int httpAvgResponseTime = Integer.parseInt(item.getThreshold());
-                    if (httpAvgResponseTime < 0) {
-                        return "the HTTP average response time must bigger than zero";
+                    if (httpAvgResponseTime <= 0) {
+                        return "the HTTP average response time must be bigger than zero";
                     }
                     break;
             }
@@ -155,13 +155,13 @@ public class ContinuousProfilingMutationService implements Service {
 
     private String validatePolicyItemWindows(ContinuousProfilingPolicyItemCreation item) {
         if (item.getPeriod() <= 0) {
-            return "period must bigger than zero";
+            return "period must be bigger than zero";
         }
-        if (item.getCount() < 0) {
-            return "count must bigger than zero";
+        if (item.getCount() <= 0) {
+            return "count must be bigger than zero";
         }
         if (item.getCount() > item.getPeriod()) {
-            return "count must be small than period";
+            return "count must be equal to or smaller than period";
         }
         return null;
     }

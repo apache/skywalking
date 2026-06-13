@@ -68,10 +68,11 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 15
+Next SWIP Number: 16
 
 ### Proposed SWIPs
 
+- [SWIP-15 Redesign BanyanDB Self-Observability around the Cluster / Node / Group Model](SWIP-15.md)
 - [SWIP-14 Inspect API for Admin Server](SWIP-14.md)
 - [SWIP-13 Live Debugger for MAL / LAL / OAL](SWIP-13.md)
 
@@ -82,6 +83,7 @@ Next SWIP Number: 15
 - [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)
 - [SWIP-9 Support Flink Monitoring](SWIP-9.md)
 - [SWIP-8 Support Kong Monitoring](SWIP-8.md)
+- [SWIP-7 Support Apache Airflow Monitoring](SWIP-7.md)
 - [SWIP-6 Support ActiveMQ Monitoring](SWIP-6.md)
 - [SWIP-5 Support ClickHouse Monitoring](SWIP-5.md)
 - [SWIP-4 Support available layers of service in the topology](SWIP-4.md)
