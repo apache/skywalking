@@ -89,10 +89,15 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
             return;
         }
 
-        // Legacy poll loop for non-init OAPs that did not opt into the strict verify
-        // mode. Static models (boot-time) still take this path; runtime-rule reconciler
-        // explicitly chooses verify so this loop is bypassed.
-        if (RunningMode.isNoInitMode()) {
+        // Poll loop for the STATIC boot-time path on a non-init OAP: the init OAP owns
+        // schema creation, so this node waits until the resource appears rather than
+        // creating it. Gated on deferDDLToInitNode (set only on SCHEMA_CREATE_IF_ABSENT),
+        // NOT on RunningMode alone — a runtime-rule DSL apply (withSchemaChange) is the
+        // operator/main-driven authority and must fall through to createTable below
+        // regardless of no-init, because no init OAP knows about a metric created at
+        // runtime. Without this, a no-init OAP would block here forever waiting for a
+        // resource that only this very apply would ever create.
+        if (deferDDLToInitNode(opt)) {
             while (true) {
                 InstallInfo info = isExists(model, opt);
                 if (!info.isAllExist()) {
@@ -146,6 +151,23 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
         dropTable(model, opt);
         opt.recordOutcome("table", model.getName(),
             StorageManipulationOpt.Outcome.DROPPED, null);
+    }
+
+    /**
+     * True when this manipulation must defer all backend DDL to the dedicated init OAP and
+     * wait for it, rather than create / update / reshape the resource on this node. This is
+     * the single source of truth for the "no-init OAP doesn't own schema" rule across the
+     * base installer and every backend subclass — call it instead of re-checking
+     * {@link RunningMode#isNoInitMode()} inline, so the rule stays one decision.
+     *
+     * <p>True only for the static boot-time {@link StorageManipulationOpt#schemaCreateIfAbsent()}
+     * opt on a {@code no-init} OAP. The runtime-rule (DSL) opts leave
+     * {@link StorageManipulationOpt.Flags#isDeferDDLToInitNode() deferDDLToInitNode} unset, so
+     * an operator-driven apply is governed by the opt's own create / update / drop flags and
+     * by cluster main-ness — never by the init / no-init / default running mode.
+     */
+    protected static boolean deferDDLToInitNode(final StorageManipulationOpt opt) {
+        return RunningMode.isNoInitMode() && opt.getFlags().isDeferDDLToInitNode();
     }
 
     public void start() {

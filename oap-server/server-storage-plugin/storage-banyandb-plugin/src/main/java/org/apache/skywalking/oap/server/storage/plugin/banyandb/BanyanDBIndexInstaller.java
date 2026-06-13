@@ -144,11 +144,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 installInfo.setAllExist(false);
                 return installInfo;
             } else {
-                // Run shape-compat checks unless we're in the legacy no-init poll loop
-                // path. failOnAbsence implies the caller wants strict verification even
-                // in non-init mode (VERIFY_SCHEMA_ONLY), so honour that instead of just
-                // gating on RunningMode.
-                final boolean runShapeChecks = !RunningMode.isNoInitMode() || opt.getFlags().isFailOnAbsence();
+                // Run shape-compat checks — and the updates they drive for withSchemaChange —
+                // unless this is the static boot-time path deferring to the init OAP. The
+                // runtime-rule DSL opts (withSchemaChange / verifySchemaOnly) are never
+                // deferred, so an operator-driven shape UPDATE reconciles on a no-init OAP
+                // exactly as on a default / standalone one. (verifySchemaOnly still runs the
+                // checks but records SKIPPED_SHAPE_MISMATCH instead of writing.)
+                final boolean runShapeChecks = !deferDDLToInitNode(opt);
                 if (model.isTimeSeries()) {
                     // register models only locally(Schema cache) but not remotely
                     if (model.isRecord()) {
@@ -637,10 +639,15 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             optsBuilder.addAllDefaultStages(metadata.getResource().getDefaultQueryStages());
         }
         gBuilder.setResourceOpts(optsBuilder.build());
-        if (!RunningMode.isNoInitMode()) {
-            if (!groupAligned.contains(metadata.getGroup())) {
+        // Group DDL follows the opt, not RunningMode: a runtime-rule withSchemaChange
+        // creates / updates the group on whatever node reaches here (peers short-circuit
+        // earlier via inspectBackend=false), while the static boot path defers to the init
+        // OAP on no-init. Create is gated on createMissing and update on !failOnShapeMismatch
+        // so verifySchemaOnly stays read-only even though it is not deferred.
+        if (!deferDDLToInitNode(opt) && !groupAligned.contains(metadata.getGroup())) {
+            if (!resourceExist.isHasGroup()) {
                 // create the group if not exist
-                if (!resourceExist.isHasGroup()) {
+                if (opt.getFlags().isCreateMissing()) {
                     try {
                         Group g = client.define(gBuilder.build());
                         if (g != null) {
@@ -653,16 +660,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             throw ex;
                         }
                     }
-                } else {
-                    // update the group if necessary
-                    if (this.checkGroup(metadata, client)) {
-                        opt.recordModRevision(client.update(gBuilder.build()));
-                        log.info("group {} updated", metadata.getGroup());
-                    }
                 }
-                // mark the group as aligned
-                groupAligned.add(metadata.getGroup());
+            } else {
+                // update the group if necessary
+                if (!opt.getFlags().isFailOnShapeMismatch() && this.checkGroup(metadata, client)) {
+                    opt.recordModRevision(client.update(gBuilder.build()));
+                    log.info("group {} updated", metadata.getGroup());
+                }
             }
+            // mark the group as aligned
+            groupAligned.add(metadata.getGroup());
         }
         return resourceExist;
     }
