@@ -17,6 +17,9 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
@@ -56,11 +59,8 @@ public final class MalRuntimeHelper {
     }
 
     /**
-     * Reverse division: computes {@code numerator / v} for each sample value {@code v}.
-     * Used by generated code for {@code Number / SampleFamily} expressions.
-     */
-    /**
      * Groovy truth check: {@code null → false}, empty string → {@code false},
+     * numeric zero → {@code false}, empty collection/map/array → {@code false},
      * {@code Boolean.FALSE → false}, everything else → {@code true}.
      * Used by generated filter code for standalone expressions in boolean context
      * (e.g., {@code tags.ApiId || tags.ApiName}).
@@ -75,9 +75,29 @@ public final class MalRuntimeHelper {
         if (value instanceof CharSequence) {
             return ((CharSequence) value).length() > 0;
         }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue() != 0.0D;
+        }
+        if (value instanceof Collection) {
+            return !((Collection<?>) value).isEmpty();
+        }
+        if (value instanceof Map) {
+            return !((Map<?, ?>) value).isEmpty();
+        }
+        if (value.getClass().isArray()) {
+            return Array.getLength(value) > 0;
+        }
         return true;
     }
 
+    public static <T> T elvis(final T primary, final T fallback) {
+        return isTruthy(primary) ? primary : fallback;
+    }
+
+    /**
+     * Reverse division: computes {@code numerator / v} for each sample value {@code v}.
+     * Used by generated code for {@code Number / SampleFamily} expressions.
+     */
     public static SampleFamily divReverse(final double numerator,
                                           final SampleFamily sf) {
         if (sf == SampleFamily.EMPTY) {

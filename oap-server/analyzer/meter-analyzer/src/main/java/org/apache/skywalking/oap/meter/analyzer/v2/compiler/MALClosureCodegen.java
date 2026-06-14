@@ -300,9 +300,13 @@ final class MALClosureCodegen {
         } else if (expr instanceof MALExpressionModel.ClosureElvisExpr) {
             final MALExpressionModel.ClosureElvisExpr elvis =
                 (MALExpressionModel.ClosureElvisExpr) expr;
-            sb.append("java.util.Optional.ofNullable(");
+            // Groovy `?:` applies the fallback when the primary is falsy (null,
+            // empty string/container, numeric zero, false), not only when null.
+            // Keep the primary single-evaluated so expressions such as tags.remove(...)
+            // do not observe different values between the truth check and result.
+            sb.append(MALCodegenHelper.RUNTIME_HELPER_FQCN).append(".elvis(");
             generateClosureExpr(sb, elvis.getPrimary(), paramName, beanMode);
-            sb.append(").orElse(");
+            sb.append(", ");
             generateClosureExpr(sb, elvis.getFallback(), paramName, beanMode);
             sb.append(")");
         } else if (expr instanceof MALExpressionModel.ClosureRegexMatchExpr) {

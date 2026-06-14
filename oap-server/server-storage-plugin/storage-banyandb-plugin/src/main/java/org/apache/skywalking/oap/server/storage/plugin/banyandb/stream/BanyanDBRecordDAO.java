@@ -50,7 +50,13 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Record record) throws IOException {
+        // Self-heal a missing local schema entry once (RPC-free re-derivation) before failing —
+        // see MetadataRegistry.repopulateLocally. Throw only if the entry is still absent.
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
+        if (schema == null) {
+            MetadataRegistry.INSTANCE.repopulateLocally(model);
+            schema = MetadataRegistry.INSTANCE.findMetadata(model);
+        }
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }
@@ -60,6 +66,9 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
                 if (record instanceof BanyanDBTrace.MergeTable) {
                     BanyanDBTrace.MergeTable mergeTable = (BanyanDBTrace.MergeTable) record;
                     MetadataRegistry.Schema mergeTableSchema = MetadataRegistry.INSTANCE.findRecordMetadata(mergeTable.getMergeTableName());
+                    if (mergeTableSchema == null) {
+                        throw new IOException(mergeTable.getMergeTableName() + " is not registered");
+                    }
 
                     traceWrite = getClient().createTraceWrite(
                         schema.getMetadata().getGroup(),

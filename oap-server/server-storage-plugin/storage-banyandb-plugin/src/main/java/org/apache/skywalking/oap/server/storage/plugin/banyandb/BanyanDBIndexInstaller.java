@@ -19,9 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import io.grpc.Status;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,7 +42,6 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBinding;
 import org.apache.skywalking.banyandb.schema.v1.BanyandbSchema.SchemaKey;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
-import java.time.Duration;
 import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.library.banyandb.v1.client.SchemaWatcher;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
@@ -103,6 +104,51 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public BanyanDBIndexInstaller(Client client, ModuleManager moduleManager, BanyanDBStorageConfig config) {
         super(client, moduleManager);
         this.config = config;
+        // Let read/persist paths self-heal a missing local schema entry (MetadataRegistry.repopulateLocally):
+        // re-derive the model's Schema locally with zero server RPC via the same primitive the peer
+        // boot path uses. This closes the "<metric> is not registered" flood that arises when a
+        // withoutSchemaChange peer apply or a runtime-rule bundled fall-over rebuilds the dispatch
+        // worker but skips the populate. DownSamplingConfigService is resolved lazily per call — a
+        // self-heal only fires post-boot, when CoreModule is long up.
+        MetadataRegistry.INSTANCE.registerLocalSchemaPopulator(model -> {
+            final DownSamplingConfigService downSamplingConfigService = moduleManager.find(CoreModule.NAME)
+                                                                                     .provider()
+                                                                                     .getService(DownSamplingConfigService.class);
+            registerLocallyByKind(model, downSamplingConfigService);
+        });
+    }
+
+    @Override
+    protected boolean isRetryableNoInitProbeFailure(final StorageException e) {
+        Throwable cause = e.getCause();
+        while (cause != null) {
+            if (cause instanceof BanyanDBException) {
+                return isTransientBanyanDBProbeFailure((BanyanDBException) cause);
+            }
+            cause = cause.getCause();
+        }
+        return false;
+    }
+
+    private static boolean isTransientBanyanDBProbeFailure(final BanyanDBException e) {
+        final Status.Code code = e.getStatus();
+        if (Status.Code.UNAVAILABLE.equals(code)
+            || Status.Code.DEADLINE_EXCEEDED.equals(code)
+            || Status.Code.CANCELLED.equals(code)
+            || Status.Code.RESOURCE_EXHAUSTED.equals(code)
+            || Status.Code.ABORTED.equals(code)) {
+            return true;
+        }
+        if (!Status.Code.UNKNOWN.equals(code)) {
+            return false;
+        }
+        final String message = String.valueOf(e.getMessage()).toLowerCase(Locale.ROOT);
+        return message.contains("client connection is closing")
+            || message.contains("connection is closing")
+            || message.contains("transport is closing")
+            || message.contains("connection refused")
+            || message.contains("connection reset")
+            || message.contains("broken pipe");
     }
 
     @Override

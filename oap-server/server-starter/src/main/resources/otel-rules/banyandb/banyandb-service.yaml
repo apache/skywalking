@@ -29,11 +29,11 @@ metricsRules:
   # cluster writes/s across the three data-model scopes (measure, stream, trace). Each scope's
   # write counter is collapsed to one per-cluster series before `+`.
   - name: cluster_write_rate
-    exp: (banyandb_measure_total_written.sum(['cluster']).rate('PT15S') + banyandb_stream_tst_total_written.sum(['cluster']).rate('PT15S') + banyandb_trace_tst_total_written.sum(['cluster']).rate('PT15S'))
+    exp: (banyandb_measure_total_written.sum(['cluster']).rate('PT1M') + banyandb_stream_tst_total_written.sum(['cluster']).rate('PT1M') + banyandb_trace_tst_total_written.sum(['cluster']).rate('PT1M'))
   # cluster queries/s. `service` on this family is BanyanDB's data-model facet
   # (measure/stream/trace/property), not a SkyWalking service; method literal is "query".
   - name: cluster_query_rate
-    exp: banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['cluster']).rate('PT15S')
+    exp: banyandb_liaison_grpc_total_started.tagEqual('method','query').sum(['cluster']).rate('PT1M')
   # cluster errors/min. The seven liaison-side error families mirror the upstream Grafana
   # "Error Rate" stat (grafana-fodc-workload.json). Each is pre-aggregated to ['cluster']
   # BEFORE `+` because their wire label sets differ (stream_msg_received_err carries
@@ -42,7 +42,7 @@ metricsRules:
   # registered and emit no series; MAL treats an empty operand as the additive identity, so the
   # sum emits from whatever has fired and renders absent-as-0 when nothing has.
   - name: cluster_error_rate
-    exp: (banyandb_liaison_grpc_total_err.sum(['cluster']).rate('PT15S') + banyandb_liaison_grpc_total_registry_err.sum(['cluster']).rate('PT15S') + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['cluster']).rate('PT15S') + banyandb_queue_pub_total_err.sum(['cluster']).rate('PT15S') + banyandb_measure_total_sync_loop_err.sum(['cluster']).rate('PT15S') + banyandb_stream_tst_total_sync_loop_err.sum(['cluster']).rate('PT15S') + banyandb_trace_tst_total_sync_loop_err.sum(['cluster']).rate('PT15S')) * 60
+    exp: (banyandb_liaison_grpc_total_err.sum(['cluster']).rate('PT1M') + banyandb_liaison_grpc_total_registry_err.sum(['cluster']).rate('PT1M') + banyandb_liaison_grpc_total_stream_msg_received_err.sum(['cluster']).rate('PT1M') + banyandb_queue_pub_total_err.sum(['cluster']).rate('PT1M') + banyandb_measure_total_sync_loop_err.sum(['cluster']).rate('PT1M') + banyandb_stream_tst_total_sync_loop_err.sum(['cluster']).rate('PT1M') + banyandb_trace_tst_total_sync_loop_err.sum(['cluster']).rate('PT1M')) * 60
   # live container count by role. count(['cluster','container_name','pod_name']) groups by all
   # three then re-groups excluding the last key (pod_name), yielding one sample per
   # (cluster, container_name) whose value = distinct pod_name count -> data=N, liaison=M.

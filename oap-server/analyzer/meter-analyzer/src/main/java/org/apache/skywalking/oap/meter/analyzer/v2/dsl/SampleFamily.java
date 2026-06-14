@@ -431,7 +431,7 @@ public class SampleFamily {
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
                       range,
-                      context.metricName,
+                      sample.getName(),
                       (lowerBoundValue, unused) -> sample.value - lowerBoundValue
                   ))
                   .toArray(Sample[]::new)
@@ -448,7 +448,7 @@ public class SampleFamily {
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
                       range,
-                      context.metricName,
+                      sample.getName(),
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
                           return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;
@@ -466,7 +466,7 @@ public class SampleFamily {
             this.context,
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
-                      context.metricName,
+                      sample.getName(),
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
                           return timeDiff < 1L ? 0.0 : (sample.value - lowerBoundValue) / timeDiff;

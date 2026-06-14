@@ -99,19 +99,38 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
         // resource that only this very apply would ever create.
         if (deferDDLToInitNode(opt)) {
             while (true) {
-                InstallInfo info = isExists(model, opt);
-                if (!info.isAllExist()) {
-                    try {
+                boolean allExist;
+                try {
+                    InstallInfo info = isExists(model, opt);
+                    allExist = info.isAllExist();
+                    if (!allExist) {
                         log.info(
                             "install info: {}.table for model: [{}] not all required resources exist. OAP is running in 'no-init' mode, waiting create or update... retry 3s later.",
                             info.buildInstallInfoMsg(), model.getName()
                         );
-                        Thread.sleep(3000L);
-                    } catch (InterruptedException e) {
-                        log.error(e.getMessage());
                     }
-                } else {
+                } catch (final StorageException e) {
+                    if (!isRetryableNoInitProbeFailure(e)) {
+                        throw e;
+                    }
+                    // A transient backend error during the probe (e.g. a BanyanDB cluster data node
+                    // still Init-ing, "client connection is closing") is NOT a reason to abort boot:
+                    // the init OAP will create the resource and the next probe succeeds. Treat it like
+                    // "not present yet" and retry in-loop, rather than letting it escape and crash-loop
+                    // the pod — which would only re-enter this same loop after a full restart.
+                    allExist = false;
+                    log.warn("install info: existence probe for model: [{}] threw a transient backend "
+                        + "error. OAP is running in 'no-init' mode, retry 3s later.", model.getName(), e);
+                }
+                if (allExist) {
                     break;
+                }
+                try {
+                    Thread.sleep(3000L);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new StorageException(
+                        "interrupted while waiting for no-init backend resources for model " + model.getName(), e);
                 }
             }
             return;
@@ -168,6 +187,16 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      */
     protected static boolean deferDDLToInitNode(final StorageManipulationOpt opt) {
         return RunningMode.isNoInitMode() && opt.getFlags().isDeferDDLToInitNode();
+    }
+
+    /**
+     * Whether a {@link StorageException} from the no-init defer-loop existence probe is
+     * known to be transient and should be retried in-loop. The base implementation is
+     * conservative so permanent model/config errors do not become an infinite boot wait;
+     * storage backends opt in only for transport-level probe failures they can classify.
+     */
+    protected boolean isRetryableNoInitProbeFailure(final StorageException e) {
+        return false;
     }
 
     public void start() {

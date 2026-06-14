@@ -82,6 +82,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -94,7 +95,51 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.Metrics.ID;
 public enum MetadataRegistry {
     INSTANCE;
 
-    private final Map<String, Schema> registry = new HashMap<>();
+    // ConcurrentHashMap (not HashMap): boot populates single-threaded, but the self-heal path
+    // (repopulateLocally) writes from persistence/query threads concurrently with reads.
+    private final Map<String, Schema> registry = new ConcurrentHashMap<>();
+
+    /**
+     * Re-derive and locally register a model's BanyanDB {@link Schema} with NO server RPC.
+     * Registered once by the active {@code BanyanDBIndexInstaller} at boot and invoked by
+     * {@link #repopulateLocally(Model)} when a read path finds the cache empty for a model whose
+     * dispatch worker is already live — e.g. a {@code withoutSchemaChange} peer apply or a
+     * runtime-rule bundled fall-over rebuilt the worker but skipped the local populate. The
+     * {@code Model} is always known locally and its schema is a pure local derivation, so such a
+     * miss is always re-derivable without touching the backend.
+     */
+    @FunctionalInterface
+    public interface LocalSchemaPopulator {
+        void populateLocally(Model model);
+    }
+
+    private volatile LocalSchemaPopulator localSchemaPopulator;
+
+    /** Register the boot-time, RPC-free local schema populator. Called once by the active installer. */
+    public void registerLocalSchemaPopulator(final LocalSchemaPopulator populator) {
+        this.localSchemaPopulator = populator;
+    }
+
+    /**
+     * Best-effort, RPC-free re-derivation of a model's local {@link Schema} so a read/persist path
+     * can self-heal a missing cache entry instead of throwing {@code "<model> is not registered"}
+     * forever (the registry never evicts, so an entry that was never populated on this node stays
+     * absent otherwise). No-op when no populator is registered (e.g. non-BanyanDB unit tests).
+     * Swallows derivation exceptions so a self-heal attempt is never worse than the pre-existing
+     * throw — the caller re-reads and surfaces its own not-registered error if still absent.
+     */
+    public void repopulateLocally(final Model model) {
+        final LocalSchemaPopulator populator = this.localSchemaPopulator;
+        if (populator == null) {
+            return;
+        }
+        try {
+            populator.populateLocally(model);
+        } catch (final Exception e) {
+            log.debug("local schema self-heal re-derivation failed for model [{}]; "
+                + "caller will surface the not-registered error", model.getName(), e);
+        }
+    }
 
     public StreamModel registerStreamModel(Model model, BanyanDBStorageConfig config) {
         final SchemaMetadata schemaMetadata = parseMetadata(model, config, null);
