@@ -31,7 +31,7 @@ The lifecycle stages configuration is under each group settings of the `bydb.yml
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_WARM_NODE_SELECTOR:"type=warm"}
     cold:
       shardNum: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SHARD_NUM:2}
-      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:5}
+      segmentInterval: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_SI_DAYS:6}
       ttl: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_TTL_DAYS:60}
       nodeSelector: ${SW_STORAGE_BANYANDB_GM_MINUTE_COLD_NODE_SELECTOR:"type=cold"}
 ```
@@ -39,6 +39,7 @@ The lifecycle stages configuration is under each group settings of the `bydb.yml
 1. **shardNum**: The number of shards for the group.
 2. **segmentInterval**: The time interval in days for creating a new data segment.
 - According to the freshness of the data, the `segmentInterval` days should: `hot` < `warm` < `cold`.
+- Each coarser stage's `segmentInterval` should be an **integer multiple** of the immediately finer (preceding) stage's `segmentInterval` (e.g. `hot=5` → `warm=10` → `cold=20`). BanyanDB segments are epoch-anchored, so when the coarser interval is a multiple of the finer one each source segment nests entirely inside one target segment and the hot → warm → cold migration stays on the cheap whole-segment fast path. A non-multiple interval (e.g. `hot=5`, `warm=7`) makes source segments straddle target boundaries, forcing a row-by-row re-bucketing that costs significantly more CPU, IO, and memory. It does not affect correctness, only migration efficiency.
 3. **ttl**: The time-to-live for data within the group, in days.
 4. **enableWarmStage/enableColdStage**: Enable the warm/cold stage for the group.
 - The `hot` stage is always enabled by default.

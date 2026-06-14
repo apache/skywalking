@@ -297,6 +297,7 @@
 * Bump up dependencies to clear CVE alerts on shipped OAP jars: log4j `2.25.3` → `2.25.4`, jackson `2.18.5` → `2.18.6`, kafka-clients `3.4.0` → `3.9.2`, postgresql `42.4.4` → `42.7.11`, commons-compress `1.21` → `1.26.2`.
 * Fix: continuous profiling policy validation now rejects a threshold / count of `0` to match the error messages and rover's `value >= threshold` trigger semantics (a `0` threshold would always trigger). CPU percent and HTTP error rate are tightened from `[0-100]` to `(0-100]`.
 * Fix wrong BanyanDB resource options in record data.
+* Align the default BanyanDB stage `segmentInterval` values so each coarser stage is an integer multiple of the finer one (`records` cold `3` → `4`, `metricsMinute` cold `5` → `6`, `metricsHour` warm `7` → `10` and cold `15` → `20`), keeping hot → warm → cold lifecycle migration on the cheap whole-segment fast path.
 
 #### UI
 * Add Airflow layer dashboards and menu i18n under Workflow Scheduler in Horizon UI (SWIP-7).
