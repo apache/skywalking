@@ -198,33 +198,27 @@ class MALExpressionExecutionTest {
             final Map<String, Object> inputSection,
             final Map<String, Object> expectedSection) {
         final String metricName = rule.getName();
-        // Unique per file+rule to isolate CounterWindow entries across files
-        final String cwMetricName = rule.getSourceFile().getName() + "/" + metricName;
         final String expression = rule.getFullExpression();
         final boolean hasIncrease = expression.contains(".increase(")
             || expression.contains(".rate(");
 
-        // v2 prime + v2 real (also consecutive, same delta)
+        // rate()/increase() resolve their lower bound from the process-wide
+        // CounterWindow.INSTANCE, keyed by each counter's own (name, labels) — not
+        // the rule-level metric name. Input counter names recur across rules and
+        // files, so without a reset one rule's prime/real pair would rate against
+        // another rule's leftover window samples. Clear it so each rule is isolated
+        // to its own prime (t0) + real (t0+2s) pair.
+        org.apache.skywalking.oap.meter.analyzer.v2.dsl.counter.CounterWindow.INSTANCE.reset();
+
+        // v2 prime + v2 real (consecutive scrapes 2 s apart, same delta)
         final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> v2Data;
         if (hasIncrease) {
             try {
-                final Map<String, org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily> primeData =
-                    buildV2MockDataFromInput(inputSection, 0.5);
-                for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : primeData.values()) {
-                    if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
-                        s.context.setMetricName(cwMetricName);
-                    }
-                }
-                v2MalExpr.run(primeData);
+                v2MalExpr.run(buildV2MockDataFromInput(inputSection, 0.5));
             } catch (Exception ignored) {
             }
         }
         v2Data = buildV2MockDataFromInput(inputSection, 1.0);
-        for (final org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily s : v2Data.values()) {
-            if (s != org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily.EMPTY) {
-                s.context.setMetricName(cwMetricName);
-            }
-        }
 
         // V2 run
         org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily v2Sf;
