@@ -13,17 +13,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# 2-OAP cluster + ZK + BanyanDB. Drives apply / inactivate / delete on OAP-1 and
-# verifies OAP-2 converges within a reconciler tick (default 30 s).
+# Runtime-rule lifecycle + cross-node convergence on a Kubernetes (kind) cluster
+# deployed via the skywalking-helm chart — a 2-replica OAP Deployment running in
+# NO-INIT mode (`-Dmode=no-init`) behind a one-shot `-Dmode=init` schema-init Job,
+# the exact topology every production SkyWalking cluster uses. This is the case that
+# exercises the runtime-rule schema-change path on a no-init OAP: an operator apply
+# must drive backend DDL (create the BanyanDB measure) on the cluster main even
+# though it is a no-init node. BanyanDB native cluster coordination (SW_CLUSTER=
+# kubernetes) is wired by the chart; ZooKeeper is not needed.
 
 setup:
-  env: compose
-  file: docker-compose.yml
-  timeout: 25m
+  env: kind
+  file: kind.yaml
+  timeout: 30m
   init-system-environment: ../../../script/env
+  kind:
+    import-images:
+      - skywalking/oap:latest
   steps:
     - name: set PATH
       command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install kubectl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh kubectl
     - name: install jq
       command: |
         if ! command -v jq >/dev/null 2>&1; then
@@ -31,11 +46,42 @@ setup:
             https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
           chmod +x /tmp/skywalking-infra-e2e/bin/jq
         fi
-    - name: install swctl
-      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
-    - name: drive cluster convergence flow
+    - name: install helm
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh helm
+    # 2-replica OAP Deployment (no-init) + init Job + admin server + runtime-rule
+    # receiver + BanyanDB. fullnameOverride=skywalking makes the OAP Service / pods
+    # discoverable as skywalking-oap with labels app=skywalking,component=oap.
+    - name: install SkyWalking (no-init cluster + BanyanDB) via helm
       command: |
-        set -euo pipefail
+        export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+        helm -n skywalking install skywalking \
+          oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+          --version "0.0.0-${SW_KUBERNETES_COMMIT_SHA}" \
+          --create-namespace \
+          --set fullnameOverride=skywalking \
+          --set elasticsearch.enabled=false \
+          --set oap.replicas=2 \
+          --set oap.image.repository=skywalking/oap \
+          --set oap.image.tag=latest \
+          --set oap.imagePullPolicy=IfNotPresent \
+          --set oap.storageType=banyandb \
+          --set oap.env.SW_ADMIN_SERVER=default \
+          --set oap.env.SW_RECEIVER_RUNTIME_RULE=default \
+          --set ui.enabled=false \
+          --set banyandb.enabled=true \
+          --set banyandb.standalone.enabled=true \
+          --set banyandb.cluster.enabled=false \
+          --set banyandb.image.repository=ghcr.io/apache/skywalking-banyandb \
+          --set banyandb.image.tag=${SW_BANYANDB_COMMIT}
+      wait:
+        # The init Job must complete (creates the static schema) before the no-init
+        # OAP Deployment can become Available.
+        - namespace: skywalking
+          resource: deployment/skywalking-oap
+          for: condition=available
+          timeout: 20m
+    - name: drive runtime-rule lifecycle + cross-node convergence (no-init)
+      command: |
         export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
         bash test/e2e-v2/cases/runtime-rule/cluster/cluster-flow.sh
 
@@ -44,18 +90,8 @@ verify:
     count: 1
     interval: 1s
   cases:
-    - query: swctl --display json --admin-url=http://127.0.0.1:17128 admin runtime-rule list >/dev/null && echo ok
-      expected: expected/ok.txt
-
-cleanup:
-  on: always
-  collect:
-    on: failure
-    output-dir: $SW_INFRA_E2E_LOG_DIR/runtime-rule/cluster
-    items:
-      - service: oap1
-        paths:
-          - /skywalking/logs/
-      - service: oap2
-        paths:
-          - /skywalking/logs/
+    # The lifecycle assertions live in cluster-flow.sh (it exits non-zero on any
+    # failure, failing setup). This is a thin liveness check that the no-init cluster
+    # came up with both OAP replicas Ready.
+    - query: kubectl -n skywalking get deployment skywalking-oap -o jsonpath='{.status.readyReplicas}'
+      expected: expected/ready-replicas.txt

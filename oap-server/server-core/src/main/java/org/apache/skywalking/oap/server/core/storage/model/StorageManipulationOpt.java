@@ -73,10 +73,11 @@ import lombok.Getter;
  * <h3>{@link #verifySchemaOnly()} — {@link Mode#VERIFY_SCHEMA_ONLY} (predicate: {@link #isVerifySchemaOnly()})</h3>
  * <p>Callers:
  * <ul>
- *   <li>Boot-time reconciler pass on a non-init OAP — the operator declared
- *       {@code init=false}, so this OAP must not perform DDL but must refuse to start if
- *       the backend isn't already in the shape the persisted runtime-rule catalog
- *       declares.</li>
+ *   <li>Boot-time runtime-rule reconciler pass on a cluster <em>peer</em> (a node that is
+ *       not the hash-selected main for the file) — the main owns DDL, so this node must not
+ *       perform it but must refuse to start if the backend isn't already in the shape the
+ *       persisted runtime-rule catalog declares. Chosen by main-ness, not running mode, so a
+ *       peer behaves the same in no-init and default mode.</li>
  * </ul>
  * <p>Backend behaviour: read-only inspection. The installer issues the same metadata
  * read RPCs as {@link Mode#SCHEMA_CREATE_IF_ABSENT} but never invokes create / update / drop. On
@@ -137,15 +138,22 @@ public final class StorageManipulationOpt {
             .escalateToCaller(true)
             .build()),
         /**
-         * Static boot path on an init-mode OAP. Installer creates absent resources, but
-         * if a resource already exists with a shape that diverges from the declared
-         * model it records {@link Outcome#SKIPPED_SHAPE_MISMATCH} and does <strong>not</strong>
-         * call update / reshape. Operator must reconcile via the runtime-rule REST
-         * endpoint — boot is not allowed to silently mutate backend shape.
+         * Static boot-time model registration, run by every OAP. On an init / standalone
+         * OAP the installer creates absent resources, but if a resource already exists with
+         * a shape that diverges from the declared model it records
+         * {@link Outcome#SKIPPED_SHAPE_MISMATCH} and does <strong>not</strong> call
+         * update / reshape. Operator must reconcile via the runtime-rule REST endpoint —
+         * boot is not allowed to silently mutate backend shape.
+         *
+         * <p>This is the only mode that sets {@code deferDDLToInitNode}: on a {@code no-init}
+         * OAP the installer defers to the init OAP (waits in the
+         * {@link ModelInstaller#whenCreating} poll loop) rather than creating the resource
+         * itself. The runtime-rule (DSL) modes never defer.
          */
         SCHEMA_CREATE_IF_ABSENT(Flags.builder()
             .inspectBackend(true)
             .createMissing(true)
+            .deferDDLToInitNode(true)
             .build()),
         /**
          * Boot path on a non-init OAP. Installer issues the same read-only inspection
@@ -247,6 +255,22 @@ public final class StorageManipulationOpt {
          * the node.
          */
         private final boolean escalateToCaller;
+        /**
+         * On a {@code no-init} OAP, defer all backend DDL to the dedicated init OAP and wait
+         * (poll loop in {@link ModelInstaller#whenCreating}) rather than create / update the
+         * resource here. Set ONLY on {@link Mode#SCHEMA_CREATE_IF_ABSENT} — the static
+         * boot-time model registration that every OAP runs. The init / no-init / default
+         * running-mode axis governs <strong>static</strong> schema only.
+         *
+         * <p>The runtime-rule (DSL) opts — {@link Mode#WITH_SCHEMA_CHANGE},
+         * {@link Mode#VERIFY_SCHEMA_ONLY}, {@link Mode#WITHOUT_SCHEMA_CHANGE} — leave this
+         * {@code false}, so an operator-driven runtime apply is driven by the other flags and
+         * by cluster main-ness, never by {@code RunningMode}. Without this distinction a
+         * no-init OAP (every production cluster node) would route a runtime {@code withSchemaChange}
+         * create into the init-node poll loop and block forever, because no init OAP knows
+         * about a metric that was created at runtime.
+         */
+        private final boolean deferDDLToInitNode;
     }
 
     @Getter
