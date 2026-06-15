@@ -308,7 +308,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     private void doFenceOnRevision(final BanyanDBClient client, final StorageManipulationOpt opt,
                                    final String context) throws BanyanDBException {
-        final long rev = opt.getMaxModRevision();
+        doFenceOnRevisionValue(client, opt.getMaxModRevision(), context);
+    }
+
+    private void doFenceOnRevisionValue(final BanyanDBClient client, final long rev,
+                                        final String context) throws BanyanDBException {
         if (rev <= 0L) {
             return;
         }
@@ -478,6 +482,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             final String group = metadata.getGroup();
             final String name = metadata.name();
             log.info("drop BanyanDB schema kind={} {}:{}", metadata.getKind(), group, name);
+            // Tombstone revision of THIS drop's primary resource only — used to decide the
+            // deletion fence. It must be the primary's own revision, NOT opt.getMaxModRevision():
+            // a single opt is reused across many files in a tick, so the cumulative max can carry
+            // an unrelated earlier create/binding revision and make a tombstone-less delete
+            // (primary revision 0) skip the AwaitSchemaDeleted fallback. 0 for trace/property,
+            // whose delete RPCs have no revision-returning variant — those always key-fence.
+            long primaryDeleteRev = StorageManipulationOpt.DEFAULT_MOD_REVISION;
             switch (metadata.getKind()) {
                 case MEASURE:
                     // Drop the TopN aggregations first (if any), then index rule bindings, index rules, then the measure.
@@ -489,11 +500,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         }
                     }
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
-                    opt.recordModRevision(client.deleteMeasureWithRevision(group, name));
+                    primaryDeleteRev = client.deleteMeasureWithRevision(group, name);
+                    opt.recordModRevision(primaryDeleteRev);
                     break;
                 case STREAM:
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
-                    opt.recordModRevision(client.deleteStreamWithRevision(group, name));
+                    primaryDeleteRev = client.deleteStreamWithRevision(group, name);
+                    opt.recordModRevision(primaryDeleteRev);
                     break;
                 case TRACE:
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
@@ -507,9 +520,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         "dropTable unsupported kind=" + metadata.getKind() + " for model " + model.getName());
             }
             // Fence: prefer the revision-based wait when the server recorded a tombstone
-            // mod_revision; otherwise fall back to AwaitSchemaDeleted keyed on the
-            // primary resource so callers get a hard "removed everywhere" signal.
-            fenceOnRevisionOrDeletion(client, opt, metadata, "dropTable:" + model.getName());
+            // mod_revision for THIS resource; otherwise fall back to AwaitSchemaDeleted keyed on
+            // the primary resource so callers get a hard "removed everywhere" signal.
+            fenceOnRevisionOrDeletion(client, metadata, primaryDeleteRev, "dropTable:" + model.getName());
         } catch (BanyanDBException ex) {
             if (Status.Code.NOT_FOUND.equals(ex.getStatus())) {
                 log.info("BanyanDB schema {} already absent on drop (idempotent)", model.getName());
@@ -520,24 +533,32 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Prefer {@code AwaitRevisionApplied(maxRev)} when the registry returned a
-     * non-zero tombstone revision; otherwise fall back to
+     * Prefer {@code AwaitRevisionApplied(primaryDeleteRev)} when the registry returned a
+     * non-zero tombstone revision for the primary resource; otherwise fall back to
      * {@code AwaitSchemaDeleted(key)} keyed on the primary resource. The fallback
      * exists because {@code mod_revision == 0} on a delete response means the server
      * did not record a tombstone — the revision-based fence cannot observe a
      * deletion that didn't get one.
+     *
+     * <p>The decision keys on {@code primaryDeleteRev} — the primary resource's own delete
+     * revision — NOT {@code opt.getMaxModRevision()}. A single opt is shared across every file
+     * in a reconciler tick, so its cumulative max can hold an unrelated earlier create/binding
+     * revision; using it here would make a tombstone-less primary delete take the revision
+     * branch and silently skip {@code AwaitSchemaDeleted}. Because the primary delete is issued
+     * last (after TopN + bindings), its revision is the highest of this drop and fencing on it
+     * also covers the earlier lower-revision deletes of the same drop.
      */
-    private void fenceOnRevisionOrDeletion(final BanyanDBClient client, final StorageManipulationOpt opt,
+    private void fenceOnRevisionOrDeletion(final BanyanDBClient client,
                                            final MetadataRegistry.SchemaMetadata metadata,
+                                           final long primaryDeleteRev,
                                            final String context) throws BanyanDBException {
-        final long rev = opt.getMaxModRevision();
-        if (rev > 0L) {
+        if (primaryDeleteRev > 0L) {
             // Drops fence inline (never deferred): a deletion's visibility is per-key and must
             // not ride a batched revision flush — drops stay correct even under a deferFence opt.
-            doFenceOnRevision(client, opt, context);
+            doFenceOnRevisionValue(client, primaryDeleteRev, context);
             return;
         }
-        // mod_revision was 0 on every delete — fall back to key-based deletion fence.
+        // mod_revision was 0 on the primary delete — fall back to key-based deletion fence.
         final String kind;
         switch (metadata.getKind()) {
             case MEASURE:

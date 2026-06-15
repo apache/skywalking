@@ -432,11 +432,25 @@ public final class StorageManipulationOpt {
      * Run the registered {@link DeferredFence} once, if any. Called by the apply orchestration
      * after all DDL for the batch is fired. No-op when nothing was registered (peer/no-change
      * applies, or non-BanyanDB backends).
+     *
+     * <p><strong>One-shot.</strong> A single reconciler tick reuses ONE opt across every rule
+     * file ({@code RuleSync#runOnce}), calling this once per file. After the fence runs, the
+     * closure is cleared and {@link #maxModRevision} is reset so the next file neither re-runs
+     * this file's stale fence (when that file performed no DDL) nor waits on this file's
+     * revision — each file fences on its own DDL only. The reset happens in a {@code finally}
+     * so a fence transport failure still isolates the next file. The closure reads
+     * {@link #getMaxModRevision()} during {@code await()}, so it is reset only after.
      */
     public void runDeferredFence() throws StorageException {
         final DeferredFence fence = this.deferredFence;
-        if (fence != null) {
+        if (fence == null) {
+            return;
+        }
+        this.deferredFence = null;
+        try {
             fence.await();
+        } finally {
+            maxModRevision.set(0L);
         }
     }
 

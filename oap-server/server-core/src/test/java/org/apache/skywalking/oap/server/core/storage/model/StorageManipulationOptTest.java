@@ -84,6 +84,52 @@ class StorageManipulationOptTest {
     }
 
     @Test
+    void runDeferredFenceIsOneShotAcrossFiles() throws StorageException {
+        // A reconciler tick reuses ONE opt across every rule file. After a file flushes its
+        // fence, a later file that performed no DDL (registers no new closure) must NOT re-run
+        // the earlier file's stale fence.
+        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final AtomicInteger calls = new AtomicInteger();
+        opt.setDeferredFence(calls::incrementAndGet);
+
+        opt.runDeferredFence();
+        opt.runDeferredFence();
+
+        assertEquals(1, calls.get(), "the fence must run once and be cleared, not re-run for the next file");
+    }
+
+    @Test
+    void runDeferredFenceResetsRevisionAfterAwait() throws StorageException {
+        // The closure must observe this file's accumulated revision DURING await, then the opt
+        // resets so the next file fences on its own DDL only — not the cumulative max.
+        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        opt.recordModRevision(42L);
+        final AtomicInteger seenDuringAwait = new AtomicInteger();
+        opt.setDeferredFence(() -> seenDuringAwait.set((int) opt.getMaxModRevision()));
+
+        opt.runDeferredFence();
+
+        assertEquals(42L, seenDuringAwait.get(), "the fence must see the recorded revision during await");
+        assertEquals(StorageManipulationOpt.DEFAULT_MOD_REVISION, opt.getMaxModRevision(),
+            "the revision must reset after the fence so a later file is not over-fenced");
+    }
+
+    @Test
+    void runDeferredFenceResetsRevisionEvenWhenFenceThrows() {
+        // A barrier transport failure on one file must not leave a stale revision that the next
+        // file would inherit; the reset runs in finally.
+        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        opt.recordModRevision(99L);
+        opt.setDeferredFence(() -> {
+            throw new StorageException("barrier transport error");
+        });
+
+        assertThrows(StorageException.class, opt::runDeferredFence);
+        assertEquals(StorageManipulationOpt.DEFAULT_MOD_REVISION, opt.getMaxModRevision(),
+            "the revision must reset even when the fence throws");
+    }
+
+    @Test
     void laterSetDeferredFenceWins() throws StorageException {
         // The installer may register the closure once per resource; the latest (equivalent) one
         // wins and still runs a single time.
