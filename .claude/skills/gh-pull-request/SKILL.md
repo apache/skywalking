@@ -150,3 +150,35 @@ EOF
 - Add `copilot` as a reviewer: `gh pr edit <number> --add-reviewer copilot`
 - Do NOT add AI assistant as co-author. Code responsibility is on the committer's hands.
 - Return the PR URL when done.
+
+## After the PR is merged
+
+Once the PR is merged, sync the default branch and clean up the feature branch:
+
+```bash
+# 1. Prune stale remote refs. GitHub auto-deletes the PR's branch on merge, so
+#    the remote feature branch is usually already gone; --prune removes the
+#    dangling local tracking ref.
+git fetch origin --prune
+
+# 2. Switch back to the default branch and fast-forward it to include the merge.
+git checkout master
+git pull --ff-only origin master
+
+# 3. Confirm the change actually landed in master before deleting anything —
+#    `git log --oneline -1` should show the merge/squash commit with the PR
+#    number, or grep for a symbol the PR introduced.
+git log --oneline -1
+
+# 4. Delete the local feature branch. SkyWalking SQUASH-merges PRs, so the
+#    feature branch's commit is NOT an ancestor of master (master gets a new
+#    squash commit instead). `git branch -d` therefore reports "not fully
+#    merged" — that is expected, not an error. After confirming the content is
+#    in master (step 3), force-delete:
+git branch -d <branch> 2>/dev/null || git branch -D <branch>
+```
+
+Notes:
+- `git branch -d` failing with "not fully merged" on a squash-merged PR is normal — the squash commit has a different SHA than the feature commit. Verify via step 3, then `-D`.
+- If the remote branch was not auto-deleted (some repo settings), remove it explicitly: `git push origin --delete <branch>`.
+- Do NOT skip step 3. Force-deleting a local branch whose work didn't actually merge loses it.
