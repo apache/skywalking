@@ -122,7 +122,7 @@ jobs:
           persist-credentials: false
       - name: Filter
         id: filter
-        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
         with:
           list-files: 'shell'
           predicate-quantifier: 'every'
@@ -765,7 +765,7 @@ jobs:
           name: dist
           path: dist
       - name: Login to ghcr
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -854,7 +854,7 @@ jobs:
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
       - name: Login to ghcr
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -926,7 +926,7 @@ jobs:
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
       - name: Login to ghcr
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -1042,7 +1042,7 @@ jobs:
           name: dist
           path: dist
       - name: Login to ghcr
-        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
