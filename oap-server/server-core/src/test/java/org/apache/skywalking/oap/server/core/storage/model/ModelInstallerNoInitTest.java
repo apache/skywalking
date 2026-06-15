@@ -158,6 +158,58 @@ class ModelInstallerNoInitTest {
         }
     }
 
+    @Test
+    void withoutSchemaChangePopulatesLocalCacheAndIssuesNoBackendRpc() throws StorageException {
+        // Peer reconciler tick (inspectBackend=false): the installer must refresh the local
+        // schema cache (so a reshape re-add overwrites a now-stale entry) WITHOUT any backend
+        // existence probe or create. This is the C-1 fix for the worker-without-cache /
+        // stale-cache desync.
+        final RecordingInstaller installer = new RecordingInstaller(false /* unused */);
+        final Model model = mock(Model.class);
+        when(model.getName()).thenReturn("runtime_metric_peer");
+
+        installer.whenCreating(model, StorageManipulationOpt.withoutSchemaChange());
+
+        assertEquals(1, installer.populateLocalCacheCalls,
+            "a withoutSchemaChange (peer) apply must refresh the local schema cache");
+        assertEquals(0, installer.probeCalls,
+            "a withoutSchemaChange (peer) apply must issue zero backend existence probes");
+        assertEquals(0, installer.createTableCalls,
+            "a withoutSchemaChange (peer) apply must never create backend resources");
+    }
+
+    @Test
+    void whenRemovingPeerEvictsLocalCacheWithoutDroppingBackend() throws StorageException {
+        // Peer remove (dropOnRemoval=false): the backend drop is the main's job, but the peer
+        // must still evict its own cache entry so a removed model leaves no stale translation.
+        final RecordingInstaller installer = new RecordingInstaller(true /* unused */);
+        final Model model = mock(Model.class);
+        when(model.getName()).thenReturn("runtime_metric_remove_peer");
+
+        installer.whenRemoving(model, StorageManipulationOpt.withoutSchemaChange());
+
+        assertEquals(1, installer.evictLocalCacheCalls,
+            "a peer remove must evict the local schema cache entry");
+        assertEquals(0, installer.dropTableCalls,
+            "a peer remove (dropOnRemoval off) must not drop backend resources");
+    }
+
+    @Test
+    void whenRemovingMainDropsBackendThenEvictsLocalCache() throws StorageException {
+        // Main remove (withSchemaChange, dropOnRemoval=true): drop the backend AND evict the
+        // local cache so the insert-only registry does not keep a tombstoned model's entry.
+        final RecordingInstaller installer = new RecordingInstaller(true /* unused */);
+        final Model model = mock(Model.class);
+        when(model.getName()).thenReturn("runtime_metric_remove_main");
+
+        installer.whenRemoving(model, StorageManipulationOpt.withSchemaChange());
+
+        assertEquals(1, installer.dropTableCalls,
+            "a main remove must drop the backend resource");
+        assertEquals(1, installer.evictLocalCacheCalls,
+            "a main remove must evict the local schema cache entry after the drop");
+    }
+
     /** Minimal concrete {@link ModelInstaller} that records createTable calls and reports a
      *  fixed existence result, so the base whenCreating branching can be exercised without a
      *  real storage backend. Optionally throws a transient {@link StorageException} on the first
@@ -168,6 +220,9 @@ class ModelInstallerNoInitTest {
         private final boolean retryableProbeFailure;
         private int probeCalls;
         private int createTableCalls;
+        private int populateLocalCacheCalls;
+        private int evictLocalCacheCalls;
+        private int dropTableCalls;
 
         private RecordingInstaller(final boolean resourcePresent) {
             this(resourcePresent, 0, false);
@@ -203,6 +258,21 @@ class ModelInstallerNoInitTest {
         @Override
         public void createTable(final Model model) {
             createTableCalls++;
+        }
+
+        @Override
+        public void dropTable(final Model model) {
+            dropTableCalls++;
+        }
+
+        @Override
+        protected void populateLocalCacheOnly(final Model model, final StorageManipulationOpt opt) {
+            populateLocalCacheCalls++;
+        }
+
+        @Override
+        protected void evictLocalCache(final Model model) {
+            evictLocalCacheCalls++;
         }
     }
 

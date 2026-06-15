@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -77,5 +78,33 @@ class MetadataRegistryTest {
         // not propagate.
         assertDoesNotThrow(() -> MetadataRegistry.INSTANCE.repopulateLocally(model),
             "a throwing populator must be swallowed so self-heal never worsens the failure");
+    }
+
+    @Test
+    void evictExercisesEveryFindMetadataKeyBranchSafely() {
+        // evict() must key its removal exactly as findMetadata() looks an entry up — across
+        // management (name), record (name) and metric (formatName(name, downSampling)) kinds.
+        // Exercise all three so a wrong-branch or formatName regression surfaces, and confirm
+        // evicting an absent entry is a safe no-op (the registry is otherwise insert-only).
+        final Model management = mock(Model.class);
+        when(management.isTimeSeries()).thenReturn(false);
+        when(management.getName()).thenReturn("management_model");
+
+        final Model record = mock(Model.class);
+        when(record.isTimeSeries()).thenReturn(true);
+        when(record.isRecord()).thenReturn(true);
+        when(record.getName()).thenReturn("record_model");
+
+        final Model metric = mock(Model.class);
+        when(metric.isTimeSeries()).thenReturn(true);
+        when(metric.isRecord()).thenReturn(false);
+        when(metric.getName()).thenReturn("metric_model");
+        when(metric.getDownsampling()).thenReturn(DownSampling.Minute);
+
+        assertDoesNotThrow(() -> {
+            MetadataRegistry.INSTANCE.evict(management);
+            MetadataRegistry.INSTANCE.evict(record);
+            MetadataRegistry.INSTANCE.evict(metric);
+        }, "evict must be a safe no-op for an absent entry across all model kinds");
     }
 }

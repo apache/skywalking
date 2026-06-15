@@ -1336,6 +1336,24 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * schema cache the local DAOs read from so this node can translate Model ↔ BanyanDB
      * proto for sample ingest / queries.
      */
+    @Override
+    protected void populateLocalCacheOnly(final Model model, final StorageManipulationOpt opt) {
+        // inspectBackend=false (peer / local-cache-only tick): the main owns the backend
+        // resource; this node only (re)derives its local MetadataRegistry entry so its DAOs
+        // can translate this model. RPC-free, and an overwrite via register*Model — keeps a
+        // peer's cache in lockstep with a reshaped model that re-fires whenCreating, which the
+        // read-side self-heal (fill-if-absent only) cannot do.
+        final DownSamplingConfigService downSamplingConfigService = moduleManager.find(CoreModule.NAME)
+                                                                                 .provider()
+                                                                                 .getService(DownSamplingConfigService.class);
+        registerLocallyByKind(model, downSamplingConfigService);
+    }
+
+    @Override
+    protected void evictLocalCache(final Model model) {
+        MetadataRegistry.INSTANCE.evict(model);
+    }
+
     private void registerLocallyByKind(final Model model,
                                         final DownSamplingConfigService downSamplingConfigService) {
         if (model.isTimeSeries()) {

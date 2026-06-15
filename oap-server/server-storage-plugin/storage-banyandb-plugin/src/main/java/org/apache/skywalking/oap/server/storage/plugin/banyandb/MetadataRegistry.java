@@ -443,6 +443,24 @@ public enum MetadataRegistry {
         return findMetricMetadata(model.getName(), model.getDownsampling());
     }
 
+    /**
+     * Drop the local {@link Schema} cache entry for {@code model}, keyed exactly as
+     * {@link #findMetadata(Model)} looks it up. The registry is otherwise insert-only, so this
+     * is the one path that removes an entry — invoked from {@code ModelInstaller.whenRemoving}
+     * on a runtime-rule hot-remove / reshape so a stale translation never outlives the model.
+     */
+    public void evict(final Model model) {
+        final String key;
+        if (!model.isTimeSeries() || model.isRecord()) {
+            key = model.getName();
+        } else {
+            key = SchemaMetadata.formatName(model.getName(), model.getDownsampling());
+        }
+        if (registry.remove(key) != null) {
+            log.debug("evicted local BanyanDB schema cache entry [{}]", key);
+        }
+    }
+
     private FieldSpec parseFieldSpec(ModelColumn modelColumn) {
         String colName = modelColumn.getColumnName().getStorageName();
         if (String.class.equals(modelColumn.getType())) {
