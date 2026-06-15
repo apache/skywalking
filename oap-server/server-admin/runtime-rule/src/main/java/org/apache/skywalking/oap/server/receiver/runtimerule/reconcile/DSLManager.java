@@ -151,8 +151,9 @@ public final class DSLManager {
     private final long selfHealThresholdMs;
 
     /** Timeout for the runtime-rule deferred/batched BanyanDB schema fence on the operator REST
-     *  apply path (default 3 min). Carried onto the deferred-fence opt; see
-     *  {@link #newDeferredFenceOpt()} and {@code RuntimeRuleModuleConfig.deferredFenceTimeoutSeconds}. */
+     *  apply path (default 3 min). Read via {@link #getDeferredFenceTimeoutMs()} by the REST
+     *  orchestrator, which builds the deferred-fence opt with it
+     *  ({@code RuntimeRuleModuleConfig.deferredFenceTimeoutSeconds}). */
     @Getter
     private final long deferredFenceTimeoutMs;
 
