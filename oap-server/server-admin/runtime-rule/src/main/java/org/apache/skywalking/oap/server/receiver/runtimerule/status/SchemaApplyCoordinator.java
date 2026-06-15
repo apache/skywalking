@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.status;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,7 +80,7 @@ public class SchemaApplyCoordinator {
         final String applyId = UUID.randomUUID().toString();
         final long now = clock.getAsLong();
         byApplyId.put(applyId, new ApplyStatus(
-            applyId, catalog, name, contentHash, ApplyPhase.PENDING, null, now, now));
+            applyId, catalog, name, contentHash, ApplyPhase.PENDING, null, now, now, null));
         latestApplyIdByFile.put(fileKey(catalog, name), applyId);
         if (log.isDebugEnabled()) {
             log.debug("apply [{}] begin: {}/{} hash={}", applyId, catalog, name, contentHash);
@@ -98,10 +99,22 @@ public class SchemaApplyCoordinator {
         transition(applyId, ApplyPhase.APPLIED);
     }
 
+    /** Move an apply to {@link ApplyPhase#FENCING}: the background wait for cluster-wide schema
+     *  propagation is in flight (after the durable commit + peer resume). No-op for an unknown id. */
+    public void markFencing(final String applyId) {
+        transition(applyId, ApplyPhase.FENCING);
+    }
+
     /** Terminal: committed and durable, but cluster-wide propagation unconfirmed within budget
      *  (a node is lagging). Not a revert — a background re-check may flip it to APPLIED later. */
     public void markDegraded(final String applyId, final String reason) {
         update(applyId, s -> s.withFailure(ApplyPhase.DEGRADED, reason, clock.getAsLong()));
+    }
+
+    /** {@link #markDegraded(String, String)} carrying the data-node ids that had not confirmed the
+     *  schema revision at fence timeout, surfaced to the operator on the status. */
+    public void markDegraded(final String applyId, final String reason, final List<String> laggards) {
+        update(applyId, s -> s.withFailure(ApplyPhase.DEGRADED, reason, laggards, clock.getAsLong()));
     }
 
     /** Terminal: a pre-commit error (compile / verify / DDL RPC / persist); the change was rolled

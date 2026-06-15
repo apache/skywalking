@@ -60,10 +60,10 @@ class SchemaApplyCoordinatorTest {
         clock.set(2_000L);
         coord.transition(applyId, ApplyPhase.DDL);
         clock.set(3_000L);
-        coord.transition(applyId, ApplyPhase.FENCING);
+        coord.transition(applyId, ApplyPhase.ROLLING_OUT);
 
         final ApplyStatus s = coord.get(applyId);
-        assertEquals(ApplyPhase.FENCING, s.getPhase());
+        assertEquals(ApplyPhase.ROLLING_OUT, s.getPhase());
         assertEquals(1_000L, s.getStartedAtMs(), "startedAt is fixed at begin");
         assertEquals(3_000L, s.getUpdatedAtMs(), "updatedAt advances with each transition");
     }

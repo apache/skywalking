@@ -174,11 +174,18 @@ public class MalFileApplier {
         // whole file waits ONCE instead of one fence per metric/downsampling. A fence timeout is
         // a non-fatal WARN inside the closure; only a barrier transport error throws, which
         // aborts this apply exactly as an inline per-resource fence would have.
-        try {
-            storageOpt.runDeferredFence();
-        } catch (final StorageException e) {
-            layerRegistry.rollback(appliedClaims);
-            throw new ApplyException("schema fence failed for " + sourceName, e, metricNames);
+        //
+        // EXCEPTION: when fenceRunByCaller is set (the runtime-rule REST apply), the orchestrator
+        // runs the fence itself AFTER the durable commit + peer resume, on a background thread, so
+        // a long (3-min) cluster-propagation wait neither blocks the apply nor holds peers
+        // suspended. We only fire the DDL here and leave the closure for the caller to run.
+        if (!storageOpt.isFenceRunByCaller()) {
+            try {
+                storageOpt.runDeferredFence();
+            } catch (final StorageException e) {
+                layerRegistry.rollback(appliedClaims);
+                throw new ApplyException("schema fence failed for " + sourceName, e, metricNames);
+            }
         }
         return new Applied(rule, convert, metricNames, ruleLoader, appliedClaims);
     }

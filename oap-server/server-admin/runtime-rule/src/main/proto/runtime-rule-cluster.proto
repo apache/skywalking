@@ -193,8 +193,15 @@ message ApplyStatusRequest {
 enum ApplyStatusPhase {
     APPLY_PHASE_UNSPECIFIED = 0;
     APPLY_PHASE_PENDING = 1;
-    APPLY_PHASE_VALIDATING = 2;
+    // 2 (VALIDATING) was removed: it is a sub-step inside the single compile/verify/schema-change
+    // call and is not separately observable by the main's orchestration. Reserved to keep the wire
+    // number stable.
+    reserved 2;
+    reserved "APPLY_PHASE_VALIDATING";
     APPLY_PHASE_DDL = 3;
+    // The main waits (in the background, on a generous timeout) for every data node to apply the
+    // new schema revision. Emitted AFTER ROLLING_OUT in the async model — the apply is already
+    // durable + peers resumed; this only confirms cluster-wide propagation.
     APPLY_PHASE_FENCING = 4;
     APPLY_PHASE_ROLLING_OUT = 5;
     APPLY_PHASE_APPLIED = 6;
@@ -221,6 +228,9 @@ message ApplyStatusResponse {
     int64 updated_at_ms = 9;
     // Instance id of the node that produced this status (the main).
     string node_id = 10;
+    // Data-node ids that had not confirmed the schema revision when the fence timed out.
+    // Non-empty only on APPLY_PHASE_DEGRADED (fence non-confirmation).
+    repeated string fence_laggards = 11;
 }
 
 // Sent by the main after a successful structural commit so peers reconcile immediately.

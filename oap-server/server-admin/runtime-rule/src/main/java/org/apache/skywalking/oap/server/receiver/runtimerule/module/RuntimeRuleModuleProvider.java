@@ -277,7 +277,8 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
         // RuleEngineRegistry from the per-DSL state maps it owns.
         dslManager = new DSLManager(
             getManager(),
-            moduleConfig.getSelfHealThresholdSeconds() * 1000L
+            moduleConfig.getSelfHealThresholdSeconds() * 1000L,
+            moduleConfig.getDeferredFenceTimeoutSeconds() * 1000L
         );
 
         // Cluster-facing Suspend client: fans out to every non-self peer on the OAP cluster bus

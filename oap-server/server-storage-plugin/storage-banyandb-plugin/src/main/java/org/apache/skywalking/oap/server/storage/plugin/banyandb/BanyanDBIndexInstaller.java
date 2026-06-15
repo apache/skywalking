@@ -296,7 +296,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             // time, after every resource has recorded its revision.
             opt.setDeferredFence(() -> {
                 try {
-                    doFenceOnRevision(client, opt, "batched apply");
+                    doDeferredFence(client, opt, "batched apply");
                 } catch (final BanyanDBException e) {
                     throw new StorageException("batched schema fence failed", e);
                 }
@@ -309,6 +309,42 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     private void doFenceOnRevision(final BanyanDBClient client, final StorageManipulationOpt opt,
                                    final String context) throws BanyanDBException {
         doFenceOnRevisionValue(client, opt.getMaxModRevision(), context);
+    }
+
+    /**
+     * The deferred (batched) fence the runtime-rule apply runs once after all DDL. Unlike the inline
+     * {@link #doFenceOnRevisionValue}, this (1) emits the apply's {@code FENCING} progress phase the
+     * instant before it blocks (via the opt's {@link StorageManipulationOpt.FencePhaseListener}),
+     * (2) honors the opt's configured timeout ({@link StorageManipulationOpt#getFenceTimeoutMs()},
+     * the runtime-rule 3-min budget) instead of the short inline {@link #FENCE_TIMEOUT}, and
+     * (3) records the outcome (applied + laggard node ids) on the opt so the orchestrator can mark
+     * {@code APPLIED} vs {@code DEGRADED}. A laggard timeout is still a non-fatal WARN.
+     */
+    private void doDeferredFence(final BanyanDBClient client, final StorageManipulationOpt opt,
+                                 final String context) throws BanyanDBException {
+        final long rev = opt.getMaxModRevision();
+        if (rev <= 0L) {
+            return;
+        }
+        final StorageManipulationOpt.FencePhaseListener listener = opt.getFencePhaseListener();
+        if (listener != null) {
+            listener.onFenceStart();
+        }
+        final Duration timeout = opt.getFenceTimeoutMs() > 0L
+            ? Duration.ofMillis(opt.getFenceTimeoutMs())
+            : FENCE_TIMEOUT;
+        final SchemaWatcher.Result result = client.getSchemaWatcher().awaitRevisionApplied(rev, timeout);
+        if (!result.isApplied()) {
+            log.warn("BanyanDB schema-watch fence did NOT confirm revision {} within {} ms for {}; "
+                + "proceeding anyway. Laggards: {}", rev, timeout.toMillis(), context, result.getLaggards());
+            final List<String> laggardIds = result.getLaggards().stream()
+                .map(l -> l.getNode())
+                .collect(Collectors.toList());
+            opt.setFenceOutcome(new StorageManipulationOpt.FenceOutcome(false, laggardIds));
+        } else {
+            log.debug("BanyanDB schema-watch fence confirmed revision {} for {}", rev, context);
+            opt.setFenceOutcome(new StorageManipulationOpt.FenceOutcome(true, List.of()));
+        }
     }
 
     private void doFenceOnRevisionValue(final BanyanDBClient client, final long rev,

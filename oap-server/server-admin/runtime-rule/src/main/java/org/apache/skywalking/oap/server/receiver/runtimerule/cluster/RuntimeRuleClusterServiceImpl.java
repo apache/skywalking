@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusPhase;
@@ -116,6 +117,13 @@ public class RuntimeRuleClusterServiceImpl
         return t;
     });
 
+    /** Coalesces a burst of NotifyApplied into a single queued reconcile. {@code dslManager.tick()}
+     *  is a full reconcile over every rule file, so when a multi-file apply (or several applies)
+     *  fires many notifies, the first queued tick already converges all of them — the rest would be
+     *  redundant full {@code dao.getAll()} scans. Set on schedule, cleared at the START of the task
+     *  so a notify arriving while a tick runs still queues exactly one follow-up (no lost update). */
+    private final AtomicBoolean tickPending = new AtomicBoolean(false);
+
     public RuntimeRuleClusterServiceImpl(final DSLManager dslManager, final String selfNodeId) {
         this.dslManager = dslManager;
         this.selfNodeId = selfNodeId;
@@ -137,26 +145,41 @@ public class RuntimeRuleClusterServiceImpl
             responseObserver.onCompleted();
             return;
         }
-        boolean accepted = false;
-        try {
-            reconcileNudgeExecutor.submit(() -> {
-                try {
-                    dslManager.tick();
-                } catch (final Throwable t) {
-                    log.warn("runtime-rule NotifyApplied reconcile for {}/{} failed; peer will "
-                        + "self-converge on its next tick: {}",
-                        request.getCatalog(), request.getName(), t.getMessage());
-                }
-            });
-            accepted = true;
-        } catch (final Throwable t) {
-            log.warn("runtime-rule NotifyApplied could not schedule reconcile for {}/{}: {}",
-                request.getCatalog(), request.getName(), t.getMessage());
+        boolean accepted = true;
+        // Not final: assigned in both the try and catch arms of the schedule attempt below.
+        String detail;
+        if (tickPending.compareAndSet(false, true)) {
+            try {
+                reconcileNudgeExecutor.submit(() -> {
+                    // Clear before running so a notify that arrives during this tick queues exactly
+                    // one follow-up rather than being dropped.
+                    tickPending.set(false);
+                    try {
+                        dslManager.tick();
+                    } catch (final Throwable t) {
+                        log.warn("runtime-rule NotifyApplied reconcile for {}/{} failed; peer will "
+                            + "self-converge on its next tick: {}",
+                            request.getCatalog(), request.getName(), t.getMessage());
+                    }
+                });
+                detail = "reconcile scheduled";
+            } catch (final Throwable t) {
+                // Submit rejected (executor shut down). Release the flag so the next notify retries.
+                tickPending.set(false);
+                accepted = false;
+                detail = "schedule failed; self-converge on next tick";
+                log.warn("runtime-rule NotifyApplied could not schedule reconcile for {}/{}: {}",
+                    request.getCatalog(), request.getName(), t.getMessage());
+            }
+        } else {
+            // A reconcile is already queued; this notify is covered by it. tick() is a full
+            // cluster-wide reconcile, so no per-file work is lost by coalescing.
+            detail = "coalesced into pending reconcile";
         }
         responseObserver.onNext(NotifyAppliedAck.newBuilder()
             .setNodeId(selfNodeId)
             .setAccepted(accepted)
-            .setDetail(accepted ? "reconcile scheduled" : "schedule failed; self-converge on next tick")
+            .setDetail(detail)
             .build());
         responseObserver.onCompleted();
     }
@@ -191,6 +214,9 @@ public class RuntimeRuleClusterServiceImpl
                 .setFailureReason(status.getFailureReason() == null ? "" : status.getFailureReason())
                 .setStartedAtMs(status.getStartedAtMs())
                 .setUpdatedAtMs(status.getUpdatedAtMs());
+            if (status.getFenceLaggards() != null && !status.getFenceLaggards().isEmpty()) {
+                resp.addAllFenceLaggards(status.getFenceLaggards());
+            }
         }
         responseObserver.onNext(resp.build());
         responseObserver.onCompleted();
@@ -200,8 +226,6 @@ public class RuntimeRuleClusterServiceImpl
         switch (phase) {
             case PENDING:
                 return ApplyStatusPhase.APPLY_PHASE_PENDING;
-            case VALIDATING:
-                return ApplyStatusPhase.APPLY_PHASE_VALIDATING;
             case DDL:
                 return ApplyStatusPhase.APPLY_PHASE_DDL;
             case FENCING:

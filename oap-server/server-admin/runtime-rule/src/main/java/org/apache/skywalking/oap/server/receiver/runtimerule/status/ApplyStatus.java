@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.receiver.runtimerule.status;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.Getter;
 
 /**
@@ -41,14 +43,18 @@ public final class ApplyStatus {
     private final String contentHash;
     private final ApplyPhase phase;
     /** Non-null only for {@link ApplyPhase#FAILED} (pre-commit error) and {@link ApplyPhase#DEGRADED}
-     *  (committed but a node lagging at fence timeout). Null otherwise. */
+     *  (committed but a node lagging at fence timeout, or local commit-tail threw). Null otherwise. */
     private final String failureReason;
     private final long startedAtMs;
     private final long updatedAtMs;
+    /** Data-node ids that had not confirmed the new schema revision when the fence timed out.
+     *  Non-empty only for {@link ApplyPhase#DEGRADED} caused by fence non-confirmation; always a
+     *  non-null (possibly empty) immutable list. */
+    private final List<String> fenceLaggards;
 
     public ApplyStatus(final String applyId, final String catalog, final String name,
                        final String contentHash, final ApplyPhase phase, final String failureReason,
-                       final long startedAtMs, final long updatedAtMs) {
+                       final long startedAtMs, final long updatedAtMs, final List<String> fenceLaggards) {
         this.applyId = applyId;
         this.catalog = catalog;
         this.name = name;
@@ -57,16 +63,29 @@ public final class ApplyStatus {
         this.failureReason = failureReason;
         this.startedAtMs = startedAtMs;
         this.updatedAtMs = updatedAtMs;
+        this.fenceLaggards = fenceLaggards == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(fenceLaggards);
     }
 
-    /** A copy advanced to {@code newPhase}, clearing any prior failure reason (forward progress). */
+    /** A copy advanced to {@code newPhase}, clearing any prior failure reason + laggards (forward
+     *  progress). */
     public ApplyStatus withPhase(final ApplyPhase newPhase, final long nowMs) {
-        return new ApplyStatus(applyId, catalog, name, contentHash, newPhase, null, startedAtMs, nowMs);
+        return new ApplyStatus(applyId, catalog, name, contentHash, newPhase, null, startedAtMs, nowMs,
+            Collections.emptyList());
     }
 
     /** A copy moved to a non-success terminal ({@link ApplyPhase#FAILED} / {@link ApplyPhase#DEGRADED})
-     *  carrying {@code reason}. */
+     *  carrying {@code reason} and no laggards. */
     public ApplyStatus withFailure(final ApplyPhase terminalPhase, final String reason, final long nowMs) {
-        return new ApplyStatus(applyId, catalog, name, contentHash, terminalPhase, reason, startedAtMs, nowMs);
+        return withFailure(terminalPhase, reason, Collections.emptyList(), nowMs);
+    }
+
+    /** A copy moved to a non-success terminal carrying {@code reason} and the {@code laggards} that
+     *  caused a fence-non-confirmation {@link ApplyPhase#DEGRADED}. */
+    public ApplyStatus withFailure(final ApplyPhase terminalPhase, final String reason,
+                                   final List<String> laggards, final long nowMs) {
+        return new ApplyStatus(applyId, catalog, name, contentHash, terminalPhase, reason, startedAtMs, nowMs,
+            laggards);
     }
 }

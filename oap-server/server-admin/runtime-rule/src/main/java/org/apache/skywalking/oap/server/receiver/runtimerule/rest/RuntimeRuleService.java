@@ -42,6 +42,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.time.Duration;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
@@ -57,6 +60,7 @@ import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
@@ -183,6 +187,34 @@ public class RuntimeRuleService {
      */
     private volatile AdminClusterChannelManager peerChannelManager;
 
+    /**
+     * Off-REST-thread runner for the best-effort peer {@code NotifyApplied} fan-out. The fan-out is
+     * sequential with a per-peer deadline, so an unreachable peer would otherwise add
+     * {@code peerCount × deadline} to the operator's apply latency — the notify is a convergence
+     * optimization (peers self-converge on their next tick if it's lost), so it must never hold the
+     * HTTP response. Single daemon thread: applies are serialized per file upstream and the fan-out
+     * is idempotent, so ordering across applies doesn't matter; daemon so it never blocks JVM
+     * shutdown. Shut down by {@link #shutdown()}.
+     */
+    private final ExecutorService notifyExecutor = Executors.newSingleThreadExecutor(r -> {
+        final Thread t = new Thread(r, "runtime-rule-notify-broadcast");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /**
+     * Runs the runtime-rule deferred schema fence in the background after a structural apply's
+     * durable commit (see {@link #scheduleBackgroundFence}). A small fixed daemon pool so several
+     * concurrent applies (different files) can each confirm cluster-wide propagation without one
+     * file's up-to-3-min fence blocking another's status; daemon so it never blocks JVM shutdown.
+     * Shut down by {@link #shutdown()}.
+     */
+    private final ExecutorService fenceExecutor = Executors.newFixedThreadPool(4, r -> {
+        final Thread t = new Thread(r, "runtime-rule-bg-fence");
+        t.setDaemon(true);
+        return t;
+    });
+
     public RuntimeRuleService(final ModuleManager moduleManager,
                                   final DSLManager dslManager,
                                   final RuntimeRuleClusterClient clusterClient,
@@ -291,16 +323,79 @@ public class RuntimeRuleService {
                 ? SchemaApplyCoordinator.INSTANCE.getLatestByFile(
                     catalog, name, contentHash.isEmpty() ? null : contentHash)
                 : SchemaApplyCoordinator.INSTANCE.get(applyId);
-            return applyStatusJson(local);
+            if (local != null) {
+                return applyStatusJson(local);
+            }
+            // Live status gone (apply-id evicted / never began on this main). Fall back to the
+            // durable rule row for a content-derived answer; only UNKNOWN if even that is absent.
+            final HttpResponse fromDao = applyStatusFromDao(catalog, name, contentHash);
+            return fromDao != null ? fromDao : applyStatusJson(null);
         }
         final ApplyStatusResponse remote = clusterClient.getApplyStatus(ApplyStatusRequest.newBuilder()
             .setApplyId(applyId).setCatalog(catalog).setName(name).setContentHash(contentHash).build());
         if (remote == null) {
+            // Main unreachable, or a mixed-version main answered UNIMPLEMENTED. Degrade to the
+            // durable rule row (shared storage) before giving up with a transport error.
+            final HttpResponse fromDao = applyStatusFromDao(catalog, name, contentHash);
+            if (fromDao != null) {
+                return fromDao;
+            }
             return HttpResponse.of(HttpStatus.BAD_GATEWAY, MediaType.JSON_UTF_8,
                 jsonBody("status_unavailable", catalog, name,
                     "could not reach the cluster main for apply status; retry shortly"));
         }
+        if (!remote.getFound()) {
+            // The main reached us but no longer holds a live status (evicted / restarted). The
+            // durable row is the same truth the main would derive — read it locally.
+            final HttpResponse fromDao = applyStatusFromDao(catalog, name, contentHash);
+            if (fromDao != null) {
+                return fromDao;
+            }
+        }
         return applyStatusJsonFromProto(remote);
+    }
+
+    /**
+     * Content-derived apply status from the durable rule row, used when the live coordinator status
+     * is gone (apply-id evicted, main restarted, or the main is unreachable). The persist-is-commit
+     * invariant means an {@code ACTIVE} row IS the durable record that the apply of its content
+     * committed, so a matching {@code ACTIVE} row reports {@link ApplyPhase#APPLIED} (flagged
+     * {@code derivedFrom=durable-dao}). A hash mismatch means the queried content is not the current
+     * applied content; an {@code INACTIVE} row means it was paused. Returns {@code null} when the DAO
+     * is unresolvable or the read fails, so the caller keeps its own unavailable/unknown response.
+     */
+    private HttpResponse applyStatusFromDao(final String catalog, final String name, final String contentHash) {
+        final RuntimeRuleManagementDAO.RuntimeRuleFile row;
+        try {
+            row = currentRuleFile(catalog, name);
+        } catch (final IOException e) {
+            log.warn("apply-status DAO fallback read failed for {}/{}; reporting unknown", catalog, name, e);
+            return null;
+        }
+        if (row == null) {
+            return null;
+        }
+        final String rowHash = ContentHash.sha256Hex(row.getContent());
+        final boolean active = !RuntimeRule.STATUS_INACTIVE.equals(row.getStatus());
+        final boolean hashMatches = contentHash.isEmpty() || contentHash.equals(rowHash);
+        final JsonObject o = new JsonObject();
+        o.addProperty("catalog", catalog);
+        o.addProperty("name", name);
+        o.addProperty("contentHash", rowHash);
+        o.addProperty("derivedFrom", "durable-dao");
+        if (active && hashMatches) {
+            o.addProperty("found", true);
+            o.addProperty("phase", ApplyPhase.APPLIED.name());
+            o.addProperty("note", "live apply status unavailable; derived from the durable rule row "
+                + "(persist-is-commit: an ACTIVE row means this content's apply committed)");
+        } else {
+            o.addProperty("found", false);
+            o.addProperty("phase", ApplyPhase.UNKNOWN.name());
+            o.addProperty("note", active
+                ? "the queried content is not the currently applied content (hash mismatch)"
+                : "the rule row is INACTIVE (paused)");
+        }
+        return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(o));
     }
 
     private HttpResponse applyStatusJson(final ApplyStatus s) {
@@ -320,7 +415,15 @@ public class RuntimeRuleService {
             }
             o.addProperty("startedAtMs", s.getStartedAtMs());
             o.addProperty("updatedAtMs", s.getUpdatedAtMs());
+            if (!s.getFenceLaggards().isEmpty()) {
+                final JsonArray laggards = new JsonArray();
+                s.getFenceLaggards().forEach(laggards::add);
+                o.add("fenceLaggards", laggards);
+            }
         }
+        // Schema parity with the routed-from-main path (applyStatusJsonFromProto), which always
+        // carries servedBy: this node answered locally (self is main / single process).
+        o.addProperty("servedBy", "self");
         return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(o));
     }
 
@@ -338,6 +441,11 @@ public class RuntimeRuleService {
             }
             o.addProperty("startedAtMs", r.getStartedAtMs());
             o.addProperty("updatedAtMs", r.getUpdatedAtMs());
+            if (r.getFenceLaggardsCount() > 0) {
+                final JsonArray laggards = new JsonArray();
+                r.getFenceLaggardsList().forEach(laggards::add);
+                o.add("fenceLaggards", laggards);
+            }
         } else {
             o.addProperty("phase", ApplyPhase.UNKNOWN.name());
         }
@@ -346,10 +454,19 @@ public class RuntimeRuleService {
     }
 
     /** Strip the proto {@code APPLY_PHASE_} prefix so the routed-from-main JSON phase matches the
-     *  local-path {@link ApplyPhase} names (e.g. {@code APPLY_PHASE_APPLIED} → {@code APPLIED}). */
+     *  local-path {@link ApplyPhase} names (e.g. {@code APPLY_PHASE_APPLIED} → {@code APPLIED}).
+     *  Any value that isn't a live {@link ApplyPhase} — the proto default {@code UNSPECIFIED}, a
+     *  reserved/removed phase, or a value from a newer-version peer — maps to {@code UNKNOWN} so the
+     *  JSON phase is always a name the client's enum recognizes. */
     private static String stripApplyPhasePrefix(final String protoName) {
         final String prefix = "APPLY_PHASE_";
-        return protoName.startsWith(prefix) ? protoName.substring(prefix.length()) : protoName;
+        final String stripped = protoName.startsWith(prefix) ? protoName.substring(prefix.length()) : protoName;
+        for (final ApplyPhase p : ApplyPhase.values()) {
+            if (p.name().equals(stripped)) {
+                return stripped;
+            }
+        }
+        return ApplyPhase.UNKNOWN.name();
     }
 
     private AdminClusterChannelManager resolvePeerChannelManager() {
@@ -1094,8 +1211,20 @@ public class RuntimeRuleService {
         final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile = new RuntimeRuleManagementDAO.RuntimeRuleFile(
             catalog, name, content, RuntimeRule.STATUS_ACTIVE, updateTime);
         final DSLRuntimeState postApply;
+        // Build the deferred-fence opt ourselves so WE own the post-DDL schema fence: it must run
+        // in the BACKGROUND after the durable commit + peer resume (a 3-min cluster-propagation
+        // wait must not block this response or hold peers suspended). fenceRunByCaller tells the
+        // installer to register the fence closure but NOT run it inline; the fence-phase listener
+        // lets the background run emit the observable FENCING phase the instant it starts blocking.
+        final StorageManipulationOpt fenceOpt = StorageManipulationOpt.withSchemaChangeDeferredFence(
+            Duration.ofMillis(dslManager.getDeferredFenceTimeoutMs()));
+        fenceOpt.setFenceRunByCaller(true);
+        fenceOpt.setFencePhaseListener(() -> SchemaApplyCoordinator.INSTANCE.markFencing(applyId));
+        // The apply call compiles, verifies, and fires the schema-change DDL (the fence is deferred
+        // to us); mark DDL before it so an in-flight query sees progress past PENDING.
+        SchemaApplyCoordinator.INSTANCE.transition(applyId, ApplyPhase.DDL);
         try {
-            postApply = dslManager.applyNowForRuleFile(ruleFile, true);
+            postApply = dslManager.applyNowForRuleFile(ruleFile, true, fenceOpt);
         } catch (final LayerConflictException lce) {
             // Runtime-DSL layer-declaration conflict — operator-actionable, not a server
             // error. Resume local + peers immediately so the cluster keeps serving the
@@ -1196,7 +1325,11 @@ public class RuntimeRuleService {
             return persistError;
         }
 
-        // Persist succeeded — drain the pending commit now that the DB reflects the new
+        // Persist succeeded — the durable commit point is crossed. Past here we drain the local
+        // commit and push peers to converge, so the apply is rolling out across the cluster.
+        SchemaApplyCoordinator.INSTANCE.transition(applyId, ApplyPhase.ROLLING_OUT);
+
+        // Drain the pending commit now that the DB reflects the new
         // content. commitCoord.finalizeCommit drops removedMetrics, swaps the applied
         // pointers, retires the old loader, fires alarm reset, and advances the snapshot.
         //
@@ -1219,6 +1352,10 @@ public class RuntimeRuleService {
         if (commitFailure != null) {
             // Durable (DB persisted) but this node's commit-tail threw — peers converge from DB,
             // this node retries on the next tick. Committed-but-unconfirmed = DEGRADED, not FAILED.
+            // The DB row IS durable, so push peers to reconcile against it now (async, best-effort)
+            // rather than leaving them on the ~30s tick while this node is degraded — exactly the
+            // case where fast peer convergence matters most.
+            broadcastNotifyApplied(catalog, name, ContentHash.sha256Hex(content));
             SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
                 "commit-tail deferred: DB persisted, local backend may be stale until next tick");
             return serverError("commit_deferred", catalog, name,
@@ -1235,16 +1372,65 @@ public class RuntimeRuleService {
         // recover within an RPC round-trip.
         if (!drained) {
             broadcastResume(catalog, name, "force_no_change");
-        } else {
-            // Real change committed and durable — push peers to converge NOW (reconcile against
-            // the just-persisted DB row) instead of waiting up to one ~30s refresh tick.
-            // Best-effort; peers self-converge on their own tick if the notify is lost.
-            broadcastNotifyApplied(catalog, name, ContentHash.sha256Hex(content));
+            // No commit drained ⇒ no schema change to confirm — terminal immediately.
+            SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
+            return okWithApplyId(HttpStatus.OK, "structural_applied", catalog, name, applyId,
+                "structural apply succeeded (no change)" + describeDelta(delta));
         }
+        // Real change committed and durable — push peers to converge NOW (reconcile against
+        // the just-persisted DB row) instead of waiting up to one ~30s refresh tick.
+        // Best-effort; peers self-converge on their own tick if the notify is lost.
+        broadcastNotifyApplied(catalog, name, ContentHash.sha256Hex(content));
+        // Confirm cluster-wide schema propagation in the BACKGROUND (up to the configured fence
+        // timeout, default 3 min): runs the deferred fence we owned, driving FENCING → APPLIED, or
+        // DEGRADED + the laggard node list on timeout. The response returns now at ROLLING_OUT with
+        // the applyId; the operator polls GET /runtime/rule/status to watch the rest.
+        scheduleBackgroundFence(applyId, fenceOpt, catalog, name);
+        return okWithApplyId(HttpStatus.OK, "structural_applied", catalog, name, applyId,
+            "structural apply committed; confirming cluster-wide schema propagation in the "
+                + "background — poll /runtime/rule/status?applyId=" + applyId
+                + describeDelta(delta));
+    }
 
-        SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
-        return ok(HttpStatus.OK, "structural_applied", catalog, name,
-            "structural apply succeeded" + describeDelta(delta));
+    /**
+     * Run the runtime-rule deferred schema fence on a background thread after the durable commit,
+     * driving the apply's terminal status. The fence emits {@link ApplyPhase#FENCING} the instant it
+     * starts blocking (via the opt's listener), waits up to the configured timeout for every data
+     * node to apply the new schema revision, then marks {@link ApplyPhase#APPLIED} on confirmation or
+     * {@link ApplyPhase#DEGRADED} with the laggard node ids on timeout/transport error. Background so
+     * a long (3-min) wait never blocks the apply response or holds peers suspended — the commit is
+     * already durable and peers already resumed.
+     */
+    private void scheduleBackgroundFence(final String applyId, final StorageManipulationOpt fenceOpt,
+                                         final String catalog, final String name) {
+        try {
+            fenceExecutor.submit(() -> {
+                try {
+                    fenceOpt.runDeferredFence();
+                    final StorageManipulationOpt.FenceOutcome outcome = fenceOpt.getFenceOutcome();
+                    if (outcome == null || outcome.isApplied()) {
+                        SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
+                    } else {
+                        SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
+                            "schema fence did not confirm cluster-wide propagation within "
+                                + dslManager.getDeferredFenceTimeoutMs() + " ms",
+                            outcome.getLaggardNodeIds());
+                    }
+                } catch (final StorageException e) {
+                    SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
+                        "schema fence transport error: " + e.getMessage(), List.of());
+                } catch (final Throwable t) {
+                    SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
+                        "schema fence failed: " + t.getMessage(), List.of());
+                }
+            });
+        } catch (final Throwable t) {
+            // Executor rejected (shutting down). The commit IS durable, so report APPLIED and skip
+            // the (best-effort) propagation confirmation rather than leaving the apply at ROLLING_OUT.
+            log.warn("runtime-rule could not schedule the background schema fence for {}/{}; "
+                + "reporting applied (commit durable, cluster propagation unconfirmed)", catalog, name, t);
+            SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
+        }
     }
 
     /**
@@ -1418,12 +1604,30 @@ public class RuntimeRuleService {
         if (clusterClient == null) {
             return;
         }
+        // Fire-and-forget: never block the REST response on a sequential, per-peer-deadline fan-out.
+        // A lost notify is harmless — the peer self-converges on its next tick.
         try {
-            clusterClient.broadcastNotifyApplied(catalog, name, contentHash);
+            notifyExecutor.submit(() -> {
+                try {
+                    clusterClient.broadcastNotifyApplied(catalog, name, contentHash);
+                } catch (final Throwable t) {
+                    log.warn("runtime-rule NotifyApplied broadcast failed for {}/{}; peers will "
+                        + "converge on their next tick", catalog, name, t);
+                }
+            });
         } catch (final Throwable t) {
-            log.warn("runtime-rule NotifyApplied broadcast failed for {}/{}; peers will converge "
+            // Executor rejected (shutting down). Drop it — peers self-converge on their next tick.
+            log.warn("runtime-rule NotifyApplied could not be scheduled for {}/{}; peers converge "
                 + "on their next tick", catalog, name, t);
         }
+    }
+
+    /** Stop the best-effort background executors (notify fan-out + schema fence). Called from the
+     *  module provider's shutdown so tests and clean OAP stops don't leak threads; daemon status
+     *  already prevents them blocking JVM exit. */
+    public void shutdown() {
+        notifyExecutor.shutdownNow();
+        fenceExecutor.shutdownNow();
     }
 
     /**
@@ -1901,6 +2105,21 @@ public class RuntimeRuleService {
     private static HttpResponse ok(final HttpStatus status, final String applyStatus,
                                    final String catalog, final String name, final String message) {
         return HttpResponse.of(status, MediaType.JSON_UTF_8, jsonBody(applyStatus, catalog, name, message));
+    }
+
+    /** {@link #ok} variant that also carries the apply's {@code applyId} so the caller can poll
+     *  {@code GET /runtime/rule/status?applyId=…} directly. Used by the structural-apply success
+     *  envelope. */
+    private static HttpResponse okWithApplyId(final HttpStatus status, final String applyStatus,
+                                              final String catalog, final String name,
+                                              final String applyId, final String message) {
+        final JsonObject body = new JsonObject();
+        body.addProperty("applyStatus", applyStatus);
+        body.addProperty("catalog", catalog == null ? "" : catalog);
+        body.addProperty("name", name == null ? "" : name);
+        body.addProperty("applyId", applyId == null ? "" : applyId);
+        body.addProperty("message", message == null ? "" : message);
+        return HttpResponse.of(status, MediaType.JSON_UTF_8, GSON.toJson(body));
     }
 
     private static HttpResponse badRequest(final String applyStatus, final String catalog,

@@ -40,4 +40,16 @@ public class RuntimeRuleModuleConfig extends ModuleConfig {
      * refresh + storage replica lag + RPC jitter. Default 60 s is conservative.
      */
     private long selfHealThresholdSeconds = 60;
+    /**
+     * Timeout (seconds) for the runtime-rule deferred/batched BanyanDB schema fence — the wait
+     * for every data node to apply a newly created/updated measure's schema revision. Applies
+     * ONLY to the operator REST apply path, where the fence runs in the background after the
+     * durable commit + peer resume (so it never blocks the apply or holds peers suspended), and
+     * the operator polls {@code GET /runtime/rule/status} to watch {@code FENCING → APPLIED} or
+     * {@code DEGRADED} (with the lagging node ids). The inline / static / delete fences keep their
+     * short 2 s constant. Default 180 s is the multi-node cluster-propagation budget for a large
+     * reshape; on timeout the apply is reported {@code DEGRADED} (durable + forward-progressing,
+     * never reverted) with the laggard node list.
+     */
+    private long deferredFenceTimeoutSeconds = 180;
 }

@@ -183,10 +183,10 @@ class RuntimeRuleRestHandlerTest {
 
         // Reactivation pushes through the STRUCTURAL/NEW path — expect 200 with a status
         // other than no_change. We don't assert on the exact applyStatus string here (that
-        // depends on classifier output); the key assertion is that the two-arg deferred-
-        // commit form of applyNowForRuleFile ran (STRUCTURAL path signature).
+        // depends on classifier output); the key assertion is that the three-arg deferred-
+        // commit + fence-opt form of applyNowForRuleFile ran (STRUCTURAL path signature).
         assertHttpStatus(resp, HttpStatus.OK);
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -205,8 +205,8 @@ class RuntimeRuleRestHandlerTest {
         assertHttpStatus(resp, HttpStatus.OK);
         // /addOrUpdate?force=true with byte-identical content → classifier returns
         // NO_CHANGE, handler falls through to applyStructural (not applyFilterOnly since
-        // NO_CHANGE != FILTER_ONLY) which uses the two-arg deferred-commit form.
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        // NO_CHANGE != FILTER_ONLY) which uses the three-arg deferred-commit + fence-opt form.
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -534,6 +534,8 @@ class RuntimeRuleRestHandlerTest {
         // NEW paths use the two-arg form (deferCommit=true).
         when(dslManager.applyNowForRuleFile(any())).thenReturn(state);
         when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean())).thenReturn(state);
+        // STRUCTURAL apply now passes the orchestrator-owned fence opt → the three-arg overload.
+        when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean(), any())).thenReturn(state);
         // Apply path needs SUSPENDED on localSuspend so the workflow proceeds. The other
         // subsystem getters were stubbed in setUp() with default mocks; here we just
         // override localSuspend to return SUSPENDED instead of the default null.
