@@ -288,6 +288,26 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      */
     private void fenceOnRevision(final BanyanDBClient client, final StorageManipulationOpt opt,
                                  final String context) throws BanyanDBException {
+        if (opt.isDeferFence()) {
+            // Batched apply: do NOT fence per resource. Register a single flush that the apply
+            // orchestration runs once after all DDL is fired (StorageManipulationOpt#runDeferredFence),
+            // so a multi-rule file waits on ONE barrier on the cumulative max revision instead of
+            // one fence per metric/downsampling. The closure reads opt.getMaxModRevision() at flush
+            // time, after every resource has recorded its revision.
+            opt.setDeferredFence(() -> {
+                try {
+                    doFenceOnRevision(client, opt, "batched apply");
+                } catch (final BanyanDBException e) {
+                    throw new StorageException("batched schema fence failed", e);
+                }
+            });
+            return;
+        }
+        doFenceOnRevision(client, opt, context);
+    }
+
+    private void doFenceOnRevision(final BanyanDBClient client, final StorageManipulationOpt opt,
+                                   final String context) throws BanyanDBException {
         final long rev = opt.getMaxModRevision();
         if (rev <= 0L) {
             return;
@@ -512,7 +532,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                            final String context) throws BanyanDBException {
         final long rev = opt.getMaxModRevision();
         if (rev > 0L) {
-            fenceOnRevision(client, opt, context);
+            // Drops fence inline (never deferred): a deletion's visibility is per-key and must
+            // not ride a batched revision flush — drops stay correct even under a deferFence opt.
+            doFenceOnRevision(client, opt, context);
             return;
         }
         // mod_revision was 0 on every delete — fall back to key-based deletion fence.

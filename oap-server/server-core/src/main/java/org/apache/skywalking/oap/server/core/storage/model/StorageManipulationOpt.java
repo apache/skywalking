@@ -24,6 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 
 /**
  * Per-call policy + outcome for a storage model manipulation — threaded through the
@@ -308,6 +309,21 @@ public final class StorageManipulationOpt {
     }
 
     /**
+     * {@link Mode#WITH_SCHEMA_CHANGE} but with the post-install schema fence DEFERRED. The
+     * installer records each resource's {@code mod_revision} without fencing, then registers a
+     * single flush via {@link #setDeferredFence(DeferredFence)}; the caller runs that flush ONCE
+     * with {@link #runDeferredFence()} after the whole apply (e.g. a multi-rule file) so the
+     * bundle waits on one barrier instead of one fence per metric/downsampling. All flags are
+     * identical to {@link #withSchemaChange()} — only the create/update fence is batched; drops
+     * still fence inline.
+     */
+    public static StorageManipulationOpt withSchemaChangeDeferredFence() {
+        final StorageManipulationOpt opt = new StorageManipulationOpt(Mode.WITH_SCHEMA_CHANGE);
+        opt.deferFence = true;
+        return opt;
+    }
+
+    /**
      * True for {@link Mode#WITH_SCHEMA_CHANGE}. The on-demand operator workflow — drops,
      * updates, and reshapes are permitted because the caller explicitly asked for them.
      */
@@ -378,6 +394,50 @@ public final class StorageManipulationOpt {
      */
     public long getMaxModRevision() {
         return maxModRevision.get();
+    }
+
+    /**
+     * A storage-backend schema fence whose execution is deferred to the end of a batched
+     * apply. The backend installer (e.g. BanyanDB) registers one on a
+     * {@link #withSchemaChangeDeferredFence()} opt instead of fencing per resource; the apply
+     * orchestration runs it once via {@link #runDeferredFence()}. Implemented as a closure in
+     * the storage plugin so core stays backend-agnostic (same pattern as the local-cache
+     * populator). A timeout inside the fence is a non-fatal WARN; only a barrier transport
+     * error surfaces as {@link StorageException}.
+     */
+    @FunctionalInterface
+    public interface DeferredFence {
+        void await() throws StorageException;
+    }
+
+    /**
+     * True only for {@link #withSchemaChangeDeferredFence()}. The installer reads this to skip
+     * the per-resource create/update fence and register a single {@link DeferredFence} instead.
+     */
+    @Getter
+    private boolean deferFence = false;
+
+    private volatile DeferredFence deferredFence;
+
+    /**
+     * Register the single fence to run after the batched apply completes. Idempotent — the
+     * installer may call it once per resource; the latest (equivalent) closure wins. No-op
+     * carrier for backends without a revision concept (they never call it).
+     */
+    public void setDeferredFence(final DeferredFence fence) {
+        this.deferredFence = fence;
+    }
+
+    /**
+     * Run the registered {@link DeferredFence} once, if any. Called by the apply orchestration
+     * after all DDL for the batch is fired. No-op when nothing was registered (peer/no-change
+     * applies, or non-BanyanDB backends).
+     */
+    public void runDeferredFence() throws StorageException {
+        final DeferredFence fence = this.deferredFence;
+        if (fence != null) {
+            fence.await();
+        }
     }
 
     /**

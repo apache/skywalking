@@ -361,7 +361,7 @@ public final class DSLManager {
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit) {
-        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChange());
+        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChangeDeferredFence());
     }
 
     /**
@@ -759,10 +759,10 @@ public final class DSLManager {
             selfMain = MainRouter.isSelfMain(apm);
         } catch (final Throwable t) {
             // Cluster module not wired (embedded / single-process) — always main.
-            return StorageManipulationOpt.withSchemaChange();
+            return StorageManipulationOpt.withSchemaChangeDeferredFence();
         }
         if (selfMain) {
-            return StorageManipulationOpt.withSchemaChange();
+            return StorageManipulationOpt.withSchemaChangeDeferredFence();
         }
         return atBoot
             ? StorageManipulationOpt.verifySchemaOnly()

@@ -230,7 +230,7 @@ public class DSLRuntimeDelete {
             new RuntimeRuleManagementDAO.RuntimeRuleFile(
                 catalog, name, bundledContent, /* status */ null, /* updateTime */ 0L);
         final ApplyInputs withSchema = new ApplyInputs(
-            moduleManager, StorageManipulationOpt.withSchemaChange(),
+            moduleManager, StorageManipulationOpt.withSchemaChangeDeferredFence(),
             alarmResetter, rules);
         final DSLRuntimeApply.Outcome outcome = dslRuntimeApply.apply(
             bundledFile, Classification.STRUCTURAL,
