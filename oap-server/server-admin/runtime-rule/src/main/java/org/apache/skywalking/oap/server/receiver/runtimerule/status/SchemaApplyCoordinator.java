@@ -18,7 +18,9 @@
 
 package org.apache.skywalking.oap.server.receiver.runtimerule.status;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongSupplier;
@@ -140,9 +142,38 @@ public class SchemaApplyCoordinator {
         return status;
     }
 
-    /** Number of tracked applies — for tests and the future TTL-eviction watch. */
+    /** Number of tracked applies — for tests and the TTL-eviction watch. */
     public int trackedCount() {
         return byApplyId.size();
+    }
+
+    /**
+     * Evict tracked applies whose last update is older than {@code ttlMs}, bounding memory. Both
+     * terminal entries (kept around so a post-refresh query within the window still resolves) and
+     * stale non-terminal ones (a missed apply branch left in PENDING) are reaped once past the
+     * TTL — a later query then returns {@code null}/UNKNOWN and the caller falls back to comparing
+     * the durable content hash against the DAO row. The {@code (catalog, name) → latest} index
+     * entry is cleared only when it still points at an evicted apply, so a newer apply for the
+     * same file keeps its mapping. Returns the number evicted.
+     */
+    public int evictExpired(final long ttlMs) {
+        final long cutoff = clock.getAsLong() - ttlMs;
+        final Set<String> evicted = new HashSet<>();
+        byApplyId.entrySet().removeIf(e -> {
+            if (e.getValue().getUpdatedAtMs() < cutoff) {
+                evicted.add(e.getKey());
+                return true;
+            }
+            return false;
+        });
+        if (!evicted.isEmpty()) {
+            latestApplyIdByFile.values().removeIf(evicted::contains);
+            if (log.isDebugEnabled()) {
+                log.debug("apply-status: evicted {} entr{} older than {} ms",
+                    evicted.size(), evicted.size() == 1 ? "y" : "ies", ttlMs);
+            }
+        }
+        return evicted.size();
     }
 
     private static String fileKey(final String catalog, final String name) {

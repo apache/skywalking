@@ -129,6 +129,43 @@ class SchemaApplyCoordinatorTest {
     }
 
     @Test
+    void evictExpiredReapsOldEntriesAndClearsTheirFileIndex() {
+        final SchemaApplyCoordinator coord = newCoordinator();
+        clock.set(1_000L);
+        final String old = coord.begin("otel-rules", "old", "h");
+        coord.markApplied(old);
+        clock.set(10_000L);
+        final String fresh = coord.begin("otel-rules", "fresh", "h2");
+
+        // cutoff = now(10_000) - ttl(5_000) = 5_000; 'old' (updatedAt 1_000) is evicted, 'fresh' kept.
+        final int evicted = coord.evictExpired(5_000L);
+
+        assertEquals(1, evicted);
+        assertNull(coord.get(old), "expired apply must be evicted");
+        assertNull(coord.getLatestByFile("otel-rules", "old", null),
+            "the file index entry pointing at an evicted apply must be cleared");
+        assertNotNull(coord.get(fresh), "a fresh apply must survive eviction");
+        assertEquals(1, coord.trackedCount());
+    }
+
+    @Test
+    void evictExpiredKeepsFileIndexWhenANewerApplyReplacedTheEvictedOne() {
+        final SchemaApplyCoordinator coord = newCoordinator();
+        clock.set(1_000L);
+        final String first = coord.begin("otel-rules", "vm", "h1");
+        coord.markApplied(first);
+        clock.set(10_000L);
+        final String second = coord.begin("otel-rules", "vm", "h2");
+
+        coord.evictExpired(5_000L);
+
+        assertNull(coord.get(first), "the older apply for the file is evicted");
+        final ApplyStatus latest = coord.getLatestByFile("otel-rules", "vm", null);
+        assertNotNull(latest, "the file index must still resolve via the newer apply");
+        assertEquals(second, latest.getApplyId());
+    }
+
+    @Test
     void latestByFileFollowsTheNewestApply() {
         final SchemaApplyCoordinator coord = newCoordinator();
         coord.begin("otel-rules", "vm", "hash-old");
