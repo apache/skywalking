@@ -48,6 +48,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SchemaApplyCoordinator {
 
+    /**
+     * Process-wide instance the production apply / cluster-RPC / reconcile paths share, mirroring
+     * the {@code MetadataRegistry.INSTANCE} / {@code DSLClassLoaderManager.INSTANCE} pattern so the
+     * coordinator need not be threaded through every constructor. Uses the wall-clock; tests
+     * construct their own instance with an injected clock instead.
+     */
+    public static final SchemaApplyCoordinator INSTANCE = new SchemaApplyCoordinator();
+
     private final Map<String, ApplyStatus> byApplyId = new ConcurrentHashMap<>();
     private final Map<String, String> latestApplyIdByFile = new ConcurrentHashMap<>();
     private final LongSupplier clock;

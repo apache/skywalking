@@ -78,6 +78,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLScript
 import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.SuspendResult;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleScript;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.DSLRuntimeState;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.SchemaApplyCoordinator;
 import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
 
 /**
@@ -1002,6 +1003,11 @@ public class RuntimeRuleService {
         // removedMetrics, swap appliedMal/appliedContent, retire old loader, alarm reset,
         // advance snapshot) is stashed in the dslManager — we drain it below once persist
         // resolves.
+        // Track this apply in the coordinator so a progress query (and peers, later) can observe
+        // its outcome. From here every exit path marks a terminal phase (APPLIED / FAILED /
+        // DEGRADED); a missed branch leaves only a stale PENDING the background watch reaps.
+        final String applyId = SchemaApplyCoordinator.INSTANCE.begin(
+            catalog, name, ContentHash.sha256Hex(content));
         final long updateTime = System.currentTimeMillis();
         final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile = new RuntimeRuleManagementDAO.RuntimeRuleFile(
             catalog, name, content, RuntimeRule.STATUS_ACTIVE, updateTime);
@@ -1016,6 +1022,7 @@ public class RuntimeRuleService {
                 catalog, name, lce.getMessage());
             dslManager.getSuspendCoord().localResume(catalog, name);
             broadcastResume(catalog, name, "layer_conflict");
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "layer conflict: " + lce.getMessage());
             return badRequest(lce.applyStatus(), catalog, name, lce.getMessage());
         } catch (final Throwable t) {
             // Some exceptions wrap LayerConflictException as cause; unwrap so the operator
@@ -1027,6 +1034,7 @@ public class RuntimeRuleService {
                     + "(wrapped): {}", catalog, name, wrapped.getMessage());
                 dslManager.getSuspendCoord().localResume(catalog, name);
                 broadcastResume(catalog, name, "layer_conflict");
+                SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "layer conflict: " + wrapped.getMessage());
                 return badRequest(wrapped.applyStatus(), catalog, name, wrapped.getMessage());
             }
             log.error("runtime-rule STRUCTURAL apply threw for {}/{}", catalog, name, t);
@@ -1034,9 +1042,11 @@ public class RuntimeRuleService {
             // Peers went SUSPENDED on our earlier broadcast; let them know the apply
             // aborted so they flip back to RUNNING within an RPC round-trip.
             broadcastResume(catalog, name, "apply_threw");
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "apply threw: " + t.getMessage());
             return serverError("apply_failed", catalog, name, t.getMessage());
         }
         if (postApply != null && postApply.getLastApplyError() != null) {
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, postApply.getLastApplyError());
             // Apply failed (DDL verify mismatch, compile surprise, applier exception). Row
             // is NOT yet persisted. applyOneRuleFile already rolled back its own partial
             // registration on the exception path; the pendingCommits stash is only
@@ -1100,6 +1110,7 @@ public class RuntimeRuleService {
                 + "for {}/{} — discarded pending commit; local node re-aligned with old "
                 + "content. Operator action: re-push via /addOrUpdate once storage is healthy.",
                 catalog, name);
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "persist failed after apply");
             return persistError;
         }
 
@@ -1124,6 +1135,10 @@ public class RuntimeRuleService {
                 + "inspect log for the underlying cause.", catalog, name, t);
         }
         if (commitFailure != null) {
+            // Durable (DB persisted) but this node's commit-tail threw — peers converge from DB,
+            // this node retries on the next tick. Committed-but-unconfirmed = DEGRADED, not FAILED.
+            SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
+                "commit-tail deferred: DB persisted, local backend may be stale until next tick");
             return serverError("commit_deferred", catalog, name,
                 "DB row persisted, but local commit-tail threw — backend shape on this "
                     + "node may not have fully landed. Peers converge from DB; this node "
@@ -1140,6 +1155,7 @@ public class RuntimeRuleService {
             broadcastResume(catalog, name, "force_no_change");
         }
 
+        SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
         return ok(HttpStatus.OK, "structural_applied", catalog, name,
             "structural apply succeeded" + describeDelta(delta));
     }
