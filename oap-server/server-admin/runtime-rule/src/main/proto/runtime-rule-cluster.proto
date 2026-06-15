@@ -199,10 +199,11 @@ enum ApplyStatusPhase {
     reserved 2;
     reserved "APPLY_PHASE_VALIDATING";
     APPLY_PHASE_DDL = 3;
-    // The main waits (in the background, on a generous timeout) for every data node to apply the
-    // new schema revision. Emitted AFTER ROLLING_OUT in the async model — the apply is already
-    // durable + peers resumed; this only confirms cluster-wide propagation.
+    // After persist, the main waits (in the background, on a generous timeout) for every data node
+    // to apply the new schema revision BEFORE resuming dispatch — an un-propagated write is dropped.
+    // The HTTP response returns here with the apply_id; dispatch stays suspended through FENCING.
     APPLY_PHASE_FENCING = 4;
+    // Fence confirmed — finalize the local commit, unpark dispatch, resume/notify peers.
     APPLY_PHASE_ROLLING_OUT = 5;
     APPLY_PHASE_APPLIED = 6;
     APPLY_PHASE_DEGRADED = 7;

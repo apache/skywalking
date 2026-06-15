@@ -25,22 +25,25 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.status;
  * failed outright ({@link #FAILED}).
  *
  * <p>Normal progression:
- * {@link #PENDING} → {@link #DDL} → {@link #ROLLING_OUT} → {@link #FENCING} → {@link #APPLIED}.
+ * {@link #PENDING} → {@link #DDL} → {@link #FENCING} → {@link #ROLLING_OUT} → {@link #APPLIED}.
  * These are the phases the main observes from its apply orchestration: {@code PENDING} once the
  * apply is accepted, {@code DDL} while the compile/verify/schema-change call runs (a single opaque
  * step from the orchestrator's vantage — sub-steps such as validation are not separately
- * observable, so they are not modelled), {@code ROLLING_OUT} once the rule row is durably persisted
- * and the commit is draining + peers are being resumed/notified, then {@code FENCING} while the
- * main waits (in the background, on a generous timeout) for every BanyanDB data node to apply the
- * new schema revision. The HTTP response returns at {@code ROLLING_OUT} with the {@code applyId};
- * the operator polls to watch {@code FENCING → APPLIED} (or {@code DEGRADED}). Two off-ramps:
+ * observable, so they are not modelled), then — after the rule row is durably persisted — the HTTP
+ * response returns with the {@code applyId} at {@code FENCING} while the main waits (in the
+ * background, on a generous timeout) for every BanyanDB data node to apply the new schema revision.
+ * Dispatch stays suspended through {@code FENCING} because an un-propagated write is silently
+ * dropped. Only once the fence confirms does the apply reach {@code ROLLING_OUT} — finalize the
+ * local commit, unpark dispatch, resume/notify peers — and then {@code APPLIED}. The operator polls
+ * to watch {@code FENCING → ROLLING_OUT → APPLIED} (or {@code DEGRADED}). Two off-ramps:
  * <ul>
  *   <li>{@link #FAILED} — a pre-commit error (compile / verify / DDL RPC / persist). The change
  *       was rolled back; nothing was committed.</li>
- *   <li>{@link #DEGRADED} — committed and durable, but the local commit-tail threw or the post-DDL
- *       fence did not confirm cluster-wide propagation within the timeout (one or more data nodes
- *       lagging — exposed as {@code fenceLaggards}). Forward-progress: peers converge from the
- *       durable row and BanyanDB keeps converging; this is NOT a revert.</li>
+ *   <li>{@link #DEGRADED} — committed and durable, but the fence did not confirm cluster-wide
+ *       propagation within the timeout (one or more data nodes lagging — exposed as
+ *       {@code fenceLaggards}; dispatch is resumed anyway so a stuck node doesn't park the metric
+ *       forever) or the local commit-tail threw. Forward-progress: peers converge from the durable
+ *       row and BanyanDB keeps converging; this is NOT a revert.</li>
  * </ul>
  * {@link #UNKNOWN} is returned for an apply-id the main no longer holds (evicted / main restarted);
  * callers fall back to a content-hash comparison.
@@ -48,8 +51,8 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.status;
 public enum ApplyPhase {
     PENDING,
     DDL,
-    ROLLING_OUT,
     FENCING,
+    ROLLING_OUT,
     APPLIED,
     DEGRADED,
     FAILED,

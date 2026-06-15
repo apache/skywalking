@@ -313,22 +313,17 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * The deferred (batched) fence the runtime-rule apply runs once after all DDL. Unlike the inline
-     * {@link #doFenceOnRevisionValue}, this (1) emits the apply's {@code FENCING} progress phase the
-     * instant before it blocks (via the opt's {@link StorageManipulationOpt.FencePhaseListener}),
-     * (2) honors the opt's configured timeout ({@link StorageManipulationOpt#getFenceTimeoutMs()},
-     * the runtime-rule 3-min budget) instead of the short inline {@link #FENCE_TIMEOUT}, and
-     * (3) records the outcome (applied + laggard node ids) on the opt so the orchestrator can mark
-     * {@code APPLIED} vs {@code DEGRADED}. A laggard timeout is still a non-fatal WARN.
+     * {@link #doFenceOnRevisionValue}, this (1) honors the opt's configured timeout
+     * ({@link StorageManipulationOpt#getFenceTimeoutMs()}, the runtime-rule 3-min budget) instead of
+     * the short inline {@link #FENCE_TIMEOUT}, and (2) records the outcome (applied + laggard node
+     * ids) on the opt so the orchestrator can mark {@code APPLIED} vs {@code DEGRADED} and gate the
+     * dispatch resume on this fence. A laggard timeout is still a non-fatal WARN.
      */
     private void doDeferredFence(final BanyanDBClient client, final StorageManipulationOpt opt,
                                  final String context) throws BanyanDBException {
         final long rev = opt.getMaxModRevision();
         if (rev <= 0L) {
             return;
-        }
-        final StorageManipulationOpt.FencePhaseListener listener = opt.getFencePhaseListener();
-        if (listener != null) {
-            listener.onFenceStart();
         }
         final Duration timeout = opt.getFenceTimeoutMs() > 0L
             ? Duration.ofMillis(opt.getFenceTimeoutMs())

@@ -458,16 +458,6 @@ public final class StorageManipulationOpt {
     private boolean fenceRunByCaller = false;
 
     /**
-     * Notified by the backend the instant before the deferred fence starts blocking, so the apply
-     * orchestrator can mark a {@code FENCING} progress phase that is observable while the (long)
-     * wait is in flight. Null on paths that don't observe progress (tick, peer, non-BanyanDB).
-     */
-    @FunctionalInterface
-    public interface FencePhaseListener {
-        void onFenceStart();
-    }
-
-    /**
      * Outcome of a deferred fence, recorded by the backend so the orchestrator can mark
      * {@code APPLIED} vs {@code DEGRADED}-with-laggards after {@link #runDeferredFence()} returns.
      */
@@ -484,10 +474,6 @@ public final class StorageManipulationOpt {
                 : Collections.unmodifiableList(laggardNodeIds);
         }
     }
-
-    @Getter
-    @Setter
-    private volatile FencePhaseListener fencePhaseListener;
 
     /** Recorded by the backend during {@link #runDeferredFence()}; read by the orchestrator after.
      *  Null when no deferred fence ran (no DDL) or the backend records no outcome. */
@@ -510,12 +496,14 @@ public final class StorageManipulationOpt {
      * applies, or non-BanyanDB backends).
      *
      * <p><strong>One-shot.</strong> A single reconciler tick reuses ONE opt across every rule
-     * file ({@code RuleSync#runOnce}), calling this once per file. After the fence runs, the
-     * closure is cleared and {@link #maxModRevision} is reset so the next file neither re-runs
-     * this file's stale fence (when that file performed no DDL) nor waits on this file's
-     * revision — each file fences on its own DDL only. The reset happens in a {@code finally}
-     * so a fence transport failure still isolates the next file. The closure reads
-     * {@link #getMaxModRevision()} during {@code await()}, so it is reset only after.
+     * file ({@code RuleSync#runOnce}), calling this once per file. The closure + accumulated
+     * {@link #maxModRevision} are <strong>always</strong> reset (even when this file performed no
+     * DDL and registered no closure), so the next file neither re-runs this file's stale fence nor
+     * inherits this file's revision — each file fences on its own DDL only. (Drop revisions that a
+     * later commit-tail records on a shared opt are inline-fenced at drop time and benign here: the
+     * next file's own create revision is monotonically higher, so it dominates the fence.) The reset
+     * is in a {@code finally} so a fence transport failure still isolates the next file; the closure
+     * reads {@link #getMaxModRevision()} during {@code await()}, so it is reset only after.
      *
      * <p>{@link #fenceOutcome} is cleared <em>before</em> the fence runs (so a shared tick opt
      * starts each file clean) and the backend sets it <em>during</em> the run; it is intentionally
@@ -524,13 +512,12 @@ public final class StorageManipulationOpt {
      */
     public void runDeferredFence() throws StorageException {
         final DeferredFence fence = this.deferredFence;
-        if (fence == null) {
-            return;
-        }
         this.deferredFence = null;
         this.fenceOutcome = null;
         try {
-            fence.await();
+            if (fence != null) {
+                fence.await();
+            }
         } finally {
             maxModRevision.set(0L);
         }

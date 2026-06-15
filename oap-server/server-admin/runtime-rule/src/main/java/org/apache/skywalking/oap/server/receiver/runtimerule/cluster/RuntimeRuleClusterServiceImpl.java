@@ -129,6 +129,14 @@ public class RuntimeRuleClusterServiceImpl
         this.selfNodeId = selfNodeId;
     }
 
+    /** Stop the off-thread reconcile-nudge executor. The framework's {@code ModuleProvider} has no
+     *  stop lifecycle hook, so in production this is not auto-invoked — the executor is a daemon
+     *  thread that never blocks JVM exit. Provided for clean test teardown and for a future module
+     *  shutdown hook; mirrors {@code RuntimeRuleService.shutdown()}. */
+    public void shutdown() {
+        reconcileNudgeExecutor.shutdownNow();
+    }
+
     /**
      * Push-notify from the main after a successful commit: converge NOW rather than on the next
      * ~30s tick. Runs a full reconcile off the gRPC thread (idempotent, per-file-locked — unchanged

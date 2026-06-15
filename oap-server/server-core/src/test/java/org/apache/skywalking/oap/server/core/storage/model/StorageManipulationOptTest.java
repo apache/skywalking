@@ -115,6 +115,20 @@ class StorageManipulationOptTest {
     }
 
     @Test
+    void runDeferredFenceResetsRevisionEvenWithNoClosureRegistered() {
+        // A no-DDL file on a shared tick opt registers no closure, but a prior file (or its
+        // commit-tail drops) may have left a revision on the opt. runDeferredFence must still clear
+        // it so the next file is not over-fenced on a stale revision.
+        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        opt.recordModRevision(77L);
+
+        assertDoesNotThrow(opt::runDeferredFence);
+
+        assertEquals(StorageManipulationOpt.DEFAULT_MOD_REVISION, opt.getMaxModRevision(),
+            "a no-closure flush must still reset the accumulated revision (shared-tick isolation)");
+    }
+
+    @Test
     void runDeferredFenceResetsRevisionEvenWhenFenceThrows() {
         // A barrier transport failure on one file must not leave a stale revision that the next
         // file would inherit; the reset runs in finally.

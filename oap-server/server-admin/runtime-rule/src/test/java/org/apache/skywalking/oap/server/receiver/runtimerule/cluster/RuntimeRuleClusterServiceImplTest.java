@@ -83,10 +83,10 @@ class RuntimeRuleClusterServiceImplTest {
         assertEquals(ApplyStatusPhase.APPLY_PHASE_PENDING, query(impl, id).getPhase());
         SchemaApplyCoordinator.INSTANCE.transition(id, ApplyPhase.DDL);
         assertEquals(ApplyStatusPhase.APPLY_PHASE_DDL, query(impl, id).getPhase());
-        SchemaApplyCoordinator.INSTANCE.transition(id, ApplyPhase.ROLLING_OUT);
-        assertEquals(ApplyStatusPhase.APPLY_PHASE_ROLLING_OUT, query(impl, id).getPhase());
         SchemaApplyCoordinator.INSTANCE.markFencing(id);
         assertEquals(ApplyStatusPhase.APPLY_PHASE_FENCING, query(impl, id).getPhase());
+        SchemaApplyCoordinator.INSTANCE.transition(id, ApplyPhase.ROLLING_OUT);
+        assertEquals(ApplyStatusPhase.APPLY_PHASE_ROLLING_OUT, query(impl, id).getPhase());
         SchemaApplyCoordinator.INSTANCE.markApplied(id);
 
         final ApplyStatusResponse applied = query(impl, id);
