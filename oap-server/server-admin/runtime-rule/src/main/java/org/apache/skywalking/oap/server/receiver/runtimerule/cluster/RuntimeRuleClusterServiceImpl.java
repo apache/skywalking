@@ -23,6 +23,8 @@ import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusPhase;
@@ -30,6 +32,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplySta
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedAck;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeState;
@@ -103,9 +107,58 @@ public class RuntimeRuleClusterServiceImpl
     @Setter
     private volatile RuntimeRuleService runtimeRuleService;
 
+    /** Off-RPC-thread runner for notify-triggered reconciles so {@link #notifyApplied} acks
+     *  immediately. Single daemon thread — reconciles are per-file-locked + idempotent, so
+     *  serializing them is fine; daemon so it never blocks JVM shutdown. */
+    private final ExecutorService reconcileNudgeExecutor = Executors.newSingleThreadExecutor(r -> {
+        final Thread t = new Thread(r, "runtime-rule-notify-reconcile");
+        t.setDaemon(true);
+        return t;
+    });
+
     public RuntimeRuleClusterServiceImpl(final DSLManager dslManager, final String selfNodeId) {
         this.dslManager = dslManager;
         this.selfNodeId = selfNodeId;
+    }
+
+    /**
+     * Push-notify from the main after a successful commit: converge NOW rather than on the next
+     * ~30s tick. Runs a full reconcile off the gRPC thread (idempotent, per-file-locked — unchanged
+     * files short-circuit on hash). Best-effort: the peer self-converges on its own tick if this is
+     * lost, so a self-broadcast or a schedule failure is non-fatal.
+     */
+    @Override
+    public void notifyApplied(final NotifyAppliedRequest request,
+                              final StreamObserver<NotifyAppliedAck> responseObserver) {
+        if (Objects.equals(selfNodeId, request.getSenderNodeId())) {
+            responseObserver.onNext(NotifyAppliedAck.newBuilder()
+                .setNodeId(selfNodeId).setAccepted(false)
+                .setDetail("self-broadcast suppressed").build());
+            responseObserver.onCompleted();
+            return;
+        }
+        boolean accepted = false;
+        try {
+            reconcileNudgeExecutor.submit(() -> {
+                try {
+                    dslManager.tick();
+                } catch (final Throwable t) {
+                    log.warn("runtime-rule NotifyApplied reconcile for {}/{} failed; peer will "
+                        + "self-converge on its next tick: {}",
+                        request.getCatalog(), request.getName(), t.getMessage());
+                }
+            });
+            accepted = true;
+        } catch (final Throwable t) {
+            log.warn("runtime-rule NotifyApplied could not schedule reconcile for {}/{}: {}",
+                request.getCatalog(), request.getName(), t.getMessage());
+        }
+        responseObserver.onNext(NotifyAppliedAck.newBuilder()
+            .setNodeId(selfNodeId)
+            .setAccepted(accepted)
+            .setDetail(accepted ? "reconcile scheduled" : "schedule failed; self-converge on next tick")
+            .build());
+        responseObserver.onCompleted();
     }
 
     /**

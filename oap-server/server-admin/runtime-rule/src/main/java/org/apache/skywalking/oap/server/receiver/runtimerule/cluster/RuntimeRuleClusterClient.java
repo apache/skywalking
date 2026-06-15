@@ -31,6 +31,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeAc
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedAck;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.RuntimeRuleClusterServiceGrpc;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendRequest;
@@ -140,6 +142,55 @@ public final class RuntimeRuleClusterClient {
         } catch (final Throwable t) {
             log.warn("runtime-rule GetApplyStatus to main {} failed: {}",
                 main.getAddress(), t.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Fan out NotifyApplied to every non-self peer after a successful commit so peers converge
+     * NOW (run a reconcile against the just-persisted DB row) rather than on their next ~30s tick.
+     * Best-effort, same sequential-with-deadline transport as the others; unreachable peers
+     * self-converge on their own tick.
+     */
+    public List<NotifyAppliedAck> broadcastNotifyApplied(final String catalog, final String name,
+                                                         final String contentHash) {
+        final List<AdminClusterChannelManager.Peer> peers = peerChannelManager.getPeers();
+        final List<NotifyAppliedAck> acks = new ArrayList<>(peers.size());
+        for (final AdminClusterChannelManager.Peer peer : peers) {
+            if (peer.isSelf()) {
+                continue;
+            }
+            final NotifyAppliedAck ack = notifyAppliedOne(peer, catalog, name, contentHash);
+            if (ack != null) {
+                acks.add(ack);
+            }
+        }
+        return acks;
+    }
+
+    private NotifyAppliedAck notifyAppliedOne(final AdminClusterChannelManager.Peer peer,
+                                              final String catalog, final String name,
+                                              final String contentHash) {
+        final ManagedChannel channel = peer.getChannel();
+        if (channel == null) {
+            log.warn("runtime-rule NotifyApplied skipped for peer {}: channel not yet established",
+                peer.getAddress());
+            return null;
+        }
+        final RuntimeRuleClusterServiceGrpc.RuntimeRuleClusterServiceBlockingStub stub =
+            RuntimeRuleClusterServiceGrpc.newBlockingStub(channel)
+                                         .withDeadlineAfter(perCallDeadlineMs, TimeUnit.MILLISECONDS);
+        try {
+            return stub.notifyApplied(NotifyAppliedRequest.newBuilder()
+                .setCatalog(catalog)
+                .setName(name)
+                .setContentHash(contentHash == null ? "" : contentHash)
+                .setSenderNodeId(selfNodeId)
+                .setIssuedAtMs(System.currentTimeMillis())
+                .build());
+        } catch (final Throwable t) {
+            log.warn("runtime-rule NotifyApplied to peer {} failed for {}/{}: {}",
+                peer.getAddress(), catalog, name, t.getMessage());
             return null;
         }
     }

@@ -1235,6 +1235,11 @@ public class RuntimeRuleService {
         // recover within an RPC round-trip.
         if (!drained) {
             broadcastResume(catalog, name, "force_no_change");
+        } else {
+            // Real change committed and durable — push peers to converge NOW (reconcile against
+            // the just-persisted DB row) instead of waiting up to one ~30s refresh tick.
+            // Best-effort; peers self-converge on their own tick if the notify is lost.
+            broadcastNotifyApplied(catalog, name, ContentHash.sha256Hex(content));
         }
 
         SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
@@ -1401,6 +1406,23 @@ public class RuntimeRuleService {
             log.warn("runtime-rule Suspend broadcast failed for {}/{}; peers will self-heal "
                 + "via dslManager next tick", catalog, name, t);
             return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Fire NotifyApplied to every non-self peer after a successful commit so peers converge NOW
+     * instead of waiting up to one ~30s refresh tick. Best-effort and fire-and-forget: a failure
+     * is non-fatal because peers self-converge on their own tick regardless.
+     */
+    private void broadcastNotifyApplied(final String catalog, final String name, final String contentHash) {
+        if (clusterClient == null) {
+            return;
+        }
+        try {
+            clusterClient.broadcastNotifyApplied(catalog, name, contentHash);
+        } catch (final Throwable t) {
+            log.warn("runtime-rule NotifyApplied broadcast failed for {}/{}; peers will converge "
+                + "on their next tick", catalog, name, t);
         }
     }
 

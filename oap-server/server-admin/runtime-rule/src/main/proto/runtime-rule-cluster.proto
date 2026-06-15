@@ -56,6 +56,11 @@ service RuntimeRuleClusterService {
     // Lets the UI/operator poll an apply's progress, and — after the ephemeral apply_id is gone
     // (page refresh / main restart) — ask by (catalog, name[, content_hash]), the durable identity.
     rpc GetApplyStatus(ApplyStatusRequest) returns (ApplyStatusResponse);
+    // Fired by the main right after it commits a structural apply, so peers converge NOW
+    // (run a reconcile against the just-persisted DB row) instead of waiting up to one refresh
+    // tick (~30s). Best-effort: the ack only confirms the peer accepted the nudge; the peer
+    // still self-converges on its next tick if the notify is lost.
+    rpc NotifyApplied(NotifyAppliedRequest) returns (NotifyAppliedAck);
 }
 
 message SuspendRequest {
@@ -216,4 +221,24 @@ message ApplyStatusResponse {
     int64 updated_at_ms = 9;
     // Instance id of the node that produced this status (the main).
     string node_id = 10;
+}
+
+// Sent by the main after a successful structural commit so peers reconcile immediately.
+message NotifyAppliedRequest {
+    string catalog = 1;
+    string name = 2;
+    // The committed content hash — informational/correlation; the peer reconciles from the DB row.
+    string content_hash = 3;
+    // Main's instance id; receivers compare against their own to suppress self-broadcast loops.
+    string sender_node_id = 4;
+    // Epoch millis on the main; diagnostic only.
+    int64 issued_at_ms = 5;
+}
+
+message NotifyAppliedAck {
+    string node_id = 1;
+    // True when the peer scheduled an immediate reconcile; false on self-broadcast suppression
+    // or when the receiver isn't ready (it still self-converges on its next tick).
+    bool accepted = 2;
+    string detail = 3;
 }
