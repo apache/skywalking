@@ -1283,10 +1283,69 @@ public class RuntimeRuleService {
             return serverError("apply_failed", catalog, name, err);
         }
 
-        // Apply succeeded + verified. Commit the row — the design's commit point. Retry a
-        // couple of times on transient failures before giving up; the per-backend
-        // RuntimeRuleManagementDAO.save can throw on a brief storage outage. A narrow retry
-        // here avoids turning a blip into a cluster-divergence event.
+        // Apply succeeded + verified — DDL fired, the schema fence is deferred to us, and the
+        // pending commit is stashed (deferCommit). The write-safe tail runs in the BACKGROUND so the
+        // (up to 3-min) fence wait doesn't block this response: fence → persist → commit → resume.
+        // Persist (the durable commit point) happens AFTER the fence, so "durable" implies "schema
+        // propagated cluster-wide": a main crash before persist leaves NO row — peers/crash-recovery
+        // safely stay on the old content (the orphaned measure from DDL is inert) — and any durable
+        // row is guaranteed fence-confirmed, so convergence never resumes dispatch against an
+        // unpropagated schema. The response returns now at FENCING with the applyId; the operator
+        // polls GET /runtime/rule/status for FENCING → ROLLING_OUT → APPLIED (or DEGRADED + laggards,
+        // or FAILED on persist failure).
+        SchemaApplyCoordinator.INSTANCE.markFencing(applyId);
+        boolean scheduled = true;
+        try {
+            fenceExecutor.submit(
+                () -> fenceThenPersistThenResume(applyId, fenceOpt, catalog, name, content, updateTime));
+        } catch (final Throwable t) {
+            // Executor rejected (shutting down). Run inline (blocking) so the suspend bracket does
+            // not leak and the apply still completes — write-safety wins over a non-blocking response.
+            log.warn("runtime-rule could not schedule the background fence for {}/{}; running it "
+                + "inline so dispatch is not left suspended", catalog, name, t);
+            scheduled = false;
+        }
+        if (!scheduled) {
+            fenceThenPersistThenResume(applyId, fenceOpt, catalog, name, content, updateTime);
+        }
+        return okWithApplyId(HttpStatus.OK, "structural_applied", catalog, name, applyId,
+            "structural apply accepted; fencing schema propagation, then persisting + resuming in "
+                + "the background — poll /runtime/rule/status?applyId=" + applyId + describeDelta(delta));
+    }
+
+    /**
+     * Write-safe post-apply tail, run on the fence executor (or inline if it's gone):
+     * <strong>fence → persist → commit → resume</strong>. The fence waits for the new measure schema
+     * to reach every data node BEFORE anything durable or visible happens (an un-propagated write is
+     * silently dropped — CLAUDE.md tip #16); only then is the rule row persisted (the durable commit
+     * point), so a crash before persist leaves no row and peers stay safely on the old content, and
+     * any durable row is guaranteed fence-confirmed. After persist it finalizes the local commit
+     * (drop removed metrics, swap the bundle, unpark dispatch) and resumes/notifies peers.
+     *
+     * <p>Terminal status: {@link ApplyPhase#FAILED} if persist fails (rolled back — nothing
+     * committed); {@link ApplyPhase#DEGRADED} if the fence didn't confirm within the budget (laggards
+     * listed; dispatch resumed anyway so a stuck node can't park the metric forever) or the local
+     * commit-tail threw (DB durable, peers converge from it); {@link ApplyPhase#APPLIED} otherwise.
+     */
+    private void fenceThenPersistThenResume(final String applyId, final StorageManipulationOpt fenceOpt,
+                                            final String catalog, final String name,
+                                            final String content, final long updateTime) {
+        // 1. Fence the new measure schema's propagation BEFORE persisting or resuming. A fence
+        //    error/timeout is non-fatal (best-effort) — we proceed but mark DEGRADED below.
+        StorageManipulationOpt.FenceOutcome fenceOutcome = null;
+        Throwable fenceError = null;
+        try {
+            fenceOpt.runDeferredFence();
+            fenceOutcome = fenceOpt.getFenceOutcome();
+        } catch (final Throwable t) {
+            fenceError = t;
+            log.warn("runtime-rule schema fence for {}/{} errored; proceeding anyway "
+                + "(BanyanDB still propagates the schema asynchronously)", catalog, name, t);
+        }
+
+        // 2. Persist the rule row — THE durable commit point, AFTER the fence so durable ⟹ fenced.
+        //    Narrow retry over a transient storage blip. On failure nothing is committed: roll back
+        //    the local pending commit and resume peers to the old content (the DB never advanced).
         HttpResponse persistError = persistRuleSync(catalog, name, content, updateTime);
         if (persistError != null) {
             try {
@@ -1297,113 +1356,42 @@ public class RuntimeRuleService {
             persistError = persistRuleSync(catalog, name, content, updateTime);
         }
         if (persistError != null) {
-            // Persist still failing. The local node has registered added + shape-break
-            // metrics in MeterSystem (DDL fired, isExists verified) while the DB and peers
-            // remain on the old content. Discard drains the pending commit by removing only
-            // the added + shape-break metrics — it does NOT drop removedMetrics (the commit
-            // was stashed before that step, so those are still alive) and does NOT swap
-            // appliedMal/appliedContent (still on the pre-apply bundle). Net outcome:
-            // local node converges back to the pre-apply bundle exactly, no divergence from
-            // what the DB still says is current.
             try {
                 dslManager.getCommitCoord().discardCommit(catalog, name);
             } catch (final Throwable rt) {
-                log.error("runtime-rule CRITICAL: persist-failure discard itself failed for "
-                    + "{}/{}; state is inconsistent and requires operator intervention",
-                    catalog, name, rt);
+                log.error("runtime-rule CRITICAL: persist-failure discard itself failed for {}/{}; "
+                    + "state is inconsistent and requires operator intervention", catalog, name, rt);
             }
-            // Peers are still SUSPENDED on our earlier broadcast. The DB didn't advance,
-            // so self-heal would eventually flip them back, but broadcasting Resume now
-            // cuts the dispatch gap from 60 s to a single RPC round-trip.
             broadcastResume(catalog, name, "persist_failed");
-            log.error("runtime-rule CRITICAL: STRUCTURAL persist FAILED after successful apply "
-                + "for {}/{} — discarded pending commit; local node re-aligned with old "
-                + "content. Operator action: re-push via /addOrUpdate once storage is healthy.",
-                catalog, name);
-            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "persist failed after apply");
-            return persistError;
+            log.error("runtime-rule CRITICAL: STRUCTURAL persist FAILED after apply + fence for {}/{} "
+                + "— discarded the pending commit; local node re-aligned with old content. Operator "
+                + "action: re-push via /addOrUpdate once storage is healthy.", catalog, name);
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "persist failed after apply + fence");
+            return;
         }
 
-        // Persist succeeded — the durable commit point is crossed. But writes must NOT resume until
-        // the new schema has propagated to every data node: an un-propagated write is silently
-        // dropped (CLAUDE.md tip #16). So we fence FIRST, then finalize the local commit (swap the
-        // bundle + unpark local dispatch) and resume/notify peers. That runs on the fence executor
-        // so the (up to 3-min) wait does not block this response: we return now at FENCING with the
-        // applyId; the operator polls GET /runtime/rule/status to watch FENCING → ROLLING_OUT →
-        // APPLIED (or DEGRADED + the laggard node list). Peers + local stay suspended — a clean
-        // collection pause, not dropped writes — until the fence confirms.
-        SchemaApplyCoordinator.INSTANCE.markFencing(applyId);
-        boolean scheduled = true;
-        try {
-            fenceExecutor.submit(() -> fenceThenResume(applyId, fenceOpt, catalog, name, content));
-        } catch (final Throwable t) {
-            // Executor rejected (shutting down). Run inline (blocking) so the suspend bracket does
-            // not leak — write-safety + a non-leaked suspend win over a non-blocking response here.
-            log.warn("runtime-rule could not schedule the background fence for {}/{}; running it "
-                + "inline so dispatch is not left suspended", catalog, name, t);
-            scheduled = false;
-        }
-        if (!scheduled) {
-            fenceThenResume(applyId, fenceOpt, catalog, name, content);
-        }
-        return okWithApplyId(HttpStatus.OK, "structural_applied", catalog, name, applyId,
-            "structural apply persisted; fencing cluster-wide schema propagation before resuming "
-                + "dispatch — poll /runtime/rule/status?applyId=" + applyId + describeDelta(delta));
-    }
-
-    /**
-     * Post-persist tail: wait for the new schema to propagate to every data node BEFORE any write
-     * resumes (an un-propagated write is silently dropped — CLAUDE.md tip #16), then finalize the
-     * local commit (drop removed metrics, swap the bundle, unpark local dispatch) and resume/notify
-     * peers. Runs on the fence executor (or inline if the executor is gone) so a long wait never
-     * blocks the HTTP response while still gating resume on the fence.
-     *
-     * <p>Drives the terminal status: {@link ApplyPhase#APPLIED} when the fence confirms and the
-     * commit lands; {@link ApplyPhase#DEGRADED} (with the laggard node ids) when the fence does not
-     * confirm within the budget — there we resume dispatch ANYWAY rather than park the metric forever
-     * on one stuck node, accepting that the laggard drops writes until it catches up — or when the
-     * local commit-tail throws (DB is durable; peers converge from it; this node retries on the next
-     * tick).
-     */
-    private void fenceThenResume(final String applyId, final StorageManipulationOpt fenceOpt,
-                                 final String catalog, final String name, final String content) {
-        // 1. Fence the CREATE schema propagation before any write resumes.
-        StorageManipulationOpt.FenceOutcome fenceOutcome = null;
-        Throwable fenceError = null;
-        try {
-            fenceOpt.runDeferredFence();
-            fenceOutcome = fenceOpt.getFenceOutcome();
-        } catch (final Throwable t) {
-            fenceError = t;
-            log.warn("runtime-rule schema fence for {}/{} errored; resuming dispatch anyway "
-                + "(commit is durable, peers converge from the DB row)", catalog, name, t);
-        }
-
-        // 2. Schema is now visible (or we gave up after the budget) — safe to resume writes.
+        // 3. Durable — finalize the local commit (swap bundle, unpark dispatch) + resume/notify peers.
         SchemaApplyCoordinator.INSTANCE.transition(applyId, ApplyPhase.ROLLING_OUT);
         Throwable commitFailure = null;
         boolean drained = false;
         try {
-            // finalizeCommit drops removedMetrics, swaps the applied pointers, retires the old
-            // loader, fires alarm reset, advances the snapshot, and unparks local dispatch.
             drained = dslManager.getCommitCoord().finalizeCommit(catalog, name);
         } catch (final Throwable t) {
             commitFailure = t;
-            log.error("runtime-rule CRITICAL: finalize commit FAILED for {}/{} after persist + fence "
-                + "— DB is authoritative, peers converge from it; this node retries on the next tick.",
+            log.error("runtime-rule CRITICAL: finalize commit FAILED for {}/{} after persist — DB is "
+                + "authoritative, peers converge from it; this node retries on the next tick.",
                 catalog, name, t);
         }
-        if (drained) {
-            // Real change committed — peers reconcile against the just-persisted DB row now instead
-            // of waiting up to one ~30s refresh tick. Best-effort; a lost notify self-heals on tick.
+        if (commitFailure != null || drained) {
+            // The durable row advanced (commit drained, OR the local commit-tail threw but the row IS
+            // persisted) — peers must reconcile against it NOW rather than wait one ~30s tick.
             broadcastNotifyApplied(catalog, name, ContentHash.sha256Hex(content));
         } else {
-            // No commit drained (force re-apply on byte-identical content) — peers are still
-            // PEER-suspended from our earlier broadcast; un-suspend them within an RPC round-trip.
+            // Nothing changed (force re-apply on byte-identical content) — just un-suspend peers.
             broadcastResume(catalog, name, "structural_resume");
         }
 
-        // 3. Terminal status.
+        // 4. Terminal status.
         if (commitFailure != null) {
             SchemaApplyCoordinator.INSTANCE.markDegraded(applyId,
                 "commit-tail deferred: DB persisted, local backend may be stale until the next tick: "

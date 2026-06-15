@@ -29,16 +29,20 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.status;
  * These are the phases the main observes from its apply orchestration: {@code PENDING} once the
  * apply is accepted, {@code DDL} while the compile/verify/schema-change call runs (a single opaque
  * step from the orchestrator's vantage — sub-steps such as validation are not separately
- * observable, so they are not modelled), then — after the rule row is durably persisted — the HTTP
- * response returns with the {@code applyId} at {@code FENCING} while the main waits (in the
- * background, on a generous timeout) for every BanyanDB data node to apply the new schema revision.
- * Dispatch stays suspended through {@code FENCING} because an un-propagated write is silently
- * dropped. Only once the fence confirms does the apply reach {@code ROLLING_OUT} — finalize the
- * local commit, unpark dispatch, resume/notify peers — and then {@code APPLIED}. The operator polls
- * to watch {@code FENCING → ROLLING_OUT → APPLIED} (or {@code DEGRADED}). Two off-ramps:
+ * observable, so they are not modelled). Once DDL fires the HTTP response returns with the
+ * {@code applyId} at {@code FENCING} — the apply is accepted but NOT yet durable — while the main
+ * waits (in the background, on a generous timeout) for every BanyanDB data node to apply the new
+ * schema revision. The rule row is persisted (the durable commit point) only AFTER the fence
+ * confirms, so "durable" implies "schema propagated" and crash recovery never resumes against an
+ * unpropagated schema. Dispatch stays suspended through {@code FENCING} because an un-propagated
+ * write is silently dropped. Once the fence confirms and the row is persisted, the apply reaches
+ * {@code ROLLING_OUT} — finalize the local commit, unpark dispatch, resume/notify peers — and then
+ * {@code APPLIED}. The operator polls to watch {@code FENCING → ROLLING_OUT → APPLIED} (or
+ * {@code DEGRADED}/{@code FAILED}). Two off-ramps:
  * <ul>
- *   <li>{@link #FAILED} — a pre-commit error (compile / verify / DDL RPC / persist). The change
- *       was rolled back; nothing was committed.</li>
+ *   <li>{@link #FAILED} — a pre-commit error (compile / verify / DDL RPC / persist). Nothing was
+ *       committed (a crash before persist likewise leaves no durable row); the change was rolled
+ *       back and peers stay on the prior content.</li>
  *   <li>{@link #DEGRADED} — committed and durable, but the fence did not confirm cluster-wide
  *       propagation within the timeout (one or more data nodes lagging — exposed as
  *       {@code fenceLaggards}; dispatch is resumed anyway so a stuck node doesn't park the metric
