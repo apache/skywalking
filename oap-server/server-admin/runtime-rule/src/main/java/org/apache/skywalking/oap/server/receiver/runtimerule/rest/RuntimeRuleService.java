@@ -69,6 +69,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.extension.DbOverrid
 import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.MainRouter;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.RuntimeRuleClusterClient;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusRequest;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendState;
@@ -78,6 +80,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLScript
 import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.SuspendResult;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleScript;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.DSLRuntimeState;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyPhase;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyStatus;
 import org.apache.skywalking.oap.server.receiver.runtimerule.status.SchemaApplyCoordinator;
 import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
 
@@ -268,6 +272,84 @@ public class RuntimeRuleService {
                     mainAddr == null ? "unknown" : mainAddr,
                     t.getMessage() == null ? t.getClass().getSimpleName() : t.getMessage()));
         }
+    }
+
+    /**
+     * Read-only apply-status query for the UI / operator. Served by the main: when self is main
+     * (or single-process / no cluster client), reads the local {@link SchemaApplyCoordinator};
+     * otherwise routes to the main via {@code GetApplyStatus}. Resolve by {@code applyId} (the
+     * live handle) or by {@code catalog}/{@code name} (+ optional {@code contentHash}) once the
+     * apply-id is gone (page refresh / main restart). Always 200 with a JSON status; {@code
+     * found=false} / phase {@code UNKNOWN} when nothing matches (caller compares the durable
+     * content hash itself).
+     */
+    public HttpResponse queryApplyStatus(final String catalog, final String name,
+                                         final String contentHash, final String applyId) {
+        final AdminClusterChannelManager apm = resolvePeerChannelManager();
+        if (apm == null || MainRouter.isSelfMain(apm) || clusterClient == null) {
+            final ApplyStatus local = applyId.isEmpty()
+                ? SchemaApplyCoordinator.INSTANCE.getLatestByFile(
+                    catalog, name, contentHash.isEmpty() ? null : contentHash)
+                : SchemaApplyCoordinator.INSTANCE.get(applyId);
+            return applyStatusJson(local);
+        }
+        final ApplyStatusResponse remote = clusterClient.getApplyStatus(ApplyStatusRequest.newBuilder()
+            .setApplyId(applyId).setCatalog(catalog).setName(name).setContentHash(contentHash).build());
+        if (remote == null) {
+            return HttpResponse.of(HttpStatus.BAD_GATEWAY, MediaType.JSON_UTF_8,
+                jsonBody("status_unavailable", catalog, name,
+                    "could not reach the cluster main for apply status; retry shortly"));
+        }
+        return applyStatusJsonFromProto(remote);
+    }
+
+    private HttpResponse applyStatusJson(final ApplyStatus s) {
+        final JsonObject o = new JsonObject();
+        if (s == null) {
+            o.addProperty("found", false);
+            o.addProperty("phase", ApplyPhase.UNKNOWN.name());
+        } else {
+            o.addProperty("found", true);
+            o.addProperty("applyId", s.getApplyId());
+            o.addProperty("catalog", s.getCatalog());
+            o.addProperty("name", s.getName());
+            o.addProperty("contentHash", s.getContentHash());
+            o.addProperty("phase", s.getPhase().name());
+            if (s.getFailureReason() != null) {
+                o.addProperty("failureReason", s.getFailureReason());
+            }
+            o.addProperty("startedAtMs", s.getStartedAtMs());
+            o.addProperty("updatedAtMs", s.getUpdatedAtMs());
+        }
+        return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(o));
+    }
+
+    private HttpResponse applyStatusJsonFromProto(final ApplyStatusResponse r) {
+        final JsonObject o = new JsonObject();
+        o.addProperty("found", r.getFound());
+        if (r.getFound()) {
+            o.addProperty("applyId", r.getApplyId());
+            o.addProperty("catalog", r.getCatalog());
+            o.addProperty("name", r.getName());
+            o.addProperty("contentHash", r.getContentHash());
+            o.addProperty("phase", stripApplyPhasePrefix(r.getPhase().name()));
+            if (!r.getFailureReason().isEmpty()) {
+                o.addProperty("failureReason", r.getFailureReason());
+            }
+            o.addProperty("startedAtMs", r.getStartedAtMs());
+            o.addProperty("updatedAtMs", r.getUpdatedAtMs());
+        } else {
+            o.addProperty("phase", ApplyPhase.UNKNOWN.name());
+        }
+        o.addProperty("servedBy", r.getNodeId());
+        return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(o));
+    }
+
+    /** Strip the proto {@code APPLY_PHASE_} prefix so the routed-from-main JSON phase matches the
+     *  local-path {@link ApplyPhase} names (e.g. {@code APPLY_PHASE_APPLIED} → {@code APPLIED}). */
+    private static String stripApplyPhasePrefix(final String protoName) {
+        final String prefix = "APPLY_PHASE_";
+        return protoName.startsWith(prefix) ? protoName.substring(prefix.length()) : protoName;
     }
 
     private AdminClusterChannelManager resolvePeerChannelManager() {

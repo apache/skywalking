@@ -113,6 +113,20 @@ public class RuntimeRuleRestHandler {
         return service.list(catalog);
     }
 
+    /**
+     * Apply-status query for the UI / operator. Served by the cluster main (the service routes
+     * there when self isn't main). Query by {@code applyId} (the live handle from a just-submitted
+     * apply) or, once it's gone, by {@code catalog} + {@code name} (+ optional {@code contentHash}
+     * — the durable identity). Always 200 with a JSON status; {@code found=false} when nothing matches.
+     */
+    @Get("/runtime/rule/status")
+    public HttpResponse applyStatus(@Param("catalog") @Default("") final String catalog,
+                                    @Param("name") @Default("") final String name,
+                                    @Param("contentHash") @Default("") final String contentHash,
+                                    @Param("applyId") @Default("") final String applyId) {
+        return service.queryApplyStatus(catalog, name, contentHash, applyId);
+    }
+
     @Get("/runtime/rule")
     public HttpResponse get(@Param("catalog") final String catalog,
                             @Param("name") final String name,

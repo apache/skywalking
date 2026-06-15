@@ -51,6 +51,11 @@ service RuntimeRuleClusterService {
     // body in the ack. Eliminates the "client must resubmit" round-trip from the old
     // 421 Misdirected Request behaviour.
     rpc Forward(ForwardRequest) returns (ForwardResponse);
+    // Query the apply-status the main tracks for a runtime-rule file. Read-only; served by the
+    // main (non-main nodes route here, since only the main runs applies and holds the status).
+    // Lets the UI/operator poll an apply's progress, and — after the ephemeral apply_id is gone
+    // (page refresh / main restart) — ask by (catalog, name[, content_hash]), the durable identity.
+    rpc GetApplyStatus(ApplyStatusRequest) returns (ApplyStatusResponse);
 }
 
 message SuspendRequest {
@@ -165,4 +170,50 @@ message ForwardResponse {
     // but on the fail-safe path (receiver also isn't main) it's still the receiver so the
     // operator can correlate which node refused.
     string node_id = 3;
+}
+
+// Identifies the apply whose status the caller wants. Either apply_id (the live handle a
+// just-submitted apply was given) OR catalog+name (+ optional content_hash) — the content-based
+// path used once the apply_id is gone. content_hash, when set, requires the latest tracked apply
+// for that file to match (else found=false), so a stale query doesn't misreport a newer apply.
+message ApplyStatusRequest {
+    string apply_id = 1;
+    string catalog = 2;
+    string name = 3;
+    string content_hash = 4;
+}
+
+// Lifecycle phase of an apply on the main. Mirrors the Java ApplyPhase; prefixed to avoid
+// collision with the other enums in this package.
+enum ApplyStatusPhase {
+    APPLY_PHASE_UNSPECIFIED = 0;
+    APPLY_PHASE_PENDING = 1;
+    APPLY_PHASE_VALIDATING = 2;
+    APPLY_PHASE_DDL = 3;
+    APPLY_PHASE_FENCING = 4;
+    APPLY_PHASE_ROLLING_OUT = 5;
+    APPLY_PHASE_APPLIED = 6;
+    APPLY_PHASE_DEGRADED = 7;
+    APPLY_PHASE_FAILED = 8;
+    // The main no longer holds an apply matching the request (evicted / main restarted, or the
+    // content_hash did not match the latest tracked apply). Caller falls back to a content-hash
+    // comparison against the durable DAO row.
+    APPLY_PHASE_UNKNOWN = 9;
+}
+
+message ApplyStatusResponse {
+    // False when no matching apply is tracked (phase is then APPLY_PHASE_UNKNOWN and the rest
+    // are empty/zero). True otherwise, with the fields below populated.
+    bool found = 1;
+    string apply_id = 2;
+    string catalog = 3;
+    string name = 4;
+    string content_hash = 5;
+    ApplyStatusPhase phase = 6;
+    // Non-empty only for APPLY_PHASE_FAILED / APPLY_PHASE_DEGRADED.
+    string failure_reason = 7;
+    int64 started_at_ms = 8;
+    int64 updated_at_ms = 9;
+    // Instance id of the node that produced this status (the main).
+    string node_id = 10;
 }

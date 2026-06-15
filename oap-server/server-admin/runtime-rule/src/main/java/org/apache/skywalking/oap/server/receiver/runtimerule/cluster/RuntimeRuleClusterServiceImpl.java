@@ -25,6 +25,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusPhase;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusRequest;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeAck;
@@ -41,6 +44,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.SuspendRe
 import org.apache.skywalking.oap.server.receiver.runtimerule.rest.RuntimeRuleService;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleScript;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.DSLRuntimeState;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyPhase;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyStatus;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.SchemaApplyCoordinator;
 
 /**
  * Server-side handler for the three cluster-internal runtime-rule RPCs — see
@@ -100,6 +106,64 @@ public class RuntimeRuleClusterServiceImpl
     public RuntimeRuleClusterServiceImpl(final DSLManager dslManager, final String selfNodeId) {
         this.dslManager = dslManager;
         this.selfNodeId = selfNodeId;
+    }
+
+    /**
+     * Read-only apply-status query, served by the main (only the main runs applies and holds the
+     * status). Resolves by apply_id when present, else by (catalog, name) gated on content_hash.
+     * Returns {@code found=false} / {@code APPLY_PHASE_UNKNOWN} when nothing matches — the caller
+     * falls back to comparing the durable content hash against the DAO row.
+     */
+    @Override
+    public void getApplyStatus(final ApplyStatusRequest request,
+                               final StreamObserver<ApplyStatusResponse> responseObserver) {
+        final ApplyStatus status;
+        if (!request.getApplyId().isEmpty()) {
+            status = SchemaApplyCoordinator.INSTANCE.get(request.getApplyId());
+        } else {
+            final String hash = request.getContentHash().isEmpty() ? null : request.getContentHash();
+            status = SchemaApplyCoordinator.INSTANCE.getLatestByFile(
+                request.getCatalog(), request.getName(), hash);
+        }
+        final ApplyStatusResponse.Builder resp = ApplyStatusResponse.newBuilder().setNodeId(selfNodeId);
+        if (status == null) {
+            resp.setFound(false).setPhase(ApplyStatusPhase.APPLY_PHASE_UNKNOWN);
+        } else {
+            resp.setFound(true)
+                .setApplyId(status.getApplyId())
+                .setCatalog(status.getCatalog())
+                .setName(status.getName())
+                .setContentHash(status.getContentHash() == null ? "" : status.getContentHash())
+                .setPhase(toProtoPhase(status.getPhase()))
+                .setFailureReason(status.getFailureReason() == null ? "" : status.getFailureReason())
+                .setStartedAtMs(status.getStartedAtMs())
+                .setUpdatedAtMs(status.getUpdatedAtMs());
+        }
+        responseObserver.onNext(resp.build());
+        responseObserver.onCompleted();
+    }
+
+    private static ApplyStatusPhase toProtoPhase(final ApplyPhase phase) {
+        switch (phase) {
+            case PENDING:
+                return ApplyStatusPhase.APPLY_PHASE_PENDING;
+            case VALIDATING:
+                return ApplyStatusPhase.APPLY_PHASE_VALIDATING;
+            case DDL:
+                return ApplyStatusPhase.APPLY_PHASE_DDL;
+            case FENCING:
+                return ApplyStatusPhase.APPLY_PHASE_FENCING;
+            case ROLLING_OUT:
+                return ApplyStatusPhase.APPLY_PHASE_ROLLING_OUT;
+            case APPLIED:
+                return ApplyStatusPhase.APPLY_PHASE_APPLIED;
+            case DEGRADED:
+                return ApplyStatusPhase.APPLY_PHASE_DEGRADED;
+            case FAILED:
+                return ApplyStatusPhase.APPLY_PHASE_FAILED;
+            default:
+                return ApplyStatusPhase.APPLY_PHASE_UNKNOWN;
+        }
     }
 
     @Override

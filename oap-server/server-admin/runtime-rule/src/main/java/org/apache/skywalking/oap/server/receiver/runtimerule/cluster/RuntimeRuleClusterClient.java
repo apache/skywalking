@@ -29,6 +29,8 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardR
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeRequest;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusRequest;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.RuntimeRuleClusterServiceGrpc;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.SuspendRequest;
@@ -109,6 +111,35 @@ public final class RuntimeRuleClusterClient {
         } catch (final Throwable t) {
             log.warn("runtime-rule Suspend to peer {} failed for {}/{}: {}",
                 peer.getAddress(), catalog, name, t.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Route a read-only apply-status query to the cluster main (the only node that runs applies
+     * and holds the status). Returns {@code null} if no main is resolvable or the call fails —
+     * the REST caller then degrades to a content-hash comparison against the durable DAO row.
+     */
+    public ApplyStatusResponse getApplyStatus(final ApplyStatusRequest request) {
+        final AdminClusterChannelManager.Peer main = MainRouter.mainPeer(peerChannelManager);
+        if (main == null) {
+            log.warn("runtime-rule GetApplyStatus skipped: no cluster main resolvable");
+            return null;
+        }
+        final ManagedChannel channel = main.getChannel();
+        if (channel == null) {
+            log.warn("runtime-rule GetApplyStatus skipped: main {} channel not yet established",
+                main.getAddress());
+            return null;
+        }
+        final RuntimeRuleClusterServiceGrpc.RuntimeRuleClusterServiceBlockingStub stub =
+            RuntimeRuleClusterServiceGrpc.newBlockingStub(channel)
+                                         .withDeadlineAfter(perCallDeadlineMs, TimeUnit.MILLISECONDS);
+        try {
+            return stub.getApplyStatus(request);
+        } catch (final Throwable t) {
+            log.warn("runtime-rule GetApplyStatus to main {} failed: {}",
+                main.getAddress(), t.getMessage());
             return null;
         }
     }
