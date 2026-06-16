@@ -1410,6 +1410,65 @@ public class RuntimeRuleService {
     }
 
     /**
+     * Background tail for {@code /delete?mode=revertToBundled}, run on the fence executor (or
+     * inline if it's gone). Reinstalls the bundled rule via the apply pipeline — which runs the
+     * deferred schema fence — then removes the runtime row, and maps the orchestrator outcome to
+     * the apply's terminal phase so an operator polling {@code GET /runtime/rule/status?applyId}
+     * sees {@code APPLIED}, or {@code FAILED} with the reason. Unlike a structural /addOrUpdate
+     * there is no Suspend bracket to release here: revert never broadcast a pause (peers converge
+     * on the persisted row via the periodic scan), so a failure needs no Resume.
+     */
+    private void revertToBundledTracked(final String applyId, final String catalog,
+                                         final String name, final String priorContent,
+                                         final RuntimeRuleManagementDAO dao) {
+        final DSLRuntimeDelete.Result revert;
+        try {
+            revert = dslManager.getDslRuntimeDelete().revertToBundled(catalog, name, priorContent);
+        } catch (final Throwable t) {
+            log.error("runtime-rule /delete: revertToBundled threw for {}/{}", catalog, name, t);
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "revert threw: " + t.getMessage());
+            return;
+        }
+        switch (revert.status) {
+            case REFUSED_CONFLICT:
+                log.warn("runtime-rule /delete refused for {}/{}: {}", catalog, name, revert.error);
+                SchemaApplyCoordinator.INSTANCE.markFailed(applyId, "revert refused: " + revert.error);
+                return;
+            case PRECONDITION_FAILED:
+                log.error("runtime-rule /delete: revertToBundled precondition failed for {}/{}: {}",
+                    catalog, name, revert.error);
+                SchemaApplyCoordinator.INSTANCE.markFailed(applyId,
+                    "revert precondition failed: " + revert.error);
+                return;
+            case BUNDLED_APPLY_FAILED:
+                log.error("runtime-rule /delete: bundled apply failed for {}/{}: {}",
+                    catalog, name, revert.error);
+                SchemaApplyCoordinator.INSTANCE.markFailed(applyId,
+                    "bundled apply failed (typically a storage-backend DDL/verify issue); the "
+                        + "orchestrator unwound the runtime install so local state matches the "
+                        + "persisted INACTIVE row — retry once storage recovers. Cause: " + revert.error);
+                return;
+            case REVERTED:
+            default:
+                break;
+        }
+        // Bundled is durable cluster-wide (the apply's fence confirmed) — finalize by removing
+        // the runtime row. A delete failure here leaves bundled applied but the INACTIVE row
+        // lingering; the reconcile retries it, so report FAILED with that context.
+        SchemaApplyCoordinator.INSTANCE.transition(applyId, ApplyPhase.ROLLING_OUT);
+        try {
+            dao.delete(catalog, name);
+        } catch (final IOException e) {
+            log.error("failed to delete runtime rule {}/{} after revert", catalog, name, e);
+            SchemaApplyCoordinator.INSTANCE.markFailed(applyId,
+                "bundled was reinstalled but removing the runtime row failed; it will be retried "
+                    + "on the next reconcile: " + e.getMessage());
+            return;
+        }
+        SchemaApplyCoordinator.INSTANCE.markApplied(applyId);
+    }
+
+    /**
      * Write the row through {@link RuntimeRuleManagementDAO#save} so a DAO failure is surfaced
      * to the caller instead of silently swallowed. The earlier ManagementStreamProcessor path
      * routed through the generic {@code IManagementDAO.insert}, which BanyanDB never persisted
@@ -1950,55 +2009,39 @@ public class RuntimeRuleService {
         }
 
         if (mode == DeleteMode.REVERT_TO_BUNDLED) {
-            // Bundled-revert path is the schema-change path: bundled may have a different
-            // shape than runtime. The orchestrator runs the unified pipeline:
-            //   (1) installRuntime to put prior runtime claims back locally,
-            //   (2) apply(bundled, STRUCTURAL, BUNDLED, withSchemaChange) — engine.commit
-            //       drops runtime-only metrics through the standard delta path,
-            //   (3) reset rules-map state to boot-seeded so gone-keys reconcile leaves
-            //       it alone after dao.delete.
-            // dao.delete only runs after revertToBundled returns REVERTED — a precondition
-            // or compile failure aborts the row deletion so the operator can retry.
-            final DSLRuntimeDelete.Result revert;
+            // Bundled-revert is the schema-change path: bundled may have a different shape
+            // than runtime, so — like a structural /addOrUpdate — it is tracked and runs
+            // ASYNCHRONOUSLY. The unified pipeline (installRuntime → apply(bundled, STRUCTURAL,
+            // withSchemaChange, deferred fence) → reset state → dao.delete) plus its schema
+            // fence (up to deferredFenceTimeoutMs) run on the background executor, and the
+            // response returns immediately with an applyId the operator polls via
+            // GET /runtime/rule/status. The precondition rejections above (inactivate-first,
+            // no_bundled_twin, requires_revert_to_bundled) are still reported synchronously;
+            // the revert pipeline's own outcomes (REFUSED_CONFLICT / PRECONDITION_FAILED /
+            // BUNDLED_APPLY_FAILED / row-delete failure) surface as the apply's terminal phase
+            // (FAILED, with the reason) on /status rather than an HTTP error.
+            final String bundled =
+                StaticRuleRegistry.active().find(catalog, name).orElse(prior.getContent());
+            final String applyId = SchemaApplyCoordinator.INSTANCE.begin(
+                catalog, name, ContentHash.sha256Hex(bundled));
+            SchemaApplyCoordinator.INSTANCE.markFencing(applyId);
+            final String priorContent = prior.getContent();
+            boolean scheduled = true;
             try {
-                revert = dslManager.getDslRuntimeDelete()
-                    .revertToBundled(catalog, name, prior.getContent());
+                fenceExecutor.submit(() -> revertToBundledTracked(applyId, catalog, name, priorContent, dao));
             } catch (final Throwable t) {
-                log.error("runtime-rule /delete: revertToBundled threw for {}/{}", catalog, name, t);
-                return serverError("revert_to_bundled_failed", catalog, name, t.getMessage());
+                // Executor rejected (shutting down) — run inline so the apply still completes.
+                log.warn("runtime-rule could not schedule the background revert for {}/{}; "
+                    + "running it inline", catalog, name, t);
+                scheduled = false;
             }
-            switch (revert.status) {
-                case REFUSED_CONFLICT:
-                    log.warn("runtime-rule /delete refused for {}/{}: {}", catalog, name, revert.error);
-                    return HttpResponse.of(HttpStatus.CONFLICT, MediaType.JSON_UTF_8,
-                        jsonBody("delete_refused", catalog, name, revert.error));
-                case PRECONDITION_FAILED:
-                    log.error("runtime-rule /delete: revertToBundled precondition failed for {}/{}: {}",
-                        catalog, name, revert.error);
-                    return serverError("revert_to_bundled_precondition_failed", catalog, name, revert.error);
-                case BUNDLED_APPLY_FAILED:
-                    log.error("runtime-rule /delete: bundled apply failed for {}/{}: {}",
-                        catalog, name, revert.error);
-                    return serverError("revert_to_bundled_failed", catalog, name,
-                        "bundled apply failed (typically a storage-backend DDL/verify "
-                            + "issue — BanyanDB unreachable, shape rejection, or schema-"
-                            + "barrier timeout). The orchestrator unwound the step-1 "
-                            + "runtime install so local state matches the persisted "
-                            + "INACTIVE row. Retry once storage recovers. Cause: "
-                            + revert.error);
-                case REVERTED:
-                default:
-                    break;
+            if (!scheduled) {
+                revertToBundledTracked(applyId, catalog, name, priorContent, dao);
             }
-            try {
-                dao.delete(catalog, name);
-            } catch (final IOException e) {
-                log.error("failed to delete runtime rule {}/{}", catalog, name, e);
-                return serverError("delete_failed", catalog, name, e.getMessage());
-            }
-            return ok(HttpStatus.OK, "reverted_to_bundled", catalog, name,
-                "runtime row removed; bundled rule installed via apply pipeline (schema "
-                    + "change handled by the standard delta path); peers converge on next tick");
+            return okWithApplyId(HttpStatus.OK, "reverted_to_bundled", catalog, name, applyId,
+                "revert-to-bundled accepted; reinstalling the bundled rule across the cluster "
+                    + "and removing the runtime row in the background — poll "
+                    + "/runtime/rule/status?applyId=" + applyId);
         }
 
         // No-bundled-twin DEFAULT path. /inactivate already tore down local handlers under
