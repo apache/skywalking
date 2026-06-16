@@ -196,40 +196,123 @@ assert_apply_status() {
     || fail "expected applyStatus=${expected}, not found in: ${actual}"
 }
 
-# GET /runtime/rule/list and ensure the row matches the expected status. Returns
-# the matching JSON line on stdout for callers that want to inspect contentHash.
+# Budget for the async apply state machine to reach a terminal phase on GET /runtime/rule/status.
+APPLY_TERMINAL_S="${APPLY_TERMINAL_S:-200}"
+
+# Drive the new async apply surface to a terminal phase. A STRUCTURAL addOrUpdate (and a
+# /delete?mode=revertToBundled) returns immediately at FENCING with an applyId; the row is persisted
+# and dispatch resumed in the BACKGROUND, after the schema fence. Given the apply's JSON response,
+# extract its applyId and poll GET /runtime/rule/status until the phase is terminal:
+#   APPLIED / DEGRADED → the durable row was written (DEGRADED == committed-and-durable, only the
+#                        cluster-wide fence confirmation lagged) → return 0
+#   FAILED            → a pre-commit error, nothing was committed → fail
+#   anything else (FENCING / DDL / ROLLING_OUT / PENDING / UNKNOWN) → keep polling
+# A synchronous apply (filter_only / inactivate / default delete) carries no applyId, so this is a
+# no-op — that response is already durable on return. swctl has no runtime-rule `status` subcommand,
+# so this goes through curl (the status endpoint lives on the same REST port). Passing catalog+name
+# lets the main answer from the durable rule row once the live apply-id is TTL-evicted, so a slow
+# poll converges instead of false-timing-out.
+await_apply_terminal() {
+  local resp="$1"
+  local rule_name="${2:-${NAME}}"
+  local apply_id
+  apply_id="$(echo "${resp}" | jq -r '.applyId // empty' 2>/dev/null || true)"
+  if [[ -z "${apply_id}" ]]; then
+    return 0
+  fi
+  log "runtime-rule status → polling (≤${APPLY_TERMINAL_S}s) for apply ${apply_id} of ${CATALOG}/${rule_name} to reach a terminal phase"
+  local deadline=$(( $(date +%s) + APPLY_TERMINAL_S ))
+  local body phase=""
+  while :; do
+    body="$(curl -s "${REST_BASE}/runtime/rule/status?applyId=${apply_id}&catalog=${CATALOG}&name=${rule_name}" 2>/dev/null || true)"
+    phase="$(echo "${body}" | jq -r '.phase // empty' 2>/dev/null || true)"
+    case "${phase}" in
+      APPLIED|DEGRADED)
+        log "  ✓ apply ${apply_id} → ${phase} (durable)"
+        return 0
+        ;;
+      FAILED)
+        fail "apply ${apply_id} of ${CATALOG}/${rule_name} reached FAILED: ${body}"
+        ;;
+    esac
+    if (( $(date +%s) >= deadline )); then
+      fail "apply ${apply_id} of ${CATALOG}/${rule_name} did not reach a terminal phase within ${APPLY_TERMINAL_S}s (last phase='${phase}', body: ${body})"
+    fi
+    sleep 2
+  done
+}
+
+# Budget for an async structural apply to land in /list. A structural addOrUpdate returns
+# immediately at FENCING (accepted, not yet durable): the rule row is persisted only AFTER the
+# background schema fence confirms, and BanyanDB's meta→data-node schema sync can take 1-2 minutes,
+# so a single /list read right after the 2xx can miss the row. The /list assertions poll within this
+# budget (covers the fence timeout + the sync). ES/JDBC have no such fence — they land in under a
+# second, so the poll returns on its first iteration there.
+APPLY_LAND_S="${APPLY_LAND_S:-200}"
+
+# Poll GET /runtime/rule/list until the row for (catalog, rule_name) shows the expected status,
+# up to APPLY_LAND_S. Returns the matching JSON line on stdout for callers that inspect contentHash.
+#
+# Optional 3rd arg differ_hash: when set, the poll additionally requires the row's contentHash to
+# differ from it. This is the wait-condition for a STRUCTURAL update of an ALREADY-ACTIVE row — the
+# status is ACTIVE both before and after the async apply, so a status-only poll would return on the
+# first iteration with the OLD (pre-apply) contentHash, before the background fence→persist tail
+# has written the new content. Gating on "status==expected AND contentHash advanced" blocks until
+# the new content is durable and visible.
 list_row() {
   local expected_status="$1"
   local rule_name="${2:-${NAME}}"
-  log "runtime-rule list → looking for ${CATALOG}/${rule_name} status=${expected_status}"
-  local lines
-  lines="$(admin runtime-rule list)" \
-    || fail "runtime-rule list failed"
-  local match
-  match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
-  [[ -n "${match}" ]] \
-    || fail "/list has no row for ${CATALOG}/${rule_name} (got: ${lines})"
-  local actual_status
-  actual_status="$(echo "${match}" | jq -r '.status')"
-  [[ "${actual_status}" == "${expected_status}" ]] \
-    || fail "expected /list status=${expected_status}, got '${actual_status}' (row: ${match})"
-  echo "${match}"
+  local differ_hash="${3:-}"
+  log "runtime-rule list → waiting (≤${APPLY_LAND_S}s) for ${CATALOG}/${rule_name} status=${expected_status}${differ_hash:+ contentHash≠${differ_hash:0:8}…}"
+  local deadline=$(( $(date +%s) + APPLY_LAND_S ))
+  local lines match actual_status="" actual_hash=""
+  while :; do
+    lines="$(admin runtime-rule list)" \
+      || fail "runtime-rule list failed"
+    match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
+    if [[ -n "${match}" ]]; then
+      actual_status="$(echo "${match}" | jq -r '.status')"
+      actual_hash="$(echo "${match}" | jq -r '.contentHash')"
+      if [[ "${actual_status}" == "${expected_status}" \
+            && ( -z "${differ_hash}" || "${actual_hash}" != "${differ_hash}" ) ]]; then
+        echo "${match}"
+        return 0
+      fi
+    fi
+    if (( $(date +%s) >= deadline )); then
+      if [[ -n "${match}" ]]; then
+        fail "expected /list status=${expected_status}${differ_hash:+ with advanced contentHash}, got status='${actual_status}' hash='${actual_hash}' within ${APPLY_LAND_S}s (row: ${match})"
+      fi
+      fail "/list has no row for ${CATALOG}/${rule_name} within ${APPLY_LAND_S}s (got: ${lines})"
+    fi
+    sleep 2
+  done
 }
 
-# Assert that /list does NOT have a row for the given (catalog, name).
+# Poll until /list has NO row (or status n/a) for the given (catalog, name), up to APPLY_LAND_S.
+# A /delete?mode=revertToBundled runs the async apply pipeline (the bundled re-apply), so the row's
+# removal can lag the same way a structural apply's appearance does.
 list_no_row() {
   local rule_name="${1:-${NAME}}"
-  log "runtime-rule list → expect NO row for ${CATALOG}/${rule_name}"
-  local lines match
-  lines="$(admin runtime-rule list)" \
-    || fail "runtime-rule list failed"
-  match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
-  if [[ -n "${match}" ]]; then
-    local status
+  log "runtime-rule list → waiting (≤${APPLY_LAND_S}s) for NO row for ${CATALOG}/${rule_name}"
+  local deadline=$(( $(date +%s) + APPLY_LAND_S ))
+  local lines match status
+  while :; do
+    lines="$(admin runtime-rule list)" \
+      || fail "runtime-rule list failed"
+    match="$(echo "${lines}" | jq -c ".rules[] | select(.catalog==\"${CATALOG}\" and .name==\"${rule_name}\")" 2>/dev/null || true)"
+    if [[ -z "${match}" ]]; then
+      return 0
+    fi
     status="$(echo "${match}" | jq -r '.status')"
-    [[ "${status}" == "n/a" ]] \
-      || fail "/list still has row for ${CATALOG}/${rule_name} status=${status} (row: ${match})"
-  fi
+    if [[ "${status}" == "n/a" ]]; then
+      return 0
+    fi
+    if (( $(date +%s) >= deadline )); then
+      fail "/list still has row for ${CATALOG}/${rule_name} status=${status} within ${APPLY_LAND_S}s (row: ${match})"
+    fi
+    sleep 2
+  done
 }
 
 # Per-phase entity scope. SHAPE-BREAK reshapes the metric from SERVICE to
@@ -445,6 +528,7 @@ log "=== Phase 1: CREATE seed-rule.yaml ==="
 step_set "create"
 resp="$(post_rule "${SEED_RULES_DIR}/seed-rule.yaml")"
 assert_apply_status "structural_applied" "${resp}"
+await_apply_terminal "${resp}"
 list_row "ACTIVE" >/dev/null
 hash_initial="$(list_row ACTIVE | jq -r '.contentHash')"
 log "  initial contentHash=${hash_initial}"
@@ -455,7 +539,10 @@ log "=== Phase 2: UPDATE-FILTER seed-rule-filter-only.yaml ==="
 step_set "update_filter"
 resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-filter-only.yaml")"
 assert_apply_status "filter_only_applied" "${resp}"
-hash_filter_only="$(list_row ACTIVE | jq -r '.contentHash')"
+await_apply_terminal "${resp}"
+# FILTER_ONLY persists synchronously (no applyId), so the new hash is already durable here; the
+# differ-gate still hardens the read against any list lag and proves the row actually advanced.
+hash_filter_only="$(list_row ACTIVE "${NAME}" "${hash_initial}" | jq -r '.contentHash')"
 [[ "${hash_filter_only}" != "${hash_initial}" ]] \
   || fail "FILTER_ONLY apply did not advance /list contentHash"
 log "  contentHash advanced to ${hash_filter_only}"
@@ -466,7 +553,11 @@ log "=== Phase 3: UPDATE-STRUCTURAL seed-rule-structural.yaml ==="
 step_set "structural"
 resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-structural.yaml" "allowStorageChange=true")"
 assert_apply_status "structural_applied" "${resp}"
-hash_structural="$(list_row ACTIVE | jq -r '.contentHash')"
+await_apply_terminal "${resp}"
+# STRUCTURAL update of an already-ACTIVE row: status stays ACTIVE across the async apply, so gate on
+# the contentHash advancing past the filter-only hash, not just on status — otherwise the read races
+# the background fence→persist tail and returns the stale pre-apply hash.
+hash_structural="$(list_row ACTIVE "${NAME}" "${hash_filter_only}" | jq -r '.contentHash')"
 [[ "${hash_structural}" != "${hash_filter_only}" ]] \
   || fail "STRUCTURAL apply did not advance /list contentHash"
 log "  contentHash advanced to ${hash_structural}"
@@ -569,6 +660,7 @@ log "=== Phase 5h: HAPPY-PATH + RESTART dynamic-LAYER round-trip ==="
 struct_baseline="$(latest_bucket_id_for_step "e2e_rr_requests" "structural")"
 resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-sibling-with-layer.yaml" "" "${SIBLING_NAME}")"
 assert_apply_status "structural_applied" "${resp}"
+await_apply_terminal "${resp}" "${SIBLING_NAME}"
 list_row "ACTIVE" "${SIBLING_NAME}" >/dev/null
 sleep 2
 layers_after_create="$(swctl --display yaml \
@@ -644,6 +736,7 @@ step_set "shape_break_new"
 log "  POST INSTANCE-scope rule v4"
 resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-instance.yaml")"
 assert_apply_status "structural_applied" "${resp}"
+await_apply_terminal "${resp}"
 hash_shape_break="$(list_row ACTIVE | jq -r '.contentHash')"
 log "  contentHash after shape break = ${hash_shape_break}"
 # Rule v4 is INSTANCE-scope; swctl now needs --instance-name to resolve
@@ -670,6 +763,7 @@ resp="$(post_rule "${SEED_RULES_DIR}/seed-rule-instance.yaml")"
 status="$(echo "${resp}" | jq -r '.applyStatus // empty')"
 [[ "${status}" == "structural_applied" || "${status}" == "no_change" ]] \
   || fail "ACTIVATE: unexpected applyStatus=${status} (full: ${resp})"
+await_apply_terminal "${resp}"
 list_row "ACTIVE" >/dev/null
 await_metric_for_step "e2e_rr_requests" "activate"
 # NOTE: we do NOT re-assert "no step=inactivate rows" here. Phase 7's in-window

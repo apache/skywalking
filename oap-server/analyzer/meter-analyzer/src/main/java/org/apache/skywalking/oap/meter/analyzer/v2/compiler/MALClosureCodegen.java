@@ -300,9 +300,24 @@ final class MALClosureCodegen {
         } else if (expr instanceof MALExpressionModel.ClosureElvisExpr) {
             final MALExpressionModel.ClosureElvisExpr elvis =
                 (MALExpressionModel.ClosureElvisExpr) expr;
-            sb.append("java.util.Optional.ofNullable(");
+            // Groovy `?:` applies the fallback when the primary is falsy (null,
+            // empty string/container, numeric zero, false), not only when null.
+            // Keep the primary single-evaluated so expressions such as tags.remove(...)
+            // do not observe different values between the truth check and result.
+            //
+            // KNOWN LIMITATION (eager fallback): elvis(primary, fallback) is a plain method call,
+            // so Java evaluates BOTH arguments before elvis() runs — the fallback is always
+            // computed, even when the primary is truthy. This matches Groovy's falsy-SELECTION but
+            // not its lazy EVALUATION: a fallback that mutates state or is expensive still runs.
+            // True laziness would need the fallback wrapped in a Supplier (or an inlined ternary
+            // over a generated temp), which Javassist cannot emit (no lambdas; expression context
+            // has no statement slot for a temp). Accepted because real MAL fallbacks are pure,
+            // cheap reads (`tags['x'] ?: tags['y']`, `metricA ?: metricB`) — side-effecting/expensive
+            // fallbacks do not occur in practice. Revisit via a Supplier-companion codegen pass if
+            // that ever changes.
+            sb.append(MALCodegenHelper.RUNTIME_HELPER_FQCN).append(".elvis(");
             generateClosureExpr(sb, elvis.getPrimary(), paramName, beanMode);
-            sb.append(").orElse(");
+            sb.append(", ");
             generateClosureExpr(sb, elvis.getFallback(), paramName, beanMode);
             sb.append(")");
         } else if (expr instanceof MALExpressionModel.ClosureRegexMatchExpr) {

@@ -150,6 +150,13 @@ public final class DSLManager {
     @Getter
     private final long selfHealThresholdMs;
 
+    /** Timeout for the runtime-rule deferred/batched BanyanDB schema fence on the operator REST
+     *  apply path (default 3 min). Read via {@link #getDeferredFenceTimeoutMs()} by the REST
+     *  orchestrator, which builds the deferred-fence opt with it
+     *  ({@code RuntimeRuleModuleConfig.deferredFenceTimeoutSeconds}). */
+    @Getter
+    private final long deferredFenceTimeoutMs;
+
     /** Lock-observability wrapper. Owned by the DSLManager; the REST handler borrows via
      *  {@link #getLockMetrics()} so every lock acquire path reports to the same histograms. */
     @Getter
@@ -183,12 +190,14 @@ public final class DSLManager {
     private final RuleEngineRegistry engineRegistry;
 
     public DSLManager(final ModuleManager moduleManager,
-                      final long selfHealThresholdMs) {
+                      final long selfHealThresholdMs,
+                      final long deferredFenceTimeoutMs) {
         this.moduleManager = Objects.requireNonNull(moduleManager, "moduleManager");
         this.engineRegistry = new RuleEngineRegistry();
         this.engineRegistry.register(new MalRuleEngine(this.rules, this.moduleManager));
         this.engineRegistry.register(new LalRuleEngine(this.rules, this.moduleManager));
         this.selfHealThresholdMs = selfHealThresholdMs;
+        this.deferredFenceTimeoutMs = deferredFenceTimeoutMs;
         this.lockMetrics =
             new LockMetrics(moduleManager);
         this.suspendCoord = new SuspendResumeCoordinator(
@@ -361,7 +370,7 @@ public final class DSLManager {
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit) {
-        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChange());
+        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChangeDeferredFence());
     }
 
     /**
@@ -759,10 +768,10 @@ public final class DSLManager {
             selfMain = MainRouter.isSelfMain(apm);
         } catch (final Throwable t) {
             // Cluster module not wired (embedded / single-process) — always main.
-            return StorageManipulationOpt.withSchemaChange();
+            return StorageManipulationOpt.withSchemaChangeDeferredFence();
         }
         if (selfMain) {
-            return StorageManipulationOpt.withSchemaChange();
+            return StorageManipulationOpt.withSchemaChangeDeferredFence();
         }
         return atBoot
             ? StorageManipulationOpt.verifySchemaOnly()

@@ -76,6 +76,49 @@ list_field() {
     list_row "${catalog}" "${name}" | jq -r '."'"${field}"'" // empty'
 }
 
+# Budget for an async apply to land in /list. A NEW / STRUCTURAL addOrUpdate is async: it returns
+# immediately at FENCING and the rule row is persisted only AFTER a background schema fence, so a
+# single read right after the 2xx can miss the row (or read a stale contentHash). The waiters below
+# poll within this budget. FILTER_ONLY edits persist synchronously, so they return on the first poll.
+APPLY_LAND_S="${APPLY_LAND_S:-200}"
+
+# Poll until the (catalog,name) row reaches expected_status, up to APPLY_LAND_S.
+await_status() {
+    local catalog="$1" name="$2" expected="$3"
+    log "  await /list ${catalog}/${name} status=${expected} (budget ${APPLY_LAND_S}s)"
+    local deadline=$(( $(date +%s) + APPLY_LAND_S )) got=""
+    while true; do
+        got="$(list_field "${catalog}" "${name}" status)"
+        [ "${got}" = "${expected}" ] && return 0
+        if [ "$(date +%s)" -ge "${deadline}" ]; then
+            fail "${catalog}/${name} did not reach status='${expected}' within ${APPLY_LAND_S}s (last='${got}')"
+        fi
+        sleep 2
+    done
+}
+
+# Poll until the (catalog,name) row is ACTIVE with a contentHash different from prev, then echo the
+# new hash. The wait-condition for a swap whose status stays ACTIVE before and after the apply, so
+# the contentHash advancing is the only signal the new content actually landed (subsumes the
+# async-persist window and a possible STRUCTURAL classification of the swap).
+await_hash_changed() {
+    local catalog="$1" name="$2" prev="$3"
+    log "  await /list ${catalog}/${name} contentHash≠${prev:0:8}… (budget ${APPLY_LAND_S}s)"
+    local deadline=$(( $(date +%s) + APPLY_LAND_S )) status="" hash=""
+    while true; do
+        status="$(list_field "${catalog}" "${name}" status)"
+        hash="$(list_field "${catalog}" "${name}" contentHash)"
+        if [ "${status}" = "ACTIVE" ] && [ -n "${hash}" ] && [ "${hash}" != "${prev}" ]; then
+            echo "${hash}"
+            return 0
+        fi
+        if [ "$(date +%s)" -ge "${deadline}" ]; then
+            fail "${catalog}/${name} contentHash did not advance past '${prev:0:8}…' within ${APPLY_LAND_S}s (last status='${status}' hash='${hash:0:8}…')"
+        fi
+        sleep 2
+    done
+}
+
 apply_rule() {
     local catalog="$1" name="$2" body="$3"
     admin runtime-rule add --catalog "${catalog}" --name "${name}" -f "${body}" >/dev/null \
@@ -155,15 +198,13 @@ log "OAP ready"
 # --- Phase 0: apply log-mal aggregation -----------------------------------------------
 log "=== Phase 0: apply log-mal aggregation rule ==="
 apply_rule "${MAL_CATALOG}" "${MAL_NAME}" "${SEED_MAL}"
-mal_status="$(list_field "${MAL_CATALOG}" "${MAL_NAME}" status)"
-[ "${mal_status}" = "ACTIVE" ] || fail "MAL rule expected ACTIVE, got '${mal_status}'"
+await_status "${MAL_CATALOG}" "${MAL_NAME}" "ACTIVE"
 log "log-mal → ACTIVE"
 
 # --- Phase 1: apply LAL v1 ------------------------------------------------------------
 log "=== Phase 1: apply LAL v1 (extractor stamps step=v1) ==="
 apply_rule "${LAL_CATALOG}" "${LAL_NAME}" "${SEED_V1}"
-status="$(list_field "${LAL_CATALOG}" "${LAL_NAME}" status)"
-[ "${status}" = "ACTIVE" ] || fail "v1 expected ACTIVE, got '${status}'"
+await_status "${LAL_CATALOG}" "${LAL_NAME}" "ACTIVE"
 hash_v1="$(list_field "${LAL_CATALOG}" "${LAL_NAME}" contentHash)"
 [ -n "${hash_v1}" ] || fail "v1 contentHash empty"
 log "v1 → ACTIVE @ ${hash_v1:0:8}…"
@@ -172,10 +213,7 @@ await_metric_for_step "v1"
 # --- Phase 2: swap to LAL v2 (same key, step flips to v2) -----------------------------
 log "=== Phase 2: swap to LAL v2 (extractor stamps step=v2) ==="
 apply_rule "${LAL_CATALOG}" "${LAL_NAME}" "${SEED_V2}"
-status="$(list_field "${LAL_CATALOG}" "${LAL_NAME}" status)"
-[ "${status}" = "ACTIVE" ] || fail "v2 expected ACTIVE, got '${status}'"
-hash_v2="$(list_field "${LAL_CATALOG}" "${LAL_NAME}" contentHash)"
-[ "${hash_v2}" != "${hash_v1}" ] || fail "v2 contentHash unchanged from v1 (${hash_v2:0:8}…)"
+hash_v2="$(await_hash_changed "${LAL_CATALOG}" "${LAL_NAME}" "${hash_v1}")"
 log "v2 → ACTIVE @ ${hash_v2:0:8}… (was ${hash_v1:0:8}…) — swap applied"
 await_metric_for_step "v2"
 

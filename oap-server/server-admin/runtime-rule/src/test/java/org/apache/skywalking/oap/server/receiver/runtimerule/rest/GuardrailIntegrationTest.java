@@ -146,8 +146,9 @@ class GuardrailIntegrationTest {
             .thenReturn(mock(StructuralCommitCoordinator.class));
         when(dslManager.getDslRuntimeDelete())
             .thenReturn(mock(DSLRuntimeDelete.class));
-        // Stub both overloads — the REST handler calls the single-arg form on the
-        // FILTER_ONLY path and the two-arg form (deferCommit=true) on STRUCTURAL.
+        // Stub all overloads — the REST handler calls the single-arg form on the FILTER_ONLY
+        // path, and the three-arg form (deferCommit=true + the orchestrator-owned fence opt) on
+        // STRUCTURAL; the two-arg form is kept stubbed for any legacy caller.
         when(dslManager.applyNowForRuleFile(any())).thenAnswer(inv -> {
             final Object arg = inv.getArgument(0);
             if (arg instanceof RuntimeRuleManagementDAO.RuntimeRuleFile) {
@@ -158,6 +159,15 @@ class GuardrailIntegrationTest {
             return null;
         });
         when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean())).thenAnswer(inv -> {
+            final Object arg = inv.getArgument(0);
+            if (arg instanceof RuntimeRuleManagementDAO.RuntimeRuleFile) {
+                final RuntimeRuleManagementDAO.RuntimeRuleFile file =
+                    (RuntimeRuleManagementDAO.RuntimeRuleFile) arg;
+                return DSLRuntimeState.running(file.getCatalog(), file.getName(), "h", 0L);
+            }
+            return null;
+        });
+        when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean(), any())).thenAnswer(inv -> {
             final Object arg = inv.getArgument(0);
             if (arg instanceof RuntimeRuleManagementDAO.RuntimeRuleFile) {
                 final RuntimeRuleManagementDAO.RuntimeRuleFile file =
@@ -199,7 +209,7 @@ class GuardrailIntegrationTest {
         assertHttp(resp, HttpStatus.OK);
         // STRUCTURAL path uses the two-arg overload (deferCommit=true) so row-persist
         // failure can cleanly roll back.
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -212,7 +222,7 @@ class GuardrailIntegrationTest {
             HttpData.ofUtf8(INSTANCE_YAML));
 
         assertHttp(resp, HttpStatus.OK);
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -249,7 +259,7 @@ class GuardrailIntegrationTest {
         assertHttp(resp, HttpStatus.OK);
         // Non-empty addedMetrics makes this STRUCTURAL (NEW classification on first apply
         // or STRUCTURAL on update) — goes through the deferred-commit path.
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     // ---- LAL scenarios --------------------------------------------------------------------
@@ -300,7 +310,7 @@ class GuardrailIntegrationTest {
         assertHttp(resp, HttpStatus.OK);
         // LAL always routes through the STRUCTURAL path (classifyLal reports STRUCTURAL on
         // every content change), so the two-arg overload fires.
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -315,7 +325,7 @@ class GuardrailIntegrationTest {
             HttpData.ofUtf8(twoRules));
 
         assertHttp(resp, HttpStatus.OK);
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     // ---- helpers --------------------------------------------------------------------------

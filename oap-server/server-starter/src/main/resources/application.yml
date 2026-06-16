@@ -718,6 +718,13 @@ receiver-runtime-rule:
     refreshRulesPeriod: ${SW_RECEIVER_RUNTIME_RULE_REFRESH_RULES_PERIOD:30}
     # SUSPENDED state self-heal threshold (seconds).
     selfHealThresholdSeconds: ${SW_RECEIVER_RUNTIME_RULE_SELF_HEAL_THRESHOLD_SECONDS:60}
+    # Timeout (seconds) for the runtime-rule deferred BanyanDB schema fence on the operator REST
+    # apply: the background wait for every data node to apply a new measure's schema revision. The
+    # apply returns immediately at FENCING (accepted, not yet durable); the rule row is persisted
+    # only after the fence confirms, then dispatch resumes. Poll GET /runtime/rule/status for
+    # fencing -> rolling-out -> applied (or degraded/failed). Inline/static/delete fences keep the
+    # short 2s constant.
+    deferredFenceTimeoutSeconds: ${SW_RECEIVER_RUNTIME_RULE_DEFERRED_FENCE_TIMEOUT_SECONDS:180}
 
 # DSL Debug API — sampling debugger for MAL / LAL / OAL rules. Read-only OAL
 # listing under /runtime/oal/*; session control plane under /dsl-debugging/*.

@@ -40,7 +40,13 @@ public class BanyanDBNoneStreamDAO extends AbstractDAO<BanyanDBStorageClient> im
 
     @Override
     public void insert(Model model, NoneStream noneStream) throws IOException {
+        // Self-heal a missing local schema entry once (RPC-free re-derivation) before failing —
+        // see MetadataRegistry.repopulateLocally. Re-read via the same lookup; throw only if still absent.
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(model.getName());
+        if (schema == null) {
+            MetadataRegistry.INSTANCE.repopulateLocally(model);
+            schema = MetadataRegistry.INSTANCE.findRecordMetadata(model.getName());
+        }
         if (schema == null) {
             throw new IOException(model.getName() + " is not registered");
         }

@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.RuntimeRuleClusterClient;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.RuntimeRuleClusterServiceImpl;
 import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLManager;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.SchemaApplyCoordinator;
 import org.apache.skywalking.oap.server.receiver.runtimerule.rest.RuntimeRuleRestHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
@@ -218,6 +219,11 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
      * unchanged bundles.
      */
     private static final long SCHEDULER_INITIAL_DELAY_SECONDS = 2L;
+    /** Retain a tracked apply-status this long after its last update so a post-apply UI poll (and
+     *  a post-refresh content query) still resolves, then reap it to bound memory. */
+    private static final long APPLY_STATUS_TTL_MS = 3_600_000L;
+    /** How often the apply-status eviction sweep runs on the reconciler executor. */
+    private static final long APPLY_STATUS_EVICT_INTERVAL_SECONDS = 300L;
 
     /**
      * Env var carrying this OAP's unique per-node identity — the Kubernetes pod UID, injected
@@ -271,7 +277,8 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
         // RuleEngineRegistry from the per-DSL state maps it owns.
         dslManager = new DSLManager(
             getManager(),
-            moduleConfig.getSelfHealThresholdSeconds() * 1000L
+            moduleConfig.getSelfHealThresholdSeconds() * 1000L,
+            moduleConfig.getDeferredFenceTimeoutSeconds() * 1000L
         );
 
         // Cluster-facing Suspend client: fans out to every non-self peer on the OAP cluster bus
@@ -406,6 +413,16 @@ public class RuntimeRuleModuleProvider extends ModuleProvider {
         );
         log.info("Runtime rule dslManager scheduled: first tick in {} s, then every {} s.",
             SCHEDULER_INITIAL_DELAY_SECONDS, intervalSeconds);
+
+        // Bound the apply-status coordinator's memory: reap tracked applies past the retention
+        // window (terminal ones linger long enough for a post-apply UI poll; a stale PENDING from
+        // a missed branch is reaped too — a later query then returns UNKNOWN and the caller falls
+        // back to the durable content hash). Reuses the same single-thread executor; the sweep is
+        // O(tracked) and cheap.
+        reconcilerExecutor.scheduleWithFixedDelay(
+            () -> SchemaApplyCoordinator.INSTANCE.evictExpired(APPLY_STATUS_TTL_MS),
+            APPLY_STATUS_EVICT_INTERVAL_SECONDS, APPLY_STATUS_EVICT_INTERVAL_SECONDS, TimeUnit.SECONDS
+        );
     }
 
     /**

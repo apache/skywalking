@@ -55,11 +55,20 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
         // which made the contract a half-truth. Gate ahead of isExists so a peer apply
         // is genuinely zero-RPC.
         if (!flags.isInspectBackend()) {
+            // Local-cache-only (peer reconciler) tick: zero server RPCs, but the local schema
+            // cache MUST still be (re)derived from the declared model — the inspectBackend flag
+            // contract requires exactly this. Without it, a peer holds a live dispatch worker
+            // whose cache entry is either missing (first apply) or STALE (a reshape re-fires
+            // whenCreating with a new shape after StorageModels.remove+add). The read-side
+            // self-heal only fills a MISSING entry, never refreshes a stale one, so the peer
+            // would keep translating writes with the old shape. RPC-free; no-op for backends
+            // without a local schema cache (ES, JDBC).
+            populateLocalCacheOnly(model, opt);
             opt.recordOutcome("table", model.getName(),
                 StorageManipulationOpt.Outcome.SKIPPED_NOT_ALLOWED,
                 "local-cache-only mode; main-node is expected to have installed this resource");
             log.debug(
-                "install: model [{}] not installed; local-cache-only mode — skipping (no isExists probe)",
+                "install: model [{}] not installed; local-cache-only mode — local schema cache refreshed, no isExists probe",
                 model.getName()
             );
             return;
@@ -99,19 +108,38 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
         // resource that only this very apply would ever create.
         if (deferDDLToInitNode(opt)) {
             while (true) {
-                InstallInfo info = isExists(model, opt);
-                if (!info.isAllExist()) {
-                    try {
+                boolean allExist;
+                try {
+                    InstallInfo info = isExists(model, opt);
+                    allExist = info.isAllExist();
+                    if (!allExist) {
                         log.info(
                             "install info: {}.table for model: [{}] not all required resources exist. OAP is running in 'no-init' mode, waiting create or update... retry 3s later.",
                             info.buildInstallInfoMsg(), model.getName()
                         );
-                        Thread.sleep(3000L);
-                    } catch (InterruptedException e) {
-                        log.error(e.getMessage());
                     }
-                } else {
+                } catch (final StorageException e) {
+                    if (!isRetryableNoInitProbeFailure(e)) {
+                        throw e;
+                    }
+                    // A transient backend error during the probe (e.g. a BanyanDB cluster data node
+                    // still Init-ing, "client connection is closing") is NOT a reason to abort boot:
+                    // the init OAP will create the resource and the next probe succeeds. Treat it like
+                    // "not present yet" and retry in-loop, rather than letting it escape and crash-loop
+                    // the pod — which would only re-enter this same loop after a full restart.
+                    allExist = false;
+                    log.warn("install info: existence probe for model: [{}] threw a transient backend "
+                        + "error. OAP is running in 'no-init' mode, retry 3s later.", model.getName(), e);
+                }
+                if (allExist) {
                     break;
+                }
+                try {
+                    Thread.sleep(3000L);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new StorageException(
+                        "interrupted while waiting for no-init backend resources for model " + model.getName(), e);
                 }
             }
             return;
@@ -143,12 +171,20 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
     @Override
     public void whenRemoving(Model model, StorageManipulationOpt opt) throws StorageException {
         if (!opt.getFlags().isDropOnRemoval()) {
+            // Peer (or boot path that never drops): the backend drop is the main node's job,
+            // but this node must still evict its own local schema-cache entry so a removed
+            // model leaves no stale translation behind in an otherwise insert-only cache.
+            // RPC-free; no-op for backends without a local cache.
+            evictLocalCache(model);
             opt.recordOutcome("table", model.getName(),
                 StorageManipulationOpt.Outcome.SKIPPED_NOT_ALLOWED,
                 "dropOnRemoval flag is off; server drop is main-node responsibility (or boot path that never drops)");
             return;
         }
         dropTable(model, opt);
+        // Evict only after a successful drop — a thrown dropTable leaves the model in the
+        // registry for retry (see StorageModels.remove), so its cache entry must stay too.
+        evictLocalCache(model);
         opt.recordOutcome("table", model.getName(),
             StorageManipulationOpt.Outcome.DROPPED, null);
     }
@@ -168,6 +204,16 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      */
     protected static boolean deferDDLToInitNode(final StorageManipulationOpt opt) {
         return RunningMode.isNoInitMode() && opt.getFlags().isDeferDDLToInitNode();
+    }
+
+    /**
+     * Whether a {@link StorageException} from the no-init defer-loop existence probe is
+     * known to be transient and should be retried in-loop. The base implementation is
+     * conservative so permanent model/config errors do not become an infinite boot wait;
+     * storage backends opt in only for transport-level probe failures they can classify.
+     */
+    protected boolean isRetryableNoInitProbeFailure(final StorageException e) {
+        return false;
     }
 
     public void start() {
@@ -235,6 +281,30 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      */
     public void dropTable(Model model, StorageManipulationOpt opt) throws StorageException {
         dropTable(model);
+    }
+
+    /**
+     * Refresh THIS node's local schema cache for {@code model} from the declared model, with
+     * no server RPC. Called on the local-cache-only path
+     * ({@link StorageManipulationOpt.Flags#isInspectBackend() inspectBackend == false}, i.e.
+     * {@link StorageManipulationOpt#withoutSchemaChange()}), where the cluster main owns
+     * backend DDL and this node only needs an up-to-date entry to translate its own
+     * reads/writes. Backends with a local schema cache (BanyanDB) override to (re)derive and
+     * <strong>overwrite</strong> the entry — overwrite, not fill-if-absent, so a reshape that
+     * re-fires {@link #whenCreating} replaces a now-stale entry instead of leaving the old
+     * shape in place. Default no-op: backends without a local cache (ES, JDBC) have nothing to
+     * refresh.
+     */
+    protected void populateLocalCacheOnly(Model model, StorageManipulationOpt opt) throws StorageException {
+    }
+
+    /**
+     * Drop THIS node's local schema-cache entry for a removed {@code model}, with no server
+     * RPC. Called from {@link #whenRemoving} on every node so a removed model never leaves a
+     * stale translation in an otherwise insert-only cache. Default no-op: backends without a
+     * local schema cache (ES, JDBC) have nothing to evict; BanyanDB overrides.
+     */
+    protected void evictLocalCache(Model model) {
     }
 
     @Getter

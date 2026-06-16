@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.runtimerule.layer.AppliedClaims;
@@ -167,6 +168,24 @@ public class MalFileApplier {
             // caller to unregister metrics the old bundle owns and this apply never touched.
             layerRegistry.rollback(appliedClaims);
             throw new ApplyException("MAL compile failed for " + sourceName, t, Collections.emptySet());
+        }
+        // All DDL for this file's metrics is now fired. If the opt deferred its schema fence
+        // (batched apply via withSchemaChangeDeferredFence), run the single barrier here so the
+        // whole file waits ONCE instead of one fence per metric/downsampling. A fence timeout is
+        // a non-fatal WARN inside the closure; only a barrier transport error throws, which
+        // aborts this apply exactly as an inline per-resource fence would have.
+        //
+        // EXCEPTION: when fenceRunByCaller is set (the runtime-rule REST apply), the orchestrator
+        // runs the fence itself AFTER the durable commit + peer resume, on a background thread, so
+        // a long (3-min) cluster-propagation wait neither blocks the apply nor holds peers
+        // suspended. We only fire the DDL here and leave the closure for the caller to run.
+        if (!storageOpt.isFenceRunByCaller()) {
+            try {
+                storageOpt.runDeferredFence();
+            } catch (final StorageException e) {
+                layerRegistry.rollback(appliedClaims);
+                throw new ApplyException("schema fence failed for " + sourceName, e, metricNames);
+            }
         }
         return new Applied(rule, convert, metricNames, ruleLoader, appliedClaims);
     }

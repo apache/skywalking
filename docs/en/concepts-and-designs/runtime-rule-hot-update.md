@@ -220,29 +220,51 @@ Two paths, picked from the diff between the new content and the current entry:
   the same fast path. No cluster pause, no backend schema change, no alarm reset.
 - **Structural path** — anything that moves metric identity (metric set added or
   removed, scope or downsampling function changed, LAL `(layer, ruleName)` set
-  changed). The main runs:
-  1. **Pause the cluster** — broadcast a pause to every peer over the cluster bus.
+  changed). The main runs, in order:
+  1. **Pause the cluster** — self-suspend first (so a concurrent peer apply is
+     detected, not merged), then broadcast a pause to every peer over the cluster bus.
      Peers stop dispatching samples for the affected metrics and drain in-flight
      batches. Unreachable peers are logged and skipped; they self-recover via the
      periodic scan.
-  2. **Update backend storage on this node**, including the schema-visibility fence on
-     BanyanDB (see below).
-  3. **Persist the entry** — this is the cluster-wide commit point.
-  4. **Resume the cluster** — broadcast a resume so peers re-open dispatch. Peers
-     that missed the resume self-heal within 60 s.
-  5. **Reset alarm windows** for any metric whose identity changed, so accumulated
-     state doesn't carry across the change.
+  2. **Fire the backend DDL on this node** — create / update the BanyanDB measures
+     for the metrics this rule produces. This returns the schema revision but does
+     **not** yet make the rule the cluster's truth.
 
-If any step before persist fails, the entry is **not** advanced, the local node
-rolls back to the previous rule state, peers self-heal back to the old content within
-60 s, and the operator gets `HTTP 500` with `applyStatus` indicating the failure.
+  At this point the HTTP call returns `applyId` with phase `FENCING` — **accepted, not
+  yet durable** — and the remaining steps run in the background so a slow data node
+  never blocks the operator. The operator polls `GET /runtime/rule/status` (see the
+  admin-API doc) to watch the rest:
+  3. **Schema-visibility fence** — wait (up to a configurable budget, default 3 min)
+     for every BanyanDB data node to apply the new measure schema (see below).
+  4. **Persist the entry** — this is the cluster-wide commit point, and it happens
+     **after** the fence, so a durable entry always implies "schema propagated
+     cluster-wide".
+  5. **Finalize + resume** — finalize the local commit (swap the bundle, reset alarm
+     windows for any metric whose identity changed, unpark local dispatch) and
+     resume / notify peers so they converge to the new entry. Peers that missed the
+     notify self-heal within 60 s.
 
-If persist itself fails, the same rollback happens — the durable state never moved,
-so neither does the cluster.
+Because persist (step 4) is gated behind the fence (step 3), the ordering is
+**pause → DDL → fence → persist → commit → resume**, and crash recovery is safe at
+every point: a crash before persist leaves no entry — peers and the recovered main
+stay on the old content (the orphaned measure from the DDL is inert) — and any entry
+that *is* durable was fence-confirmed before it was written, so a peer converging to
+it via the periodic scan never resumes dispatch against an unpropagated schema.
 
-If persist succeeds but the local finishing step fails (a rare path), the operator
-gets `HTTP 500 commit_deferred`: storage holds the new content (peers will converge
-on it), but this node hasn't fully applied it yet and will retry on its next scan.
+Outcomes (all observed by polling `/runtime/rule/status`, not by blocking the HTTP
+call, which already returned at `FENCING`):
+
+- **Pre-DDL error** (compile / verify) — phase `FAILED`; the entry was never advanced
+  and the cluster keeps serving the prior rule. The HTTP call returns the error
+  synchronously (it happens before the `FENCING` return).
+- **Persist fails** — phase `FAILED`; the local node rolls back to the prior rule and
+  resumes peers. The durable state never moved, so neither does the cluster.
+- **Fence does not confirm within the budget** — phase `DEGRADED` with the lagging
+  node ids; dispatch resumes anyway (a stuck node must not park the metric forever),
+  and the schema converges through BanyanDB's own watcher.
+- **Local finalize fails after persist** — phase `DEGRADED`: storage holds the new
+  content and peers converge to it, but this node will retry the local finish on its
+  next scan.
 
 ### Lifecycle
 
@@ -367,36 +389,43 @@ gate — without it the system still converges.
 
 ## Schema-visibility fence (BanyanDB)
 
-BanyanDB's distributed mode propagates registry writes from the meta-server to
-every data node asynchronously. A naive flow — register the schema, immediately
-resume dispatch — has a race: the registry holds the new measure but a data node
-may not yet have caught up, so the first sample after the apply lands on an
-unprepared node.
+BanyanDB's distributed mode propagates schema writes from the meta-server to every
+data node asynchronously. A naive flow — register the schema, immediately resume
+dispatch — has a race: the registry holds the new measure but a data node may not
+yet have caught up, so a sample written before that node applies the schema is
+**silently dropped** at the data node (not retried). The fence is therefore a
+write-safety barrier, not just an observability check: it must gate dispatch resume.
 
-For runtime hot-updates this would mean the operator's `200 OK` could come back
-before the cluster's data boundary actually moved. The runtime-rule install path
-narrows the gap on a best-effort basis: every BanyanDB schema write returns an
-etcd `mod_revision`, and the installer waits — synchronously, before resuming
-dispatch, up to a bounded timeout (default 2s) — for every BanyanDB data node
-to catch up to the highest revision the apply produced.
+Every BanyanDB schema write returns a `mod_revision`. After firing the DDL the main
+waits — on a configurable budget (`deferredFenceTimeoutSeconds`, default 3 min) — for
+every data node to catch up to the highest revision the apply produced, and only then
+persists the rule entry, finalizes the local commit, and resumes dispatch. The wait
+runs in the **background**: the HTTP call has already returned `applyId` at phase
+`FENCING`, so a slow data node never blocks the operator, yet nothing durable or
+visible happens until the schema is confirmed.
 
-The visible contract for operators is:
+The contract for operators is:
 
-- Between operator request and `200 OK`, all sample dispatch for the affected
-  metric is paused on every node. In-flight samples are dropped (this is by
-  design: a structural change means the schema is moving and in-flight data has
-  no valid landing).
-- When all data nodes confirm within the bounded window, the `200 OK` marks the
-  moment the cluster's data boundary moves: samples written at or after the `200`
-  use the new shape; samples written before use the old shape.
-- When one or more nodes haven't applied within the window, OAP logs a warning
-  naming the laggards and resumes dispatch anyway. The schema is already
-  authoritative in etcd, so late nodes apply it asynchronously through their
-  watcher — until they do, samples landing on those specific nodes for that
-  metric may be rejected by the local data node briefly. This trades strict
-  cluster-wide cutover for not wedging an apply behind a single slow node;
-  operators who need strict behavior should fix the slow node, not loosen the
-  timeout.
+- The HTTP call returns at `FENCING` (accepted, not yet durable). Dispatch for the
+  affected metric stays paused on every node from the pause broadcast through the
+  fence; this is a clean collection gap, not dropped writes (no node is writing the
+  new shape yet). In-flight samples drained at pause are dropped by design — a
+  structural change moves the schema and in-flight data has no valid landing.
+- When all data nodes confirm within the budget, the entry is persisted and dispatch
+  resumes — the cluster's data boundary moves at that moment. The status advances
+  `FENCING → ROLLING_OUT → APPLIED`.
+- When one or more nodes haven't applied within the budget, OAP logs a warning naming
+  the laggards, persists + resumes **anyway**, and reports `DEGRADED` with the laggard
+  ids. The schema is already authoritative, so late nodes apply it through their own
+  watcher; until they do, samples landing on those specific nodes may be dropped
+  briefly. This trades strict cluster-wide cutover for not wedging an apply behind a
+  single slow node; operators who need strict behavior fix the slow node.
+
+Because persist is gated behind the fence, the fence's guarantee survives a main
+crash: a durable entry is always one whose schema was confirmed propagated, so a peer
+converging to it (via the periodic scan, which performs no backend RPC of its own)
+never resumes against an unpropagated schema. A crash before persist simply leaves no
+entry, and the cluster stays on the prior, already-fenced content.
 
 Elasticsearch and JDBC don't have multi-node schema fan-out; their storage change is
 visible when the call returns, so the fence is a no-op for those backends.
@@ -413,23 +442,29 @@ recovery path is the same path operators already use.
   storage_change_requires_explicit_approval`. No pause broadcast, no persist, no
   side effects. Re-push with `?allowStorageChange=true` if the change is
   intentional.
-- **Backend storage verification failed mid-apply** — `HTTP 500 ddl_verify_failed`.
-  Newly added metrics are rolled back so the backend doesn't accumulate orphans; the prior
+- **Backend storage verification failed mid-apply** — `HTTP 400 ddl_verify_failed`
+  (this happens during the synchronous DDL step, before the `FENCING` return). Newly
+  added metrics are rolled back so the backend doesn't accumulate orphans; the prior
   rule keeps serving every metric that wasn't being added or reshaped.
-  `lastApplyError` on `/runtime/rule/list` carries the failure message.
-- **Persist failed** — `HTTP 500 persist_failed`. Local state is rolled back to
-  the pre-apply rule; peers self-heal within 60 s. The cluster never advanced
-  past the failure.
-- **Persist succeeded but the local finishing step failed** — `HTTP 500 commit_deferred`.
-  Storage is authoritative (peers will converge), but this node will retry on
-  its next periodic scan.
 - **Cluster routing fail-safe** — `HTTP 421 cluster_view_split` when a forwarded
   request reaches a node that also doesn't believe it's the main. Wait for the
   peer-list to settle (seconds) and retry.
 
-`GET /runtime/rule/list` is the canonical operator view of cluster state: persisted
-status, per-node `localState`, and `lastApplyError` for any rule whose most recent
-apply failed. There is no separate alert channel — `/list` plus the OAP log are
+The errors above are returned synchronously, before the call returns `applyId` at
+`FENCING`. The outcomes of the background tail (fence → persist → commit → resume) are
+observed by polling `GET /runtime/rule/status?applyId=…`, not by an HTTP code:
+
+- **Fence didn't confirm within the budget** — phase `DEGRADED` with the lagging node
+  ids; dispatch resumed anyway, schema converges via the data nodes' watcher.
+- **Persist failed** — phase `FAILED`; local state rolled back to the pre-apply rule,
+  peers self-heal within 60 s. The cluster never advanced (no durable entry).
+- **Local finishing step failed after persist** — phase `DEGRADED`; storage is
+  authoritative (peers converge), this node retries on its next periodic scan.
+
+`GET /runtime/rule/list` is the canonical operator view of cluster state (persisted
+status, per-node `localState`, `lastApplyError`); `GET /runtime/rule/status` reports a
+specific apply's live phase / laggards (and degrades to the durable entry when the
+apply-id is gone). There is no separate alert channel — those two plus the OAP log are
 the entire diagnostic surface.
 
 ## Dynamic layers

@@ -141,6 +141,23 @@ await_hash() {
     done
 }
 
+# Poll a node until its row is ACTIVE with a contentHash different from prev, then echo the new hash.
+# Needed after a STRUCTURAL apply on an already-ACTIVE row: the status stays ACTIVE across the async
+# apply (which returns at FENCING and persists the new content in the background after the schema
+# fence), so await_status "ACTIVE" returns on the first iteration with the OLD hash. Gating on the
+# contentHash advancing is the only signal the new content is durable on this node.
+await_hash_change() {
+    local base="$1" prev="$2" deadline=$(( $(date +%s) + CONVERGE_TIMEOUT_S ))
+    while true; do
+        local got; got="$(list_hash "${base}")"
+        [ -n "${got}" ] && [ "${got}" != "${prev}" ] && { echo "${got}"; return 0; }
+        if [ "$(date +%s)" -ge "${deadline}" ]; then
+            fail "${base} contentHash did not advance past '${prev:0:8}…' within ${CONVERGE_TIMEOUT_S}s (last='${got:0:8}…', applyError='$(list_apply_error "${base}")')"
+        fi
+        sleep 2
+    done
+}
+
 await_absent() {
     local base="$1" deadline=$(( $(date +%s) + CONVERGE_TIMEOUT_S ))
     while true; do
@@ -190,9 +207,10 @@ log "OAP-2 converged to ${hash_initial:0:8}…"
 # --- Phase 2: STRUCTURAL update on OAP-1 — second measure created on no-init --------
 log "=== Phase 2: STRUCTURAL on OAP-1 ==="
 apply_on "${OAP1_BASE}" "${SEED_STRUCT}" "allowStorageChange=true" >/dev/null
-await_status "${OAP1_BASE}" "ACTIVE"
+# Structural apply is async: wait for OAP-1's own contentHash to ADVANCE (the row is ACTIVE before
+# and after, so await_status "ACTIVE" alone would read the stale pre-apply hash) before capturing it.
+hash_struct="$(await_hash_change "${OAP1_BASE}" "${hash_initial}")"
 assert_no_apply_error "${OAP1_BASE}"
-hash_struct="$(list_hash "${OAP1_BASE}")"
 [ "${hash_struct}" != "${hash_initial}" ] || fail "OAP-1 contentHash unchanged after STRUCTURAL apply"
 log "OAP-1 → ACTIVE @ ${hash_struct:0:8}… (was ${hash_initial:0:8}…)"
 await_hash "${OAP2_BASE}" "${hash_struct}"

@@ -23,10 +23,18 @@ import com.google.gson.JsonObject;
 import io.grpc.stub.StreamObserver;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusPhase;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusRequest;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ApplyStatusResponse;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ForwardResponse;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedAck;
+import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.NotifyAppliedRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeAck;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeRequest;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.v1.ResumeState;
@@ -41,6 +49,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.SuspendRe
 import org.apache.skywalking.oap.server.receiver.runtimerule.rest.RuntimeRuleService;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleScript;
 import org.apache.skywalking.oap.server.receiver.runtimerule.state.DSLRuntimeState;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyPhase;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.ApplyStatus;
+import org.apache.skywalking.oap.server.receiver.runtimerule.status.SchemaApplyCoordinator;
 
 /**
  * Server-side handler for the three cluster-internal runtime-rule RPCs — see
@@ -97,9 +108,147 @@ public class RuntimeRuleClusterServiceImpl
     @Setter
     private volatile RuntimeRuleService runtimeRuleService;
 
+    /** Off-RPC-thread runner for notify-triggered reconciles so {@link #notifyApplied} acks
+     *  immediately. Single daemon thread — reconciles are per-file-locked + idempotent, so
+     *  serializing them is fine; daemon so it never blocks JVM shutdown. */
+    private final ExecutorService reconcileNudgeExecutor = Executors.newSingleThreadExecutor(r -> {
+        final Thread t = new Thread(r, "runtime-rule-notify-reconcile");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /** Coalesces a burst of NotifyApplied into a single queued reconcile. {@code dslManager.tick()}
+     *  is a full reconcile over every rule file, so when a multi-file apply (or several applies)
+     *  fires many notifies, the first queued tick already converges all of them — the rest would be
+     *  redundant full {@code dao.getAll()} scans. Set on schedule, cleared at the START of the task
+     *  so a notify arriving while a tick runs still queues exactly one follow-up (no lost update). */
+    private final AtomicBoolean tickPending = new AtomicBoolean(false);
+
     public RuntimeRuleClusterServiceImpl(final DSLManager dslManager, final String selfNodeId) {
         this.dslManager = dslManager;
         this.selfNodeId = selfNodeId;
+    }
+
+    /** Stop the off-thread reconcile-nudge executor. The framework's {@code ModuleProvider} has no
+     *  stop lifecycle hook, so in production this is not auto-invoked — the executor is a daemon
+     *  thread that never blocks JVM exit. Provided for clean test teardown and for a future module
+     *  shutdown hook; mirrors {@code RuntimeRuleService.shutdown()}. */
+    public void shutdown() {
+        reconcileNudgeExecutor.shutdownNow();
+    }
+
+    /**
+     * Push-notify from the main after a successful commit: converge NOW rather than on the next
+     * ~30s tick. Runs a full reconcile off the gRPC thread (idempotent, per-file-locked — unchanged
+     * files short-circuit on hash). Best-effort: the peer self-converges on its own tick if this is
+     * lost, so a self-broadcast or a schedule failure is non-fatal.
+     */
+    @Override
+    public void notifyApplied(final NotifyAppliedRequest request,
+                              final StreamObserver<NotifyAppliedAck> responseObserver) {
+        if (Objects.equals(selfNodeId, request.getSenderNodeId())) {
+            responseObserver.onNext(NotifyAppliedAck.newBuilder()
+                .setNodeId(selfNodeId).setAccepted(false)
+                .setDetail("self-broadcast suppressed").build());
+            responseObserver.onCompleted();
+            return;
+        }
+        boolean accepted = true;
+        // Not final: assigned in both the try and catch arms of the schedule attempt below.
+        String detail;
+        if (tickPending.compareAndSet(false, true)) {
+            try {
+                reconcileNudgeExecutor.submit(() -> {
+                    // Clear before running so a notify that arrives during this tick queues exactly
+                    // one follow-up rather than being dropped.
+                    tickPending.set(false);
+                    try {
+                        dslManager.tick();
+                    } catch (final Throwable t) {
+                        log.warn("runtime-rule NotifyApplied reconcile for {}/{} failed; peer will "
+                            + "self-converge on its next tick: {}",
+                            request.getCatalog(), request.getName(), t.getMessage());
+                    }
+                });
+                detail = "reconcile scheduled";
+            } catch (final Throwable t) {
+                // Submit rejected (executor shut down). Release the flag so the next notify retries.
+                tickPending.set(false);
+                accepted = false;
+                detail = "schedule failed; self-converge on next tick";
+                log.warn("runtime-rule NotifyApplied could not schedule reconcile for {}/{}: {}",
+                    request.getCatalog(), request.getName(), t.getMessage());
+            }
+        } else {
+            // A reconcile is already queued; this notify is covered by it. tick() is a full
+            // cluster-wide reconcile, so no per-file work is lost by coalescing.
+            detail = "coalesced into pending reconcile";
+        }
+        responseObserver.onNext(NotifyAppliedAck.newBuilder()
+            .setNodeId(selfNodeId)
+            .setAccepted(accepted)
+            .setDetail(detail)
+            .build());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * Read-only apply-status query, served by the main (only the main runs applies and holds the
+     * status). Resolves by apply_id when present, else by (catalog, name) gated on content_hash.
+     * Returns {@code found=false} / {@code APPLY_PHASE_UNKNOWN} when nothing matches — the caller
+     * falls back to comparing the durable content hash against the DAO row.
+     */
+    @Override
+    public void getApplyStatus(final ApplyStatusRequest request,
+                               final StreamObserver<ApplyStatusResponse> responseObserver) {
+        final ApplyStatus status;
+        if (!request.getApplyId().isEmpty()) {
+            status = SchemaApplyCoordinator.INSTANCE.get(request.getApplyId());
+        } else {
+            final String hash = request.getContentHash().isEmpty() ? null : request.getContentHash();
+            status = SchemaApplyCoordinator.INSTANCE.getLatestByFile(
+                request.getCatalog(), request.getName(), hash);
+        }
+        final ApplyStatusResponse.Builder resp = ApplyStatusResponse.newBuilder().setNodeId(selfNodeId);
+        if (status == null) {
+            resp.setFound(false).setPhase(ApplyStatusPhase.APPLY_PHASE_UNKNOWN);
+        } else {
+            resp.setFound(true)
+                .setApplyId(status.getApplyId())
+                .setCatalog(status.getCatalog())
+                .setName(status.getName())
+                .setContentHash(status.getContentHash() == null ? "" : status.getContentHash())
+                .setPhase(toProtoPhase(status.getPhase()))
+                .setFailureReason(status.getFailureReason() == null ? "" : status.getFailureReason())
+                .setStartedAtMs(status.getStartedAtMs())
+                .setUpdatedAtMs(status.getUpdatedAtMs());
+            if (status.getFenceLaggards() != null && !status.getFenceLaggards().isEmpty()) {
+                resp.addAllFenceLaggards(status.getFenceLaggards());
+            }
+        }
+        responseObserver.onNext(resp.build());
+        responseObserver.onCompleted();
+    }
+
+    private static ApplyStatusPhase toProtoPhase(final ApplyPhase phase) {
+        switch (phase) {
+            case PENDING:
+                return ApplyStatusPhase.APPLY_PHASE_PENDING;
+            case DDL:
+                return ApplyStatusPhase.APPLY_PHASE_DDL;
+            case FENCING:
+                return ApplyStatusPhase.APPLY_PHASE_FENCING;
+            case ROLLING_OUT:
+                return ApplyStatusPhase.APPLY_PHASE_ROLLING_OUT;
+            case APPLIED:
+                return ApplyStatusPhase.APPLY_PHASE_APPLIED;
+            case DEGRADED:
+                return ApplyStatusPhase.APPLY_PHASE_DEGRADED;
+            case FAILED:
+                return ApplyStatusPhase.APPLY_PHASE_FAILED;
+            default:
+                return ApplyStatusPhase.APPLY_PHASE_UNKNOWN;
+        }
     }
 
     @Override

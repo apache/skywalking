@@ -63,12 +63,29 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
         this.storageBuilder = storageBuilder;
     }
 
-    @Override
-    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+    /**
+     * Resolve the model's BanyanDB schema, self-healing a missing local entry once before failing.
+     * A null here means this node has a live persist worker for the model but its schema cache was
+     * never populated (or lost) — typically a {@code withoutSchemaChange} peer apply or a
+     * runtime-rule bundled fall-over that rebuilt the worker without the populate. Re-derive the
+     * schema locally with no server RPC and re-read; throw only if the entry is still absent, so
+     * a genuinely unknown model still fails fast instead of flooding forever.
+     */
+    private MetadataRegistry.Schema resolveSchema(Model model) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
         if (schema == null) {
-            throw new IOException(model.getName() + " is not registered");
+            MetadataRegistry.INSTANCE.repopulateLocally(model);
+            schema = MetadataRegistry.INSTANCE.findMetadata(model);
+            if (schema == null) {
+                throw new IOException(model.getName() + " is not registered");
+            }
         }
+        return schema;
+    }
+
+    @Override
+    public List<Metrics> multiGet(Model model, List<Metrics> metrics) throws IOException {
+        MetadataRegistry.Schema schema = resolveSchema(model);
         final Map<String, List<String>> seriesIDColumns = new HashMap<>();
         if (model.getBanyanDBModelExtension().isIndexMode()) {
             seriesIDColumns.put(ID, new ArrayList<>());
@@ -144,10 +161,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
 
     @Override
     public InsertRequest prepareBatchInsert(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
-        if (schema == null) {
-            throw new IOException(model.getName() + " is not registered");
-        }
+        MetadataRegistry.Schema schema = resolveSchema(model);
         MeasureWrite measureWrite = getClient().createMeasureWrite(schema.getMetadata().getGroup(), // group name
                 schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp
@@ -161,10 +175,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
 
     @Override
     public UpdateRequest prepareBatchUpdate(Model model, Metrics metrics, SessionCacheCallback callback) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
-        if (schema == null) {
-            throw new IOException(model.getName() + " is not registered");
-        }
+        MetadataRegistry.Schema schema = resolveSchema(model);
         MeasureWrite measureWrite = getClient().createMeasureWrite(schema.getMetadata().getGroup(), // group name
                 schema.getMetadata().name(), // measure-name
                 TimeBucket.getTimestamp(metrics.getTimeBucket(), model.getDownsampling())); // timestamp

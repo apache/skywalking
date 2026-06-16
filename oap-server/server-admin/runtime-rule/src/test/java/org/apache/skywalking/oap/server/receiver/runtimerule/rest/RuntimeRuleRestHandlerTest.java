@@ -58,6 +58,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -183,10 +184,10 @@ class RuntimeRuleRestHandlerTest {
 
         // Reactivation pushes through the STRUCTURAL/NEW path — expect 200 with a status
         // other than no_change. We don't assert on the exact applyStatus string here (that
-        // depends on classifier output); the key assertion is that the two-arg deferred-
-        // commit form of applyNowForRuleFile ran (STRUCTURAL path signature).
+        // depends on classifier output); the key assertion is that the three-arg deferred-
+        // commit + fence-opt form of applyNowForRuleFile ran (STRUCTURAL path signature).
         assertHttpStatus(resp, HttpStatus.OK);
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
     }
 
     @Test
@@ -205,8 +206,39 @@ class RuntimeRuleRestHandlerTest {
         assertHttpStatus(resp, HttpStatus.OK);
         // /addOrUpdate?force=true with byte-identical content → classifier returns
         // NO_CHANGE, handler falls through to applyStructural (not applyFilterOnly since
-        // NO_CHANGE != FILTER_ONLY) which uses the two-arg deferred-commit form.
-        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true));
+        // NO_CHANGE != FILTER_ONLY) which uses the three-arg deferred-commit + fence-opt form.
+        verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(true), any());
+    }
+
+    @Test
+    void applyStatusDegradesToDurableRowWhenLiveStatusGone() throws Exception {
+        // No live coordinator status for this (catalog,name) and no apply-id supplied — the query
+        // must fall back to the durable rule row. An ACTIVE row reports APPLIED derived from the
+        // content hash (persist-is-commit), so a page refresh after the applyId is gone still
+        // resolves instead of returning an opaque UNKNOWN.
+        final String yaml = minimalMalYaml();
+        whenDaoHasRow("otel-rules", "vm-statusfallback", yaml, RuntimeRule.STATUS_ACTIVE);
+
+        final HttpResponse resp = handler.applyStatus("otel-rules", "vm-statusfallback", "", "");
+
+        assertHttpStatus(resp, HttpStatus.OK);
+        final String body = resp.aggregate().toCompletableFuture().join().contentUtf8();
+        assertTrue(body.contains("\"found\":true"), body);
+        assertTrue(body.contains("\"phase\":\"APPLIED\""), body);
+        assertTrue(body.contains("\"derivedFrom\":\"durable-dao\""), body);
+    }
+
+    @Test
+    void applyStatusUnknownWhenNoLiveStatusAndNoDurableRow() throws Exception {
+        // Neither a live status nor a durable row for the queried apply → found=false / UNKNOWN.
+        when(dao.getAll()).thenReturn(Arrays.asList());
+
+        final HttpResponse resp = handler.applyStatus("otel-rules", "vm-none", "", "no-such-apply-id");
+
+        assertHttpStatus(resp, HttpStatus.OK);
+        final String body = resp.aggregate().toCompletableFuture().join().contentUtf8();
+        assertTrue(body.contains("\"found\":false"), body);
+        assertTrue(body.contains("UNKNOWN"), body);
     }
 
     @Test
@@ -534,6 +566,8 @@ class RuntimeRuleRestHandlerTest {
         // NEW paths use the two-arg form (deferCommit=true).
         when(dslManager.applyNowForRuleFile(any())).thenReturn(state);
         when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean())).thenReturn(state);
+        // STRUCTURAL apply now passes the orchestrator-owned fence opt → the three-arg overload.
+        when(dslManager.applyNowForRuleFile(any(), Mockito.anyBoolean(), any())).thenReturn(state);
         // Apply path needs SUSPENDED on localSuspend so the workflow proceeds. The other
         // subsystem getters were stubbed in setUp() with default mocks; here we just
         // override localSuspend to return SUSPENDED instead of the default null.

@@ -183,6 +183,7 @@
   "receiver-pprof.provider": "default",
   "receiver-profile.provider": "default",
   "receiver-register.provider": "default",
+  "receiver-runtime-rule.default.deferredFenceTimeoutSeconds": "180",
   "receiver-runtime-rule.default.refreshRulesPeriod": "30",
   "receiver-runtime-rule.default.selfHealThresholdSeconds": "60",
   "receiver-runtime-rule.provider": "default",

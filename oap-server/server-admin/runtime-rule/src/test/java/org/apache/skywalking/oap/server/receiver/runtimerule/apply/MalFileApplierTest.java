@@ -24,6 +24,7 @@ import java.util.Set;
 import javassist.ClassPool;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException;
 import org.apache.skywalking.oap.server.receiver.runtimerule.layer.RuntimeLayerRegistry;
@@ -132,6 +133,37 @@ class MalFileApplierTest {
         verify(meterSystem, times(2))
             .create(anyString(), anyString(), any(), any(ClassPool.class), any(ClassLoader.class),
                 any(StorageManipulationOpt.class));
+    }
+
+    @Test
+    void deferredFenceFailureRollsBackAndCarriesPartialMetricsForCallerRollback() throws Exception {
+        // The DDL for every metric fires first; the batched schema fence runs once at the end. A
+        // barrier transport error there must abort the apply as an ApplyException (so the REST
+        // caller rolls back), carrying the metric names registered before the fence so the caller
+        // knows what to unwind. Inline path (fenceRunByCaller=false) so the applier runs the fence.
+        final String yaml =
+            "metricPrefix: meter_vm\n"
+                + "expSuffix: service(['host'], Layer.OS_LINUX)\n"
+                + "metricsRules:\n"
+                + "  - name: cpu_total_percentage\n"
+                + "    exp: node_cpu_seconds_total.sum(['host']).rate('PT1M')\n"
+                + "  - name: mem_total_used_percentage\n"
+                + "    exp: node_memory_MemTotal_bytes.sum(['host'])\n";
+        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        opt.setDeferredFence(() -> {
+            throw new StorageException("barrier transport down");
+        });
+
+        final MalFileApplier.ApplyException ex = assertThrows(
+            MalFileApplier.ApplyException.class,
+            () -> applier.apply(yaml, "otel-rules/vm-fence", "hashF", opt));
+
+        assertTrue(ex.getMessage().contains("schema fence failed"),
+            "fence failure must surface as an apply error, not be swallowed");
+        assertEquals(
+            setOf("meter_vm_cpu_total_percentage", "meter_vm_mem_total_used_percentage"),
+            ex.getPartiallyRegistered(),
+            "metrics registered before the fence must be carried for the caller's rollback");
     }
 
     @Test

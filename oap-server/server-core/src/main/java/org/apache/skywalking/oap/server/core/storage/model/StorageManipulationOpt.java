@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+import org.apache.skywalking.oap.server.core.storage.StorageException;
 
 /**
  * Per-call policy + outcome for a storage model manipulation — threaded through the
@@ -308,6 +311,37 @@ public final class StorageManipulationOpt {
     }
 
     /**
+     * {@link Mode#WITH_SCHEMA_CHANGE} but with the post-install schema fence DEFERRED. The
+     * installer records each resource's {@code mod_revision} without fencing, then registers a
+     * single flush via {@link #setDeferredFence(DeferredFence)}; the caller runs that flush ONCE
+     * with {@link #runDeferredFence()} after the whole apply (e.g. a multi-rule file) so the
+     * bundle waits on one barrier instead of one fence per metric/downsampling. All flags are
+     * identical to {@link #withSchemaChange()} — only the create/update fence is batched; drops
+     * still fence inline.
+     */
+    public static StorageManipulationOpt withSchemaChangeDeferredFence() {
+        final StorageManipulationOpt opt = new StorageManipulationOpt(Mode.WITH_SCHEMA_CHANGE);
+        opt.deferFence = true;
+        return opt;
+    }
+
+    /**
+     * {@link #withSchemaChangeDeferredFence()} with an explicit batched-fence timeout. Used by the
+     * runtime-rule operator apply, which fences on a generous cluster-propagation budget (default
+     * 3 min, configurable) instead of the installer's short inline default — the apply is async +
+     * progress-queryable, so a long single wait is affordable. The inline/static/delete fence paths
+     * (which never set a timeout here) keep the installer's short constant.
+     *
+     * @param timeout the batched-fence wait; passed to the backend via {@link #getFenceTimeoutMs()}.
+     * @return a deferred-fence opt carrying {@code timeout}.
+     */
+    public static StorageManipulationOpt withSchemaChangeDeferredFence(final Duration timeout) {
+        final StorageManipulationOpt opt = withSchemaChangeDeferredFence();
+        opt.fenceTimeoutMs = timeout == null ? 0L : timeout.toMillis();
+        return opt;
+    }
+
+    /**
      * True for {@link Mode#WITH_SCHEMA_CHANGE}. The on-demand operator workflow — drops,
      * updates, and reshapes are permitted because the caller explicitly asked for them.
      */
@@ -378,6 +412,115 @@ public final class StorageManipulationOpt {
      */
     public long getMaxModRevision() {
         return maxModRevision.get();
+    }
+
+    /**
+     * A storage-backend schema fence whose execution is deferred to the end of a batched
+     * apply. The backend installer (e.g. BanyanDB) registers one on a
+     * {@link #withSchemaChangeDeferredFence()} opt instead of fencing per resource; the apply
+     * orchestration runs it once via {@link #runDeferredFence()}. Implemented as a closure in
+     * the storage plugin so core stays backend-agnostic (same pattern as the local-cache
+     * populator). A timeout inside the fence is a non-fatal WARN; only a barrier transport
+     * error surfaces as {@link StorageException}.
+     */
+    @FunctionalInterface
+    public interface DeferredFence {
+        void await() throws StorageException;
+    }
+
+    /**
+     * True only for {@link #withSchemaChangeDeferredFence()}. The installer reads this to skip
+     * the per-resource create/update fence and register a single {@link DeferredFence} instead.
+     */
+    @Getter
+    private boolean deferFence = false;
+
+    private volatile DeferredFence deferredFence;
+
+    /**
+     * Batched-fence wait in millis, or {@code 0} (the default) meaning "use the backend installer's
+     * own short constant". Set only by {@link #withSchemaChangeDeferredFence(Duration)} on the
+     * runtime-rule operator path; the backend reads it when running the deferred fence so the
+     * inline/static/delete paths (which leave it {@code 0}) keep the short timeout.
+     */
+    @Getter
+    private long fenceTimeoutMs = 0L;
+
+    /**
+     * True when the CALLER (the apply orchestrator) runs {@link #runDeferredFence()} itself —
+     * typically on a background thread after the durable commit — rather than the backend installer
+     * running it inline at the end of the apply. The runtime-rule REST apply sets this so the long
+     * (3-min) fence does not block the apply / hold peers suspended; the reconciler tick leaves it
+     * {@code false} so the installer keeps fencing inline with the short timeout.
+     */
+    @Getter
+    @Setter
+    private boolean fenceRunByCaller = false;
+
+    /**
+     * Outcome of a deferred fence, recorded by the backend so the orchestrator can mark
+     * {@code APPLIED} vs {@code DEGRADED}-with-laggards after {@link #runDeferredFence()} returns.
+     */
+    public static final class FenceOutcome {
+        @Getter
+        private final boolean applied;
+        @Getter
+        private final List<String> laggardNodeIds;
+
+        public FenceOutcome(final boolean applied, final List<String> laggardNodeIds) {
+            this.applied = applied;
+            this.laggardNodeIds = laggardNodeIds == null
+                ? Collections.emptyList()
+                : Collections.unmodifiableList(laggardNodeIds);
+        }
+    }
+
+    /** Recorded by the backend during {@link #runDeferredFence()}; read by the orchestrator after.
+     *  Null when no deferred fence ran (no DDL) or the backend records no outcome. */
+    @Getter
+    @Setter
+    private volatile FenceOutcome fenceOutcome;
+
+    /**
+     * Register the single fence to run after the batched apply completes. Idempotent — the
+     * installer may call it once per resource; the latest (equivalent) closure wins. No-op
+     * carrier for backends without a revision concept (they never call it).
+     */
+    public void setDeferredFence(final DeferredFence fence) {
+        this.deferredFence = fence;
+    }
+
+    /**
+     * Run the registered {@link DeferredFence} once, if any. Called by the apply orchestration
+     * after all DDL for the batch is fired. No-op when nothing was registered (peer/no-change
+     * applies, or non-BanyanDB backends).
+     *
+     * <p><strong>One-shot.</strong> A single reconciler tick reuses ONE opt across every rule
+     * file ({@code RuleSync#runOnce}), calling this once per file. The closure + accumulated
+     * {@link #maxModRevision} are <strong>always</strong> reset (even when this file performed no
+     * DDL and registered no closure), so the next file neither re-runs this file's stale fence nor
+     * inherits this file's revision — each file fences on its own DDL only. (Drop revisions that a
+     * later commit-tail records on a shared opt are inline-fenced at drop time and benign here: the
+     * next file's own create revision is monotonically higher, so it dominates the fence.) The reset
+     * is in a {@code finally} so a fence transport failure still isolates the next file; the closure
+     * reads {@link #getMaxModRevision()} during {@code await()}, so it is reset only after.
+     *
+     * <p>{@link #fenceOutcome} is cleared <em>before</em> the fence runs (so a shared tick opt
+     * starts each file clean) and the backend sets it <em>during</em> the run; it is intentionally
+     * NOT cleared afterward so the caller can read it (the runtime-rule orchestrator reads it to
+     * decide {@code APPLIED} vs {@code DEGRADED}).
+     */
+    public void runDeferredFence() throws StorageException {
+        final DeferredFence fence = this.deferredFence;
+        this.deferredFence = null;
+        this.fenceOutcome = null;
+        try {
+            if (fence != null) {
+                fence.await();
+            }
+        } finally {
+            maxModRevision.set(0L);
+        }
     }
 
     /**
