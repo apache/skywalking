@@ -16,8 +16,7 @@
 cluster:
   selector: ${SW_CLUSTER:standalone}
   standalone:
-  # Please check your ZooKeeper is 3.5+, However, it is also compatible with ZooKeeper 3.4.x. Replace the ZooKeeper 3.5+
-  # library the oap-libs folder with your ZooKeeper 3.4.x library.
+  # Supported ZooKeeper server version: 3.5+. The bundled ZooKeeper client library is 3.9.x.
   zookeeper:
     namespace: ${SW_NAMESPACE:""}
     hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}
