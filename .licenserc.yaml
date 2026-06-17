@@ -144,4 +144,10 @@ dependency:
     - name: io.vertx:vertx-grpc
       version: 4.5.9
       license: EPL-2.0
+    - name: org.apache.zookeeper:zookeeper
+      version: 3.9.5
+      license: Apache-2.0
+    - name: org.apache.zookeeper:zookeeper-jute
+      version: 3.9.5
+      license: Apache-2.0
 
