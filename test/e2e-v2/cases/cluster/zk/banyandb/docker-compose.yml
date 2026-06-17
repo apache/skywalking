@@ -15,7 +15,7 @@
 
 services:
   zk:
-    image: zookeeper:3.5
+    image: zookeeper:3.9
     expose:
       - 2181
     networks:

@@ -16,7 +16,7 @@
 cluster:
   selector: ${SW_CLUSTER:standalone}
   standalone:
-  # Supported ZooKeeper server version: 3.5+. The bundled ZooKeeper client library is 3.9.x.
+  # Supported ZooKeeper server version: 3.6+. The bundled ZooKeeper client library is 3.9.x.
   zookeeper:
     namespace: ${SW_NAMESPACE:""}
     hostPort: ${SW_CLUSTER_ZK_HOST_PORT:localhost:2181}

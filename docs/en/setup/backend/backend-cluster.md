@@ -82,7 +82,7 @@ You could have two options
 Zookeeper is a very common and widely used cluster coordinator. Set the **cluster/selector** to **zookeeper** in the yml
 to enable it.
 
-Supported Zookeeper server version: 3.5+. The bundled ZooKeeper client library is 3.9.x.
+Supported Zookeeper server version: 3.6+. The bundled ZooKeeper client library is 3.9.x.
 
 ```yaml
 cluster:
