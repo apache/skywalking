@@ -80,6 +80,17 @@
             <version>${logback.version}</version>
         </dependency>
         <dependency>
+            <!-- Pin logback-core to the same version as logback-classic. Spring Boot's
+                 dependency management otherwise holds logback-core at an older version
+                 (1.2.6), and logback-classic 1.2.13's ThrowableProxy calls
+                 OptionHelper.isNotEmtpy() which only exists in the matching core, so
+                 logging any exception throws NoSuchMethodError and kills the request
+                 thread. -->
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>apm-toolkit-logback-1.x</artifactId>
             <version>${sw.version}</version>
