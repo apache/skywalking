@@ -30,6 +30,6 @@ RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service .
 
 FROM alpine:3.10
 
-COPY --from=base /service/service /service
+COPY --from=base /service/service /service/service
 
-CMD ["/service"]
+CMD ["/service/service"]
