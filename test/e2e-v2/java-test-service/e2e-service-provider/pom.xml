@@ -34,7 +34,6 @@
     <artifactId>e2e-service-provider</artifactId>
 
     <properties>
-        <log4j.version>1.2.17</log4j.version>
         <log4j2.version>2.25.4</log4j2.version>
         <logback.version>1.2.13</logback.version>
     </properties>
@@ -66,11 +65,6 @@
             <version>8.2.0</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
             <version>${log4j2.version}</version>
@@ -86,13 +80,19 @@
             <version>${logback.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-toolkit-logback-1.x</artifactId>
-            <version>${sw.version}</version>
+            <!-- Pin logback-core to the same version as logback-classic. Spring Boot's
+                 dependency management otherwise holds logback-core at an older version
+                 (1.2.6), and logback-classic 1.2.13's ThrowableProxy calls
+                 OptionHelper.isNotEmtpy() which only exists in the matching core, so
+                 logging any exception throws NoSuchMethodError and kills the request
+                 thread. -->
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>apm-toolkit-log4j-1.x</artifactId>
+            <artifactId>apm-toolkit-logback-1.x</artifactId>
             <version>${sw.version}</version>
         </dependency>
         <dependency>

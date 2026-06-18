@@ -57,37 +57,6 @@ logs:
   traceid: {{ .traceid }}
   timestamp: {{ gt .timestamp 0 }}
   contenttype: TEXT
-  content: {{ regexp .content "log4j fileLogger.+"}}
-  tags:
-  {{- contains .tags }}
-  - key: level
-    value: INFO
-  - key: logger
-    value: fileLogger
-  - key: thread
-    value: {{ notEmpty .value }}
-  - key: logfile
-    value: /tmp/skywalking-logs/log4j1/e2e-service-provider.log
-  - key: hostname
-    value: {{ notEmpty .value }}
-  - key: agent
-    value: filebeat
-  - key: agentVersion
-    value: {{ notEmpty .value }}
-  - key: agentId
-    value: {{ notEmpty .value }}
-  - key: agentName
-    value: {{ notEmpty .value }}
-  {{- end }}
-- servicename: e2e-service-provider
-  serviceid: {{ b64enc "e2e-service-provider" }}.1
-  serviceinstancename: provider1
-  serviceinstanceid: {{ b64enc "e2e-service-provider" }}.1_{{ b64enc "provider1" }}
-  endpointname: null
-  endpointid: null
-  traceid: {{ .traceid }}
-  timestamp: {{ gt .timestamp 0 }}
-  contenttype: TEXT
   content: {{ regexp .content "log4j2 fileLogger.+"}}
   tags:
   {{- contains .tags }}

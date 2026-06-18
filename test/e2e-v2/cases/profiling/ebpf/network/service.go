@@ -21,14 +21,13 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
-	"github.com/SkyAPM/go2sky"
-	"github.com/SkyAPM/go2sky/reporter"
+	// skywalking-go auto-instruments net/http server (*ServeMux.ServeHTTP) and
+	// client (*Transport.RoundTrip) at build time via -toolexec; trace context is
+	// propagated automatically, so no manual span creation is needed.
+	_ "github.com/apache/skywalking-go"
 )
-
-var skyWalkingTracer *go2sky.Tracer
 
 func provider(w http.ResponseWriter, req *http.Request) {
 	time.Sleep(time.Second * 1)
@@ -50,13 +49,16 @@ func consumer(w http.ResponseWriter, req *http.Request) {
 	}
 
 	request, err := http.NewRequest("GET", addr, nil)
-	exitSpan, err := skyWalkingTracer.CreateExitSpan(req.Context(), "/provider", addr, func(headerKey, headerValue string) error {
-		request.Header.Set(headerKey, headerValue)
-		return nil
-	})
+	if err != nil {
+		log.Printf("new request error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	get, err := http.DefaultClient.Do(request)
 	if err != nil {
 		log.Printf("send request error: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	all, err := ioutil.ReadAll(get.Body)
 	_ = get.Body.Close()
@@ -66,24 +68,12 @@ func consumer(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	_, _ = w.Write(all)
-	exitSpan.End()
 }
 
 func main() {
-	// init skywalking tracer
-	r, err := reporter.NewGRPCReporter(os.Getenv("OAP_BACKEND_ADDR"))
-	if err != nil {
-		log.Fatalf("new reporter error %v \n", err)
-	}
-	defer r.Close()
-	skyWalkingTracer, err = go2sky.NewTracer("service", go2sky.WithReporter(r))
-	if err != nil {
-		log.Fatalf("init skyWalkingTracer failure: %v", err)
-	}
-
 	http.HandleFunc("/provider", provider)
 	http.HandleFunc("/consumer", consumer)
 
-	err = http.ListenAndServe(":80", nil)
+	err := http.ListenAndServe(":80", nil)
 	log.Fatal(err)
 }

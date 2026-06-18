@@ -17,8 +17,8 @@
 
 package org.apache.skywalking.e2e.controller;
 
-import org.apache.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.skywalking.apm.toolkit.trace.TraceContext;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,13 +27,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class FileLogController {
 
-    private static final Logger LOG4J_LOGGER = Logger.getLogger("fileLogger");
-    private static final org.apache.logging.log4j.Logger LOG4J2_LOGGER = LogManager.getLogger("fileLogger");
+    private static final Logger LOG4J2_LOGGER = LogManager.getLogger("fileLogger");
     private static final org.slf4j.Logger LOGBACK_LOGGER = LoggerFactory.getLogger("fileLogger");
 
     @RequestMapping(value = "/file/logs/trigger")
     public String trigger() {
-        LOG4J_LOGGER.info("log4j fileLogger ==> mills-> " + System.currentTimeMillis());
         LOG4J2_LOGGER.info("log4j2 fileLogger ==> mills->" + System.currentTimeMillis());
         LOGBACK_LOGGER.info("logback fileLogger ==> mills-> {}", System.currentTimeMillis());
         return TraceContext.traceId();

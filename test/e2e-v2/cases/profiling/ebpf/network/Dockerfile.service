@@ -14,13 +14,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.17
+# Default keeps the generic "Build test image" CI step (which passes no
+# build-args) working; keep it in sync with SW_AGENT_GO_COMMIT in
+# test/e2e-v2/script/env.
+ARG SW_AGENT_GO_COMMIT=19a9fa9bf058329281aa611f176cf5b7e5cbda8f
+FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.24 as base
 
-WORKDIR /
-COPY service.go /service/service.go
-COPY go.mod /service/go.mod
+ENV CGO_ENABLED=0
+ENV GO111MODULE=on
 
 WORKDIR /service
-RUN go get test && go build -o service .
+COPY service.go go.mod ./
+
+RUN go mod tidy && go build -toolexec="skywalking-go-agent" -a -o service .
+
+FROM alpine:3.10
+
+COPY --from=base /service/service /service/service
 
 CMD ["/service/service"]

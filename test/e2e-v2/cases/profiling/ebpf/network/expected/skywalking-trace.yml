@@ -16,22 +16,34 @@
 debuggingtrace: null
 spans:
 {{- contains .spans}}
+# The exit span for the consumer -> proxy/provider call, auto-instrumented by
+# skywalking-go's net/http client plugin. It is a child of the GET:/consumer
+# entry span (spanid 0) in the same segment, and carries the eBPF rover's
+# "HTTP Request Sampling" attached event.
 - traceid: {{ notEmpty .traceid }}
   segmentid: {{ notEmpty .segmentid }}
-  spanid: 0
-  parentspanid: -1
+  spanid: 1
+  parentspanid: 0
   refs: []
   servicecode: service
   serviceinstancename: {{ notEmpty .serviceinstancename }}
   starttime: {{ gt .starttime 0 }}
   endtime: {{ gt .endtime 0 }}
-  endpointname: /provider
+  endpointname: GET:/provider
   type: Exit
-  peer: http://proxy/provider
-  component: Unknown
+  peer: proxy
+  component: GoHttpClient
   iserror: false
-  layer: Unknown
-  tags: []
+  layer: Http
+  tags:
+  {{- contains .tags }}
+  - key: http.method
+    value: GET
+  - key: url
+    value: proxy/provider
+  - key: status_code
+    value: "200"
+  {{- end }}
   logs: []
   attachedevents:
   {{- contains .attachedevents}}
