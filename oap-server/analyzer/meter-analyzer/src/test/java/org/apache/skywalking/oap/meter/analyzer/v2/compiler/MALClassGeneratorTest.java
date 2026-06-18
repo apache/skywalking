@@ -135,6 +135,23 @@ class MALClassGeneratorTest {
     }
 
     @Test
+    void compileCustomLayerViaNameOf() throws Exception {
+        // A custom layer (registered at boot via layerDefinitions:) has no generated
+        // static field, so it is referenced as Layer.nameOf('NAME'). The codegen must
+        // emit a static method call on the Layer FQCN, not a SampleFamily method.
+        final String source = generator.generateSource(
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.nameOf('IOT_FLEET'))");
+        assertNotNull(source);
+        assertTrue(
+            source.contains(
+                "org.apache.skywalking.oap.server.core.analysis.Layer.nameOf(\"IOT_FLEET\")"),
+            "Generated source should emit the Layer.nameOf(...) static call: " + source);
+        assertNotNull(generator.compile(
+            "test_custom_layer",
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.nameOf('IOT_FLEET'))"));
+    }
+
+    @Test
     void filterSafeNavCompiles() throws Exception {
         final String source = generator.generateFilterSource(
             "{ tags -> tags.job_name == 'aws-cloud-eks-monitoring'"

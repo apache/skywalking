@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.BinaryExpr;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.ClosureArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.EnumRefArgument;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.EnumStaticCallArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.ExprArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.MetricExpr;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.NumberExpr;
@@ -153,6 +154,36 @@ class MALScriptParserTest {
             (EnumRefArgument) metric.getMethodChain().get(0).getArguments().get(1);
         assertEquals("Layer", enumRef.getEnumType());
         assertEquals("GENERAL", enumRef.getEnumValue());
+    }
+
+    @Test
+    void parseEnumStaticCallArgument() {
+        // Layer.nameOf('IOT_FLEET') references a custom layer that has no generated
+        // static field, so it parses as a static method call rather than a field ref.
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.service(['svc'], Layer.nameOf('IOT_FLEET'))");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        final EnumStaticCallArgument call =
+            (EnumStaticCallArgument) metric.getMethodChain().get(0).getArguments().get(1);
+        assertEquals("Layer", call.getEnumType());
+        assertEquals("nameOf", call.getMethodName());
+        assertEquals(1, call.getArguments().size());
+        final StringArgument layerName = (StringArgument) call.getArguments().get(0);
+        assertEquals("IOT_FLEET", layerName.getValue());
+    }
+
+    @Test
+    void enumStaticCallDetectionIsScopedToKnownEnumTypes() {
+        // A real method call on a non-enum metric must not be mistaken for an enum
+        // static call — only metrics whose name is a known enum type are reinterpreted.
+        final MALExpressionModel.Expr ast = MALScriptParser.parse(
+            "metric.foreach_agg(notALayer.rate('PT1M'))");
+        assertInstanceOf(MetricExpr.class, ast);
+        final MetricExpr metric = (MetricExpr) ast;
+        assertInstanceOf(
+            ExprArgument.class,
+            metric.getMethodChain().get(0).getArguments().get(0));
     }
 
     @Test

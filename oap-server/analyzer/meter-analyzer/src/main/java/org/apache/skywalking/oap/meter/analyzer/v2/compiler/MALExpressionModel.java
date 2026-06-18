@@ -275,6 +275,31 @@ public final class MALExpressionModel {
     }
 
     /**
+     * Static method call on a well-known enum type used to resolve a value at
+     * runtime: {@code Layer.nameOf('IOT_FLEET')}.
+     *
+     * <p>Unlike {@link EnumRefArgument} (a compile-time static <em>field</em> such as
+     * {@code Layer.GENERAL}), this models a static <em>method</em> call. It exists so a
+     * MAL expression can reference a custom layer registered at boot/runtime through a
+     * {@code layerDefinitions:} block — such a layer has no generated static field, so
+     * {@code Layer.nameOf("NAME")} is the only way to name it. The v1 Groovy compiler
+     * evaluates this natively; see {@code docs/en/concepts-and-designs/mal.md}.
+     */
+    @Getter
+    public static final class EnumStaticCallArgument implements Argument {
+        private final String enumType;
+        private final String methodName;
+        private final List<Argument> arguments;
+
+        public EnumStaticCallArgument(final String enumType, final String methodName,
+                                      final List<Argument> arguments) {
+            this.enumType = enumType;
+            this.methodName = methodName;
+            this.arguments = Collections.unmodifiableList(arguments);
+        }
+    }
+
+    /**
      * Null literal argument.
      */
     public static final class NullArgument implements Argument {

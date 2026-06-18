@@ -327,6 +327,21 @@ final class MALMethodChainCodegen {
                 sb.append(enumRef.getEnumType());
             }
             sb.append('.').append(enumRef.getEnumValue());
+        } else if (arg instanceof MALExpressionModel.EnumStaticCallArgument) {
+            final MALExpressionModel.EnumStaticCallArgument call =
+                (MALExpressionModel.EnumStaticCallArgument) arg;
+            final String fqcn =
+                MALCodegenHelper.ENUM_FQCN.get(call.getEnumType());
+            sb.append(fqcn != null ? fqcn : call.getEnumType());
+            sb.append('.').append(call.getMethodName()).append('(');
+            final List<MALExpressionModel.Argument> callArgs = call.getArguments();
+            for (int i = 0; i < callArgs.size(); i++) {
+                if (i > 0) {
+                    sb.append(", ");
+                }
+                generateArgument(sb, var, callArgs.get(i));
+            }
+            sb.append(')');
         } else if (arg instanceof MALExpressionModel.ExprArgument) {
             final MALExpressionModel.Expr innerExpr =
                 ((MALExpressionModel.ExprArgument) arg).getExpr();

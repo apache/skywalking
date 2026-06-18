@@ -62,6 +62,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.C
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.ClosureVarDecl;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.CompareOp;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.EnumRefArgument;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.EnumStaticCallArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.Expr;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.ExprArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.FunctionCallExpr;
@@ -408,8 +409,50 @@ public final class MALScriptParser {
             if (ctx.NULL() != null) {
                 return new MALExpressionModel.NullArgument();
             }
-            // additiveExpression — nested expression
-            return new ExprArgument(visit(ctx.additiveExpression()));
+            // additiveExpression — nested expression, or a static enum method call
+            // like Layer.nameOf('IOT_FLEET'). The latter is syntactically a metric
+            // reference "Layer" with a .nameOf("...") method chain (the grammar's
+            // enumRef only models the static-field form Layer.GENERAL), so it is
+            // re-interpreted here keyed on the known enum-type set.
+            final Expr expr = visit(ctx.additiveExpression());
+            final EnumStaticCallArgument enumCall = asEnumStaticCall(expr);
+            if (enumCall != null) {
+                return enumCall;
+            }
+            return new ExprArgument(expr);
+        }
+
+        /**
+         * Recognises the {@code EnumType.method('arg')} shape — e.g.
+         * {@code Layer.nameOf('IOT_FLEET')} — where {@code EnumType} is one of the
+         * well-known enum types referenced from MAL expressions. Such an expression
+         * parses as a {@link MetricExpr} (metric {@code "Layer"} + a single
+         * {@code .nameOf("...")} call) because the grammar cannot distinguish it from a
+         * real {@code metric.method('x')} call; only the enum-type-name reservation
+         * tells them apart.
+         *
+         * @param expr the parsed nested expression
+         * @return an {@link EnumStaticCallArgument} when the shape matches, otherwise
+         *         {@code null}
+         */
+        private EnumStaticCallArgument asEnumStaticCall(final Expr expr) {
+            if (!(expr instanceof MetricExpr)) {
+                return null;
+            }
+            final MetricExpr metric = (MetricExpr) expr;
+            if (!MALCodegenHelper.ENUM_FQCN.containsKey(metric.getMetricName())) {
+                return null;
+            }
+            final List<MethodCall> chain = metric.getMethodChain();
+            if (chain.size() != 1) {
+                return null;
+            }
+            final MethodCall call = chain.get(0);
+            if (call.isExtension()) {
+                return null;
+            }
+            return new EnumStaticCallArgument(
+                metric.getMetricName(), call.getName(), call.getArguments());
         }
 
         private StringListArgument convertStringList(final MALParser.StringListContext ctx) {
