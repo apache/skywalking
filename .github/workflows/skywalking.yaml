@@ -786,16 +786,31 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@0d91769411db83f6329633df810a36c6ea1a9b02
+        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
-      - if: ${{ failure() }}
+      - if: ${{ failure() || cancelled() }}
         run: |
           df -h
           du -sh .
           docker images
+      # Capture container logs even when the job is CANCELLED (e.g. a case that
+      # hangs and hits the job timeout-minutes is `cancelled`, not `failure`, so a
+      # plain `if: failure()` upload is skipped and produces zero logs). The e2e
+      # action's own log collector also never runs when the trigger hangs, so dump
+      # the docker logs directly here while the containers are still alive.
+      - name: Dump container logs
+        if: ${{ failure() || cancelled() }}
+        run: |
+          LOG_DIR="${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          mkdir -p "$LOG_DIR"
+          docker ps -a > "$LOG_DIR/docker-ps.txt" 2>&1 || true
+          for c in $(docker ps -aq); do
+            name=$(docker inspect -f '{{.Name}}' "$c" | tr -d '/')
+            docker logs "$c" > "$LOG_DIR/$name.log" 2>&1 || true
+          done
       - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
+        if: ${{ failure() || cancelled() }}
         name: Upload Logs
         with:
           name: test-logs-${{ matrix.test.name }}
@@ -860,7 +875,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ALS ${{ matrix.storage }}, ${{ matrix.analyzer }}, istio-${{ matrix.versions.istio }}, k8s-${{ matrix.versions.kubernetes }}
-        uses: apache/skywalking-infra-e2e@0d91769411db83f6329633df810a36c6ea1a9b02
+        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -932,7 +947,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@0d91769411db83f6329633df810a36c6ea1a9b02
+        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -996,7 +1011,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@0d91769411db83f6329633df810a36c6ea1a9b02
+        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -1092,16 +1107,31 @@ jobs:
           fi
           docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@0d91769411db83f6329633df810a36c6ea1a9b02
+        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
-      - if: ${{ failure() }}
+      - if: ${{ failure() || cancelled() }}
         run: |
           df -h
           du -sh .
           docker images
+      # Capture container logs even when the job is CANCELLED (e.g. a case that
+      # hangs and hits the job timeout-minutes is `cancelled`, not `failure`, so a
+      # plain `if: failure()` upload is skipped and produces zero logs). The e2e
+      # action's own log collector also never runs when the trigger hangs, so dump
+      # the docker logs directly here while the containers are still alive.
+      - name: Dump container logs
+        if: ${{ failure() || cancelled() }}
+        run: |
+          LOG_DIR="${{ env.SW_INFRA_E2E_LOG_DIR }}"
+          mkdir -p "$LOG_DIR"
+          docker ps -a > "$LOG_DIR/docker-ps.txt" 2>&1 || true
+          for c in $(docker ps -aq); do
+            name=$(docker inspect -f '{{.Name}}' "$c" | tr -d '/')
+            docker logs "$c" > "$LOG_DIR/$name.log" 2>&1 || true
+          done
       - uses: actions/upload-artifact@v4
-        if: ${{ failure() }}
+        if: ${{ failure() || cancelled() }}
         name: Upload Logs
         with:
           name: test-logs-${{ matrix.test.name }}

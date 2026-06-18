@@ -60,7 +60,7 @@ public class ClusterModuleZookeeperProviderFunctionalIT {
 
     @Container
     public final GenericContainer<?> container =
-        new GenericContainer<>(DockerImageName.parse("zookeeper:3.5"))
+        new GenericContainer<>(DockerImageName.parse("zookeeper:3.9"))
             .waitingFor(Wait.forLogMessage(".*binding to port.*", 1))
             .withExposedPorts(2181);
 
