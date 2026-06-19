@@ -19,16 +19,16 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.base.Strings;
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
-import com.orbitz.consul.cache.ConsulCache;
-import com.orbitz.consul.cache.ServiceHealthCache;
-import com.orbitz.consul.cache.ServiceHealthKey;
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
-import com.orbitz.consul.model.health.ServiceHealth;
-import com.orbitz.consul.option.QueryOptions;
+import org.kiwiproject.consul.AgentClient;
+import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.HealthClient;
+import org.kiwiproject.consul.cache.ConsulCache;
+import org.kiwiproject.consul.cache.ServiceHealthCache;
+import org.kiwiproject.consul.cache.ServiceHealthKey;
+import org.kiwiproject.consul.model.agent.ImmutableRegistration;
+import org.kiwiproject.consul.model.agent.Registration;
+import org.kiwiproject.consul.model.health.ServiceHealth;
+import org.kiwiproject.consul.option.QueryOptions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -175,7 +175,7 @@ public class ConsulCoordinator extends ClusterCoordinator {
 
     /**
      * Notice: If the consul version > v1.10.0, the `consul-client ConsulCache` will throw error response:
-     * "com.orbitz.consul.ConsulException: Consul cluster has no elected leader" and fails to retrieve data.
+     * "org.kiwiproject.consul.ConsulException: Consul cluster has no elected leader" and fails to retrieve data.
      * This is a known issue but doesn't release yet, can refer to: https://github.com/rickfast/consul-client/pull/456
      */
     class ConsulEventListener implements ConsulCache.Listener<ServiceHealthKey, ServiceHealth> {

@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.ConsulException;
+import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.ConsulException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
