@@ -35,7 +35,6 @@
 
     <properties>
         <log4j2.version>2.25.4</log4j2.version>
-        <logback.version>1.2.13</logback.version>
     </properties>
 
     <dependencies>
@@ -75,20 +74,14 @@
             <version>${log4j2.version}</version>
         </dependency>
         <dependency>
+            <!-- No explicit version: let spring-boot-dependencies manage BOTH
+                 logback-classic and logback-core to the same version so they never
+                 mismatch. A classic newer than the managed core makes logback-classic's
+                 ThrowableProxy call OptionHelper.isNotEmtpy() (absent in the older core),
+                 throwing NoSuchMethodError when logging an exception. Java 8 / Spring
+                 Boot 2.x keeps this on the logback 1.2.x line. -->
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
-        </dependency>
-        <dependency>
-            <!-- Pin logback-core to the same version as logback-classic. Spring Boot's
-                 dependency management otherwise holds logback-core at an older version
-                 (1.2.6), and logback-classic 1.2.13's ThrowableProxy calls
-                 OptionHelper.isNotEmtpy() which only exists in the matching core, so
-                 logging any exception throws NoSuchMethodError and kills the request
-                 thread. -->
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-core</artifactId>
-            <version>${logback.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
