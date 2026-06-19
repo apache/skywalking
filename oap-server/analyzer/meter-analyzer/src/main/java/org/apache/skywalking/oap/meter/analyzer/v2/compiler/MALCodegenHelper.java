@@ -39,6 +39,15 @@ final class MALCodegenHelper {
 
     // ---- Well-known enum types used in MAL expressions ----
 
+    /**
+     * Short name of the {@code Layer} type as written in MAL expressions. Unlike the other
+     * {@link #ENUM_FQCN} entries (real Java enums), {@code Layer} is a registry-backed type
+     * whose custom members have no static field, so a {@code Layer.NAME} reference is lowered
+     * to a runtime {@code Layer.nameOf("NAME")} lookup in code generation rather than a
+     * static-field access — see {@code MALMethodChainCodegen#generateArgument}.
+     */
+    static final String LAYER_ENUM_TYPE = "Layer";
+
     static final Map<String, String> ENUM_FQCN;
 
     // ---- Well-known helper classes used inside MAL closures ----
