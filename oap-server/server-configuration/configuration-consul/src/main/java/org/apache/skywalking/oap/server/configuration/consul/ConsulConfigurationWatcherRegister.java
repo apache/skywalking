@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.server.configuration.consul;
 
 import com.google.common.base.Splitter;
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.KeyValueClient;
-import com.orbitz.consul.cache.KVCache;
-import com.orbitz.consul.model.kv.Value;
+import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.KeyValueClient;
+import org.kiwiproject.consul.cache.KVCache;
+import org.kiwiproject.consul.model.kv.Value;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

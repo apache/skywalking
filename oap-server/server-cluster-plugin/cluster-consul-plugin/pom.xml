@@ -35,7 +35,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.orbitz.consul</groupId>
+            <groupId>org.kiwiproject</groupId>
             <artifactId>consul-client</artifactId>
             <exclusions>
                 <exclusion>

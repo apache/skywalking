@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.base.Strings;
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
+import org.kiwiproject.consul.AgentClient;
+import org.kiwiproject.consul.Consul;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.cluster.ClusterCoordinator;
 import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
