@@ -203,8 +203,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.6 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.12.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.18.6 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.6 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.20.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
@@ -225,9 +225,9 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc/1.34.2 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-grpc-protocol/1.34.2 Apache-2.0
     https://mvnrepository.com/artifact/com.linecorp.armeria/armeria-protobuf/1.34.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.orbitz.consul/consul-client/1.5.3 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/3.14.9 Apache-2.0
-    https://mvnrepository.com/artifact/com.squareup.okio/okio/1.17.2 Apache-2.0
+    https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp/4.12.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.squareup.okio/okio/3.6.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.squareup.okio/okio-jvm/3.6.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-jackson/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.zaxxer/HikariCP/3.1.0 Apache-2.0
@@ -342,14 +342,15 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect/1.7.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib/1.7.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.6.21 Apache-2.0
-    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.6.21 Apache-2.0
+    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk7/1.8.21 Apache-2.0
+    https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-jdk8/1.8.21 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core-jvm/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains/annotations/13.0 Apache-2.0
     https://mvnrepository.com/artifact/org.jspecify/jspecify/1.0.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.kiwiproject/consul-client/0.9.0 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.snakeyaml/snakeyaml-engine/2.6 Apache-2.0

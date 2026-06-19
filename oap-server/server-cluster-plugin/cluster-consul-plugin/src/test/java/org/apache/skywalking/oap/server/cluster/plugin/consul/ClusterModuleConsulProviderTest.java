@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
 import com.google.common.collect.Lists;
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.Consul;
+import org.kiwiproject.consul.Consul;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.cluster.ClusterModule;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;

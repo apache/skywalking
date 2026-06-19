@@ -34,7 +34,7 @@
         <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
         <graphql-java.version>21.5</graphql-java.version>
         <graphql-java-extended-scalars.version>18.1</graphql-java-extended-scalars.version>
-        <okhttp.version>3.14.9</okhttp.version>
+        <okhttp.version>4.12.0</okhttp.version>
         <httpclient.version>4.5.13</httpclient.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.9.5</zookeeper.version>
@@ -75,7 +75,7 @@
         <banyandb-java-client.version>0.9.2</banyandb-java-client.version>
         <kafka-clients.version>3.9.2</kafka-clients.version>
         <spring-kafka-test.version>2.4.6.RELEASE</spring-kafka-test.version>
-        <consul.client.version>1.5.3</consul.client.version>
+        <consul.client.version>0.9.0</consul.client.version>
         <commons-net.version>3.9.0</commons-net.version>
         <maven-core.version>3.9.0</maven-core.version>
         <async-profiler-converter.version>3.0</async-profiler-converter.version>
@@ -349,6 +349,19 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson-databind.version}</version>
+            </dependency>
+            <!-- Pin the jackson datatype modules pulled transitively by the Consul client
+                 to the managed jackson version, so the Consul client cannot drag in an
+                 off-version (e.g. 2.15.2) that would skew the jackson family on the classpath. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jdk8</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -639,7 +652,7 @@
             </dependency>
 
             <dependency>
-                <groupId>com.orbitz.consul</groupId>
+                <groupId>org.kiwiproject</groupId>
                 <artifactId>consul-client</artifactId>
                 <version>${consul.client.version}</version>
                 <exclusions>

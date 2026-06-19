@@ -18,13 +18,13 @@
 
 package org.apache.skywalking.oap.server.cluster.plugin.consul;
 
-import com.orbitz.consul.AgentClient;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
-import com.orbitz.consul.model.ConsulResponse;
-import com.orbitz.consul.model.agent.Registration;
-import com.orbitz.consul.model.health.Service;
-import com.orbitz.consul.model.health.ServiceHealth;
+import org.kiwiproject.consul.AgentClient;
+import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.HealthClient;
+import org.kiwiproject.consul.model.ConsulResponse;
+import org.kiwiproject.consul.model.agent.Registration;
+import org.kiwiproject.consul.model.health.Service;
+import org.kiwiproject.consul.model.health.ServiceHealth;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;

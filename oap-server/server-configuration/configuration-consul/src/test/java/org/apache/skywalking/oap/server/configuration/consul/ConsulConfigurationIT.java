@@ -19,8 +19,8 @@
 package org.apache.skywalking.oap.server.configuration.consul;
 
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.Consul;
-import com.orbitz.consul.KeyValueClient;
+import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.KeyValueClient;
 import org.apache.skywalking.oap.server.library.module.ApplicationConfiguration;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;

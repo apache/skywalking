@@ -136,6 +136,8 @@ cluster:
 Recently, the Consul system has become more and more popular, and many companies and developers now use Consul as
 their service discovery solution. Set the **cluster/selector** to **consul** in the yml to enable it.
 
+The bundled Consul client library is the maintained fork `org.kiwiproject:consul-client` `0.9.x`, replacing the unmaintained `com.orbitz.consul:consul-client`.
+
 ```yaml
 cluster:
   selector: ${SW_CLUSTER:consul}
