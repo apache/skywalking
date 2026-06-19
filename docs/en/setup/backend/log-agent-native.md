@@ -26,7 +26,6 @@ to report logs through files with automatically injected trace context.
 
 Log framework config examples:
 
-- [log4j1.x fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/log4j.properties)
 - [log4j2.x fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/log4j2.xml)
 - [logback fileAppender](../../../../test/e2e-v2/java-test-service/e2e-service-provider/src/main/resources/logback.xml)
 
