@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -135,20 +136,61 @@ class MALClassGeneratorTest {
     }
 
     @Test
-    void compileCustomLayerViaNameOf() throws Exception {
-        // A custom layer (registered at boot via layerDefinitions:) has no generated
-        // static field, so it is referenced as Layer.nameOf('NAME'). The codegen must
-        // emit a static method call on the Layer FQCN, not a SampleFamily method.
+    void compileCustomLayerViaStaticFieldForm() throws Exception {
+        // A custom layer may also be referenced with the ordinary static-field syntax
+        // (Layer.IOT_FLEET), exactly like a built-in. Because the layer has no generated
+        // static field, codegen must lower it to a runtime Layer.nameOf("IOT_FLEET") lookup
+        // rather than emitting a Layer.IOT_FLEET field access that cannot compile.
         final String source = generator.generateSource(
-            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.nameOf('IOT_FLEET'))");
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.IOT_FLEET)");
         assertNotNull(source);
         assertTrue(
             source.contains(
                 "org.apache.skywalking.oap.server.core.analysis.Layer.nameOf(\"IOT_FLEET\")"),
-            "Generated source should emit the Layer.nameOf(...) static call: " + source);
+            "Custom-layer static-field form should be lowered to Layer.nameOf(...): " + source);
         assertNotNull(generator.compile(
-            "test_custom_layer",
-            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.nameOf('IOT_FLEET'))"));
+            "test_custom_layer_field_form",
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.IOT_FLEET)"));
+    }
+
+    @Test
+    void builtInLayerStaticFieldFormLoweredToNameOf() throws Exception {
+        // Built-in layers are lowered the same way as custom ones: Layer.GENERAL becomes
+        // Layer.nameOf("GENERAL"), which returns the identical instance as the Layer.GENERAL
+        // static field, so the rewrite is behavior-preserving and needs no built-in/custom
+        // branch in codegen.
+        final String source = generator.generateSource(
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.GENERAL)");
+        assertNotNull(source);
+        assertTrue(
+            source.contains(
+                "org.apache.skywalking.oap.server.core.analysis.Layer.nameOf(\"GENERAL\")"),
+            "Built-in layer static-field form should be lowered to Layer.nameOf(...): " + source);
+        assertNotNull(generator.compile(
+            "test_builtin_layer_field_form",
+            "instance_jvm_cpu.sum(['service']).service(['service'], Layer.GENERAL)"));
+    }
+
+    @Test
+    void nonLayerEnumStaticFieldFormKeepsDirectReference() throws Exception {
+        // The Layer.nameOf(...) lowering is scoped to Layer only. Real Java enums such as
+        // DetectPoint have no nameOf(String), so their static-field references must stay
+        // direct field accesses or the generated source would not compile. This expression
+        // also carries a Layer ref, confirming the two are lowered differently side by side.
+        final String source = generator.generateSource(
+            "service_relation_req.sum(['client', 'server']).serviceRelation("
+                + "DetectPoint.SERVER, ['client'], ['server'], '|', Layer.GENERAL, 'component')");
+        assertNotNull(source);
+        assertTrue(
+            source.contains("DetectPoint.SERVER"),
+            "Non-Layer enum should keep the direct static-field reference: " + source);
+        assertFalse(
+            source.contains("DetectPoint.nameOf"),
+            "Non-Layer enum must NOT be lowered to a nameOf(...) lookup: " + source);
+        assertTrue(
+            source.contains(
+                "org.apache.skywalking.oap.server.core.analysis.Layer.nameOf(\"GENERAL\")"),
+            "Layer ref in the same expression should still be lowered to nameOf(...): " + source);
     }
 
     @Test

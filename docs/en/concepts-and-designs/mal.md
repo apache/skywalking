@@ -393,10 +393,15 @@ layerDefinitions:
 metricsRules:
   - name: device_battery_percentage
     exp: iot_device_battery_level.tagAverage(['service'], ['host'])
-expSuffix: instance(['host'], ['service'], Layer.nameOf('IOT_FLEET'))
+expSuffix: instance(['host'], ['service'], Layer.IOT_FLEET)
 ```
 
 Notes:
+- **Reference a custom layer like a built-in one.** Write `Layer.IOT_FLEET` exactly as you would a
+  built-in such as `Layer.GENERAL` — the compiler lowers every `Layer.<NAME>` reference to a runtime
+  registry lookup, so a custom layer needs no generated static field. (Because the lookup is by name,
+  a misspelled name resolves to `Layer.UNDEFINED` at runtime rather than failing to compile, so keep
+  the name in `layerDefinitions:` and the expression in sync.)
 - **Storage encoding is the ordinal int**, persisted in BanyanDB / Elasticsearch / JDBC. Every
   OAP node that reads or writes a given layer must agree on its `(name, ordinal)` mapping —
   deploy a MAL file with `layerDefinitions:` identically across all nodes.

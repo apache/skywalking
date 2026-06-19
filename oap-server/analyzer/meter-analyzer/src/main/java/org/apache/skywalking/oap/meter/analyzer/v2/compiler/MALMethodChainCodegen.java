@@ -321,27 +321,20 @@ final class MALMethodChainCodegen {
                 (MALExpressionModel.EnumRefArgument) arg;
             final String fqcn =
                 MALCodegenHelper.ENUM_FQCN.get(enumRef.getEnumType());
-            if (fqcn != null) {
-                sb.append(fqcn);
+            final String typeRef = fqcn != null ? fqcn : enumRef.getEnumType();
+            if (MALCodegenHelper.LAYER_ENUM_TYPE.equals(enumRef.getEnumType())) {
+                // Layer is a registry-backed type, not a Java enum. A custom layer
+                // (layerDefinitions: / layer-extensions.yml / SPI / runtime hot-update) has
+                // no Layer.* static field, so every Layer.NAME reference is lowered to a
+                // runtime Layer.nameOf("NAME") lookup. For a built-in layer this is
+                // equivalent — Layer.nameOf("GENERAL") returns the same instance as the
+                // Layer.GENERAL field. Other ENUM_FQCN types are real enums with no
+                // nameOf(String), so they keep the direct static-field reference below.
+                sb.append(typeRef).append(".nameOf(\"")
+                  .append(enumRef.getEnumValue()).append("\")");
             } else {
-                sb.append(enumRef.getEnumType());
+                sb.append(typeRef).append('.').append(enumRef.getEnumValue());
             }
-            sb.append('.').append(enumRef.getEnumValue());
-        } else if (arg instanceof MALExpressionModel.EnumStaticCallArgument) {
-            final MALExpressionModel.EnumStaticCallArgument call =
-                (MALExpressionModel.EnumStaticCallArgument) arg;
-            final String fqcn =
-                MALCodegenHelper.ENUM_FQCN.get(call.getEnumType());
-            sb.append(fqcn != null ? fqcn : call.getEnumType());
-            sb.append('.').append(call.getMethodName()).append('(');
-            final List<MALExpressionModel.Argument> callArgs = call.getArguments();
-            for (int i = 0; i < callArgs.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                generateArgument(sb, var, callArgs.get(i));
-            }
-            sb.append(')');
         } else if (arg instanceof MALExpressionModel.ExprArgument) {
             final MALExpressionModel.Expr innerExpr =
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
