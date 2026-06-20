@@ -248,7 +248,7 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                         roofs[i] = Math.round(total * ranks.get(i) * 1.0f / 100);
                     }
 
-                    int count = 0;
+                    long count = 0;
                     final List<String> sortedKeys = subDataset.sortedKeys(Comparator.comparingLong(Long::parseLong));
 
                     int loopIndex = 0;
