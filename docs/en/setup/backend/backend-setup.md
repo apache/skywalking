@@ -14,7 +14,7 @@ SkyWalking's backend distribution package consists of the following parts:
 
 ## Requirements and default settings
 
-Requirement: **Java 11/17/21**.
+Requirement: **Java 11, 17, 21, or 25**. The OAP is compiled for Java 11 (the minimum runtime), so the binary distribution runs on any of these. Official Docker images publish `-java11` / `-java17` / `-java21` tag variants; the default (unsuffixed) image tag is built on Java 25 (`eclipse-temurin:25-jre`).
 
 You should set up the database ready before starting the backend. We recommend to use BanyanDB.
 If you want to use other databases, please read the [storage document](backend-storage.md).
