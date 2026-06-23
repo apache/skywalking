@@ -40,11 +40,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>event-analyzer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.skywalking</groupId>
             <artifactId>mqe-rt</artifactId>
             <version>${project.version}</version>
         </dependency>

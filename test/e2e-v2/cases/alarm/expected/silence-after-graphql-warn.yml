@@ -25,21 +25,7 @@ msgs:
         value: WARNING
       - key: receivers
         value: lisi
-    events:
-      {{- contains .events }}
-      - uuid: {{ notEmpty .uuid }}
-        source:
-          service: e2e-service-provider
-          serviceinstance: ""
-          endpoint: ""
-        name: Alarm
-        type: ""
-        message: {{ notEmpty .message }}
-        parameters: []
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
-      {{- end }}
+    events: []
     snapshot:
       expression: sum(service_percentile{p='50,75,90,95,99'} > 100) >= 3
       metrics:
@@ -70,21 +56,7 @@ msgs:
         value: WARNING
       - key: receivers
         value: lisi
-    events:
-      {{- contains .events }}
-      - uuid: {{ notEmpty .uuid}}
-        source:
-          service: e2e-service-provider
-          serviceinstance: ""
-          endpoint: ""
-        name: Alarm
-        type: ""
-        message: {{ notEmpty .message}}
-        parameters: []
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
-      {{- end }}
+    events: []
     snapshot:
       expression: sum(abs(increase(service_resp_time,1)) > 0) >= 1
       metrics:

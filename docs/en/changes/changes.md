@@ -2,6 +2,7 @@
 
 #### Project
 
+* Remove the always-on alarm-to-event conversion (`EventHookCallback`). A triggered alarm is no longer synthesized into the events pipeline as an `Alarm`/`AlarmRecovery` event; events now originate only from real event sources (agents, SkyWalking CLI, Kubernetes Event Exporter). Alarms remain available through the alarm store (`getAlarm`/`queryAlarms`) and the configured alarm hooks. This drops a documented "Known Event" and removes 1-2 synthetic event records per alarm fire.
 * **New `queryAlarms` GraphQL query — entity / layer / rule filters for alarms.** Adds
   a comprehensive alarm query API alongside the legacy `getAlarm`. The new
   `queryAlarms(condition: AlarmQueryCondition!): Alarms` accepts a single input type

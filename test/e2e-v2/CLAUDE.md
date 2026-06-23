@@ -354,19 +354,6 @@ msgs:
     tags:
       - key: level
         value: WARNING
-    events:
-      {{- contains .events }}
-      - uuid: {{ notEmpty .uuid }}
-        source:
-          service: e2e-service-provider
-          serviceinstance: ""
-          endpoint: ""
-        name: Alarm
-        message: {{ notEmpty .message }}
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
-      {{- end }}
   {{- end }}
 ```
 
