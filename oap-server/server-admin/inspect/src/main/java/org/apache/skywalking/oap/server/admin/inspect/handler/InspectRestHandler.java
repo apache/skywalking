@@ -172,19 +172,17 @@ public class InspectRestHandler {
      * re-queryable {@code mqeEntity}.
      *
      * <p>For a metric persisted by ANOTHER OAP that this node does not define (no local registry
-     * entry, no OAL/MAL text to recover it from), the caller MUST supply the metric's storage
+     * entry, no OAL/MAL text to recover it from), the caller MUST also supply the metric's storage
      * metadata, which cannot be inferred from the name:
-     *
-     * @param valueColumn The metric's value column. Required when the metric is unknown locally.
-     *                    A property of the metric's aggregation FUNCTION — one of the built-in
-     *                    value columns: {@code value} (common scalar), {@code double_value},
-     *                    {@code int_value}, {@code percentage}, {@code datatable_value} (labeled),
-     *                    {@code dataset} (histogram). On MySQL / PostgreSQL pass the
-     *                    reserved-word-overridden physical name ({@code value_} etc.).
-     * @param valueType   How to read/decode the value. Required when the metric is unknown locally.
-     *                    Accepted: {@code LONG} / {@code INT} / {@code DOUBLE} (scalar) or
-     *                    {@code LABELED} (DataTable). HISTOGRAM/heatmap and SAMPLED_RECORD are out
-     *                    of scope for this endpoint.
+     * <ul>
+     *   <li>{@code valueColumn} — the metric's value column, a property of its aggregation FUNCTION:
+     *       one of {@code value} (common scalar), {@code double_value}, {@code int_value},
+     *       {@code percentage}, {@code datatable_value} (labeled), {@code dataset} (histogram). On
+     *       MySQL / PostgreSQL pass the reserved-word-overridden physical name ({@code value_}).</li>
+     *   <li>{@code valueType} — how to read/decode the value: {@code LONG} / {@code INT} /
+     *       {@code DOUBLE} (scalar) or {@code LABELED} (DataTable). HISTOGRAM/heatmap and
+     *       SAMPLED_RECORD are out of scope for this endpoint.</li>
+     * </ul>
      */
     @Get("/inspect/entities")
     public HttpResponse listEntities(@Param("metric") final String metric,
