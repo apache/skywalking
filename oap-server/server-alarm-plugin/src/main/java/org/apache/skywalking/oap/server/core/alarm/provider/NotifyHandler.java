@@ -241,7 +241,6 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new WechatHookCallback(alarmRulesWatcher));
         allCallbacks.add(new DingtalkHookCallback(alarmRulesWatcher));
         allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new EventHookCallback(this.manager));
         allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher));
         allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher));
         allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher));

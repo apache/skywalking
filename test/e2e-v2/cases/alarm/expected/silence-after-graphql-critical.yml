@@ -25,21 +25,7 @@ msgs:
         value: CRITICAL
       - key: receivers
         value: zhangsan
-    events:
-      {{- contains .events }}
-      - uuid: {{ notEmpty .uuid}}
-        source:
-          service: e2e-service-provider
-          serviceinstance: ""
-          endpoint: ""
-        name: Alarm
-        type: ""
-        message: {{ notEmpty .message}}
-        parameters: []
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        layer: GENERAL
-      {{- end }}
+    events: []
     snapshot:
       expression: sum((service_resp_time > 100) && (service_sla > 1)) >= 1
       metrics:

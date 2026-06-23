@@ -66,7 +66,6 @@ service / instance / endpoint.
 | :----: | :----: | :-----| :---- |
 | Start | Normal | When your Java Application starts with SkyWalking Agent installed, the `Start` Event will be created. | Reported from SkyWalking agent. |
 | Shutdown | Normal | When your Java Application stops with SkyWalking Agent installed, the `Shutdown` Event will be created. | Reported from SkyWalking agent. |
-| Alarm | Error | When the Alarm is triggered, the corresponding `Alarm` Event will is created. | Reported from internal SkyWalking OAP. |
 
 The following events are all reported
 by [Kubernetes Event Exporter](http://github.com/apache/skywalking-kubernetes-event-exporter), in order to see these

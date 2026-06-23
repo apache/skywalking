@@ -25,21 +25,7 @@ msgs:
         value: CRITICAL
       - key: receivers
         value: zhangsan
-    events:
-      {{- contains .events }}
-      - uuid: {{ notEmpty .uuid }}
-        source:
-          service: e2e-test-dest-service
-          serviceinstance: ""
-          endpoint: ""
-        name: Alarm
-        type: ""
-        message: {{ notEmpty .message }}
-        parameters: []
-        starttime: {{ gt .starttime 0 }}
-        endtime: {{ gt .endtime 0 }}
-        layer: {{ notEmpty .layer }}
-      {{- end }}
+    events: []
     snapshot:
       expression: sum(service_resp_time > baseline(service_resp_time,lower)) >= 1
       metrics:
