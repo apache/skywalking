@@ -74,6 +74,9 @@ public class InspectRestHandler {
 
     private static final int LIMIT_DEFAULT = 300;
     private static final int LIMIT_MAX = 300;
+    /** Value types a caller may declare for a foreign (locally-undefined) metric. */
+    private static final Set<String> ACCEPTED_FOREIGN_VALUE_TYPES =
+        Set.of("LONG", "INT", "DOUBLE", "LABELED");
 
     private final ModuleManager moduleManager;
 
@@ -161,17 +164,50 @@ public class InspectRestHandler {
         return HttpResponse.ofJson(MediaType.JSON_UTF_8, new MetricsResponse(rows));
     }
 
+    /**
+     * Enumerate the entities holding values for a metric in a time range.
+     *
+     * <p>For a metric defined on this OAP, only {@code metric} + time params are needed; metadata
+     * is read from the local registry and the response carries exact field names, scope, and a
+     * re-queryable {@code mqeEntity}.
+     *
+     * <p>For a metric persisted by ANOTHER OAP that this node does not define (no local registry
+     * entry, no OAL/MAL text to recover it from), the caller MUST supply the metric's storage
+     * metadata, which cannot be inferred from the name:
+     *
+     * @param valueColumn The metric's value column. Required when the metric is unknown locally.
+     *                    A property of the metric's aggregation FUNCTION — one of the built-in
+     *                    value columns: {@code value} (common scalar), {@code double_value},
+     *                    {@code int_value}, {@code percentage}, {@code datatable_value} (labeled),
+     *                    {@code dataset} (histogram). On MySQL / PostgreSQL pass the
+     *                    reserved-word-overridden physical name ({@code value_} etc.).
+     * @param valueType   How to read/decode the value. Required when the metric is unknown locally.
+     *                    Accepted: {@code LONG} / {@code INT} / {@code DOUBLE} (scalar) or
+     *                    {@code LABELED} (DataTable). HISTOGRAM/heatmap and SAMPLED_RECORD are out
+     *                    of scope for this endpoint.
+     */
     @Get("/inspect/entities")
     public HttpResponse listEntities(@Param("metric") final String metric,
                                      @Param("start") final String start,
                                      @Param("end") final String end,
                                      @Param("step") final String stepStr,
-                                     @Param("limit") final Optional<Integer> limitOpt) {
+                                     @Param("limit") final Optional<Integer> limitOpt,
+                                     @Param("valueColumn") final Optional<String> valueColumnOpt,
+                                     @Param("valueType") final Optional<String> valueTypeOpt) {
         // Resolve metadata.
         final Optional<ValueColumnMetadata.ValueColumn> vcOpt =
             ValueColumnMetadata.INSTANCE.readValueColumnDefinition(metric);
         if (vcOpt.isEmpty()) {
-            return error(HttpStatus.BAD_REQUEST, "unknown metric: " + metric);
+            // Foreign metric: not defined on this OAP. There is no OAL/MAL text or local model to
+            // recover its value column / type / scope from, so the caller must supply them. Without
+            // both, fall back to the original "unknown metric" rejection.
+            if (valueColumnOpt.isEmpty() || valueTypeOpt.isEmpty()) {
+                return error(HttpStatus.BAD_REQUEST,
+                    "metric unknown locally: " + metric + " — provide valueColumn and valueType to "
+                        + "inspect a metric persisted by another OAP");
+            }
+            return listForeignEntities(metric, valueColumnOpt.get(), valueTypeOpt.get(),
+                start, end, stepStr, limitOpt);
         }
         final ValueColumnMetadata.ValueColumn vc = vcOpt.get();
 
@@ -247,7 +283,7 @@ public class InspectRestHandler {
         final List<String> entityIds;
         try {
             entityIds = metricsQueryDAO()
-                .listEntityIdsInRange(metric, vc.getValueCName(), duration, limit);
+                .listEntityIdsInRange(metric, vc.getValueCName(), null, duration, limit);
         } catch (IOException e) {
             log.warn("listEntityIdsInRange failed for metric={} step={}", metric, step, e);
             return error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -275,6 +311,92 @@ public class InspectRestHandler {
 
         final EntitiesResponse body = new EntitiesResponse(metric, scope.name(),
             step.name(), start, end, rows);
+        return HttpResponse.ofJson(MediaType.JSON_UTF_8, body);
+    }
+
+    /**
+     * Foreign-metric path: the metric is not defined on this OAP, so the caller supplied
+     * {@code valueColumn} + {@code valueType}. Nothing is resolved from the local registry — the
+     * storage DAO derives the physical target from its own running config — and each entity_id is
+     * decoded structurally (scope-free), emitting a generic {@code name} leaf and no
+     * {@code mqeEntity}. Errors and empty results flow straight back to the caller; an empty result
+     * means "no rows in range", not a reliable "metric absent".
+     */
+    private HttpResponse listForeignEntities(final String metric,
+                                             final String valueColumn,
+                                             final String valueType,
+                                             final String start,
+                                             final String end,
+                                             final String stepStr,
+                                             final Optional<Integer> limitOpt) {
+        final String type = valueType.toUpperCase();
+        if (!ACCEPTED_FOREIGN_VALUE_TYPES.contains(type)) {
+            return error(HttpStatus.BAD_REQUEST,
+                "valueType must be one of LONG / INT / DOUBLE / LABELED (got " + valueType + ")");
+        }
+
+        final Step step;
+        try {
+            step = Step.valueOf(stepStr.toUpperCase());
+        } catch (Exception e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step must be one of MINUTE / HOUR / DAY (got " + stepStr + ")");
+        }
+        if (step == Step.SECOND) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step must be one of MINUTE / HOUR / DAY (got SECOND)");
+        }
+
+        final int limit = limitOpt.orElse(LIMIT_DEFAULT);
+        if (limit < 1 || limit > LIMIT_MAX) {
+            return error(HttpStatus.BAD_REQUEST, "limit must be between 1 and " + LIMIT_MAX);
+        }
+
+        final Duration duration = new Duration();
+        duration.setStart(start);
+        duration.setEnd(end);
+        duration.setStep(step);
+        try {
+            duration.getStartTimeBucket();
+            duration.getEndTimeBucket();
+        } catch (IllegalArgumentException | UnexpectedException e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "start / end must follow the step's date format (DAY: yyyy-MM-dd, HOUR: "
+                    + "yyyy-MM-dd HH, MINUTE: yyyy-MM-dd HHmm): " + e.getMessage());
+        }
+
+        final List<String> entityIds;
+        try {
+            entityIds = metricsQueryDAO().listEntityIdsInRange(metric, valueColumn, type, duration, limit);
+        } catch (Exception e) {
+            // Optimistic read: surface the storage error directly. A wrong valueColumn/valueType, an
+            // unsupported storage mode (e.g. ES logicSharding), or a missing table lands here.
+            log.warn("foreign-metric listEntityIdsInRange failed for metric={} step={}", metric, step, e);
+            return error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+
+        final List<EntityRow> rows = new ArrayList<>();
+        for (final String entityId : entityIds) {
+            final EntityDecoder.Decoded decoded;
+            try {
+                decoded = EntityDecoder.decodeUnknownScope(entityId);
+            } catch (Exception e) {
+                log.warn("Failed to structurally decode entity_id={}", entityId, e);
+                continue;
+            }
+            final List<String> layers = lookupLayers(decoded.serviceIdForLayer);
+            if (layers.isEmpty()) {
+                rows.add(new EntityRow(entityId, decoded.decodedFields, null, decoded.mqeEntity));
+            } else {
+                for (final String layer : layers) {
+                    rows.add(new EntityRow(entityId, decoded.decodedFields, layer, decoded.mqeEntity));
+                }
+            }
+        }
+
+        // scope is null: a foreign metric's structural kind is per-row in `decoded`, and a single
+        // metric's entities all share one structure anyway.
+        final EntitiesResponse body = new EntitiesResponse(metric, null, step.name(), start, end, rows);
         return HttpResponse.ofJson(MediaType.JSON_UTF_8, body);
     }
 

@@ -12,7 +12,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-# /inspect/entities for a metric that is not in ValueColumnMetadata and carries no
-# valueColumn/valueType — 400. The handler returns "metric unknown locally: <name> —
-# provide valueColumn and valueType …"; the query reconstructs the {error: …} prefix.
-error: 'metric unknown locally: nonexistent_metric_xyz'
+
+# Mounted on OAP-A only. Turns the shared OTLP emitter's `e2e_rr_pool_size` gauge
+# into the Service-scoped metric `meter_inspect_e2e_pool`. OAP-B does NOT load this
+# rule, so the metric is "foreign" to B — readable only through the new
+# valueColumn/valueType inspect path. (Reuses the runtime-rule otlp-emitter, which
+# publishes e2e_rr_pool_size tagged with service_name.)
+expSuffix: service(['service_name'], Layer.GENERAL)
+metricPrefix: meter_inspect_e2e
+metricsRules:
+  - name: pool
+    exp: e2e_rr_pool_size.sum(['service_name'])

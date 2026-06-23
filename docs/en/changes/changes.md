@@ -2,6 +2,7 @@
 
 #### Project
 
+* Extend the `GET /inspect/entities` admin API to inspect a metric persisted by **any** OAP, even one this node does not define locally. When the metric is unknown to the local registry, the caller supplies `valueColumn` + `valueType` and the storage backend resolves the physical index/table/group from its own running config (no DB schema/table-metadata read): ES uses the merged `metrics-all` index + `metric_table` discriminator, JDBC probes the node's function tables by the `table_name` discriminator, and BanyanDB synthesizes a read-only measure schema. Scope is no longer required — the `entity_id` is decoded structurally (service / 2nd-level / relations) with a generic `name` leaf. Locally-defined metrics keep the exact field names, scope, and `mqeEntity` as before.
 * Remove the always-on alarm-to-event conversion (`EventHookCallback`). A triggered alarm is no longer synthesized into the events pipeline as an `Alarm`/`AlarmRecovery` event; events now originate only from real event sources (agents, SkyWalking CLI, Kubernetes Event Exporter). Alarms remain available through the alarm store (`getAlarm`/`queryAlarms`) and the configured alarm hooks. This drops a documented "Known Event" and removes 1-2 synthetic event records per alarm fire.
 * **New `queryAlarms` GraphQL query — entity / layer / rule filters for alarms.** Adds
   a comprehensive alarm query API alongside the legacy `getAlarm`. The new

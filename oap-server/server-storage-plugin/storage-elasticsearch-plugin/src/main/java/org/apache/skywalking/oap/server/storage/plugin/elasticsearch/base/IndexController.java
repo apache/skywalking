@@ -53,12 +53,19 @@ public enum IndexController {
     @Getter
     private boolean enableCustomRouting = false;
 
+    /**
+     * The single physical index every metric model merges into when {@link #logicSharding} is off
+     * (the default for years). Used at install/write time and by the inspect read path for a
+     * foreign metric, whose physical index cannot be resolved through the (absent) local model.
+     */
+    public static final String METRICS_LOGIC_TABLE_NAME = "metrics-all";
+
     public String getTableName(Model model) {
         if (!model.isTimeSeries()) {
             return "management";
         }
         if (!logicSharding) {
-            return model.isMetric() ? "metrics-all" :
+            return model.isMetric() ? METRICS_LOGIC_TABLE_NAME :
                 (model.isRecord() && !model.isSuperDataset() ? "records-all" : model.getName());
         }
         String aggFuncName = FunctionCategory.uniqueFunctionName(model.getStreamClass());

@@ -6,9 +6,12 @@ let operators answer two questions without writing exploratory MQE:
 1. *Which metrics has OAP registered, and at what downsampling?*
 2. *For metric `X` in time range `T`, which entities currently hold values?*
 
-The output of (2) carries a ready-to-paste `mqeEntity` payload, so the
-follow-up MQE call against the public GraphQL `execExpression` mutation is
-copy-paste from the inspect response.
+For a locally-defined metric, the output of (2) carries a ready-to-paste
+`mqeEntity` payload, so the follow-up MQE call against the public GraphQL
+`execExpression` mutation is copy-paste from the inspect response. A metric
+persisted by **another OAP** that this node does not define can also be
+inspected with caller-supplied metadata (see
+[Foreign metrics](#foreign-metrics-not-defined-on-this-oap)).
 
 ## Enabling
 
@@ -83,8 +86,12 @@ curl 'http://oap-admin:17128/inspect/metrics?regex=service_cpm'
 
 ### `GET /inspect/entities`
 
-For a metric + time range + step, returns the entities holding values, each
-decoded into a human-readable shape and an MQE-ready `mqeEntity` payload.
+For a metric + time range + step, returns the entities holding values. For a
+metric this OAP defines locally, each row is decoded into a human-readable
+shape and an MQE-ready `mqeEntity` payload. A metric persisted by **another
+OAP** that this node does not define can also be inspected by additionally
+supplying `valueColumn` + `valueType` — see
+[Foreign metrics](#foreign-metrics-not-defined-on-this-oap).
 
 Restricted to `REGULAR_VALUE` and `LABELED_VALUE` metrics. The non-MQE
 metric types (`HEATMAP` / `SAMPLED_RECORD`) and the out-of-scope scopes
@@ -94,11 +101,13 @@ Query parameters:
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `metric` | yes | Metric name. Must resolve in `ValueColumnMetadata`. |
+| `metric` | yes | Metric name. If unknown to this OAP's local registry, also supply `valueColumn` + `valueType` (see [Foreign metrics](#foreign-metrics-not-defined-on-this-oap)). |
 | `start` | yes | Time-range start. Same format as MQE `Duration.start`: `yyyy-MM-dd` (DAY), `yyyy-MM-dd HH` (HOUR), `yyyy-MM-dd HHmm` (MINUTE), `yyyy-MM-dd HHmmss` (SECOND). Note `HHmm` is no-separator — use `1230`, not `12:30`. |
 | `end` | yes | Time-range end. Format mirrors `start`. |
-| `step` | yes | One of `MINUTE` / `HOUR` / `DAY`. Must be one of the metric's `downsamplings`. |
+| `step` | yes | One of `MINUTE` / `HOUR` / `DAY`. For a locally-defined metric, must be one of the metric's `downsamplings`; for a foreign metric the requested step is trusted as-is. |
 | `limit` | no | Server-side cap. Default 300, hard-capped at 300. |
+| `valueColumn` | conditional | **Required when `metric` is not defined on this OAP.** The metric's value column (post-override physical name, e.g. `value`, `value_`, `double_value`, `datatable_value`, `dataset`). Ignored for a locally-defined metric. |
+| `valueType` | conditional | **Required when `metric` is not defined on this OAP.** One of `LONG` / `INT` / `DOUBLE` / `LABELED`. Ignored for a locally-defined metric. |
 
 The `limit` is applied as `LIMIT N` at the storage layer — it bounds the
 total rows scanned (300 ≈ 10 buckets × 30 entities), not 300 distinct
@@ -159,6 +168,65 @@ curl 'http://oap-admin:17128/inspect/entities?metric=service_cpm&start=2026-05-1
 }
 ```
 
+### Foreign metrics (not defined on this OAP)
+
+A metric persisted by **another OAP** — a different OAL/MAL/runtime-rule set —
+is absent from this node's local registry, so its value column, type, and scope
+cannot be recovered from the metric name alone (there is no OAL/MAL text here to
+read). Supply `valueColumn` + `valueType` on the request and the backend resolves
+the physical index/table/group from its own running configuration (the
+deterministic metric → storage mapping that merging has used for years), with
+**no storage schema / table-metadata read**:
+
+* **ES** — the merged `metrics-all` index, filtered by the `metric_table`
+  discriminator. Not supported under `logicSharding=true`, where the physical
+  index is derived from the metric's stream class (returns `500`).
+* **JDBC** — probes the node's aggregation-function metric tables
+  (`metrics_<fn>` / `meter_<fn>`) by the `table_name` discriminator.
+* **BanyanDB** — synthesizes a read-only measure schema from the deterministic
+  measure/group mapping.
+
+Because the scope is unknown, the response degrades gracefully:
+
+* `scope` is `null` (the structural kind is per-row in `decoded`).
+* `entity_id` is decoded **structurally**: a single entity yields `serviceName`
+  (plus a generic `name` leaf for a 2nd-level instance/endpoint — the two are
+  byte-identical and not distinguishable without the scope); a relation yields a
+  `source` / `destination` pair.
+* **No `mqeEntity`** is produced — MQE needs the exact scope, and a foreign
+  metric is not MQE-queryable on this node anyway.
+
+Existence is decided by the data probe itself, so an **empty result means "no
+rows in range", not "metric absent"**. Nothing is validated against metadata up
+front: a wrong `valueColumn` / `valueType` surfaces as a storage error (`500`)
+or an empty result.
+
+Tip: query the writing OAP's own `/inspect/metrics?regex=<metric>` to read the
+exact `valueColumnName`, then pass that as `valueColumn`.
+
+Example — `meter_custom_x`, defined on another OAP, inspected here:
+
+```bash
+curl 'http://oap-admin:17128/inspect/entities?metric=meter_custom_x&valueColumn=value&valueType=LONG&start=2026-05-10%201230&end=2026-05-10%201240&step=MINUTE'
+```
+
+```json
+{
+  "metric": "meter_custom_x",
+  "scope": null,
+  "step": "MINUTE",
+  "start": "2026-05-10 1230",
+  "end":   "2026-05-10 1240",
+  "rows": [
+    {
+      "entityId": "cGF5bWVudA==.1",
+      "decoded": { "serviceName": "payment", "isReal": true },
+      "layer": "GENERAL"
+    }
+  ]
+}
+```
+
 ## Discovering the OAP REST URL for the MQE follow-up
 
 To keep the surface minimal, the inspect API does not introduce a separate
@@ -173,8 +241,9 @@ session start is enough.
 
 | Status | Body | Cause |
 |--------|------|-------|
-| 400 | `{"error":"unknown metric: foo"}` | Metric not in `ValueColumnMetadata`. |
-| 400 | `{"error":"step DAY not supported by metric foo (MINUTE,HOUR)"}` | Metric not materialised at the requested downsampling. |
+| 400 | `{"error":"metric unknown locally: foo — provide valueColumn and valueType to inspect a metric persisted by another OAP"}` | Metric not defined on this OAP, and the `valueColumn` / `valueType` pair was not supplied. See [Foreign metrics](#foreign-metrics-not-defined-on-this-oap). |
+| 400 | `{"error":"valueType must be one of LONG / INT / DOUBLE / LABELED (got X)"}` | Invalid `valueType` on the foreign-metric path. |
+| 400 | `{"error":"step DAY not supported by metric foo (MINUTE,HOUR)"}` | Metric not materialised at the requested downsampling (locally-defined metric only). |
 | 400 | `{"error":"metric type HEATMAP is not MQE-queryable; /inspect/entities only accepts REGULAR_VALUE and LABELED_VALUE"}` | Metric is `HEATMAP` (`HISTOGRAM` `dataType`). |
 | 400 | `{"error":"metric type SAMPLED_RECORD is out of scope for /inspect/entities"}` | Metric is `SAMPLED_RECORD`. |
 | 400 | `{"error":"process scope is out of scope"}` | Scope is `Process` / `ProcessRelation`. |

@@ -216,12 +216,13 @@ cases:
       DAY=$(date -u +"%Y-%m-%d")
       swctl --display json --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric service_cpm --start "${DAY} 00" --end "${DAY} 23" --step HOUR | yq -P
     expected: expected/inspect-entities-service-cpm-hour.yml
-  # Negative — unknown metric: swctl exits non-zero and renders the typed error
-  # envelope ("... HTTP 400: unknown metric: <name>"). Reconstruct the original
-  # {error: ...} shape from the message so the expected file is unchanged.
+  # Negative — metric absent from this OAP: swctl exits non-zero and renders the
+  # typed error envelope ("... HTTP 400: metric unknown locally: <name> — provide
+  # valueColumn and valueType …"). The handler steers the caller toward the
+  # foreign-metric path; reconstruct the {error: ...} shape from the message prefix.
   - query: |
       DAY=$(date -u +"%Y-%m-%d")
       out=$(swctl --display yaml --admin-url=http://${oap_host}:${oap_17128} admin inspect entities --metric nonexistent_metric_xyz --start "${DAY}" --end "${DAY}" --step DAY 2>&1 || true)
-      msg=$(echo "$out" | grep -o 'unknown metric: [a-z_0-9]*' | head -1)
+      msg=$(echo "$out" | grep -o 'metric unknown locally: [a-z_0-9]*' | head -1)
       yq -n ".error = \"${msg}\""
     expected: expected/inspect-entities-unknown-metric.yml

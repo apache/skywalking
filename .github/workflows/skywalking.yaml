@@ -390,6 +390,14 @@ jobs:
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.18.8
 
+          - name: Inspect API BanyanDB
+            config: test/e2e-v2/cases/inspect/banyandb/e2e.yaml
+          - name: Inspect API PostgreSQL
+            config: test/e2e-v2/cases/inspect/postgresql/e2e.yaml
+          - name: Inspect API Elasticsearch 8.18.8
+            config: test/e2e-v2/cases/inspect/elasticsearch/e2e.yaml
+            env: ES_VERSION=8.18.8
+
           - name: Runtime Rule MAL Storage BanyanDB
             config: test/e2e-v2/cases/runtime-rule/mal-storage/banyandb/e2e.yaml
           - name: Runtime Rule MAL Storage PostgreSQL

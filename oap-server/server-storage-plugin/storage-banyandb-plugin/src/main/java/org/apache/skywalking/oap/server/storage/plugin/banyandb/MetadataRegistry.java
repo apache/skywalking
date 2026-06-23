@@ -425,6 +425,58 @@ public enum MetadataRegistry {
         return this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
     }
 
+    /**
+     * Synthesize a read-only measure {@link Schema} for a metric this OAP does not define locally
+     * (persisted by another OAP). No storage schema read is performed: the measure name / group /
+     * entity_id tag are derived from the deterministic metric → measure mapping, and the value field
+     * from the caller-supplied {@code valueColumn} / {@code valueType}. The node-global namespace is
+     * borrowed from any registered measure (the node always has its own metrics). BanyanDB validates
+     * the projection server-side, so a wrong value column surfaces as a query error.
+     *
+     * @return the synthesized schema, or {@code null} if this node has no registered measure to
+     *         borrow the namespace from (foreign-metric inspect is then unavailable here).
+     */
+    public Schema synthesizeForeignMetricSchema(final String metricName,
+                                                final Step step,
+                                                final String valueColumn,
+                                                final String valueType) {
+        final DownSampling downSampling = deriveFromStep(step);
+        final String rawGroup;
+        switch (downSampling) {
+            case Minute:
+                rawGroup = BanyanDB.MeasureGroup.METRICS_MINUTE.getName();
+                break;
+            case Hour:
+                rawGroup = BanyanDB.MeasureGroup.METRICS_HOUR.getName();
+                break;
+            case Day:
+                rawGroup = BanyanDB.MeasureGroup.METRICS_DAY.getName();
+                break;
+            default:
+                throw new IllegalArgumentException(
+                    "foreign-metric inspect supports step MINUTE / HOUR / DAY only, got " + step);
+        }
+        // namespace is node-global; borrow it from any registered measure. convertGroupName treats a
+        // null/empty namespace as "no prefix".
+        String namespace = null;
+        for (final Schema registered : this.registry.values()) {
+            if (registered.getMetadata().getKind() == Kind.MEASURE) {
+                namespace = registered.getMetadata().getNamespace();
+                break;
+            }
+        }
+        final SchemaMetadata metadata = new SchemaMetadata(
+            namespace, rawGroup, metricName, Kind.MEASURE, downSampling, null);
+        final Class<?> fieldClass = "DOUBLE".equalsIgnoreCase(valueType) ? double.class : long.class;
+        return Schema.builder()
+                     .metadata(metadata)
+                     .tag(Metrics.ENTITY_ID, metadata.indexFamily())
+                     .field(valueColumn)
+                     .spec(Metrics.ENTITY_ID, new ColumnSpec(ColumnType.TAG, String.class))
+                     .spec(valueColumn, new ColumnSpec(ColumnType.FIELD, fieldClass))
+                     .build();
+    }
+
     public Schema findRecordMetadata(final String modelName) {
         return this.registry.get(modelName);
     }

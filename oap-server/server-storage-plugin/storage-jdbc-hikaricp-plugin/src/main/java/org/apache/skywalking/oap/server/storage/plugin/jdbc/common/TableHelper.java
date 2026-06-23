@@ -174,6 +174,53 @@ public class TableHelper {
             .collect(toList());
     }
 
+    /**
+     * Distinct physical (raw) table names of every aggregation-FUNCTION metric model installed on
+     * this node — the closed set of {@code metrics_<fn>} / {@code meter_<fn>} tables that a foreign
+     * metric (defined by another OAP) must also live in. Used by the inspect probe.
+     *
+     * <p>Filtered to function metrics, NOT all {@code isMetric()} models: metadata "metrics" such as
+     * {@code ServiceTraffic} / {@code InstanceTraffic} / {@code EndpointTraffic} are {@link Metrics}
+     * subclasses (so {@code isMetric()} is true) but carry no aggregation function, no
+     * {@code entity_id}, and no {@code table_name} discriminator column. Probing them with
+     * {@code select entity_id ... where table_name = ?} would hit "column not found" and 500. Only
+     * function metrics are merged into the shared {@code metrics_<fn>} tables and always carry both
+     * columns.
+     */
+    public static List<String> getMetricRawTables() {
+        return TableMetaInfo.getModels().stream()
+            .filter(TableHelper::isFunctionMetric)
+            .map(TableHelper::getTableName)
+            .distinct()
+            .collect(toList());
+    }
+
+    /**
+     * Day-partitioned tables for a RAW physical table name (a metric function table) within a
+     * time-bucket range, filtered to those that actually exist. Unlike
+     * {@link #getTablesForRead(String, long, long)} this needs no local {@link Model}, so it backs
+     * the foreign-metric inspect probe across the node's known function tables.
+     */
+    public List<String> getExistingDayTables(String rawTableName, long timeBucketStart, long timeBucketEnd) {
+        final var timestampStart = TimeBucket.getTimestamp(timeBucketStart);
+        final var timestampEnd = TimeBucket.getTimestamp(timeBucketEnd);
+        final var timeBuckets = LongStream.builder();
+        for (var timestamp = timestampStart; timestamp <= timestampEnd; timestamp += TimeUnit.DAYS.toMillis(1)) {
+            timeBuckets.add(TimeBucket.getTimeBucket(timestamp, DownSampling.Day));
+        }
+        return timeBuckets.build()
+            .distinct()
+            .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
+            .filter(table -> {
+                try {
+                    return tableExistence.get(table);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(toList());
+    }
+
     public static String generateId(Model model, String originalID) {
         if (model.isRecord() && !model.isSuperDataset()) {
             return generateId(model.getName(), originalID);
