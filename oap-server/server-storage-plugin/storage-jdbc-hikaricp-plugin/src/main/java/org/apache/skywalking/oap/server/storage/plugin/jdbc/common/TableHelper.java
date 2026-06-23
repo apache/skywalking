@@ -180,7 +180,7 @@ public class TableHelper {
      * metric (defined by another OAP) must also live in. Used by the inspect probe.
      *
      * <p>Filtered to function metrics, NOT all {@code isMetric()} models: metadata "metrics" such as
-     * {@code ServiceTraffic} / {@code InstanceTraffic} / {@code EndpointTraffic} are {@link Metrics}
+     * {@code ServiceTraffic} / {@code InstanceTraffic} / {@code EndpointTraffic} are {@code Metrics}
      * subclasses (so {@code isMetric()} is true) but carry no aggregation function, no
      * {@code entity_id}, and no {@code table_name} discriminator column. Probing them with
      * {@code select entity_id ... where table_name = ?} would hit "column not found" and 500. Only
