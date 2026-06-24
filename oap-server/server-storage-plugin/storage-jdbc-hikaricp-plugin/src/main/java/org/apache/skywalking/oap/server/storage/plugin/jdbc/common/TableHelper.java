@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.FunctionCategory;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.storage.annotation.InspectQueryContext;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -39,6 +40,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -107,6 +109,17 @@ public class TableHelper {
 
     public List<String> getTablesForRead(String modelName, long timeBucketStart, long timeBucketEnd) {
         final var model = TableMetaInfo.get(modelName);
+        if (model == null && InspectQueryContext.get(modelName) != null) {
+            // A foreign metric (admin inspect value path: InspectQueryContext active on this thread)
+            // has no local model, so its physical function table is unknown. Probe every metric
+            // function table; the metric-prefixed row ids (generateId) keep only this metric's rows.
+            // A non-overlay miss is a genuinely unknown metric — fall through and let it surface.
+            final List<String> tables = new ArrayList<>();
+            for (final var rawTable : getMetricRawTables()) {
+                tables.addAll(getExistingDayTables(rawTable, timeBucketStart, timeBucketEnd));
+            }
+            return tables;
+        }
         final var rawTableName = getTableName(model);
 
         if (!model.isTimeSeries()) {

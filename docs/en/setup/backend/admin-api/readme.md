@@ -86,6 +86,9 @@ Common operations:
 - `GET /inspect/metrics` — metric catalog with type / scope / supported downsamplings.
 - `GET /inspect/entities?metric=&start=&end=&step=` — capped (≤300) list of
   entities holding values, decoded into MQE-ready form.
+- `POST /inspect/values` — read the value series of a metric this OAP does not
+  define locally (foreign metric), by supplying its `{valueColumn, valueType}`;
+  returns the native MQE result.
 
 Operator reference: [Inspect API](inspect.md).
 

@@ -39,6 +39,12 @@
             <artifactId>admin-server</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- MQEExecutor: run the MQE engine synchronously for the foreign-metric value path. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>query-graphql-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

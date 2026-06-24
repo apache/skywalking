@@ -1,17 +1,18 @@
 # Inspect API
 
-The Inspect API lives on `admin-server` and exposes two browse endpoints that
-let operators answer two questions without writing exploratory MQE:
+The Inspect API lives on `admin-server` and exposes three endpoints that
+let operators answer three questions without writing exploratory MQE:
 
-1. *Which metrics has OAP registered, and at what downsampling?*
-2. *For metric `X` in time range `T`, which entities currently hold values?*
+1. *Which metrics has OAP registered, and at what downsampling?* — `GET /inspect/metrics`
+2. *For metric `X` in time range `T`, which entities currently hold values?* — `GET /inspect/entities`
+3. *For metric `X` + entity `E`, what are the values?* — `POST /inspect/values`
 
 For a locally-defined metric, the output of (2) carries a ready-to-paste
 `mqeEntity` payload, so the follow-up MQE call against the public GraphQL
 `execExpression` mutation is copy-paste from the inspect response. A metric
 persisted by **another OAP** that this node does not define can also be
-inspected with caller-supplied metadata (see
-[Foreign metrics](#foreign-metrics-not-defined-on-this-oap)).
+inspected with caller-supplied metadata — both its entities (2) and its values
+(3) — see [Foreign metrics](#foreign-metrics-not-defined-on-this-oap).
 
 ## Enabling
 
@@ -227,6 +228,73 @@ curl 'http://oap-admin:17128/inspect/entities?metric=meter_custom_x&valueColumn=
 }
 ```
 
+### `POST /inspect/values`
+
+Reads the **values** of a metric this OAP does not define locally, by running the
+real MQE engine over caller-supplied metadata. Where `GET /inspect/entities`
+answers *which entities hold values*, this answers *what those values are* — the
+native MQE `ExpressionResult` (the same shape the UI renders for a catalog metric),
+for a metric that is otherwise foreign to this node.
+
+Because it trusts caller-supplied metadata and forces a read of a metric this OAP
+cannot validate, it is **admin-only** (it never mirrors onto the public REST /
+GraphQL surface) and takes a request **body**: an MQE expression plus one metadata
+entry per foreign metric the expression references.
+
+Request body (`application/json`):
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `expression` | yes | The MQE expression to evaluate — a single foreign metric name, or an expression combining foreign and/or catalog metrics. |
+| `entity` | yes | The MQE query entity; its `scope` binds every foreign metric. e.g. `{ "scope": "Service", "serviceName": "X", "normal": true }` (use `serviceInstanceName` / `endpointName` for the deeper scopes). |
+| `start` / `end` | yes | Time range, same format as [`/inspect/entities`](#get-inspectentities). |
+| `step` | yes | One of `MINUTE` / `HOUR` / `DAY`. |
+| `foreignMetrics` | yes | One entry per metric in `expression` that this OAP does not define: `{ "name": "...", "valueColumn": "value", "valueType": "LONG" }`. `valueColumn` is the post-override physical column; `valueType` is one of `LONG` / `INT` / `DOUBLE` / `LABELED`. A locally-defined metric must **not** be listed here (query it via the public GraphQL `execExpression`). |
+
+The metadata is overlaid **provide-if-absent** (the local catalog always wins) onto
+the same registries the engine already consults, so a foreign metric looks registered
+for the duration of the request: `ValueColumnMetadata` resolves its value column / type
+/ scope, and the storage location registries resolve its index / table / measure exactly
+as described in [Foreign metrics](#foreign-metrics-not-defined-on-this-oap). The overlay
+is request-scoped to the calling thread and removed when the read completes; the public
+query path never sets it.
+
+Only scalar (`LONG` / `INT` / `DOUBLE`) and labeled (best-effort) value series are
+supported. An expression that resolves to `top_n` / records / heatmaps needs a local
+model and surfaces as an error. Under ES `logicSharding=true` a foreign value read is
+unsupported (the physical index derives from the metric's stream class), returning `500`.
+
+Example — read the value series of `meter_custom_x`, defined on another OAP:
+
+```bash
+curl -X POST 'http://oap-admin:17128/inspect/values' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "expression": "meter_custom_x",
+    "entity": { "scope": "Service", "serviceName": "payment", "normal": true },
+    "start": "2026-05-10 1230", "end": "2026-05-10 1240", "step": "MINUTE",
+    "foreignMetrics": [
+      { "name": "meter_custom_x", "valueColumn": "value", "valueType": "LONG" }
+    ]
+  }'
+```
+
+```json
+{
+  "type": "TIME_SERIES_VALUES",
+  "results": [
+    {
+      "metric": { "labels": [] },
+      "values": [
+        { "id": "1778416200000", "value": "42" },
+        { "id": "1778416260000", "value": "42" }
+      ]
+    }
+  ],
+  "error": null
+}
+```
+
 ## Discovering the OAP REST URL for the MQE follow-up
 
 To keep the surface minimal, the inspect API does not introduce a separate
@@ -248,6 +316,11 @@ session start is enough.
 | 400 | `{"error":"metric type SAMPLED_RECORD is out of scope for /inspect/entities"}` | Metric is `SAMPLED_RECORD`. |
 | 400 | `{"error":"process scope is out of scope"}` | Scope is `Process` / `ProcessRelation`. |
 | 400 | `{"error":"limit must be between 1 and 300"}` | `limit` out of range. |
+| 400 | `{"error":"foreignMetrics is required; a locally-defined metric should be queried via the public GraphQL execExpression"}` | `POST /inspect/values` body had no `foreignMetrics`. |
+| 400 | `{"error":"metric foo is defined locally; query it via the GraphQL execExpression and drop it from foreignMetrics"}` | A `foreignMetrics` entry names a metric this OAP already defines. |
+| 400 | `{"error":"valueColumn is invalid: …"}` | A `foreignMetrics` `valueColumn` is not a bare identifier. |
+| 400 | `{"error":"<MQE error>"}` | `POST /inspect/values` expression resolved to an unsupported shape (e.g. `top_n` / record / heatmap) for a foreign metric. |
+| 500 | `{"error":"<storage error>"}` | A wrong `valueColumn` / `valueType`, or ES `logicSharding=true`, surfaced at the storage layer during a value read. |
 
 ## Limits
 
