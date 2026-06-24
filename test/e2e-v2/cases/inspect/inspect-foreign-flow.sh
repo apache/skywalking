@@ -29,6 +29,8 @@
 #   3. OAP-B /inspect/entities WITHOUT valueColumn/valueType → "unknown locally".
 #   4. OAP-B /inspect/entities WITH valueColumn/valueType (FOREIGN/new path) returns
 #      the SAME entity, scope=null, no mqeEntity.
+#   5. OAP-B POST /inspect/values WITH foreignMetrics (FOREIGN VALUE/new path) returns
+#      the metric's value series (42).
 set -euo pipefail
 
 A_REST="${A_REST:-http://127.0.0.1:17128}"
@@ -102,5 +104,17 @@ echo "${b_rows}" | jq -e '.rows[]? | select(.decoded.serviceName=="'"${SVC}"'")'
 echo "${b_rows}" | jq -e '.rows[] | select(.decoded.serviceName=="'"${SVC}"'") | .mqeEntity == null' >/dev/null \
   || fail "OAP-B foreign row should carry no mqeEntity: ${b_rows}"
 log "  ✓ OAP-B FOREIGN /inspect/entities returns ${SVC}, scope=null, no mqeEntity (new path)"
+
+# --- 5. OAP-B foreign VALUE read (admin inspect values) returns the metric value ---
+# Uses the cli `admin inspect values` command (skywalking-cli #232, pinned via SW_CTL_COMMIT) →
+# POST /inspect/values. MINUTE step: the per-minute value of meter_inspect_e2e_pool (=
+# e2e_rr_pool_size summed over one service) is a constant 42; the DAY downsampling is not persisted
+# this early in the run. Relative -30m/0m window so no host date-arithmetic is needed.
+b_values="$(b_inspect values --expression "${METRIC}" --service-name "${SVC}" \
+  --foreign-metric "${METRIC},${VC},LONG" --start "-30m" --end "0m" --step MINUTE)" \
+  || fail "OAP-B admin inspect values errored"
+echo "${b_values}" | jq -e '[.results[]?.values[]? | select(.value=="42")] | length > 0' >/dev/null \
+  || fail "OAP-B admin inspect values returned no '42' value series: ${b_values}"
+log "  ✓ OAP-B FOREIGN admin inspect values returns the metric value 42 (new path)"
 
 log "=== inspect-foreign-flow.sh PASSED ==="

@@ -59,6 +59,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
     @Override
     public MetricsValues readMetricsValues(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
         String modelName = condition.getName();
+        // findMetricMetadata is overlay-aware: for a foreign metric (the admin inspect value path) it
+        // synthesizes a read-only schema from InspectQueryContext; a local metric returns the registered
+        // one. So this read path no longer special-cases foreign metrics.
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");

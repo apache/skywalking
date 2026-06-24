@@ -62,6 +62,8 @@ import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ForeignMetricMeta;
+import org.apache.skywalking.oap.server.core.storage.annotation.InspectQueryContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -422,7 +424,41 @@ public enum MetadataRegistry {
      * Find metadata with down-sampling
      */
     public Schema findMetricMetadata(final String modelName, DownSampling downSampling) {
-        return this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
+        final Schema schema = this.registry.get(SchemaMetadata.formatName(modelName, downSampling));
+        if (schema != null) {
+            return schema;
+        }
+        // Provide-if-absent: a locally-registered metric always wins (above). Only when this OAP has no
+        // schema for the metric AND the inspect overlay is active on THIS THREAD do we synthesize a
+        // read-only foreign schema. The overlay is a ThreadLocal set only on the admin inspect request
+        // thread (never a write thread), so writes — even those that reach here via findMetadata() —
+        // never observe it.
+        final ForeignMetricMeta foreign = InspectQueryContext.get(modelName);
+        if (foreign != null) {
+            return synthesizeForeignMetricSchema(
+                modelName, stepFromDownSampling(downSampling), foreign.getValueColumn(), foreign.getValueType());
+        }
+        return null;
+    }
+
+    /**
+     * Inverse of {@link #deriveFromStep(Step)}: map a {@link DownSampling} back to the {@link Step}
+     * that {@link #synthesizeForeignMetricSchema} expects.
+     *
+     * @param downSampling the down-sampling to map back
+     * @return the corresponding query step
+     */
+    private Step stepFromDownSampling(DownSampling downSampling) {
+        switch (downSampling) {
+            case Day:
+                return Step.DAY;
+            case Hour:
+                return Step.HOUR;
+            case Second:
+                return Step.SECOND;
+            default:
+                return Step.MINUTE;
+        }
     }
 
     /**

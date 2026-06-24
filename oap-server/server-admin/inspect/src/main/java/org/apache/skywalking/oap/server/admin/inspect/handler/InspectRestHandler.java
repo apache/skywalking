@@ -18,11 +18,15 @@
 
 package org.apache.skywalking.oap.server.admin.inspect.handler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.MediaType;
+import com.linecorp.armeria.server.annotation.Blocking;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
+import com.linecorp.armeria.server.annotation.Post;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,7 +40,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.query.graphql.mqe.rt.MQEExecutor;
 import org.apache.skywalking.oap.server.admin.inspect.decoder.EntityDecoder;
+import org.apache.skywalking.oap.server.admin.inspect.request.InspectValuesRequest;
 import org.apache.skywalking.oap.server.admin.inspect.response.EntitiesResponse;
 import org.apache.skywalking.oap.server.admin.inspect.response.EntityRow;
 import org.apache.skywalking.oap.server.admin.inspect.response.ErrorResponse;
@@ -51,10 +57,12 @@ import org.apache.skywalking.oap.server.core.query.enumeration.MetricsType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
+import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.annotation.ForeignMetricMeta;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
@@ -77,6 +85,9 @@ public class InspectRestHandler {
     /** Value types a caller may declare for a foreign (locally-undefined) metric. */
     private static final Set<String> ACCEPTED_FOREIGN_VALUE_TYPES =
         Set.of("LONG", "INT", "DOUBLE", "LABELED");
+    /** A value column is interpolated into JDBC SQL on the read path; restrict it to a bare identifier. */
+    private static final Pattern VALUE_COLUMN_PATTERN = Pattern.compile("^[A-Za-z_][A-Za-z0-9_]*$");
+    private static final ObjectMapper VALUES_MAPPER = new ObjectMapper();
 
     private final ModuleManager moduleManager;
 
@@ -396,6 +407,109 @@ public class InspectRestHandler {
         // metric's entities all share one structure anyway.
         final EntitiesResponse body = new EntitiesResponse(metric, null, step.name(), start, end, rows);
         return HttpResponse.ofJson(MediaType.JSON_UTF_8, body);
+    }
+
+    /**
+     * Read the VALUES of metric(s) persisted by another OAP that this node does not define. The body
+     * carries an MQE expression plus, in {@code foreignMetrics}, the metadata for each foreign metric
+     * it references (value column + type). The same MQE engine the public GraphQL surface uses is run
+     * synchronously with that metadata overlaid PROVIDE-IF-ABSENT (the catalog always wins), returning
+     * the native {@code ExpressionResult}. Marked {@code @Blocking}: the eval + storage read are
+     * synchronous and must not run on the event loop. Only scalar (LONG/INT/DOUBLE) and labeled
+     * (best-effort) value series are supported; {@code top_n} and record/heatmap shapes need a local
+     * model and surface as an error.
+     */
+    @Blocking
+    @Post("/inspect/values")
+    public HttpResponse listValues(final HttpData requestBody) {
+        final InspectValuesRequest req;
+        try {
+            req = VALUES_MAPPER.readValue(requestBody.toStringUtf8(), InspectValuesRequest.class);
+        } catch (Exception e) {
+            return error(HttpStatus.BAD_REQUEST, "invalid request body: " + e.getMessage());
+        }
+        if (req.getExpression() == null || req.getExpression().isBlank()) {
+            return error(HttpStatus.BAD_REQUEST, "expression is required");
+        }
+        if (req.getEntity() == null || req.getEntity().getScope() == null) {
+            return error(HttpStatus.BAD_REQUEST, "entity (with a scope) is required");
+        }
+        // The scope alone is not enough: the entity must carry the name fields its scope needs
+        // (e.g. serviceName + normal for Service), or buildId() yields a bogus id that the read
+        // silently misses — surface that as a 400 instead of an empty 200.
+        if (!req.getEntity().isValid()) {
+            return error(HttpStatus.BAD_REQUEST,
+                "entity is missing required fields for scope " + req.getEntity().getScope()
+                    + " (Service needs serviceName + normal; ServiceInstance/Endpoint also need "
+                    + "serviceInstanceName / endpointName)");
+        }
+        if (req.getForeignMetrics() == null || req.getForeignMetrics().isEmpty()) {
+            return error(HttpStatus.BAD_REQUEST,
+                "foreignMetrics is required; a locally-defined metric should be queried via the public "
+                    + "GraphQL execExpression");
+        }
+
+        final Step step;
+        try {
+            step = Step.valueOf(String.valueOf(req.getStep()).toUpperCase());
+        } catch (Exception e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "step must be one of MINUTE / HOUR / DAY (got " + req.getStep() + ")");
+        }
+        if (step == Step.SECOND) {
+            return error(HttpStatus.BAD_REQUEST, "step must be one of MINUTE / HOUR / DAY (got SECOND)");
+        }
+
+        final int scopeId = req.getEntity().getScope().getScopeId();
+        final List<ForeignMetricMeta> foreign = new ArrayList<>();
+        for (final InspectValuesRequest.ForeignMetricInput fm : req.getForeignMetrics()) {
+            if (fm.getName() == null || fm.getName().isBlank()) {
+                return error(HttpStatus.BAD_REQUEST, "each foreignMetrics entry needs a name");
+            }
+            if (fm.getValueColumn() == null || !VALUE_COLUMN_PATTERN.matcher(fm.getValueColumn()).matches()) {
+                return error(HttpStatus.BAD_REQUEST, "valueColumn is invalid: " + fm.getValueColumn());
+            }
+            final String type = fm.getValueType() == null ? "" : fm.getValueType().toUpperCase();
+            if (!ACCEPTED_FOREIGN_VALUE_TYPES.contains(type)) {
+                return error(HttpStatus.BAD_REQUEST,
+                    "valueType must be one of LONG / INT / DOUBLE / LABELED (got " + fm.getValueType() + ")");
+            }
+            if (ValueColumnMetadata.INSTANCE.readValueColumnDefinition(fm.getName()).isPresent()) {
+                return error(HttpStatus.BAD_REQUEST,
+                    "metric " + fm.getName() + " is defined locally; query it via the GraphQL "
+                        + "execExpression and drop it from foreignMetrics");
+            }
+            foreign.add(new ForeignMetricMeta(fm.getName(), fm.getValueColumn(), type, scopeId, 0));
+        }
+
+        final Duration duration = new Duration();
+        duration.setStart(req.getStart());
+        duration.setEnd(req.getEnd());
+        duration.setStep(step);
+        try {
+            duration.getStartTimeBucket();
+            duration.getEndTimeBucket();
+        } catch (IllegalArgumentException | UnexpectedException e) {
+            return error(HttpStatus.BAD_REQUEST,
+                "start / end must follow the step's date format (DAY: yyyy-MM-dd, HOUR: yyyy-MM-dd HH, "
+                    + "MINUTE: yyyy-MM-dd HHmm): " + e.getMessage());
+        }
+
+        final ExpressionResult result;
+        try {
+            result = new MQEExecutor(moduleManager)
+                .execute(req.getExpression(), req.getEntity(), duration, foreign);
+        } catch (Exception e) {
+            // Optimistic read: a foreign top_n / record shape, or a wrong valueColumn/valueType,
+            // surfaces here rather than as garbage.
+            log.warn("inspect values execute failed for expression={}", req.getExpression(), e);
+            return error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+        if (result.getError() != null) {
+            // e.g. an unsupported shape resolved to UNKNOWN — never put that on the wire as a 200.
+            return error(HttpStatus.BAD_REQUEST, result.getError());
+        }
+        return HttpResponse.ofJson(MediaType.JSON_UTF_8, result);
     }
 
     /**

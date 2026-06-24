@@ -85,7 +85,32 @@ public enum ValueColumnMetadata {
      * @return metric metadata if found
      */
     public Optional<ValueColumn> readValueColumnDefinition(String metricsName) {
-        return Optional.ofNullable(mapping.get(metricsName));
+        return Optional.ofNullable(resolve(metricsName));
+    }
+
+    /**
+     * Resolve a metric's value column: the locally-registered catalog wins; only when a metric is
+     * absent locally does the request-scoped {@link InspectQueryContext} fill the gap (the admin
+     * inspect value path). The overlay is therefore provide-if-absent — it can never shadow or
+     * override a registered metric. Returns {@code null} when neither has it.
+     *
+     * @param metricsName the metric to resolve
+     * @return its value column, or {@code null}
+     */
+    private ValueColumn resolve(String metricsName) {
+        final ValueColumn registered = mapping.get(metricsName);
+        if (registered != null) {
+            return registered;
+        }
+        final ForeignMetricMeta foreign = InspectQueryContext.get(metricsName);
+        return foreign == null ? null : toForeignValueColumn(foreign);
+    }
+
+    private ValueColumn toForeignValueColumn(ForeignMetricMeta foreign) {
+        final Column.ValueDataType dataType = "LABELED".equals(foreign.getValueType())
+            ? Column.ValueDataType.LABELED_VALUE : Column.ValueDataType.COMMON_VALUE;
+        return new ValueColumn(
+            foreign.getValueColumn(), dataType, foreign.getDefaultValue(), foreign.getScopeId(), false);
     }
 
     /**
@@ -100,7 +125,7 @@ public enum ValueColumnMetadata {
     }
 
     private ValueColumn findColumn(String metricsName) {
-        ValueColumn column = mapping.get(metricsName);
+        ValueColumn column = resolve(metricsName);
         if (column == null) {
             throw new RuntimeException("Metrics:" + metricsName + " doesn't have value column definition");
         }

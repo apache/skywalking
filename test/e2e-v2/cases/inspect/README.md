@@ -14,17 +14,19 @@ Two independent OAPs share one storage backend (no cluster):
 | aware (existing) | oap-a | `/inspect/metrics` lists it; `/inspect/entities` returns `inspect-e2e-svc` with an `mqeEntity` |
 | — | oap-b | `/inspect/metrics` excludes it |
 | aware, no metadata | oap-b | `/inspect/entities` → `400 metric unknown locally …` |
-| **foreign (new)** | oap-b | `/inspect/entities --value-column --value-type` returns the same entity, `scope:null`, no `mqeEntity` |
+| **foreign entity (new)** | oap-b | `/inspect/entities --value-column --value-type` returns the same entity, `scope:null`, no `mqeEntity` |
+| **foreign value (new)** | oap-b | `POST /inspect/values` with `foreignMetrics` returns the metric's value series (`42`) |
 
 Covered storages: `banyandb/`, `elasticsearch/`, `postgresql/`.
 
 ## CI wiring (gated on skywalking-cli)
 
-The foreign assertion calls `swctl admin inspect entities --value-column / --value-type`,
-flags added in [skywalking-cli #230](https://github.com/apache/skywalking-cli/pull/230).
-The e2e builds swctl from `SW_CTL_COMMIT` (`test/e2e-v2/script/env`), which is pinned to a
-cli commit that includes those flags, and the three storage variants are wired into the
-`e2e` matrix in `.github/workflows/skywalking.yaml`.
+The foreign assertions call `swctl admin inspect entities --value-column / --value-type`
+(flags from [skywalking-cli #230](https://github.com/apache/skywalking-cli/pull/230)) and
+`swctl admin inspect values --foreign-metric` (command from
+[skywalking-cli #232](https://github.com/apache/skywalking-cli/pull/232)). The e2e builds swctl
+from `SW_CTL_COMMIT` (`test/e2e-v2/script/env`), pinned to a cli commit that includes both, and the
+three storage variants are wired into the `e2e` matrix in `.github/workflows/skywalking.yaml`.
 
 To validate locally, build swctl from that commit (or newer) and run any variant's
 `e2e.yaml` with `skywalking-infra-e2e`; all three storages pass.

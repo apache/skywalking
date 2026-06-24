@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.core.query.type.IntValues;
 import org.apache.skywalking.oap.server.core.query.type.KVInt;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.MetricsValues;
+import org.apache.skywalking.oap.server.core.storage.annotation.InspectQueryContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -64,16 +65,26 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     @Override
     public MetricsValues readMetricsValues(final MetricsCondition condition,
                                            final String valueColumnName,
-                                           final Duration duration) {
+                                           final Duration duration) throws IOException {
+        // getPhysicalTableName / isMergedTable are overlay-aware: a foreign metric (admin inspect value
+        // path) resolves to the merged METRICS_LOGIC_TABLE_NAME index and reports mergedTable=true with
+        // no explicit branch here. The one case the overlay cannot cover is logicSharding=true, where the
+        // physical index derives from the metric's (absent) stream class — reject that up front.
+        if (InspectQueryContext.get(condition.getName()) != null && IndexController.INSTANCE.isLogicSharding()) {
+            throw new IOException(
+                "inspecting a foreign metric is unsupported under ES logicSharding=true: the physical "
+                    + "index is derived from the metric's stream class, which this OAP does not have for "
+                    + condition.getName());
+        }
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
-        String tableName =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
+        final boolean mergedTable = IndexController.LogicIndicesRegister.isMergedTable(condition.getName());
+        final String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
         Map<String, List<String>> indexIdsGroup = new HashMap<>();
 
         final List<String> ids = pointOfTimes.stream().map(pointOfTime -> {
             String id = pointOfTime.id(condition.getEntity().buildId());
-            if (IndexController.LogicIndicesRegister.isMergedTable(condition.getName())) {
+            if (mergedTable) {
                 id = IndexController.INSTANCE.generateDocId(condition.getName(), id);
             }
             String indexName = TimeSeriesUtils.queryIndexName(
@@ -116,11 +127,20 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     public List<MetricsValues> readLabeledMetricsValues(final MetricsCondition condition,
                                                         final String valueColumnName,
                                                         final List<KeyValue> labels,
-                                                        final Duration duration) {
+                                                        final Duration duration) throws IOException {
+        // getPhysicalTableName is overlay-aware: a foreign metric (admin inspect value path) resolves
+        // to the merged METRICS_LOGIC_TABLE_NAME index, so aggregationMode derives true and the doc-id
+        // is metric-name-prefixed without an explicit foreign branch. logicSharding cannot be resolved
+        // for a foreign metric (index derives from the absent stream class) — reject it up front.
+        if (InspectQueryContext.get(condition.getName()) != null && IndexController.INSTANCE.isLogicSharding()) {
+            throw new IOException(
+                "inspecting a foreign metric is unsupported under ES logicSharding=true: the physical "
+                    + "index is derived from the metric's stream class, which this OAP does not have for "
+                    + condition.getName());
+        }
         final String realValueColumn = IndexController.LogicIndicesRegister.getPhysicalColumnName(condition.getName(), valueColumnName);
         final List<PointOfTime> pointOfTimes = duration.assembleDurationPoints();
-        String tableName =
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
+        final String tableName = IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName());
         Map<String, List<String>> indexIdsGroup = new HashMap<>();
 
         boolean aggregationMode = !tableName.equals(condition.getName());
