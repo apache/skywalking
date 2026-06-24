@@ -107,3 +107,34 @@ verify:
           swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
            --service-name=php --dest-instance-name=provider1 --dest-service-name=e2e-service-provider
       expected: expected/metrics-has-value.yml
+    # PHP Health Metrics (PHM) — instance meters via native MeterReportService
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_process_cpu_utilization --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_memory_used_mb --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_memory_peak_mb --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_virtual_memory_mb --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_thread_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_php_open_fd_count --instance-name=$( \
+          swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name=php | yq e '.[0].name' - ) \
+           --service-name=php
+      expected: expected/metrics-has-value.yml

@@ -260,6 +260,8 @@ catalog:
             path: "/en/setup/backend/backend-zabbix"
           - name: "Meter Analysis"
             path: "/en/setup/backend/backend-meter"
+          - name: "PHP runtime metrics (PHM)"
+            path: "/en/setup/backend/dashboards-php-runtime"
           - name: "Telegraf Metrics"
             path: "/en/setup/backend/telegraf-receiver"
           - name: "Apdex Threshold"
