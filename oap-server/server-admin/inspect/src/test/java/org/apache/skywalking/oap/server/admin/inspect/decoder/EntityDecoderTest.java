@@ -186,4 +186,101 @@ class EntityDecoderTest {
         assertNull(d.mqeEntity.getEndpointName());
         assertTrue(d.mqeEntity.getNormal());
     }
+
+    // ==================== scope-free (foreign metric) decode ====================
+
+    @Test
+    void unknownScopeService() {
+        final String id = IDManager.ServiceID.buildId("payment", true);
+        final EntityDecoder.Decoded d = EntityDecoder.decodeUnknownScope(id);
+        assertEquals("payment", d.decodedFields.get("serviceName"));
+        assertEquals(Boolean.TRUE, d.decodedFields.get("isReal"));
+        assertNull(d.mqeEntity);
+        assertEquals(id, d.serviceIdForLayer);
+    }
+
+    @Test
+    void unknownScopeServiceConjectured() {
+        final String id = IDManager.ServiceID.buildId("mysql", false);
+        final EntityDecoder.Decoded d = EntityDecoder.decodeUnknownScope(id);
+        assertEquals("mysql", d.decodedFields.get("serviceName"));
+        assertEquals(Boolean.FALSE, d.decodedFields.get("isReal"));
+    }
+
+    @Test
+    void unknownScopeLevel2InstanceAndEndpointDecodeIdentically() {
+        // Instance and endpoint encode byte-identically (serviceId + "_" + base64(name)), so the
+        // scope-free decode yields the same shape with a generic "name" leaf for both.
+        final String svcId = IDManager.ServiceID.buildId("payment", true);
+        final String instId = IDManager.ServiceInstanceID.buildId(svcId, "pod-01");
+        final String epId = IDManager.EndpointID.buildId(svcId, "POST:/charge");
+
+        final EntityDecoder.Decoded inst = EntityDecoder.decodeUnknownScope(instId);
+        assertEquals("payment", inst.decodedFields.get("serviceName"));
+        assertEquals("pod-01", inst.decodedFields.get("name"));
+        assertNull(inst.decodedFields.get("serviceInstanceName"));
+        assertNull(inst.mqeEntity);
+        assertEquals(svcId, inst.serviceIdForLayer);
+
+        final EntityDecoder.Decoded ep = EntityDecoder.decodeUnknownScope(epId);
+        assertEquals("payment", ep.decodedFields.get("serviceName"));
+        assertEquals("POST:/charge", ep.decodedFields.get("name"));
+        assertNull(ep.decodedFields.get("endpointName"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void unknownScopeServiceRelation() {
+        final String src = IDManager.ServiceID.buildId("checkout", true);
+        final String dst = IDManager.ServiceID.buildId("payment", true);
+        final String id = IDManager.ServiceID.buildRelationId(
+            new IDManager.ServiceID.ServiceRelationDefine(src, dst));
+
+        final EntityDecoder.Decoded d = EntityDecoder.decodeUnknownScope(id);
+        final Map<String, Object> source = (Map<String, Object>) d.decodedFields.get("source");
+        final Map<String, Object> dest = (Map<String, Object>) d.decodedFields.get("destination");
+        assertEquals("checkout", source.get("serviceName"));
+        assertEquals("payment", dest.get("serviceName"));
+        assertNull(source.get("name"));
+        assertNull(d.mqeEntity);
+        assertEquals(src, d.serviceIdForLayer);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void unknownScopeLevel2Relation() {
+        final String srcSvc = IDManager.ServiceID.buildId("consumer", true);
+        final String dstSvc = IDManager.ServiceID.buildId("provider", true);
+        final String srcInst = IDManager.ServiceInstanceID.buildId(srcSvc, "pod-a");
+        final String dstInst = IDManager.ServiceInstanceID.buildId(dstSvc, "pod-b");
+        final String id = IDManager.ServiceInstanceID.buildRelationId(
+            new IDManager.ServiceInstanceID.ServiceInstanceRelationDefine(srcInst, dstInst));
+
+        final EntityDecoder.Decoded d = EntityDecoder.decodeUnknownScope(id);
+        final Map<String, Object> source = (Map<String, Object>) d.decodedFields.get("source");
+        final Map<String, Object> dest = (Map<String, Object>) d.decodedFields.get("destination");
+        assertEquals("consumer", source.get("serviceName"));
+        assertEquals("pod-a", source.get("name"));
+        assertEquals("provider", dest.get("serviceName"));
+        assertEquals("pod-b", dest.get("name"));
+        assertEquals(srcSvc, d.serviceIdForLayer);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    void unknownScopeEndpointRelation() {
+        final String srcSvc = IDManager.ServiceID.buildId("consumer", true);
+        final String dstSvc = IDManager.ServiceID.buildId("provider", true);
+        final String id = IDManager.EndpointID.buildRelationId(
+            new IDManager.EndpointID.EndpointRelationDefine(srcSvc, "/order", dstSvc, "/charge"));
+
+        final EntityDecoder.Decoded d = EntityDecoder.decodeUnknownScope(id);
+        final Map<String, Object> source = (Map<String, Object>) d.decodedFields.get("source");
+        final Map<String, Object> dest = (Map<String, Object>) d.decodedFields.get("destination");
+        assertEquals("consumer", source.get("serviceName"));
+        assertEquals("/order", source.get("name"));
+        assertEquals("provider", dest.get("serviceName"));
+        assertEquals("/charge", dest.get("name"));
+        assertEquals(srcSvc, d.serviceIdForLayer);
+    }
 }

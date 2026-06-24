@@ -118,26 +118,51 @@ public interface IMetricsQueryDAO extends DAO {
     /**
      * List distinct {@code entity_id}s that have at least one row for the given metric in the
      * given time range, capped at {@code limit}. Used by the {@code /inspect/entities}
-     * admin-server endpoint to enumerate the entities currently emitting values for a metric —
-     * feeds the decoded {@code mqeEntity} payload the inspect API hands back to operators so
-     * they can follow up with a public-GraphQL MQE query.
+     * admin-server endpoint to enumerate the entities currently emitting values for a metric.
      *
      * <p>Order: most recent timestamp first within the range so callers see live entities ahead
      * of stale ones. Backends dedup by {@code entity_id} before returning. The {@code limit}
      * argument is a server-side cap on the rows scanned, not a guarantee on distinct entities
      * (300 rows ≈ 10 buckets × 30 entities).
      *
-     * <p>Abstract on purpose — any 3rd party storage backend that implements
-     * {@code IMetricsQueryDAO} after 10.5.0 MUST provide this override. A default
-     * (empty list or thrown exception) would let a missing override slip through
-     * compilation and surface as a runtime "no entities" or 500 the first time the
-     * inspect API hit that backend; the breaking-at-compile signal is the safer
-     * contract for the inspect storage path.
+     * <p>Handles two cases through one path, mirroring the single {@code /inspect/entities}
+     * endpoint:
+     * <ul>
+     *   <li><b>Locally-defined metric</b> — the model / {@code ValueColumnMetadata} entry exists,
+     *       so the backend resolves the physical index/table/group from its registry as before and
+     *       the {@code valueType} hint is unused.</li>
+     *   <li><b>Foreign metric</b> — persisted by another OAP whose OAL/MAL/runtime-rule set this
+     *       node never loaded, so there is no local model. The backend resolves the physical target
+     *       from its OWN running configuration (the deterministic metric → storage mapping that
+     *       merging has used for years) WITHOUT reading any storage schema/table metadata, using
+     *       the caller-supplied {@code valueColumnName} + {@code valueType}. Existence is decided by
+     *       the data probe itself (the merged-table discriminator {@code metric_table} /
+     *       {@code table_name} on ES / JDBC, the synthesized measure on BanyanDB), so an empty
+     *       result means "no rows in range", never a reliable "metric absent".</li>
+     * </ul>
      *
+     * <p>Abstract on purpose — any 3rd party storage backend that implements
+     * {@code IMetricsQueryDAO} MUST provide this override. A default (empty list or thrown
+     * exception) would let a missing override slip through compilation and surface as a runtime
+     * "no entities" or 500 the first time the inspect API hit that backend; the breaking-at-compile
+     * signal is the safer contract for the inspect storage path.
+     *
+     * @param metricName      metric (model) name; also the merged-table discriminator value.
+     * @param valueColumnName the metric's value column (post-override physical name). Required for
+     *                        the foreign-metric path (BanyanDB projects/defines the field with it);
+     *                        ES / JDBC entity enumeration is value-column-agnostic.
+     * @param valueType       value data type for a foreign metric — one of {@code LONG} /
+     *                        {@code INT} / {@code DOUBLE} / {@code LABELED}; drives BanyanDB
+     *                        field-type synthesis. {@code null} for a locally-defined metric (the
+     *                        backend reads the type from its local model).
+     * @param duration        query time range + step.
+     * @param limit           server-side row cap.
+     * @return distinct entity ids holding values for the metric in range, most-recent first.
      * @since 10.5.0
      */
     List<String> listEntityIdsInRange(String metricName,
                                       String valueColumnName,
+                                      String valueType,
                                       Duration duration,
                                       int limit) throws IOException;
 

@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.admin.inspect.decoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.skywalking.oap.server.admin.inspect.response.MqeEntity;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 
@@ -90,6 +91,102 @@ public final class EntityDecoder {
                 throw new IllegalArgumentException(
                     "scope " + scope + " is not supported by /inspect/entities");
         }
+    }
+
+    /**
+     * Structural, scope-free decode for a metric this OAP does not define (no {@link Scope}
+     * available). The stored {@code entity_id} self-encodes the names with standard base64 plus
+     * the {@code .} / {@code _} / {@code -} delimiters (none of which appear in base64 output), so
+     * the entity kind is recoverable from delimiter structure alone:
+     * <ul>
+     *   <li>no {@code -}, no {@code _} → service</li>
+     *   <li>no {@code -}, one {@code _} → 2nd-level entity (service instance OR endpoint —
+     *       byte-identical encoding, emitted as a generic {@code name})</li>
+     *   <li>one {@code -} (2 parts) → service relation, or 2nd-level relation when each side has a
+     *       {@code _}</li>
+     *   <li>three {@code -} (4 parts) → endpoint relation</li>
+     * </ul>
+     * The only thing not recoverable is the instance-vs-endpoint label, so the leaf is reported as
+     * {@code name} and no {@link MqeEntity} is produced — MQE re-query needs the exact scope, and a
+     * foreign metric is not MQE-queryable on this node anyway.
+     */
+    public static Decoded decodeUnknownScope(final String entityId) {
+        final String[] relationParts = entityId.split(Const.RELATION_ID_PARSER_SPLIT);
+        switch (relationParts.length) {
+            case 1:
+                return entityId.contains(Const.ID_CONNECTOR)
+                    ? decodeLevel2Generic(entityId)
+                    : decodeServiceGeneric(entityId);
+            case 2:
+                return relationParts[0].contains(Const.ID_CONNECTOR)
+                    ? decodeLevel2RelationGeneric(entityId)
+                    : decodeServiceRelationGeneric(entityId);
+            case 4:
+                return decodeEndpointRelationGeneric(entityId);
+            default:
+                throw new IllegalArgumentException(
+                    "cannot structurally decode entity_id without scope: " + entityId);
+        }
+    }
+
+    private static Decoded decodeServiceGeneric(final String entityId) {
+        final IDManager.ServiceID.ServiceIDDefinition def = IDManager.ServiceID.analysisId(entityId);
+        final Map<String, Object> decoded = new LinkedHashMap<>();
+        decoded.put("serviceName", def.getName());
+        decoded.put("isReal", def.isReal());
+        return new Decoded(decoded, null, entityId);
+    }
+
+    private static Decoded decodeLevel2Generic(final String entityId) {
+        final IDManager.ServiceInstanceID.InstanceIDDefinition def =
+            IDManager.ServiceInstanceID.analysisId(entityId);
+        final IDManager.ServiceID.ServiceIDDefinition svc =
+            IDManager.ServiceID.analysisId(def.getServiceId());
+        return new Decoded(toLevel2Map(svc, def.getName()), null, def.getServiceId());
+    }
+
+    private static Decoded decodeServiceRelationGeneric(final String entityId) {
+        final IDManager.ServiceID.ServiceRelationDefine rel =
+            IDManager.ServiceID.analysisRelationId(entityId);
+        final IDManager.ServiceID.ServiceIDDefinition src = IDManager.ServiceID.analysisId(rel.getSourceId());
+        final IDManager.ServiceID.ServiceIDDefinition dst = IDManager.ServiceID.analysisId(rel.getDestId());
+        final Map<String, Object> decoded = new LinkedHashMap<>();
+        decoded.put("source", toServiceMap(src));
+        decoded.put("destination", toServiceMap(dst));
+        return new Decoded(decoded, null, rel.getSourceId());
+    }
+
+    private static Decoded decodeLevel2RelationGeneric(final String entityId) {
+        final IDManager.ServiceInstanceID.ServiceInstanceRelationDefine rel =
+            IDManager.ServiceInstanceID.analysisRelationId(entityId);
+        final IDManager.ServiceInstanceID.InstanceIDDefinition srcInst =
+            IDManager.ServiceInstanceID.analysisId(rel.getSourceId());
+        final IDManager.ServiceInstanceID.InstanceIDDefinition dstInst =
+            IDManager.ServiceInstanceID.analysisId(rel.getDestId());
+        final Map<String, Object> decoded = new LinkedHashMap<>();
+        decoded.put("source", toLevel2Map(IDManager.ServiceID.analysisId(srcInst.getServiceId()), srcInst.getName()));
+        decoded.put("destination", toLevel2Map(IDManager.ServiceID.analysisId(dstInst.getServiceId()), dstInst.getName()));
+        return new Decoded(decoded, null, srcInst.getServiceId());
+    }
+
+    private static Decoded decodeEndpointRelationGeneric(final String entityId) {
+        final IDManager.EndpointID.EndpointRelationDefine rel =
+            IDManager.EndpointID.analysisRelationId(entityId);
+        final IDManager.ServiceID.ServiceIDDefinition srcSvc =
+            IDManager.ServiceID.analysisId(rel.getSourceServiceId());
+        final IDManager.ServiceID.ServiceIDDefinition dstSvc =
+            IDManager.ServiceID.analysisId(rel.getDestServiceId());
+        final Map<String, Object> decoded = new LinkedHashMap<>();
+        decoded.put("source", toLevel2Map(srcSvc, rel.getSource()));
+        decoded.put("destination", toLevel2Map(dstSvc, rel.getDest()));
+        return new Decoded(decoded, null, rel.getSourceServiceId());
+    }
+
+    private static Map<String, Object> toLevel2Map(final IDManager.ServiceID.ServiceIDDefinition svc,
+                                                   final String leafName) {
+        final Map<String, Object> map = toServiceMap(svc);
+        map.put("name", leafName);
+        return map;
     }
 
     private static Decoded decodeService(final String entityId) {

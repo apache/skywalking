@@ -203,13 +203,27 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
     @SneakyThrows
     public List<String> listEntityIdsInRange(final String metricName,
                                              final String valueColumnName,
+                                             final String valueType,
                                              final Duration duration,
                                              final int limit) {
-        final var tables = tableHelper.getTablesForRead(
-            metricName,
-            duration.getStartTimeBucket(),
-            duration.getEndTimeBucket()
-        );
+        // valueType != null signals a foreign metric (not defined on this OAP). Its physical table
+        // is per-function, derivable only from the absent model, so probe the node's known metric
+        // function tables; the table_name = ? discriminator below keeps only this metric's rows. A
+        // locally-defined metric resolves straight to its own table set.
+        final List<String> tables;
+        if (valueType != null) {
+            tables = new ArrayList<>();
+            for (final var rawTable : TableHelper.getMetricRawTables()) {
+                tables.addAll(tableHelper.getExistingDayTables(
+                    rawTable, duration.getStartTimeBucket(), duration.getEndTimeBucket()));
+            }
+        } else {
+            tables = tableHelper.getTablesForRead(
+                metricName,
+                duration.getStartTimeBucket(),
+                duration.getEndTimeBucket()
+            );
+        }
         // For each entity_id, track the latest time_bucket seen across every day-partitioned
         // table the range touches. Per-table query shape is GROUP BY entity_id with MAX(time_bucket)
         // and ORDER BY that max — portable across H2 / MySQL / PostgreSQL (Postgres rejects

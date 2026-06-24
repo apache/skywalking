@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -197,8 +198,31 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
     @Override
     public List<String> listEntityIdsInRange(final String metricName,
                                              final String valueColumnName,
+                                             final String valueType,
                                              final Duration duration,
-                                             final int limit) {
+                                             final int limit) throws IOException {
+        // valueType != null signals a foreign metric (not defined on this OAP). The value column
+        // is unused by ES entity enumeration; only the physical index + discriminator differ.
+        final boolean foreign = valueType != null;
+        final String physicalIndex;
+        final boolean filterByDiscriminator;
+        if (foreign) {
+            // Resolve from running config, not the local registry. In the default merged mode
+            // every metric lives in the single METRICS_LOGIC_TABLE_NAME index and carries the
+            // metric_table discriminator. Under logicSharding the physical index is derived from
+            // the (absent) stream class, so it cannot be resolved without the local model.
+            if (IndexController.INSTANCE.isLogicSharding()) {
+                throw new IOException(
+                    "inspecting a foreign metric is unsupported under ES logicSharding=true: the "
+                        + "physical index is derived from the metric's stream class, which this OAP "
+                        + "does not have for " + metricName);
+            }
+            physicalIndex = IndexController.METRICS_LOGIC_TABLE_NAME;
+            filterByDiscriminator = true;
+        } else {
+            physicalIndex = IndexController.LogicIndicesRegister.getPhysicalTableName(metricName);
+            filterByDiscriminator = IndexController.LogicIndicesRegister.isMergedTable(metricName);
+        }
         final SearchBuilder search = Search.builder().size(limit);
         // Most-recent-first ordering must be explicit — without sort the hit set is
         // score / index-internal ordered, so a hot entity that ingested late can be dropped
@@ -207,7 +231,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         final BoolQueryBuilder query = Query.bool().must(Query.range(Metrics.TIME_BUCKET)
                                                               .lte(duration.getEndTimeBucket())
                                                               .gte(duration.getStartTimeBucket()));
-        if (IndexController.LogicIndicesRegister.isMergedTable(metricName)) {
+        if (filterByDiscriminator) {
             query.must(Query.term(
                 IndexController.LogicIndicesRegister.METRIC_TABLE_NAME,
                 metricName
@@ -215,7 +239,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
         }
         search.query(query);
         final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(metricName),
+            physicalIndex,
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), search.build());
         // Top-N hits across the time range, dedup client-side on entity_id. LinkedHashSet
