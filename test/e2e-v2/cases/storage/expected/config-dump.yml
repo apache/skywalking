@@ -32,7 +32,7 @@
   "admin-server.default.port": "17128",
   "admin-server.provider": "default",
   "agent-analyzer.default.forceSampleErrorSegment": "true",
-  "agent-analyzer.default.meterAnalyzerActiveFiles": "datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent,ruby-runtime",
+  "agent-analyzer.default.meterAnalyzerActiveFiles": "datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent,ruby-runtime,php-runtime",
   "agent-analyzer.default.noUpstreamRealAddressAgents": "6000,9000",
   "agent-analyzer.default.segmentStatusAnalysisStrategy": "FROM_SPAN_STATUS",
   "agent-analyzer.default.slowCacheReadThreshold": "default:20,redis:10",

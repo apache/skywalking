@@ -53,6 +53,7 @@ All following agents and components have built-in meters reporting to the OAP th
 5. Java agent for thread-pool metrics
 6. Rover(eBPF) agent for metrics used continues profiling
 7. Satellite proxy self-observability metrics
+8. PHP agent for PHM (PHP Health Metrics) runtime metrics — **Linux only** (`/proc` sampling)
 
 ## Configuration file
 
