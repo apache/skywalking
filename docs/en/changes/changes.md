@@ -245,6 +245,7 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* Add Node.js runtime metrics via the Node.js agent **`MeterReportService`** pipeline (`meter_instance_nodejs_*`, 1s collect/report). OAP analyzes raw meters through `nodejs-runtime.yaml`. Node.js E2E asserts six `meter_instance_nodejs_*` metrics (`test/e2e-v2/cases/nodejs/e2e.yaml`).
 * Add PHP runtime PHM meter analyzer (`php-runtime.yaml`) for SkyWalking PHP agent process
   metrics (CPU, memory, virtual memory, thread count, open file descriptors sampled from
   `/proc` on Linux). Registers six `meter_instance_php_*` metrics on the General Service
@@ -333,5 +334,6 @@
 * Improve downsampling documentation
 * Fix the docker-compose quickstart: OAP healthcheck no longer calls `curl` (absent from the JRE image) and probes the query port via bash `/dev/tcp`; the Horizon UI service maps the correct container port (8081) and mounts a `horizon.yaml` (binding `0.0.0.0`, OAP URLs, demo `admin`/`admin` login) instead of non-existent `SW_*_ADDRESS` env vars.
 * Add PHP runtime metrics (PHM) dashboard documentation (agent setup, OAP `php-runtime` MAL rules, Horizon UI widgets).
+* Add Node.js runtime metrics dashboard documentation (agent setup, OAP `nodejs-runtime` MAL rules, Horizon UI widgets).
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.0.0)

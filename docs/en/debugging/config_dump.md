@@ -52,7 +52,7 @@ This API also provides the response in JSON format, which is more friendly for p
    "aws-firehose.default.port":"12801",
    "core.default.restPort":"12800",
    "receiver-sharing-server.default.gRPCSslCertChainPath":"",
-   "agent-analyzer.default.meterAnalyzerActiveFiles":"datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent",
+   "agent-analyzer.default.meterAnalyzerActiveFiles":"datasource,threadpool,satellite,go-runtime,python-runtime,continuous-profiling,java-agent,go-agent,ruby-runtime,php-runtime,nodejs-runtime",
    "agent-analyzer.default.traceSamplingPolicySettingsFile":"trace-sampling-policy-settings.yml",
    "core.default.gRPCSslTrustedCAPath":"",
    "configuration-discovery.default.disableMessageDigest":"false",
