@@ -41,6 +41,15 @@ public class AdminServerModuleConfig extends ModuleConfig {
     private int httpMaxRequestHeaderSize = 8192;
 
     /**
+     * TLS settings for the admin HTTP server (env vars {@code SW_ADMIN_SERVER_REST_SSL_*}).
+     * The certificate and key are read from disk and reloaded on rotation without a
+     * restart. Server-side TLS only (no mTLS).
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath = "";
+    private String restSSLCertChainPath = "";
+
+    /**
      * Bind address for the admin-internal gRPC host that carries peer-to-peer
      * cluster RPCs for admin features (dsl-debugging install/collect/stop,
      * runtime-rule Suspend/Resume/Forward). Default {@code 0.0.0.0}.

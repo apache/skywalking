@@ -22,6 +22,8 @@ import com.google.common.collect.Sets;
 import com.linecorp.armeria.common.HttpMethod;
 import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
+import com.linecorp.armeria.common.TlsKeyPair;
+import com.linecorp.armeria.common.TlsProvider;
 import com.linecorp.armeria.common.util.EventLoopGroups;
 import com.linecorp.armeria.server.Route;
 import com.linecorp.armeria.server.ServerBuilder;
@@ -114,6 +116,13 @@ public class HTTPServer implements Server {
      */
     private static final EventLoopGroup SHARED_WORKER_GROUP;
 
+    /**
+     * How often the TLS key pair is re-read from disk. Certificates mounted from a
+     * Kubernetes secret are rotated in place, so the server reloads them periodically
+     * without a restart. Mirrors the gRPC server's file-change monitor cadence.
+     */
+    private static final Duration TLS_RELOAD_INTERVAL = Duration.ofSeconds(10);
+
     static {
         final int cores = Runtime.getRuntime().availableProcessors();
         SHARED_WORKER_GROUP = EventLoopGroups.newEventLoopGroup(Math.min(5, cores));
@@ -164,12 +173,11 @@ public class HTTPServer implements Server {
             sb.https(new InetSocketAddress(
                     config.getHost(),
                     config.getPort()));
-            try (InputStream cert = new FileInputStream(config.getTlsCertChainPath());
-                 InputStream key = PrivateKeyUtil.loadDecryptionKey(config.getTlsKeyPath())) {
-                sb.tls(cert, key);
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
+            // Reload the key pair from disk on a schedule so rotated certificates
+            // (e.g. a refreshed Kubernetes secret) are picked up without a restart.
+            sb.tlsProvider(TlsProvider.ofScheduled(
+                () -> loadTlsKeyPair(config.getTlsKeyPath(), config.getTlsCertChainPath()),
+                TLS_RELOAD_INTERVAL));
         } else {
             sb.http(new InetSocketAddress(
                     config.getHost(),
@@ -235,6 +243,24 @@ public class HTTPServer implements Server {
     @Override
     public void start() {
         sb.build().start().join();
+    }
+
+    /**
+     * Read the private key and certificate chain from disk into a {@link TlsKeyPair}.
+     * Invoked once at startup and then periodically by the TLS provider, so rotated
+     * files on disk are reflected on the next read.
+     *
+     * @param tlsKeyPath       file path of the private key (PKCS#8 PEM or PKCS#1 DER).
+     * @param tlsCertChainPath file path of the X.509 certificate chain.
+     * @return the key pair loaded from the current contents of the files.
+     */
+    static TlsKeyPair loadTlsKeyPair(final String tlsKeyPath, final String tlsCertChainPath) {
+        try (InputStream key = PrivateKeyUtil.loadDecryptionKey(tlsKeyPath);
+             InputStream cert = new FileInputStream(tlsCertChainPath)) {
+            return TlsKeyPair.of(key, cert);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private String transformAbsoluteURI(final String uri) {

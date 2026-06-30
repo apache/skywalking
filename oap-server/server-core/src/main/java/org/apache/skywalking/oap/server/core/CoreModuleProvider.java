@@ -272,6 +272,9 @@ public class CoreModuleProvider extends ModuleProvider {
                                                                 moduleConfig.getRestAcceptQueueSize())
                                                             .maxRequestHeaderSize(
                                                                 moduleConfig.getHttpMaxRequestHeaderSize())
+                                                            .enableTLS(moduleConfig.isRestSSLEnabled())
+                                                            .tlsKeyPath(moduleConfig.getRestSSLKeyPath())
+                                                            .tlsCertChainPath(moduleConfig.getRestSSLCertChainPath())
                                                             .build();
         setBootingParameter("oap.external.http.host", moduleConfig.getRestHost());
         setBootingParameter("oap.external.http.port", moduleConfig.getRestPort());

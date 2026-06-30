@@ -33,6 +33,14 @@ public class SharingServerConfig extends ModuleConfig {
     private String restContextPath;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    /**
+     * TLS settings for the sharing REST server (env vars {@code SW_RECEIVER_SHARING_REST_SSL_*}).
+     * The certificate and key are read from disk and reloaded on rotation without a
+     * restart. Server-side TLS only (no mTLS).
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath;
+    private String restSSLCertChainPath;
 
     private String gRPCHost;
     /**

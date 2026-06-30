@@ -77,6 +77,12 @@ core:
     restIdleTimeOut: ${SW_CORE_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_CORE_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_CORE_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # TLS for the core REST server (GraphQL query API). Every OAP HTTP server exposes the
+    # same restSSL* structure with its own env vars; the cert and key are reloaded on
+    # rotation without a restart. Server-side TLS only (no mTLS).
+    restSSLEnabled: ${SW_CORE_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_CORE_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_CORE_REST_SSL_CERT_CHAIN_PATH:""}
     gRPCHost: ${SW_CORE_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_CORE_GRPC_PORT:11800}
     maxConcurrentCallsPerConnection: ${SW_CORE_GRPC_MAX_CONCURRENT_CALL:0}
@@ -257,6 +263,10 @@ receiver-sharing-server:
     restIdleTimeOut: ${SW_RECEIVER_SHARING_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_RECEIVER_SHARING_REST_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_RECEIVER_SHARING_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # TLS for the sharing REST server; reloaded on rotation without a restart.
+    restSSLEnabled: ${SW_RECEIVER_SHARING_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_RECEIVER_SHARING_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_RECEIVER_SHARING_REST_SSL_CERT_CHAIN_PATH:""}
     # For gRPC server
     gRPCHost: ${SW_RECEIVER_GRPC_HOST:0.0.0.0}
     gRPCPort: ${SW_RECEIVER_GRPC_PORT:0}
@@ -408,6 +418,9 @@ receiver-zipkin:
     restContextPath: ${SW_RECEIVER_ZIPKIN_REST_CONTEXT_PATH:/}
     restIdleTimeOut: ${SW_RECEIVER_ZIPKIN_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_RECEIVER_ZIPKIN_REST_QUEUE_SIZE:0}
+    restSSLEnabled: ${SW_RECEIVER_ZIPKIN_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_RECEIVER_ZIPKIN_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_RECEIVER_ZIPKIN_REST_SSL_CERT_CHAIN_PATH:""}
     ## The below configs are for OAP collect zipkin trace from kafka
     enableKafkaCollector: ${SW_ZIPKIN_KAFKA_COLLECTOR_ENABLED:false}
     kafkaBootstrapServers: ${SW_ZIPKIN_KAFKA_SERVERS:localhost:9092}
@@ -456,6 +469,9 @@ query-zipkin:
     restContextPath: ${SW_QUERY_ZIPKIN_REST_CONTEXT_PATH:/zipkin}
     restIdleTimeOut: ${SW_QUERY_ZIPKIN_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_QUERY_ZIPKIN_REST_QUEUE_SIZE:0}
+    restSSLEnabled: ${SW_QUERY_ZIPKIN_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_QUERY_ZIPKIN_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_QUERY_ZIPKIN_REST_SSL_CERT_CHAIN_PATH:""}
     # Default look back for traces and autocompleteTags, 1 day in millis
     lookback: ${SW_QUERY_ZIPKIN_LOOKBACK:86400000}
     # The Cache-Control max-age (seconds) for serviceNames, remoteServiceNames and spanNames
@@ -476,6 +492,9 @@ promql:
     restContextPath: ${SW_PROMQL_REST_CONTEXT_PATH:/}
     restIdleTimeOut: ${SW_PROMQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_PROMQL_REST_QUEUE_SIZE:0}
+    restSSLEnabled: ${SW_PROMQL_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_PROMQL_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_PROMQL_REST_SSL_CERT_CHAIN_PATH:""}
     # The below config is for the API buildInfo, set the value to mock the build info.
     buildInfoVersion: ${SW_PROMQL_BUILD_INFO_VERSION:"2.45.0"}
     buildInfoRevision: ${SW_PROMQL_BUILD_INFO_REVISION:""}
@@ -494,6 +513,9 @@ logql:
     restContextPath: ${SW_LOGQL_REST_CONTEXT_PATH:/}
     restIdleTimeOut: ${SW_LOGQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_LOGQL_REST_QUEUE_SIZE:0}
+    restSSLEnabled: ${SW_LOGQL_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_LOGQL_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_LOGQL_REST_SSL_CERT_CHAIN_PATH:""}
 
 traceQL:
   selector: ${SW_TRACEQL:-}
@@ -506,6 +528,9 @@ traceQL:
     restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
     restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
+    restSSLEnabled: ${SW_TRACEQL_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_TRACEQL_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_TRACEQL_REST_SSL_CERT_CHAIN_PATH:""}
     # If the query does not provide the start time (the default end time is current), the default lookback for traces and autocompleteTags is 1 day in milliseconds.
     lookback: ${SW_TRACEQL_LOOKBACK:86400000}
     # The tags in the list result of traces query, which would be used for trace grouping and shown in the trace list page.
@@ -688,6 +713,10 @@ admin-server:
     idleTimeOut: ${SW_ADMIN_SERVER_IDLE_TIMEOUT:30000}
     acceptQueueSize: ${SW_ADMIN_SERVER_QUEUE_SIZE:0}
     httpMaxRequestHeaderSize: ${SW_ADMIN_SERVER_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # TLS for the admin HTTP server; reloaded on rotation without a restart.
+    restSSLEnabled: ${SW_ADMIN_SERVER_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_ADMIN_SERVER_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_ADMIN_SERVER_REST_SSL_CERT_CHAIN_PATH:""}
     # Admin-internal gRPC bus — peer-to-peer RPCs for runtime-rule
     # (Suspend/Resume/Forward) and dsl-debugging (install/collect/stop).
     # MUST be a private interface reachable between OAP nodes ONLY.

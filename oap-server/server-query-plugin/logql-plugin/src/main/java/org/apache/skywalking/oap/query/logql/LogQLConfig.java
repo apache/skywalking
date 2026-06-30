@@ -30,4 +30,11 @@ public class LogQLConfig extends ModuleConfig {
     private String restContextPath;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    /**
+     * TLS settings for this HTTP server. The certificate and key are read from disk and
+     * reloaded on rotation without a restart. Server-side TLS only (no mTLS).
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath;
+    private String restSSLCertChainPath;
 }
