@@ -90,3 +90,25 @@ By default, we mask the config keys through the following configurations.
 # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
 keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication}
 ```
+
+## BanyanDB Storage Configurations
+
+When BanyanDB is the active storage, the OAP loads its configuration from the dedicated
+`bydb.yml` and `bydb-topn.yml` files (separated out from `application.yml` since 10.2.0). The
+effective, environment-resolved values of these files are included in the same dump under the
+`storage.banyandb.*` keys (TopN rules under `storage.banyandb.topN.*`), for example:
+
+```shell
+> curl http://127.0.0.1:17128/debugging/config/dump
+...
+storage.banyandb.global.targets=127.0.0.1:17912
+storage.banyandb.global.user=******
+storage.banyandb.global.password=******
+storage.banyandb.metricsMinute.ttl=7
+storage.banyandb.topN.endpoint_cpm.endpoint_cpm-service.countersNumber=1000
+...
+```
+
+These rows reflect what the server actually loaded from `bydb.yml` / `bydb-topn.yml` (after
+environment-variable overrides), so editing `storage.banyandb.*` under `application.yml` has no
+effect. Secret values are masked using the same keyword list described above.

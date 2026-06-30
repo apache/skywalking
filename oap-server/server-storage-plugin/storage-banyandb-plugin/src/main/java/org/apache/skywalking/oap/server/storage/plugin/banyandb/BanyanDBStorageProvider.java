@@ -27,6 +27,7 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
+import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.core.storage.IHistoryDeleteDAO;
 import org.apache.skywalking.oap.server.core.storage.StorageBuilderFactory;
@@ -244,6 +245,11 @@ public class BanyanDBStorageProvider extends ModuleProvider {
             this.modelInstaller.start();
 
             getManager().find(CoreModule.NAME).provider().getService(ModelRegistry.class).addModelListener(modelInstaller);
+
+            ServerStatusService serverStatusService =
+                getManager().find(CoreModule.NAME).provider().getService(ServerStatusService.class);
+            serverStatusService.registerConfigDumpExtension(
+                new BanyanDBConfigDumpExtension(StorageModule.NAME + "." + name(), this.config));
         } catch (Exception e) {
             throw new ModuleStartException(e.getMessage(), e);
         }

@@ -48,6 +48,8 @@ public class ServerStatusService implements Service {
 
     private List<ServerStatusWatcher> statusWatchers = new CopyOnWriteArrayList<>();
 
+    private final List<ConfigDumpExtension> configDumpExtensions = new CopyOnWriteArrayList<>();
+
     private List<ApplicationConfiguration.ModuleConfiguration> configurations;
 
     public void bootedNow(List<ApplicationConfiguration.ModuleConfiguration> configurations, long uptime) {
@@ -79,6 +81,18 @@ public class ServerStatusService implements Service {
 
     public void registerWatcher(ServerStatusWatcher watcher) {
         this.statusWatchers.add(watcher);
+    }
+
+    /**
+     * Register a {@link ConfigDumpExtension} whose effective configurations are merged into the
+     * {@code /debugging/config/dump} output. Used by modules (e.g. the BanyanDB storage plugin)
+     * that load configuration from a secondary file outside {@code application.yml}.
+     *
+     * @param extension the extension contributing extra effective configurations to the dump
+     * @since 11.0.0
+     */
+    public void registerConfigDumpExtension(ConfigDumpExtension extension) {
+        this.configDumpExtensions.add(extension);
     }
 
     /**
@@ -116,6 +130,10 @@ public class ServerStatusService implements Service {
                         }
                     )
             );
+        }
+        for (ConfigDumpExtension extension : configDumpExtensions) {
+            extension.dumpConfigurations().forEach(
+                (key, value) -> configList.put(key, maskConfigValue(key, value, keywords)));
         }
         return configList;
     }
