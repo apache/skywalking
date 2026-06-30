@@ -54,6 +54,7 @@ All following agents and components have built-in meters reporting to the OAP th
 6. Rover(eBPF) agent for metrics used continues profiling
 7. Satellite proxy self-observability metrics
 8. PHP agent for PHM (PHP Health Metrics) runtime metrics — **Linux only** (`/proc` sampling)
+9. Node.js agent for runtime metrics (`instance_nodejs_*` via `MeterReportService`). OAP exposes `meter_instance_nodejs_*` through `nodejs-runtime.yaml`.
 
 ## Configuration file
 

@@ -22,8 +22,10 @@
   {{- contains .attributes }}
   - name: OS Name
     value: linux
+  - name: hostname
+    value: {{ notEmpty .value }}
   - name: "Process No."
-    value: "1"
+    value: {{ notEmpty .value }}
   - name: ipv4s
     value: ""
   {{- end}}
