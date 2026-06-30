@@ -109,3 +109,16 @@ verify:
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=service_instance_relation_server_cpm  --instance-name=consumer-instance  --service-name=consumer --dest-instance-name=consumer1 --dest-service-name=e2e-service-consumer
       expected: expected/metrics-has-value.yml
+    # nodejs runtime metrics (MeterReportService -> meter_instance_nodejs_*)
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_process_cpu --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_heap_used --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_heap_total --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_heap_limit --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_rss --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_external_memory --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
