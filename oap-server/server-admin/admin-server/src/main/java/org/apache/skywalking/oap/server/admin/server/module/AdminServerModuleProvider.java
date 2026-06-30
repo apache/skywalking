@@ -109,6 +109,9 @@ public class AdminServerModuleProvider extends ModuleProvider {
                             .acceptQueueSize(moduleConfig.getAcceptQueueSize())
                             .idleTimeOut(moduleConfig.getIdleTimeOut())
                             .maxRequestHeaderSize(moduleConfig.getHttpMaxRequestHeaderSize())
+                            .enableTLS(moduleConfig.isRestSSLEnabled())
+                            .tlsKeyPath(moduleConfig.getRestSSLKeyPath())
+                            .tlsCertChainPath(moduleConfig.getRestSSLCertChainPath())
                             .build();
         httpServer = new HTTPServer(httpServerConfig);
         httpServer.setBlockingTaskName("admin-http");

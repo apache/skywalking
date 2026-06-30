@@ -5,6 +5,16 @@
 * Extend the `GET /inspect/entities` admin API to inspect a metric persisted by **any** OAP, even one this node does not define locally. When the metric is unknown to the local registry, the caller supplies `valueColumn` + `valueType` and the storage backend resolves the physical index/table/group from its own running config (no DB schema/table-metadata read): ES uses the merged `metrics-all` index + `metric_table` discriminator, JDBC probes the node's function tables by the `table_name` discriminator, and BanyanDB synthesizes a read-only measure schema. Scope is no longer required — the `entity_id` is decoded structurally (service / 2nd-level / relations) with a generic `name` leaf. Locally-defined metrics keep the exact field names, scope, and `mqeEntity` as before.
 * Add the `POST /inspect/values` admin API — read the value series of a metric persisted by **another** OAP (one this node does not define locally) by supplying its `{valueColumn, valueType}`. The real MQE engine runs over a request-scoped `InspectQueryContext` overlay (provide-if-absent — the local catalog always wins) that makes the foreign metric look registered to every read path: `ValueColumnMetadata` resolves its value column / type / scope, and the storage location registries resolve where it lives (`MetadataRegistry` synthesizes a BanyanDB measure schema, `IndexController` resolves the ES `metrics-all` index, `TableHelper` probes the JDBC function tables), so the read returns the native MQE `ExpressionResult` with no per-DAO special-casing. Admin-only (a forced read this OAP cannot validate); not mirrored onto the public REST / GraphQL surface. See the [Inspect API](../setup/backend/admin-api/inspect.md).
 * Remove the always-on alarm-to-event conversion (`EventHookCallback`). A triggered alarm is no longer synthesized into the events pipeline as an `Alarm`/`AlarmRecovery` event; events now originate only from real event sources (agents, SkyWalking CLI, Kubernetes Event Exporter). Alarms remain available through the alarm store (`getAlarm`/`queryAlarms`) and the configured alarm hooks. This drops a documented "Known Event" and removes 1-2 synthetic event records per alarm fire.
+* **TLS for all OAP HTTP/REST servers, with cert hot-reload.** Adds the
+  `restSSLEnabled` / `restSSLKeyPath` / `restSSLCertChainPath` config structure to every
+  OAP HTTP server — core REST, sharing-server, admin, PromQL, LogQL, TraceQL and Zipkin
+  query/receiver — each with its own dedicated environment variables (`SW_CORE_REST_SSL_*`,
+  `SW_RECEIVER_SHARING_REST_SSL_*`, `SW_ADMIN_SERVER_REST_SSL_*`, `SW_PROMQL_REST_SSL_*`,
+  `SW_LOGQL_REST_SSL_*`, `SW_TRACEQL_REST_SSL_*`, `SW_QUERY_ZIPKIN_REST_SSL_*`,
+  `SW_RECEIVER_ZIPKIN_REST_SSL_*`). The shared Armeria `HTTPServer` reloads the key pair
+  from disk on rotation (via `TlsProvider.ofScheduled`) so refreshed certificates are
+  picked up without restarting the OAP, matching the existing gRPC SSL hot-reload
+  behavior. HTTP TLS is server-side only (no mTLS).
 * **New `queryAlarms` GraphQL query — entity / layer / rule filters for alarms.** Adds
   a comprehensive alarm query API alongside the legacy `getAlarm`. The new
   `queryAlarms(condition: AlarmQueryCondition!): Alarms` accepts a single input type

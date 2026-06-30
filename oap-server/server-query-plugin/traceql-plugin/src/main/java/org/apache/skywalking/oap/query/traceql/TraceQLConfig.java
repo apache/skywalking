@@ -34,6 +34,13 @@ public class TraceQLConfig extends ModuleConfig {
     private String restContextPathSkywalking;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    /**
+     * TLS settings for this HTTP server. The certificate and key are read from disk and
+     * reloaded on rotation without a restart. Server-side TLS only (no mTLS).
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath;
+    private String restSSLCertChainPath;
     private long lookback = 86400000L;
     private String zipkinTracesListResultTags = ZIPKIN_TRACES_LIST_RESULT_TAGS;
     private String skywalkingTracesListResultTags = SKYWALKING_TRACES_LIST_RESULT_TAGS;

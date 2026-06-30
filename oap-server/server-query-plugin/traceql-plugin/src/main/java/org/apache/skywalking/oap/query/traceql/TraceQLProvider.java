@@ -75,6 +75,9 @@ public class TraceQLProvider extends ModuleProvider {
                                                                 "/") // Base context path for the server, individual handlers will have their own context paths
                                                             .idleTimeOut(config.getRestIdleTimeOut())
                                                             .acceptQueueSize(config.getRestAcceptQueueSize())
+                                                            .enableTLS(config.isRestSSLEnabled())
+                                                            .tlsKeyPath(config.getRestSSLKeyPath())
+                                                            .tlsCertChainPath(config.getRestSSLCertChainPath())
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);

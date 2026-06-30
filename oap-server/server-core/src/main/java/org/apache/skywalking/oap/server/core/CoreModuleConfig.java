@@ -36,6 +36,15 @@ public class CoreModuleConfig extends ModuleConfig {
     private int restMaxThreads = 200;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    /**
+     * TLS settings for the core REST server (GraphQL query API). Every OAP HTTP server
+     * exposes the same {@code restSSL*} structure under its own module with dedicated
+     * environment variables. The certificate and private key are read from disk and
+     * reloaded on rotation without a restart.
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath;
+    private String restSSLCertChainPath;
 
     private String gRPCHost;
     private int gRPCPort;

@@ -81,7 +81,11 @@ public class SharingServerModuleProvider extends ModuleProvider {
                                 .contextPath(config.getRestContextPath())
                                 .acceptQueueSize(config.getRestAcceptQueueSize())
                                 .idleTimeOut(config.getRestIdleTimeOut())
-                                .maxRequestHeaderSize(config.getHttpMaxRequestHeaderSize()).build();
+                                .maxRequestHeaderSize(config.getHttpMaxRequestHeaderSize())
+                                .enableTLS(config.isRestSSLEnabled())
+                                .tlsKeyPath(config.getRestSSLKeyPath())
+                                .tlsCertChainPath(config.getRestSSLCertChainPath())
+                                .build();
             httpServerConfig.setHost(Strings.isBlank(config.getRestHost()) ? "0.0.0.0" : config.getRestHost());
             httpServerConfig.setPort(config.getRestPort());
             httpServerConfig.setContextPath(config.getRestContextPath());

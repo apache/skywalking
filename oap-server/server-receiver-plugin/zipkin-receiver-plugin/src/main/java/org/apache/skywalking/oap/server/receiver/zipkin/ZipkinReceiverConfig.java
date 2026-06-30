@@ -33,6 +33,13 @@ public class ZipkinReceiverConfig extends ModuleConfig {
     private String restContextPath;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
+    /**
+     * TLS settings for this HTTP server. The certificate and key are read from disk and
+     * reloaded on rotation without a restart. Server-side TLS only (no mTLS).
+     */
+    private boolean restSSLEnabled = false;
+    private String restSSLKeyPath;
+    private String restSSLCertChainPath;
     private String searchableTracesTags = DEFAULT_SEARCHABLE_TAG_KEYS;
     private int sampleRate = 10000;
     private int maxSpansPerSecond = 0;

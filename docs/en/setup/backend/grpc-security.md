@@ -89,3 +89,38 @@ receiver-sharing-server:
 
 You can still use this [script](../../../../tools/TLS/tls_key_generate.sh) to generate CA certificate and the key files of server-side(for OAP Server) and client-side(for Agent/Satellite).
 You have to notice the keys, including server and client-side, are from the same CA certificate.
+
+## TLS on OAP HTTP/REST servers
+
+Besides gRPC, the OAP server exposes several HTTP/REST servers. Each one is configured
+independently and shares the same `restSSL*` configuration structure, with **dedicated
+environment variables** per server:
+
+| HTTP server | `application.yml` section | Environment variables |
+|-------------|---------------------------|-----------------------|
+| Core REST (GraphQL query API) | `core/default` | `SW_CORE_REST_SSL_ENABLED` / `SW_CORE_REST_SSL_KEY_PATH` / `SW_CORE_REST_SSL_CERT_CHAIN_PATH` |
+| Sharing REST receiver | `receiver-sharing-server/default` | `SW_RECEIVER_SHARING_REST_SSL_ENABLED` / `SW_RECEIVER_SHARING_REST_SSL_KEY_PATH` / `SW_RECEIVER_SHARING_REST_SSL_CERT_CHAIN_PATH` |
+| Admin server | `admin-server/default` | `SW_ADMIN_SERVER_REST_SSL_ENABLED` / `SW_ADMIN_SERVER_REST_SSL_KEY_PATH` / `SW_ADMIN_SERVER_REST_SSL_CERT_CHAIN_PATH` |
+| PromQL | `promql/default` | `SW_PROMQL_REST_SSL_ENABLED` / `SW_PROMQL_REST_SSL_KEY_PATH` / `SW_PROMQL_REST_SSL_CERT_CHAIN_PATH` |
+| LogQL | `logql/default` | `SW_LOGQL_REST_SSL_ENABLED` / `SW_LOGQL_REST_SSL_KEY_PATH` / `SW_LOGQL_REST_SSL_CERT_CHAIN_PATH` |
+| TraceQL | `traceQL/default` | `SW_TRACEQL_REST_SSL_ENABLED` / `SW_TRACEQL_REST_SSL_KEY_PATH` / `SW_TRACEQL_REST_SSL_CERT_CHAIN_PATH` |
+| Zipkin query | `query-zipkin/default` | `SW_QUERY_ZIPKIN_REST_SSL_ENABLED` / `SW_QUERY_ZIPKIN_REST_SSL_KEY_PATH` / `SW_QUERY_ZIPKIN_REST_SSL_CERT_CHAIN_PATH` |
+| Zipkin receiver | `receiver-zipkin/default` | `SW_RECEIVER_ZIPKIN_REST_SSL_ENABLED` / `SW_RECEIVER_ZIPKIN_REST_SSL_KEY_PATH` / `SW_RECEIVER_ZIPKIN_REST_SSL_CERT_CHAIN_PATH` |
+
+For example, to enable TLS on the core REST server under `application.yml/core/default`:
+
+```yaml
+restSSLEnabled: ${SW_CORE_REST_SSL_ENABLED:true}
+restSSLKeyPath: ${SW_CORE_REST_SSL_KEY_PATH:/path/to/server.pem}
+restSSLCertChainPath: ${SW_CORE_REST_SSL_CERT_CHAIN_PATH:/path/to/server.crt}
+```
+
+* `restSSLKeyPath` is the private key, either PKCS#8(PEM) or PKCS#1(DER).
+* `restSSLCertChainPath` is the X.509 certificate chain.
+
+Each server can point at its own certificate, or you can point several of them at the same
+mounted certificate (for example a single Kubernetes secret). The HTTP servers present a
+server certificate only (no client certificate verification / mTLS).
+
+**When the certificate files are rotated in place (for example a refreshed Kubernetes
+secret), they are reloaded automatically and you do not have to restart an OAP instance.**

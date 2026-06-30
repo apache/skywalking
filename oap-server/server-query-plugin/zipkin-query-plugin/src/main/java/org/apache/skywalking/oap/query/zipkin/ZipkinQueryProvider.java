@@ -74,6 +74,9 @@ public class ZipkinQueryProvider extends ModuleProvider {
                                                             .contextPath(config.getRestContextPath())
                                                             .idleTimeOut(config.getRestIdleTimeOut())
                                                             .acceptQueueSize(config.getRestAcceptQueueSize())
+                                                            .enableTLS(config.isRestSSLEnabled())
+                                                            .tlsKeyPath(config.getRestSSLKeyPath())
+                                                            .tlsCertChainPath(config.getRestSSLCertChainPath())
                                                             .build();
 
         httpServer = new HTTPServer(httpServerConfig);
