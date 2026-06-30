@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
+import com.google.protobuf.Any;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Struct;
 import com.google.protobuf.UInt32Value;
+import com.google.protobuf.Value;
 import io.envoyproxy.envoy.data.accesslog.v3.AccessLogCommon;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
@@ -38,13 +42,16 @@ import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.receiver.envoy.als.mx.MetaExchangeALSHTTPAnalyzer;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -126,6 +133,69 @@ class EnvoyAccessLogBuilderTest {
     @Test
     void nameReturnsEnvoyAccessLog() {
         assertEquals("EnvoyAccessLog", new EnvoyAccessLogBuilder().name());
+    }
+
+    /**
+     * {@code bindInput} runs eagerly in the generated {@code execute()} (before
+     * any debug capture), so it must not throw on an unregistered {@code Any}
+     * in {@code filter_state_objects} — otherwise the whole rule aborts and the
+     * log is dropped. Regression for the all-or-nothing serialization failure.
+     */
+    @Test
+    void unregisteredFilterStateAnyDoesNotAbortExecution() {
+        final EnvoyAccessLogBuilder builder = new EnvoyAccessLogBuilder();
+        final Any unknown = Any.newBuilder()
+            .setTypeUrl("type.googleapis.com/test.skywalking.CustomFilterState")
+            .setValue(ByteString.copyFromUtf8("opaque-bytes"))
+            .build();
+        final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder()
+            .setResponse(HTTPResponseProperties.newBuilder().setResponseCode(UInt32Value.of(200)))
+            .setCommonProperties(AccessLogCommon.newBuilder()
+                .putFilterStateObjects("test.skywalking.injected", unknown))
+            .build();
+        builder.setService("mesh-svc");
+        builder.setTimestamp(1L);
+        final LogMetadata metadata = LogMetadata.builder().service("mesh-svc").timestamp(1L).build();
+
+        // Before the fix this throws "Cannot find type for url: ...CustomFilterState".
+        final Log log = assertDoesNotThrow(() -> {
+            builder.init(metadata, entry, moduleManager);
+            return builder.toLog();
+        });
+
+        final String c = log.getContent();
+        assertFalse(c.contains("jsonformat-failed"), c);
+        assertTrue(c.contains("@unresolved"), c);                          // degraded, not fatal
+        assertTrue(c.contains("test.skywalking.CustomFilterState"), c);
+        assertTrue(c.contains("200"), c);                                  // standard field intact
+    }
+
+    /**
+     * End-to-end persistence path: a metadata-exchange peer in
+     * {@code filter_state_objects} is decoded into the readable peer metadata
+     * in the stored log {@code content}, not opaque base64.
+     */
+    @Test
+    void persistedContentContainsDecodedPeer() {
+        final EnvoyAccessLogBuilder builder = new EnvoyAccessLogBuilder();
+        final Any peer = Any.pack(Struct.newBuilder()
+            .putFields("NAME", Value.newBuilder().setStringValue("productpage-v1-pod").build())
+            .putFields("NAMESPACE", Value.newBuilder().setStringValue("bookinfo").build())
+            .build());
+        final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder()
+            .setCommonProperties(AccessLogCommon.newBuilder()
+                .putFilterStateObjects(MetaExchangeALSHTTPAnalyzer.DOWNSTREAM_PEER, peer))
+            .build();
+        builder.setService("mesh-svc");
+        builder.setTimestamp(1L);
+        final LogMetadata metadata = LogMetadata.builder().service("mesh-svc").timestamp(1L).build();
+
+        builder.init(metadata, entry, moduleManager);
+        final Log log = builder.toLog();
+
+        assertNotNull(log.getContent());
+        assertTrue(log.getContent().contains("productpage-v1-pod"), log.getContent());
+        assertTrue(log.getContent().contains("bookinfo"), log.getContent());
     }
 
     /**

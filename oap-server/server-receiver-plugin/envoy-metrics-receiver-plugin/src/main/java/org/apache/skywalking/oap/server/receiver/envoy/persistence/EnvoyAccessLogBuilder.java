@@ -20,13 +20,12 @@ package org.apache.skywalking.oap.server.receiver.envoy.persistence;
 
 import com.google.gson.JsonObject;
 import com.google.protobuf.Message;
-import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.query.type.ContentType;
 import org.apache.skywalking.oap.server.core.source.Log;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.ProtoBufJsonUtils;
+import org.apache.skywalking.oap.server.receiver.envoy.als.mx.EnvoyAlsJsonUtils;
 
 /**
  * LAL output builder for envoy access logs (both HTTP and TCP).
@@ -56,10 +55,15 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
     }
 
     @Override
-    @SneakyThrows
     public void bindInput(final LogMetadata metadata, final Object input) {
         if (input != null) {
-            this.accessLogEntryJson = ProtoBufJsonUtils.toJSON((Message) input);
+            // Robust, peer-aware ALS serialization: decodes the Istio
+            // metadata-exchange peer in filter_state_objects and degrades any
+            // unregistered Any to a placeholder. Must not throw — bindInput
+            // runs eagerly in the generated execute() (before any debug
+            // capture), so a throw here would abort the whole rule and drop
+            // the log.
+            this.accessLogEntryJson = EnvoyAlsJsonUtils.toJSON((Message) input);
         }
         // Envoy ALS doesn't deliver LogData, so skip super.bindInput's LogData
         // cast branch and just run the metadata-derived field population.
@@ -67,7 +71,6 @@ public class EnvoyAccessLogBuilder extends LogBuilder {
     }
 
     @Override
-    @SneakyThrows
     public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
         ensureInitialized(moduleManager);
