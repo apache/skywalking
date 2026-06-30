@@ -75,12 +75,12 @@ storage:
     password: ${SW_ES_PASSWORD:""}
 ```
 
-It would be masked and shown as `********` in the dump result.
+It would be masked and shown as `******` in the dump result.
 
 ```shell
 > curl http://127.0.0.1:17128/debugging/config/dump
 ...
-storage.elasticsearch.password=********
+storage.elasticsearch.password=******
 ...
 ```
 
