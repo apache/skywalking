@@ -49,13 +49,15 @@ import lombok.extern.slf4j.Slf4j;
  * only reclaimed by a class-unloading-capable GC cycle (G1 concurrent mark / full GC — young
  * collections never unload classes), and an idle heap may not run one for hours. So "retired
  * N minutes ago and still uncollected" is NOT a leak signal by itself. To tell a pinned
- * loader apart from plain GC inactivity, the graveyard arms an <em>unload probe</em> whenever
- * entries are pending: a parent-less throwaway classloader that defines one empty class
- * ({@link UnloadProbePayload}) and is immediately dereferenced. The probe has the exact same
- * collection requirement as a retired rule loader, so its collection is proof that a
- * class-unloading cycle completed after the probe was minted. {@link #leakSuspects} flags an
- * entry only when such a cycle ran comfortably after the entry's retirement and the entry
- * still survived it.
+ * loader apart from plain GC inactivity, the graveyard arms an <em>unload probe</em>: a
+ * parent-less throwaway classloader that defines one empty class ({@link UnloadProbePayload})
+ * and is immediately dereferenced. The probe has the exact same collection requirement as a
+ * retired rule loader, so its collection is proof that a class-unloading cycle completed
+ * after the probe was minted. A probe is armed only once a pending entry's settle window has
+ * elapsed, so its mint time is directly comparable to {@code retiredAt + settle}: when it is
+ * collected while the entry survives, the entry provably outlived a cycle that ran after its
+ * full settle window — {@link #leakSuspects} flags exactly those entries. Loaders collected
+ * before their settle window elapses never cause a probe to be minted at all.
  *
  * <p>This graveyard is internal to {@link DSLClassLoaderManager}. The manager retires loaders
  * here via {@code dropRuntime} (full teardown) and {@code retire} (engine-decided "displaced
@@ -76,10 +78,10 @@ final class ClassLoaderGc {
     private final Object probeLock = new Object();
     /** Live probe generation; at most one at a time. Guarded by {@link #probeLock}. The
      *  phantom ref must stay strongly held here or it would be GC'd before enqueuing. */
-    private PhantomReference<ClassLoader> liveProbe;
-    private long liveProbeMintedAtMs;
-    /** Latest probe mint-time for which a class-unloading GC cycle is confirmed complete.
-     *  {@code 0} until the first probe collection is observed. */
+    private ProbeRef liveProbe;
+    /** Mint time of the newest collected probe — a sound lower bound on when a
+     *  class-unloading GC cycle last completed. {@code 0} until the first probe collection
+     *  is observed. */
     private volatile long unloadEvidenceUpToMs;
 
     @Getter
@@ -99,16 +101,16 @@ final class ClassLoaderGc {
             loader.getKind(), loader.getCatalog(), loader.getRule(), loader.getContentHash(),
             System.currentTimeMillis(), ref);
         pending.put(ref, retired);
-        armUnloadProbe();
     }
 
     /**
      * Drain collected phantoms from the queue. Returns the entries the JVM confirmed as
      * unreachable since the last sweep. Entries that remain in {@link #pending()} after this
      * call have not been collected yet — {@link #leakSuspects} decides which of them are
-     * evidence-backed leaks. Called by the manager's internal sweeper thread.
+     * evidence-backed leaks. Called by the manager's internal sweeper thread; {@code
+     * settleMs} is the manager's leak settle window, which drives on-demand probe arming.
      */
-    Collection<Retired> sweep() {
+    Collection<Retired> sweep(final long settleMs) {
         drainUnloadProbe();
         final List<Retired> drained = new ArrayList<>();
         Reference<?> r;
@@ -126,11 +128,7 @@ final class ClassLoaderGc {
                 drained.add(done);
             }
         }
-        // Re-arm so entries retired after the previous probe was minted get their own
-        // evidence generation on a later class-unloading cycle.
-        if (!pending.isEmpty()) {
-            armUnloadProbe();
-        }
+        armUnloadProbeIfNeeded(settleMs);
         return drained;
     }
 
@@ -171,9 +169,9 @@ final class ClassLoaderGc {
         return out;
     }
 
-    /** Latest probe mint-time confirmed survived-past by a class-unloading GC cycle;
-     *  {@code 0} while no cycle has been observed. Exposed for the manager's diagnostics
-     *  and for deterministic tests. */
+    /** Mint time of the newest collected probe — a class-unloading GC cycle is confirmed
+     *  to have completed after this time; {@code 0} while no probe collection has been
+     *  observed. Exposed for the manager's diagnostics and for deterministic tests. */
     long unloadEvidenceUpToMs() {
         return unloadEvidenceUpToMs;
     }
@@ -187,8 +185,9 @@ final class ClassLoaderGc {
 
     /**
      * Record that a class-unloading GC cycle completed after {@code probeMintedAtMs}.
-     * Normally driven by {@link #drainUnloadProbe()}; package-private so tests can exercise
-     * {@link #leakSuspects} without depending on real GC timing.
+     * Normally driven by {@link #drainUnloadProbe()} with a collected probe's mint time;
+     * package-private so tests can exercise {@link #leakSuspects} without depending on
+     * real GC timing.
      */
     void recordUnloadEvidence(final long probeMintedAtMs) {
         synchronized (probeLock) {
@@ -198,34 +197,58 @@ final class ClassLoaderGc {
         }
     }
 
-    /** Mint a fresh probe if none is live. The probe loader leaves this method with the
-     *  phantom reference as its only remaining reference, so the next class-unloading GC
-     *  cycle is guaranteed to collect it. */
-    private void armUnloadProbe() {
+    /**
+     * Mint a probe when a pending entry needs one: some unwarned entry's settle window has
+     * elapsed and neither the recorded evidence nor the live probe's mint time reaches that
+     * window's end. Arming on demand keeps the probe's mint time at-or-after {@code
+     * retiredAt + settleMs}, so a collected probe proves a cycle ran after the full settle
+     * window — a probe minted earlier could only prove a cycle the entry was not yet
+     * required to have survived. A live probe minted too early for a newer entry is
+     * replaced; the stale phantom is left to die untracked ({@link #drainUnloadProbe}
+     * still credits its mint time if it happens to enqueue first).
+     */
+    private void armUnloadProbeIfNeeded(final long settleMs) {
         if (PROBE_PAYLOAD_BYTECODE == null) {
             return;
         }
+        long neededMintMs = Long.MAX_VALUE;
+        for (final Retired r : pending.values()) {
+            if (!r.warnedAlready()) {
+                neededMintMs = Math.min(neededMintMs, r.retiredAtMs() + settleMs);
+            }
+        }
+        if (neededMintMs == Long.MAX_VALUE || unloadEvidenceUpToMs >= neededMintMs) {
+            return;
+        }
+        final long nowMs = System.currentTimeMillis();
+        if (nowMs < neededMintMs) {
+            return;
+        }
         synchronized (probeLock) {
-            if (liveProbe != null) {
+            if (liveProbe != null && liveProbe.mintedAtMs() >= neededMintMs) {
                 return;
             }
             final ProbeClassLoader probe = new ProbeClassLoader();
             probe.definePayload();
-            liveProbe = new PhantomReference<>(probe, probeQueue);
-            liveProbeMintedAtMs = System.currentTimeMillis();
+            liveProbe = new ProbeRef(probe, probeQueue, nowMs);
         }
     }
 
     private void drainUnloadProbe() {
-        boolean collected = false;
-        while (probeQueue.poll() != null) {
-            collected = true;
-        }
-        if (collected) {
-            synchronized (probeLock) {
-                recordUnloadEvidence(liveProbeMintedAtMs);
-                liveProbe = null;
+        long latestMintMs = -1L;
+        Reference<?> ref;
+        while ((ref = probeQueue.poll()) != null) {
+            if (ref instanceof ProbeRef) {
+                latestMintMs = Math.max(latestMintMs, ((ProbeRef) ref).mintedAtMs());
             }
+            synchronized (probeLock) {
+                if (ref == liveProbe) {
+                    liveProbe = null;
+                }
+            }
+        }
+        if (latestMintMs >= 0) {
+            recordUnloadEvidence(latestMintMs);
         }
     }
 
@@ -260,6 +283,23 @@ final class ClassLoaderGc {
 
         void definePayload() {
             defineClass(PROBE_PAYLOAD_CLASS, PROBE_PAYLOAD_BYTECODE, 0, PROBE_PAYLOAD_BYTECODE.length);
+        }
+    }
+
+    /** Probe phantom carrying its mint time, so a drained probe proves "a class-unloading
+     *  cycle completed after {@code mintedAtMs}" without external bookkeeping — even for a
+     *  replaced probe that enqueues after its tracking was dropped. */
+    private static final class ProbeRef extends PhantomReference<ClassLoader> {
+        private final long mintedAtMs;
+
+        ProbeRef(final ClassLoader probe, final ReferenceQueue<ClassLoader> queue,
+                 final long mintedAtMs) {
+            super(probe, queue);
+            this.mintedAtMs = mintedAtMs;
+        }
+
+        long mintedAtMs() {
+            return mintedAtMs;
         }
     }
 

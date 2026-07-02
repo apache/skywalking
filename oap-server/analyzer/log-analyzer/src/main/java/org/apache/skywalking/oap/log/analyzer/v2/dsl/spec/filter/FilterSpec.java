@@ -20,13 +20,17 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.skywalking.apm.network.logging.v3.JSONLog;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.extractor.MetricExtractor;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.JsonParserSpec;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.ParseFailureWarnLimiter;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.TextParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser.YamlParserSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.sink.SamplerSpec;
@@ -65,6 +69,12 @@ public class FilterSpec extends AbstractSpec {
 
     private final TypeReference<Map<String, Object>> parsedType;
 
+    private final ParseFailureWarnLimiter jsonWarnLimiter =
+        new ParseFailureWarnLimiter(ParseFailureWarnLimiter.DEFAULT_INTERVAL_MS);
+
+    private final ParseFailureWarnLimiter yamlWarnLimiter =
+        new ParseFailureWarnLimiter(ParseFailureWarnLimiter.DEFAULT_INTERVAL_MS);
+
     public FilterSpec(final ModuleManager moduleManager,
                       final LogAnalyzerModuleConfig moduleConfig) throws ModuleStartException {
         super(moduleManager, moduleConfig);
@@ -99,61 +109,144 @@ public class FilterSpec extends AbstractSpec {
     /**
      * LAL {@code text { regexp '...' }} — applies a named-group regexp to the
      * log body text. Matched groups are stored in {@code ctx.parsed().getMatcher()}
-     * and accessed via {@code parsed.groupName} in the LAL script.
+     * and accessed via {@code parsed.groupName} in the LAL script. {@code abortOnFailure}
+     * is the rule's compile-time flag (default {@code true}): a non-matching body aborts
+     * the filter chain only when it is set. The flag travels as a parameter rather than
+     * as parser-spec state because one {@code FilterSpec} instance serves every compiled
+     * rule concurrently.
      */
-    public void textWithRegexp(final ExecutionContext ctx, final String regexp) {
+    public void textWithRegexp(final ExecutionContext ctx, final String regexp,
+                               final boolean abortOnFailure) {
         if (ctx.shouldAbort()) {
             return;
         }
-        textParser.regexp(ctx, regexp);
+        textParser.regexp(ctx, regexp, abortOnFailure);
     }
 
     /**
-     * LAL {@code json {}} — parses {@code LogData.body.json.json} into a
-     * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
-     * Metadata fields (service, serviceInstance, endpoint, layer, timestamp)
+     * LAL {@code json {}} — parses the JSON log body into a {@code Map<String, Object>}
+     * and stores it in {@code ctx.parsed()}. Reads {@code LogData.body.json.json}; when
+     * that is empty but a text body is present, falls back to parsing
+     * {@code LogData.body.text.text} as JSON — the OTLP log receiver delivers every
+     * string body (even JSON-shaped ones) as a text body, and a rule that declared
+     * {@code json {}} means the content is JSON regardless of which body case carried it.
+     * A genuine parse failure is logged — rate-limited WARN when the failure aborts the
+     * log, DEBUG when {@code abortOnFailure false} makes the miss expected control flow —
+     * and then honors {@code abortOnFailure} (the rule's compile-time flag, default
+     * {@code true}); the flag travels as a parameter rather than as parser-spec state
+     * because one {@code FilterSpec} instance serves every compiled rule concurrently.
+     * A typed-proto input (e.g. Envoy ALS {@code HTTPAccessLogEntry}) is not a parse
+     * failure: shipped rules use {@code json {}} on such layers as a routing guard, so
+     * the mismatch stays quiet and just honors the flag.
+     *
+     * <p>On a successful parse that fell back to the text body, this rule's context input
+     * is swapped to a copy whose body is a JSON body carrying the same content, so the log
+     * this rule persists gets {@code ContentType.JSON} (persistence derives the stored
+     * content type from the body case in {@code LogBuilder.toLog()}). The original input
+     * object is shared by every rule analyzing the same log and is never mutated — other
+     * rules still see the original text body.
+     *
+     * <p>Metadata fields (service, serviceInstance, endpoint, layer, timestamp)
      * are also added to the map via {@code putIfAbsent}, so body values take
      * priority while metadata fields serve as fallback — matching v1 Groovy
      * {@code Binding.Parsed.getAt(key)} behavior.
      */
-    public void json(final ExecutionContext ctx) {
+    public void json(final ExecutionContext ctx, final boolean abortOnFailure) {
         if (ctx.shouldAbort()) {
             return;
         }
+        final Object rawInput = ctx.input();
+        if (!(rawInput instanceof LogData.Builder)) {
+            abortOrContinueUnparsed(ctx, abortOnFailure);
+            return;
+        }
         try {
-            final LogData.Builder logData = (LogData.Builder) ctx.input();
-            final Map<String, Object> parsed = jsonParser.create().readValue(
-                logData.getBody().getJson().getJson(), parsedType
-            );
+            final LogData.Builder logData = (LogData.Builder) rawInput;
+            final LogDataBody body = logData.getBody();
+            String content = body.getJson().getJson();
+            final boolean fromText = content.isEmpty();
+            if (fromText) {
+                content = body.getText().getText();
+            }
+            final Map<String, Object> parsed = jsonParser.create().readValue(content, parsedType);
             addMetadataFields(parsed, ctx.metadata());
             ctx.parsed(parsed);
-        } catch (final Exception e) {
-            if (jsonParser.abortOnFailure()) {
-                ctx.abort();
+            if (fromText) {
+                ctx.input(logData.build().toBuilder().setBody(LogDataBody.newBuilder()
+                    .setJson(JSONLog.newBuilder().setJson(content).build())
+                    .build()));
             }
+        } catch (final Exception e) {
+            warnParseFailure(jsonWarnLimiter, "json", ctx, abortOnFailure, e);
+            abortOrContinueUnparsed(ctx, abortOnFailure);
         }
     }
 
     /**
      * LAL {@code yaml {}} — parses {@code LogData.body.yaml.yaml} into a
      * {@code Map<String, Object>} and stores it in {@code ctx.parsed()}.
-     * Metadata fields are added the same way as {@link #json(ExecutionContext)}.
+     * Metadata fields, failure logging, typed-proto inputs, and {@code abortOnFailure}
+     * are handled the same way as {@link #json(ExecutionContext, boolean)}.
      */
-    public void yaml(final ExecutionContext ctx) {
+    public void yaml(final ExecutionContext ctx, final boolean abortOnFailure) {
         if (ctx.shouldAbort()) {
             return;
         }
+        final Object rawInput = ctx.input();
+        if (!(rawInput instanceof LogData.Builder)) {
+            abortOrContinueUnparsed(ctx, abortOnFailure);
+            return;
+        }
         try {
-            final LogData.Builder logData = (LogData.Builder) ctx.input();
+            final LogData.Builder logData = (LogData.Builder) rawInput;
             final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
             addMetadataFields(parsed, ctx.metadata());
             ctx.parsed(parsed);
         } catch (final Exception e) {
-            if (yamlParser.abortOnFailure()) {
-                ctx.abort();
+            warnParseFailure(yamlWarnLimiter, "yaml", ctx, abortOnFailure, e);
+            abortOrContinueUnparsed(ctx, abortOnFailure);
+        }
+    }
+
+    /**
+     * Failed-parse epilogue: abort when the rule demands it; otherwise install a
+     * metadata-only parsed map so downstream {@code parsed.*} reads stay null-safe on
+     * the continuation path — without it the generated extractor would NPE on the null
+     * map and drop the log despite {@code abortOnFailure false}.
+     */
+    private void abortOrContinueUnparsed(final ExecutionContext ctx, final boolean abortOnFailure) {
+        if (abortOnFailure) {
+            ctx.abort();
+            return;
+        }
+        final Map<String, Object> parsed = new HashMap<>();
+        addMetadataFields(parsed, ctx.metadata());
+        ctx.parsed(parsed);
+    }
+
+    /**
+     * Parse-failure logging shared by {@code json {}} / {@code yaml {}}: WARN when the
+     * failure aborts the log (rate-limited, with the suppressed count reported on the
+     * next emission), DEBUG when {@code abortOnFailure false} makes the miss expected
+     * control flow.
+     */
+    private static void warnParseFailure(final ParseFailureWarnLimiter limiter,
+                                         final String parser,
+                                         final ExecutionContext ctx,
+                                         final boolean abortOnFailure,
+                                         final Exception e) {
+        if (abortOnFailure) {
+            final long suppressed = limiter.acquire();
+            if (suppressed >= 0) {
+                LOGGER.warn("LAL {} parser failed to parse the log body (service={}): {}"
+                        + " ({} similar failures suppressed since the last report)",
+                    parser, ctx.metadata().getService(), e.toString(), suppressed);
             }
+        } else if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("LAL {} parser failed to parse the log body (service={}, abortOnFailure=false)",
+                parser, ctx.metadata().getService(), e);
         }
     }
 

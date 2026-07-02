@@ -151,7 +151,7 @@ public final class LALScriptParser {
     private static FilterStatement visitParserBlock(final LALParser.ParserBlockContext ctx) {
         if (ctx.textBlock() != null) {
             String pattern = null;
-            boolean abortOnFail = false;
+            boolean abortOnFail = true;
             if (ctx.textBlock().textContent() != null) {
                 for (final LALParser.RegexpStatementContext regCtx :
                         ctx.textBlock().textContent().regexpStatement()) {
@@ -176,13 +176,14 @@ public final class LALScriptParser {
 
     /**
      * Extract the {@code abortOnFailure} flag from an optional
-     * {@code abortOnFailureStatement} node, defaulting to {@code false}
-     * when the statement is absent. Shared between the JSON and YAML
-     * parser blocks (text uses a list form, handled inline).
+     * {@code abortOnFailureStatement} node, defaulting to {@code true}
+     * when the statement is absent — the documented default for every parser.
+     * Shared between the JSON and YAML parser blocks (text uses a list form,
+     * handled inline).
      */
     private static boolean extractAbortOnFail(
             final LALParser.AbortOnFailureStatementContext ctx) {
-        return ctx != null && parseBoolText(ctx.boolValue().getText());
+        return ctx == null || parseBoolText(ctx.boolValue().getText());
     }
 
     private static boolean parseBoolText(final String text) {

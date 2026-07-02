@@ -18,32 +18,19 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.parser;
 
-import lombok.experimental.Accessors;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.AbstractSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
-@Accessors
+/**
+ * Base of the shared parser specs. Per-rule options such as {@code abortOnFailure} are NOT
+ * state on the spec — one spec instance serves every compiled rule concurrently, so the v2
+ * compiler bakes each rule's flag into the generated call site (see
+ * {@code LALClassGenerator#generateFilterStatement}) and it travels as a method parameter.
+ */
 public class AbstractParserSpec extends AbstractSpec {
-    /**
-     * Whether the filter chain should abort when parsing the logs failed.
-     *
-     * Failing to parse the logs means either parsing throws exceptions or the logs not matching the
-     * desired patterns.
-     */
-    private boolean abortOnFailure = true;
-
     public AbstractParserSpec(final ModuleManager moduleManager,
                               final LogAnalyzerModuleConfig moduleConfig) {
         super(moduleManager, moduleConfig);
-    }
-
-    @SuppressWarnings("unused") // used in user LAL scripts
-    public void abortOnFailure(final boolean abortOnFailure) {
-        this.abortOnFailure = abortOnFailure;
-    }
-
-    public boolean abortOnFailure() {
-        return this.abortOnFailure;
     }
 }

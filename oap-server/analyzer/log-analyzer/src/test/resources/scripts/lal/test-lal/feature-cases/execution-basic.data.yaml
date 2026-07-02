@@ -199,3 +199,42 @@ auto-layer-abort:
       os.name: "Android"
     expect:
       abort: true
+
+# json {} falls back to the text body when the JSON body is empty — the OTLP log
+# receiver wraps every string body as text, even JSON-shaped ones. On success the
+# body is normalized to JSON, so the log persists with content type JSON.
+json-text-fallback:
+  body-type: text
+  body: '{"service":"otlp-svc","env":"prod"}'
+  expect:
+    save: true
+    abort: false
+    service: otlp-svc
+    tag.env: prod
+    contentType: JSON
+
+# Non-JSON text under the fallback still aborts (default abortOnFailure true).
+json-text-fallback-invalid:
+  body-type: text
+  body: 'plain non-json log line'
+  expect:
+    abort: true
+
+# abortOnFailure false: a json parse failure must NOT abort — the log flows through,
+# and parsed.* reads stay null-safe with metadata values as fallback.
+json-abort-on-failure-false:
+  service: fallback-svc
+  body-type: text
+  body: 'plain non-json log line'
+  expect:
+    abort: false
+    save: true
+    service: fallback-svc
+
+# abortOnFailure false on a text regexp: a no-match must NOT abort.
+text-abort-on-failure-false:
+  body-type: text
+  body: 'a line that does not match the level pattern'
+  expect:
+    abort: false
+    save: true
