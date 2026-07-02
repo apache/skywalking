@@ -178,6 +178,13 @@ final class ClassLoaderGc {
         return unloadEvidenceUpToMs;
     }
 
+    /** Whether the unload probe can produce evidence. {@code false} only when the payload
+     *  bytecode resource is unreadable — {@link #leakSuspects} then degrades to the
+     *  wall-clock heuristic, and the manager's WARN wording must not claim GC evidence. */
+    boolean unloadProbeUsable() {
+        return PROBE_PAYLOAD_BYTECODE != null;
+    }
+
     /**
      * Record that a class-unloading GC cycle completed after {@code probeMintedAtMs}.
      * Normally driven by {@link #drainUnloadProbe()}; package-private so tests can exercise

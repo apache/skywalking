@@ -66,15 +66,18 @@ class ClassLoaderGcTest {
         final ClassLoaderGc gc = new ClassLoaderGc();
         final RuleClassLoader pinned = newLoader("evidence-gated");
         gc.retire(pinned);
+        // Derive timestamps from the entry itself so the test never reads the wall clock —
+        // an NTP step between retire() and here would otherwise skew the window math.
+        final long retiredAtMs = gc.pending().iterator().next().retiredAtMs();
 
-        // A cycle that completed right at retirement doesn't qualify: transient holders (the
-        // apply call chain) may legitimately have pinned the loader through it.
-        gc.recordUnloadEvidence(System.currentTimeMillis());
+        // A cycle that completed before the settle window elapsed doesn't qualify: transient
+        // holders (the apply call chain) may legitimately have pinned the loader through it.
+        gc.recordUnloadEvidence(retiredAtMs + 59_999L);
         assertTrue(gc.leakSuspects(60_000).isEmpty(),
             "evidence must postdate retirement by the full settle window");
 
-        // A cycle confirmed past retirement + settle flags the entry — exactly once.
-        gc.recordUnloadEvidence(System.currentTimeMillis() + 61_000);
+        // A cycle confirmed at retirement + settle flags the entry — exactly once.
+        gc.recordUnloadEvidence(retiredAtMs + 60_000L);
         final Collection<ClassLoaderGc.Retired> suspects = gc.leakSuspects(60_000);
         assertEquals(1, suspects.size());
         assertEquals("evidence-gated", suspects.iterator().next().rule());

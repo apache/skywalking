@@ -238,15 +238,26 @@ public final class DSLClassLoaderManager {
                 log.debug("dsl-classloader-gc: {} loader(s) confirmed collected", collected.size());
             }
             final long nowMs = System.currentTimeMillis();
+            final boolean evidenceBacked = graveyard.unloadProbeUsable();
             for (final ClassLoaderGc.Retired r : graveyard.leakSuspects(STALE_LOADER_WARN_THRESHOLD_MS)) {
-                log.warn("rule loader leak: {}:{}/{} hash={} survived a class-unloading GC cycle "
-                        + "and is still strongly referenced {} ms after retirement. This is not GC "
-                        + "lag — take a heap dump and inspect the GC-root path of this "
-                        + "RuleClassLoader. Common holders: lingering handler registrations, "
-                        + "samples buffered in DataCarrier partitions, open DSL debug sessions.",
-                    r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
-                    r.catalog().getWireName(), r.rule(), r.contentHashShort(),
-                    nowMs - r.retiredAtMs());
+                if (evidenceBacked) {
+                    log.warn("rule loader leak: {}:{}/{} hash={} survived a class-unloading GC cycle "
+                            + "and is still strongly referenced {} ms after retirement. This is not GC "
+                            + "lag — take a heap dump and inspect the GC-root path of this "
+                            + "RuleClassLoader. Common holders: lingering handler registrations, "
+                            + "samples buffered in DataCarrier partitions, open DSL debug sessions.",
+                        r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
+                        r.catalog().getWireName(), r.rule(), r.contentHashShort(),
+                        nowMs - r.retiredAtMs());
+                } else {
+                    log.warn("rule loader leak suspected: {}:{}/{} hash={} still uncollected {} ms "
+                            + "after retirement (threshold {}). The unload probe is unavailable, so "
+                            + "this is a wall-clock heuristic — it may be GC inactivity rather than "
+                            + "a leak. Force a full GC or take a heap dump to confirm.",
+                        r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
+                        r.catalog().getWireName(), r.rule(), r.contentHashShort(),
+                        nowMs - r.retiredAtMs(), STALE_LOADER_WARN_THRESHOLD_MS);
+                }
             }
             if (log.isDebugEnabled()) {
                 for (final ClassLoaderGc.Retired r : graveyard.pending()) {
