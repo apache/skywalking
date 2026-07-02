@@ -75,9 +75,13 @@ public final class DSLClassLoaderManager {
      *  young-gen pause cycle so most retired loaders surface as collected within a couple of
      *  ticks; short enough that a leaked loader's WARN doesn't wait minutes. */
     private static final long SWEEP_INTERVAL_SECONDS = 30L;
-    /** A retired loader still alive past this threshold is WARN'd as a suspected leak. 5 min —
-     *  long enough that a slow GC cycle doesn't cry wolf, short enough that an actual leak is
-     *  surfaced before heap pressure triggers a full GC pause. */
+    /** Settle window for the leak WARN: a retired loader is flagged only when a
+     *  class-unloading GC cycle is confirmed to have completed at least this long after the
+     *  retirement and the loader survived it (see {@link ClassLoaderGc#leakSuspects}).
+     *  Wall-clock age alone is never a leak signal — an idle heap may not run a
+     *  class-unloading-capable collection for hours, and warning on age produced false
+     *  alarms after every hot update on quiet OAPs. 5 min keeps transient holders (an apply
+     *  call chain still carrying the displaced bundle on a request thread) out of the WARN. */
     private static final long STALE_LOADER_WARN_THRESHOLD_MS = 5L * 60L * 1000L;
 
     private final Map<Key, RuleClassLoader> active = new ConcurrentHashMap<>();
@@ -184,9 +188,10 @@ public final class DSLClassLoaderManager {
     }
 
     /**
-     * Diagnostic — number of retired loaders the JVM has not yet collected. Steady-state
-     * elevated reading is the leak signal the sweeper WARNs on, surfaced here so operators
-     * can graph it independently.
+     * Diagnostic — number of retired loaders the JVM has not yet collected. A reading that
+     * stays elevated across class-unloading GC cycles is the leak signal (the sweeper WARNs
+     * on exactly that evidence); an elevated reading on an idle heap merely means no such
+     * cycle has run yet. Surfaced so operators can graph it independently.
      */
     public int pendingCount() {
         return graveyard.pending().size();
@@ -233,15 +238,37 @@ public final class DSLClassLoaderManager {
                 log.debug("dsl-classloader-gc: {} loader(s) confirmed collected", collected.size());
             }
             final long nowMs = System.currentTimeMillis();
-            for (final ClassLoaderGc.Retired r : graveyard.pending()) {
-                final long ageMs = nowMs - r.retiredAtMs();
-                if (ageMs > STALE_LOADER_WARN_THRESHOLD_MS && r.markWarnedIfNotAlready()) {
-                    log.warn("rule loader leak suspected: {}:{}/{} hash={} pending {} ms "
-                            + "(threshold {}). Check for lingering handler registrations or "
-                            + "samples buffered in DataCarrier partitions.",
+            final boolean evidenceBacked = graveyard.unloadProbeUsable();
+            for (final ClassLoaderGc.Retired r : graveyard.leakSuspects(STALE_LOADER_WARN_THRESHOLD_MS)) {
+                if (evidenceBacked) {
+                    log.warn("rule loader leak: {}:{}/{} hash={} survived a class-unloading GC cycle "
+                            + "and is still strongly referenced {} ms after retirement. This is not GC "
+                            + "lag — take a heap dump and inspect the GC-root path of this "
+                            + "RuleClassLoader. Common holders: lingering handler registrations, "
+                            + "samples buffered in DataCarrier partitions, open DSL debug sessions.",
                         r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
-                        r.catalog().getWireName(), r.rule(), r.contentHashShort(), ageMs,
-                        STALE_LOADER_WARN_THRESHOLD_MS);
+                        r.catalog().getWireName(), r.rule(), r.contentHashShort(),
+                        nowMs - r.retiredAtMs());
+                } else {
+                    log.warn("rule loader leak suspected: {}:{}/{} hash={} still uncollected {} ms "
+                            + "after retirement (threshold {}). The unload probe is unavailable, so "
+                            + "this is a wall-clock heuristic — it may be GC inactivity rather than "
+                            + "a leak. Force a full GC or take a heap dump to confirm.",
+                        r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
+                        r.catalog().getWireName(), r.rule(), r.contentHashShort(),
+                        nowMs - r.retiredAtMs(), STALE_LOADER_WARN_THRESHOLD_MS);
+                }
+            }
+            if (log.isDebugEnabled()) {
+                for (final ClassLoaderGc.Retired r : graveyard.pending()) {
+                    if (!r.warnedAlready()) {
+                        log.debug("rule loader {}:{}/{} hash={} pending {} ms awaiting a "
+                                + "class-unloading GC cycle — not a leak signal (an idle heap "
+                                + "can defer collection indefinitely)",
+                            r.kind() == Kind.BUNDLED ? "bundled" : "runtime-rule",
+                            r.catalog().getWireName(), r.rule(), r.contentHashShort(),
+                            nowMs - r.retiredAtMs());
+                    }
                 }
             }
         } catch (final Throwable t) {
