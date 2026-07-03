@@ -213,15 +213,18 @@ json-text-fallback:
     tag.env: prod
     contentType: JSON
 
-# Non-JSON text under the fallback still aborts (default abortOnFailure true).
+# Non-JSON text under the fallback still aborts (default abortOnFailure true), and the
+# drop reason is recorded on ctx so live-debug can surface WHY it dropped.
 json-text-fallback-invalid:
   body-type: text
   body: 'plain non-json log line'
   expect:
     abort: true
+    dropReason: "json parse failed"
 
 # abortOnFailure false: a json parse failure must NOT abort — the log flows through,
-# and parsed.* reads stay null-safe with metadata values as fallback.
+# and parsed.* reads stay null-safe with metadata values as fallback. A continued log is
+# not dropped, so NO drop reason is recorded.
 json-abort-on-failure-false:
   service: fallback-svc
   body-type: text
@@ -230,11 +233,22 @@ json-abort-on-failure-false:
     abort: false
     save: true
     service: fallback-svc
+    noDropReason: true
 
-# abortOnFailure false on a text regexp: a no-match must NOT abort.
+# A parse failure that continued (abortOnFailure false) must NOT leave a stale reason for a
+# later explicit abort {} to inherit — the abort has no recorded cause.
+json-continue-then-abort:
+  body-type: text
+  body: 'plain non-json log line'
+  expect:
+    abort: true
+    noDropReason: true
+
+# abortOnFailure false on a text regexp: a no-match must NOT abort, and records no reason.
 text-abort-on-failure-false:
   body-type: text
   body: 'a line that does not match the level pattern'
   expect:
     abort: false
     save: true
+    noDropReason: true

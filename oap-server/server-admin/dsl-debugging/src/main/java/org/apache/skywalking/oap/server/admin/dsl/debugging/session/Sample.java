@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.session;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * One step inside a single rule execution. Probes accumulate samples
@@ -53,16 +54,29 @@ import lombok.RequiredArgsConstructor;
  *       line; the REST response omits the field in that case (the
  *       parent {@link ExecutionRecord#getDsl()} carries the verbatim
  *       rule source for cross-reference).</li>
+ *   <li>{@code reason} — human-readable explanation of WHY the step
+ *       stopped the pipeline (a parse exception, a non-matching regexp,
+ *       an input-type mismatch). Optional and null on steps that
+ *       continued or that stopped without a recorded cause (e.g. an
+ *       explicit {@code abort {}}). Only LAL populates it today; the
+ *       shared 5-arg constructor is unchanged so MAL / OAL recorders
+ *       leave it null.</li>
  * </ul>
  */
 @Getter
 @RequiredArgsConstructor
 public final class Sample {
-    /** Coarse semantic step type: input / filter / function / aggregation / output. */
+    // Coarse semantic step type, shared across all three DSL recorders. Each DSL emits the
+    // subset that fits its pipeline shape (recorders in the sibling lal/ mal/ oal/ packages):
+    /** First event entering the rule. Used by LAL, MAL, OAL. */
     public static final String TYPE_INPUT = "input";
+    /** Filter-clause check (see {@code continueOn}). Used by MAL and OAL; LAL has no filter step. */
     public static final String TYPE_FILTER = "filter";
+    /** Chain transform — MAL sum/tag/etc., LAL parser/extractor statement. Used by LAL, MAL, OAL. */
     public static final String TYPE_FUNCTION = "function";
+    /** Terminal aggregation function. OAL only. */
     public static final String TYPE_AGGREGATION = "aggregation";
+    /** Terminal emit / sink / outputRecord. Used by LAL, MAL, OAL. */
     public static final String TYPE_OUTPUT = "output";
 
     private final String type;
@@ -70,6 +84,11 @@ public final class Sample {
     private final boolean continueOn;
     private final String payloadJson;
     private final int sourceLine;
+
+    /** Why this step stopped the pipeline; null when it continued or has no recorded cause.
+     *  Non-final optional add-on so the shared constructor stays 5-arg — see class Javadoc. */
+    @Setter
+    private String reason;
 
     /**
      * Char count this sample contributes to the session's reported {@code totalBytes}.
@@ -86,6 +105,9 @@ public final class Sample {
         }
         if (payloadJson != null) {
             size += payloadJson.length();
+        }
+        if (reason != null) {
+            size += reason.length();
         }
         return size;
     }

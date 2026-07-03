@@ -195,6 +195,7 @@ public final class DSLDebuggingClusterServiceImpl
             .setContinueOn(s.isContinueOn())
             .setPayloadJson(s.getPayloadJson() == null ? "{}" : s.getPayloadJson())
             .setSourceLine(s.getSourceLine())
+            .setReason(s.getReason() == null ? "" : s.getReason())
             .build();
     }
 }

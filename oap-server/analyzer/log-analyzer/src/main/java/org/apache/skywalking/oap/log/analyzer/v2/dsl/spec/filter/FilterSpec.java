@@ -157,7 +157,7 @@ public class FilterSpec extends AbstractSpec {
         }
         final Object rawInput = ctx.input();
         if (!(rawInput instanceof LogData.Builder)) {
-            abortOrContinueUnparsed(ctx, abortOnFailure);
+            abortOrContinueUnparsed(ctx, abortOnFailure, notLogBodyReason("json", rawInput));
             return;
         }
         try {
@@ -178,7 +178,7 @@ public class FilterSpec extends AbstractSpec {
             }
         } catch (final Exception e) {
             warnParseFailure(jsonWarnLimiter, "json", ctx, abortOnFailure, e);
-            abortOrContinueUnparsed(ctx, abortOnFailure);
+            abortOrContinueUnparsed(ctx, abortOnFailure, "json parse failed: " + e);
         }
     }
 
@@ -194,7 +194,7 @@ public class FilterSpec extends AbstractSpec {
         }
         final Object rawInput = ctx.input();
         if (!(rawInput instanceof LogData.Builder)) {
-            abortOrContinueUnparsed(ctx, abortOnFailure);
+            abortOrContinueUnparsed(ctx, abortOnFailure, notLogBodyReason("yaml", rawInput));
             return;
         }
         try {
@@ -206,24 +206,34 @@ public class FilterSpec extends AbstractSpec {
             ctx.parsed(parsed);
         } catch (final Exception e) {
             warnParseFailure(yamlWarnLimiter, "yaml", ctx, abortOnFailure, e);
-            abortOrContinueUnparsed(ctx, abortOnFailure);
+            abortOrContinueUnparsed(ctx, abortOnFailure, "yaml parse failed: " + e);
         }
     }
 
     /**
-     * Failed-parse epilogue: abort when the rule demands it; otherwise install a
-     * metadata-only parsed map so downstream {@code parsed.*} reads stay null-safe on
-     * the continuation path — without it the generated extractor would NPE on the null
-     * map and drop the log despite {@code abortOnFailure false}.
+     * Failed-parse epilogue: when the rule aborts, record the drop reason (surfaced in
+     * live-debug via {@code Sample.reason}) and abort; otherwise install a metadata-only
+     * parsed map so downstream {@code parsed.*} reads stay null-safe on the continuation
+     * path — without it the generated extractor would NPE on the null map and drop the log
+     * despite {@code abortOnFailure false}. The reason is set ONLY on the aborting path:
+     * a continued log is not dropped, and leaving a stale reason on the context would let a
+     * later {@code abort {}} statement wrongly inherit this step's parse-failure text.
      */
-    private void abortOrContinueUnparsed(final ExecutionContext ctx, final boolean abortOnFailure) {
+    private void abortOrContinueUnparsed(final ExecutionContext ctx, final boolean abortOnFailure,
+                                         final String reason) {
         if (abortOnFailure) {
+            ctx.dropReason(reason);
             ctx.abort();
             return;
         }
         final Map<String, Object> parsed = new HashMap<>();
         addMetadataFields(parsed, ctx.metadata());
         ctx.parsed(parsed);
+    }
+
+    private static String notLogBodyReason(final String parser, final Object rawInput) {
+        final String actual = rawInput == null ? "null" : rawInput.getClass().getSimpleName();
+        return parser + " parser: input is not a log body (expected LogData, got " + actual + ")";
     }
 
     /**

@@ -589,6 +589,9 @@ public class DSLDebuggingRestHandler {
         }
         entry.addProperty("sourceText", s.getSourceText());
         entry.addProperty("continueOn", s.isContinueOn());
+        if (s.getReason() != null && !s.getReason().isEmpty()) {
+            entry.addProperty("reason", s.getReason());
+        }
         entry.add("payload", JsonParser.parseString(
             s.getPayloadJson() == null || s.getPayloadJson().isEmpty()
                 ? "{}" : s.getPayloadJson()));
@@ -622,6 +625,10 @@ public class DSLDebuggingRestHandler {
         }
         entry.addProperty("sourceText", s.getSourceText());
         entry.addProperty("continueOn", s.getContinueOn());
+        // ClusterSample is a proto message — getReason() is never null, only possibly empty.
+        if (!s.getReason().isEmpty()) {
+            entry.addProperty("reason", s.getReason());
+        }
         entry.add("payload", JsonParser.parseString(
             s.getPayloadJson() == null || s.getPayloadJson().isEmpty()
                 ? "{}" : s.getPayloadJson()));
