@@ -52,6 +52,8 @@ import org.junit.jupiter.api.TestFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -253,6 +255,17 @@ class LALScriptExecutionTest {
                 case "contentType":
                     assertEquals(expected, bodyContentType(logBuilder),
                         ruleName + ": persisted body content type mismatch");
+                    break;
+                case "dropReason": {
+                    final String reason = ctx.dropReason();
+                    assertNotNull(reason, ruleName + ": expected a drop reason on ctx");
+                    assertTrue(reason.contains(expected),
+                        ruleName + ": drop reason '" + reason + "' should contain '" + expected + "'");
+                    break;
+                }
+                case "noDropReason":
+                    assertNull(ctx.dropReason(),
+                        ruleName + ": expected no drop reason, got '" + ctx.dropReason() + "'");
                     break;
                 default:
                     if (key.startsWith("tag.")) {

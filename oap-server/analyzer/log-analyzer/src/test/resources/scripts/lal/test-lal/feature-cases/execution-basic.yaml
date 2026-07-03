@@ -361,6 +361,17 @@ rules:
         sink {}
       }
 
+  - name: json-continue-then-abort
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {
+          abortOnFailure false
+        }
+        abort {}
+        sink {}
+      }
+
   - name: text-abort-on-failure-false
     layer: GENERAL
     dsl: |

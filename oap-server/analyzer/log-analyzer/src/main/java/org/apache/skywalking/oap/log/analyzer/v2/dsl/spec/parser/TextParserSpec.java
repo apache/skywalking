@@ -44,24 +44,36 @@ public class TextParserSpec extends AbstractParserSpec {
         if (ctx.shouldAbort()) {
             return;
         }
-        final LogData.Builder logData = (LogData.Builder) ctx.input();
+        final Object rawInput = ctx.input();
+        if (!(rawInput instanceof LogData.Builder)) {
+            // Typed-proto input (e.g. Envoy ALS) reaches a text{regexp} rule as a routing
+            // mismatch, not a text body — honor abortOnFailure without a ClassCastException.
+            if (abortOnFailure) {
+                final String actual = rawInput == null ? "null" : rawInput.getClass().getSimpleName();
+                ctx.dropReason("text parser: input is not a log body (expected LogData, got " + actual + ")");
+                ctx.abort();
+            }
+            return;
+        }
+        final LogData.Builder logData = (LogData.Builder) rawInput;
         final Matcher matcher = pattern.matcher(logData.getBody().getText().getText());
         final boolean matched = matcher.find();
         if (matched) {
             ctx.parsed(matcher);
-        } else {
-            if (abortOnFailure) {
-                final long suppressed = warnLimiter.acquire();
-                if (suppressed >= 0) {
-                    log.warn("LAL text parser regexp did not match the log body (service={})"
-                            + " ({} similar failures suppressed since the last report)",
-                        ctx.metadata().getService(), suppressed);
-                }
-                ctx.abort();
-            } else if (log.isDebugEnabled()) {
-                log.debug("LAL text parser regexp did not match the log body (service={}, abortOnFailure=false)",
-                    ctx.metadata().getService());
+        } else if (abortOnFailure) {
+            // Reason set only on the aborting path: a continued log is not dropped, and a
+            // stale reason would leak onto a later abort {} statement.
+            ctx.dropReason("text parser: regexp did not match the log body");
+            final long suppressed = warnLimiter.acquire();
+            if (suppressed >= 0) {
+                log.warn("LAL text parser regexp did not match the log body (service={})"
+                        + " ({} similar failures suppressed since the last report)",
+                    ctx.metadata().getService(), suppressed);
             }
+            ctx.abort();
+        } else if (log.isDebugEnabled()) {
+            log.debug("LAL text parser regexp did not match the log body (service={}, abortOnFailure=false)",
+                ctx.metadata().getService());
         }
     }
 

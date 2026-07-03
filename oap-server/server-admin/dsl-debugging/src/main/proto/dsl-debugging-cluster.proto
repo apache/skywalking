@@ -149,6 +149,10 @@ message ClusterSample {
     // Coarse semantic step type — input / filter / function / aggregation /
     // output. Lets the UI group/colour samples without parsing source_text.
     string type = 5;
+    // Human-readable reason the step stopped the pipeline (parse exception,
+    // non-matching regexp, input-type mismatch). Empty when the step
+    // continued or stopped without a recorded cause. LAL-only today.
+    string reason = 6;
 }
 
 // One full pipeline execution — a single source/log/SampleFamily walked

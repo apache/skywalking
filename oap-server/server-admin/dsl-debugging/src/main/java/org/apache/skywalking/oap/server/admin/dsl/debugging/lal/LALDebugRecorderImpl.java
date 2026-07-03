@@ -72,12 +72,12 @@ public final class LALDebugRecorderImpl extends AbstractDebugRecorder
         // subsequent samples render only the output (builder state) so the
         // wire doesn't repeat the raw input on every probe.
         publishCurrentExecution();
-        addSample(new Sample(Sample.TYPE_INPUT, "", continueOn(ctx), inputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_INPUT, "", ctx, inputPayload(ctx), sourceLine));
     }
 
     @Override
     public void appendParser(final String rule, final int sourceLine, final ExecutionContext ctx) {
-        addSample(new Sample(Sample.TYPE_FUNCTION, "", continueOn(ctx), outputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_FUNCTION, "", ctx, outputPayload(ctx), sourceLine));
     }
 
     @Override
@@ -87,7 +87,7 @@ public final class LALDebugRecorderImpl extends AbstractDebugRecorder
             // block-level synopsis to avoid noise.
             return;
         }
-        addSample(new Sample(Sample.TYPE_FUNCTION, "", continueOn(ctx), outputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_FUNCTION, "", ctx, outputPayload(ctx), sourceLine));
     }
 
     @Override
@@ -96,8 +96,8 @@ public final class LALDebugRecorderImpl extends AbstractDebugRecorder
         if (!statementGranularity) {
             return;
         }
-        addSample(new Sample(Sample.TYPE_FUNCTION, sourceText == null ? "" : sourceText,
-                             continueOn(ctx), outputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_FUNCTION, sourceText == null ? "" : sourceText,
+                         ctx, outputPayload(ctx), sourceLine));
     }
 
     @Override
@@ -106,19 +106,32 @@ public final class LALDebugRecorderImpl extends AbstractDebugRecorder
         // Terminal probe: append the output-type sample (sourceText empty,
         // type=output), then close. The output entity itself is captured in
         // the payload via ExecutionContext.outputPayloadJson().
-        addSample(new Sample(Sample.TYPE_OUTPUT, "", continueOn(ctx), outputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_OUTPUT, "", ctx, outputPayload(ctx), sourceLine));
         publishCurrentExecution();
     }
 
     @Override
     public void appendOutputMetric(final String rule, final int sourceLine, final ExecutionContext ctx,
                                    final SampleFamily family) {
-        addSample(new Sample(Sample.TYPE_OUTPUT, "", continueOn(ctx), outputPayload(ctx), sourceLine));
+        addSample(sample(Sample.TYPE_OUTPUT, "", ctx, outputPayload(ctx), sourceLine));
         publishCurrentExecution();
     }
 
     private static boolean continueOn(final ExecutionContext ctx) {
         return ctx == null || !ctx.shouldAbort();
+    }
+
+    /** Build a sample and, when the step stopped the pipeline ({@code continueOn == false}),
+     *  stamp the drop reason off the context so a watcher sees WHY it stopped. */
+    private static Sample sample(final String type, final String sourceText,
+                                 final ExecutionContext ctx, final String payloadJson,
+                                 final int sourceLine) {
+        final boolean cont = continueOn(ctx);
+        final Sample s = new Sample(type, sourceText, cont, payloadJson, sourceLine);
+        if (!cont && ctx != null) {
+            s.setReason(ctx.dropReason());
+        }
+        return s;
     }
 
     private static String inputPayload(final ExecutionContext ctx) {
