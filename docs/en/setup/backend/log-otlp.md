@@ -53,3 +53,5 @@ And several attributes are optional as add-on information for the logs before an
 - `service.instance`: the instance name that generates the logs. The default value is empty.
 
 Note, that these attributes should be set manually through OpenTelemetry SDK or through [attribute#insert in OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/attributesprocessor/README.md).
+
+The OTLP log record body is delivered to [LAL](../../concepts-and-designs/lal.md) as a plain-text body, even when the string content is JSON-shaped. A LAL rule can still parse such content with the `json {}` parser — when the JSON body is empty and a text body is present, `json {}` tries the text as JSON. On a successful parse the log is normalized to a JSON body, so it is stored and rendered as JSON. See [`json`](../../concepts-and-designs/lal.md#json) for details.

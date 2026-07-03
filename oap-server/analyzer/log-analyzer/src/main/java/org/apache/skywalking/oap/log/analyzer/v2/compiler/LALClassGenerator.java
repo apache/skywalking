@@ -757,16 +757,18 @@ public final class LALClassGenerator {
             if (tp.getRegexpPattern() != null) {
                 sb.append("  filterSpec.textWithRegexp(ctx, \"")
                   .append(LALCodegenHelper.escapeJava(tp.getRegexpPattern()))
-                  .append("\");\n");
+                  .append("\", ").append(tp.isAbortOnFailure()).append(");\n");
             } else {
                 sb.append("  filterSpec.text(ctx);\n");
             }
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.JsonParser) {
-            sb.append("  filterSpec.json(ctx);\n");
+            sb.append("  filterSpec.json(ctx, ")
+              .append(((LALScriptModel.JsonParser) stmt).isAbortOnFailure()).append(");\n");
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.YamlParser) {
-            sb.append("  filterSpec.yaml(ctx);\n");
+            sb.append("  filterSpec.yaml(ctx, ")
+              .append(((LALScriptModel.YamlParser) stmt).isAbortOnFailure()).append(");\n");
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.AbortStatement) {
             sb.append("  filterSpec.abort(ctx);\n");

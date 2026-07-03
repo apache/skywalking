@@ -29,6 +29,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
@@ -170,7 +171,10 @@ public final class LalRuntimeHelper {
      * </pre>
      */
     public String group(final String name) {
-        return ctx.parsed().getMatcher().group(name);
+        // Null when the regexp did not match and the rule continued via abortOnFailure
+        // false — the continuation contract is "parsed reads yield null", not NPE.
+        final Matcher matcher = ctx.parsed().getMatcher();
+        return matcher == null ? null : matcher.group(name);
     }
 
     // ==================== Data source: Log tags ====================

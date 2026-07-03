@@ -80,7 +80,8 @@ class LALClassGeneratorBasicTest extends LALClassGeneratorTestBase {
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
         assertNotNull(source);
-        assertTrue(source.contains("filterSpec.json(ctx)"));
+        // The codegen bakes the rule's abortOnFailure flag (default true) into the call.
+        assertTrue(source.contains("filterSpec.json(ctx, true)"));
         assertTrue(source.contains("filterSpec.sink(ctx)"));
     }
 

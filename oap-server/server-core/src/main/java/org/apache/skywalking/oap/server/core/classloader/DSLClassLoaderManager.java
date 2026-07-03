@@ -233,7 +233,7 @@ public final class DSLClassLoaderManager {
 
     private void sweepInternal() {
         try {
-            final Collection<ClassLoaderGc.Retired> collected = graveyard.sweep();
+            final Collection<ClassLoaderGc.Retired> collected = graveyard.sweep(STALE_LOADER_WARN_THRESHOLD_MS);
             if (!collected.isEmpty() && log.isDebugEnabled()) {
                 log.debug("dsl-classloader-gc: {} loader(s) confirmed collected", collected.size());
             }

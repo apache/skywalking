@@ -30,6 +30,7 @@ import java.util.ServiceLoader;
 import com.google.protobuf.Message;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
@@ -249,6 +250,10 @@ class LALScriptExecutionTest {
                 case "timestamp":
                     assertOutputField(ruleName, output, "timestamp", expected);
                     break;
+                case "contentType":
+                    assertEquals(expected, bodyContentType(logBuilder),
+                        ruleName + ": persisted body content type mismatch");
+                    break;
                 default:
                     if (key.startsWith("tag.")) {
                         final String tagKey = key.substring(4);
@@ -273,6 +278,25 @@ class LALScriptExecutionTest {
                     break;
             }
         }
+    }
+
+    /** The content type {@code LogBuilder.toLog()} would persist, derived from the body
+     *  oneof case of the (possibly LAL-rewritten) input. */
+    private static String bodyContentType(final LogData.Builder logBuilder) {
+        if (logBuilder == null) {
+            return "NONE";
+        }
+        final LogDataBody body = logBuilder.getBody();
+        if (body.hasJson()) {
+            return "JSON";
+        }
+        if (body.hasYaml()) {
+            return "YAML";
+        }
+        if (body.hasText()) {
+            return "TEXT";
+        }
+        return "NONE";
     }
 
     private static final Map<String, String[]> FIELD_GETTER_CANDIDATES;

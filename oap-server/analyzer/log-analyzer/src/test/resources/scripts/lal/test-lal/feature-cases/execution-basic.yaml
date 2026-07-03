@@ -324,3 +324,50 @@ rules:
         }
         sink {}
       }
+
+  - name: json-text-fallback
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          tag env: parsed.env as String
+        }
+        sink {}
+      }
+
+  - name: json-text-fallback-invalid
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+        }
+        sink {}
+      }
+
+  - name: json-abort-on-failure-false
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {
+          abortOnFailure false
+        }
+        extractor {
+          service parsed.service as String
+        }
+        sink {}
+      }
+
+  - name: text-abort-on-failure-false
+    layer: GENERAL
+    dsl: |
+      filter {
+        text {
+          regexp "^(?<level>INFO|WARN|ERROR) (?<msg>.*)$"
+          abortOnFailure false
+        }
+        sink {}
+      }

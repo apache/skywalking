@@ -219,6 +219,12 @@ filter {
 }
 ```
 
+`json` reads the JSON body of the [native log protocol](../api/log-data-protocol.md). When the JSON body is empty but a plain-text body is present — for example, the [OTLP log receiver](../setup/backend/log-otlp.md) delivers every string body as text, even JSON-shaped ones — the parser tries the text body as JSON instead. A parse failure of either form follows `abortOnFailure`.
+
+When `json` parses successfully from a text body, the log is normalized to a JSON body for the matching rule: the rule persists it with content type `JSON` and `log.body` reads the JSON content within that rule. This makes a JSON-shaped log delivered over any transport persist and render as JSON once a `json {}` rule matches it. The normalization is scoped to the matching rule — other rules analyzing the same log still see the original text body.
+
+A parse failure that aborts the log is reported at WARN, rate-limited to one report per minute per parser with the number of suppressed failures included in the next report. With `abortOnFailure false`, a failure is expected control flow: it is only logged at DEBUG, the log continues through the filter chain, and `parsed.*` reads return the metadata fallback fields (or `null`).
+
 #### `yaml`
 
 ```

@@ -91,7 +91,7 @@ fields are now handled via the `outputType` mechanism with `outputFieldStatement
 All spec methods take `ExecutionContext ctx` as an explicit parameter — there is no `BINDING` ThreadLocal or `bind()` method. The `execute()` method receives `ctx` directly and passes it through:
 
 - `execute(FilterSpec filterSpec, ExecutionContext ctx)` — entry point
-- `filterSpec.json(ctx)`, `filterSpec.text(ctx)`, `filterSpec.sink(ctx)` — parser/sink calls
+- `filterSpec.json(ctx, true)`, `filterSpec.text(ctx)`, `filterSpec.sink(ctx)` — parser/sink calls (json/yaml/text-regexp carry the rule's `abortOnFailure` flag)
 - `((OutputType) h.ctx().output()).setService(...)` — standard field setters on the output builder
 - `_e.prepareMetrics(h.ctx())`, `_e.submitMetrics(h.ctx(), _metrics)` — metrics calls via MetricExtractor
 - `_f.sampler().rateLimit(h.ctx(), ...)` — sink calls via `h.ctx()`
@@ -267,7 +267,7 @@ One class is generated (e.g., `default_L3_my_rule` when `yamlSource=default.yaml
 public class default_L3_my_rule implements LalExpression {
     public void execute(FilterSpec filterSpec, ExecutionContext ctx) {
         LalRuntimeHelper h = new LalRuntimeHelper(ctx);
-        filterSpec.json(ctx);
+        filterSpec.json(ctx, true);
         if (!ctx.shouldAbort()) {
             _extractor(filterSpec.extractor(), h);
         }

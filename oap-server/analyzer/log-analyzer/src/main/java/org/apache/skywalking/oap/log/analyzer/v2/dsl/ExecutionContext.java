@@ -127,6 +127,16 @@ public class ExecutionContext {
         return getProperty(KEY_INPUT);
     }
 
+    /**
+     * Replace the raw input for this rule's context. Used by parsers that normalize the
+     * body (e.g. {@code json {}} rewriting a text body to a JSON body): the original input
+     * object is shared by every rule analyzing the same log, so normalization must swap in
+     * a rule-local copy instead of mutating the shared object.
+     */
+    public void input(final Object input) {
+        setProperty(KEY_INPUT, input);
+    }
+
     public ExecutionContext parsed(final Matcher parsed) {
         parsed().matcher = parsed;
         return this;
