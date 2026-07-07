@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.mqe.rt.grammar.MQEParser;
@@ -52,6 +54,9 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.core.storage.model.IModelManager;
+import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.mqe.rt.MQEVisitorBase;
 import org.apache.skywalking.oap.server.core.query.mqe.ExpressionResult;
@@ -69,6 +74,7 @@ public class MQEVisitor extends MQEVisitorBase {
     private MetricsQueryService metricsQueryService;
     private AggregationQueryService aggregationQueryService;
     private RecordQueryService recordQueryService;
+    private IModelManager modelManager;
 
     public MQEVisitor(final ModuleManager moduleManager,
                       final Entity entity,
@@ -95,6 +101,15 @@ public class MQEVisitor extends MQEVisitorBase {
                                                         .getService(AggregationQueryService.class);
         }
         return aggregationQueryService;
+    }
+
+    private IModelManager getModelManager() {
+        if (modelManager == null) {
+            this.modelManager = moduleManager.find(CoreModule.NAME)
+                                             .provider()
+                                             .getService(IModelManager.class);
+        }
+        return modelManager;
     }
 
     private RecordQueryService getRecordQueryService() {
@@ -220,11 +235,49 @@ public class MQEVisitor extends MQEVisitorBase {
         }
     }
 
+    /**
+     * Reject a top_n attribute condition whose key is not a queryable column of the metric, before the
+     * request reaches storage. Attribute columns (attr0..attrN) exist only on decorated OAL metrics and
+     * the MAL meter base; metrics such as relations or database/cache/mq access carry none, so passing the
+     * condition to the storage engine surfaces a raw backend exception instead of a query result. Failing
+     * here turns that into a descriptive MQE error via {@link #getErrorResult(String)}.
+     *
+     * @param metricName the queried metric name
+     * @param attrConditions the attribute conditions parsed from the top_n function
+     * @throws IllegalExpressionException if an attribute key is not a queryable column of the metric
+     */
+    void checkAttributes(String metricName,
+                         List<AttrCondition> attrConditions) throws IllegalExpressionException {
+        if (attrConditions == null || attrConditions.isEmpty()) {
+            return;
+        }
+        Optional<Model> model = getModelManager().allModels().stream()
+                                                 .filter(m -> m.getName().equals(metricName))
+                                                 .findFirst();
+        if (model.isEmpty()) {
+            // The metric existence is already validated via ValueColumnMetadata; a missing model here is
+            // unexpected, so leave the condition untouched rather than reject a possibly-valid query.
+            return;
+        }
+        Set<String> queryableColumns = model.get().getColumns().stream()
+                                            .filter(ModelColumn::shouldIndex)
+                                            .map(column -> column.getColumnName().getName())
+                                            .collect(Collectors.toSet());
+        for (AttrCondition attr : attrConditions) {
+            if (!queryableColumns.contains(attr.getKey())) {
+                throw new IllegalExpressionException(
+                    "The attribute [" + attr.getKey() + "] is not a queryable column of metric [" + metricName
+                        + "], so it can not be used as a top_n condition.");
+            }
+        }
+    }
+
     private void querySortMetrics(String metricName,
                                   int topN,
                                   Order order,
                                   List<AttrCondition> attrConditions,
-                                  ExpressionResult result) throws IOException {
+                                  ExpressionResult result) throws IOException, IllegalExpressionException {
+        checkAttributes(metricName, attrConditions);
         TopNCondition topNCondition = new TopNCondition();
         topNCondition.setName(metricName);
         topNCondition.setTopN(topN);
