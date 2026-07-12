@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelResponse;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class OpenAICompatibleProvider implements JudgeModelProvider {
@@ -179,7 +180,10 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
             return null;
         }
         final Object value = properties.get(key);
-        return value == null ? null : String.valueOf(value);
+        if (value == null) {
+            return null;
+        }
+        return PropertyPlaceholderHelper.INSTANCE.replacePlaceholders(String.valueOf(value), properties);
     }
 
     private static Double getDouble(final Properties properties, final String key) throws ModuleStartException {
