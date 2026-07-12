@@ -49,6 +49,7 @@ import org.apache.skywalking.oap.server.core.query.AggregationQueryService;
 import org.apache.skywalking.oap.server.core.query.AlarmQueryService;
 import org.apache.skywalking.oap.server.core.query.BrowserLogQueryService;
 import org.apache.skywalking.oap.server.core.query.EventQueryService;
+import org.apache.skywalking.oap.server.core.query.GenAIEvaluationRecordQueryService;
 import org.apache.skywalking.oap.server.core.query.HierarchyQueryService;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
@@ -168,6 +169,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(RecordQueryService.class);
         classes.add(HierarchyQueryService.class);
         classes.add(TTLStatusQuery.class);
+        classes.add(GenAIEvaluationRecordQueryService.class);
     }
 
     private void addServerInterface(List<Class> classes) {
