@@ -253,6 +253,11 @@ gen-ai-analyzer:
   selector: ${SW_GENAI_ANALYZER:default}
   default:
 
+ai-evaluation:
+  selector: ${SW_AI_EVALUATION:default}
+  default:
+    sampleRate: ${SW_AI_EVALUTION_SAMPLE_RATE:1000000}
+
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
   default:

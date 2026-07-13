@@ -56,6 +56,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -75,6 +76,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEventQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBGenAIGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetadataQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetricsQueryDAO;
@@ -175,6 +177,8 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IMetadataQueryDAO.class, new BanyanDBMetadataQueryDAO(client, this.config));
         this.registerServiceImplementation(IAlarmQueryDAO.class, new BanyanDBAlarmQueryDAO(client));
         this.registerServiceImplementation(ILogQueryDAO.class, new BanyanDBLogQueryDAO(client));
+        this.registerServiceImplementation(
+            IGenAIEvaluationRecordQueryDAO.class, new BanyanDBGenAIGenAIEvaluationRecordQueryDAO(client));
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class, new BanyanDBProfileTaskQueryDAO(client,
                                                                         this.config.getGlobal().getProfileTaskQueryMaxSize()

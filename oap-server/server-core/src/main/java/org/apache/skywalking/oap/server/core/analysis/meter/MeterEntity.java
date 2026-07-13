@@ -73,15 +73,16 @@ public class MeterEntity {
     public String id() {
         switch (scopeType) {
             case SERVICE:
-                // In Meter system, only normal service, because we don't conjecture any node.
-                return IDManager.ServiceID.buildId(serviceName, true);
+                return IDManager.ServiceID.buildId(serviceName, normal());
             case SERVICE_INSTANCE:
                 return IDManager.ServiceInstanceID.buildId(
-                    IDManager.ServiceID.buildId(serviceName, true), instanceName);
+                    IDManager.ServiceID.buildId(serviceName, normal()), instanceName);
             case ENDPOINT:
-                return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, true), endpointName);
+                return IDManager.EndpointID.buildId(IDManager.ServiceID.buildId(serviceName, normal()), endpointName);
             case PROCESS:
-                return IDManager.ProcessID.buildId(IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId(serviceName, true), instanceName), processName);
+                return IDManager.ProcessID.buildId(
+                    IDManager.ServiceInstanceID.buildId(IDManager.ServiceID.buildId(serviceName, normal()), instanceName),
+                    processName);
             case SERVICE_RELATION:
                 return IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
                     sourceServiceId(),
@@ -103,7 +104,7 @@ public class MeterEntity {
     }
 
     public String serviceId() {
-        return IDManager.ServiceID.buildId(serviceName, true);
+        return IDManager.ServiceID.buildId(serviceName, normal());
     }
 
     public String serviceInstanceId() {
@@ -116,6 +117,10 @@ public class MeterEntity {
 
     public String destServiceId() {
         return IDManager.ServiceID.buildId(destServiceName, true);
+    }
+
+    private boolean normal() {
+        return layer == null || layer.isNormal();
     }
 
     public String sourceServiceInstanceId() {

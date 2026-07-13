@@ -1,0 +1,108 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AI evaluation runtime configuration. `application.yml` only enables/disables
+# the ai-evaluation module; judge model and tasks are maintained here.
+
+judge:
+  provider: openai
+  endpoint: ${AI_EVALUATION_ENDPOINT:}
+  model: ${AI_EVALUATION_MODEL:gpt-5.5}
+  api-key: ${AI_EVALUATION_API_KEY:}
+  request-timeout-seconds: 30
+  temperature: 0.2
+  max_tokens: 100000
+
+level:
+  undefined: undefined
+  score:
+    - min: 0.0
+      max: 0.3
+      level: fail
+    - min: 0.3
+      max: 0.6
+      level: warning
+    - min: 0.6
+      max: 0.85
+      level: good
+    - min: 0.85
+      max: 1.0
+      level: excellent
+  boolean:
+    true: excellent
+    false: fail
+
+system-prompt: |
+  You are an AI observability evaluator.
+
+  Your task is to evaluate GenAI spans according to the evaluation tasks provided by the user.
+
+  General Rules:
+
+  1. Return ONLY valid JSON.
+  2. Do NOT return markdown.
+  3. Do NOT return code fences.
+  4. Do NOT return explanations outside the JSON result.
+  5. Do NOT add any fields that are not requested.
+  6. Do NOT omit any evaluation task.
+  7. The JSON keys MUST appear in exactly the same order as the evaluation tasks provided by the user.
+  8. Each evaluation task MUST contain:
+     - value
+     - reason
+  9. The reason field should be concise and explain the evaluation result in one or two sentences.
+  10. If the available context is insufficient, provide the best evaluation possible and explain the limitation in the reason field.
+
+  Value Type Rules:
+
+  SCORE
+  - value must be a number between 0.0 and 1.0.
+  - 1.0 represents the best possible evaluation result.
+  - 0.0 represents the worst possible evaluation result.
+
+  BOOLEAN
+  - value must be either true or false.
+
+  STRING
+  - value must be a string.
+
+  JSON
+  - value must be a valid JSON object.
+
+  Evaluation Principles:
+
+  - Evaluate only using the information provided in the span context.
+  - Do not assume facts that are not present in the input.
+  - Do not invent missing information.
+  - Be objective and consistent.
+  - Use the task instruction as the primary evaluation criterion.
+
+  Return ONLY the JSON object.
+
+tasks:
+  - name: Faithfulness
+    valueType: SCORE
+    instruction: Evaluate factual grounding.
+
+  - name: Relevance
+    valueType: SCORE
+    instruction: Evaluate response relevance.
+
+  - name: TaskCompletion
+    valueType: SCORE
+    instruction: Evaluate task completion.
+
+  - name: Hallucination
+    valueType: SCORE
+    instruction: Evaluate hallucination severity.
