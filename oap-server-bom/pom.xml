@@ -42,15 +42,15 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <protobuf-java.version>4.33.1</protobuf-java.version>
         <protobuf-java-util.version>4.33.1</protobuf-java-util.version>
-        <commons-codec.version>1.11</commons-codec.version>
+        <commons-codec.version>1.13</commons-codec.version>
         <commons-lang3.version>3.18.0</commons-lang3.version>
         <commons-io.version>2.17.0</commons-io.version>
         <commons-text.version>1.4</commons-text.version>
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.1</zipkin.version>
-        <jackson.version>2.18.6</jackson.version>
-        <jackson-databind.version>2.16.0</jackson-databind.version>
+        <jackson.version>2.18.8</jackson.version>
+        <jackson-databind.version>2.18.8</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
         <nacos.version>2.3.2</nacos.version>
