@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
@@ -125,6 +126,7 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
                     Layer.VIRTUAL_GENAI.isNormal()
             );
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+            record.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
             record.setTraceId(context.getTraceId());
             record.setServiceId(serviceId);
             record.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(

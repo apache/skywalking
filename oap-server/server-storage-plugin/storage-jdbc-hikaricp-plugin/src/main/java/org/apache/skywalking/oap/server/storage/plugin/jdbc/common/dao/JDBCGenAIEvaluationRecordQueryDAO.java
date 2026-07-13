@@ -64,6 +64,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
     );
 
     private static final List<String> SELECTED_COLUMNS = List.of(
+        GenAIEvaluationRecord.UNIQUE_ID,
         GenAIEvaluationRecord.TRACE_ID,
         GenAIEvaluationRecord.SERVICE_ID,
         GenAIEvaluationRecord.SERVICE_INSTANCE_ID,
@@ -138,6 +139,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         final var records = new ArrayList<GenAIEvaluationRecord>();
         while (resultSet.next()) {
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+            record.setUniqueId(resultSet.getString(GenAIEvaluationRecord.UNIQUE_ID));
             record.setTraceId(resultSet.getString(GenAIEvaluationRecord.TRACE_ID));
             record.setServiceId(resultSet.getString(GenAIEvaluationRecord.SERVICE_ID));
             record.setServiceInstanceId(resultSet.getString(GenAIEvaluationRecord.SERVICE_INSTANCE_ID));

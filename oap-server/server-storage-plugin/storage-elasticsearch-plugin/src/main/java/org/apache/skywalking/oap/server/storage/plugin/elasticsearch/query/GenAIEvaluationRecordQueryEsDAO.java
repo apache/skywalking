@@ -144,6 +144,7 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
     private GenAIEvaluationRecord parseRecord(final SearchHit searchHit) {
         final var source = searchHit.getSource();
         final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+        record.setUniqueId((String) source.get(GenAIEvaluationRecord.UNIQUE_ID));
         record.setTraceId((String) source.get(GenAIEvaluationRecord.TRACE_ID));
         record.setServiceId((String) source.get(GenAIEvaluationRecord.SERVICE_ID));
         record.setServiceInstanceId((String) source.get(GenAIEvaluationRecord.SERVICE_INSTANCE_ID));

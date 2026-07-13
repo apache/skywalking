@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 public class GenAIEvaluationRecord extends Record {
 
     public static final String INDEX_NAME = "gen_ai_evaluation_record";
+    public static final String UNIQUE_ID = "unique_id";
     public static final String TRACE_ID = "trace_id";
     public static final String SERVICE_ID = "service_id";
     public static final String SERVICE_INSTANCE_ID = "service_instance_id";
@@ -58,6 +59,9 @@ public class GenAIEvaluationRecord extends Record {
     public static final String REASON = "reason";
     public static final String JUDGE_MODEL = "judge_model";
     public static final String EVALUATION_TIME = "evaluation_time";
+
+    @Column(name = UNIQUE_ID)
+    private String uniqueId;
 
     @Column(name = TRACE_ID, length = 150)
     @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
@@ -109,21 +113,14 @@ public class GenAIEvaluationRecord extends Record {
 
     @Override
     public StorageID id() {
-        return new StorageID()
-                .append(TRACE_ID, traceId)
-                .append(SERVICE_ID, serviceId)
-                .append(SERVICE_INSTANCE_ID, serviceInstanceId)
-                .append(SPAN_ID, spanId)
-                .append(SPAN_TYPE, spanType)
-                .append(TASK_NAME, taskName)
-                .append(EVALUATION_LEVEL, evaluationLevel)
-                .append(EVALUATION_TIME, evaluationTime);
+        return new StorageID().append(UNIQUE_ID, uniqueId);
     }
 
     public static class Builder implements StorageBuilder<GenAIEvaluationRecord> {
         @Override
         public GenAIEvaluationRecord storage2Entity(final Convert2Entity converter) {
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+            record.setUniqueId((String) converter.get(UNIQUE_ID));
             record.setTraceId((String) converter.get(TRACE_ID));
             record.setServiceId((String) converter.get(SERVICE_ID));
             record.setServiceInstanceId((String) converter.get(SERVICE_INSTANCE_ID));
@@ -143,6 +140,7 @@ public class GenAIEvaluationRecord extends Record {
 
         @Override
         public void entity2Storage(final GenAIEvaluationRecord storageData, final Convert2Storage converter) {
+            converter.accept(UNIQUE_ID, storageData.getUniqueId());
             converter.accept(TRACE_ID, storageData.getTraceId());
             converter.accept(SERVICE_ID, storageData.getServiceId());
             converter.accept(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
