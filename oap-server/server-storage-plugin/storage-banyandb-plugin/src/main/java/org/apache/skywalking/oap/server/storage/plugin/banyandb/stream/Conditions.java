@@ -36,6 +36,12 @@ public final class Conditions {
     private final StringBuilder ql = new StringBuilder();
     private final List<Serializable<BanyandbModel.TagValue>> params = new ArrayList<>();
     private final boolean groupMode;
+    /**
+     * Offset in {@link #ql} where the {@code LIMIT}/{@code OFFSET} tail begins, or {@code -1} if there is none.
+     * Recorded when the first of {@code limit()}/{@code offset()} is appended so {@link #buildQl(boolean)} can
+     * position {@code WITH QUERY_TRACE} ahead of pagination without scanning the generated text.
+     */
+    private int paginationStart = -1;
 
     private Conditions(boolean groupMode) {
         this.groupMode = groupMode;
@@ -84,6 +90,9 @@ public final class Conditions {
     }
 
     public Conditions in(String column, List<String> values) {
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("IN values must not be empty for column: " + column);
+        }
         return condition(column, " IN (?)", Value.stringArrayTagValue(values));
     }
 
@@ -106,6 +115,9 @@ public final class Conditions {
     }
 
     public Conditions having(String column, List<String> values) {
+        if (values == null || values.isEmpty()) {
+            throw new IllegalArgumentException("HAVING values must not be empty for column: " + column);
+        }
         return condition(column, " HAVING (?)", Value.stringArrayTagValue(values));
     }
 
@@ -149,12 +161,18 @@ public final class Conditions {
     }
 
     public Conditions limit(long value) {
+        if (paginationStart < 0) {
+            paginationStart = ql.length();
+        }
         ql.append(" LIMIT ?");
         params.add(Value.longTagValue(value));
         return this;
     }
 
     public Conditions offset(long value) {
+        if (paginationStart < 0) {
+            paginationStart = ql.length();
+        }
         ql.append(" OFFSET ?");
         params.add(Value.longTagValue(value));
         return this;
@@ -169,6 +187,23 @@ public final class Conditions {
     }
 
     /**
+     * The QL body with the {@code WITH QUERY_TRACE} debug marker optionally injected at the grammar-mandated
+     * position — after {@code ORDER BY}, before any {@code LIMIT}/{@code OFFSET}. The position comes from the
+     * recorded {@link #paginationStart}, so no scanning of the generated QL text is required (robust even if a
+     * column name or projection contained {@code " LIMIT "}, and correct for an {@code OFFSET}-only body).
+     *
+     * @param withQueryTrace whether to inject {@code WITH QUERY_TRACE}
+     * @return the QL body, with the trace marker inserted ahead of pagination when requested
+     */
+    public String buildQl(boolean withQueryTrace) {
+        if (!withQueryTrace) {
+            return ql.toString();
+        }
+        final int pos = paginationStart < 0 ? ql.length() : paginationStart;
+        return ql.substring(0, pos) + " WITH QUERY_TRACE" + ql.substring(pos);
+    }
+
+    /**
      * @return the bound parameters, in the order their {@code ?} placeholders appear in {@link #buildQl()}.
      */
     public List<Serializable<BanyandbModel.TagValue>> params() {
@@ -176,9 +211,11 @@ public final class Conditions {
     }
 
     /**
-     * Combine condition {@link #group() groups} with OR: {@code WHERE (g1) OR (g2) OR ...}. A single non-empty
-     * group is emitted without parentheses ({@code WHERE g1}); empty groups are skipped; if every group is empty
-     * no clause is emitted. Params are appended in group order.
+     * Combine condition {@link #group() groups} with OR, wrapping the whole disjunction in an outer paren so it
+     * composes correctly with any surrounding predicate: {@code WHERE ((g1) OR (g2) OR ...)}, or {@code WHERE (g1)}
+     * for a single group. The outer paren is what makes {@code .eq(x).or(groups)} bind as
+     * {@code x AND ((g1) OR (g2))} rather than the precedence-wrong {@code x AND g1 OR g2}. Empty groups are
+     * skipped; if every group is empty no clause is emitted. Params are appended in group order.
      *
      * @param groups the condition groups, each built via {@link #group()}
      * @return this builder
@@ -193,19 +230,20 @@ public final class Conditions {
         if (nonEmpty.isEmpty()) {
             return this;
         }
-        ql.append(ql.length() == 0 ? " WHERE " : " AND ");
-        if (nonEmpty.size() == 1) {
-            ql.append(nonEmpty.get(0).ql);
-            params.addAll(nonEmpty.get(0).params);
-        } else {
-            for (int i = 0; i < nonEmpty.size(); i++) {
-                if (i > 0) {
-                    ql.append(" OR ");
-                }
-                ql.append("(").append(nonEmpty.get(i).ql).append(")");
-                params.addAll(nonEmpty.get(i).params);
+        final boolean multi = nonEmpty.size() > 1;
+        ql.append(ql.length() == 0 ? " WHERE " : " AND ").append("(");
+        for (int i = 0; i < nonEmpty.size(); i++) {
+            if (i > 0) {
+                ql.append(" OR ");
             }
+            if (multi) {
+                ql.append("(").append(nonEmpty.get(i).ql).append(")");
+            } else {
+                ql.append(nonEmpty.get(i).ql);
+            }
+            params.addAll(nonEmpty.get(i).params);
         }
+        ql.append(")");
         return this;
     }
 

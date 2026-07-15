@@ -97,7 +97,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
-            appendBodyWithTrace(ql, where.buildQl(), debug);
+            ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final StreamQueryResponse response =
                 getClient().queryStream(ql.toString(), params.toArray(new Serializable[0]));
@@ -306,7 +306,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
-            appendBodyWithTrace(ql, where.buildQl(), debug);
+            ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final MeasureQueryResponse response =
                 getClient().queryMeasure(ql.toString(), params.toArray(new Serializable[0]));
@@ -359,25 +359,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             params.addAll(originParams);
         }
         return params;
-    }
-
-    /**
-     * Append the clause tail, inserting {@code WITH QUERY_TRACE} (when debugging) before any
-     * {@code LIMIT}/{@code OFFSET} — BydbQL requires the trace marker ahead of LIMIT/OFFSET or the parser
-     * rejects it with {@code unexpected token "WITH"}.
-     */
-    private static void appendBodyWithTrace(StringBuilder ql, String body, boolean debug) {
-        final String tail = body == null ? "" : body;
-        if (!debug) {
-            ql.append(tail);
-            return;
-        }
-        final int limitIdx = tail.indexOf(" LIMIT ");
-        if (limitIdx >= 0) {
-            ql.append(tail, 0, limitIdx).append(" WITH QUERY_TRACE").append(tail, limitIdx, tail.length());
-        } else {
-            ql.append(tail).append(" WITH QUERY_TRACE");
-        }
     }
 
     /**
@@ -437,7 +418,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
-            appendBodyWithTrace(ql, where.buildQl(), debug);
+            ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final TraceQueryResponse response =
                 getClient().queryTrace(ql.toString(), params.toArray(new Serializable[0]));
