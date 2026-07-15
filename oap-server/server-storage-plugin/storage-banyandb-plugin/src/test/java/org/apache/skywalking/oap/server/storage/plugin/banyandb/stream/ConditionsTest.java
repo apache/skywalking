@@ -24,6 +24,7 @@ import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConditionsTest {
@@ -129,10 +130,10 @@ public class ConditionsTest {
     }
 
     @Test
-    public void orWithSingleNonEmptyGroupHasNoParentheses() {
+    public void orWithSingleGroupIsParenthesized() {
         final Conditions where = Conditions.create().or(List.of(
                 Conditions.group().in("a", List.of("x"))));
-        assertEquals(" WHERE a IN (?)", where.buildQl());
+        assertEquals(" WHERE (a IN (?))", where.buildQl());
         assertEquals(1, where.params().size());
     }
 
@@ -141,7 +142,7 @@ public class ConditionsTest {
         final Conditions where = Conditions.create().or(List.of(
                 Conditions.group().eq("a", "x"),
                 Conditions.group().eq("b", "y")));
-        assertEquals(" WHERE (a = ?) OR (b = ?)", where.buildQl());
+        assertEquals(" WHERE ((a = ?) OR (b = ?))", where.buildQl());
         final List<Serializable<BanyandbModel.TagValue>> params = where.params();
         assertEquals(2, params.size());
         assertEquals("x", str(params.get(0)));
@@ -154,7 +155,62 @@ public class ConditionsTest {
                 Conditions.group(),
                 Conditions.group().eq("a", "x"),
                 Conditions.group()));
-        assertEquals(" WHERE a = ?", where.buildQl());
+        assertEquals(" WHERE (a = ?)", where.buildQl());
         assertEquals(1, where.params().size());
+    }
+
+    @Test
+    public void orAfterExistingPredicateIsParenthesizedForCorrectPrecedence() {
+        final Conditions where = Conditions.create()
+                .eq("tenant", "t")
+                .or(List.of(
+                        Conditions.group().eq("a", "x"),
+                        Conditions.group().eq("b", "y")));
+        // The outer parens are what keep AND from binding tighter than OR:
+        // tenant = ? AND ((a = ?) OR (b = ?)), not (tenant = ? AND a = ?) OR b = ?.
+        assertEquals(" WHERE tenant = ? AND ((a = ?) OR (b = ?))", where.buildQl());
+        assertEquals(3, where.params().size());
+    }
+
+    @Test
+    public void buildQlWithTraceInsertsBeforeLimitAndOffset() {
+        final Conditions where = Conditions.create().eq("a", "x").orderByDesc("t").limit(10).offset(20);
+        assertEquals(" WHERE a = ? ORDER BY t DESC WITH QUERY_TRACE LIMIT ? OFFSET ?", where.buildQl(true));
+    }
+
+    @Test
+    public void buildQlWithTraceInsertsBeforeOffsetOnly() {
+        final Conditions where = Conditions.create().eq("a", "x").offset(20);
+        assertEquals(" WHERE a = ? WITH QUERY_TRACE OFFSET ?", where.buildQl(true));
+    }
+
+    @Test
+    public void buildQlWithTraceAppendsAtEndWhenNoPagination() {
+        final Conditions where = Conditions.create().eq("a", "x").orderByDesc("t");
+        assertEquals(" WHERE a = ? ORDER BY t DESC WITH QUERY_TRACE", where.buildQl(true));
+    }
+
+    @Test
+    public void buildQlWithTraceFalseEqualsPlainBuildQl() {
+        final Conditions where = Conditions.create().eq("a", "x").limit(5);
+        assertEquals(where.buildQl(), where.buildQl(false));
+    }
+
+    @Test
+    public void emptyInValuesAreRejectedLocally() {
+        assertThrows(IllegalArgumentException.class, () -> Conditions.create().in("a", List.of()));
+    }
+
+    @Test
+    public void emptyHavingValuesAreRejectedLocally() {
+        assertThrows(IllegalArgumentException.class, () -> Conditions.create().having("a", List.of()));
+    }
+
+    @Test
+    public void valuesAreBoundAsParamsNotInterpolatedIntoQl() {
+        // An injection-looking value stays a bound parameter (data); it never becomes part of the QL text.
+        final Conditions where = Conditions.create().eq("a", "' OR 1=1 --");
+        assertEquals(" WHERE a = ?", where.buildQl());
+        assertEquals("' OR 1=1 --", str(where.params().get(0)));
     }
 }

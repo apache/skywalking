@@ -147,8 +147,9 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
         }
         // Ad-hoc TopN over the raw measure: MEAN aggregation + TOP N + GROUP BY entity_id, expressed as a
         // BydbQL `SELECT TOP ? "value" <dir>, MEAN("value"), entity_id ... GROUP BY entity_id, "value"`. The
-        // trailing GROUP BY field is inert server-side (grouping uses the tag projection, aggregation the Agg
-        // field), so this matches the former typed meanBy(value,{entity_id}) + topN/bottomN(N,value) path.
+        // trailing GROUP BY field is validated and carried on the request but does not change the grouping
+        // result (grouping keys come from the tag projection = entity_id; the field feeds the MEAN aggregate),
+        // so this matches the former typed meanBy(value,{entity_id}) + topN/bottomN(N,value) path.
         final Conditions where = Conditions.create();
         if (CollectionUtils.isNotEmpty(additionalConditions)) {
             additionalConditions.forEach(c -> where.eq(qualify(c.getKey()), c.getValue()));
