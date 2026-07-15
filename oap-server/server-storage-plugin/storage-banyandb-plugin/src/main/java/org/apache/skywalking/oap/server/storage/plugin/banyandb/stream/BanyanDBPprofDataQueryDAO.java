@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
@@ -51,18 +50,12 @@ public class BanyanDBPprofDataQueryDAO extends AbstractBanyanDBDAO implements IP
         if (StringUtil.isBlank(taskId)) {
             return new ArrayList<>();
         }
-        StreamQueryResponse resp = query(
-            false, PprofProfilingDataRecord.INDEX_NAME, TAGS,
-            new QueryBuilder<StreamQuery>() {
-                @Override
-                protected void apply(StreamQuery query) {
-                    query.and(eq(PprofProfilingDataRecord.TASK_ID, taskId));
-                    if (CollectionUtils.isNotEmpty(instanceIds)) {
-                        query.and(in(PprofProfilingDataRecord.INSTANCE_ID, instanceIds));
-                    }
-                }
-            }
-        );
+        Conditions where = Conditions.create().eq(PprofProfilingDataRecord.TASK_ID, taskId);
+        if (CollectionUtils.isNotEmpty(instanceIds)) {
+            where.in(PprofProfilingDataRecord.INSTANCE_ID, instanceIds);
+        }
+        StreamQueryResponse resp = queryDebuggable(false, PprofProfilingDataRecord.INDEX_NAME, TAGS,
+            null, where);
         List<PprofProfilingDataRecord> records = new ArrayList<>(resp.size());
         for (final RowEntity entity : resp.getElements()) {
             records.add(buildProfilingDataRecord(entity));

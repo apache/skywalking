@@ -26,11 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -45,6 +42,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
@@ -62,17 +60,10 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     @Override
     public List<String> getServiceNames() throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp =
-            query(false, schema,
-                  SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.setLimit(QUERY_MAX_SIZE);
-                    }
-                }
-            );
+        MeasureQueryResponse resp = queryDebuggable(
+            false, schema, SERVICE_TRAFFIC_TAGS, Collections.emptySet(),
+            null,
+            Conditions.create().limit(QUERY_MAX_SIZE));
         final List<String> services = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             services.add(dataPoint.getTagValue(ZipkinServiceTraffic.SERVICE_NAME));
@@ -83,20 +74,15 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     @Override
     public List<String> getRemoteServiceNames(final String serviceName) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp =
-            query(false, schema,
-                  REMOTE_SERVICE_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceName)) {
-                            query.and(eq(ZipkinServiceRelationTraffic.SERVICE_NAME, serviceName));
-                        }
-                        query.setLimit(QUERY_MAX_SIZE);
-                    }
-                }
-            );
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceName)) {
+            where.eq(ZipkinServiceRelationTraffic.SERVICE_NAME, serviceName);
+        }
+        where.limit(QUERY_MAX_SIZE);
+        MeasureQueryResponse resp = queryDebuggable(
+            false, schema, REMOTE_SERVICE_TRAFFIC_TAGS, Collections.emptySet(),
+            null,
+            where);
         final List<String> remoteServices = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             remoteServices.add(dataPoint.getTagValue(ZipkinServiceRelationTraffic.REMOTE_SERVICE_NAME));
@@ -107,20 +93,15 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     @Override
     public List<String> getSpanNames(final String serviceName) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ZipkinServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp =
-            query(false, schema,
-                  SPAN_TRAFFIC_TAGS,
-                  Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceName)) {
-                            query.and(eq(ZipkinServiceSpanTraffic.SERVICE_NAME, serviceName));
-                        }
-                        query.setLimit(QUERY_MAX_SIZE);
-                    }
-                }
-            );
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceName)) {
+            where.eq(ZipkinServiceSpanTraffic.SERVICE_NAME, serviceName);
+        }
+        where.limit(QUERY_MAX_SIZE);
+        MeasureQueryResponse resp = queryDebuggable(
+            false, schema, SPAN_TRAFFIC_TAGS, Collections.emptySet(),
+            null,
+            where);
         final List<String> spanNames = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             spanNames.add(dataPoint.getTagValue(ZipkinServiceSpanTraffic.SPAN_NAME));
@@ -146,14 +127,10 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     @Override
     public List<SpanWrapper> getTraceV2(final String traceId, @Nullable final Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
-            @Override
-            protected void apply(TraceQuery query) {
-                query.and(eq(ZipkinSpanRecord.TRACE_ID, traceId));
-                query.setLimit(QUERY_MAX_SIZE);
-            }
-        };
-        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), query);
+        final Conditions where = Conditions.create()
+            .eq(ZipkinSpanRecord.TRACE_ID, traceId)
+            .limit(QUERY_MAX_SIZE);
+        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), where);
         if (resp.getTraces().isEmpty()) {
             return new ArrayList<>();
         }
@@ -174,19 +151,12 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
             return Collections.emptyList();
         }
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
-
-            @Override
-            protected void apply(TraceQuery query) {
-                query.and(in(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
-                query.setOrderBy(new TraceQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
-                query.setLimit(QUERY_MAX_SIZE);
-            }
-        };
+        final Conditions where = Conditions.create()
+            .in(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds))
+            .orderByDesc(ZipkinSpanRecord.TIMESTAMP_MILLIS)
+            .limit(QUERY_MAX_SIZE);
         TraceQueryResponse resp = queryTraceDebuggable(
-                isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
-                query
-            );
+            isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), where);
         List<List<SpanWrapper>> traces = new ArrayList<>();
         for (var t : resp.getTraces()) {
             List<SpanWrapper> trace = new ArrayList<>();
@@ -203,47 +173,36 @@ public class BanyanDBZipkinQueryDAO extends AbstractBanyanDBDAO implements IZipk
     public List<List<SpanWrapper>> getTracesV2(final QueryRequest request, final Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
 
-        final QueryBuilder<TraceQuery> queryBuilder = new QueryBuilder<TraceQuery>() {
-            @Override
-            public void apply(final TraceQuery query) {
-                if (!StringUtil.isEmpty(request.serviceName())) {
-                    query.and(eq(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, request.serviceName()));
+        final Conditions where = Conditions.create();
+        if (!StringUtil.isEmpty(request.serviceName())) {
+            where.eq(ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME, request.serviceName());
+        }
+        if (!StringUtil.isEmpty(request.remoteServiceName())) {
+            where.eq(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME, request.remoteServiceName());
+        }
+        if (!StringUtil.isEmpty(request.spanName())) {
+            where.eq(ZipkinSpanRecord.NAME, request.spanName());
+        }
+        if (!CollectionUtils.isEmpty(request.annotationQuery())) {
+            List<String> queryConditions = new ArrayList<>();
+            for (Map.Entry<String, String> annotation : request.annotationQuery().entrySet()) {
+                if (annotation.getValue().isEmpty()) {
+                    queryConditions.add(annotation.getKey());
+                } else {
+                    queryConditions.add(annotation.getKey() + "=" + annotation.getValue());
                 }
-
-                if (!StringUtil.isEmpty(request.remoteServiceName())) {
-                    query.and(eq(ZipkinSpanRecord.REMOTE_ENDPOINT_SERVICE_NAME, request.remoteServiceName()));
-                }
-
-                if (!StringUtil.isEmpty(request.spanName())) {
-                    query.and(eq(ZipkinSpanRecord.NAME, request.spanName()));
-                }
-
-                if (!CollectionUtils.isEmpty(request.annotationQuery())) {
-                    List<String> queryConditions = new ArrayList<>();
-                    for (Map.Entry<String, String> annotation : request.annotationQuery().entrySet()) {
-                        if (annotation.getValue().isEmpty()) {
-                            queryConditions.add(annotation.getKey());
-                        } else {
-                            queryConditions.add(annotation.getKey() + "=" + annotation.getValue());
-                        }
-                    }
-                    query.and(having(ZipkinSpanRecord.QUERY, queryConditions));
-                }
-
-                if (request.minDuration() != null) {
-                    query.and(gte(ZipkinSpanRecord.DURATION, request.minDuration()));
-                }
-                if (request.maxDuration() != null) {
-                    query.and(lte(ZipkinSpanRecord.DURATION, request.maxDuration()));
-                }
-                query.setOrderBy(new TraceQuery.OrderBy(ZipkinSpanRecord.TIMESTAMP_MILLIS, AbstractQuery.Sort.DESC));
-                query.setLimit(request.limit());
             }
-        };
+            where.having(ZipkinSpanRecord.QUERY, queryConditions);
+        }
+        if (request.minDuration() != null) {
+            where.gte(ZipkinSpanRecord.DURATION, request.minDuration());
+        }
+        if (request.maxDuration() != null) {
+            where.lte(ZipkinSpanRecord.DURATION, request.maxDuration());
+        }
+        where.orderByDesc(ZipkinSpanRecord.TIMESTAMP_MILLIS).limit(request.limit());
         TraceQueryResponse resp = queryTraceDebuggable(
-            isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration),
-            queryBuilder
-        );
+            isColdStage, ZipkinSpanRecord.INDEX_NAME, getTimestampRange(duration), where);
         List<List<SpanWrapper>> traces = new ArrayList<>();
         for (var t : resp.getTraces()) {
             List<SpanWrapper> trace = new ArrayList<>();

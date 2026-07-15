@@ -25,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.apache.skywalking.library.banyandb.v1.client.Element;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.PprofTaskLog;
@@ -58,16 +57,12 @@ public class BanyanDBPprofTaskLogQueryDAO extends AbstractBanyanDBDAO implements
         if (StringUtil.isBlank(taskId)) {
             return Collections.emptyList();
         }
-        StreamQueryResponse resp = query(
-            false, PprofTaskLogRecord.INDEX_NAME, TAGS,
-            new QueryBuilder<StreamQuery>() {
-                @Override
-                public void apply(StreamQuery query) {
-                    query.and(eq(PprofTaskLogRecord.TASK_ID, taskId));
-                    query.setLimit(BanyanDBPprofTaskLogQueryDAO.this.queryMaxSize);
-                }
-            }
-        );
+        final Conditions where = Conditions.create()
+            .eq(PprofTaskLogRecord.TASK_ID, taskId)
+            .limit(queryMaxSize);
+        StreamQueryResponse resp = queryDebuggable(false, PprofTaskLogRecord.INDEX_NAME, TAGS,
+            null,
+            where);
 
         final LinkedList<PprofTaskLog> tasks = new LinkedList<>();
         for (final Element element : resp.getElements()) {

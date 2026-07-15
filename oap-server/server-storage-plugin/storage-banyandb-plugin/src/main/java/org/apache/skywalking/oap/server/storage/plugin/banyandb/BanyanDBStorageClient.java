@@ -37,22 +37,20 @@ import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.DeleteRespons
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty.Property;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.library.banyandb.v1.client.Options;
 import org.apache.skywalking.library.banyandb.v1.client.PropertyStore;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.StreamWrite;
-import org.apache.skywalking.library.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TopNQueryResponse;
-import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TraceWrite;
+import org.apache.skywalking.library.banyandb.v1.client.Value;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InternalException;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.InvalidArgumentException;
+import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.library.banyandb.v1.client.util.StatusUtil;
 import org.apache.skywalking.oap.server.library.client.Client;
 import org.apache.skywalking.oap.server.library.client.healthcheck.DelegatedHealthChecker;
@@ -168,12 +166,9 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public List<Property> listProperties(String name) throws IOException {
         try {
             MetadataRegistry.Schema schema = requireManagementSchema(name);
-            BanyandbProperty.QueryResponse resp
-                = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                 .addGroups(schema.getMetadata().getGroup())
-                                                                 .setName(name)
-                                                                 .setLimit(Integer.MAX_VALUE)
-                                                                 .build());
+            BanyandbProperty.QueryResponse resp = this.client.queryProperty(
+                "SELECT * FROM PROPERTY " + name + " IN " + schema.getMetadata().getGroup() + " LIMIT ?",
+                Value.longTagValue((long) Integer.MAX_VALUE));
             this.healthChecker.health();
             return resp.getPropertiesList();
         } catch (BanyanDBException ex) {
@@ -190,11 +185,9 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     public Property queryProperty(String name, String id) throws IOException {
         try {
             MetadataRegistry.Schema schema = requireManagementSchema(name);
-            BanyandbProperty.QueryResponse resp = this.client.query(BanyandbProperty.QueryRequest.newBuilder()
-                                                                                                 .addGroups(schema.getMetadata().getGroup())
-                                                                                                 .setName(name)
-                                                                                                 .addIds(id)
-                                                                                                 .build());
+            BanyandbProperty.QueryResponse resp = this.client.queryProperty(
+                "SELECT * FROM PROPERTY " + name + " IN " + schema.getMetadata().getGroup() + " WHERE ID = ?",
+                Value.stringTagValue(id));
             this.healthChecker.health();
             if (resp.getPropertiesCount() == 0) {
                 return null;
@@ -224,20 +217,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public StreamQueryResponse query(StreamQuery q) throws IOException {
+    @SafeVarargs
+    public final MeasureQueryResponse queryMeasure(String bydbql, Serializable<BanyandbModel.TagValue>... params) throws IOException {
         try {
-            StreamQueryResponse response = this.client.query(q);
-            this.healthChecker.health();
-            return response;
-        } catch (BanyanDBException ex) {
-            healthChecker.unHealth(ex);
-            throw new IOException("fail to query stream", ex);
-        }
-    }
-
-    public MeasureQueryResponse query(MeasureQuery q) throws IOException {
-        try {
-            MeasureQueryResponse response = this.client.query(q);
+            MeasureQueryResponse response = this.client.queryMeasure(bydbql, params);
             this.healthChecker.health();
             return response;
         } catch (BanyanDBException ex) {
@@ -246,9 +229,22 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public TraceQueryResponse query(TraceQuery q) throws IOException {
+    @SafeVarargs
+    public final StreamQueryResponse queryStream(String bydbql, Serializable<BanyandbModel.TagValue>... params) throws IOException {
         try {
-            TraceQueryResponse response = this.client.query(q);
+            StreamQueryResponse response = this.client.queryStream(bydbql, params);
+            this.healthChecker.health();
+            return response;
+        } catch (BanyanDBException ex) {
+            healthChecker.unHealth(ex);
+            throw new IOException("fail to query stream", ex);
+        }
+    }
+
+    @SafeVarargs
+    public final TraceQueryResponse queryTrace(String bydbql, Serializable<BanyandbModel.TagValue>... params) throws IOException {
+        try {
+            TraceQueryResponse response = this.client.queryTrace(bydbql, params);
             this.healthChecker.health();
             return response;
         } catch (BanyanDBException ex) {
@@ -257,9 +253,10 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
     }
 
-    public TopNQueryResponse query(TopNQuery q) throws IOException {
+    @SafeVarargs
+    public final TopNQueryResponse queryTopN(String bydbql, Serializable<BanyandbModel.TagValue>... params) throws IOException {
         try {
-            TopNQueryResponse response = this.client.query(q);
+            TopNQueryResponse response = this.client.queryTopN(bydbql, params);
             this.healthChecker.health();
             return response;
         } catch (BanyanDBException ex) {

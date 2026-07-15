@@ -27,7 +27,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
@@ -37,6 +36,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 @Slf4j
 public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implements INetworkAddressAliasDAO {
@@ -64,18 +64,16 @@ public class BanyanDBNetworkAddressAliasDAO extends AbstractBanyanDBDAO implemen
     @Override
     public List<NetworkAddressAlias> loadLastUpdate(long timeBucket) {
         try {
-            MeasureQueryResponse resp = query(
-                false,
+            final Conditions where = Conditions.create()
+                    .gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket)
+                    .limit(limit);
+            MeasureQueryResponse resp = queryDebuggable(
+                    false,
                     getSchema(),
                     TAGS,
                     Collections.emptySet(),
-                    new QueryBuilder<MeasureQuery>() {
-                        @Override
-                        protected void apply(final MeasureQuery query) {
-                            query.and(gte(NetworkAddressAlias.LAST_UPDATE_TIME_BUCKET, timeBucket));
-                            query.limit(limit);
-                        }
-                    }
+                    null,
+                    where
             );
             /**
              * Currently, only used by {@link org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBNetworkAddressAliasDAO}.

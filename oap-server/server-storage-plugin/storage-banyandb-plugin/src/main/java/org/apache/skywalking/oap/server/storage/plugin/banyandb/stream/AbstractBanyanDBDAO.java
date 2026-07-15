@@ -20,26 +20,19 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
 import java.util.Collections;
-import java.util.Map;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
-import org.apache.skywalking.library.banyandb.v1.client.And;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
-import org.apache.skywalking.library.banyandb.v1.client.Or;
-import org.apache.skywalking.library.banyandb.v1.client.PairQueryCondition;
 import org.apache.skywalking.library.banyandb.v1.client.Span;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
-import org.apache.skywalking.library.banyandb.v1.client.TopNQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TopNQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.Trace;
-import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.Value;
+import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -55,7 +48,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageClient> {
     private static final Instant UPPER_BOUND = Instant.ofEpochSecond(0, Long.MAX_VALUE);
@@ -70,271 +62,54 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         super(client);
     }
 
-    protected StreamQueryResponse query(boolean isColdStage,
-                                        String streamModelName,
-                                        Set<String> tags,
-                                        QueryBuilder<StreamQuery> builder) throws IOException {
-        return this.query(isColdStage, streamModelName, tags, null, builder);
-    }
-
-    protected StreamQueryResponse query(boolean isColdStage,
-                                        String streamModelName,
-                                        Set<String> tags,
-                                        TimestampRange timestampRange,
-                                        QueryBuilder<StreamQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
+    /**
+     * Query a stream via BydbQL. Projects the given tags (or {@code *} when empty) and appends the
+     * WHERE / ORDER BY / LIMIT tail carried by {@code where}.
+     *
+     * @param isColdStage     whether to target the cold lifecycle stage
+     * @param streamModelName the record/stream model name to resolve the schema
+     * @param tags            tag columns to project
+     * @param timestampRange  the time range bound to {@code TIME BETWEEN ? AND ?}
+     * @param where           the fluent condition builder holding the clause tail and its params
+     * @return the stream query response
+     * @throws IOException if the query fails
+     */
+    protected StreamQueryResponse queryDebuggable(boolean isColdStage,
+                                                  String streamModelName,
+                                                  Set<String> tags,
+                                                  TimestampRange timestampRange,
+                                                  Conditions where) throws IOException {
+        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
         if (schema == null) {
             throw new IllegalArgumentException("schema is not registered");
         }
-        final StreamQuery query;
-        Map<String, String> tagProjections = tags.stream().collect(Collectors.toMap(
-            tagName -> tagName,
-            tagName -> schema.getTags().get(tagName)
-        ));
-        if (timestampRange == null) {
-            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tagProjections);
-        } else {
-            query = new StreamQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tagProjections);
-        }
-        if (isColdStage) {
-            query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
-        }
-
-        builder.apply(query);
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        if (traceContext != null && traceContext.isDebug()) {
-            query.enableTrace();
-        }
-        return getClient().query(query);
-    }
-
-    protected StreamQueryResponse queryDebuggable(boolean isColdStage,
-                                                  String modelName,
-                                                  Set<String> tags,
-                                                  TimestampRange timestampRange,
-                                                  QueryBuilder<StreamQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        final DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
-            StringBuilder builder = new StringBuilder();
+            final boolean debug = traceContext != null && traceContext.isDebug();
             if (traceContext != null) {
                 span = traceContext.createSpan("Query BanyanDB Stream");
-                MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(modelName);
-                builder.append("Condition: ")
-                       .append("modelName:")
-                       .append(modelName)
-                       .append(", Schema: ")
-                       .append(schema)
-                       .append(", Tags: ")
-                       .append(tags)
-                       .append(", TimestampRange: ")
-                       .append(timestampRange)
-                       .append(", Is cold data query: ")
-                       .append(isColdStage);
-                span.setMsg(builder.toString());
             }
-            StreamQueryResponse response = query(isColdStage, modelName, tags, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getElements()));
-                span.setMsg(builder.toString());
+            final StringBuilder ql = new StringBuilder("SELECT ").append(projection(tags, Collections.emptySet()))
+                .append(" FROM STREAM ").append(schema.getMetadata().name())
+                .append(" IN ").append(schema.getMetadata().getGroup());
+            if (isColdStage) {
+                ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
-            addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    protected TopNQueryResponse topNQueryDebuggable(boolean isColdStage,
-                                                    MetadataRegistry.Schema schema,
-                                                    TimestampRange timestampRange,
-                                                    int number,
-                                                    AbstractQuery.Sort sort,
-                                                    List<KeyValue> additionalConditions,
-                                                    List<AttrCondition> attributes,
-                                                    String topNRuleName) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB TopNQuery");
-                builder.append("Condition: ")
-                       .append("Schema: ")
-                       .append(schema)
-                       .append(", TopNRuleName: ")
-                       .append(topNRuleName)
-                       .append(", TimestampRange: ")
-                       .append(timestampRange)
-                       .append(", Number: ")
-                       .append(number)
-                       .append(", Sort: ")
-                       .append(sort)
-                       .append(", AdditionalConditions: ")
-                       .append(additionalConditions)
-                       .append(", Attributes: ")
-                       .append(attributes)
-                       .append(", Is cold data query: ")
-                       .append(isColdStage);
-                span.setMsg(builder.toString());
-            }
-            TopNQueryResponse response = topNQuery(isColdStage, schema, timestampRange, number, sort, additionalConditions, attributes, topNRuleName);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTopNLists()));
-                span.setMsg(builder.toString());
-            }
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    private TopNQueryResponse topNQuery(boolean isColdStage,
-                                        MetadataRegistry.Schema schema,
-                                        TimestampRange timestampRange,
-                                        int number,
-                                        AbstractQuery.Sort sort,
-                                        List<KeyValue> additionalConditions,
-                                        List<AttrCondition> attributes,
-                                        String topNRuleName) throws IOException {
-        final TopNQuery q = new TopNQuery(List.of(schema.getMetadata().getGroup()),
-                                          topNRuleName,
-                                          timestampRange,
-                                          number, sort);
-        q.setAggregationType(MeasureQuery.Aggregation.Type.MEAN);
-        List<PairQueryCondition<?>> conditions = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(additionalConditions)) {
-            for (final KeyValue kv : additionalConditions) {
-                conditions.add(PairQueryCondition.StringQueryCondition.eq(kv.getKey(), kv.getValue()));
-            }
-        }
-        if (CollectionUtils.isNotEmpty(attributes)) {
-            attributes.forEach(attr -> {
-                if (attr.isEquals()) {
-                    conditions.add(PairQueryCondition.StringQueryCondition.eq(attr.getKey(), attr.getValue()));
+            ql.append(" TIME BETWEEN ? AND ?");
+            appendBodyWithTrace(ql, where.buildQl(), debug);
+            final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
+            final StreamQueryResponse response =
+                getClient().queryStream(ql.toString(), params.toArray(new Serializable[0]));
+            if (span != null) {
+                final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
+                    .append("\n Params: ").append(bindings(params));
+                if (traceContext.isDumpStorageRsp()) {
+                    msg.append("\n Response: ").append(new Gson().toJson(response.getElements()));
                 }
-                //server side topn query does not support not equals condition
-                //the not equals condition should be handled by a specific topN rule by adding exclude condition.
-            });
-        }
-        q.setConditions(conditions);
-        if (isColdStage) {
-            q.setStages(List.of(BanyanDBStorageConfig.StageName.cold.name()));
-        }
-
-        return getClient().query(q);
-    }
-
-    protected MeasureQueryResponse queryDebuggable(boolean isColdStage,
-                                                   MetadataRegistry.Schema schema,
-                                                   Set<String> tags,
-                                                   Set<String> fields,
-                                                   TimestampRange timestampRange,
-                                                   QueryBuilder<MeasureQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB Measure");
-                builder.append("Condition: ")
-                       .append("Schema: ")
-                       .append(schema)
-                       .append(", Tags: ")
-                       .append(tags)
-                       .append(", Fields: ")
-                       .append(fields)
-                       .append(", TimestampRange: ")
-                       .append(timestampRange)
-                       .append(", Is cold data query: ")
-                       .append(isColdStage);
-                span.setMsg(builder.toString());
-            }
-            MeasureQueryResponse response = query(isColdStage, schema, tags, fields, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getDataPoints()));
-                span.setMsg(builder.toString());
+                span.setMsg(msg.toString());
             }
             addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
-            return response;
-        } finally {
-            if (traceContext != null && span != null) {
-                traceContext.stopSpan(span);
-            }
-        }
-    }
-
-    protected MeasureQueryResponse query(boolean isColdStage,
-                                         MetadataRegistry.Schema schema,
-                                         Set<String> tags,
-                                         Set<String> fields,
-                                         QueryBuilder<MeasureQuery> builder) throws IOException {
-        return query(isColdStage, schema, tags, fields, null, builder);
-    }
-
-    protected MeasureQueryResponse query(boolean isColdStage,
-                                         MetadataRegistry.Schema schema,
-                                         Set<String> tags,
-                                         Set<String> fields,
-                                         TimestampRange timestampRange,
-                                         QueryBuilder<MeasureQuery> builder) throws IOException {
-        if (schema == null) {
-            throw new IllegalArgumentException("measure is not registered");
-        }
-        final MeasureQuery query;
-        Map<String, String> tagProjections = tags.stream().collect(Collectors.toMap(
-            tagName -> tagName,
-            tagName -> schema.getTags().get(tagName)
-        ));
-        if (timestampRange == null) {
-            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), LARGEST_TIME_RANGE, tagProjections, fields);
-        } else {
-            query = new MeasureQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, tagProjections, fields);
-        }
-        if (isColdStage) {
-            query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
-        }
-
-        builder.apply(query);
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        if (traceContext != null && traceContext.isDebug()) {
-            query.enableTrace();
-        }
-        return getClient().query(query);
-    }
-
-    protected TraceQueryResponse queryTraceDebuggable(boolean isColdStage,
-                                                    String modelName,
-                                                    TimestampRange timestampRange,
-                                                    QueryBuilder<TraceQuery> queryBuilder) throws IOException {
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        DebuggingSpan span = null;
-        try {
-            StringBuilder builder = new StringBuilder();
-            if (traceContext != null) {
-                span = traceContext.createSpan("Query BanyanDB Trace");
-                MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(modelName);
-                builder.append("Condition: ")
-                       .append("modelName:")
-                       .append(modelName)
-                       .append(", Schema: ")
-                       .append(schema)
-                       .append(", TimestampRange: ")
-                       .append(timestampRange)
-                       .append(", Is cold data query: ")
-                       .append(isColdStage);
-                span.setMsg(builder.toString());
-            }
-            TraceQueryResponse response = queryTrace(isColdStage, modelName, timestampRange, queryBuilder);
-            if (traceContext != null && traceContext.isDumpStorageRsp()) {
-                builder.append("\n").append(" Response: ").append(new Gson().toJson(response.getTraces()));
-                span.setMsg(builder.toString());
-            }
-            addDBTrace2DebuggingTrace(response.getTraceResult(), traceContext, span);
             return response;
         } finally {
             if (traceContext != null && span != null) {
@@ -344,28 +119,343 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
     }
 
     /**
-     * Trace query doesn't recommend to set query tags, if you need to debug, you can set tags here.
+     * Server-side TopN over a pre-aggregated TopN rule via BydbQL {@code SHOW TOP} (MEAN aggregation).
+     * Only equality conditions/attributes are applied — not-equals is handled by a separate exclude rule,
+     * as in the typed path.
+     *
+     * @param isColdStage          whether to target the cold lifecycle stage
+     * @param schema               the source measure schema (its group hosts the TopN rule)
+     * @param timestampRange       the time range bound to {@code TIME BETWEEN ? AND ?}
+     * @param number               the TopN count bound to {@code SHOW TOP ?}
+     * @param sort                 the ranking direction
+     * @param additionalConditions equality conditions to AND into the WHERE clause
+     * @param attributes           attribute conditions; only equality ones are applied
+     * @param topNRuleName         the pre-aggregated TopN measure name in the FROM clause
+     * @return the TopN query response
+     * @throws IOException if the query fails
      */
-    private TraceQueryResponse queryTrace(boolean isColdStage,
-                                       String traceModelName,
-                                       TimestampRange timestampRange,
-                                       QueryBuilder<TraceQuery> builder) throws IOException {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(traceModelName);
+    protected TopNQueryResponse topNQueryDebuggable(boolean isColdStage,
+                                                    MetadataRegistry.Schema schema,
+                                                    TimestampRange timestampRange,
+                                                    int number,
+                                                    AbstractQuery.Sort sort,
+                                                    List<KeyValue> additionalConditions,
+                                                    List<AttrCondition> attributes,
+                                                    String topNRuleName) throws IOException {
+        final DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            final boolean debug = traceContext != null && traceContext.isDebug();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query BanyanDB TopN");
+            }
+            final Conditions where = Conditions.create();
+            if (CollectionUtils.isNotEmpty(additionalConditions)) {
+                for (final KeyValue kv : additionalConditions) {
+                    where.eq(qualify(kv.getKey()), kv.getValue());
+                }
+            }
+            if (CollectionUtils.isNotEmpty(attributes)) {
+                for (final AttrCondition attr : attributes) {
+                    // server-side TopN does not support not-equals; those are handled by a dedicated
+                    // exclude rule, so only equality attributes are applied here (matches the typed path).
+                    if (attr.isEquals()) {
+                        where.eq(qualify(attr.getKey()), attr.getValue());
+                    }
+                }
+            }
+            final List<Serializable<BanyandbModel.TagValue>> params = new ArrayList<>();
+            params.add(Value.longTagValue((long) number));
+            params.add(Value.timestampTagValue(timestampRange.getBegin()));
+            params.add(Value.timestampTagValue(timestampRange.getEnd()));
+            params.addAll(where.params());
+            final StringBuilder ql = new StringBuilder("SHOW TOP ? FROM MEASURE ")
+                .append(topNRuleName).append(" IN ").append(schema.getMetadata().getGroup());
+            if (isColdStage) {
+                ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
+            }
+            ql.append(" TIME BETWEEN ? AND ?").append(where.buildQl())
+              .append(" AGGREGATE BY MEAN ORDER BY ").append(sort == AbstractQuery.Sort.DESC ? "DESC" : "ASC");
+            if (debug) {
+                ql.append(" WITH QUERY_TRACE");
+            }
+            final TopNQueryResponse response =
+                getClient().queryTopN(ql.toString(), params.toArray(new Serializable[0]));
+            if (span != null) {
+                final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
+                    .append("\n Params: ").append(bindings(params));
+                if (traceContext.isDumpStorageRsp()) {
+                    msg.append("\n Response: ").append(new Gson().toJson(response.getTopNLists()));
+                }
+                span.setMsg(msg.toString());
+            }
+            return response;
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    /**
+     * Ad-hoc TopN over a raw measure via BydbQL {@code SELECT TOP} (no pre-aggregated rule), returning
+     * measure DataPoints. Unlike the general measure {@code queryDebuggable}, this supports not-equals
+     * conditions in {@code where}.
+     *
+     * @param isColdStage    whether to target the cold lifecycle stage
+     * @param schema         the source measure schema
+     * @param timestampRange the time range bound to {@code TIME BETWEEN ? AND ?}; null means all time
+     * @param valueColumn       the field to rank by and aggregate
+     * @param aggregateFunction the BydbQL aggregate function applied to {@code valueColumn}, chosen by the
+     *                          caller (e.g. {@code MEAN})
+     * @param groupByColumn     the tag to group by (e.g. entity_id)
+     * @param number            the TopN count bound to {@code SELECT TOP ?}
+     * @param sort              the ranking direction
+     * @param where             the WHERE conditions (equality and not-equality)
+     * @return the measure query response (DataPoints)
+     * @throws IOException if the query fails
+     */
+    protected MeasureQueryResponse queryDebuggable(boolean isColdStage,
+                                                   MetadataRegistry.Schema schema,
+                                                   TimestampRange timestampRange,
+                                                   String valueColumn,
+                                                   String aggregateFunction,
+                                                   String groupByColumn,
+                                                   int number,
+                                                   AbstractQuery.Sort sort,
+                                                   Conditions where) throws IOException {
+        final DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            final boolean debug = traceContext != null && traceContext.isDebug();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query BanyanDB TopN Measure");
+            }
+            final String value = qualify(valueColumn);
+            // GROUP BY <value> needs <value> in the field projection, but the transformer projects only plain
+            // columns (not the TOP order field or the aggregate) — so project value plainly in addition to the aggregate.
+            final StringBuilder ql = new StringBuilder("SELECT TOP ? ")
+                .append(value).append(sort == AbstractQuery.Sort.DESC ? " DESC" : " ASC")
+                .append(", ").append(aggregateFunction).append("(").append(value).append("), ")
+                .append(value).append(", ").append(groupByColumn)
+                .append(" FROM MEASURE ").append(schema.getMetadata().name())
+                .append(" IN ").append(schema.getMetadata().getGroup());
+            if (isColdStage) {
+                ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
+            }
+            ql.append(" TIME BETWEEN ? AND ?").append(where.buildQl())
+              .append(" GROUP BY ").append(groupByColumn).append(", ").append(value);
+            if (debug) {
+                ql.append(" WITH QUERY_TRACE");
+            }
+            final List<Serializable<BanyandbModel.TagValue>> params = new ArrayList<>();
+            params.add(Value.longTagValue((long) number));
+            params.addAll(timeBoundedParams(timestampRange, where.params()));
+            final MeasureQueryResponse response =
+                getClient().queryMeasure(ql.toString(), params.toArray(new Serializable[0]));
+            if (span != null) {
+                final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
+                    .append("\n Params: ").append(bindings(params));
+                if (traceContext.isDumpStorageRsp()) {
+                    msg.append("\n Response: ").append(new Gson().toJson(response.getDataPoints()));
+                }
+                span.setMsg(msg.toString());
+            }
+            addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
+            return response;
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    /**
+     * Query a measure via BydbQL. Projects the given tags/fields and appends the WHERE / GROUP BY /
+     * ORDER BY / LIMIT tail carried by {@code where}.
+     *
+     * @param isColdStage    whether to target the cold lifecycle stage
+     * @param schema         the resolved measure schema (group + name)
+     * @param tags           tag columns to project
+     * @param fields         field columns to project
+     * @param timestampRange the time range bound to {@code TIME BETWEEN ? AND ?}
+     * @param where          the fluent condition builder holding the clause tail and its params
+     * @return the measure query response
+     * @throws IOException if the query fails
+     */
+    protected MeasureQueryResponse queryDebuggable(boolean isColdStage,
+                                                   MetadataRegistry.Schema schema,
+                                                   Set<String> tags,
+                                                   Set<String> fields,
+                                                   TimestampRange timestampRange,
+                                                   Conditions where) throws IOException {
+        if (schema == null) {
+            throw new IllegalArgumentException("measure is not registered");
+        }
+        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            final boolean debug = traceContext != null && traceContext.isDebug();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query BanyanDB Measure");
+            }
+            final StringBuilder ql = new StringBuilder("SELECT ").append(projection(tags, fields))
+                .append(" FROM MEASURE ").append(schema.getMetadata().name())
+                .append(" IN ").append(schema.getMetadata().getGroup());
+            if (isColdStage) {
+                ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
+            }
+            ql.append(" TIME BETWEEN ? AND ?");
+            appendBodyWithTrace(ql, where.buildQl(), debug);
+            final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
+            final MeasureQueryResponse response =
+                getClient().queryMeasure(ql.toString(), params.toArray(new Serializable[0]));
+            if (span != null) {
+                final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
+                    .append("\n Params: ").append(bindings(params));
+                if (traceContext.isDumpStorageRsp()) {
+                    msg.append("\n Response: ").append(new Gson().toJson(response.getDataPoints()));
+                }
+                span.setMsg(msg.toString());
+            }
+            addDBTrace2DebuggingTrace(response.getTrace(), traceContext, span);
+            return response;
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
+        }
+    }
+
+    private static String projection(Set<String> tags, Set<String> fields) {
+        final List<String> cols = new ArrayList<>(tags.size() + fields.size());
+        cols.addAll(tags);
+        cols.addAll(fields);
+        if (cols.isEmpty()) {
+            return "*";
+        }
+        Collections.sort(cols);
+        return cols.stream().map(AbstractBanyanDBDAO::qualify).collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Build the bound-parameter list for a BydbQL SELECT: the two {@code TIME BETWEEN ? AND ?} bounds first
+     * (in that order, matching the two leading placeholders), then the caller's condition params.
+     *
+     * @param timestampRange the time range whose begin/end bind the two leading placeholders
+     * @param originParams   params for the placeholders in the caller's condition clause, or null
+     * @return the ordered param list ready to pass to the query stub
+     */
+    private static List<Serializable<BanyandbModel.TagValue>> timeBoundedParams(
+        TimestampRange timestampRange, List<Serializable<BanyandbModel.TagValue>> originParams) {
+        // A null range means "all time": callers querying the full history pass null instead of
+        // constructing an explicit full-bound TimestampRange (which equals LARGEST_TIME_RANGE).
+        final TimestampRange range = timestampRange == null ? LARGEST_TIME_RANGE : timestampRange;
+        final List<Serializable<BanyandbModel.TagValue>> params =
+            new ArrayList<>(2 + (originParams == null ? 0 : originParams.size()));
+        params.add(Value.timestampTagValue(range.getBegin()));
+        params.add(Value.timestampTagValue(range.getEnd()));
+        if (originParams != null) {
+            params.addAll(originParams);
+        }
+        return params;
+    }
+
+    /**
+     * Append the clause tail, inserting {@code WITH QUERY_TRACE} (when debugging) before any
+     * {@code LIMIT}/{@code OFFSET} — BydbQL requires the trace marker ahead of LIMIT/OFFSET or the parser
+     * rejects it with {@code unexpected token "WITH"}.
+     */
+    private static void appendBodyWithTrace(StringBuilder ql, String body, boolean debug) {
+        final String tail = body == null ? "" : body;
+        if (!debug) {
+            ql.append(tail);
+            return;
+        }
+        final int limitIdx = tail.indexOf(" LIMIT ");
+        if (limitIdx >= 0) {
+            ql.append(tail, 0, limitIdx).append(" WITH QUERY_TRACE").append(tail, limitIdx, tail.length());
+        } else {
+            ql.append(tail).append(" WITH QUERY_TRACE");
+        }
+    }
+
+    /**
+     * Double-quote a column identifier for BydbQL. Quoting unconditionally sidesteps the reserved-keyword
+     * check (e.g. a column named {@code count}) without tracking BanyanDB's keyword list.
+     *
+     * @param column the column name to emit in a BydbQL clause
+     * @return the column wrapped in double quotes
+     */
+    protected static String qualify(String column) {
+        return "\"" + column + "\"";
+    }
+
+    /**
+     * Render the bound {@code ?} values for a debug-span message. Only called when a span exists, so
+     * {@code serialize()} stays off the hot path.
+     *
+     * @param params the ordered bound parameters
+     * @return a compact single-line list of the serialized parameter values
+     */
+    private static String bindings(List<Serializable<BanyandbModel.TagValue>> params) {
+        return params.stream()
+                     .map(p -> p.serialize().toString().replaceAll("\\s+", " ").trim())
+                     .collect(Collectors.joining(", ", "[", "]"));
+    }
+
+    /**
+     * Query a trace via BydbQL. Projects only raw span data ({@code SELECT ()}); tags remain usable in
+     * the {@code where} tail (WHERE / ORDER BY).
+     *
+     * @param isColdStage    whether to target the cold lifecycle stage
+     * @param traceModelName the trace model name to resolve the schema
+     * @param timestampRange the time range bound to {@code TIME BETWEEN ? AND ?}
+     * @param where          the fluent condition builder holding the clause tail and its params
+     * @return the trace query response
+     * @throws IOException if the query fails
+     */
+    protected TraceQueryResponse queryTraceDebuggable(boolean isColdStage,
+                                                      String traceModelName,
+                                                      TimestampRange timestampRange,
+                                                      Conditions where) throws IOException {
+        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(traceModelName);
         if (schema == null) {
             throw new IllegalArgumentException("schema is not registered");
         }
-        final TraceQuery query = new TraceQuery(List.of(schema.getMetadata().getGroup()), schema.getMetadata().name(), timestampRange, Collections.emptySet());
-
-        if (isColdStage) {
-            query.setStages(Set.of(BanyanDBStorageConfig.StageName.cold.name()));
+        final DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
+        DebuggingSpan span = null;
+        try {
+            final boolean debug = traceContext != null && traceContext.isDebug();
+            if (traceContext != null) {
+                span = traceContext.createSpan("Query BanyanDB Trace");
+            }
+            final StringBuilder ql = new StringBuilder("SELECT () FROM TRACE ")
+                .append(schema.getMetadata().name())
+                .append(" IN ").append(schema.getMetadata().getGroup());
+            if (isColdStage) {
+                ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
+            }
+            ql.append(" TIME BETWEEN ? AND ?");
+            appendBodyWithTrace(ql, where.buildQl(), debug);
+            final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
+            final TraceQueryResponse response =
+                getClient().queryTrace(ql.toString(), params.toArray(new Serializable[0]));
+            if (span != null) {
+                final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
+                    .append("\n Params: ").append(bindings(params));
+                if (traceContext.isDumpStorageRsp()) {
+                    msg.append("\n Response: ").append(new Gson().toJson(response.getTraces()));
+                }
+                span.setMsg(msg.toString());
+            }
+            addDBTrace2DebuggingTrace(response.getTraceResult(), traceContext, span);
+            return response;
+        } finally {
+            if (traceContext != null && span != null) {
+                traceContext.stopSpan(span);
+            }
         }
-
-        builder.apply(query);
-        DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
-        if (traceContext != null && traceContext.isDebug()) {
-           query.enableTrace();
-        }
-        return getClient().query(query);
     }
 
     private void addDBTrace2DebuggingTrace(Trace trace, DebuggingTraceContext traceContext, DebuggingSpan parentSpan) {
@@ -386,93 +476,6 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             debuggingSpan.setError("BanyanDB occurs error.");
         }
         span.getChildren().forEach(child -> addDBSpan2DebuggingTrace(child, traceContext, debuggingSpan));
-    }
-
-    protected static QueryBuilder<MeasureQuery> emptyMeasureQuery() {
-        return new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-            }
-        };
-    }
-
-    protected abstract static class QueryBuilder<T extends AbstractQuery<? extends com.google.protobuf.GeneratedMessage>> {
-        protected abstract void apply(final T query);
-
-        protected PairQueryCondition<Long> eq(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.eq(name, value);
-        }
-
-        protected PairQueryCondition<List<String>> having(String name, List<String> value) {
-            return PairQueryCondition.StringArrayQueryCondition.having(name, value);
-        }
-
-        protected PairQueryCondition<Long> lte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.le(name, value);
-        }
-
-        protected PairQueryCondition<Long> gte(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.ge(name, value);
-        }
-
-        protected PairQueryCondition<Long> gt(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.gt(name, value);
-        }
-
-        protected PairQueryCondition<String> eq(String name, String value) {
-            return PairQueryCondition.StringQueryCondition.eq(name, value);
-        }
-
-        protected PairQueryCondition<String> ne(String name, String value) {
-            return PairQueryCondition.StringQueryCondition.ne(name, value);
-        }
-
-        protected PairQueryCondition<String> match(String name, String value) {
-            return PairQueryCondition.StringQueryCondition.match(name, value);
-        }
-
-        protected PairQueryCondition<String> match(String name, String value, BanyandbModel.Condition.MatchOption matchOption) {
-            return PairQueryCondition.StringQueryCondition.match(name, value, matchOption);
-        }
-
-        protected PairQueryCondition<List<String>> in(String name, List<String> values) {
-            return PairQueryCondition.StringArrayQueryCondition.in(name, values);
-        }
-
-        protected PairQueryCondition<List<String>> notIn(String name, List<String> values) {
-            return PairQueryCondition.StringArrayQueryCondition.in(name, values);
-        }
-
-        protected PairQueryCondition<Long> ne(String name, long value) {
-            return PairQueryCondition.LongQueryCondition.ne(name, value);
-        }
-
-        protected AbstractCriteria and(List<? extends AbstractCriteria> conditions) {
-            if (conditions.isEmpty()) {
-                return null;
-            }
-            if (conditions.size() == 1) {
-                return conditions.get(0);
-            }
-
-            return conditions.subList(2, conditions.size()).stream().reduce(
-                    And.create(conditions.get(0), conditions.get(1)),
-                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) And::create,
-                    And::create);
-        }
-
-        protected AbstractCriteria or(List<? extends AbstractCriteria> conditions) {
-            if (conditions.isEmpty()) {
-                return null;
-            }
-            if (conditions.size() == 1) {
-                return conditions.get(0);
-            }
-            return conditions.subList(2, conditions.size()).stream().reduce(
-                    Or.create(conditions.get(0), conditions.get(1)),
-                    (BiFunction<AbstractCriteria, AbstractCriteria, AbstractCriteria>) Or::create,
-                    Or::create);
-        }
     }
 
     protected TimestampRange getTimestampRange(@Nullable Duration duration) {

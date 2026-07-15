@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
@@ -69,61 +67,53 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
                           Duration duration, List<Tag> tags, List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final QueryBuilder<StreamQuery> query = new QueryBuilder<StreamQuery>() {
-            @Override
-            public void apply(StreamQuery query) {
-                if (StringUtil.isNotEmpty(serviceId)) {
-                    query.and(eq(AbstractLogRecord.SERVICE_ID, serviceId));
-                }
-
-                if (StringUtil.isNotEmpty(serviceInstanceId)) {
-                    if (StringUtil.isEmpty(serviceId)) {
-                        IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
-                            serviceInstanceId);
-                        query.and(eq(AbstractLogRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
-                    }
-                    query.and(eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
-                }
-                if (StringUtil.isNotEmpty(endpointId)) {
-                    if (StringUtil.isEmpty(serviceId)) {
-                        IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
-                            endpointId);
-                        query.and(eq(AbstractLogRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
-                    }
-                    query.and(eq(AbstractLogRecord.ENDPOINT_ID, endpointId));
-                }
-                if (Objects.nonNull(relatedTrace)) {
-                    if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
-                        query.and(eq(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId()));
-                    }
-                    if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
-                        query.and(eq(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId()));
-                    }
-                    if (Objects.nonNull(relatedTrace.getSpanId())) {
-                        query.and(eq(AbstractLogRecord.SPAN_ID, (long) relatedTrace.getSpanId()));
-                    }
-                }
-
-                if (CollectionUtils.isNotEmpty(tags)) {
-                    List<String> tagsConditions = new ArrayList<>(tags.size());
-                    for (final Tag tag : tags) {
-                        tagsConditions.add(tag.toString());
-                    }
-                    query.and(having(LogRecord.TAGS, tagsConditions));
-                }
-                if (queryOrder == Order.ASC) {
-                    query.setOrderBy(
-                        new AbstractQuery.OrderBy(AbstractQuery.Sort.ASC));
-                } else {
-                    query.setOrderBy(
-                        new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                }
-                query.setLimit(limit);
-                query.setOffset(from);
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(AbstractLogRecord.SERVICE_ID, serviceId);
+        }
+        if (StringUtil.isNotEmpty(serviceInstanceId)) {
+            if (StringUtil.isEmpty(serviceId)) {
+                IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
+                    serviceInstanceId);
+                where.eq(AbstractLogRecord.SERVICE_ID, instanceIDDefinition.getServiceId());
             }
-        };
+            where.eq(AbstractLogRecord.SERVICE_INSTANCE_ID, serviceInstanceId);
+        }
+        if (StringUtil.isNotEmpty(endpointId)) {
+            if (StringUtil.isEmpty(serviceId)) {
+                IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
+                    endpointId);
+                where.eq(AbstractLogRecord.SERVICE_ID, endpointIDDefinition.getServiceId());
+            }
+            where.eq(AbstractLogRecord.ENDPOINT_ID, endpointId);
+        }
+        if (Objects.nonNull(relatedTrace)) {
+            if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
+                where.eq(AbstractLogRecord.TRACE_ID, relatedTrace.getTraceId());
+            }
+            if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
+                where.eq(AbstractLogRecord.TRACE_SEGMENT_ID, relatedTrace.getSegmentId());
+            }
+            if (Objects.nonNull(relatedTrace.getSpanId())) {
+                where.eq(AbstractLogRecord.SPAN_ID, (long) relatedTrace.getSpanId());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(tags)) {
+            List<String> tagsConditions = new ArrayList<>(tags.size());
+            for (final Tag tag : tags) {
+                tagsConditions.add(tag.toString());
+            }
+            where.having(LogRecord.TAGS, tagsConditions);
+        }
+        if (queryOrder == Order.ASC) {
+            where.orderByAsc();
+        } else {
+            where.orderByDesc();
+        }
+        where.limit(limit).offset(from);
 
-        StreamQueryResponse resp = queryDebuggable(isColdStage, LogRecord.INDEX_NAME, TAGS, getTimestampRange(duration), query);
+        StreamQueryResponse resp = queryDebuggable(isColdStage, LogRecord.INDEX_NAME, TAGS,
+                getTimestampRange(duration), where);
 
         Logs logs = new Logs();
 
