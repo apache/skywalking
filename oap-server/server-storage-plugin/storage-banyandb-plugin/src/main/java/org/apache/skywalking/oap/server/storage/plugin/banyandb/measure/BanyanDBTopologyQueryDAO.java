@@ -22,15 +22,10 @@ import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -51,6 +46,7 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITopologyQueryDAO {
 
@@ -65,9 +61,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             throw new UnexpectedException("Service id is empty");
         }
 
-        QueryBuilder<MeasureQuery> queryBuilder = buildServiceRelationsQuery(serviceIds);
-
-        return queryServiceRelation(duration, queryBuilder, DetectPoint.SERVER);
+        return queryServiceRelation(duration, serviceRelationsWhere(serviceIds), DetectPoint.SERVER);
     }
 
     @Override
@@ -77,34 +71,28 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
             throw new UnexpectedException("Service id is empty");
         }
 
-        QueryBuilder<MeasureQuery> queryBuilder = buildServiceRelationsQuery(serviceIds);
-
-        return queryServiceRelation(duration, queryBuilder, DetectPoint.CLIENT);
+        return queryServiceRelation(duration, serviceRelationsWhere(serviceIds), DetectPoint.CLIENT);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationsDetectedAtServerSide(Duration duration) throws IOException {
-        return queryServiceRelation(duration, emptyMeasureQuery(), DetectPoint.SERVER);
+        return queryServiceRelation(duration, Conditions.create(), DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadServiceRelationDetectedAtClientSide(Duration duration) throws IOException {
-        return queryServiceRelation(duration, emptyMeasureQuery(), DetectPoint.CLIENT);
+        return queryServiceRelation(duration, Conditions.create(), DetectPoint.CLIENT);
     }
 
-    private QueryBuilder<MeasureQuery> buildServiceRelationsQuery(List<String> serviceIds) {
-        return new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                query.or(in(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds))
-                        .or(in(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds));
-                query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_IDS)));
-            }
-        };
+    private Conditions serviceRelationsWhere(List<String> serviceIds) {
+        return Conditions.create().or(List.of(
+                Conditions.group().in(ServiceRelationServerSideMetrics.SOURCE_SERVICE_ID, serviceIds),
+                Conditions.group().in(ServiceRelationServerSideMetrics.DEST_SERVICE_ID, serviceIds)))
+                .groupBy(Metrics.ENTITY_ID, ServiceRelationServerSideMetrics.COMPONENT_IDS);
     }
 
     List<Call.CallDetail> queryServiceRelation(Duration duration,
-                                               QueryBuilder<MeasureQuery> queryBuilder,
+                                               Conditions where,
                                                DetectPoint detectPoint) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceRelationServerSideMetrics.INDEX_NAME :
@@ -115,7 +103,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                         ServiceRelationClientSideMetrics.COMPONENT_IDS,
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), getTimestampRange(duration), queryBuilder
+                Collections.emptySet(), getTimestampRange(duration), where
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -138,47 +126,32 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
     public List<Call.CallDetail> loadInstanceRelationDetectedAtServerSide(String clientServiceId,
                                                                           String serverServiceId,
                                                                           Duration duration) throws IOException {
-        QueryBuilder<MeasureQuery> queryBuilder = buildInstanceRelationsQuery(
-                clientServiceId, serverServiceId);
-        return queryInstanceRelation(duration, queryBuilder, DetectPoint.SERVER);
+        return queryInstanceRelation(duration, instanceRelationsWhere(clientServiceId, serverServiceId),
+                DetectPoint.SERVER);
     }
 
     @Override
     public List<Call.CallDetail> loadInstanceRelationDetectedAtClientSide(String clientServiceId,
                                                                           String serverServiceId,
                                                                           Duration duration) throws IOException {
-        QueryBuilder<MeasureQuery> queryBuilder = buildInstanceRelationsQuery(
-                clientServiceId, serverServiceId);
-        return queryInstanceRelation(duration, queryBuilder, DetectPoint.CLIENT);
+        return queryInstanceRelation(duration, instanceRelationsWhere(clientServiceId, serverServiceId),
+                DetectPoint.CLIENT);
     }
 
-    private QueryBuilder<MeasureQuery> buildInstanceRelationsQuery(String clientServiceId,
-                                                                   String serverServiceId) {
-        return new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                List<AbstractCriteria> instanceRelationsQueryConditions = new ArrayList<>(2);
-
-                instanceRelationsQueryConditions.add(
-                        // source_service_id = clientServiceId AND dest_service_id = serverServiceId
-                        and(Lists.newArrayList(
-                                eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId),
-                                eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId))
-                        ));
-                instanceRelationsQueryConditions.add(
-                        // dest_service_id = clientServiceId AND source_service_id = serverServiceId
-                        and(Lists.newArrayList(
-                                eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId),
-                                eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId)
-                        ))
-                );
-                query.criteria(or(instanceRelationsQueryConditions));
-            }
-        };
+    private Conditions instanceRelationsWhere(String clientServiceId, String serverServiceId) {
+        // (source_service_id = clientServiceId AND dest_service_id = serverServiceId)
+        //   OR (dest_service_id = clientServiceId AND source_service_id = serverServiceId)
+        return Conditions.create().or(List.of(
+                Conditions.group()
+                        .eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, clientServiceId)
+                        .eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, serverServiceId),
+                Conditions.group()
+                        .eq(ServiceInstanceRelationServerSideMetrics.DEST_SERVICE_ID, clientServiceId)
+                        .eq(ServiceInstanceRelationServerSideMetrics.SOURCE_SERVICE_ID, serverServiceId)));
     }
 
     List<Call.CallDetail> queryInstanceRelation(Duration duration,
-                                                QueryBuilder<MeasureQuery> queryBuilder,
+                                                Conditions where,
                                                 DetectPoint detectPoint) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = detectPoint == DetectPoint.SERVER ? ServiceInstanceRelationServerSideMetrics.INDEX_NAME :
@@ -188,7 +161,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), getTimestampRange(duration), queryBuilder
+                Collections.emptySet(), getTimestampRange(duration), where
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -206,8 +179,7 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
 
     @Override
     public List<Call.CallDetail> loadEndpointRelation(Duration duration, String destEndpointId) throws IOException {
-        QueryBuilder<MeasureQuery> queryBuilder = buildEndpointRelationsQueries(destEndpointId);
-        return queryEndpointRelation(duration, queryBuilder, DetectPoint.SERVER);
+        return queryEndpointRelation(duration, destEndpointId, DetectPoint.SERVER);
     }
 
     @Override
@@ -222,20 +194,8 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         return queryProcessRelation(duration, serviceInstanceId, DetectPoint.SERVER);
     }
 
-    private QueryBuilder<MeasureQuery> buildEndpointRelationsQueries(String destEndpointId) {
-        return new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                query.or(eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId))
-                        .or(eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId));
-
-                query.groupBy(Sets.newHashSet(Metrics.ENTITY_ID));
-            }
-        };
-    }
-
     List<Call.CallDetail> queryEndpointRelation(Duration duration,
-                                                QueryBuilder<MeasureQuery> queryBuilder,
+                                                String destEndpointId,
                                                 DetectPoint detectPoint) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(EndpointRelationServerSideMetrics.INDEX_NAME, duration.getStep());
@@ -243,7 +203,11 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
                 ImmutableSet.of(
                         Metrics.ENTITY_ID
                 ),
-                Collections.emptySet(), getTimestampRange(duration), queryBuilder
+                Collections.emptySet(), getTimestampRange(duration),
+                Conditions.create().or(List.of(
+                        Conditions.group().eq(EndpointRelationServerSideMetrics.SOURCE_ENDPOINT, destEndpointId),
+                        Conditions.group().eq(EndpointRelationServerSideMetrics.DEST_ENDPOINT, destEndpointId)))
+                        .groupBy(Metrics.ENTITY_ID)
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -268,13 +232,10 @@ public class BanyanDBTopologyQueryDAO extends AbstractBanyanDBDAO implements ITo
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(modelName, DownSampling.Minute);
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                 ImmutableSet.of(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID),
-                Collections.emptySet(), getTimestampRange(duration), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId));
-                        query.groupBy(Sets.newLinkedHashSet(Arrays.asList(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID)));
-                    }
-                }
+                Collections.emptySet(), getTimestampRange(duration),
+                Conditions.create()
+                        .eq(ProcessRelationServerSideMetrics.SERVICE_INSTANCE_ID, serviceInstanceId)
+                        .groupBy(Metrics.ENTITY_ID, ProcessRelationClientSideMetrics.COMPONENT_ID)
         );
 
         if (resp.size() == 0) {

@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
@@ -62,18 +60,15 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                                                         long taskStartTime, long latestUpdateTime) throws IOException {
         List<EBPFProfilingTaskRecord> tasks = new ArrayList<>();
         for (final String serviceId : serviceIdList) {
-            StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        query.and(eq(EBPFProfilingTaskRecord.SERVICE_ID, serviceId));
-                        appendTimeQuery(this, query, taskStartTime, latestUpdateTime);
-                        if (triggerType != null) {
-                            query.and(eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value()));
-                        }
-                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+            Conditions where = Conditions.create();
+            where.eq(EBPFProfilingTaskRecord.SERVICE_ID, serviceId);
+            appendTimeQuery(where, taskStartTime, latestUpdateTime);
+            if (triggerType != null) {
+                where.eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value());
+            }
+            where.orderByDesc();
+            StreamQueryResponse resp = queryDebuggable(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+                null, where);
             tasks.addAll(resp.getElements().stream().map(this::buildTask).collect(Collectors.toList()));
         }
 
@@ -85,24 +80,21 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
                                                        EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         List<EBPFProfilingTaskRecord> tasks = new ArrayList<>();
         for (final EBPFProfilingTargetType targetType : targetTypes) {
-            StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(EBPFProfilingTaskRecord.SERVICE_ID, serviceId));
-                        }
-                        if (StringUtil.isNotEmpty(serviceInstanceId)) {
-                            query.and(eq(EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId));
-                        }
-                        if (CollectionUtils.isNotEmpty(targetTypes)) {
-                            query.and(eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value()));
-                        }
-                        query.and(eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value()));
-                        appendTimeQuery(this, query, taskStartTime, latestUpdateTime);
-                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+            Conditions where = Conditions.create();
+            if (StringUtil.isNotEmpty(serviceId)) {
+                where.eq(EBPFProfilingTaskRecord.SERVICE_ID, serviceId);
+            }
+            if (StringUtil.isNotEmpty(serviceInstanceId)) {
+                where.eq(EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId);
+            }
+            if (CollectionUtils.isNotEmpty(targetTypes)) {
+                where.eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value());
+            }
+            where.eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value());
+            appendTimeQuery(where, taskStartTime, latestUpdateTime);
+            where.orderByDesc();
+            StreamQueryResponse resp = queryDebuggable(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+                null, where);
             tasks.addAll(resp.getElements().stream().map(this::buildTask).collect(Collectors.toList()));
         }
 
@@ -111,22 +103,18 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
 
     @Override
     public List<EBPFProfilingTaskRecord> getTaskRecord(String id) throws IOException {
-        StreamQueryResponse resp = query(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
-            new QueryBuilder<StreamQuery>() {
-                @Override
-                protected void apply(StreamQuery query) {
-                    query.and(eq(EBPFProfilingTaskRecord.LOGICAL_ID, id));
-                }
-            });
+        StreamQueryResponse resp = queryDebuggable(false, EBPFProfilingTaskRecord.INDEX_NAME, TAGS,
+            null,
+            Conditions.create().eq(EBPFProfilingTaskRecord.LOGICAL_ID, id));
         return resp.getElements().stream().map(this::buildTask).collect(Collectors.toList());
     }
 
-    private void appendTimeQuery(QueryBuilder<StreamQuery> builder, StreamQuery query, long taskStartTime, long latestUpdateTime) {
+    private void appendTimeQuery(Conditions where, long taskStartTime, long latestUpdateTime) {
         if (taskStartTime > 0) {
-            query.and(builder.gte(EBPFProfilingTaskRecord.START_TIME, taskStartTime));
+            where.gte(EBPFProfilingTaskRecord.START_TIME, taskStartTime);
         }
         if (latestUpdateTime > 0) {
-            query.and(builder.gt(EBPFProfilingTaskRecord.LAST_UPDATE_TIME, latestUpdateTime));
+            where.gt(EBPFProfilingTaskRecord.LAST_UPDATE_TIME, latestUpdateTime);
         }
     }
 

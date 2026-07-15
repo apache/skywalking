@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.Element;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.AsyncProfilerTaskLog;
@@ -54,14 +53,11 @@ public class BanyanDBAsyncProfilerTaskLogQueryDAO extends AbstractBanyanDBDAO im
 
     @Override
     public List<AsyncProfilerTaskLog> getTaskLogList(String taskId) throws IOException {
-        StreamQueryResponse resp = query(false, AsyncProfilerTaskLogRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(eq(AsyncProfilerTaskLogRecord.TASK_ID, taskId));
-                        query.setLimit(BanyanDBAsyncProfilerTaskLogQueryDAO.this.queryMaxSize);
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(false, AsyncProfilerTaskLogRecord.INDEX_NAME, TAGS,
+                null,
+                Conditions.create()
+                        .eq(AsyncProfilerTaskLogRecord.TASK_ID, taskId)
+                        .limit(queryMaxSize));
 
         final LinkedList<AsyncProfilerTaskLog> tasks = new LinkedList<>();
         for (final Element element : resp.getElements()) {

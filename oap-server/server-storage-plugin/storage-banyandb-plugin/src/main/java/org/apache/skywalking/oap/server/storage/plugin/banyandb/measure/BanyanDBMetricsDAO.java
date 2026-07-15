@@ -22,7 +22,6 @@ import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
@@ -40,6 +39,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverte
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -129,26 +129,35 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
                 end = result.end;
             }
         }
-        TimestampRange timestampRange = null;
+        TimestampRange timestampRange;
         if (begin != 0L || end != 0L) {
             timestampRange = new TimestampRange(begin, end);
         } else {
             if (!model.getBanyanDBModelExtension().isIndexMode()) {
                 log.info("{}[{}] will scan all blocks", model.getName(), idStr);
             }
+            timestampRange = null;
+        }
+
+        // Sort the present seriesID columns so the emitted WHERE ... IN (?) [OR ...] template is
+        // byte-stable across calls, keeping BanyanDB's prepared-statement cache from fanning out
+        // over column ordering.
+        final List<String> queryColumns = new ArrayList<>(seriesIDColumns.size());
+        seriesIDColumns.forEach((col, values) -> {
+            if (!values.isEmpty()) {
+                queryColumns.add(col);
+            }
+        });
+        Collections.sort(queryColumns);
+        final List<Conditions> groups = new ArrayList<>(queryColumns.size());
+        for (final String col : queryColumns) {
+            groups.add(Conditions.group().in(qualify(col), seriesIDColumns.get(col)));
         }
 
         List<Metrics> metricsInStorage = new ArrayList<>(metrics.size());
-        MeasureQueryResponse resp = query(false, schema, schema.getTags().keySet(), schema.getFields(), timestampRange, new QueryBuilder<MeasureQuery>() {
-                @Override
-            protected void apply(MeasureQuery query) {
-                seriesIDColumns.entrySet().forEach(entry -> {
-                    if (!entry.getValue().isEmpty()) {
-                        query.or(in(entry.getKey(), entry.getValue()));
-                    }
-                });
-            }
-        });
+        MeasureQueryResponse resp = queryDebuggable(
+            false, schema, schema.getTags().keySet(), schema.getFields(), timestampRange,
+            Conditions.create().or(groups));
         if (resp.size() == 0) {
             return Collections.emptyList();
         }

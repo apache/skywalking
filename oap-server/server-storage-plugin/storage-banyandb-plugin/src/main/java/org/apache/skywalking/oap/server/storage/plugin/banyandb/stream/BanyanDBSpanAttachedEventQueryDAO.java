@@ -20,9 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nullable;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
@@ -73,14 +71,10 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
         final boolean isColdStage = duration != null && duration.isColdStage();
         final StreamQueryResponse resp = queryDebuggable(
                 isColdStage, SWSpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        query.and(in(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
-                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
-                        query.setLimit(batchSize);
-                    }
-                });
+                Conditions.create()
+                        .in(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds)
+                        .orderByAsc()
+                        .limit(batchSize));
 
         return resp.getElements().stream().map(this::buildSWRecord).collect(Collectors.toList());
     }
@@ -90,14 +84,10 @@ public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO imple
         final boolean isColdStage = duration != null && duration.isColdStage();
         final StreamQueryResponse resp = queryDebuggable(
             isColdStage, SpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
-            new QueryBuilder<StreamQuery>() {
-            @Override
-            protected void apply(StreamQuery query) {
-                query.and(in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds));
-                query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.ASC));
-                query.setLimit(batchSize);
-            }
-        });
+            Conditions.create()
+                    .in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds)
+                    .orderByAsc()
+                    .limit(batchSize));
 
         return resp.getElements().stream().map(this::buildZKRecord).collect(Collectors.toList());
     }

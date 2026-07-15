@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.topn.TopN;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -31,6 +29,7 @@ import org.apache.skywalking.oap.server.core.query.type.Record;
 import org.apache.skywalking.oap.server.core.storage.query.IRecordsQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,19 +48,12 @@ public class BanyanDBRecordsQueryDAO extends AbstractBanyanDBDAO implements IRec
         final boolean isColdStage = duration != null && duration.isColdStage();
         final String modelName = condition.getName();
         final Set<String> tags = ImmutableSet.of(TopN.ENTITY_ID, TopN.STATEMENT, TopN.TRACE_ID, valueColumnName);
-        StreamQueryResponse resp = queryDebuggable(isColdStage, modelName, tags,
-                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        query.and(eq(TopN.ENTITY_ID, condition.getParentEntity().buildId()));
-                        if (condition.getOrder() == Order.DES) {
-                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.DESC));
-                        } else {
-                            query.setOrderBy(new StreamQuery.OrderBy(valueColumnName, AbstractQuery.Sort.ASC));
-                        }
-                        query.setLimit(condition.getTopN());
-                    }
-                });
+        final String direction = condition.getOrder() == Order.DES ? "DESC" : "ASC";
+        StreamQueryResponse resp = queryDebuggable(isColdStage, modelName, tags, getTimestampRange(duration),
+                Conditions.create()
+                        .eq(TopN.ENTITY_ID, condition.getParentEntity().buildId())
+                        .orderBy(qualify(valueColumnName), direction)
+                        .limit(condition.getTopN()));
 
         if (resp.size() == 0) {
             return Collections.emptyList();

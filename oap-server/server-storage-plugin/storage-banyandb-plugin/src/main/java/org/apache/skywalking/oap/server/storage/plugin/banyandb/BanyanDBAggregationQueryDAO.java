@@ -24,7 +24,6 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.library.banyandb.v1.client.TopNQueryResponse;
@@ -39,17 +38,16 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 @Slf4j
 public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements IAggregationQueryDAO {
-    private static final Set<String> TAGS = ImmutableSet.of(Metrics.ENTITY_ID);
 
     public BanyanDBAggregationQueryDAO(BanyanDBStorageClient client) {
         super(client);
@@ -147,34 +145,26 @@ public class BanyanDBAggregationQueryDAO extends AbstractBanyanDBDAO implements 
             log.debug("Endpoint direct TopN query, TopNCondition: {}, AdditionalConditions: {}, TimestampRange: {}",
             condition, additionalConditions, timestampRange);
         }
-        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, TAGS, Collections.singleton(valueColumnName),
-                timestampRange, new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.meanBy(valueColumnName, ImmutableSet.of(Metrics.ENTITY_ID));
-                        if (condition.getOrder() == Order.DES) {
-                            query.topN(condition.getTopN(), valueColumnName);
-                        } else {
-                            query.bottomN(condition.getTopN(), valueColumnName);
-                        }
-                        if (CollectionUtils.isNotEmpty(additionalConditions)) {
-                            additionalConditions.forEach(additionalCondition -> query
-                                    .and(eq(
-                                            additionalCondition.getKey(),
-                                            additionalCondition.getValue()
-                                    )));
-                        }
-                        if (CollectionUtils.isNotEmpty(condition.getAttributes())) {
-                            condition.getAttributes().forEach(attr -> {
-                                if (attr.isEquals()) {
-                                    query.and(eq(attr.getKey(), attr.getValue()));
-                                } else {
-                                    query.and(ne(attr.getKey(), attr.getValue()));
-                                }
-                            });
-                        }
-                    }
-                });
+        // Ad-hoc TopN over the raw measure: MEAN aggregation + TOP N + GROUP BY entity_id, expressed as a
+        // BydbQL `SELECT TOP ? "value" <dir>, MEAN("value"), entity_id ... GROUP BY entity_id, "value"`. The
+        // trailing GROUP BY field is inert server-side (grouping uses the tag projection, aggregation the Agg
+        // field), so this matches the former typed meanBy(value,{entity_id}) + topN/bottomN(N,value) path.
+        final Conditions where = Conditions.create();
+        if (CollectionUtils.isNotEmpty(additionalConditions)) {
+            additionalConditions.forEach(c -> where.eq(qualify(c.getKey()), c.getValue()));
+        }
+        if (CollectionUtils.isNotEmpty(condition.getAttributes())) {
+            condition.getAttributes().forEach(attr -> {
+                if (attr.isEquals()) {
+                    where.eq(qualify(attr.getKey()), attr.getValue());
+                } else {
+                    where.ne(qualify(attr.getKey()), attr.getValue());
+                }
+            });
+        }
+        final MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, timestampRange,
+                valueColumnName, "MEAN", Metrics.ENTITY_ID, condition.getTopN(),
+                condition.getOrder() == Order.DES ? AbstractQuery.Sort.DESC : AbstractQuery.Sort.ASC, where);
 
         if (resp.size() == 0) {
             return Collections.emptyList();
