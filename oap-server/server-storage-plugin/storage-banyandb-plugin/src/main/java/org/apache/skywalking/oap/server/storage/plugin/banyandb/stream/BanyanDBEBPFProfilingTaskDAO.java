@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -87,7 +86,7 @@ public class BanyanDBEBPFProfilingTaskDAO extends AbstractBanyanDBDAO implements
             if (StringUtil.isNotEmpty(serviceInstanceId)) {
                 where.eq(EBPFProfilingTaskRecord.INSTANCE_ID, serviceInstanceId);
             }
-            if (CollectionUtils.isNotEmpty(targetTypes)) {
+            if (triggerType != null) {
                 where.eq(EBPFProfilingTaskRecord.TRIGGER_TYPE, triggerType.value());
             }
             where.eq(EBPFProfilingTaskRecord.TARGET_TYPE, targetType.value());

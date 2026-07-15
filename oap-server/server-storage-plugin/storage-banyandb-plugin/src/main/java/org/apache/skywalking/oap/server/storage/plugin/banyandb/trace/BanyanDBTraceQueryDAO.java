@@ -172,7 +172,7 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
                 where.eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE);
                 break;
             case SUCCESS:
-                final Conditions eq = where.eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE);
+                where.eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE);
                 break;
             default:
                 break;
