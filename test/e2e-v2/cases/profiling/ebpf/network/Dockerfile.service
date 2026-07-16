@@ -17,8 +17,8 @@
 # Default keeps the generic "Build test image" CI step (which passes no
 # build-args) working; keep it in sync with SW_AGENT_GO_COMMIT in
 # test/e2e-v2/script/env.
-ARG SW_AGENT_GO_COMMIT=19a9fa9bf058329281aa611f176cf5b7e5cbda8f
-FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.24 as base
+ARG SW_AGENT_GO_COMMIT=754482220284b9c59d9e48c7f3cf943362eec41d
+FROM ghcr.io/apache/skywalking-go/skywalking-go:${SW_AGENT_GO_COMMIT}-go1.26 as base
 
 ENV CGO_ENABLED=0
 ENV GO111MODULE=on
