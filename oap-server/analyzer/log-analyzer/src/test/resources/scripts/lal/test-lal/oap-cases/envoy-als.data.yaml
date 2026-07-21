@@ -49,7 +49,7 @@ envoy-als:
 
 # The envoy-als-tcp rule processes protobuf TCPAccessLogEntry as extraLog.
 # TCP entries have no HTTP status code; the rule filters on
-# commonProperties.responseFlags and tags the connection byte counts.
+# commonProperties.responseFlags and tags it as response.flag.
 envoy-als-tcp:
   - service: test-mesh-tcp-svc
     body-type: none

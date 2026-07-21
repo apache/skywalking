@@ -49,11 +49,11 @@ class LogFilterListenerRoutingTest {
         return LogMetadata.builder().service("svc").layer("MESH").build();
     }
 
-    private static DSL ruleWithInputType(final Class<?> inputType) {
+    private static DSL ruleWithEffectiveInputType(final Class<?> effectiveInputType) {
         final DSL dsl = mock(DSL.class);
         // doReturn avoids the Class<?> wildcard-capture mismatch that
-        // when(...).thenReturn(Class<?>) triggers on getInputType().
-        doReturn(inputType).when(dsl).getInputType();
+        // when(...).thenReturn(Class<?>) triggers on getEffectiveInputType().
+        doReturn(effectiveInputType).when(dsl).getEffectiveInputType();
         return dsl;
     }
 
@@ -61,9 +61,9 @@ class LogFilterListenerRoutingTest {
     void tcpEntryReachesOnlyTcpAndParserRules() {
         // Mirrors the MESH bucket: envoy-als (HTTP), envoy-als-tcp (TCP), and
         // network-profiling-slow-trace (json parser, null inputType).
-        final DSL httpRule = ruleWithInputType(HTTPAccessLogEntry.class);
-        final DSL tcpRule = ruleWithInputType(TCPAccessLogEntry.class);
-        final DSL parserRule = ruleWithInputType(null);
+        final DSL httpRule = ruleWithEffectiveInputType(HTTPAccessLogEntry.class);
+        final DSL tcpRule = ruleWithEffectiveInputType(TCPAccessLogEntry.class);
+        final DSL parserRule = ruleWithEffectiveInputType(null);
 
         final LogFilterListener listener = new LogFilterListener(
             Arrays.asList(httpRule, tcpRule, parserRule), false, null);
@@ -78,9 +78,9 @@ class LogFilterListenerRoutingTest {
 
     @Test
     void httpEntryReachesOnlyHttpAndParserRules() {
-        final DSL httpRule = ruleWithInputType(HTTPAccessLogEntry.class);
-        final DSL tcpRule = ruleWithInputType(TCPAccessLogEntry.class);
-        final DSL parserRule = ruleWithInputType(null);
+        final DSL httpRule = ruleWithEffectiveInputType(HTTPAccessLogEntry.class);
+        final DSL tcpRule = ruleWithEffectiveInputType(TCPAccessLogEntry.class);
+        final DSL parserRule = ruleWithEffectiveInputType(null);
 
         final LogFilterListener listener = new LogFilterListener(
             Arrays.asList(httpRule, tcpRule, parserRule), false, null);
@@ -95,7 +95,7 @@ class LogFilterListenerRoutingTest {
 
     @Test
     void untypedRuleRunsForAnyInput() {
-        final DSL untyped = ruleWithInputType(null);
+        final DSL untyped = ruleWithEffectiveInputType(null);
 
         final LogFilterListener listener = new LogFilterListener(
             Collections.singletonList(untyped), false, null);

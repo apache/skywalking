@@ -122,11 +122,14 @@ public class LogFilterListener implements LogAnalysisListener {
         activeDsls = new ArrayList<>(dsls.size());
         contexts = new ArrayList<>(dsls.size());
         for (final DSL dsl : dsls) {
-            // A rule that declares a typed proto inputType only applies to logs
-            // of that type. Parser-based / untyped rules have a null
-            // inputType and run against any input, unchanged.
-            final Class<?> inputType = dsl.getInputType();
-            if (inputType != null && !inputType.isInstance(input)) {
+            // A rule whose parsed.* getters cast to a proto type only applies to
+            // logs of that type. Envoy HTTP and TCP access logs both dispatch
+            // under Layer.MESH, so without this guard a TCP entry would hit the
+            // HTTP rule (and vice versa) and throw ClassCastException on the
+            // generated proto cast. Parser-based / untyped rules have a null
+            // effective input type and run against any input, unchanged.
+            final Class<?> effectiveInputType = dsl.getEffectiveInputType();
+            if (effectiveInputType != null && !effectiveInputType.isInstance(input)) {
                 continue;
             }
             final ExecutionContext ctx = new ExecutionContext().init(metadata, input);
