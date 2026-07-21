@@ -84,6 +84,15 @@ public final class LALClassGenerator {
     private String classNameHint;
     private Class<?> inputType;
     private Class<?> outputType;
+    /**
+     * The input type actually used for {@code parsed.*} proto getter codegen:
+     * equals {@link #inputType} for parser-less rules, and {@code null} when a
+     * json/yaml/text parser is present (the parser reads the map, so no proto
+     * cast is emitted). Exposed so the runtime can route a log to this rule
+     * only when the incoming object matches, without re-parsing the DSL. Set
+     * by {@link #compileFromModel}.
+     */
+    private Class<?> effectiveInputType;
     private String yamlSource;
     /**
      * Optional content hash threaded into every generated rule's {@code GateHolder}
@@ -246,6 +255,10 @@ public final class LALClassGenerator {
 
     public void setOutputType(final Class<?> outputType) {
         this.outputType = outputType;
+    }
+
+    public Class<?> getEffectiveInputType() {
+        return effectiveInputType;
     }
 
     public void setYamlSource(final String yamlSource) {
@@ -523,9 +536,9 @@ public final class LALClassGenerator {
         // generates direct proto getter calls.  When a parser is present (json/yaml/text),
         // parsed.* reads from the parsed map and tag() reads from LogData.Builder tags,
         // so inputType must be null to avoid mis-guarding codegen branches.
-        final Class<?> effectiveInputType =
+        this.effectiveInputType =
             parserType == ParserType.NONE ? this.inputType : null;
-        final GenCtx genCtx = new GenCtx(parserType, effectiveInputType, resolvedOutput);
+        final GenCtx genCtx = new GenCtx(parserType, this.effectiveInputType, resolvedOutput);
 
         if (parserType == ParserType.NONE && this.inputType != null) {
             log.info("LAL rule has no parser — using inputType {} for "

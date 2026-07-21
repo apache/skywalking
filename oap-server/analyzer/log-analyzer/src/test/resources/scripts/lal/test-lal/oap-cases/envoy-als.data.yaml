@@ -47,6 +47,29 @@ envoy-als:
       abort: false
       tag.response.flag: "upstream_connection_failure: true\n"
 
+# The envoy-als-tcp rule processes protobuf TCPAccessLogEntry as extraLog.
+# TCP entries have no HTTP status code; the rule filters on
+# commonProperties.responseFlags and tags the connection byte counts.
+envoy-als-tcp:
+  - service: test-mesh-tcp-svc
+    body-type: none
+    extra-log:
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry
+      proto-json: '{"commonProperties":{"responseFlags":{"upstreamConnectionFailure":true}}}'
+    expect:
+      save: true
+      abort: false
+      tag.response.flag: "upstream_connection_failure: true\n"
+
+  - service: test-mesh-tcp-svc-abort
+    body-type: none
+    extra-log:
+      proto-class: io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry
+      proto-json: '{"commonProperties":{"upstreamCluster":"outbound|80||backend.default.svc"}}'
+    expect:
+      save: true
+      abort: true
+
 network-profiling-slow-trace:
   body-type: json
   body: '{"latency":800,"uri":"/mesh/api","reason":"SLOW","service":"envoy-mesh-svc","serviceInstance":"envoy-inst-1","client_process":{"process_id":"proc-c1","local":false,"address":"10.0.0.5:8080"},"server_process":{"process_id":"","local":true,"address":""},"detect_point":"SERVER","component":"http","ssl":false}'

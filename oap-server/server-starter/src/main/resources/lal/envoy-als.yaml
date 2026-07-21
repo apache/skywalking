@@ -51,6 +51,33 @@ rules:
           }
         }
       }
+  # The TCP counterpart of envoy-als. HTTP and TCP access logs share
+  # Layer.MESH; the runtime routes each entry to the rule whose inputType
+  # matches (see LogFilterListener#parse), so this rule only ever sees
+  # TCPAccessLogEntry and the HTTP rule above only sees HTTPAccessLogEntry.
+  - name: envoy-als-tcp
+    layer: MESH
+    inputType: io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry
+    dsl: |
+      filter {
+        // TCP access logs have no HTTP status code; only collect abnormal
+        // connections (commonProperties?.responseFlags is not empty).
+        if (!parsed?.commonProperties?.responseFlags?.toString()?.trim()) {
+          abort {}
+        }
+        extractor {
+          tag 'response.flag': parsed?.commonProperties?.responseFlags
+        }
+        sink {
+          sampler {
+            // use service:responseFlags as sampler id so that each
+            // service:responseFlags has its own sampler.
+            rateLimit("${log.service}:${parsed?.commonProperties?.responseFlags?.toString()}") {
+              rpm 6000
+            }
+          }
+        }
+      }
   - name: network-profiling-slow-trace
     layer: MESH
     outputType: SampledTrace
