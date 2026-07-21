@@ -47,6 +47,19 @@ public class DSL {
     @Getter
     private final LalExpression expression;
     private final FilterSpec filterSpec;
+    /**
+     * The <b>effective</b> proto input type this rule's {@code parsed.*} getters
+     * cast to, or {@code null} for parser-based / untyped rules (which run
+     * against any input). This is NOT the declared/resolved input type from the
+     * YAML {@code inputType} field or the SPI ({@code LALConfig#getInputType()}):
+     * a parser-based rule has a declared type but a {@code null} effective type,
+     * because it reads the parsed map rather than casting the proto. The runtime
+     * skips a rule whose effective type doesn't match the incoming log — this is
+     * how HTTP and TCP envoy access logs, which share {@code Layer.MESH}, route
+     * to their own rules without cross-type {@code ClassCastException}.
+     */
+    @Getter
+    private final Class<?> effectiveInputType;
 
     public static DSL of(final ModuleManager moduleManager,
                          final LogAnalyzerModuleConfig config,
@@ -105,6 +118,7 @@ public class DSL {
             // inline. SHA-256 hash isn't useful to operators; raw text is.
             generator.setContent(dsl);
             final LalExpression expression = generator.compile(dsl);
+            final Class<?> effectiveInputType = generator.getEffectiveInputType();
             // Stamp the structured rule metadata onto the per-rule GateHolder so
             // dsl-debugging records render {ruleName, layer, outputClass} alongside
             // the verbatim DSL. Only effective when codegen injection is enabled
@@ -124,7 +138,7 @@ public class DSL {
                 holder.setMetadata(meta);
             }
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
-            return new DSL(ruleName, expression, filterSpec);
+            return new DSL(ruleName, expression, filterSpec, effectiveInputType);
         } catch (Exception e) {
             throw new ModuleStartException(
                 "Failed to compile LAL expression: " + dsl, e);

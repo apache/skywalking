@@ -76,6 +76,12 @@ public class LogFilterListener implements LogAnalysisListener {
      * not the provider.
      */
     private final LALSourceTypeProvider sourceTypeProvider;
+    /**
+     * Rules selected for the current log — the subset of {@link #dsls} whose
+     * declared input type matches the incoming object. Index-aligned with
+     * {@link #contexts}. Rebuilt on every {@link #parse}.
+     */
+    private List<DSL> activeDsls;
     private List<ExecutionContext> contexts;
 
     LogFilterListener(final Collection<DSL> dsls, final boolean autoMode,
@@ -87,11 +93,11 @@ public class LogFilterListener implements LogAnalysisListener {
 
     @Override
     public void build() {
-        for (int i = 0; i < dsls.size(); i++) {
+        for (int i = 0; i < activeDsls.size(); i++) {
             try {
-                dsls.get(i).evaluate(contexts.get(i));
+                activeDsls.get(i).evaluate(contexts.get(i));
             } catch (final Exception e) {
-                log.warn("Failed to evaluate dsl: {}", dsls.get(i), e);
+                log.warn("Failed to evaluate dsl: {}", activeDsls.get(i), e);
             }
         }
     }
@@ -113,13 +119,25 @@ public class LogFilterListener implements LogAnalysisListener {
     @Override
     public LogAnalysisListener parse(final LogMetadata metadata,
                                      final Object input) {
+        activeDsls = new ArrayList<>(dsls.size());
         contexts = new ArrayList<>(dsls.size());
-        for (int i = 0; i < dsls.size(); i++) {
+        for (final DSL dsl : dsls) {
+            // A rule whose parsed.* getters cast to a proto type only applies to
+            // logs of that type. Envoy HTTP and TCP access logs both dispatch
+            // under Layer.MESH, so without this guard a TCP entry would hit the
+            // HTTP rule (and vice versa) and throw ClassCastException on the
+            // generated proto cast. Parser-based / untyped rules have a null
+            // effective input type and run against any input, unchanged.
+            final Class<?> effectiveInputType = dsl.getEffectiveInputType();
+            if (effectiveInputType != null && !effectiveInputType.isInstance(input)) {
+                continue;
+            }
             final ExecutionContext ctx = new ExecutionContext().init(metadata, input);
             ctx.setSourceTypeProvider(sourceTypeProvider);
             if (autoMode) {
                 ctx.autoLayerMode(true);
             }
+            activeDsls.add(dsl);
             contexts.add(ctx);
         }
         return this;
