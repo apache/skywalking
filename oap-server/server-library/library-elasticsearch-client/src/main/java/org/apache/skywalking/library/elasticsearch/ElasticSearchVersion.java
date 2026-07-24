@@ -64,7 +64,7 @@ public final class ElasticSearchVersion {
                 }
                 return;
             }
-            if (major == 8) {
+            if (major >= 8) { // 8.x, 9.x and later: typeless docs + composable index templates
                 requestFactory = new V81RequestFactory(this);
                 codec = V78Codec.INSTANCE;
                 return;

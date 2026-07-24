@@ -377,6 +377,9 @@ jobs:
           - name: Storage ES 8.18.8
             config: test/e2e-v2/cases/storage/es/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Storage ES 9.3.0
+            config: test/e2e-v2/cases/storage/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Storage OpenSearch 2.4.0
             config: test/e2e-v2/cases/storage/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=2.4.0
