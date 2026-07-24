@@ -91,6 +91,13 @@ public class ElasticSearchIT {
                     .withEnv("xpack.security.enabled", "false")
             },
             {
+                "ElasticSearch 9.3.0",
+                new ElasticsearchContainer(
+                    DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
+                                   .withTag("9.3.0"))
+                    .withEnv("xpack.security.enabled", "false")
+            },
+            {
                 "OpenSearch 1.0.0",
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
