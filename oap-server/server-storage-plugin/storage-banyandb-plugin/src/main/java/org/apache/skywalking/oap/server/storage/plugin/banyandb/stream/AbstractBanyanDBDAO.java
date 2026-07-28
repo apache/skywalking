@@ -97,6 +97,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
+            where.limitIfAbsent(getClient().getResultWindowMaxSize());
             ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final StreamQueryResponse response =
@@ -248,9 +249,14 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             if (debug) {
                 ql.append(" WITH QUERY_TRACE");
             }
+            // TOP already bounds the output to `number` rows, but without an explicit LIMIT the server caps the
+            // result at its own default (100) — which would silently shorten a TopN request for more than that.
+            // The clause goes last: the grammar orders it after GROUP BY and WITH QUERY_TRACE.
+            ql.append(" LIMIT ?");
             final List<Serializable<BanyandbModel.TagValue>> params = new ArrayList<>();
             params.add(Value.longTagValue((long) number));
             params.addAll(timeBoundedParams(timestampRange, where.params()));
+            params.add(Value.longTagValue((long) number));
             final MeasureQueryResponse response =
                 getClient().queryMeasure(ql.toString(), params.toArray(new Serializable[0]));
             if (span != null) {
@@ -306,6 +312,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
+            where.limitIfAbsent(getClient().getResultWindowMaxSize());
             ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final MeasureQueryResponse response =
@@ -418,6 +425,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                 ql.append(" ON ").append(BanyanDBStorageConfig.StageName.cold.name()).append(" STAGES");
             }
             ql.append(" TIME BETWEEN ? AND ?");
+            where.limitIfAbsent(getClient().getResultWindowMaxSize());
             ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final TraceQueryResponse response =

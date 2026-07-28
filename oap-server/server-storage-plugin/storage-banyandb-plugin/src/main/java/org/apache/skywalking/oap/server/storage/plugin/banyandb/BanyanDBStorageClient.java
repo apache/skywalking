@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
@@ -79,6 +80,15 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
+    /**
+     * Row cap sent as the fallback {@code LIMIT} on any query that does not paginate itself, so a query never
+     * inherits BanyanDB's much smaller server-side default. Read by
+     * {@link org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO}, which every
+     * query DAO extends — it lives here rather than in each DAO to avoid threading the config through ~30
+     * DAO constructors.
+     */
+    @Getter
+    private final int resultWindowMaxSize;
     private final ModuleManager moduleManager;
     private final Options options;
     private BanyandbDatabase database;
@@ -105,6 +115,7 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         }
         this.client = new BanyanDBClient(config.getGlobal().getTargets(), options);
         this.flushTimeout = config.getGlobal().getFlushTimeout();
+        this.resultWindowMaxSize = config.getGlobal().getResultWindowMaxSize();
         this.options = options;
         this.moduleManager = moduleManager;
         this.compatibleServerApiVersions = config.getGlobal().getCompatibleServerApiVersions();
