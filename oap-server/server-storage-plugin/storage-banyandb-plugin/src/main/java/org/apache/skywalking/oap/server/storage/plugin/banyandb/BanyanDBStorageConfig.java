@@ -101,6 +101,12 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          */
         private int pprofTaskQueryMaxSize;
         
+        /**
+         * Row cap for a query that does not carry a limit of its own — cache loads such as network aliases,
+         * and every read whose result size is not bounded by paging. It is always sent to the server: a
+         * BydbQL query with no {@code LIMIT} would otherwise fall back to BanyanDB's own default (100 rows
+         * for measures, 20 for streams/traces), which truncates the result set silently.
+         */
         private int resultWindowMaxSize = 10000;
         private int metadataQueryMaxSize = 5000;
         private int segmentQueryMaxSize = 200;

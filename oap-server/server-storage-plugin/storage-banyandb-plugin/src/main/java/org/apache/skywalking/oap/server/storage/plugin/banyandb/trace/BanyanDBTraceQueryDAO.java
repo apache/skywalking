@@ -22,9 +22,7 @@ import javax.annotation.Nullable;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanType;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
-import org.apache.skywalking.library.banyandb.v1.client.TraceQuery;
 import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -55,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITraceQueryV2DAO {
     private final int segmentQueryMaxSize;
@@ -83,15 +82,12 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             return Collections.emptyList();
         }
         final boolean isColdStage = duration != null && duration.isColdStage();
-        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration),
-            new QueryBuilder<TraceQuery>() {
-                @Override
-                public void apply(TraceQuery query) {
-                    query.and(in(SegmentRecord.SEGMENT_ID, segmentIdList));
-                    query.setLimit(segmentQueryMaxSize);
-                    query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
-                }
-            });
+        final Conditions where = Conditions.create()
+            .in(SegmentRecord.SEGMENT_ID, segmentIdList)
+            .orderByDesc(SegmentRecord.START_TIME)
+            .limit(segmentQueryMaxSize);
+        TraceQueryResponse resp = queryTraceDebuggable(
+            isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration), where);
         return buildRecords(resp, segmentIdList, null, true);
     }
 
@@ -101,15 +97,12 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             return Collections.emptyList();
         }
         final boolean isColdStage = duration != null && duration.isColdStage();
-        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration),
-                                         new QueryBuilder<TraceQuery>() {
-                                             @Override
-                                             public void apply(TraceQuery query) {
-                                                 query.and(in(SegmentRecord.TRACE_ID, traceIdList));
-                                                 query.and(in(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList));
-                                                 query.setLimit(segmentQueryMaxSize);
-                                             }
-                                         });
+        final Conditions where = Conditions.create()
+            .in(SegmentRecord.TRACE_ID, traceIdList)
+            .in(SegmentRecord.SERVICE_INSTANCE_ID, instanceIdList)
+            .limit(segmentQueryMaxSize);
+        TraceQueryResponse resp = queryTraceDebuggable(
+            isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration), where);
 
         return buildRecords(resp, null, instanceIdList, false);
     }
@@ -123,14 +116,11 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     public List<SpanWrapper> queryByTraceIdV2(final String traceId,
                                               @Nullable final Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
-            @Override
-            public void apply(TraceQuery query) {
-                query.and(eq(SegmentRecord.TRACE_ID, traceId));
-                query.setLimit(segmentQueryMaxSize);
-            }
-        };
-        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration), query);
+        final Conditions where = Conditions.create()
+            .eq(SegmentRecord.TRACE_ID, traceId)
+            .limit(segmentQueryMaxSize);
+        TraceQueryResponse resp = queryTraceDebuggable(isColdStage, SegmentRecord.INDEX_NAME, getTimestampRange(duration),
+            where);
         if (resp.getTraces().isEmpty()) {
             return new ArrayList<>();
         }
@@ -148,76 +138,67 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
     public TracesQueryResult queryTraces(final TraceQueryCondition condition) throws IOException {
         Duration duration = condition.getQueryDuration();
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final QueryBuilder<TraceQuery> query = new QueryBuilder<TraceQuery>() {
-                @Override
-                public void apply(TraceQuery query) {
-                    if (StringUtil.isNotBlank(condition.getTraceId())) {
-                        query.and(eq(SegmentRecord.TRACE_ID, condition.getTraceId()));
-                    }
-                    if (condition.getMinTraceDuration() != 0) {
-                        // duration >= minDuration
-                        query.and(gte(SegmentRecord.LATENCY, condition.getMinTraceDuration()));
-                    }
-                    if (condition.getMaxTraceDuration() != 0) {
-                        // duration <= maxDuration
-                        query.and(lte(SegmentRecord.LATENCY, condition.getMaxTraceDuration()));
-                    }
-
-                    if (StringUtil.isNotEmpty(condition.getServiceId())) {
-                        query.and(eq(SegmentRecord.SERVICE_ID, condition.getServiceId()));
-                    }
-
-                    if (StringUtil.isNotEmpty(condition.getServiceInstanceId())) {
-                        if (StringUtil.isEmpty(condition.getServiceId())) {
-                            IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition = IDManager.ServiceInstanceID.analysisId(
-                                condition.getServiceInstanceId());
-                            query.and(eq(SegmentRecord.SERVICE_ID, instanceIDDefinition.getServiceId()));
-                        }
-                        query.and(eq(SegmentRecord.SERVICE_INSTANCE_ID, condition.getServiceInstanceId()));
-                    }
-
-                    if (StringUtil.isNotEmpty(condition.getEndpointId())) {
-                        if (StringUtil.isEmpty(condition.getServiceId())) {
-                            IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition = IDManager.EndpointID.analysisId(
-                                condition.getEndpointId());
-                            query.and(eq(SegmentRecord.SERVICE_ID, endpointIDDefinition.getServiceId()));
-                        }
-                        query.and(eq(SegmentRecord.ENDPOINT_ID, condition.getEndpointId()));
-                    }
-
-                    switch (condition.getTraceState()) {
-                        case ERROR:
-                            query.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE));
-                            break;
-                        case SUCCESS:
-                            query.and(eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE));
-                            break;
-                    }
-
-                    switch (condition.getQueryOrder()) {
-                        case BY_START_TIME:
-                            query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.START_TIME, AbstractQuery.Sort.DESC));
-                            break;
-                        case BY_DURATION:
-                            query.setOrderBy(new TraceQuery.OrderBy(SegmentRecord.LATENCY, AbstractQuery.Sort.DESC));
-                            break;
-                    }
-                    List<Tag> tags = condition.getTags();
-                    if (CollectionUtils.isNotEmpty(tags)) {
-                        List<String> tagsConditions = new ArrayList<>(tags.size());
-                        for (final Tag tag : tags) {
-                            tagsConditions.add(tag.toString());
-                        }
-                        query.and(having(SegmentRecord.TAGS, tagsConditions));
-                    }
-                    PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-                    query.setLimit(page.getLimit());
-                    query.setOffset(page.getFrom());
-                }
-            };
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotBlank(condition.getTraceId())) {
+            where.eq(SegmentRecord.TRACE_ID, condition.getTraceId());
+        }
+        if (condition.getMinTraceDuration() != 0) {
+            where.gte(SegmentRecord.LATENCY, condition.getMinTraceDuration());
+        }
+        if (condition.getMaxTraceDuration() != 0) {
+            where.lte(SegmentRecord.LATENCY, condition.getMaxTraceDuration());
+        }
+        if (StringUtil.isNotEmpty(condition.getServiceId())) {
+            where.eq(SegmentRecord.SERVICE_ID, condition.getServiceId());
+        }
+        if (StringUtil.isNotEmpty(condition.getServiceInstanceId())) {
+            if (StringUtil.isEmpty(condition.getServiceId())) {
+                IDManager.ServiceInstanceID.InstanceIDDefinition instanceIDDefinition =
+                    IDManager.ServiceInstanceID.analysisId(condition.getServiceInstanceId());
+                where.eq(SegmentRecord.SERVICE_ID, instanceIDDefinition.getServiceId());
+            }
+            where.eq(SegmentRecord.SERVICE_INSTANCE_ID, condition.getServiceInstanceId());
+        }
+        if (StringUtil.isNotEmpty(condition.getEndpointId())) {
+            if (StringUtil.isEmpty(condition.getServiceId())) {
+                IDManager.EndpointID.EndpointIDDefinition endpointIDDefinition =
+                    IDManager.EndpointID.analysisId(condition.getEndpointId());
+                where.eq(SegmentRecord.SERVICE_ID, endpointIDDefinition.getServiceId());
+            }
+            where.eq(SegmentRecord.ENDPOINT_ID, condition.getEndpointId());
+        }
+        switch (condition.getTraceState()) {
+            case ERROR:
+                where.eq(SegmentRecord.IS_ERROR, BooleanUtils.TRUE);
+                break;
+            case SUCCESS:
+                where.eq(SegmentRecord.IS_ERROR, BooleanUtils.FALSE);
+                break;
+            default:
+                break;
+        }
+        List<Tag> tags = condition.getTags();
+        if (CollectionUtils.isNotEmpty(tags)) {
+            List<String> tagsConditions = new ArrayList<>(tags.size());
+            for (final Tag tag : tags) {
+                tagsConditions.add(tag.toString());
+            }
+            where.having(SegmentRecord.TAGS, tagsConditions);
+        }
+        switch (condition.getQueryOrder()) {
+            case BY_START_TIME:
+                where.orderByDesc(SegmentRecord.START_TIME);
+                break;
+            case BY_DURATION:
+                where.orderByDesc(SegmentRecord.LATENCY);
+                break;
+        }
+        PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
+        where.limit(page.getLimit())
+            .offset(page.getFrom());
         TimestampRange timestampRange = getTimestampRange(duration);
         TraceQueryResponse resp = queryTraceDebuggable(
-            isColdStage, SegmentRecord.INDEX_NAME, timestampRange, query);
+            isColdStage, SegmentRecord.INDEX_NAME, timestampRange, where);
         List<List<SpanWrapper>> traces = new ArrayList<>();
         for (var t : resp.getTraces()) {
             List<SpanWrapper> trace = new ArrayList<>();

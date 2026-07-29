@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.process.ServiceLabelRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IServiceLabelDAO;
@@ -34,6 +33,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements IServiceLabelDAO {
     private static final Set<String> TAGS = ImmutableSet.of(ServiceLabelRecord.LABEL, ServiceLabelRecord.SERVICE_ID);
@@ -47,14 +47,12 @@ public class BanyanDBServiceLabelDAO extends AbstractBanyanDBDAO implements ISer
     @Override
     public List<String> queryAllLabels(String serviceId) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ServiceLabelRecord.INDEX_NAME, DownSampling.Minute);
-        return query(false, schema, TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(final MeasureQuery query) {
-                        query.and(eq(ServiceLabelRecord.SERVICE_ID, serviceId));
-                        query.limit(limit);
-                    }
-                }).getDataPoints()
+        final Conditions where = Conditions.create()
+                .eq(ServiceLabelRecord.SERVICE_ID, serviceId)
+                .limit(limit);
+        return queryDebuggable(false, schema, TAGS, Collections.emptySet(),
+                null,
+                where).getDataPoints()
                 .stream()
                 .map(point -> (String) point.getTagValue(ServiceLabelRecord.LABEL))
                 .collect(Collectors.toList());

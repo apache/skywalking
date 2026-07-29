@@ -37,7 +37,7 @@ SkyWalking rebuilds the ElasticSearch client on top of ElasticSearch REST API an
 correct request formats according to the server-side version, hence you don't need to download different binaries
 and don't need to configure different storage selectors for different ElasticSearch server-side versions anymore.
 
-For now, SkyWalking supports ElasticSearch 7.x, ElasticSearch 8.x, and OpenSearch 1.x, their
+For now, SkyWalking supports ElasticSearch 7.x, ElasticSearch 8.x, ElasticSearch 9.x, and OpenSearch 1.x, their
 configurations are as follows:
 
 _Notice, ElasticSearch 6 worked and is not promised due to end of life officially._

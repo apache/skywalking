@@ -199,12 +199,12 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-core/1.8.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.6 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.6 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.16.0 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.8 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.8 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.18.8 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.18.6 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.6 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.18.8 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.8 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.20.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
@@ -232,7 +232,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.squareup.retrofit2/retrofit/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.zaxxer/HikariCP/3.1.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-beanutils/commons-beanutils/1.11.0 Apache-2.0
-    https://mvnrepository.com/artifact/commons-codec/commons-codec/1.11 Apache-2.0
+    https://mvnrepository.com/artifact/commons-codec/commons-codec/1.13 Apache-2.0
     https://mvnrepository.com/artifact/commons-io/commons-io/2.17.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-net/commons-net/3.9.0 Apache-2.0
     https://mvnrepository.com/artifact/commons-validator/commons-validator/1.10.1 Apache-2.0
@@ -283,33 +283,32 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.14.4 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.14.4 Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-base/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-compression/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-marshalling/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-protobuf/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-common/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.2.12.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-buffer/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-base/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-compression/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-dns/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-haproxy/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-http2/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-marshalling/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-protobuf/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-codec-socks/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-common/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-handler-proxy/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-classes-macos/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-resolver-dns-native-macos/4.2.15.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.77.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-boringssl-static/2.0.75.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.75.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.2.12.Final Apache-2.0
-    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.2.12.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-tcnative-classes/2.0.77.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-epoll/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-classes-kqueue/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-epoll/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-kqueue/4.2.15.Final Apache-2.0
+    https://mvnrepository.com/artifact/io.netty/netty-transport-native-unix-common/4.2.15.Final Apache-2.0
     https://mvnrepository.com/artifact/io.perfmark/perfmark-api/0.27.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient/0.6.0 Apache-2.0
     https://mvnrepository.com/artifact/io.prometheus/simpleclient_common/0.6.0 Apache-2.0

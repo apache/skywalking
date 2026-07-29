@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecord;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryRecord;
@@ -68,30 +66,24 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
     @Override
     public Alarms getAlarm(Integer scopeId, String keyword, int limit, int from, Duration duration, List<Tag> tags) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        StreamQueryResponse resp = query(isColdStage, AlarmRecord.INDEX_NAME, TAGS,
-                getTimestampRange(duration),
-                new QueryBuilder<>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        if (Objects.nonNull(scopeId)) {
-                            query.and(eq(AlarmRecord.SCOPE, (long) scopeId));
-                        }
-                        if (StringUtil.isNotEmpty(keyword)) {
-                            query.and(match(AlarmRecord.ALARM_MESSAGE, keyword));
-                        }
-                        if (CollectionUtils.isNotEmpty(tags)) {
-                            List<String> tagsConditions = new ArrayList<>(tags.size());
-                            for (final Tag tag : tags) {
-                                tagsConditions.add(tag.toString());
-                            }
-                            query.and(having(AlarmRecord.TAGS, tagsConditions));
-                        }
+        final Conditions where = Conditions.create();
+        if (Objects.nonNull(scopeId)) {
+            where.eq(AlarmRecord.SCOPE, (long) scopeId);
+        }
+        if (StringUtil.isNotEmpty(keyword)) {
+            where.match(AlarmRecord.ALARM_MESSAGE, keyword);
+        }
+        if (CollectionUtils.isNotEmpty(tags)) {
+            List<String> tagsConditions = new ArrayList<>(tags.size());
+            for (final Tag tag : tags) {
+                tagsConditions.add(tag.toString());
+            }
+            where.having(AlarmRecord.TAGS, tagsConditions);
+        }
+        where.orderByDesc().limit(limit).offset(from);
 
-                        query.setLimit(limit);
-                        query.setOffset(from);
-                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(isColdStage, AlarmRecord.INDEX_NAME, TAGS,
+                getTimestampRange(duration), where);
 
         Alarms alarms = new Alarms();
 
@@ -170,40 +162,35 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
                          final EntityIdConstraint entityConstraint,
                          final int queryLimit,
                          final int queryOffset) throws IOException {
-        final StreamQueryResponse resp = query(isColdStage, AlarmRecord.INDEX_NAME, TAGS,
-                getTimestampRange(duration),
-                new QueryBuilder<>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(condition.getKeyword())) {
-                            query.and(match(AlarmRecord.ALARM_MESSAGE, condition.getKeyword()));
-                        }
-                        if (StringUtil.isNotEmpty(condition.getLayer())) {
-                            query.and(eq(AlarmRecord.LAYER, (long) Layer.nameOf(condition.getLayer()).value()));
-                        }
-                        if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
-                            query.and(in(AlarmRecord.RULE_NAME, condition.getRuleNames()));
-                        }
-                        if (entityConstraint != null) {
-                            if (entityConstraint.getId0() != null) {
-                                query.and(eq(AlarmRecord.ID0, entityConstraint.getId0()));
-                            }
-                            if (entityConstraint.getId1() != null) {
-                                query.and(eq(AlarmRecord.ID1, entityConstraint.getId1()));
-                            }
-                        }
-                        if (CollectionUtils.isNotEmpty(condition.getTags())) {
-                            List<String> tagsConditions = new ArrayList<>(condition.getTags().size());
-                            for (final Tag tag : condition.getTags()) {
-                                tagsConditions.add(tag.toString());
-                            }
-                            query.and(having(AlarmRecord.TAGS, tagsConditions));
-                        }
-                        query.setLimit(queryLimit);
-                        query.setOffset(queryOffset);
-                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(condition.getKeyword())) {
+            where.match(AlarmRecord.ALARM_MESSAGE, condition.getKeyword());
+        }
+        if (StringUtil.isNotEmpty(condition.getLayer())) {
+            where.eq(AlarmRecord.LAYER, Layer.nameOf(condition.getLayer()).value());
+        }
+        if (CollectionUtils.isNotEmpty(condition.getRuleNames())) {
+            where.in(AlarmRecord.RULE_NAME, condition.getRuleNames());
+        }
+        if (entityConstraint != null) {
+            if (entityConstraint.getId0() != null) {
+                where.eq(AlarmRecord.ID0, entityConstraint.getId0());
+            }
+            if (entityConstraint.getId1() != null) {
+                where.eq(AlarmRecord.ID1, entityConstraint.getId1());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(condition.getTags())) {
+            List<String> tagsConditions = new ArrayList<>(condition.getTags().size());
+            for (final Tag tag : condition.getTags()) {
+                tagsConditions.add(tag.toString());
+            }
+            where.having(AlarmRecord.TAGS, tagsConditions);
+        }
+        where.orderByDesc().limit(queryLimit).offset(queryOffset);
+
+        final StreamQueryResponse resp = queryDebuggable(isColdStage, AlarmRecord.INDEX_NAME, TAGS,
+                getTimestampRange(duration), where);
         for (final RowEntity rowEntity : resp.getElements()) {
             final AlarmRecord.Builder builder = new AlarmRecord.Builder();
             final AlarmRecord alarmRecord = builder.storage2Entity(
@@ -250,14 +237,9 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         }
         final boolean isColdStage = duration != null && duration.isColdStage();
         List<String> uuids = msgs.stream().map(AlarmMessage::getUuid).collect(Collectors.toList());
-        StreamQueryResponse resp = query(isColdStage, AlarmRecoveryRecord.INDEX_NAME, RECOVERY_TAGS,
-                getTimestampRange(duration),
-                new QueryBuilder<>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(in(AlarmRecoveryRecord.UUID, uuids));
-                    }
-                });
+        final Conditions where = Conditions.create().in(AlarmRecoveryRecord.UUID, uuids);
+        StreamQueryResponse resp = queryDebuggable(isColdStage, AlarmRecoveryRecord.INDEX_NAME, RECOVERY_TAGS,
+                getTimestampRange(duration), where);
 
         for (final RowEntity rowEntity : resp.getElements()) {
             AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();

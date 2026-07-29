@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.browser.manual.errorlog.BrowserErrorLogRecord;
 import org.apache.skywalking.oap.server.core.browser.source.BrowserErrorCategory;
@@ -52,31 +50,23 @@ public class BanyanDBBrowserLogQueryDAO extends AbstractBanyanDBDAO implements I
                                                   BrowserErrorCategory category, Duration duration,
                                                   int limit, int from) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
-        StreamQueryResponse resp = query(isColdStage, BrowserErrorLogRecord.INDEX_NAME, TAGS,
-                getTimestampRange(duration), new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(BrowserErrorLogRecord.SERVICE_ID, serviceId));
-                        }
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(BrowserErrorLogRecord.SERVICE_ID, serviceId);
+        }
+        if (StringUtil.isNotEmpty(serviceVersionId)) {
+            where.eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId);
+        }
+        if (StringUtil.isNotEmpty(pagePathId)) {
+            where.eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId);
+        }
+        if (Objects.nonNull(category)) {
+            where.eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue());
+        }
+        where.orderByDesc().limit(limit).offset(from);
 
-                        if (StringUtil.isNotEmpty(serviceVersionId)) {
-                            query.and(eq(BrowserErrorLogRecord.SERVICE_VERSION_ID, serviceVersionId));
-                        }
-
-                        if (StringUtil.isNotEmpty(pagePathId)) {
-                            query.and(eq(BrowserErrorLogRecord.PAGE_PATH_ID, pagePathId));
-                        }
-
-                        if (Objects.nonNull(category)) {
-                            query.and(eq(BrowserErrorLogRecord.ERROR_CATEGORY, category.getValue()));
-                        }
-                        query.setOrderBy(
-                            new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                        query.setOffset(from);
-                        query.setLimit(limit);
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(isColdStage, BrowserErrorLogRecord.INDEX_NAME, TAGS,
+                getTimestampRange(duration), where);
 
         BrowserErrorLogs logs = new BrowserErrorLogs();
 

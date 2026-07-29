@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -32,6 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQuery
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -69,18 +69,13 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
         if (startTB > 0 && endTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-        MeasureQueryResponse resp = query(isColdStage, schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                                           TAGS_KEY, Collections.emptySet(),
                                           range,
-                                          new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.groupBy(ImmutableSet.of(TagAutocompleteData.TAG_KEY));
-                        query.setLimit(limit);
-                        query.and(eq(TagAutocompleteData.TAG_TYPE, tagType.name()));
-                    }
-                }
-        );
+                                          Conditions.create()
+                                                  .eq(TagAutocompleteData.TAG_TYPE, tagType.name())
+                                                  .groupBy(TagAutocompleteData.TAG_KEY)
+                                                  .limit(limit));
 
         if (resp.size() == 0) {
             return Collections.emptySet();
@@ -111,19 +106,14 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
         if (startTB > 0 && endTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-        MeasureQueryResponse resp = query(isColdStage, schema,
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
                                           TAGS_KV, Collections.emptySet(),
                                           range,
-                                          new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.groupBy(ImmutableSet.of(TagAutocompleteData.TAG_VALUE));
-                        query.setLimit(limit);
-                        query.and(eq(TagAutocompleteData.TAG_TYPE, tagType.name()));
-                        query.and(eq(TagAutocompleteData.TAG_KEY, tagKey));
-                    }
-                }
-        );
+                                          Conditions.create()
+                                                  .eq(TagAutocompleteData.TAG_TYPE, tagType.name())
+                                                  .eq(TagAutocompleteData.TAG_KEY, tagKey)
+                                                  .groupBy(TagAutocompleteData.TAG_VALUE)
+                                                  .limit(limit));
 
         if (resp.size() == 0) {
             return Collections.emptySet();

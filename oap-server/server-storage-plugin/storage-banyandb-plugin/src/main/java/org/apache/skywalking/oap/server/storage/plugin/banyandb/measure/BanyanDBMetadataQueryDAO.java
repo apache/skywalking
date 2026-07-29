@@ -23,10 +23,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -52,6 +49,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,14 +90,12 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     public List<Service> listServices() throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ServiceTraffic.INDEX_NAME, DownSampling.Minute);
 
-        MeasureQueryResponse resp = query(false, schema,
+        final Conditions where = Conditions.create().limit(limit);
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 SERVICE_TRAFFIC_TAGS,
-                Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.limit(limit);
-                    }
-                });
+                Collections.emptySet(),
+                null,
+                where);
 
         final List<Service> services = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -118,21 +114,24 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             timestampRange = new TimestampRange(0, duration.getEndTimestamp());
         }
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(InstanceTraffic.SERVICE_ID, serviceId);
+        }
+        // Mirror the ES/JDBC DAOs: only apply the last-ping lower bound when a duration is given;
+        // a null duration (e.g. HierarchyQueryService.listInstances(null, ...)) keeps the full range.
+        if (duration != null) {
+            final long startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            where.gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startTimeBucket);
+        }
+        where.limit(limit);
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(InstanceTraffic.SERVICE_ID, serviceId));
-                        }
-                        final var startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-                        query.and(gte(InstanceTraffic.LAST_PING_TIME_BUCKET, startTimeBucket));
-                        query.limit(limit);
-                    }
-                });
+                where);
 
         final List<ServiceInstance> instances = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -145,30 +144,22 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public ServiceInstance getInstance(String instanceId) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ID, instanceId));
-                    }
-                });
+                null,
+                Conditions.create().eq(ID, instanceId));
         return resp.size() > 0 ? buildInstance(resp.getDataPoints().get(0), schema) : null;
     }
 
     @Override
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(InstanceTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 INSTANCE_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(in(ID, instanceIds));
-                    }
-                });
+                null,
+                Conditions.create().in(ID, instanceIds));
         return resp.getDataPoints().stream().map(e -> buildInstance(e, schema)).collect(Collectors.toList());
     }
 
@@ -181,30 +172,25 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             // It's equals to the condition `query.and(lte(EndpointTraffic.TIME_BUCKET, endTimeBucket))`
             timestampRange = new TimestampRange(0, duration.getEndTimestamp());
         }
-        MeasureQueryResponse resp = query(false, schema,
+
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(EndpointTraffic.SERVICE_ID, serviceId);
+        }
+        if (StringUtil.isNotEmpty(keyword)) {
+            where.match(EndpointTraffic.NAME, "", "AND", keyword);
+        }
+        if (duration != null) {
+            final long startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
+            where.gte(EndpointTraffic.LAST_PING_TIME_BUCKET, startTimeBucket);
+        }
+        where.orderByDesc().limit(limit);
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 ENDPOINT_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(EndpointTraffic.SERVICE_ID, serviceId));
-                        }
-                        if (StringUtil.isNotEmpty(keyword)) {
-                            query.and(match(EndpointTraffic.NAME, keyword,
-                                            BanyandbModel.Condition.MatchOption.newBuilder().setOperator(
-                                                BanyandbModel.Condition.MatchOption.Operator.OPERATOR_AND).build()
-                            ));
-                        }
-                        if (duration != null) {
-                            final var startTimeBucket = TimeBucket.getMinuteTimeBucket(duration.getStartTimestamp());
-                            query.and(gte(EndpointTraffic.LAST_PING_TIME_BUCKET, startTimeBucket));
-                        }
-                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                        query.limit(limit);
-                    }
-                });
+                where);
 
         final List<Endpoint> endpoints = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -222,24 +208,23 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             // It's equals to the condition `query.and(lte(ProcessTraffic.TIME_BUCKET, endTimeBucket))`
             timestampRange = new TimestampRange(0, TimeBucket.getTimestamp(lastPingEndTimeBucket));
         }
-        MeasureQueryResponse resp = query(false, schema,
+
+        final Conditions where = Conditions.create()
+                .eq(ProcessTraffic.SERVICE_ID, serviceId);
+        if (lastPingStartTimeBucket > 0) {
+            where.gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket);
+        }
+        if (supportStatus != null) {
+            where.eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value());
+        }
+        where.ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value());
+        where.limit(limit);
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
-                        if (lastPingStartTimeBucket > 0) {
-                            query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        }
-                        if (supportStatus != null) {
-                            query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, supportStatus.value()));
-                        }
-                        query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
-                        query.limit(limit);
-                    }
-                });
+                where);
 
         final List<Process> processes = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -258,22 +243,21 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             // It's equals to the condition `query.and(lte(ProcessTraffic.TIME_BUCKET, endTimeBucket))`
             timestampRange = new TimestampRange(0, duration.getEndTimestamp());
         }
-        long lastPingStartTimeBucket = duration.getStartTimeBucket();
-        MeasureQueryResponse resp = query(false, schema,
+        final long lastPingStartTimeBucket = duration.getStartTimeBucket();
+
+        final Conditions where = Conditions.create()
+                .eq(ProcessTraffic.INSTANCE_ID, serviceInstanceId)
+                .gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket);
+        if (!includeVirtual) {
+            where.ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value());
+        }
+        where.limit(limit);
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessTraffic.INSTANCE_ID, serviceInstanceId));
-                        query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        if (!includeVirtual) {
-                            query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
-                        }
-                        query.limit(limit);
-                    }
-                });
+                where);
 
         final List<Process> processes = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -292,19 +276,18 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
             // It's equals to the condition `query.and(lte(ProcessTraffic.TIME_BUCKET, endTimeBucket))`
             timestampRange = new TimestampRange(0, TimeBucket.getTimestamp(endPingTimeBucket));
         }
-        MeasureQueryResponse resp = query(false, schema,
+
+        final Conditions where = Conditions.create()
+                .eq(ProcessTraffic.AGENT_ID, agentId)
+                .gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket)
+                .ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value())
+                .limit(limit);
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
                 timestampRange,
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessTraffic.AGENT_ID, agentId));
-                        query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, startPingTimeBucket));
-                        query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
-                        query.limit(limit);
-                    }
-                });
+                where);
 
         final List<Process> processes = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -317,18 +300,17 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        final Conditions where = Conditions.create()
+                .eq(ProcessTraffic.SERVICE_ID, serviceId)
+                .gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket)
+                .eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value())
+                .ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value());
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessTraffic.SERVICE_ID, serviceId));
-                        query.and(gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket));
-                        query.and(eq(ProcessTraffic.PROFILING_SUPPORT_STATUS, profilingSupportStatus.value()));
-                        query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
-                    }
-                });
+                null,
+                where);
 
         return resp.getDataPoints()
                 .stream()
@@ -339,16 +321,15 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public long getProcessCount(String instanceId) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        final Conditions where = Conditions.create()
+                .eq(ProcessTraffic.INSTANCE_ID, instanceId)
+                .ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value());
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        query.and(eq(ProcessTraffic.INSTANCE_ID, instanceId));
-                        query.and(ne(ProcessTraffic.DETECT_TYPE, ProcessDetectType.VIRTUAL.value()));
-                    }
-                });
+                null,
+                where);
 
         return resp.getDataPoints()
                 .stream()
@@ -359,17 +340,16 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public Process getProcess(String processId) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(processId)) {
+            where.eq(ID, processId);
+        }
+
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                new QueryBuilder<MeasureQuery>() {
-                    @Override
-                    protected void apply(MeasureQuery query) {
-                        if (StringUtil.isNotEmpty(processId)) {
-                            query.and(eq(ID, processId));
-                        }
-                    }
-                });
+                null,
+                where);
 
         return resp.size() > 0 ? buildProcess(resp.getDataPoints().get(0), schema) : null;
     }

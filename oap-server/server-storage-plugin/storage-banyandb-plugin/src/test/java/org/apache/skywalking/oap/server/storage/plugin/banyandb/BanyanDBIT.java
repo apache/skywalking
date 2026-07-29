@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -33,11 +30,10 @@ import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureWrite;
 import org.apache.skywalking.library.banyandb.v1.client.TagAndValue;
-import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
+import org.apache.skywalking.library.banyandb.v1.client.Value;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -223,15 +219,12 @@ public class BanyanDBIT {
         });
         f.get(10, TimeUnit.SECONDS);
 
-        MeasureQuery query = new MeasureQuery(Lists.newArrayList(groupName), "testMetric_minute",
-                                              new TimestampRange(
-                                                  begin.toEpochMilli(),
-                                                  now.plus(1, ChronoUnit.MINUTES).toEpochMilli()
-                                              ), ImmutableMap.of("service_id", "storage-only", "tag", "searchable"),
-                                              ImmutableSet.of("value")
-        );
+        final String ql = "SELECT \"service_id\", \"tag\", \"value\" FROM MEASURE testMetric_minute IN "
+            + groupName + " TIME BETWEEN ? AND ?";
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-            MeasureQueryResponse resp = client.query(query);
+            MeasureQueryResponse resp = client.queryMeasure(ql,
+                Value.timestampTagValue(begin.toEpochMilli()),
+                Value.timestampTagValue(now.plus(1, ChronoUnit.MINUTES).toEpochMilli()));
             assertNotNull(resp);
             assertEquals(1, resp.getDataPoints().size());
             assertEquals("service1", resp.getDataPoints().get(0).getTagValue("service_id"));
@@ -298,18 +291,16 @@ public class BanyanDBIT {
             return null;
         });
         cf.get(10, TimeUnit.SECONDS);
-        MeasureQuery updatedQuery = new MeasureQuery(
-            Lists.newArrayList(groupName), "testMetric_minute",
-            new TimestampRange(begin.toEpochMilli(), now.plus(15, ChronoUnit.MINUTES).toEpochMilli()),
-            ImmutableMap.of("service_id", "storage-only", "tag", "searchable", "new_tag", "searchable"),
-                                                     ImmutableSet.of("value", "new_value")
-        );
+        final String updatedQl = "SELECT \"service_id\", \"tag\", \"new_tag\", \"value\", \"new_value\" "
+            + "FROM MEASURE testMetric_minute IN " + groupName + " TIME BETWEEN ? AND ?";
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
-            MeasureQueryResponse updatedResp = client.query(updatedQuery);
+            MeasureQueryResponse updatedResp = client.queryMeasure(updatedQl,
+                Value.timestampTagValue(begin.toEpochMilli()),
+                Value.timestampTagValue(now.plus(15, ChronoUnit.MINUTES).toEpochMilli()));
             assertNotNull(updatedResp);
             assertEquals(2, updatedResp.getDataPoints().size());
             // Index by service_id so the assertions don't depend on server-side ordering
-            // (MeasureQuery doesn't set an orderBy and BanyanDB result order is not contractually stable).
+            // (the query sets no ORDER BY and BanyanDB result order is not contractually stable).
             Map<String, DataPoint> byService = updatedResp.getDataPoints().stream()
                 .collect(Collectors.toMap(dp -> (String) dp.getTagValue("service_id"), dp -> dp));
             DataPoint dp1 = byService.get("service1");

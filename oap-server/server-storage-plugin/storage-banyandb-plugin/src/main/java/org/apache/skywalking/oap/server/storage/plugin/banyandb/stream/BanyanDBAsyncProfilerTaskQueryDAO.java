@@ -21,9 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -70,22 +68,13 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
         if (endTimeBucket != null) {
             endTS = TimeBucket.getTimestamp(endTimeBucket);
         }
-        StreamQueryResponse resp = query(false, AsyncProfilerTaskRecord.INDEX_NAME, TAGS, new TimestampRange(startTS, endTS),
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(AsyncProfilerTaskRecord.SERVICE_ID, serviceId));
-                        }
-
-                        if (limit != null) {
-                            query.setLimit(limit);
-                        } else {
-                            query.setLimit(BanyanDBAsyncProfilerTaskQueryDAO.this.queryMaxSize);
-                        }
-                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+        Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(AsyncProfilerTaskRecord.SERVICE_ID, serviceId);
+        }
+        where.orderByDesc().limit(limit != null ? limit : queryMaxSize);
+        StreamQueryResponse resp = queryDebuggable(false, AsyncProfilerTaskRecord.INDEX_NAME, TAGS,
+                new TimestampRange(startTS, endTS), where);
 
         List<AsyncProfilerTask> tasks = new ArrayList<>(resp.size());
         for (final RowEntity entity : resp.getElements()) {
@@ -96,16 +85,13 @@ public class BanyanDBAsyncProfilerTaskQueryDAO extends AbstractBanyanDBDAO imple
 
     @Override
     public AsyncProfilerTask getById(String id) throws IOException {
-        StreamQueryResponse resp = query(false, AsyncProfilerTaskRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(id)) {
-                            query.and(eq(AsyncProfilerTaskRecord.TASK_ID, id));
-                        }
-                        query.setLimit(1);
-                    }
-                });
+        Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(id)) {
+            where.eq(AsyncProfilerTaskRecord.TASK_ID, id);
+        }
+        where.limit(1L);
+        StreamQueryResponse resp = queryDebuggable(false, AsyncProfilerTaskRecord.INDEX_NAME, TAGS,
+                null, where);
 
         if (resp.size() == 0) {
             return null;

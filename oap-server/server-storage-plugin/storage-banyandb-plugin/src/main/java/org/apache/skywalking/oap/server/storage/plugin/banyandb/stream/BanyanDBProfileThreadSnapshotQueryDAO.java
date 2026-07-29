@@ -19,9 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
@@ -78,17 +76,13 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String taskId) throws IOException {
-        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
-                TAGS_BASIC,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(eq(ProfileThreadSnapshotRecord.TASK_ID, taskId))
-                                .and(eq(ProfileThreadSnapshotRecord.SEQUENCE, 0L));
-                        query.setOrderBy(new StreamQuery.OrderBy(AbstractQuery.Sort.DESC));
-                        query.setLimit(querySegmentMaxSize);
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(false, ProfileThreadSnapshotRecord.INDEX_NAME, TAGS_BASIC,
+                null,
+                Conditions.create()
+                    .eq(ProfileThreadSnapshotRecord.TASK_ID, taskId)
+                    .eq(ProfileThreadSnapshotRecord.SEQUENCE, 0L)
+                    .orderByDesc()
+                    .limit(querySegmentMaxSize));
 
         if (resp.getElements().isEmpty()) {
             return Collections.emptyList();
@@ -115,16 +109,12 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
-        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
-                TAGS_ALL,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId))
-                                .and(lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence))
-                                .and(gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence));
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(false, ProfileThreadSnapshotRecord.INDEX_NAME, TAGS_ALL,
+                null,
+                Conditions.create()
+                    .eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId)
+                    .lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence)
+                    .gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence));
 
         List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
         for (final RowEntity rowEntity : resp.getElements()) {
@@ -139,14 +129,9 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
         // Clamp the time range to safe bounds for BanyanDB
         long safeStart = Math.max(start, LOWER_BOUND_TIME);
         long safeEnd = Math.min(end, UPPER_BOUND_TIME);
-        StreamQueryResponse resp = query(false, ProfileThreadSnapshotRecord.INDEX_NAME,
-                TAGS_ALL, new TimestampRange(safeStart, safeEnd),
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.and(eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(false, ProfileThreadSnapshotRecord.INDEX_NAME, TAGS_ALL,
+                new TimestampRange(safeStart, safeEnd),
+                Conditions.create().eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId));
 
         List<ProfileThreadSnapshotRecord> records = new ArrayList<>();
         for (final RowEntity rowEntity : resp.getElements()) {

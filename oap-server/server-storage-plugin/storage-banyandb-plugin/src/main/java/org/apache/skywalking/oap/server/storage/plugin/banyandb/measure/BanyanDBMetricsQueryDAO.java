@@ -28,8 +28,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
@@ -48,6 +46,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.util.ByteUtil;
 
 @Slf4j
@@ -68,9 +67,8 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         final String entityID = condition.getEntity().buildId();
-        Map<Long, DataPoint> idMap = queryByEntityID(schema, valueColumnName, duration, entityID);
-
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(schema, valueColumnName, duration, entityID, tsPoints.size());
 
         MetricsValues metricsValues = new MetricsValues();
         // Label is null, because in readMetricsValues, no label parameter.
@@ -106,9 +104,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<KeyValue> labels, Duration duration) throws IOException {
-        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
-
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration, tsPoints.size());
+
         String entityID = condition.getEntity().buildId();
         List<String> ids = new ArrayList<>(tsPoints.size());
 
@@ -140,14 +138,11 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
-        MeasureQueryResponse resp = query(
+        final Conditions where = Conditions.create()
+            .limit(METRICS_VALUES_WITHOUT_ENTITY_LIMIT);
+        MeasureQueryResponse resp = queryDebuggable(
             isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration),
-            new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.limit(METRICS_VALUES_WITHOUT_ENTITY_LIMIT);
-                }
-            }
+            where
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -193,20 +188,15 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
                 throw new IOException("schema is not registered");
             }
         }
-        final MeasureQueryResponse resp = query(
+        // Most-recent-first ordering must be explicit — without it BanyanDB returns arbitrary order
+        // and a hot entity that ingested late can be dropped before the LIMIT cap is reached.
+        final Conditions where = Conditions.create()
+            .orderByDesc().limit(limit);
+        final MeasureQueryResponse resp = queryDebuggable(
             isColdStage, schema,
             ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName),
             getTimestampRange(duration),
-            new QueryBuilder<MeasureQuery>() {
-                @Override
-                protected void apply(final MeasureQuery query) {
-                    // Most-recent-first ordering must be explicit — without it BanyanDB returns
-                    // arbitrary order and a hot entity that ingested late can be dropped before
-                    // the LIMIT cap is reached.
-                    query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    query.limit(limit);
-                }
-            }
+            where
         );
         if (resp.size() == 0) {
             return Collections.emptyList();
@@ -223,14 +213,14 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
+        List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration, tsPoints.size());
 
         HeatMap heatMap = new HeatMap();
         if (idMap.isEmpty()) {
             return heatMap;
         }
 
-        List<PointOfTime> tsPoints = duration.assembleDurationPoints();
         String entityID = condition.getEntity().buildId();
         List<String> ids = new ArrayList<>(tsPoints.size());
 
@@ -250,23 +240,26 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         return heatMap;
     }
 
-    private Map<Long, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    private Map<Long, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration, int pointCount) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(condition.getName(), duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
-        return queryByEntityID(schema, valueColumnName, duration, condition.getEntity().buildId());
+        return queryByEntityID(schema, valueColumnName, duration, condition.getEntity().buildId(), pointCount);
     }
 
-    private Map<Long, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID) throws IOException {
+    private Map<Long, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID, int pointCount) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         Map<Long, DataPoint> map = new HashMap<>();
-        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration), new QueryBuilder<MeasureQuery>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                query.and(eq(Metrics.ENTITY_ID, entityID));
-            }
-        });
+        // One entity over one time range yields at most one data point per step, so the number of assembled
+        // duration points is the exact row cap — the same set of rows the ES/JDBC DAOs fetch by explicit id.
+        // It must be sent: with no LIMIT the server falls back to its own default of 100 and truncates any
+        // range longer than that (DurationUtils.MAX_TIME_RANGE allows up to 500 steps).
+        final Conditions where = Conditions.create()
+            .eq(Metrics.ENTITY_ID, entityID)
+            .limit(pointCount);
+        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration),
+            where);
         for (final DataPoint dp : resp.getDataPoints()) {
             long timeBucket = TimeBucket.getTimeBucket(dp.getTimestamp(), schema.getMetadata().getDownSampling());
             DataPoint preDp = map.putIfAbsent(timeBucket, dp);

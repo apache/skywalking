@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IJFRDataQueryDAO;
@@ -53,17 +52,14 @@ public class BanyanDBJFRDataQueryDAO extends AbstractBanyanDBDAO implements IJFR
         if (StringUtil.isBlank(taskId) || StringUtil.isBlank(eventType)) {
             return new ArrayList<>();
         }
-        StreamQueryResponse resp = query(false, JFRProfilingDataRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        query.and(eq(JFRProfilingDataRecord.TASK_ID, taskId));
-                        query.and(eq(JFRProfilingDataRecord.EVENT_TYPE, eventType));
-                        if (CollectionUtils.isNotEmpty(instanceIds)) {
-                            query.and(in(JFRProfilingDataRecord.INSTANCE_ID, instanceIds));
-                        }
-                    }
-                });
+        Conditions where = Conditions.create()
+                .eq(JFRProfilingDataRecord.TASK_ID, taskId)
+                .eq(JFRProfilingDataRecord.EVENT_TYPE, eventType);
+        if (CollectionUtils.isNotEmpty(instanceIds)) {
+            where.in(JFRProfilingDataRecord.INSTANCE_ID, instanceIds);
+        }
+        StreamQueryResponse resp = queryDebuggable(false, JFRProfilingDataRecord.INDEX_NAME, TAGS,
+                null, where);
         List<JFRProfilingDataRecord> records = new ArrayList<>(resp.size());
         for (final RowEntity entity : resp.getElements()) {
             records.add(buildProfilingDataRecord(entity));

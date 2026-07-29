@@ -19,14 +19,11 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -38,6 +35,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageC
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IHierarchyQueryDAO {
     private static final Set<String> SERVICE_HIERARCHY_RELATION_TAGS = ImmutableSet.of(
@@ -63,14 +61,11 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
     @Override
     public List<ServiceHierarchyRelationTraffic> readAllServiceHierarchyRelations() throws Exception {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                                           SERVICE_HIERARCHY_RELATION_TAGS,
-                                          Collections.emptySet(), new QueryBuilder<>() {
-                @Override
-                protected void apply(MeasureQuery query) {
-                    query.limit(limit);
-                }
-            }
+                                          Collections.emptySet(),
+                                          null,
+                                          Conditions.create().limit(limit)
         );
 
         final List<ServiceHierarchyRelationTraffic> relations = new ArrayList<>();
@@ -87,9 +82,18 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
     public List<InstanceHierarchyRelationTraffic> readInstanceHierarchyRelations(final String instanceId,
                                                                                  final String layer) throws Exception {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
-        MeasureQueryResponse resp = query(false, schema,
+        int layerValue = Layer.valueOf(layer).value();
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                                               INSTANCE_HIERARCHY_RELATION_TAGS,
-                                          Collections.emptySet(), buildInstanceRelationsQuery(instanceId, layer)
+                                          Collections.emptySet(),
+                                          null,
+                                          Conditions.create().or(List.of(
+                                              Conditions.group()
+                                                  .eq(InstanceHierarchyRelationTraffic.INSTANCE_ID, instanceId)
+                                                  .eq(InstanceHierarchyRelationTraffic.SERVICE_LAYER, layerValue),
+                                              Conditions.group()
+                                                  .eq(InstanceHierarchyRelationTraffic.RELATED_INSTANCE_ID, instanceId)
+                                                  .eq(InstanceHierarchyRelationTraffic.RELATED_SERVICE_LAYER, layerValue)))
         );
 
         List<InstanceHierarchyRelationTraffic> relations = new ArrayList<>();
@@ -98,28 +102,5 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
                 new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));
         }
         return relations;
-    }
-
-    private QueryBuilder<MeasureQuery> buildInstanceRelationsQuery(String instanceId, String layer) {
-        int layerValue = Layer.valueOf(layer).value();
-        return new QueryBuilder<>() {
-            @Override
-            protected void apply(MeasureQuery query) {
-                List<AbstractCriteria> instanceRelationsQueryConditions = new ArrayList<>(2);
-
-                instanceRelationsQueryConditions.add(
-                    and(Lists.newArrayList(
-                        eq(InstanceHierarchyRelationTraffic.INSTANCE_ID, instanceId),
-                        eq(InstanceHierarchyRelationTraffic.SERVICE_LAYER, layerValue))
-                    ));
-                instanceRelationsQueryConditions.add(
-                    and(Lists.newArrayList(
-                        eq(InstanceHierarchyRelationTraffic.RELATED_INSTANCE_ID, instanceId),
-                        eq(InstanceHierarchyRelationTraffic.RELATED_SERVICE_LAYER, layerValue)
-                    ))
-                );
-                query.criteria(or(instanceRelationsQueryConditions));
-            }
-        };
     }
 }

@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.Element;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLog;
@@ -50,13 +49,9 @@ public class BanyanDBProfileTaskLogQueryDAO extends AbstractBanyanDBDAO implemen
 
     @Override
     public List<ProfileTaskLog> getTaskLogList() throws IOException {
-        StreamQueryResponse resp = query(false, ProfileTaskLogRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    public void apply(StreamQuery query) {
-                        query.setLimit(BanyanDBProfileTaskLogQueryDAO.this.queryMaxSize);
-                    }
-                });
+        StreamQueryResponse resp = queryDebuggable(false, ProfileTaskLogRecord.INDEX_NAME, TAGS,
+                null,
+                Conditions.create().limit(queryMaxSize));
 
         final LinkedList<ProfileTaskLog> tasks = new LinkedList<>();
         for (final Element element : resp.getElements()) {

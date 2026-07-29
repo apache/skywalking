@@ -27,9 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -70,22 +68,13 @@ public class BanyanDBPprofTaskQueryDAO extends AbstractBanyanDBDAO implements IP
         if (endTimeBucket != null) {
             endTS = TimeBucket.getTimestamp(endTimeBucket);
         }
-        StreamQueryResponse resp = query(false, PprofTaskRecord.INDEX_NAME, TAGS, new TimestampRange(startTS, endTS),
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(serviceId)) {
-                            query.and(eq(PprofTaskRecord.SERVICE_ID, serviceId));
-                        }
-
-                        if (limit != null) {
-                            query.setLimit(limit);
-                        } else {
-                            query.setLimit(BanyanDBPprofTaskQueryDAO.this.queryMaxSize);
-                        }
-                        query.setOrderBy(new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                    }
-                });
+        Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(PprofTaskRecord.SERVICE_ID, serviceId);
+        }
+        where.orderByDesc().limit(limit != null ? limit : queryMaxSize);
+        StreamQueryResponse resp = queryDebuggable(false, PprofTaskRecord.INDEX_NAME, TAGS,
+                new TimestampRange(startTS, endTS), where);
 
         List<PprofTask> tasks = new ArrayList<>(resp.size());
         for (final RowEntity entity : resp.getElements()) {
@@ -96,16 +85,13 @@ public class BanyanDBPprofTaskQueryDAO extends AbstractBanyanDBDAO implements IP
 
     @Override
     public PprofTask getById(String id) throws IOException {
-        StreamQueryResponse resp = query(false, PprofTaskRecord.INDEX_NAME, TAGS,
-                new QueryBuilder<StreamQuery>() {
-                    @Override
-                    protected void apply(StreamQuery query) {
-                        if (StringUtil.isNotEmpty(id)) {
-                            query.and(eq(PprofTaskRecord.TASK_ID, id));
-                        }
-                        query.setLimit(1);
-                    }
-                });
+        Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(id)) {
+            where.eq(PprofTaskRecord.TASK_ID, id);
+        }
+        where.limit(1L);
+        StreamQueryResponse resp = queryDebuggable(false, PprofTaskRecord.INDEX_NAME, TAGS,
+                null, where);
 
         if (resp.size() == 0) {
             return null;

@@ -19,7 +19,9 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -182,6 +184,66 @@ class LALClassGeneratorExtractorTest extends LALClassGeneratorTestBase {
         assertFalse(source.contains("singletonMap"),
             "Should NOT use singletonMap for single tags but got: " + source);
         compileAndAssert(dsl);
+    }
+
+    @Test
+    void effectiveInputTypeKeepsInputTypeWithoutParser() throws Exception {
+        // Parser-less rule: parsed.* casts to the declared proto type, so the
+        // effective input type equals inputType — this is the routing key the
+        // runtime uses to skip type-mismatched rules (LogFilterListener#parse).
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        compileAndAssert("filter {\n  sink {}\n}");
+        assertEquals(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class,
+            generator.getEffectiveInputType());
+    }
+
+    @Test
+    void compileEnvoyTcpAlsRule() throws Exception {
+        // Guards the shipped envoy-als-tcp rule: verifies its parsed.* chains
+        // resolve against TCPAccessLogEntry (commonProperties.responseFlags),
+        // so a field-name typo fails here instead of crashing OAP at startup.
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry.class);
+        final String dsl =
+            "filter {\n"
+            + "  if (!parsed?.commonProperties?.responseFlags?.toString()?.trim()) {\n"
+            + "    abort {}\n"
+            + "  }\n"
+            + "  extractor {\n"
+            + "    tag 'response.flag': parsed?.commonProperties?.responseFlags\n"
+            + "  }\n"
+            + "  sink {\n"
+            + "    sampler {\n"
+            + "      rateLimit(\"${log.service}:"
+            + "${parsed?.commonProperties?.responseFlags?.toString()}\") {\n"
+            + "        rpm 6000\n"
+            + "      }\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+        final String source = generator.generateSource(dsl);
+        final String fqcn =
+            "io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry";
+        assertTrue(source.contains(
+            fqcn + " _p = (" + fqcn + ") h.ctx().input()"),
+            "Expected _p cast to TCPAccessLogEntry but got: " + source);
+        assertTrue(source.contains("_p.getCommonProperties()"),
+            "Expected _p.getCommonProperties() but got: " + source);
+        compileAndAssert(dsl);
+    }
+
+    @Test
+    void effectiveInputTypeIsNullWhenParserPresent() throws Exception {
+        // A json/yaml/text parser reads the parsed map, not proto getters, so
+        // the effective input type must be null even when inputType is set —
+        // the rule then runs against any input (e.g. network-profiling json).
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        compileAndAssert("filter {\n  json {}\n  sink {}\n}");
+        assertNull(generator.getEffectiveInputType(),
+            "A json/yaml/text parser must null out the effective input type.");
     }
 
     // ==================== Output field assignment ====================

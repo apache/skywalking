@@ -18,17 +18,14 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableSet;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractCriteria;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.Element;
-import org.apache.skywalking.library.banyandb.v1.client.PairQueryCondition;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQuery;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.query.PaginationUtils;
@@ -56,26 +53,62 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
 
     @Override
     public Events queryEvents(EventQueryCondition condition) throws Exception {
-        final Duration time = condition.getTime();
-        boolean isColdStage = time != null && time.isColdStage();
-        StreamQueryResponse resp = query(isColdStage, Event.INDEX_NAME, TAGS, getTimestampRange(time), buildQuery(Collections.singletonList(condition)));
-        Events events = new Events();
-        if (resp.size() == 0) {
-            return events;
-        }
-        for (final Element e : resp.getElements()) {
-            events.getEvents().add(buildEventView(e));
-        }
-        return events;
+        return doQuery(Collections.singletonList(condition));
     }
 
     @Override
     public Events queryEvents(List<EventQueryCondition> conditionList) throws Exception {
+        return doQuery(conditionList);
+    }
+
+    private Events doQuery(final List<EventQueryCondition> conditionList) throws IOException {
         // Duration should be same for all conditions
-        final Duration time = conditionList.get(0).getTime();
-        boolean isColdStage = time != null && time.isColdStage();
-        StreamQueryResponse resp = query(isColdStage, Event.INDEX_NAME, TAGS, getTimestampRange(time), buildQuery(conditionList));
-        Events events = new Events();
+        final EventQueryCondition first = conditionList.get(0);
+        final Duration time = first.getTime();
+        final boolean isColdStage = time != null && time.isColdStage();
+        final Order queryOrder = isNull(first.getOrder()) ? Order.DES : first.getOrder();
+        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(first.getPaging());
+
+        final List<Conditions> groups = new ArrayList<>(conditionList.size());
+        for (final EventQueryCondition condition : conditionList) {
+            final Conditions group = Conditions.group();
+            if (!isNullOrEmpty(condition.getUuid())) {
+                group.eq(Event.UUID, condition.getUuid());
+            }
+            final Source source = condition.getSource();
+            if (source != null) {
+                if (!isNullOrEmpty(source.getService())) {
+                    group.eq(Event.SERVICE, source.getService());
+                }
+                if (!isNullOrEmpty(source.getServiceInstance())) {
+                    group.eq(Event.SERVICE_INSTANCE, source.getServiceInstance());
+                }
+                if (!isNullOrEmpty(source.getEndpoint())) {
+                    group.eq(Event.ENDPOINT, source.getEndpoint());
+                }
+            }
+            if (!isNullOrEmpty(condition.getName())) {
+                group.eq(Event.NAME, condition.getName());
+            }
+            if (condition.getType() != null) {
+                group.eq(Event.TYPE, condition.getType().name());
+            }
+            if (!isNullOrEmpty(condition.getLayer())) {
+                group.eq(Event.LAYER, Layer.valueOf(condition.getLayer()).value());
+            }
+            groups.add(group);
+        }
+        final Conditions where = Conditions.create().or(groups);
+        if (queryOrder == Order.ASC) {
+            where.orderByAsc();
+        } else {
+            where.orderByDesc();
+        }
+        where.limit(page.getLimit()).offset(page.getFrom());
+
+        final StreamQueryResponse resp = queryDebuggable(isColdStage, Event.INDEX_NAME, TAGS,
+                getTimestampRange(time), where);
+        final Events events = new Events();
         if (resp.size() == 0) {
             return events;
         }
@@ -83,64 +116,6 @@ public class BanyanDBEventQueryDAO extends AbstractBanyanDBDAO implements IEvent
             events.getEvents().add(buildEventView(e));
         }
         return events;
-    }
-
-    public QueryBuilder<StreamQuery> buildQuery(final List<EventQueryCondition> conditionList) {
-        EventQueryCondition condition = conditionList.get(0);
-        final Order queryOrder = isNull(condition.getOrder()) ? Order.DES : condition.getOrder();
-        final PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(condition.getPaging());
-
-        return new QueryBuilder<StreamQuery>() {
-            @Override
-            protected void apply(StreamQuery query) {
-                List<AbstractCriteria> eventsQueryConditions = new ArrayList<>(conditionList.size());
-                query.setLimit(page.getLimit());
-                query.setOffset(page.getFrom());
-                if (queryOrder == Order.ASC) {
-                    query.setOrderBy(
-                        new AbstractQuery.OrderBy(AbstractQuery.Sort.ASC));
-                } else {
-                    query.setOrderBy(
-                        new AbstractQuery.OrderBy(AbstractQuery.Sort.DESC));
-                }
-                for (final EventQueryCondition condition : conditionList) {
-                    List<PairQueryCondition<?>> queryConditions = new ArrayList<>();
-                    if (!isNullOrEmpty(condition.getUuid())) {
-                        queryConditions.add(eq(Event.UUID, condition.getUuid()));
-                    }
-                    final Source source = condition.getSource();
-                    if (source != null) {
-                        if (!isNullOrEmpty(source.getService())) {
-                            queryConditions.add(eq(Event.SERVICE, source.getService()));
-                        }
-                        if (!isNullOrEmpty(source.getServiceInstance())) {
-                            queryConditions.add(eq(Event.SERVICE_INSTANCE, source.getServiceInstance()));
-                        }
-                        if (!isNullOrEmpty(source.getEndpoint())) {
-                            queryConditions.add(eq(Event.ENDPOINT, source.getEndpoint()));
-                        }
-                    }
-
-                    if (!isNullOrEmpty(condition.getName())) {
-                        queryConditions.add(eq(Event.NAME, condition.getName()));
-                    }
-
-                    if (condition.getType() != null) {
-                        queryConditions.add(eq(Event.TYPE, condition.getType().name()));
-                    }
-
-                    if (!isNullOrEmpty(condition.getLayer())) {
-                        queryConditions.add(eq(Event.LAYER, Layer.valueOf(condition.getLayer()).value()));
-                    }
-                    eventsQueryConditions.add(and(queryConditions));
-                }
-                if (eventsQueryConditions.size() == 1) {
-                    query.criteria(eventsQueryConditions.get(0));
-                } else if (eventsQueryConditions.size() > 1) {
-                    query.criteria(or(eventsQueryConditions));
-                }
-            }
-        };
     }
 
     protected org.apache.skywalking.oap.server.core.query.type.event.Event buildEventView(

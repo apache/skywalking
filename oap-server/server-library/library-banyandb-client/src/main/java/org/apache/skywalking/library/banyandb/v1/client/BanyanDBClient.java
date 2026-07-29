@@ -40,6 +40,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.banyandb.bydbql.v1.BanyandbBydbql;
+import org.apache.skywalking.banyandb.bydbql.v1.BydbQLServiceGrpc;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Metadata;
@@ -54,6 +56,7 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregati
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.Trace;
 import org.apache.skywalking.banyandb.measure.v1.BanyandbMeasure;
 import org.apache.skywalking.banyandb.measure.v1.MeasureServiceGrpc;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.banyandb.property.v1.BanyandbProperty;
 import org.apache.skywalking.banyandb.stream.v1.BanyandbStream;
 import org.apache.skywalking.banyandb.stream.v1.StreamServiceGrpc;
@@ -61,6 +64,7 @@ import org.apache.skywalking.banyandb.trace.v1.BanyandbTrace;
 import org.apache.skywalking.banyandb.trace.v1.TraceServiceGrpc;
 import org.apache.skywalking.library.banyandb.v1.client.auth.AuthInterceptor;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.HandleExceptionsWith;
+import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.channel.ChannelManager;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.channel.DefaultChannelFactory;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
@@ -142,6 +146,10 @@ public class BanyanDBClient implements Closeable {
     @Getter
     private TraceServiceGrpc.TraceServiceBlockingStub traceServiceBlockingStub;
     /**
+     * gRPC blocking stub for BydbQL queries.
+     */
+    private BydbQLServiceGrpc.BydbQLServiceBlockingStub bydbQLServiceBlockingStub;
+    /**
      * The connection status.
      */
     private volatile boolean isConnected = false;
@@ -206,6 +214,7 @@ public class BanyanDBClient implements Closeable {
                 streamServiceStub = StreamServiceGrpc.newStub(this.channel);
                 measureServiceStub = MeasureServiceGrpc.newStub(this.channel);
                 traceServiceStub = TraceServiceGrpc.newStub(this.channel);
+                bydbQLServiceBlockingStub = BydbQLServiceGrpc.newBlockingStub(this.channel);
                 isConnected = true;
             }
         } finally {
@@ -225,6 +234,7 @@ public class BanyanDBClient implements Closeable {
                 streamServiceStub = StreamServiceGrpc.newStub(this.channel);
                 measureServiceStub = MeasureServiceGrpc.newStub(this.channel);
                 traceServiceStub = TraceServiceGrpc.newStub(this.channel);
+                bydbQLServiceBlockingStub = BydbQLServiceGrpc.newBlockingStub(this.channel);
                 isConnected = true;
             }
         } finally {
@@ -358,6 +368,115 @@ public class BanyanDBClient implements Closeable {
 
         }
         throw new RuntimeException("No metadata found for the query");
+    }
+
+    @SafeVarargs
+    private BanyandbBydbql.QueryResponse queryBydbQL(
+        String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        checkState(this.bydbQLServiceBlockingStub != null, "bydbql service is null");
+        final List<BanyandbModel.TagValue> tagValues = new ArrayList<>(params.length);
+        for (final Serializable<BanyandbModel.TagValue> param : params) {
+            tagValues.add(param.serialize());
+        }
+        final BanyandbBydbql.QueryRequest request = BanyandbBydbql.QueryRequest.newBuilder()
+                .setQuery(bydbql)
+                .addAllParams(tagValues)
+                .build();
+        return HandleExceptionsWith.callAndTranslateApiException(() ->
+                this.bydbQLServiceBlockingStub
+                        .withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS)
+                        .query(request));
+    }
+
+    /**
+     * Query measures with a BydbQL statement.
+     *
+     * @param bydbql a BydbQL query whose FROM clause targets a MEASURE
+     * @param params values bound to the {@code ?} placeholders, in order of appearance
+     * @return the measure query response
+     * @throws BanyanDBException if the query fails or the server returns a non-measure result
+     */
+    @SafeVarargs
+    public final MeasureQueryResponse queryMeasure(
+            String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.MEASURE_RESULT) {
+            throw new IllegalStateException("expected measure_result but got " + resp.getResultCase());
+        }
+        return new MeasureQueryResponse(resp.getMeasureResult());
+    }
+
+    /**
+     * Query a stream with a BydbQL statement.
+     *
+     * @param bydbql a BydbQL query whose FROM clause targets a STREAM
+     * @param params values bound to the {@code ?} placeholders, in order of appearance
+     * @return the stream query response
+     * @throws BanyanDBException if the query fails or the server returns a non-stream result
+     */
+    @SafeVarargs
+    public final StreamQueryResponse queryStream(
+            String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.STREAM_RESULT) {
+            throw new IllegalStateException("expected stream_result but got " + resp.getResultCase());
+        }
+        return new StreamQueryResponse(resp.getStreamResult());
+    }
+
+    /**
+     * Query traces with a BydbQL statement.
+     *
+     * @param bydbql a BydbQL query whose FROM clause targets a TRACE
+     * @param params values bound to the {@code ?} placeholders, in order of appearance
+     * @return the trace query response
+     * @throws BanyanDBException if the query fails or the server returns a non-trace result
+     */
+    @SafeVarargs
+    public final TraceQueryResponse queryTrace(
+            String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.TRACE_RESULT) {
+            throw new IllegalStateException("expected trace_result but got " + resp.getResultCase());
+        }
+        return new TraceQueryResponse(resp.getTraceResult());
+    }
+
+    /**
+     * Query TopN with a BydbQL {@code SHOW TOP} statement.
+     *
+     * @param bydbql a BydbQL {@code SHOW TOP} query over a MEASURE
+     * @param params values bound to the {@code ?} placeholders, in order of appearance
+     * @return the TopN query response
+     * @throws BanyanDBException if the query fails or the server returns a non-topn result
+     */
+    @SafeVarargs
+    public final TopNQueryResponse queryTopN(
+            String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.TOPN_RESULT) {
+            throw new IllegalStateException("expected topn_result but got " + resp.getResultCase());
+        }
+        return new TopNQueryResponse(resp.getTopnResult());
+    }
+
+    /**
+     * Query properties with a BydbQL statement. Properties have no dedicated response wrapper,
+     * so the raw protobuf response is returned, matching {@link #query(BanyandbProperty.QueryRequest)}.
+     *
+     * @param bydbql a BydbQL query whose FROM clause targets a PROPERTY
+     * @param params values bound to the {@code ?} placeholders, in order of appearance
+     * @return the raw property query response
+     * @throws BanyanDBException if the query fails or the server returns a non-property result
+     */
+    @SafeVarargs
+    public final BanyandbProperty.QueryResponse queryProperty(
+            String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.PROPERTY_RESULT) {
+            throw new IllegalStateException("expected property_result but got " + resp.getResultCase());
+        }
+        return resp.getPropertyResult();
     }
 
     /**

@@ -20,9 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.measure;
 
  import com.google.common.collect.ImmutableSet;
  import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.library.banyandb.v1.client.AbstractQuery;
 import org.apache.skywalking.library.banyandb.v1.client.DataPoint;
-import org.apache.skywalking.library.banyandb.v1.client.MeasureQuery;
 import org.apache.skywalking.library.banyandb.v1.client.MeasureQueryResponse;
  import org.apache.skywalking.oap.server.core.analysis.DownSampling;
  import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingScheduleRecord;
@@ -31,6 +29,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfili
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
  import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
  import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
+ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Conditions;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -53,15 +52,14 @@ import java.util.stream.Collectors;
      @Override
      public List<EBPFProfilingSchedule> querySchedules(String taskId) throws IOException {
          MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(EBPFProfilingScheduleRecord.INDEX_NAME, DownSampling.Minute);
-         MeasureQueryResponse resp = query(false, schema,
+         final Conditions where = Conditions.create()
+                 .eq(EBPFProfilingScheduleRecord.TASK_ID, taskId)
+                 .orderByDesc(EBPFProfilingScheduleRecord.START_TIME);
+         MeasureQueryResponse resp = queryDebuggable(false, schema,
                  TAGS,
-                                           Collections.emptySet(), new QueryBuilder<MeasureQuery>() {
-                 @Override
-                 protected void apply(MeasureQuery query) {
-                     query.and(eq(EBPFProfilingScheduleRecord.TASK_ID, taskId));
-                     query.setOrderBy(new AbstractQuery.OrderBy(EBPFProfilingScheduleRecord.START_TIME, AbstractQuery.Sort.DESC));
-                 }
-             }
+                 Collections.emptySet(),
+                 null,
+                 where
          );
 
          return resp.getDataPoints().stream().map(this::buildEBPFProfilingSchedule).collect(Collectors.toList());
