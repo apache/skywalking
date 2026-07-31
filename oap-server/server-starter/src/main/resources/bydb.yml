@@ -120,7 +120,7 @@ groups:
     # Requires each data node to run with `-trace-pipeline-native-plugin-enabled=true` and
     # `-trace-pipeline-trusted-plugin-dir` set, with the sampler `.so` mounted in that trusted directory.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
       # Pipeline-wide events to run, comma-separated: PIPELINE_EVENT_MERGE and/or
       # PIPELINE_EVENT_FINALIZE. An empty value falls back to MERGE on the data node for
       # backward compatibility, so FINALIZE only ever runs when named here explicitly.
@@ -183,7 +183,7 @@ groups:
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     # Group-scoped trace retention pipeline for the Zipkin schema (CATALOG_TRACE).
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
       enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       # Merge ships an explicit 30 minutes on purpose; finalize inherits the node default (5m).
       # See the trace group above for the full semantics.

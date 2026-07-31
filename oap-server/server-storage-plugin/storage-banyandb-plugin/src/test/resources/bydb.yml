@@ -115,7 +115,7 @@ groups:
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
       enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       # Mirrors the shipped bydb.yml: -1 means "use the data node's default grace".
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:-1}
@@ -154,7 +154,7 @@ groups:
       replicas: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
       # Left as a block list on purpose: the trace group above uses the ${ENV:default}
       # scalar form, so between them both shapes the loader must accept stay covered.
       enabledEvents:

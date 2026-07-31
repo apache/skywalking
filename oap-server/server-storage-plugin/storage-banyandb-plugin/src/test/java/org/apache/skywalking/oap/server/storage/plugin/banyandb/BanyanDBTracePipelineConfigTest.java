@@ -96,15 +96,15 @@ public class BanyanDBTracePipelineConfigTest {
     }
 
     /**
-     * The pipeline ships enabled. Pinning that here means flipping the shipped default cannot pass
-     * unnoticed — it turns trace deletion on for every deployment running the plugin-capable
-     * BanyanDB image, so it should never change by accident.
+     * The pipeline ships disabled, because enabling it deletes stored traces. Pinning the default
+     * here means turning it on can only ever be a deliberate edit — a silent flip would start
+     * destroying data on every deployment running the plugin-capable BanyanDB image.
      */
     @Test
-    public void shouldBeEnabledByDefault() throws Exception {
+    public void shouldBeDisabledByDefault() throws Exception {
         BanyanDBStorageConfig config = newLoader().loadConfig();
-        assertTrue(config.getTrace().getTracePipeline().isEnabled());
-        assertTrue(config.getZipkinTrace().getTracePipeline().isEnabled());
+        assertFalse(config.getTrace().getTracePipeline().isEnabled());
+        assertFalse(config.getZipkinTrace().getTracePipeline().isEnabled());
     }
 
     @Test

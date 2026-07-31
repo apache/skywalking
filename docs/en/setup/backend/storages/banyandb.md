@@ -130,7 +130,7 @@ groups:
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     # Group-scoped trace retention pipeline (sampler plugins). See "Trace retention pipeline" below.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
       enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
@@ -164,7 +164,7 @@ groups:
     # The Zipkin schema has no is_error column, so keepErrors here detects Zipkin's
     # conventional "error" span tag inside the flattened "query" attributes.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
       enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
@@ -307,7 +307,7 @@ Each data node must run with `-trace-pipeline-native-plugin-enabled=true` and
 
 | Setting | Meaning |
 |---|---|
-| `enabled` | Activates the pipeline for this group. **On by default**, but it only takes effect on a data node running the plugin-capable image with `-trace-pipeline-native-plugin-enabled=true` and the sampler `.so` present in its trusted directory. Elsewhere the config is pushed and ignored, and merges run unfiltered. |
+| `enabled` | Activates the pipeline for this group. **Off by default** — this deletes stored traces, so it is opt-in. It also only has any effect on a data node running the plugin-capable image with `-trace-pipeline-native-plugin-enabled=true` and the sampler `.so` present in its trusted directory; elsewhere the config is pushed and ignored, and merges run unfiltered. |
 | `enabledEvents` | When the chain runs: `PIPELINE_EVENT_MERGE` (during compaction) and/or `PIPELINE_EVENT_FINALIZE` (once a segment has settled). Accepts a comma-separated string, so it can be set from the environment (`SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS`, and the `ZIPKIN_` variant), or a YAML block list in the file. An empty value falls back to MERGE for backward compatibility, so FINALIZE runs only when named explicitly. |
 | `mergeGraceSeconds` | Maturity window before a trace may be dropped at merge, so traces whose remaining spans may still arrive are not destroyed prematurely. Ships as **1800** (30 minutes): a trace is usually read soon after it is written, so the data node's own 30s default would let the sampler drop traces still being looked at. Set `-1` to hand the decision back to the node. |
 | `finalizeGraceSeconds` | Settling window for the finalization pass. `-1` uses the data node default (5m). |
