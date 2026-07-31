@@ -295,6 +295,10 @@ groups:
 ```
 
 ### Trace retention pipeline
+
+> This section is the configuration reference. For how a trace is actually judged — the rule
+> chain, the duration envelope, the sampling hash, and what happens when a plugin is missing —
+> see [Trace Tail Sampling](../../../banyandb/tail-sampling.md).
 The `trace` and `zipkinTrace` groups may run a **sampler plugin inside the BanyanDB data node**,
 which drops traces during Hot-phase LSM compaction. Unlike
 [server-side trace sampling](../trace-sampling.md), which decides at ingest and prevents writes,
@@ -355,60 +359,6 @@ flow sequence *inside* `bydb.yml`, quote it — the `": "` in it would otherwise
 nested mapping.
 
 A trace is kept when **any** rule matches; otherwise the `healthySampleRate` hash decides.
-
-#### How each rule is evaluated
-
-Both samplers share one engine and differ only in which columns each schema stores the
-inputs in. Their source and the authoritative behavioral reference live in
-[`plugins/README.md`](https://github.com/apache/skywalking-banyandb/blob/main/plugins/README.md)
-in the BanyanDB repository:
-
-| Input | `sw-trace-sampler` | `zipkin-trace-sampler` |
-|---|---|---|
-| Searchable tags | `tags` | `query` |
-| Error signal | `is_error` column | `error` key inside `query` |
-| Per-row start | `start_time` | `timestamp_millis` |
-| Per-row duration | `latency` (milliseconds) | `duration` (**micro**seconds) |
-
-Despite its name, `timestamp_millis` is stored as a BanyanDB timestamp column, so both
-schemas supply the start time in **nanoseconds**. Only the duration units differ, and the
-plugin scales them internally — `durationThresholdMs` is always milliseconds on both.
-
-**`durationThresholdMs`** is measured against the trace's **end-to-end envelope**, not
-against any single span:
-
-```
-envelope = max(start + duration) − min(start)     over every row of the trace
-keep     if envelope ≥ durationThresholdMs
-```
-
-This is the distinction that matters when choosing a value: three chained 400 ms calls have
-no span above 400 ms, but an envelope of 1.2 s, so `durationThresholdMs: 1000` keeps that
-trace. A max-span-duration test would miss it. The envelope is also *not* BanyanDB's
-`MaxTS − MinTS`, which is the spread of per-row **start** timestamps — that ignores how long
-the final span ran and is `0` for a single-span trace.
-
-**`healthySampleRate`** hashes the trace ID with FNV-1a and keeps the trace when the hash,
-mapped into `[0,1)`, falls below the rate. Because it depends only on the trace ID, the same
-trace gets the same answer every time it is re-evaluated — at merge and again at
-finalization — so a partially written trace is never half-kept. `1.0` keeps every trace and
-`0` keeps none.
-
-**Evaluation order** is duration, then errors, then tag rules, then the healthy sample. The rules are OR-ed, so the first match wins and the rest are skipped;
-ordering therefore affects only cost, never the verdict.
-
-**When a rule cannot be evaluated, the trace is kept.** If the duration or error columns
-are absent the sampler answers "can't tell", not "not slow" / "no error" — those columns are
-part of the schema, so their absence means the block was written under a different one
-(usually the wrong plugin attached to the group), and dropping there would silently discard
-exactly what you configured it to keep.
-
-Two cases are deliberately *not* treated this way, because they are ordinary data rather
-than a schema mismatch: a trace carrying no searchable tags simply matches no tag rule, and
-an error column that is present but not truthy really does mean "not an error". Note also
-that Zipkin's `duration` is optional in the Zipkin model — a span with a start but no
-duration still anchors the start of the trace's envelope, and a trace whose spans all omit
-it is kept rather than measured.
 
 Expect a CPU cost on merge. BanyanDB can normally copy a single-block trace through a merge
 as raw bytes without decoding it, but a sampler that projects any tag — which every useful
