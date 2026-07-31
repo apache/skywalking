@@ -18,6 +18,10 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.protobuf.ListValue;
+import com.google.protobuf.NullValue;
+import com.google.protobuf.Struct;
+import com.google.protobuf.Value;
 import io.grpc.Status;
 import java.time.Duration;
 import java.util.HashMap;
@@ -687,6 +691,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             builder.addEnabledEvents(BanyandbCommon.PipelineEvent.valueOf(event));
         }
         if (pipelineConfig.getMergeGraceSeconds() > 0) {
+            // Fully qualified: java.time.Duration is imported above, so the simple name is taken.
             builder.setMergeGrace(com.google.protobuf.Duration.newBuilder()
                                                               .setSeconds(pipelineConfig.getMergeGraceSeconds()));
         }
@@ -712,8 +717,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         return builder.build();
     }
 
-    private com.google.protobuf.Struct buildStruct(Map<?, ?> map) {
-        com.google.protobuf.Struct.Builder structBuilder = com.google.protobuf.Struct.newBuilder();
+    private Struct buildStruct(Map<?, ?> map) {
+        Struct.Builder structBuilder = Struct.newBuilder();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             structBuilder.putFields(String.valueOf(entry.getKey()), toStructValue(entry.getValue()));
         }
@@ -724,10 +729,10 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     // survives the round-trip to the sampler constructor: nested Maps become sub-Structs and
     // Lists become ListValues (e.g. a keepTagRules list of objects), rather than being
     // flattened to a single toString() field.
-    private com.google.protobuf.Value toStructValue(Object value) {
-        com.google.protobuf.Value.Builder valueBuilder = com.google.protobuf.Value.newBuilder();
+    private Value toStructValue(Object value) {
+        Value.Builder valueBuilder = Value.newBuilder();
         if (value == null) {
-            valueBuilder.setNullValue(com.google.protobuf.NullValue.NULL_VALUE);
+            valueBuilder.setNullValue(NullValue.NULL_VALUE);
         } else if (value instanceof Boolean) {
             valueBuilder.setBoolValue((Boolean) value);
         } else if (value instanceof Number) {
@@ -735,7 +740,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         } else if (value instanceof Map) {
             valueBuilder.setStructValue(buildStruct((Map<?, ?>) value));
         } else if (value instanceof List) {
-            com.google.protobuf.ListValue.Builder listBuilder = com.google.protobuf.ListValue.newBuilder();
+            ListValue.Builder listBuilder = ListValue.newBuilder();
             for (Object element : (List<?>) value) {
                 listBuilder.addValues(toStructValue(element));
             }

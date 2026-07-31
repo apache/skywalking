@@ -120,18 +120,21 @@ groups:
     # Requires each data node to run with `-trace-pipeline-native-plugin-enabled=true` and
     # `-trace-pipeline-trusted-plugin-dir` set, with the sampler `.so` mounted in that trusted directory.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
       # Pipeline-wide events to run, comma-separated: PIPELINE_EVENT_MERGE and/or
       # PIPELINE_EVENT_FINALIZE. An empty value falls back to MERGE on the data node for
       # backward compatibility, so FINALIZE only ever runs when named here explicitly.
       enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       # Maturity windows before a trace/segment is eligible for filtering, in seconds.
-      # -1 means "not set here", so each data node applies its own default: 30s for merge, 5m for
-      # finalize (`-trace-pipeline-merge-grace-default` / `-trace-pipeline-finalize-grace-default`).
-      # Only a POSITIVE value overrides the node default. 0 is not "no grace": the data node treats
-      # any non-positive grace as unset, so zero grace can only be set on the node flag itself.
-      # Do not leave these blank — a blank YAML value fails OAP startup (the loader copies values
-      # into a java.util.Properties, which rejects nulls).
+      # Only a POSITIVE value overrides the data node default. -1 means "not set here", leaving the
+      # node's own default in force: 30s for merge, 5m for finalize
+      # (`-trace-pipeline-merge-grace-default` / `-trace-pipeline-finalize-grace-default`). 0 is not
+      # "no grace": the node treats any non-positive grace as unset, so zero can only be set on the
+      # node flag itself. A blank value is skipped and leaves the field unset, same as omitting it.
+      # Merge ships an explicit 30 minutes ON PURPOSE — it does NOT inherit the node's 30s. A trace
+      # is usually read soon after it is written, so the node default would let the sampler drop
+      # traces while someone is still looking at them. Finalize inherits (-1) because its own
+      # default is already 5m. Set -1 here to hand the decision back to the node.
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
       plugins:
@@ -180,9 +183,10 @@ groups:
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     # Group-scoped trace retention pipeline for the Zipkin schema (CATALOG_TRACE).
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
       enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
-      # -1 leaves the node defaults in effect (30s merge / 5m finalize); see the trace group above.
+      # Merge ships an explicit 30 minutes on purpose; finalize inherits the node default (5m).
+      # See the trace group above for the full semantics.
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
       plugins:

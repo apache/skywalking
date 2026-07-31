@@ -130,9 +130,9 @@ groups:
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     # Group-scoped trace retention pipeline (sampler plugins). See "Trace retention pipeline" below.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
       enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
-      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:-1}
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
       plugins:
         - name: sw-trace-sampler
@@ -164,9 +164,9 @@ groups:
     # The Zipkin schema has no is_error column, so keepErrors here detects Zipkin's
     # conventional "error" span tag inside the flattened "query" attributes.
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
       enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
-      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:-1}
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
       finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
       plugins:
         - name: zipkin-trace-sampler
@@ -307,17 +307,17 @@ Each data node must run with `-trace-pipeline-native-plugin-enabled=true` and
 
 | Setting | Meaning |
 |---|---|
-| `enabled` | Activates the pipeline for this group. |
+| `enabled` | Activates the pipeline for this group. **On by default**, but it only takes effect on a data node running the plugin-capable image with `-trace-pipeline-native-plugin-enabled=true` and the sampler `.so` present in its trusted directory. Elsewhere the config is pushed and ignored, and merges run unfiltered. |
 | `enabledEvents` | When the chain runs: `PIPELINE_EVENT_MERGE` (during compaction) and/or `PIPELINE_EVENT_FINALIZE` (once a segment has settled). Accepts a comma-separated string, so it can be set from the environment (`SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS`, and the `ZIPKIN_` variant), or a YAML block list in the file. An empty value falls back to MERGE for backward compatibility, so FINALIZE runs only when named explicitly. |
-| `mergeGraceSeconds` | Maturity window before a trace may be dropped at merge, so traces whose remaining spans may still arrive are not destroyed prematurely. `-1` means "not set here" and uses the data node default (30s). |
+| `mergeGraceSeconds` | Maturity window before a trace may be dropped at merge, so traces whose remaining spans may still arrive are not destroyed prematurely. Ships as **1800** (30 minutes): a trace is usually read soon after it is written, so the data node's own 30s default would let the sampler drop traces still being looked at. Set `-1` to hand the decision back to the node. |
 | `finalizeGraceSeconds` | Settling window for the finalization pass. `-1` uses the data node default (5m). |
+| `plugins[].path` | The `.so` filename, resolved inside the trusted plugin directory. |
+| `plugins[].config` | Passed verbatim to the plugin constructor; the engine does not interpret the keys. The first-party samplers **reject an unrecognized key** rather than ignoring it — every option they have is a keep rule, so a key that silently missed would leave a sampler that drops the whole group. Note the reference `_example` plugin uses `snake_case` names; these two use `camelCase`, so a config copied from it is refused outright instead of quietly retaining nothing. |
 
 Only a **positive** grace overrides the data node default. `0` is not "no grace": the data node
 treats any non-positive value as unset, so zero grace can only be set with the node's
-`-trace-pipeline-merge-grace-default=0` flag. Do not leave these keys blank — a blank YAML value
-fails OAP startup.
-| `plugins[].path` | The `.so` filename, resolved inside the trusted plugin directory. |
-| `plugins[].config` | Passed verbatim to the plugin constructor; the engine does not interpret the keys. The first-party samplers **reject an unrecognized key** rather than ignoring it — every option they have is a keep rule, so a key that silently missed would leave a sampler that drops the whole group. Note the reference `_example` plugin uses `snake_case` names; these two use `camelCase`, so a config copied from it is refused outright instead of quietly retaining nothing. |
+`-trace-pipeline-merge-grace-default=0` flag. A blank value is treated as unset and leaves the
+field at its default, the same as omitting the line.
 
 The first-party samplers accept:
 

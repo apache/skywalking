@@ -95,8 +95,21 @@ public class BanyanDBTracePipelineConfigTest {
         assertEquals(List.of("PIPELINE_EVENT_MERGE"), zipkin.getEnabledEvents());
     }
 
+    /**
+     * The pipeline ships enabled. Pinning that here means flipping the shipped default cannot pass
+     * unnoticed — it turns trace deletion on for every deployment running the plugin-capable
+     * BanyanDB image, so it should never change by accident.
+     */
+    @Test
+    public void shouldBeEnabledByDefault() throws Exception {
+        BanyanDBStorageConfig config = newLoader().loadConfig();
+        assertTrue(config.getTrace().getTracePipeline().isEnabled());
+        assertTrue(config.getZipkinTrace().getTracePipeline().isEnabled());
+    }
+
     @Test
     public void shouldParsePluginChainEvenWhenDisabled() throws Exception {
+        System.setProperty(ENABLED_PROP, "false");
         BanyanDBStorageConfig config = newLoader().loadConfig();
         TracePipeline pipeline = config.getTrace().getTracePipeline();
         assertNotNull(pipeline);
@@ -130,9 +143,14 @@ public class BanyanDBTracePipelineConfigTest {
         Map<String, Object> cfg = plugin.getConfig();
         // The overridden threshold (ms) flows through the ${ENV:default} placeholder into the config map as a number.
         assertEquals(250, ((Number) cfg.get("durationThresholdMs")).intValue());
-        // A boolean and a float scalar keep their natural types (not stringified) end-to-end.
+        // A boolean keeps its natural type end-to-end.
         assertEquals(Boolean.TRUE, cfg.get("keepErrors"));
-        assertEquals(0.1, ((Number) cfg.get("healthySampleRate")).doubleValue(), 1e-9);
+        // A float does NOT, when it comes from a ${ENV:default} placeholder as the shipped bydb.yml
+        // writes it: the shared resolver (YamlConfigLoaderUtils.convertValueString) only preserves
+        // String/Integer/Long/Boolean, so a Double falls through to its original string. The
+        // first-party samplers accept a quoted number for this reason. Asserted as a String
+        // deliberately — a literal 0.1 in the fixture would stay a Double and hide the real shape.
+        assertEquals("0.1", cfg.get("healthySampleRate"));
 
         // The nested keepTagRules list of objects survives parsing as a List<Map>, not a stringified blob.
         assertTrue(cfg.get("keepTagRules") instanceof List);
@@ -201,6 +219,9 @@ public class BanyanDBTracePipelineConfigTest {
 
         Map<String, Object> cfg = plugin.getConfig();
         assertEquals(1000, ((Number) cfg.get("durationThresholdMs")).intValue());
+        // The zipkin fixture keeps healthySampleRate as a LITERAL where the trace group uses a
+        // ${ENV:default} placeholder, so the two together cover both shapes: a literal is typed by
+        // the YAML parser and stays a Double, a placeholder resolves to a String.
         assertEquals(0.05, ((Number) cfg.get("healthySampleRate")).doubleValue(), 1e-9);
 
         assertTrue(cfg.get("keepTagRules") instanceof List);

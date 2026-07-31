@@ -115,7 +115,7 @@ groups:
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:true}
       enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
       # Mirrors the shipped bydb.yml: -1 means "use the data node's default grace".
       mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:-1}
@@ -127,7 +127,7 @@ groups:
           config:
             durationThresholdMs: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS:500}
             keepErrors: true
-            healthySampleRate: 0.1
+            healthySampleRate: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.1}
             # Placeholder form, mirroring the shipped bydb.yml. The inline default proves a
             # flow sequence (colons and all) survives ${ENV:default} resolution; the env
             # override path is covered by shouldOverrideKeepTagRulesFromEnvironment.
@@ -154,7 +154,7 @@ groups:
       replicas: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
     pipeline:
-      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:true}
       # Left as a block list on purpose: the trace group above uses the ${ENV:default}
       # scalar form, so between them both shapes the loader must accept stay covered.
       enabledEvents:
