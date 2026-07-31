@@ -1,0 +1,119 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# End-to-end verification that the first-party zipkin-trace-sampler plugin LOADS,
+# activates on the Zipkin schema, and actually REMOVES data: OAP pushes the
+# TracePipelineConfig to the sw_zipkinTrace group, the data node loads the .so from the
+# carrier-delivered trusted dir, and the mocked spans are queryable first and then
+# dropped by the in-merge filter once they age past the merge grace.
+#
+# Unlike the SkyWalking-native case (../sw), the Zipkin schema has no is_error column, so
+# keepErrors detects Zipkin's conventional "error" tag inside the flattened "query"
+# attributes instead; duration comes from the timestamp_millis/duration envelope
+# (duration is microseconds). The mocked spans carry no error tag, so keepErrors does not
+# save them here — that is what makes the drop below attributable to the thresholds.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+# No trigger: the zipkin-mocker service posts the spans to OAP on its own.
+
+verify:
+  # The drop assertion cannot pass until the mocker has posted all 5 traces (5 x 30s
+  # = ~150s), those spans age past the 20s merge grace, and a filtering merge runs — so
+  # the budget is deliberately larger than the other cases need.
+  retry:
+    count: 40
+    interval: 10s
+  cases:
+    # 1. OAP parsed the Zipkin pipeline block and resolved the ${ENV:default} placeholders.
+    #    This also covers the zipkinTrace group being wired at all (it is parsed by a
+    #    separate copyPipeline call from the trace group).
+    - query: |
+        dump=$(curl -s http://${oap_host}:${oap_17128}/debugging/config/dump)
+        exact() { echo "$dump" | grep -Fqx "$1" || { echo "missing or unexpected: $1"; exit 1; }; }
+        exact 'storage.banyandb.zipkinTrace.pipeline.enabled=true'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.path=zipkin-trace-sampler.so'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.config.durationThresholdMs=60000'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.config.healthySampleRate=0'
+        exact 'storage.banyandb.zipkinTrace.pipeline.mergeGraceSeconds=20'
+        echo config-pipeline-ok
+      expected: expected/config-dump-pipeline.yml
+
+    # 2. OAP pushed the TracePipelineConfig onto the BanyanDB sw_zipkinTrace group.
+    - query: |
+        resp=$(curl -s http://${bydbgw_host}:${bydbgw_17913}/api/v1/group/schema/sw_zipkinTrace)
+        eq() {
+          actual=$(echo "$resp" | yq -p json "$2" -)
+          [ "$actual" = "$1" ] || { echo "expected $2 to be '$1' but was '$actual'"; echo "$resp"; exit 1; }
+        }
+        eq true '.group.pipeline.enabled'
+        eq zipkin-trace-sampler '.group.pipeline.plugins[0].name'
+        eq zipkin-trace-sampler.so '.group.pipeline.plugins[0].sampler.path'
+        eq 60000 '.group.pipeline.plugins[0].sampler.config.durationThresholdMs'
+        echo group-pipeline-ok
+      expected: expected/group-pipeline.yml
+
+    # 3. The data node actually LOADED the sampler plugin for the Zipkin group. A
+    #    bad/mismatched .so would surface as sampler_load_failed instead.
+    - query: |
+        m=$(curl -s http://${bydbgw_host}:${bydbgw_2121}/metrics)
+        echo "$m" | grep -qE 'banyandb_trace_pipeline_sampler_active_count\{group="sw_zipkinTrace"\} [1-9]' \
+          || { echo "sampler not active for sw_zipkinTrace"; echo "$m" | grep -i sampler; exit 1; }
+        if echo "$m" | grep -E '^banyandb_trace_pipeline_sampler_load_failed' | grep -qvE ' 0$'; then
+          echo "sampler load failure detected"; echo "$m" | grep -i load_failed; exit 1
+        fi
+        echo sampler-loaded-ok
+      expected: expected/sampler-loaded.yml
+
+    # 4. The spans ARRIVE and are queryable first. Freshly written spans are younger than
+    #    mergeGraceSeconds (20s), so isMergeHot() exempts them and the sampler leaves them
+    #    alone — proving the data really reached BanyanDB before any drop.
+    - query: |
+        curl -s "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&limit=100" \
+          | yq 'length' -
+      expected: expected/traces-present.yml
+
+    # 5. …and are then DROPPED by the sampler. Once the mocker has finished posting and the
+    #    spans age past the 20s merge grace, the next filtering merge applies the verdict:
+    #    every mocked trace fails all sure-keep rules (5ms envelope < 60000ms threshold,
+    #    healthySampleRate=0, no tag rules), so the trace list must become empty.
+    - query: |
+        curl -s "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&limit=100" \
+          | yq 'length' -
+      expected: expected/traces-dropped.yml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/

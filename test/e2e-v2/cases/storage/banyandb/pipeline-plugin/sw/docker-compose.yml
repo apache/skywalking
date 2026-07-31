@@ -1,0 +1,138 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  # Carrier init: the "-plugins-carrier" image ships the lockstep sampler .so at
+  # /plugins. Copy it into a shared volume and exit; banyandb waits for completion.
+  # Mirrors the initContainer + emptyDir delivery in test/plugin-sidecar (banyandb repo).
+  plugin-carrier:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins-carrier"
+    command: sh -c "cp /plugins/*.so /shared/ && ls -l /shared"
+    volumes:
+      - plugins:/shared
+    networks:
+      - e2e
+
+  # The plugin-capable (CGO/distroless-glibc) "-plugins" host image, defined inline
+  # (not via extends) so infra-e2e parses the published ports and exports
+  # ${banyandb_17913}/${banyandb_2121} for the verify queries. No healthcheck: the
+  # distroless image has no shell/nc; infra-e2e waits on the published ports and OAP
+  # retries the storage connection. The two flags turn on native plugin loading and
+  # point the trusted dir at the shared volume the carrier populated.
+  banyandb:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins"
+    # max-merge-parts=2 + a short flush timeout make a filtering merge fire as soon as a
+    # second part lands, so the drop verdict is observable within the test's lifetime
+    # (the mocker writes 5 traces 30s apart, i.e. one part each).
+    command: standalone --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --trace-pipeline-native-plugin-enabled=true --trace-pipeline-trusted-plugin-dir=/plugins --trace-max-merge-parts=2 --trace-flush-timeout=500ms
+    volumes:
+      - plugins:/plugins
+    # No published ports: the distroless -plugins image has no /bin/sh, and infra-e2e's
+    # port-readiness probe execs /bin/sh inside the container. Host access to the HTTP
+    # (17913) and metrics (2121) ports goes through the bydbgw sidecar below instead.
+    depends_on:
+      plugin-carrier:
+        condition: service_completed_successfully
+    networks:
+      - e2e
+
+  # Shell-capable TCP proxy that publishes banyandb's HTTP (17913) and metrics (2121)
+  # ports to the host and forwards them over the compose network. Needed only because
+  # the -plugins host is distroless: infra-e2e's readiness probe (cat /proc/net/tcp ||
+  # nc || </dev/tcp via /bin/sh) can run inside this alpine sidecar but not the
+  # distroless node. Verify queries hit ${bydbgw_17913}/${bydbgw_2121}. Hyphen-free
+  # name so the exported ${bydbgw_*} vars are valid shell identifiers.
+  bydbgw:
+    image: alpine/socat
+    # command MUST be a single-element list: a string command is split into separate
+    # args by compose, so `/bin/sh -c` would receive only the first word ("socat").
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "socat TCP-LISTEN:17913,fork,reuseaddr TCP:banyandb:17913 & socat TCP-LISTEN:2121,fork,reuseaddr TCP:banyandb:2121 & wait"
+    # `expose` is required (not just `ports`): infra-e2e resolves the host port via
+    # testcontainers MappedPort, which only finds ports declared exposed on the image
+    # (alpine/socat exposes none).
+    expose:
+      - "17913"
+      - "2121"
+    ports:
+      - 17913:17913
+      - 2121:2121
+    depends_on:
+      - banyandb
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_ADMIN_SERVER: default
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "banyandb:17912"
+      SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED: "true"
+      # One shard so every segment lands in the same shard: the in-merge filter runs per
+      # shard, and spreading a handful of segments over the default 2 shards can leave each
+      # with a single part, which never reaches max-merge-parts and so never merges.
+      SW_STORAGE_BANYANDB_TRACE_SHARD_NUM: "1"
+      # The default trace-group plugin in bydb.yml is sw-trace-sampler.so. The knobs below
+      # make every mocked trace fail EVERY sure-keep rule, so the sampler must drop them all
+      # once they age past the merge grace and a filtering merge runs:
+      #   - the mocked trace envelope is 6000ms (mock_a 0..6000), so a 60s threshold never fires;
+      #   - mock_b carries is_error=1, so keepErrors must be off;
+      #   - healthySampleRate 0 removes the probabilistic keep (0.1 would flake ~41% over 5 traces);
+      #   - bydb.yml ships no keepTagRules.
+      # mergeGraceSeconds=20 keeps freshly written traces queryable long enough for the
+      # "present" assertion before they become eligible for filtering. This relies on
+      # AgentDataMock computing its startTimestamp ONCE before its write loop: every trace
+      # carries the same, progressively ageing data timestamp, so past the grace all parts
+      # are permanently cold (isMergeHot is evaluated against the data timestamp, not the
+      # write time) while the remaining writes keep supplying fresh merge triggers.
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS: "60000"
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_ERRORS: "false"
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE: "0"
+      SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS: "20"
+    ports:
+      - 12800
+      - 17128
+    depends_on:
+      banyandb:
+        condition: service_started
+
+  # Sends a fixed, known set of trace segments (mock_a/b/c_service) straight to OAP's
+  # gRPC receiver. Deterministic trace content lets the read-back assertion check exact
+  # service/endpoint/tag values. MINUS_DAYS=0 keeps them in the hot stage so the default
+  # query window finds them. The jar is built by CI's
+  # `mvnw -f test/e2e-v2/java-test-service/pom.xml package` step before the e2e runs.
+  trace-mocker:
+    image: "eclipse-temurin:17-jre"
+    volumes:
+      - ../../../../../java-test-service/trace-mocker/target/trace-mocker-2.0.0.jar:/trace-mocker-2.0.0.jar
+    command: [ "java", "-jar", "/trace-mocker-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap
+      MINUS_DAYS: 0
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+volumes:
+  plugins:
+
+networks:
+  e2e:
