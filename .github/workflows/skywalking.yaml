@@ -368,6 +368,19 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: BanyanDB TLS
             config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
+          # Trace retention pipeline. Each pair is a controlled drop/keep experiment on one
+          # schema: identical data and thresholds, differing only by a keepTagRules entry, so
+          # a regression in either direction is attributable. They need the BanyanDB
+          # "-plugins" host and "-plugins-carrier" images, which are published only for the
+          # SW_BANYANDB_COMMIT pinned in test/e2e-v2/script/env.
+          - name: BanyanDB Trace Pipeline SW
+            config: test/e2e-v2/cases/storage/banyandb/pipeline-plugin/sw/e2e.yaml
+          - name: BanyanDB Trace Pipeline SW Keep
+            config: test/e2e-v2/cases/storage/banyandb/pipeline-plugin/sw-keep/e2e.yaml
+          - name: BanyanDB Trace Pipeline Zipkin
+            config: test/e2e-v2/cases/storage/banyandb/pipeline-plugin/zipkin/e2e.yaml
+          - name: BanyanDB Trace Pipeline Zipkin Keep
+            config: test/e2e-v2/cases/storage/banyandb/pipeline-plugin/zipkin-keep/e2e.yaml
           - name: BanyanDB monitoring
             config: test/e2e-v2/cases/banyandb/e2e.yaml
           - name: Storage MySQL

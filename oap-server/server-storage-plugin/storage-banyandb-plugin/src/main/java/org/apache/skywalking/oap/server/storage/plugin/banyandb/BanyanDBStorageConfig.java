@@ -155,10 +155,52 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private boolean enableColdStage = false;
         private List<String> defaultQueryStages = new ArrayList<>(2);
         private List<Stage> additionalLifecycleStages = new ArrayList<>(2);
+        // The group-scoped trace retention pipeline. Only honored for CATALOG_TRACE groups.
+        // Named distinctly from the "pipeline" YAML key so the reflective copyProperties pass
+        // skips it (the nested block is parsed separately by copyPipeline).
+        private TracePipeline tracePipeline = new TracePipeline();
 
         public GroupResource() {
             defaultQueryStages.add(StageName.hot.name());
         }
+    }
+
+    /**
+     * TracePipeline mirrors BanyanDB's group-scoped {@code TracePipelineConfig}: an ordered chain of
+     * sampler plugins that retain/drop traces in-merge (and at segment finalization).
+     */
+    @Getter
+    @Setter
+    public static class TracePipeline {
+        // Whether the trace retention pipeline is active for the group.
+        private boolean enabled = false;
+        // Pipeline-wide events to run, e.g. PIPELINE_EVENT_MERGE, PIPELINE_EVENT_FINALIZE.
+        private List<String> enabledEvents = new ArrayList<>(2);
+        // Per-trace maturity window (seconds) for the in-merge filter; 0 uses the engine default.
+        private int mergeGraceSeconds;
+        // Per-segment settling window (seconds) for the finalization pass; 0 uses the engine default.
+        private int finalizeGraceSeconds;
+        // Ordered sampler plugin chain evaluated by the enabled events.
+        private List<SamplerPluginConfig> plugins = new ArrayList<>(1);
+    }
+
+    /**
+     * SamplerPluginConfig mirrors BanyanDB's {@code SamplerPlugin}: a native Go plugin (.so) that owns a
+     * keep/drop verdict over a vectorized batch of traces.
+     */
+    @Getter
+    @Setter
+    public static class SamplerPluginConfig {
+        // Operator-facing plugin identity within the pipeline chain.
+        private String name;
+        // The plugin .so filename, resolved within the data node's trusted plugin directory.
+        private String path;
+        // The constructor symbol the engine looks up; defaults to "NewSampler".
+        private String symbol = "NewSampler";
+        // The ABI version the plugin was built against.
+        private int abiVersion = 1;
+        // Free-form plugin configuration serialized to a protobuf Struct for the constructor.
+        private Map<String, Object> config = new HashMap<>();
     }
 
     //The group settings of records.

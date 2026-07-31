@@ -662,7 +662,88 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 return true;
             }
         }
-        return false;
+        // A pipeline change (or removal) must also trigger a group update. Because gBuilder always
+        // re-sends the desired pipeline, this comparison is also what keeps a full-replace update
+        // from silently clearing an operator-configured trace pipeline.
+        BanyandbCommon.TracePipelineConfig desiredPipeline = buildTracePipeline(metadata.getResource().getTracePipeline());
+        BanyandbCommon.TracePipelineConfig existingPipeline = g.hasPipeline() ? g.getPipeline() : null;
+        if (desiredPipeline == null) {
+            return existingPipeline != null;
+        }
+        return !desiredPipeline.equals(existingPipeline);
+    }
+
+    /**
+     * Build the BanyanDB {@code TracePipelineConfig} from the group's configured trace pipeline, or
+     * {@code null} when the pipeline is absent or disabled (which leaves the group without a sampler).
+     */
+    private BanyandbCommon.TracePipelineConfig buildTracePipeline(BanyanDBStorageConfig.TracePipeline pipelineConfig) {
+        if (pipelineConfig == null || !pipelineConfig.isEnabled()) {
+            return null;
+        }
+        BanyandbCommon.TracePipelineConfig.Builder builder =
+            BanyandbCommon.TracePipelineConfig.newBuilder().setEnabled(true);
+        for (String event : pipelineConfig.getEnabledEvents()) {
+            builder.addEnabledEvents(BanyandbCommon.PipelineEvent.valueOf(event));
+        }
+        if (pipelineConfig.getMergeGraceSeconds() > 0) {
+            builder.setMergeGrace(com.google.protobuf.Duration.newBuilder()
+                                                              .setSeconds(pipelineConfig.getMergeGraceSeconds()));
+        }
+        if (pipelineConfig.getFinalizeGraceSeconds() > 0) {
+            builder.setFinalizeGrace(com.google.protobuf.Duration.newBuilder()
+                                                                 .setSeconds(pipelineConfig.getFinalizeGraceSeconds()));
+        }
+        for (BanyanDBStorageConfig.SamplerPluginConfig plugin : pipelineConfig.getPlugins()) {
+            BanyandbCommon.SamplerPlugin.Builder samplerBuilder =
+                BanyandbCommon.SamplerPlugin.newBuilder()
+                                            .setPath(plugin.getPath())
+                                            .setAbiVersion(plugin.getAbiVersion());
+            if (plugin.getSymbol() != null) {
+                samplerBuilder.setSymbol(plugin.getSymbol());
+            }
+            if (plugin.getConfig() != null && !plugin.getConfig().isEmpty()) {
+                samplerBuilder.setConfig(buildStruct(plugin.getConfig()));
+            }
+            builder.addPlugins(BanyandbCommon.Plugin.newBuilder()
+                                                    .setName(plugin.getName())
+                                                    .setSampler(samplerBuilder));
+        }
+        return builder.build();
+    }
+
+    private com.google.protobuf.Struct buildStruct(Map<?, ?> map) {
+        com.google.protobuf.Struct.Builder structBuilder = com.google.protobuf.Struct.newBuilder();
+        for (Map.Entry<?, ?> entry : map.entrySet()) {
+            structBuilder.putFields(String.valueOf(entry.getKey()), toStructValue(entry.getValue()));
+        }
+        return structBuilder.build();
+    }
+
+    // toStructValue mirrors the protobuf Struct JSON mapping so a plugin config of any shape
+    // survives the round-trip to the sampler constructor: nested Maps become sub-Structs and
+    // Lists become ListValues (e.g. a keepTagRules list of objects), rather than being
+    // flattened to a single toString() field.
+    private com.google.protobuf.Value toStructValue(Object value) {
+        com.google.protobuf.Value.Builder valueBuilder = com.google.protobuf.Value.newBuilder();
+        if (value == null) {
+            valueBuilder.setNullValue(com.google.protobuf.NullValue.NULL_VALUE);
+        } else if (value instanceof Boolean) {
+            valueBuilder.setBoolValue((Boolean) value);
+        } else if (value instanceof Number) {
+            valueBuilder.setNumberValue(((Number) value).doubleValue());
+        } else if (value instanceof Map) {
+            valueBuilder.setStructValue(buildStruct((Map<?, ?>) value));
+        } else if (value instanceof List) {
+            com.google.protobuf.ListValue.Builder listBuilder = com.google.protobuf.ListValue.newBuilder();
+            for (Object element : (List<?>) value) {
+                listBuilder.addValues(toStructValue(element));
+            }
+            valueBuilder.setListValue(listBuilder);
+        } else {
+            valueBuilder.setStringValue(value.toString());
+        }
+        return valueBuilder.build();
     }
 
     private ResourceExist checkResourceExistence(MetadataRegistry.SchemaMetadata metadata,
@@ -730,6 +811,10 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                metadata.getResource().getTtl()));
                 resourceExist = client.existTrace(metadata.getGroup(), metadata.name());
                 gBuilder.setCatalog(BanyandbCommon.Catalog.CATALOG_TRACE).build();
+                BanyandbCommon.TracePipelineConfig tracePipeline = buildTracePipeline(metadata.getResource().getTracePipeline());
+                if (tracePipeline != null) {
+                    gBuilder.setPipeline(tracePipeline);
+                }
                 break;
             default:
                 throw new IllegalStateException("unknown metadata kind: " + metadata.getKind());

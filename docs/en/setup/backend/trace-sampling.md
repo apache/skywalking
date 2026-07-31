@@ -46,6 +46,49 @@ Setting this threshold on latency (in milliseconds) would cause slow trace segme
 **Note:**
 `services.[].rate` and `services.[].duration` has a higher priority than `default.rare` and `default.duration`.
 
+# Other trace sampling mechanisms
+The `agent-analyzer` sampling above applies to SkyWalking-native trace segments. Two other
+mechanisms can drop traces independently of it.
+
+## Zipkin receiver sampling
+Zipkin spans do not pass through `agent-analyzer`, so they are sampled by the receiver instead,
+also at ingest and before storage.
+
+```yaml
+receiver-zipkin:
+  default:
+    # The sample rate precision is 1/10000, should be between 0 and 10000
+    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    # The maximum spans to be collected per second. 0 means no limit. Spans exceeding this threshold will be dropped.
+    maxSpansPerSecond: ${SW_ZIPKIN_MAX_SPANS_PER_SECOND:0}
+```
+
+`sampleRate` keeps a span when `abs(traceId) <= Long.MAX_VALUE * sampleRate / 10000`. Because the
+boundary is derived from the trace ID, every span of a given trace is kept or dropped together.
+A span with `debug=true` is always kept, ignoring the sample rate.
+
+`maxSpansPerSecond` is a rate limiter applied **per span**, before the rate check. Unlike the
+other mechanisms it is not trace-consistent: when the limit is hit it can drop some spans of a
+trace while keeping others, leaving partial traces in storage.
+
+## BanyanDB post-trace retention (trace pipeline)
+When the storage is BanyanDB, a group may additionally run a sampler plugin **inside BanyanDB**,
+at LSM merge time — after the data has been written. It reclaims space from stored traces rather
+than preventing writes, and unlike the ingest-side mechanisms it decides per whole trace, seeing
+all of a trace's segments at once. It is disabled by default; see
+[BanyanDB storage](storages/banyandb.md) for the `pipeline` settings.
+
+## How they combine
+These mechanisms are independent gates, so enabling more than one **multiplies** the drop rate.
+For example, an `agent-analyzer` rate of `5000` (50%) together with a BanyanDB
+`healthySampleRate` of `0.1` retains roughly 5% of healthy traces. Prefer sampling at one
+layer: at ingest it is cheaper (the data is never stored), while at merge the verdict has the
+whole-trace context and can also reclaim space that is already written.
+
+All of these default to "keep everything" (`rate: 10000`, `sampleRate: 10000`,
+`maxSpansPerSecond: 0`, and the BanyanDB pipeline disabled), so none of them sample until you
+turn one on.
+
 # Recommendation
 You may choose to set different backend instances with different `sampleRate` values, although we recommend that you set the values to be the same.
 
