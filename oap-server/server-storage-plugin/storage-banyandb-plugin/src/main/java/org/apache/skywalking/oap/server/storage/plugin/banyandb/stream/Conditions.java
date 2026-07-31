@@ -42,6 +42,13 @@ public final class Conditions {
      * position {@code WITH QUERY_TRACE} ahead of pagination without scanning the generated text.
      */
     private int paginationStart = -1;
+    /**
+     * Index in {@link #params} of the first pagination parameter, paired with {@link #paginationStart} so
+     * {@link #limitIfAbsent(long)} can splice a {@code LIMIT} in ahead of an existing {@code OFFSET} and keep
+     * the parameter order aligned with the placeholder order.
+     */
+    private int paginationParamIndex = -1;
+    private boolean limitSet;
 
     private Conditions(boolean groupMode) {
         this.groupMode = groupMode;
@@ -161,21 +168,56 @@ public final class Conditions {
     }
 
     public Conditions limit(long value) {
-        if (paginationStart < 0) {
-            paginationStart = ql.length();
-        }
+        markPaginationStart();
         ql.append(" LIMIT ?");
         params.add(Value.longTagValue(value));
+        limitSet = true;
         return this;
     }
 
     public Conditions offset(long value) {
-        if (paginationStart < 0) {
-            paginationStart = ql.length();
-        }
+        markPaginationStart();
         ql.append(" OFFSET ?");
         params.add(Value.longTagValue(value));
         return this;
+    }
+
+    /**
+     * Set {@code LIMIT} only if the caller has not already set one — the backstop that keeps a query from
+     * inheriting BanyanDB's server-side default.
+     * <p>
+     * BanyanDB applies its own default when a request carries no limit: 100 rows for measures
+     * ({@code defaultLimit} in {@code pkg/query/logical/measure/measure_analyzer.go}) and 20 for
+     * streams/traces. That default is applied <em>after</em> any {@code GROUP BY}, so it silently truncates
+     * the result set rather than erroring — e.g. a 4-hour minute-step metrics read returns only the first
+     * 100 points. OAP must therefore always send an explicit limit.
+     * <p>
+     * The clause is spliced in at the start of the pagination tail rather than appended, so it still lands
+     * ahead of an {@code OFFSET} that was set first, as the grammar requires ({@code ... LIMIT ? OFFSET ?}).
+     *
+     * @param value the fallback row cap, used only when no {@code LIMIT} has been set
+     * @return this builder
+     */
+    public Conditions limitIfAbsent(long value) {
+        if (limitSet) {
+            return this;
+        }
+        final boolean noPagination = paginationStart < 0;
+        final int qlPos = noPagination ? ql.length() : paginationStart;
+        final int paramPos = noPagination ? params.size() : paginationParamIndex;
+        ql.insert(qlPos, " LIMIT ?");
+        params.add(paramPos, Value.longTagValue(value));
+        paginationStart = qlPos;
+        paginationParamIndex = paramPos;
+        limitSet = true;
+        return this;
+    }
+
+    private void markPaginationStart() {
+        if (paginationStart < 0) {
+            paginationStart = ql.length();
+            paginationParamIndex = params.size();
+        }
     }
 
     /**

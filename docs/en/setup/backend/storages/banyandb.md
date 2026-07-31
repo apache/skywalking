@@ -46,6 +46,8 @@ global:
   # A higher value can improve write performance but also increases CPU usage on both OAP and BanyanDB Server.
   concurrentWriteThreads: ${SW_STORAGE_BANYANDB_CONCURRENT_WRITE_THREADS:15}
   # The maximum size of the dataset when the OAP loads cache, such as network aliases.
+  # Also the row cap sent for any query that has no limit of its own, so that a query never falls back to
+  # BanyanDB's own default (100 rows for measures, 20 for streams/traces), which truncates results silently.
   resultWindowMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_WINDOW_SIZE:10000}
   # The maximum size of metadata per query.
   metadataQueryMaxSize: ${SW_STORAGE_BANYANDB_QUERY_MAX_SIZE:10000}

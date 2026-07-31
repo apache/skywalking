@@ -197,6 +197,74 @@ public class ConditionsTest {
     }
 
     @Test
+    public void limitIfAbsentAppendsWhenNoLimitWasSet() {
+        final Conditions where = Conditions.create().eq("a", "x").limitIfAbsent(500);
+        assertEquals(" WHERE a = ? LIMIT ?", where.buildQl());
+        final List<Serializable<BanyandbModel.TagValue>> params = where.params();
+        assertEquals(2, params.size());
+        assertEquals("x", str(params.get(0)));
+        assertEquals(500L, lng(params.get(1)));
+    }
+
+    @Test
+    public void limitIfAbsentOnEmptyConditionsEmitsOnlyTheLimit() {
+        final Conditions where = Conditions.create().limitIfAbsent(7);
+        assertEquals(" LIMIT ?", where.buildQl());
+        assertEquals(7L, lng(where.params().get(0)));
+    }
+
+    @Test
+    public void limitIfAbsentKeepsTheCallerLimit() {
+        final Conditions where = Conditions.create().eq("a", "x").limit(10).limitIfAbsent(500);
+        assertEquals(" WHERE a = ? LIMIT ?", where.buildQl());
+        final List<Serializable<BanyandbModel.TagValue>> params = where.params();
+        assertEquals(2, params.size());
+        assertEquals(10L, lng(params.get(1)));
+    }
+
+    @Test
+    public void limitIfAbsentIsIdempotent() {
+        final Conditions where = Conditions.create().eq("a", "x").limitIfAbsent(500).limitIfAbsent(900);
+        assertEquals(" WHERE a = ? LIMIT ?", where.buildQl());
+        assertEquals(500L, lng(where.params().get(1)));
+    }
+
+    @Test
+    public void limitIfAbsentSplicesAheadOfAnExistingOffset() {
+        // LIMIT must precede OFFSET in the grammar, so a fallback limit added after an offset was set has to
+        // be inserted rather than appended — params move with it to stay aligned with the placeholders.
+        final Conditions where = Conditions.create().eq("a", "x").offset(20).limitIfAbsent(500);
+        assertEquals(" WHERE a = ? LIMIT ? OFFSET ?", where.buildQl());
+        final List<Serializable<BanyandbModel.TagValue>> params = where.params();
+        assertEquals(3, params.size());
+        assertEquals("x", str(params.get(0)));
+        assertEquals(500L, lng(params.get(1)));
+        assertEquals(20L, lng(params.get(2)));
+    }
+
+    @Test
+    public void limitIfAbsentComposesAfterGroupByAndOrderBy() {
+        final Conditions where = Conditions.create()
+                .eq("a", "x")
+                .groupBy("g1")
+                .orderByDesc("t")
+                .limitIfAbsent(500);
+        assertEquals(" WHERE a = ? GROUP BY g1 ORDER BY t DESC LIMIT ?", where.buildQl());
+    }
+
+    @Test
+    public void limitIfAbsentStillLeavesQueryTraceAheadOfPagination() {
+        final Conditions where = Conditions.create().eq("a", "x").orderByDesc("t").limitIfAbsent(500);
+        assertEquals(" WHERE a = ? ORDER BY t DESC WITH QUERY_TRACE LIMIT ?", where.buildQl(true));
+    }
+
+    @Test
+    public void limitIfAbsentSplicedBeforeOffsetStillLeavesQueryTraceAhead() {
+        final Conditions where = Conditions.create().eq("a", "x").offset(20).limitIfAbsent(500);
+        assertEquals(" WHERE a = ? WITH QUERY_TRACE LIMIT ? OFFSET ?", where.buildQl(true));
+    }
+
+    @Test
     public void emptyInValuesAreRejectedLocally() {
         assertThrows(IllegalArgumentException.class, () -> Conditions.create().in("a", List.of()));
     }

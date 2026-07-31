@@ -67,9 +67,8 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         }
 
         final String entityID = condition.getEntity().buildId();
-        Map<Long, DataPoint> idMap = queryByEntityID(schema, valueColumnName, duration, entityID);
-
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(schema, valueColumnName, duration, entityID, tsPoints.size());
 
         MetricsValues metricsValues = new MetricsValues();
         // Label is null, because in readMetricsValues, no label parameter.
@@ -105,9 +104,9 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public List<MetricsValues> readLabeledMetricsValues(MetricsCondition condition, String valueColumnName, List<KeyValue> labels, Duration duration) throws IOException {
-        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
-
         List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration, tsPoints.size());
+
         String entityID = condition.getEntity().buildId();
         List<String> ids = new ArrayList<>(tsPoints.size());
 
@@ -214,14 +213,14 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
 
     @Override
     public HeatMap readHeatMap(MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
-        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration);
+        List<PointOfTime> tsPoints = duration.assembleDurationPoints();
+        Map<Long, DataPoint> idMap = queryByEntityID(condition, valueColumnName, duration, tsPoints.size());
 
         HeatMap heatMap = new HeatMap();
         if (idMap.isEmpty()) {
             return heatMap;
         }
 
-        List<PointOfTime> tsPoints = duration.assembleDurationPoints();
         String entityID = condition.getEntity().buildId();
         List<String> ids = new ArrayList<>(tsPoints.size());
 
@@ -241,19 +240,24 @@ public class BanyanDBMetricsQueryDAO extends AbstractBanyanDBDAO implements IMet
         return heatMap;
     }
 
-    private Map<Long, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration) throws IOException {
+    private Map<Long, DataPoint> queryByEntityID(final MetricsCondition condition, String valueColumnName, Duration duration, int pointCount) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(condition.getName(), duration.getStep());
         if (schema == null) {
             throw new IOException("schema is not registered");
         }
-        return queryByEntityID(schema, valueColumnName, duration, condition.getEntity().buildId());
+        return queryByEntityID(schema, valueColumnName, duration, condition.getEntity().buildId(), pointCount);
     }
 
-    private Map<Long, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID) throws IOException {
+    private Map<Long, DataPoint> queryByEntityID(MetadataRegistry.Schema schema, String valueColumnName, Duration duration, String entityID, int pointCount) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         Map<Long, DataPoint> map = new HashMap<>();
+        // One entity over one time range yields at most one data point per step, so the number of assembled
+        // duration points is the exact row cap — the same set of rows the ES/JDBC DAOs fetch by explicit id.
+        // It must be sent: with no LIMIT the server falls back to its own default of 100 and truncates any
+        // range longer than that (DurationUtils.MAX_TIME_RANGE allows up to 500 steps).
         final Conditions where = Conditions.create()
-            .eq(Metrics.ENTITY_ID, entityID);
+            .eq(Metrics.ENTITY_ID, entityID)
+            .limit(pointCount);
         MeasureQueryResponse resp = queryDebuggable(isColdStage, schema, ImmutableSet.of(Metrics.ENTITY_ID), ImmutableSet.of(valueColumnName), getTimestampRange(duration),
             where);
         for (final DataPoint dp : resp.getDataPoints()) {
