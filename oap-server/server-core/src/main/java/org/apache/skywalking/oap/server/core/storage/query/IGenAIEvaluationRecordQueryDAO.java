@@ -38,12 +38,11 @@ import static org.apache.skywalking.oap.server.core.query.type.debugging.Debuggi
 
 public interface IGenAIEvaluationRecordQueryDAO extends Service {
 
-    default boolean supportQueryGenAIEvaluationRecordByKeywords() {
-        return false;
-    }
-
-    default GenAIEvaluationRecords queryGenAIEvaluationRecordDebuggable(String serviceId,
-                                                      String serviceInstanceId,
+    default GenAIEvaluationRecords queryGenAIEvaluationRecordDebuggable(String providerName,
+                                                      String modelName,
+                                                      Double minScore,
+                                                      Double maxScore,
+                                                      String sortField,
                                                       TraceScopeCondition relatedTrace,
                                                       Order queryOrder,
                                                       int from,
@@ -56,8 +55,8 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
             if (traceContext != null) {
                 span = traceContext.createSpan("Query Dao: queryGenAIEvaluationRecord");
                 StringBuilder msg = new StringBuilder();
-                msg.append("ServiceId: ").append(serviceId)
-                   .append(", ServiceInstanceId: ").append(serviceInstanceId)
+                msg.append("ProviderName: ").append(providerName)
+                   .append(", ModelName: ").append(modelName)
                    .append(", RelatedTrace: ").append(relatedTrace)
                    .append(", QueryOrder: ").append(queryOrder)
                    .append(", From: ").append(from)
@@ -67,7 +66,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecord(
-                serviceId, serviceInstanceId, relatedTrace, queryOrder, from, limit, duration, tags
+                providerName, modelName, minScore, maxScore, sortField, relatedTrace, queryOrder, from, limit, duration, tags
             );
         } finally {
             if (traceContext != null && span != null) {
@@ -76,8 +75,11 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
         }
     }
 
-    GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId,
-                                                      String serviceInstanceId,
+    GenAIEvaluationRecords queryGenAIEvaluationRecord(String providerName,
+                                                      String modelName,
+                                                      Double minScore,
+                                                      Double maxScore,
+                                                      String sortField,
                                                       TraceScopeCondition relatedTrace,
                                                       Order queryOrder,
                                                       int from,

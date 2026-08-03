@@ -25,25 +25,6 @@ judge:
   temperature: 0.2
   max_tokens: 100000
 
-level:
-  undefined: undefined
-  score:
-    - min: 0.0
-      max: 0.3
-      level: fail
-    - min: 0.3
-      max: 0.6
-      level: warning
-    - min: 0.6
-      max: 0.85
-      level: good
-    - min: 0.85
-      max: 1.0
-      level: excellent
-  boolean:
-    true: excellent
-    false: fail
-
 system-prompt: |
   You are an AI observability evaluator.
 
@@ -89,6 +70,25 @@ system-prompt: |
   - Use the task instruction as the primary evaluation criterion.
 
   Return ONLY the JSON object.
+
+level:
+  undefined: undefined
+  score:
+    - min: 0.0
+      max: 0.3
+      level: fail
+    - min: 0.3
+      max: 0.6
+      level: warning
+    - min: 0.6
+      max: 0.85
+      level: good
+    - min: 0.85
+      max: 1.0
+      level: excellent
+  boolean:
+    true: excellent
+    false: fail
 
 tasks:
   - name: Faithfulness

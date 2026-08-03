@@ -48,8 +48,11 @@ import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpt
 public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEvaluationRecordQueryDAO {
     private static final Set<String> QUERYABLE_TAG_KEYS = Set.of(
         GenAIEvaluationRecord.TRACE_ID,
-        GenAIEvaluationRecord.SERVICE_ID,
-        GenAIEvaluationRecord.SERVICE_INSTANCE_ID,
+        GenAIEvaluationRecord.SERVICE_NAME,
+        GenAIEvaluationRecord.PROVIDER_NAME,
+        GenAIEvaluationRecord.MODEL_NAME,
+        GenAIEvaluationRecord.OPERATION_NAME,
+        GenAIEvaluationRecord.SCORE_VALUE,
         GenAIEvaluationRecord.SEGMENT_ID,
         GenAIEvaluationRecord.SPAN_ID,
         GenAIEvaluationRecord.SPAN_TYPE,
@@ -66,8 +69,9 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceId,
-                                                             final String serviceInstanceId,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String providerName,
+                                                             final String modelName,
+                                                             final Double minScore, final Double maxScore, final String sortField,
                                                              final TraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
                                                              final int from,
@@ -91,11 +95,17 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
-        if (isNotEmpty(serviceId)) {
-            query.must(Query.term(GenAIEvaluationRecord.SERVICE_ID, serviceId));
+        if (isNotEmpty(providerName)) {
+            query.must(Query.term(GenAIEvaluationRecord.PROVIDER_NAME, providerName));
         }
-        if (isNotEmpty(serviceInstanceId)) {
-            query.must(Query.term(GenAIEvaluationRecord.SERVICE_INSTANCE_ID, serviceInstanceId));
+        if (isNotEmpty(modelName)) {
+            query.must(Query.term(GenAIEvaluationRecord.MODEL_NAME, modelName));
+        }
+        if (minScore != null || maxScore != null) {
+            final var scoreRange = Query.range(GenAIEvaluationRecord.SCORE_VALUE);
+            if (minScore != null) scoreRange.gte(GenAIEvaluationRecord.minScoreValuePpm(minScore));
+            if (maxScore != null) scoreRange.lte(GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+            query.must(scoreRange);
         }
         if (nonNull(relatedTrace)) {
             if (isNotEmpty(relatedTrace.getTraceId())) {
@@ -122,7 +132,7 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(
-                                               GenAIEvaluationRecord.EVALUATION_TIME,
+                                               GenAIEvaluationRecord.SCORE_VALUE.equals(sortField) ? GenAIEvaluationRecord.SCORE_VALUE : GenAIEvaluationRecord.EVALUATION_TIME,
                                                Order.DES.equals(queryOrder) ? Sort.Order.DESC : Sort.Order.ASC
                                            )
                                            .size(limit)
@@ -146,8 +156,12 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
         record.setUniqueId((String) source.get(GenAIEvaluationRecord.UNIQUE_ID));
         record.setTraceId((String) source.get(GenAIEvaluationRecord.TRACE_ID));
-        record.setServiceId((String) source.get(GenAIEvaluationRecord.SERVICE_ID));
-        record.setServiceInstanceId((String) source.get(GenAIEvaluationRecord.SERVICE_INSTANCE_ID));
+        record.setServiceName((String) source.get(GenAIEvaluationRecord.SERVICE_NAME));
+        record.setProviderName((String) source.get(GenAIEvaluationRecord.PROVIDER_NAME));
+        record.setModelName((String) source.get(GenAIEvaluationRecord.MODEL_NAME));
+        record.setOperationName((String) source.get(GenAIEvaluationRecord.OPERATION_NAME));
+        final Number scoreValue = (Number) source.get(GenAIEvaluationRecord.SCORE_VALUE);
+        record.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
         record.setSegmentId((String) source.get(GenAIEvaluationRecord.SEGMENT_ID));
         record.setSpanId((String) source.get(GenAIEvaluationRecord.SPAN_ID));
         record.setSpanType((String) source.get(GenAIEvaluationRecord.SPAN_TYPE));

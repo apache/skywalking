@@ -33,8 +33,6 @@ import org.apache.skywalking.oap.server.ai.evaluation.service.AIEvaluationMetric
 import org.apache.skywalking.oap.server.ai.evaluation.service.strategy.AIEvaluationStrategy;
 import org.apache.skywalking.oap.server.ai.evaluation.task.EvaluationTaskRegistry;
 import org.apache.skywalking.oap.server.ai.evaluation.value.ValueType;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -121,24 +119,20 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
                                 final String judgeModel) {
         final long evaluationTime = System.currentTimeMillis();
         for (EvaluationResult result : results) {
-            final String serviceId = IDManager.ServiceID.buildId(
-                    namingControl.formatServiceName(context.getProviderName()),
-                    Layer.VIRTUAL_GENAI.isNormal()
-            );
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
             record.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
             record.setTraceId(context.getTraceId());
-            record.setServiceId(serviceId);
-            record.setServiceInstanceId(IDManager.ServiceInstanceID.buildId(
-                    serviceId,
-                    namingControl.formatServiceName(context.getModelName())
-            ));
+            record.setServiceName(context.getServiceName());
+            record.setProviderName(namingControl.formatServiceName(context.getProviderName()));
+            record.setModelName(namingControl.formatInstanceName(context.getModelName()));
+            record.setOperationName(operationName(context));
             record.setSegmentId(context.getSegmentId());
             record.setSpanId(context.getSpanId());
             record.setSpanType(plan.getSpanType() == null ? "" : plan.getSpanType().name());
             record.setTaskName(result.getName());
             record.setValueType(result.getValueType() == null ? "" : result.getValueType().name());
             record.setValue(result.getValue());
+            record.setScoreValuePpm(GenAIEvaluationRecord.toScoreValuePpm(numericValue(result.getValue())));
             record.setEvaluationLevel(levelResolver.resolve(result.getValueType(), result.getValue()));
             record.setReason(result.getReason());
             record.setJudgeModel(judgeModel);
@@ -171,6 +165,14 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
 
     private static String operationName(final AIEvaluationContext context) {
         return context.getTags().get(GenAISemanticAttributes.OPERATION_NAME);
+    }
+
+    private static Double numericValue(final String value) {
+        try {
+            return Double.valueOf(value);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 }

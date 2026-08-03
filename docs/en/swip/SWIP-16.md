@@ -190,7 +190,7 @@ For tasks where `valueType = SCORE`, the judge returns a numeric result in `[0.0
 
 The initial metric is:
 
-- `gen_ai_evaluation_score_ppm`
+- `gen_ai_model_evaluation_score_ppm`
 
 The metric is attached to the Virtual GenAI service instance dimension, using `service_name` as the service key and `model_name` as the instance key. The `task_name` remains as a labeled value dimension, allowing the same metric to represent scores for `Faithfulness`, `Relevance`, `TaskCompletion`, `Hallucination`, or any user-defined task.
 
@@ -241,7 +241,7 @@ This SWIP introduces a new OAP capability and a new record data model. The main 
 
 - A new structured record type `ai_evaluation_result`, including the normalized `evaluation_level` field
 - `SCORE`-type evaluation results additionally generate a MAL labeled metric for dashboard display
-- The `gen_ai_evaluation_score_ppm` metric stores scores scaled by `1,000,000`; query and UI layers need to divide by `1,000,000` to display the original `[0.0, 1.0]` score
+- The `gen_ai_model_evaluation_score_ppm` metric stores scores scaled by `1,000,000`; query and UI layers need to divide by `1,000,000` to display the original `[0.0, 1.0]` score
 - The capability depends on the existing GenAI observability pipeline being able to recognize GenAI spans from SkyWalking native traces, OTLP, and Zipkin
 - The UI adds an evaluation result page and trace jump based on `traceId`
 - The current implementation uses an asynchronous local in-memory queue to carry evaluation tasks, and queue data is not part of any persistent protocol
@@ -255,6 +255,6 @@ This SWIP introduces a new OAP capability and a new record data model. The main 
 4. OAP generates evaluation tasks for sampled GenAI spans according to the PPM sampling rate and puts them into the asynchronous local in-memory queue.
 5. A background evaluation consumer takes tasks from the queue and sends requests to the configured judge model.
 6. OAP writes each evaluation result into SkyWalking structured records.
-7. For `SCORE`-type tasks, OAP generates the MAL labeled metric `gen_ai_evaluation_score_ppm` from evaluation results.
-8. Users observe both existing GenAI runtime metrics and newly added quality metrics in the GenAI dashboard. The UI should divide `gen_ai_evaluation_score_ppm` values by `1,000,000` to display the original score.
+7. For `SCORE`-type tasks, OAP generates the MAL labeled metric `gen_ai_model_evaluation_score_ppm` from evaluation results.
+8. Users observe both existing GenAI runtime metrics and newly added quality metrics in the GenAI dashboard. The UI should divide `gen_ai_model_evaluation_score_ppm` values by `1,000,000` to display the original score.
 9. Users can also open the evaluation result page, inspect evaluation details, and jump from a single result to the related trace.

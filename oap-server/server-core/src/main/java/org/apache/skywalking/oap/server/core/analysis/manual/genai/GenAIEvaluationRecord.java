@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.genai;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
@@ -47,8 +49,12 @@ public class GenAIEvaluationRecord extends Record {
     public static final String INDEX_NAME = "gen_ai_evaluation_record";
     public static final String UNIQUE_ID = "unique_id";
     public static final String TRACE_ID = "trace_id";
-    public static final String SERVICE_ID = "service_id";
-    public static final String SERVICE_INSTANCE_ID = "service_instance_id";
+    public static final String PROVIDER_NAME = "provider_name";
+    public static final String MODEL_NAME = "model_name";
+    public static final String SERVICE_NAME = "service_name";
+    public static final String OPERATION_NAME = "operation_name";
+    public static final String SCORE_VALUE = "score_value";
+    public static final long SCORE_SCALE = 1_000_000L;
     public static final String SEGMENT_ID = "segment_id";
     public static final String SPAN_ID = "span_id";
     public static final String SPAN_TYPE = "span_type";
@@ -68,14 +74,52 @@ public class GenAIEvaluationRecord extends Record {
     private String traceId;
 
     @ElasticSearch.EnableDocValues
-    @Column(name = SERVICE_ID, length = 150, storageOnly = true)
-    @BanyanDB.SeriesID(index = 0)
-    private String serviceId;
+    @Column(name = SERVICE_NAME, length = 150)
+    private String serviceName;
 
     @ElasticSearch.EnableDocValues
-    @Column(name = SERVICE_INSTANCE_ID, length = 150, storageOnly = true)
+    @Column(name = PROVIDER_NAME, length = 150)
+    @BanyanDB.SeriesID(index = 0)
+    private String providerName;
+
+    @ElasticSearch.EnableDocValues
+    @Column(name = MODEL_NAME, length = 150)
     @BanyanDB.SeriesID(index = 1)
-    private String serviceInstanceId;
+    private String modelName;
+
+    @ElasticSearch.EnableDocValues
+    @Column(name = OPERATION_NAME, length = 150)
+    private String operationName;
+
+    @ElasticSearch.EnableDocValues
+    @BanyanDB.EnableSort
+    @Column(name = SCORE_VALUE)
+    private Long scoreValuePpm;
+
+    public Double getScoreValue() {
+        return scoreValuePpm == null ? null : scoreValuePpm / (double) SCORE_SCALE;
+    }
+
+    public static Long toScoreValuePpm(final Double score) {
+        return score == null ? null : BigDecimal.valueOf(score)
+                                          .movePointRight(6)
+                                          .setScale(0, RoundingMode.HALF_UP)
+                                          .longValueExact();
+    }
+
+    public static long minScoreValuePpm(final double score) {
+        return BigDecimal.valueOf(score)
+                         .movePointRight(6)
+                         .setScale(0, RoundingMode.CEILING)
+                         .longValueExact();
+    }
+
+    public static long maxScoreValuePpm(final double score) {
+        return BigDecimal.valueOf(score)
+                         .movePointRight(6)
+                         .setScale(0, RoundingMode.FLOOR)
+                         .longValueExact();
+    }
 
     @Column(name = SEGMENT_ID, length = 150, storageOnly = true)
     private String segmentId;
@@ -83,7 +127,7 @@ public class GenAIEvaluationRecord extends Record {
     @Column(name = SPAN_ID, length = 150, storageOnly = true)
     private String spanId;
 
-    @Column(name = SPAN_TYPE, length = 64)
+    @Column(name = SPAN_TYPE, length = 64, storageOnly = true)
     private String spanType;
 
     @ElasticSearch.EnableDocValues
@@ -122,8 +166,12 @@ public class GenAIEvaluationRecord extends Record {
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
             record.setUniqueId((String) converter.get(UNIQUE_ID));
             record.setTraceId((String) converter.get(TRACE_ID));
-            record.setServiceId((String) converter.get(SERVICE_ID));
-            record.setServiceInstanceId((String) converter.get(SERVICE_INSTANCE_ID));
+            record.setServiceName((String) converter.get(SERVICE_NAME));
+            record.setProviderName((String) converter.get(PROVIDER_NAME));
+            record.setModelName((String) converter.get(MODEL_NAME));
+            record.setOperationName((String) converter.get(OPERATION_NAME));
+            final Number scoreValue = (Number) converter.get(SCORE_VALUE);
+            record.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
             record.setSegmentId((String) converter.get(SEGMENT_ID));
             record.setSpanId((String) converter.get(SPAN_ID));
             record.setSpanType((String) converter.get(SPAN_TYPE));
@@ -142,8 +190,11 @@ public class GenAIEvaluationRecord extends Record {
         public void entity2Storage(final GenAIEvaluationRecord storageData, final Convert2Storage converter) {
             converter.accept(UNIQUE_ID, storageData.getUniqueId());
             converter.accept(TRACE_ID, storageData.getTraceId());
-            converter.accept(SERVICE_ID, storageData.getServiceId());
-            converter.accept(SERVICE_INSTANCE_ID, storageData.getServiceInstanceId());
+            converter.accept(SERVICE_NAME, storageData.getServiceName());
+            converter.accept(PROVIDER_NAME, storageData.getProviderName());
+            converter.accept(MODEL_NAME, storageData.getModelName());
+            converter.accept(OPERATION_NAME, storageData.getOperationName());
+            converter.accept(SCORE_VALUE, storageData.getScoreValuePpm());
             converter.accept(SEGMENT_ID, storageData.getSegmentId());
             converter.accept(SPAN_ID, storageData.getSpanId());
             converter.accept(SPAN_TYPE, storageData.getSpanType());

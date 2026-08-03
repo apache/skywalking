@@ -30,8 +30,11 @@ import org.apache.skywalking.oap.server.core.query.type.Pagination;
 @Setter
 @ToString
 public class GenAIEvaluationRecordQueryCondition {
-    private String serviceId;
-    private String serviceInstanceId;
+    private String providerName;
+    private String modelName;
+    private Double minScore;
+    private Double maxScore;
+    private String sortField;
     private TraceScopeCondition relatedTrace;
     private Duration queryDuration;
     private Pagination paging;

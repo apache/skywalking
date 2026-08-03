@@ -46,10 +46,6 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
         this.moduleManager = moduleManager;
     }
 
-    public boolean supportGenAIEvaluationRecordQueryByKeywords() {
-        return getQueryService().supportQueryGenAIEvaluationRecordByKeywords();
-    }
-
     private GenAIEvaluationRecordQueryService getQueryService() {
         if (genAIEvaluationRecordQueryService == null) {
             this.genAIEvaluationRecordQueryService = moduleManager.find(CoreModule.NAME).provider().getService(GenAIEvaluationRecordQueryService.class);
@@ -98,8 +94,11 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
             });
         }
         return getQueryService().queryGenAIEvaluationRecord(
-                condition.getServiceId(),
-                condition.getServiceInstanceId(),
+                condition.getProviderName(),
+                condition.getModelName(),
+                condition.getMinScore(),
+                condition.getMaxScore(),
+                condition.getSortField(),
                 condition.getRelatedTrace(),
                 condition.getPaging(),
                 queryOrder,

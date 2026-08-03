@@ -51,12 +51,11 @@ public class GenAIEvaluationRecordQueryService implements Service {
         return genAIEvaluationRecordQueryDAO;
     }
 
-    public boolean supportQueryGenAIEvaluationRecordByKeywords() {
-        return getGenAIEvaluationRecordQueryDAO().supportQueryGenAIEvaluationRecordByKeywords();
-    }
-
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId,
-                                                             String serviceInstanceId,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String providerName,
+                                                             String modelName,
+                                                             Double minScore,
+                                                             Double maxScore,
+                                                             String sortField,
                                                              TraceScopeCondition relatedTrace,
                                                              Pagination paging,
                                                              Order queryOrder,
@@ -68,8 +67,8 @@ public class GenAIEvaluationRecordQueryService implements Service {
             if (traceContext != null) {
                 StringBuilder msg = new StringBuilder();
                 span = traceContext.createSpan("Query Service: queryGenAIEvaluationRecord");
-                msg.append("ServiceId: ").append(serviceId).append(", ");
-                msg.append("ServiceInstanceId: ").append(serviceInstanceId).append(", ");
+                msg.append("ProviderName: ").append(providerName).append(", ");
+                msg.append("ModelName: ").append(modelName).append(", ");
                 msg.append("RelatedTrace: ").append(relatedTrace).append(", ");
                 msg.append("Pagination: ").append(paging).append(", ");
                 msg.append("QueryOrder: ").append(queryOrder).append(", ");
@@ -78,7 +77,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                serviceId, serviceInstanceId, relatedTrace, paging, queryOrder, duration, tags
+                providerName, modelName, minScore, maxScore, sortField, relatedTrace, paging, queryOrder, duration, tags
             );
         } finally {
             if (traceContext != null) {
@@ -87,8 +86,11 @@ public class GenAIEvaluationRecordQueryService implements Service {
         }
     }
 
-    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String serviceId,
-                                                                      String serviceInstanceId,
+    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String providerName,
+                                                                      String modelName,
+                                                                      Double minScore,
+                                                                      Double maxScore,
+                                                                      String sortField,
                                                                       TraceScopeCondition relatedTrace,
                                                                       Pagination paging,
                                                                       Order queryOrder,
@@ -96,12 +98,8 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                                       final List<Tag> tags) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
-        return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(serviceId,
-                                                                                       serviceInstanceId,
-                                                                                       relatedTrace,
-                                                                                       queryOrder,
-                                                                                       page.getFrom(), page.getLimit(),
-                                                                                       duration, tags
+        return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
+                providerName, modelName, minScore, maxScore, sortField, relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
         );
     }
 }
