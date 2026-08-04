@@ -201,6 +201,8 @@ storage:
     enableCustomRouting: ${SW_STORAGE_ES_ENABLE_CUSTOM_ROUTING:false}
   mysql:
     properties:
+      # Please do not include the username and password in the jdbcUrl; set them through dataSource.user and dataSource.password below.
+      # If you want to hide the URL so that it cannot be seen in the configdump information, add `jdbcUrl` to keywords4MaskingSecretsOfConfig.
       jdbcUrl: ${SW_JDBC_URL:"jdbc:mysql://localhost:3306/swtest?rewriteBatchedStatements=true&allowMultiQueries=true"}
       dataSource.user: ${SW_DATA_SOURCE_USER:root}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:root@1234}
@@ -213,6 +215,8 @@ storage:
     asyncBatchPersistentPoolSize: ${SW_STORAGE_ASYNC_BATCH_PERSISTENT_POOL_SIZE:4}
   postgresql:
     properties:
+      # Please do not include the username and password in the jdbcUrl; set them through dataSource.user and dataSource.password below.
+      # If you want to hide the URL so that it cannot be seen in the configdump information, add `jdbcUrl` to keywords4MaskingSecretsOfConfig.
       jdbcUrl: ${SW_JDBC_URL:"jdbc:postgresql://localhost:5432/skywalking"}
       dataSource.user: ${SW_DATA_SOURCE_USER:postgres}
       dataSource.password: ${SW_DATA_SOURCE_PASSWORD:123456}
