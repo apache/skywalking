@@ -22,16 +22,27 @@ import com.google.common.collect.ImmutableMap;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static com.google.common.collect.ImmutableMap.of;
 
 public class DecorateTest {
-    @Test
-    public void testDecorate() {
+    @BeforeAll
+    public static void setup() {
         MeterEntity.setNamingControl(
             new NamingControl(512, 512, 512, new EndpointNameGrouping()));
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        MeterEntity.setNamingControl(null);
+    }
+
+    @Test
+    public void testDecorate() {
         ImmutableMap<String, SampleFamily> input = ImmutableMap.of(
             "http_success_request",
             SampleFamilyBuilder.newBuilder(

@@ -37,6 +37,7 @@ import java.util.Map;
 
 import static com.google.common.collect.ImmutableMap.of;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -631,8 +632,11 @@ public class ScopeTest {
         }
         assertTrue(r.isSuccess());
         Map<MeterEntity, Sample[]> meterSamplesR = r.getData().context.getMeterSamples();
-        meterSamplesR.forEach((meterEntity, samples) -> {
-            assertArrayEquals(want.get(meterEntity), samples);
+        // Compare the entity sets first so a missing (or extra) expected entity fails the test,
+        // then iterate over `want` so every expected entity's samples are asserted.
+        assertEquals(want.keySet(), meterSamplesR.keySet());
+        want.forEach((meterEntity, samples) -> {
+            assertArrayEquals(samples, meterSamplesR.get(meterEntity));
         });
     }
 }

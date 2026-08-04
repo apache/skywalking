@@ -35,6 +35,7 @@ import org.apache.skywalking.library.kubernetes.KubernetesServices;
 import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.tagOpt.Retag;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -234,9 +235,16 @@ public class K8sTagTest {
             });
     }
 
+    private KubernetesServices originalServices;
+    private KubernetesPods originalPods;
+
     @SneakyThrows
     @BeforeEach
     public void setup() {
+        // KubernetesServices/KubernetesPods are enum singletons; capture the real INSTANCE so the
+        // mock swap below can be undone in tearDown and does not leak into other tests in this JVM.
+        originalServices = KubernetesServices.INSTANCE;
+        originalPods = KubernetesPods.INSTANCE;
         ReflectUtil.setInternalState(KubernetesServices.class, "INSTANCE",
                                   Mockito.mock(KubernetesServices.class)
         );
@@ -261,6 +269,13 @@ public class K8sTagTest {
                 when(KubernetesPods.INSTANCE.findByIP(pod.getStatus().getPodIP())).thenReturn(Optional.of(pod));
                 when(KubernetesPods.INSTANCE.findByObjectID(ObjectID.builder().name(pod.getMetadata().getName()).namespace(pod.getMetadata().getNamespace()).build())).thenReturn(Optional.of(pod));
         });
+    }
+
+    @SneakyThrows
+    @AfterEach
+    public void tearDown() {
+        ReflectUtil.setInternalState(KubernetesServices.class, "INSTANCE", originalServices);
+        ReflectUtil.setInternalState(KubernetesPods.class, "INSTANCE", originalPods);
     }
 
     @ParameterizedTest(name = "{index}: {0}")
