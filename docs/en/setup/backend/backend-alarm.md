@@ -477,6 +477,23 @@ pagerduty:
 
 You can also configure multiple integration keys.
 
+`events-api-url` is optional and defaults to the US service region endpoint, `https://events.pagerduty.com/v2/enqueue`.
+If your PagerDuty account is in the EU service region, set it to the EU endpoint so that alarms are delivered directly
+instead of being forwarded through the US region:
+
+```yml
+pagerduty:
+  default:
+    is-default: true
+    text-template: "Apache SkyWalking Alarm: \n %s."
+    events-api-url: https://events.eu.pagerduty.com/v2/enqueue
+    integration-keys:
+    - dummy-integration-key
+```
+
+The integration key is sent in the request body, so this endpoint should always use `https`. OAP logs a warning at
+startup if a non-`https` URL is configured.
+
 ### Discord
 Follow the [Discord Webhooks guide](https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks) and create a new webhook.
 

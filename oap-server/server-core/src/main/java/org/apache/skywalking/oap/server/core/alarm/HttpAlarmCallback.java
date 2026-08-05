@@ -52,7 +52,9 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
                 .send(request.build(), HttpResponse.BodyHandlers.ofString());
 
         final var status = response.statusCode();
-        if (status != 200 && status != 204) {
+        // Any 2xx means the hook endpoint accepted the alarm. Asynchronous intake APIs answer with 202 rather
+        // than 200 (PagerDuty's Events API v2 among them), which previously logged every delivery as a failure.
+        if (status < 200 || status >= 300) {
             final var logger = LoggerFactory.getLogger(getClass());
             logger.error(
                     "send to {} failure. Response code: {}, Response content: {}",

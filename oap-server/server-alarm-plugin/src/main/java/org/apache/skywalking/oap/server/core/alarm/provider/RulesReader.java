@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
@@ -50,6 +53,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
  */
+@Slf4j
 public class RulesReader {
     private Map yamlData;
     private final Set<String> defaultHooks = new HashSet<>();
@@ -382,6 +386,39 @@ public class RulesReader {
     }
 
     /**
+     * Rejects a malformed `events-api-url` while the config is being read, so a typo fails startup (or the dynamic
+     * config update) instead of surfacing later as a per-alarm {@link URI#create} failure inside the hook callback,
+     * where every alarm would be dropped with only an error log.
+     *
+     * @param url      the configured endpoint
+     * @param hookName the hook the endpoint belongs to, for the error message
+     */
+    private void validateEventsApiUrl(String url, String hookName) {
+        final URI uri;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(
+                    "PagerDuty hook: [" + hookName + "] events-api-url is malformed: [" + url + "].", e);
+        }
+        final String scheme = uri.getScheme();
+        if (uri.getHost() == null
+                || !("https".equalsIgnoreCase(scheme) || "http".equalsIgnoreCase(scheme))) {
+            throw new IllegalArgumentException(
+                    "PagerDuty hook: [" + hookName + "] events-api-url must be an absolute http(s) URL, but was: ["
+                            + url + "].");
+        }
+        // The integration key travels in the request body, so a non-TLS endpoint puts a credential on the wire.
+        if (!"https".equalsIgnoreCase(scheme)) {
+            log.warn(
+                    "PagerDuty hook [{}] is configured with a non-https events-api-url [{}]. "
+                            + "The integration key is sent in the request body and will not be encrypted.",
+                    hookName, url
+            );
+        }
+    }
+
+    /**
      * Read PagerDuty hook config into {@link PagerDutySettings}
      */
     @SuppressWarnings("unchecked")
@@ -398,6 +435,13 @@ public class RulesReader {
             settings.setTextTemplate((String) textTemplate);
             Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
+
+            Object eventsApiUrl = config.get("events-api-url");
+            if (eventsApiUrl != null && StringUtil.isNotBlank(eventsApiUrl.toString())) {
+                final String url = eventsApiUrl.toString().trim();
+                validateEventsApiUrl(url, settings.getFormattedName());
+                settings.setEventsApiUrl(url);
+            }
 
             List<String> integrationKeys = (List<String>) config.get("integration-keys");
             if (integrationKeys != null) {
