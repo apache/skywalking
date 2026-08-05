@@ -43,9 +43,9 @@ import java.util.Set;
 public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO implements IGenAIEvaluationRecordQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(
             GenAIEvaluationRecord.TRACE_ID,
-            GenAIEvaluationRecord.SERVICE_NAME,
-            GenAIEvaluationRecord.PROVIDER_NAME,
-            GenAIEvaluationRecord.MODEL_NAME,
+            GenAIEvaluationRecord.SERVICE_ID,
+            GenAIEvaluationRecord.PROVIDER_ID,
+            GenAIEvaluationRecord.MODEL_ID,
             GenAIEvaluationRecord.OPERATION_NAME,
             GenAIEvaluationRecord.SCORE_VALUE,
             GenAIEvaluationRecord.SEGMENT_ID,
@@ -65,22 +65,35 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String providerName, String modelName, Double minScore, Double maxScore, String sortField,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceName, String providerName, String modelName, Double minScore, Double maxScore, String sortField,
+                                                             String taskName, String evaluationLevel, String judgeModel,
                                                              TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                                                              Duration duration, List<Tag> tags) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final Conditions where = Conditions.create();
+        if (StringUtil.isNotEmpty(serviceName)) {
+            where.eq(GenAIEvaluationRecord.SERVICE_ID, GenAIEvaluationRecord.toServiceId(serviceName));
+        }
         if (StringUtil.isNotEmpty(providerName)) {
-            where.eq(GenAIEvaluationRecord.PROVIDER_NAME, providerName);
+            where.eq(GenAIEvaluationRecord.PROVIDER_ID, GenAIEvaluationRecord.toEntityId(providerName));
         }
         if (StringUtil.isNotEmpty(modelName)) {
-            where.eq(GenAIEvaluationRecord.MODEL_NAME, modelName);
+            where.eq(GenAIEvaluationRecord.MODEL_ID, GenAIEvaluationRecord.toEntityId(modelName));
         }
         if (minScore != null) {
             where.gte(GenAIEvaluationRecord.SCORE_VALUE, GenAIEvaluationRecord.minScoreValuePpm(minScore));
         }
         if (maxScore != null) {
             where.lte(GenAIEvaluationRecord.SCORE_VALUE, GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+        }
+        if (StringUtil.isNotEmpty(taskName)) {
+            where.eq(GenAIEvaluationRecord.TASK_NAME, taskName);
+        }
+        if (StringUtil.isNotEmpty(evaluationLevel)) {
+            where.eq(GenAIEvaluationRecord.EVALUATION_LEVEL, evaluationLevel);
+        }
+        if (StringUtil.isNotEmpty(judgeModel)) {
+            where.eq(GenAIEvaluationRecord.JUDGE_MODEL, judgeModel);
         }
 
         if (Objects.nonNull(relatedTrace)) {
@@ -102,10 +115,12 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
                 }
             }
         }
-        if (queryOrder == Order.ASC) {
-            where.orderBy(sortColumn(sortField), "ASC");
+        if (GenAIEvaluationRecord.SCORE_VALUE.equalsIgnoreCase(sortField)) {
+            where.orderBy(GenAIEvaluationRecord.SCORE_VALUE, queryOrder == Order.ASC ? "ASC" : "DESC");
+        } else if (queryOrder == Order.ASC) {
+            where.orderByAsc();
         } else {
-            where.orderByDesc(sortColumn(sortField));
+            where.orderByDesc();
         }
         where.limit(limit).offset(from);
 
@@ -116,14 +131,14 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
         for (final RowEntity rowEntity : resp.getElements()) {
             GenAIEvaluationRecord evaluationRecord = new GenAIEvaluationRecord();
             evaluationRecord.setTraceId(rowEntity.getTagValue(GenAIEvaluationRecord.TRACE_ID));
-            evaluationRecord.setServiceName(rowEntity.getTagValue(GenAIEvaluationRecord.SERVICE_NAME));
-            evaluationRecord.setProviderName(rowEntity.getTagValue(GenAIEvaluationRecord.PROVIDER_NAME));
-            evaluationRecord.setModelName(rowEntity.getTagValue(GenAIEvaluationRecord.MODEL_NAME));
+            evaluationRecord.setServiceId(rowEntity.getTagValue(GenAIEvaluationRecord.SERVICE_ID));
+            evaluationRecord.setProviderId(rowEntity.getTagValue(GenAIEvaluationRecord.PROVIDER_ID));
+            evaluationRecord.setModelId(rowEntity.getTagValue(GenAIEvaluationRecord.MODEL_ID));
             evaluationRecord.setOperationName(rowEntity.getTagValue(GenAIEvaluationRecord.OPERATION_NAME));
-            final Number scoreValue = (Number) rowEntity.getTagValue(GenAIEvaluationRecord.SCORE_VALUE);
+            final Number scoreValue = rowEntity.getTagValue(GenAIEvaluationRecord.SCORE_VALUE);
             evaluationRecord.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
             evaluationRecord.setSegmentId(rowEntity.getTagValue(GenAIEvaluationRecord.SEGMENT_ID));
-            evaluationRecord.setSpanId(rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_ID));
+            evaluationRecord.setSpanId(((Number) rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_ID)).intValue());
             evaluationRecord.setSpanType(rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_TYPE));
             evaluationRecord.setTaskName(rowEntity.getTagValue(GenAIEvaluationRecord.TASK_NAME));
             evaluationRecord.setEvaluationTime(((Number) rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_TIME)).longValue());
@@ -135,10 +150,5 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
             genAIEvaluationRecords.getGenAIEvaluationRecordList().add(evaluationRecord);
         }
         return genAIEvaluationRecords;
-    }
-
-    private static String sortColumn(final String sortField) {
-        return GenAIEvaluationRecord.SCORE_VALUE.equals(sortField)
-                ? GenAIEvaluationRecord.SCORE_VALUE : GenAIEvaluationRecord.EVALUATION_TIME;
     }
 }

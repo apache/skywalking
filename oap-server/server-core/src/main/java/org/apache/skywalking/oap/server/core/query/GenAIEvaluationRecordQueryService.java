@@ -51,11 +51,15 @@ public class GenAIEvaluationRecordQueryService implements Service {
         return genAIEvaluationRecordQueryDAO;
     }
 
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String providerName,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceName,
+                                                             String providerName,
                                                              String modelName,
                                                              Double minScore,
                                                              Double maxScore,
                                                              String sortField,
+                                                             String taskName,
+                                                             String evaluationLevel,
+                                                             String judgeModel,
                                                              TraceScopeCondition relatedTrace,
                                                              Pagination paging,
                                                              Order queryOrder,
@@ -67,6 +71,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
             if (traceContext != null) {
                 StringBuilder msg = new StringBuilder();
                 span = traceContext.createSpan("Query Service: queryGenAIEvaluationRecord");
+                msg.append("ServiceName: ").append(serviceName).append(", ");
                 msg.append("ProviderName: ").append(providerName).append(", ");
                 msg.append("ModelName: ").append(modelName).append(", ");
                 msg.append("RelatedTrace: ").append(relatedTrace).append(", ");
@@ -77,7 +82,8 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                providerName, modelName, minScore, maxScore, sortField, relatedTrace, paging, queryOrder, duration, tags
+                serviceName, providerName, modelName, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                relatedTrace, paging, queryOrder, duration, tags
             );
         } finally {
             if (traceContext != null) {
@@ -86,11 +92,15 @@ public class GenAIEvaluationRecordQueryService implements Service {
         }
     }
 
-    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String providerName,
+    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String serviceName,
+                                                                      String providerName,
                                                                       String modelName,
                                                                       Double minScore,
                                                                       Double maxScore,
                                                                       String sortField,
+                                                                      String taskName,
+                                                                      String evaluationLevel,
+                                                                      String judgeModel,
                                                                       TraceScopeCondition relatedTrace,
                                                                       Pagination paging,
                                                                       Order queryOrder,
@@ -99,7 +109,8 @@ public class GenAIEvaluationRecordQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
-                providerName, modelName, minScore, maxScore, sortField, relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
+                serviceName, providerName, modelName, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
         );
     }
 }

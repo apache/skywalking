@@ -32,7 +32,6 @@ import java.util.List;
 @Accessors(chain = true)
 public class GenAIEvaluationRecords {
     private final List<GenAIEvaluationRecord> genAIEvaluationRecordList;
-    private String errorReason;
     private DebuggingTrace debuggingTrace;
 
     public GenAIEvaluationRecords() {

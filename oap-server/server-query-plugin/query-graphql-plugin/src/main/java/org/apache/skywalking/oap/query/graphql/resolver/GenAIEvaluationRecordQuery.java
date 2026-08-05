@@ -94,11 +94,15 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
             });
         }
         return getQueryService().queryGenAIEvaluationRecord(
+                condition.getServiceName(),
                 condition.getProviderName(),
                 condition.getModelName(),
                 condition.getMinScore(),
                 condition.getMaxScore(),
                 condition.getSortField(),
+                condition.getTaskName(),
+                condition.getEvaluationLevel(),
+                condition.getJudgeModel(),
                 condition.getRelatedTrace(),
                 condition.getPaging(),
                 queryOrder,

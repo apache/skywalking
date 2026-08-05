@@ -127,7 +127,7 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
             record.setModelName(namingControl.formatInstanceName(context.getModelName()));
             record.setOperationName(operationName(context));
             record.setSegmentId(context.getSegmentId());
-            record.setSpanId(context.getSpanId());
+            record.setSpanId(Integer.parseInt(context.getSpanId()));
             record.setSpanType(plan.getSpanType() == null ? "" : plan.getSpanType().name());
             record.setTaskName(result.getName());
             record.setValueType(result.getValueType() == null ? "" : result.getValueType().name());
