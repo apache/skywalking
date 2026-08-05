@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -384,6 +386,39 @@ public class RulesReader {
     }
 
     /**
+     * Rejects a malformed `events-api-url` while the config is being read, so a typo fails startup (or the dynamic
+     * config update) instead of surfacing later as a per-alarm {@link URI#create} failure inside the hook callback,
+     * where every alarm would be dropped with only an error log.
+     *
+     * @param url      the configured endpoint
+     * @param hookName the hook the endpoint belongs to, for the error message
+     */
+    private void validateEventsApiUrl(String url, String hookName) {
+        final URI uri;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException(
+                    "PagerDuty hook: [" + hookName + "] events-api-url is malformed: [" + url + "].", e);
+        }
+        final String scheme = uri.getScheme();
+        if (uri.getHost() == null
+                || !("https".equalsIgnoreCase(scheme) || "http".equalsIgnoreCase(scheme))) {
+            throw new IllegalArgumentException(
+                    "PagerDuty hook: [" + hookName + "] events-api-url must be an absolute http(s) URL, but was: ["
+                            + url + "].");
+        }
+        // The integration key travels in the request body, so a non-TLS endpoint puts a credential on the wire.
+        if (!"https".equalsIgnoreCase(scheme)) {
+            log.warn(
+                    "PagerDuty hook [{}] is configured with a non-https events-api-url [{}]. "
+                            + "The integration key is sent in the request body and will not be encrypted.",
+                    hookName, url
+            );
+        }
+    }
+
+    /**
      * Read PagerDuty hook config into {@link PagerDutySettings}
      */
     @SuppressWarnings("unchecked")
@@ -403,15 +438,9 @@ public class RulesReader {
 
             Object eventsApiUrl = config.get("events-api-url");
             if (eventsApiUrl != null && StringUtil.isNotBlank(eventsApiUrl.toString())) {
-                settings.setEventsApiUrl(eventsApiUrl.toString().trim());
-            }
-            // The integration key travels in the request body, so a non-TLS endpoint puts a credential on the wire.
-            if (!settings.getEventsApiUrl().startsWith("https://")) {
-                log.warn(
-                        "PagerDuty hook [{}] is configured with a non-https events-api-url [{}]. "
-                                + "The integration key is sent in the request body and will not be encrypted.",
-                        settings.getFormattedName(), settings.getEventsApiUrl()
-                );
+                final String url = eventsApiUrl.toString().trim();
+                validateEventsApiUrl(url, settings.getFormattedName());
+                settings.setEventsApiUrl(url);
             }
 
             List<String> integrationKeys = (List<String>) config.get("integration-keys");
