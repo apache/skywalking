@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 @Slf4j
 @RequiredArgsConstructor
 public class PagerDutyHookCallback extends HttpAlarmCallback {
-    private static final String PAGER_DUTY_EVENTS_API_V2_URL = "http://events.pagerduty.com/v2/enqueue";
     private static final Gson GSON = new Gson();
 
     private final AlarmRulesWatcher alarmRulesWatcher;
@@ -67,7 +66,7 @@ public class PagerDutyHookCallback extends HttpAlarmCallback {
                 for (final var alarmMessage : messages) {
                     try {
                         post(
-                            URI.create(PAGER_DUTY_EVENTS_API_V2_URL),
+                            URI.create(setting.getEventsApiUrl()),
                             getMessageBody(alarmMessage, integrationKey, template), Map.of()
                         );
                     } catch (Exception e) {

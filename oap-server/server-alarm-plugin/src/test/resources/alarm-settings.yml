@@ -175,6 +175,7 @@ hooks:
         - dummy_key2
     custom1:
       text-template: "Apache SkyWalking Alarm: \n %s."
+      events-api-url: https://events.eu.pagerduty.com/v2/enqueue
       integration-keys:
         #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
         #    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)

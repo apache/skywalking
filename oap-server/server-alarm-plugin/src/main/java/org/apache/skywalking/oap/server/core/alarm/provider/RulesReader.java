@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.mqe.rt.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.alarm.provider.discord.DiscordSettings;
 import org.apache.skywalking.oap.server.core.alarm.provider.pagerduty.PagerDutySettings;
@@ -50,6 +51,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 /**
  * Rule Reader parses the given `alarm-settings.yml` config file, to the target {@link Rules}.
  */
+@Slf4j
 public class RulesReader {
     private Map yamlData;
     private final Set<String> defaultHooks = new HashSet<>();
@@ -398,6 +400,19 @@ public class RulesReader {
             settings.setTextTemplate((String) textTemplate);
             Object recoveryTextTemplate = config.getOrDefault("recovery-text-template", "");
             settings.setRecoveryTextTemplate((String) recoveryTextTemplate);
+
+            Object eventsApiUrl = config.get("events-api-url");
+            if (eventsApiUrl != null && StringUtil.isNotBlank(eventsApiUrl.toString())) {
+                settings.setEventsApiUrl(eventsApiUrl.toString().trim());
+            }
+            // The integration key travels in the request body, so a non-TLS endpoint puts a credential on the wire.
+            if (!settings.getEventsApiUrl().startsWith("https://")) {
+                log.warn(
+                        "PagerDuty hook [{}] is configured with a non-https events-api-url [{}]. "
+                                + "The integration key is sent in the request body and will not be encrypted.",
+                        settings.getFormattedName(), settings.getEventsApiUrl()
+                );
+            }
 
             List<String> integrationKeys = (List<String>) config.get("integration-keys");
             if (integrationKeys != null) {

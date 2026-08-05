@@ -120,6 +120,10 @@ public class RulesReaderTest {
         assertEquals(2, pagerDutyIntegrationKeys.size());
         assertEquals("dummy_key", pagerDutyIntegrationKeys.get(0));
         assertEquals("dummy_key2", pagerDutyIntegrationKeys.get(1));
+        assertEquals(PagerDutySettings.DEFAULT_EVENTS_API_URL, pagerDutySettings.getEventsApiUrl());
+        assertEquals(
+            "https://events.eu.pagerduty.com/v2/enqueue",
+            rules.getPagerDutySettingsMap().get(AlarmHooksType.pagerduty.name() + ".custom1").getEventsApiUrl());
 
         WeLinkSettings weLinkSettings = rules.getWeLinkSettingsMap().get(AlarmHooksType.welink.name() + ".default");
         assertThat(weLinkSettings.getTextTemplate()).isInstanceOfAny(String.class);
