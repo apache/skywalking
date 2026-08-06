@@ -182,7 +182,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public interface RuleEngine<C extends ApplyContext> {
     /**
      * Catalogs this engine handles, e.g. {@code {"otel-rules", "log-mal-rules",
-     * "telegraf-rules"}} for the MAL engine, {@code {"lal"}} for the LAL engine.
+     * "telegraf-rules", "meter-analyzer-config"}} for the MAL engine, {@code {"lal"}} for
+     * the LAL engine.
      * {@link RuleEngineRegistry} reads this once at registration time.
      */
     Set<String> supportedCatalogs();

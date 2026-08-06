@@ -31,6 +31,7 @@ public enum Catalog {
     OTEL_RULES("otel-rules"),
     LOG_MAL_RULES("log-mal-rules"),
     TELEGRAF_RULES("telegraf-rules"),
+    METER_ANALYZER_CONFIG("meter-analyzer-config"),
     LAL("lal"),
     OAL("oal");
 

@@ -828,7 +828,7 @@ public class RuntimeRuleService {
      * then be fetched lazily via {@code GET /runtime/rule}).
      *
      * <p>Catalog scope: {@code otel-rules}, {@code log-mal-rules}, {@code telegraf-rules},
-     * {@code lal} — the same
+     * {@code meter-analyzer-config}, {@code lal} — the same
      * allowlist the write paths use. {@code .oal} files are not exposed here; they live
      * outside the runtime-rule plugin's scope today.
      */

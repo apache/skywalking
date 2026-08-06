@@ -30,9 +30,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,9 +125,10 @@ public class MeterProcessor {
             return;
         }
 
-        // Get all meter builders.
-        final List<MetricConvert> converts = processService.converts();
-        if (CollectionUtils.isEmpty(converts)) {
+        // Get all meter builders. Re-read per batch so a runtime-rule hot-update lands on the
+        // next batch without an OAP restart.
+        final Collection<MetricConvert> converts = processService.converts();
+        if (converts.isEmpty()) {
             return;
         }
 

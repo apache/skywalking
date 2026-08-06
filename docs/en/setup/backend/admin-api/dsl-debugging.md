@@ -10,7 +10,7 @@
 Each DSL has its own probe surface, payload shape, and rule-key conventions
 — pick the page that matches the rule you're debugging:
 
-- **[MAL](dsl-debugging-mal.md)** — meter rules under `otel-rules`, `log-mal-rules`, `telegraf-rules`. Each captured record is one `SampleFamily` walking through the rule end-to-end (filter → chain ops → meterEmit). Sample payloads carry the complete `SampleFamily` (every sample's name + labels + value + timestamp).
+- **[MAL](dsl-debugging-mal.md)** — meter rules under `otel-rules`, `log-mal-rules`, `telegraf-rules`, `meter-analyzer-config`. Each captured record is one `SampleFamily` walking through the rule end-to-end (filter → chain ops → meterEmit). Sample payloads carry the complete `SampleFamily` (every sample's name + labels + value + timestamp).
 - **[OAL](dsl-debugging-oal.md)** — per-metric dispatcher capture under `catalog=oal`. Each record is one `ISource` walking through (source entry → filter clauses → aggregation function → emit). Source samples carry the rich `ServiceRelation`-style payload (sourceServiceName, destServiceName, layers, latency, status, detectPoint, ...).
 - **[LAL](dsl-debugging-lal.md)** — log analysis under `catalog=lal`. Each record is one log walking through (text → parser → extractor statements → sink). `granularity=statement` emits one sample per extractor statement; `granularity=block` (default) collapses extractor into one sample.
 

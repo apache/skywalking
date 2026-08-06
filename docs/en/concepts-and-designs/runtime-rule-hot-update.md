@@ -14,8 +14,9 @@ something goes wrong. The HTTP surface is documented separately in
   live in management storage (the same persistence layer used for UI templates, UI
   menus, and other cluster-wide operator state).
 - **Catalog** — the rule group named in the API, currently `otel-rules`, `log-mal-rules`,
-  `telegraf-rules`, or `lal`. It mirrors the on-disk directory layout so a rule's
-  `(catalog, name)` identity is portable between disk and the runtime-rule entry store.
+  `telegraf-rules`, `meter-analyzer-config`, or `lal`. It mirrors the on-disk directory
+  layout so a rule's `(catalog, name)` identity is portable between disk and the
+  runtime-rule entry store.
 - **Main** — the single OAP node designated to run the on-demand workflow. Every node
   can compute it locally from the sorted cluster peer list; no election.
 - **Peer** — every node other than the main.
@@ -26,8 +27,8 @@ something goes wrong. The HTTP surface is documented separately in
 ## Scope: MAL and LAL, not OAL
 
 Runtime hot-update covers only the **MAL** (`otel-rules`, `log-mal-rules`,
-`telegraf-rules`) and **LAL** (`lal`) catalogs. OAL rules are deliberately out of
-scope. Three reasons, in order of weight:
+`telegraf-rules`, `meter-analyzer-config`) and **LAL** (`lal`) catalogs. OAL rules are
+deliberately out of scope. Three reasons, in order of weight:
 
 1. **OAL targets SkyWalking-native traffic sources; MAL and LAL target third-party
    data.** OAL rules derive metrics from the fixed set of sources the platform

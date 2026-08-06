@@ -216,7 +216,8 @@ public final class DbOverrideRuntimeRuleResolver implements RuntimeRuleOverrideR
             switch (catalog) {
                 case "otel-rules":
                 case "log-mal-rules":
-                case "telegraf-rules": {
+                case "telegraf-rules":
+                case "meter-analyzer-config": {
                     final Rule rule = new Yaml().loadAs(reader, Rule.class);
                     defs = rule == null ? null : rule.getLayerDefinitions();
                     break;

@@ -39,7 +39,7 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.RU
  * <p>One row per (catalog, name) pair mirroring the on-disk static layout:
  * <ul>
  *   <li>{@code catalog} — {@code otel-rules} | {@code log-mal-rules} |
- *       {@code telegraf-rules} | {@code lal}</li>
+ *       {@code telegraf-rules} | {@code meter-analyzer-config} | {@code lal}</li>
  *   <li>{@code name} — relative path under the catalog root without extension, may contain
  *       {@code /} (e.g. {@code aws-gateway/gateway-service})</li>
  *   <li>{@code content} — raw file bytes, byte-identical to the original request body; marked
