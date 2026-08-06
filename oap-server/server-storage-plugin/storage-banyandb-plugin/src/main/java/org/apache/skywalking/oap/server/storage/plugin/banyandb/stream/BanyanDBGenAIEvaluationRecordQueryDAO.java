@@ -65,20 +65,20 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceName, String providerName, String modelName, Double minScore, Double maxScore, String sortField,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, Double minScore, Double maxScore, String sortField,
                                                              String taskName, String evaluationLevel, String judgeModel,
                                                              TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                                                              Duration duration, List<Tag> tags) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final Conditions where = Conditions.create();
-        if (StringUtil.isNotEmpty(serviceName)) {
-            where.eq(GenAIEvaluationRecord.SERVICE_ID, GenAIEvaluationRecord.toServiceId(serviceName));
+        if (StringUtil.isNotEmpty(serviceId)) {
+            where.eq(GenAIEvaluationRecord.SERVICE_ID, serviceId);
         }
-        if (StringUtil.isNotEmpty(providerName)) {
-            where.eq(GenAIEvaluationRecord.PROVIDER_ID, GenAIEvaluationRecord.toEntityId(providerName));
+        if (StringUtil.isNotEmpty(providerId)) {
+            where.eq(GenAIEvaluationRecord.PROVIDER_ID, providerId);
         }
-        if (StringUtil.isNotEmpty(modelName)) {
-            where.eq(GenAIEvaluationRecord.MODEL_ID, GenAIEvaluationRecord.toEntityId(modelName));
+        if (StringUtil.isNotEmpty(modelId)) {
+            where.eq(GenAIEvaluationRecord.MODEL_ID, modelId);
         }
         if (minScore != null) {
             where.gte(GenAIEvaluationRecord.SCORE_VALUE, GenAIEvaluationRecord.minScoreValuePpm(minScore));

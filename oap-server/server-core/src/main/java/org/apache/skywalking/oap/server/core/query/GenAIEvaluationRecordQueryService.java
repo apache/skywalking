@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -51,9 +53,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
         return genAIEvaluationRecordQueryDAO;
     }
 
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceName,
-                                                             String providerName,
-                                                             String modelName,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId,
+                                                             String providerId,
+                                                             String modelId,
                                                              Double minScore,
                                                              Double maxScore,
                                                              String sortField,
@@ -71,9 +73,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
             if (traceContext != null) {
                 StringBuilder msg = new StringBuilder();
                 span = traceContext.createSpan("Query Service: queryGenAIEvaluationRecord");
-                msg.append("ServiceName: ").append(serviceName).append(", ");
-                msg.append("ProviderName: ").append(providerName).append(", ");
-                msg.append("ModelName: ").append(modelName).append(", ");
+                msg.append("ServiceId: ").append(serviceId).append(", ");
+                msg.append("ProviderId: ").append(providerId).append(", ");
+                msg.append("ModelId: ").append(modelId).append(", ");
                 msg.append("RelatedTrace: ").append(relatedTrace).append(", ");
                 msg.append("Pagination: ").append(paging).append(", ");
                 msg.append("QueryOrder: ").append(queryOrder).append(", ");
@@ -82,7 +84,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                serviceName, providerName, modelName, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, toStoredModelId(modelId), minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
                 relatedTrace, paging, queryOrder, duration, tags
             );
         } finally {
@@ -92,9 +94,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
         }
     }
 
-    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String serviceName,
-                                                                      String providerName,
-                                                                      String modelName,
+    private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String serviceId,
+                                                                      String providerId,
+                                                                      String modelId,
                                                                       Double minScore,
                                                                       Double maxScore,
                                                                       String sortField,
@@ -109,8 +111,20 @@ public class GenAIEvaluationRecordQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
-                serviceName, providerName, modelName, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
         );
+    }
+
+    private String toStoredModelId(final String modelInstanceId) {
+        if (modelInstanceId == null || modelInstanceId.isEmpty()) {
+            return modelInstanceId;
+        }
+        // The UI model picker supplies a ServiceInstanceID. Accept an already
+        // stored model ServiceID as well for non-UI API callers.
+        if (!modelInstanceId.contains("_")) {
+            return modelInstanceId;
+        }
+        return GenAIEvaluationRecord.toEntityId(IDManager.ServiceInstanceID.analysisId(modelInstanceId).getName());
     }
 }

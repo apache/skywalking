@@ -69,9 +69,9 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceName,
-                                                             final String providerName,
-                                                             final String modelName,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceId,
+                                                             final String providerId,
+                                                             final String modelId,
                                                              final Double minScore, final Double maxScore, final String sortField,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
@@ -97,14 +97,14 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         if (startSecondTB != 0 && endSecondTB != 0) {
             query.must(Query.range(Record.TIME_BUCKET).gte(startSecondTB).lte(endSecondTB));
         }
-        if (isNotEmpty(serviceName)) {
-            query.must(Query.term(GenAIEvaluationRecord.SERVICE_ID, GenAIEvaluationRecord.toServiceId(serviceName)));
+        if (isNotEmpty(serviceId)) {
+            query.must(Query.term(GenAIEvaluationRecord.SERVICE_ID, serviceId));
         }
-        if (isNotEmpty(providerName)) {
-            query.must(Query.term(GenAIEvaluationRecord.PROVIDER_ID, GenAIEvaluationRecord.toEntityId(providerName)));
+        if (isNotEmpty(providerId)) {
+            query.must(Query.term(GenAIEvaluationRecord.PROVIDER_ID, providerId));
         }
-        if (isNotEmpty(modelName)) {
-            query.must(Query.term(GenAIEvaluationRecord.MODEL_ID, GenAIEvaluationRecord.toEntityId(modelName)));
+        if (isNotEmpty(modelId)) {
+            query.must(Query.term(GenAIEvaluationRecord.MODEL_ID, modelId));
         }
         if (minScore != null || maxScore != null) {
             final var scoreRange = Query.range(GenAIEvaluationRecord.SCORE_VALUE);

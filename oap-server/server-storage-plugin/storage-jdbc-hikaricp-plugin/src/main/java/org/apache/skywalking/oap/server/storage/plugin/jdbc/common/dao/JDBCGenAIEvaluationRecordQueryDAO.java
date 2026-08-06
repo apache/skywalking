@@ -92,9 +92,9 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
 
     @Override
     @SneakyThrows
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceName,
-                                                             final String providerName,
-                                                             final String modelName,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceId,
+                                                             final String providerId,
+                                                             final String modelId,
                                                              final Double minScore, final Double maxScore, final String sortField,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
@@ -127,7 +127,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         final var records = new ArrayList<GenAIEvaluationRecord>();
         for (final var table : tables) {
             final var sqlAndParameters = buildSQL(
-                serviceName, providerName, modelName, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, from, limit, duration, tags, table);
             records.addAll(
                 jdbcClient.executeQuery(
@@ -176,9 +176,9 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         return records;
     }
 
-    protected SQLAndParameters buildSQL(final String serviceName,
-                                        final String providerName,
-                                        final String modelName,
+    protected SQLAndParameters buildSQL(final String serviceId,
+                                        final String providerId,
+                                        final String modelId,
                                         final Double minScore,
                                         final Double maxScore,
                                         final String sortField,
@@ -215,17 +215,17 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.TIME_BUCKET)).append(" <= ?");
             parameters.add(endSecondTB);
         }
-        if (StringUtil.isNotEmpty(serviceName)) {
+        if (StringUtil.isNotEmpty(serviceId)) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SERVICE_ID)).append(" = ?");
-            parameters.add(GenAIEvaluationRecord.toServiceId(serviceName));
+            parameters.add(serviceId);
         }
-        if (StringUtil.isNotEmpty(providerName)) {
+        if (StringUtil.isNotEmpty(providerId)) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.PROVIDER_ID)).append(" = ?");
-            parameters.add(GenAIEvaluationRecord.toEntityId(providerName));
+            parameters.add(providerId);
         }
-        if (StringUtil.isNotEmpty(modelName)) {
+        if (StringUtil.isNotEmpty(modelId)) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.MODEL_ID)).append(" = ?");
-            parameters.add(GenAIEvaluationRecord.toEntityId(modelName));
+            parameters.add(modelId);
         }
         if (minScore != null) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SCORE_VALUE)).append(" >= ?");
