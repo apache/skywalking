@@ -20,9 +20,12 @@
 setup:
   env: compose
   file: docker-compose.yml
-  # Five phases, each gated on a minute-bucket boundary plus a persistence
-  # flush; worst case is ~23m of polling on top of image pull + OAP boot.
-  timeout: 40m
+  # Six phases, each gated on an async-apply terminal phase and/or a minute-bucket
+  # boundary plus a persistence flush; pathological worst case is ~32m of polling on
+  # top of image pull + OAP boot. Deliberately generous: a harness timeout CANCELS the
+  # job, and `upload-artifact: if failure()` does not run on cancellation, so a timeout
+  # kill yields no logs. Every internal budget must trip before this one does.
+  timeout: 50m
   init-system-environment: ../../../script/env
   steps:
     - name: set PATH

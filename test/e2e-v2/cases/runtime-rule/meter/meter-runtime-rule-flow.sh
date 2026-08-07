@@ -89,6 +89,9 @@ STOP_SETTLE_S="${STOP_SETTLE_S:-120}"
 # concluded. Guards the negative assertion against a vacuous pass when the query
 # path itself is broken for the whole settle window.
 MIN_STOPPED_OBSERVATIONS="${MIN_STOPPED_OBSERVATIONS:-3}"
+# Budget for the async apply state machine to reach a terminal phase on
+# GET /runtime/rule/status. BanyanDB's meta->data-node schema sync can take 1-2 minutes.
+APPLY_TERMINAL_S="${APPLY_TERMINAL_S:-200}"
 # Budget for an /addOrUpdate to reach ACTIVE. The apply is async — the REST call returns
 # after the durable commit, while the schema fence rolls out in the background (its own
 # default budget is 180s), so this must not be a single read.
@@ -257,26 +260,65 @@ wait_metric "${BUNDLED_METRIC}"
 
 # ---- phase 2: hot-add a pure-runtime meter rule ---------------------------
 log "phase 2: hot-add ${CATALOG}/${RUNTIME_NAME} (no on-disk twin)"
-admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
-  -f "${SEED_DIR}/meter-v1.yaml" \
+add_resp="$(admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
+  -f "${SEED_DIR}/meter-v1.yaml")" \
   || fail "addOrUpdate of ${RUNTIME_NAME} returned non-2xx"
 
-# The apply is asynchronous — addOrUpdate returns once the row is persisted, while the
-# schema fence and peer roll-out complete in the background. Poll rather than reading the
-# status once, exactly as cases/dsl-debugging/mal/dsl-debug-flow.sh does.
-wait_rule_active() {
-  local name="$1"
-  local deadline=$(( $(date +%s) + APPLY_LAND_S ))
-  local status=""
-  while (( $(date +%s) < deadline )); do
-    status="$(rule_status "${name}" || true)"
-    [[ "${status}" == "ACTIVE" ]] && { log "  ${CATALOG}/${name} is ACTIVE"; return 0; }
-    sleep 3
+# Drive the async apply to a terminal phase, mirroring
+# cases/runtime-rule/mal-storage/runtime-rule-flow.sh's helper.
+#
+# The row's ACTIVE status is NOT a synchronisation point: a STRUCTURAL addOrUpdate returns
+# immediately at FENCING with an applyId while the schema fence and peer roll-out finish in
+# the background, and on an EDIT the row is already ACTIVE from the previous apply — so
+# polling for ACTIVE would return instantly and prove nothing. The applyId phase is the only
+# signal that distinguishes "committed and rolled out" from "still fencing", and it is also
+# the only one that can surface FAILED / DEGRADED.
+#
+# A synchronous apply (filter_only / inactivate) carries no applyId; the response is already
+# durable on return, so this is a no-op there.
+await_apply_terminal() {
+  local resp="$1"
+  local rule_name="${2:-${RUNTIME_NAME}}"
+  local apply_id
+  apply_id="$(echo "${resp}" | jq -r '.applyId // empty' 2>/dev/null || true)"
+  if [[ -z "${apply_id}" ]]; then
+    log "  (synchronous apply, no applyId — already durable)"
+    return 0
+  fi
+  local deadline=$(( $(date +%s) + APPLY_TERMINAL_S ))
+  local body phase=""
+  while :; do
+    body="$(curl -s "${REST_BASE}/runtime/rule/status?applyId=${apply_id}&catalog=${CATALOG}&name=${rule_name}" 2>/dev/null || true)"
+    phase="$(echo "${body}" | jq -r '.phase // empty' 2>/dev/null || true)"
+    case "${phase}" in
+      APPLIED|DEGRADED)
+        log "  apply ${apply_id} reached ${phase} (durable)"
+        return 0
+        ;;
+      FAILED)
+        fail "apply ${apply_id} of ${CATALOG}/${rule_name} reached FAILED: ${body}"
+        ;;
+    esac
+    if (( $(date +%s) >= deadline )); then
+      fail "apply ${apply_id} of ${CATALOG}/${rule_name} did not reach a terminal phase within ${APPLY_TERMINAL_S}s (last phase='${phase}', body: ${body})"
+    fi
+    sleep 2
   done
-  fail "${CATALOG}/${name} did not reach ACTIVE within ${APPLY_LAND_S}s (last saw '${status}')"
 }
 
-wait_rule_active "${RUNTIME_NAME}"
+await_apply_terminal "${add_resp}"
+
+# Belt-and-braces: the row must also be visible as ACTIVE.
+active_deadline=$(( $(date +%s) + APPLY_LAND_S ))
+row_status=""
+while (( $(date +%s) < active_deadline )); do
+  row_status="$(rule_status "${RUNTIME_NAME}" || true)"
+  [[ "${row_status}" == "ACTIVE" ]] && break
+  sleep 3
+done
+[[ "${row_status}" == "ACTIVE" ]] \
+  || fail "${CATALOG}/${RUNTIME_NAME} did not reach ACTIVE within ${APPLY_LAND_S}s (last saw '${row_status}')"
+log "  ${CATALOG}/${RUNTIME_NAME} is ACTIVE"
 
 log "  applied; ${RUNTIME_METRIC} must become queryable with no restart"
 wait_metric "${RUNTIME_METRIC}"
@@ -285,28 +327,34 @@ wait_metric "${RUNTIME_METRIC}"
 # Baselines are captured BEFORE the edit, so the post-edit assertions cannot be
 # satisfied by buckets the v1 converter already wrote.
 log "phase 3: edit ${CATALOG}/${RUNTIME_NAME} in place (v1 -> v2, adds a metric)"
-pre_edit_v1="$(metric_buckets "${RUNTIME_METRIC}")" \
-  || fail "could not read a baseline for ${RUNTIME_METRIC} before the edit"
 # v2's metric does not exist yet, so an empty set is the expected answer here.
 # Tolerate a query failure specifically because "unknown metric" may surface as
 # an error rather than an empty envelope; an empty baseline only ever makes the
 # follow-up fresh-bucket assertion easier to satisfy, never the stopped-check.
 pre_edit_v2="$(metric_buckets "${RUNTIME_METRIC_V2}" || true)"
 
-admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
-  -f "${SEED_DIR}/meter-v2.yaml" \
+edit_resp="$(admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
+  -f "${SEED_DIR}/meter-v2.yaml")" \
   || fail "addOrUpdate (edit) of ${RUNTIME_NAME} returned non-2xx"
 
 # Declaring an extra metric makes this a STRUCTURAL apply, so the fence/roll-out window is
-# at its widest here. Settle on ACTIVE first, so a stalled apply is reported as such rather
-# than surfacing later as a confusing "converter is not live".
-wait_rule_active "${RUNTIME_NAME}"
+# at its widest here. Block until the apply is durably terminal before asserting anything —
+# the row is already ACTIVE from phase 2, so row status proves nothing about THIS apply.
+await_apply_terminal "${edit_resp}"
 
 log "  the newly declared ${RUNTIME_METRIC_V2} must produce a fresh bucket"
 wait_fresh_metric "${RUNTIME_METRIC_V2}" "${pre_edit_v2}"
 
-log "  and the metric v1 already registered must still produce fresh buckets"
-wait_fresh_metric "${RUNTIME_METRIC}" "${pre_edit_v1}"
+# v1's baseline is taken HERE, after the edit is terminal — not before it. A baseline
+# captured pre-edit would be satisfied by buckets the OLD v1 converter emitted while the
+# structural apply was still fencing (and while the v2 wait above burned minutes), which
+# would prove the old converter was alive, not that the REPLACEMENT converter kept v1's
+# metric registered. Re-baselining makes the assertion strictly post-replacement.
+post_edit_v1="$(metric_buckets "${RUNTIME_METRIC}")" \
+  || fail "could not read a post-edit baseline for ${RUNTIME_METRIC}"
+
+log "  and the metric v1 already registered must still produce buckets NEWER than the edit"
+wait_fresh_metric "${RUNTIME_METRIC}" "${post_edit_v1}"
 
 # ---- phase 4: DSL debug session against a BUNDLED meter rule --------------
 # Deliberately targets the BUNDLED rule, not the runtime one: binding a runtime
