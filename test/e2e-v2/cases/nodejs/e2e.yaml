@@ -122,3 +122,15 @@ verify:
       expected: expected/metrics-has-value.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_external_memory --instance-name=provider-instance --service-name=provider
       expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_array_buffers --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_uptime --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_peak_malloced_memory --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_malloced_memory --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_old_space_used --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_instance_nodejs_new_space_used --instance-name=provider-instance --service-name=provider
+      expected: expected/metrics-has-value.yml
