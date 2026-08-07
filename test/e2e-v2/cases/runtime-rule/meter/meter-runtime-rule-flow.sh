@@ -21,10 +21,11 @@
 # Rules/Rule pipeline:
 #
 #   0. Admin API reachable (readiness only, asserts no capability).
-#   1. BUNDLED VISIBILITY — the shipped batch-meter.yaml appears in
-#      `runtime-rule list`. Only true once meter rules go through
-#      RuleSetMerger and are recorded in StaticRuleRegistry. Previously the
-#      meter loader read YAML directly, so the catalog was invisible here.
+#   1. BUNDLED VISIBILITY — the shipped batch-meter.yaml is listed by
+#      GET /runtime/rule/bundled, which reads StaticRuleRegistry directly.
+#      Only true once meter rules go through RuleSetMerger and are recorded
+#      there. Previously the meter loader read YAML directly, so the catalog
+#      was invisible to the whole runtime-rule surface.
 #   2. HOT ADD — a pure-runtime meter rule (no on-disk twin) becomes a live,
 #      queryable metric with no OAP restart. Proves the applied MetricConvert
 #      reached MeterProcessService's MalConverterRegistry and that
@@ -92,6 +93,10 @@ MIN_STOPPED_OBSERVATIONS="${MIN_STOPPED_OBSERVATIONS:-3}"
 # Budget for the async apply state machine to reach a terminal phase on
 # GET /runtime/rule/status. BanyanDB's meta->data-node schema sync can take 1-2 minutes.
 APPLY_TERMINAL_S="${APPLY_TERMINAL_S:-200}"
+# Budget for the bundled meter rules to appear in StaticRuleRegistry. agent-analyzer now
+# declares StorageModule, so it starts late in the boot sequence and the admin API can
+# answer before its static rules are recorded.
+BUNDLED_VISIBLE_S="${BUNDLED_VISIBLE_S:-120}"
 # Budget for an /addOrUpdate to reach ACTIVE. The apply is async — the REST call returns
 # after the durable commit, while the schema fence rolls out in the background (its own
 # default budget is 180s), so this must not be a single read.
@@ -249,11 +254,30 @@ log "  admin API up"
 
 # ---- phase 1: bundled meter rule is visible -------------------------------
 log "phase 1: bundled ${CATALOG}/${BUNDLED_NAME} must be visible to runtime-rule"
-admin runtime-rule list \
-  | jq -e --arg c "${CATALOG}" --arg n "${BUNDLED_NAME}" \
-      '.rules[] | select(.catalog==$c and .name==$n)' >/dev/null \
-  || fail "bundled ${CATALOG}/${BUNDLED_NAME} is NOT visible in runtime-rule list — meter rules are not reaching StaticRuleRegistry"
-log "  bundled rule visible"
+# Probe GET /runtime/rule/bundled, NOT /list. /bundled reads StaticRuleRegistry directly,
+# which is exactly the registration this change adds. /list is the wrong endpoint here: its
+# bundled branch only walks snapshot entries carrying a non-null DSLRuntimeState, and
+# MalRuleEngine.installBundled deliberately resets state to null after a bundled fall-over
+# (so the next gone-keys pass skips it as an untouched bundled-only entry) — so a
+# fall-over'd bundled rule is legitimately absent from /list.
+#
+# Polled because agent-analyzer now starts late in the boot sequence (it declares
+# StorageModule), so the admin API can answer before its rules are registered.
+bundled_deadline=$(( $(date +%s) + BUNDLED_VISIBLE_S ))
+bundled_seen=0
+while (( $(date +%s) < bundled_deadline )); do
+  # Shape-tolerant: matches a bare array of rows or any envelope that nests them.
+  if admin runtime-rule bundled --catalog "${CATALOG}" 2>/dev/null \
+      | jq -e --arg n "${BUNDLED_NAME}" \
+          '[.. | objects | select(.name? == $n)] | length > 0' >/dev/null 2>&1; then
+    bundled_seen=1
+    break
+  fi
+  sleep 3
+done
+(( bundled_seen == 1 )) \
+  || fail "bundled ${CATALOG}/${BUNDLED_NAME} is NOT listed by /runtime/rule/bundled within ${BUNDLED_VISIBLE_S}s — meter rules are not reaching StaticRuleRegistry"
+log "  bundled rule visible via /runtime/rule/bundled"
 
 log "  and the bundled metric ${BUNDLED_METRIC} produces data"
 wait_metric "${BUNDLED_METRIC}"
