@@ -26,6 +26,16 @@ package org.apache.skywalking.oap.server.core.trace;
  */
 public interface OTLPSpanReader {
     /**
+     * @return the trace id encoded as lowercase hex
+     */
+    String traceId();
+
+    /**
+     * @return the span id encoded as lowercase hex
+     */
+    String spanId();
+
+    /**
      * @return the span name (e.g., "HTTP GET", "MXMetricPayload")
      */
     String spanName();

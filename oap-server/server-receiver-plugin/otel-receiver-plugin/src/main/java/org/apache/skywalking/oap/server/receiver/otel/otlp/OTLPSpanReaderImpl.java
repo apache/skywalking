@@ -17,19 +17,33 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
+import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 
+import java.math.BigInteger;
+
 /**
  * {@link OTLPSpanReader} implementation wrapping the real OTLP {@link Span} proto.
  */
 public class OTLPSpanReaderImpl implements OTLPSpanReader {
+
     private final Span span;
 
     public OTLPSpanReaderImpl(final Span span) {
         this.span = span;
+    }
+
+    @Override
+    public String traceId() {
+        return idToHexString(span.getTraceId());
+    }
+
+    @Override
+    public String spanId() {
+        return idToHexString(span.getSpanId());
     }
 
     @Override
@@ -76,5 +90,12 @@ public class OTLPSpanReaderImpl implements OTLPSpanReader {
             return String.valueOf(value.getBoolValue());
         }
         return "";
+    }
+
+    private String idToHexString(ByteString id) {
+        if (id == null) {
+            return "";
+        }
+        return new BigInteger(1, id.toByteArray()).toString();
     }
 }

@@ -48,6 +48,7 @@
         <module>server-fetcher-plugin</module>
         <module>server-health-checker</module>
         <module>ai-pipeline</module>
+        <module>ai-evaluation</module>
         <module>mqe-grammar</module>
         <module>mqe-rt</module>
     </modules>
