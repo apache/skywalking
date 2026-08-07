@@ -39,6 +39,31 @@ input:
     - labels:
         instance: test-instance
       value: 65536.0
+
+  instance_nodejs_array_buffers:
+    - labels:
+        instance: test-instance
+      value: 8192.0
+  instance_nodejs_uptime:
+    - labels:
+        instance: test-instance
+      value: 3600.0
+  instance_nodejs_peak_malloced_memory:
+    - labels:
+        instance: test-instance
+      value: 131072.0
+  instance_nodejs_malloced_memory:
+    - labels:
+        instance: test-instance
+      value: 98304.0
+  instance_nodejs_old_space_used:
+    - labels:
+        instance: test-instance
+      value: 524288.0
+  instance_nodejs_new_space_used:
+    - labels:
+        instance: test-instance
+      value: 262144.0
 expected:
   meter_instance_nodejs_process_cpu:
     entities:
@@ -94,3 +119,58 @@ expected:
       - labels:
           instance: test-instance
         value: 65536.0
+
+  meter_instance_nodejs_array_buffers:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 8192.0
+  meter_instance_nodejs_uptime:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 3600.0
+  meter_instance_nodejs_peak_malloced_memory:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 131072.0
+  meter_instance_nodejs_malloced_memory:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 98304.0
+  meter_instance_nodejs_old_space_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 524288.0
+  meter_instance_nodejs_new_space_used:
+    entities:
+      - scope: SERVICE_INSTANCE
+        instance: test-instance
+        layer: GENERAL
+    samples:
+      - labels:
+          instance: test-instance
+        value: 262144.0
