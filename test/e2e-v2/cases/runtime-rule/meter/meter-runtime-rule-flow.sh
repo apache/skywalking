@@ -113,6 +113,42 @@ fail() { echo "[meter-runtime-rule-flow] FAIL: $*" >&2; exit 1; }
 # so `meter-analyzer-config` needs no CLI change.
 admin() { swctl --display json --admin-url="${REST_BASE}" admin "$@"; }
 
+# Retry a runtime-rule admin call while it returns 503. The cluster routing layer
+# transiently answers 503 cluster_not_ready while its peer refresh is in flight, which the
+# otel catalog's flow documents as happening reliably right after a STRUCTURAL apply — and
+# phase 3 is exactly that, so phase 5's inactivate lands inside the window.
+#
+# Unlike the otel helper this keeps stdout CLEAN (stderr is captured separately rather than
+# folded in with 2>&1), because callers pipe the response into jq to read .applyId — a
+# merged stderr line would corrupt that JSON and silently reduce await_apply_terminal to a
+# no-op.
+RETRY_BUDGET_S="${RETRY_BUDGET_S:-90}"
+retry_admin() {
+  local deadline=$(( $(date +%s) + RETRY_BUDGET_S ))
+  local errf out rc
+  errf="$(mktemp)"
+  while :; do
+    rc=0
+    out="$(admin "$@" 2>"${errf}")" || rc=$?
+    if (( rc == 0 )); then
+      rm -f "${errf}"
+      printf '%s' "${out}"
+      return 0
+    fi
+    # Check BOTH streams: swctl's fatal envelope has been seen on stderr, but stdout is
+    # checked too so a change in where the CLI writes it cannot silently disable the retry.
+    if [[ "${out}$(cat "${errf}" 2>/dev/null)" == *"HTTP 503"* ]] \
+        && (( $(date +%s) < deadline )); then
+      log "  transient 503 on 'admin $*' — retrying"
+      sleep 3
+      continue
+    fi
+    log "  admin $* failed (rc=${rc}): $(tr '\n' ' ' < "${errf}" 2>/dev/null)"
+    rm -f "${errf}"
+    return "${rc}"
+  done
+}
+
 # Push one batch of native MeterData (raw meter `batch_test`).
 push_meter() {
   curl -s -XPOST "http://${SENDER_HOST}:${SENDER_PORT}/sendBatchMetrics" >/dev/null \
@@ -284,7 +320,7 @@ wait_metric "${BUNDLED_METRIC}"
 
 # ---- phase 2: hot-add a pure-runtime meter rule ---------------------------
 log "phase 2: hot-add ${CATALOG}/${RUNTIME_NAME} (no on-disk twin)"
-add_resp="$(admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
+add_resp="$(retry_admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
   -f "${SEED_DIR}/meter-v1.yaml")" \
   || fail "addOrUpdate of ${RUNTIME_NAME} returned non-2xx"
 
@@ -357,7 +393,7 @@ log "phase 3: edit ${CATALOG}/${RUNTIME_NAME} in place (v1 -> v2, adds a metric)
 # follow-up fresh-bucket assertion easier to satisfy, never the stopped-check.
 pre_edit_v2="$(metric_buckets "${RUNTIME_METRIC_V2}" || true)"
 
-edit_resp="$(admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
+edit_resp="$(retry_admin runtime-rule add --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
   -f "${SEED_DIR}/meter-v2.yaml")" \
   || fail "addOrUpdate (edit) of ${RUNTIME_NAME} returned non-2xx"
 
@@ -446,8 +482,8 @@ log "  session stopped"
 
 # ---- phase 5: inactivate the runtime rule ---------------------------------
 log "phase 5: inactivate ${CATALOG}/${RUNTIME_NAME}"
-admin runtime-rule inactivate --catalog "${CATALOG}" --name "${RUNTIME_NAME}" \
-  || fail "inactivate of ${RUNTIME_NAME} returned non-2xx"
+retry_admin runtime-rule inactivate --catalog "${CATALOG}" --name "${RUNTIME_NAME}" >/dev/null \
+  || fail "inactivate of ${RUNTIME_NAME} returned non-2xx (see the admin error logged above)"
 
 # Also async: poll rather than reading once.
 inactivate_deadline=$(( $(date +%s) + APPLY_LAND_S ))
