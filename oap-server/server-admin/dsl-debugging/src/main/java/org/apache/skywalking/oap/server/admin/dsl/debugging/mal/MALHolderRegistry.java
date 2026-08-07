@@ -90,7 +90,8 @@ public final class MALHolderRegistry implements DebugHolderLookup, Service {
         final Catalog c = key.getCatalog();
         return c == Catalog.OTEL_RULES
             || c == Catalog.LOG_MAL_RULES
-            || c == Catalog.TELEGRAF_RULES;
+            || c == Catalog.TELEGRAF_RULES
+            || c == Catalog.METER_ANALYZER_CONFIG;
     }
 
     @Override

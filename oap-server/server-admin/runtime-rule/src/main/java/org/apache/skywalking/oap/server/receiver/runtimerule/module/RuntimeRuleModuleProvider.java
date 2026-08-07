@@ -121,8 +121,9 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  *   ┌──────  MalRuleEngine  ──────┐    ┌──────  LalRuleEngine  ──────┐
  *   │  catalogs: otel-rules,      │    │  catalogs: lal              │
  *   │            log-mal-rules,   │    │                             │
- *   │            telegraf-rules   │    │                             │
- *   │                             │    │                             │
+ *   │            telegraf-rules,  │    │                             │
+ *   │            meter-analyzer-  │    │                             │
+ *   │              config         │    │                             │
  *   │  classify(old, new, ina)    │    │  classify(old, new, ina)    │
  *   │  claimedKeys(content, src)  │    │  claimedKeys(content, src)  │
  *   │  compile → CompiledMalDSL   │    │  compile → CompiledLalDSL   │
@@ -177,10 +178,13 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  *
  * <h2>Catalog → engine routing</h2>
  * Catalog membership is data-driven through {@code RuleEngineRegistry}: a catalog is "MAL"
- * iff a registered engine is {@code MalRuleEngine}. Adding {@code telegraf-rules} support is
- * one entry in {@code MalRuleEngine.supportedCatalogs} — REST validation, scheduler routing,
- * and tick enumeration pick it up automatically. (Full telegraf apply additionally requires
- * the telegraf receiver module to expose a {@code MalConverterRegistry} service.)
+ * iff a registered engine is {@code MalRuleEngine}. Adding a MAL catalog is one entry in
+ * {@code MalRuleEngine.supportedCatalogs} — REST validation, scheduler routing, and tick
+ * enumeration pick it up automatically. A catalog additionally needs its owning receiver /
+ * analyzer module to expose a {@code MalConverterRegistry} service before converter push
+ * works; {@code meter-analyzer-config} gets that from {@code agent-analyzer}'s
+ * {@code MeterProcessService}, while {@code telegraf-rules} still lacks one and therefore
+ * degrades to "no push".
  *
  * <p>The full architecture (single-main routing, lock acquisition policy, marker-debt
  * invariant for cold-boot / topology-shift, cross-file ownership semantics, soft-pause /

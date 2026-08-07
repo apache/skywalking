@@ -426,6 +426,8 @@ jobs:
           - name: Runtime Rule Cluster (kind)
             config: test/e2e-v2/cases/runtime-rule/cluster/e2e.yaml
             runs-on: ubuntu-24.04
+          - name: Runtime Rule Meter Hot-Update
+            config: test/e2e-v2/cases/runtime-rule/meter/e2e.yaml
           - name: DSL Debug API — MAL
             config: test/e2e-v2/cases/dsl-debugging/mal/e2e.yaml
           - name: DSL Debug API — OAL

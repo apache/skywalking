@@ -255,6 +255,11 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* Support runtime rule hot-update and DSL debugging for the `meter-analyzer-config` catalog, bringing native meter (`MeterReportService`) rules to parity with `otel-rules`.
+  - Meter rules now load through the same `Rules`/`Rule` pipeline `otel-rules` uses, so they participate in `RuleSetMerger`, are recorded in `StaticRuleRegistry`, support the optional `layerDefinitions` block, and generate source-named expression classes instead of falling back to `MalExpr_<N>`.
+  - `MeterProcessService` now implements `MalConverterRegistry` and publishes debug holders at boot, so a meter rule can be added / overridden / inactivated at runtime, and attached to a DSL debug session, without restarting the OAP.
+  - The internal `MeterConfig` / `MeterConfigs` model is removed in favour of the shared one.
+  - **Behaviour change:** an entry in `meterAnalyzerActiveFiles` (`SW_METER_ANALYZER_ACTIVE_FILES`) with no matching rule file now fails OAP startup instead of being silently ignored, matching how `otel-rules` has always behaved.
 * Support Elasticsearch 9.x as storage.
 * Add Node.js runtime metrics via the Node.js agent **`MeterReportService`** pipeline (`meter_instance_nodejs_*`, 1s collect/report). OAP analyzes raw meters through `nodejs-runtime.yaml`. Node.js E2E asserts six `meter_instance_nodejs_*` metrics (`test/e2e-v2/cases/nodejs/e2e.yaml`).
 * Add PHP runtime PHM meter analyzer (`php-runtime.yaml`) for SkyWalking PHP agent process
@@ -353,6 +358,7 @@
 * Support trace V1 view in trace single page.
 
 #### Documentation
+* Document the `meter-analyzer-config` catalog in the runtime-rule hot-update and DSL-debugging references, and add the optional `layerDefinitions` block, the active-files startup-failure behaviour, and a hot-update / debugging section to the meter setup doc.
 * Update LAL documentation with `sourceAttribute()` function and `layer: auto` mode.
 * Add Airflow monitoring setup documentation (SWIP-7).
 * Add iOS app monitoring setup documentation.

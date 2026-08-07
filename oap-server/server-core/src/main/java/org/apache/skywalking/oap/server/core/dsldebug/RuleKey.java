@@ -34,9 +34,9 @@ import org.apache.skywalking.oap.server.core.classloader.Catalog;
  * <p>{@link Catalog} is the existing wire-name-mapped enum already used by
  * the runtime-rule REST handler; reusing it here keeps the same set of
  * acceptable values across the whole admin surface. Phase 1 (MAL) covers the
- * {@code OTEL_RULES}, {@code LOG_MAL_RULES}, and {@code TELEGRAF_RULES}
- * catalogs; phase 2 adds {@code LAL}; phase 3 adds an {@code OAL} value
- * when OAL probes land.
+ * {@code OTEL_RULES}, {@code LOG_MAL_RULES}, {@code TELEGRAF_RULES}, and
+ * {@code METER_ANALYZER_CONFIG} catalogs; phase 2 adds {@code LAL}; phase 3
+ * adds an {@code OAL} value when OAL probes land.
  *
  * <p>{@code ruleName} disambiguates when a single rule file declares
  * multiple metrics — e.g. an OAL file with several metric definitions, or an

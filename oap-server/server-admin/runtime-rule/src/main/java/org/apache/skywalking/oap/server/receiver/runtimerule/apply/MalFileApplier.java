@@ -49,8 +49,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.EngineApplied
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Turns a runtime-rule MAL file (one of the {@code otel-rules} / {@code log-mal-rules}
- * catalogs) into a live {@link MetricConvert} on this OAP node.
+ * Turns a runtime-rule MAL file (one of the {@code otel-rules} / {@code log-mal-rules} /
+ * {@code telegraf-rules} / {@code meter-analyzer-config} catalogs) into a live
+ * {@link MetricConvert} on this OAP node.
  *
  * <p>This is the MAL half of the apply pipeline: parse the stored YAML, construct a
  * {@link MetricConvert}, and let the existing meter-analyzer path register each declared

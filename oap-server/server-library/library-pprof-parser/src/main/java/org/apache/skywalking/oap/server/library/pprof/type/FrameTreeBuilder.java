@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -87,7 +86,7 @@ public class FrameTreeBuilder {
                 children = child.getChildren();
             } else {
                 // if the child does not exist, create a new child
-                RawFrameTree child = new RawFrameTree(locationId, 1, (isEnd ? 1 : 0));
+                RawFrameTree child = new RawFrameTree(locationId, 1, isEnd ? 1 : 0);
                 children.put(locationId, child);
                 children = child.getChildren();
             }
