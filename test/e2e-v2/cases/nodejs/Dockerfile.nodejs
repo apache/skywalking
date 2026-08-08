@@ -15,13 +15,14 @@
 
 FROM node:20
 
+ARG SW_AGENT_NODEJS_REPO=https://github.com/apache/skywalking-nodejs.git
 ARG SW_AGENT_NODEJS_COMMIT
 
 WORKDIR /app
 
 EXPOSE 5050 5051
 
-RUN git clone https://github.com/apache/skywalking-nodejs.git $(pwd)
+RUN git clone ${SW_AGENT_NODEJS_REPO} $(pwd)
 
 RUN git reset --hard ${SW_AGENT_NODEJS_COMMIT} && git submodule update --init
 
