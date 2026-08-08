@@ -626,7 +626,13 @@ final class MALClosureCodegen {
         final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
         companion.addMethod(m);
         addCompanionLocalVariableTable(m, info);
-        bytecodeHelper.addLineNumberTable(m, firstResultSlot(info));
+        // No LineNumberTable for companions, deliberately. Two reasons, both verified against
+        // real artifacts: (1) no `.java` source is written for a companion, so any line would
+        // address a file that does not exist; (2) the store-scan is not a statement-boundary
+        // detector here — a closure body of `tags.put(...)` / `if` / `return` emits no store to
+        // the result slot, so the whole method collapsed to a single entry spanning 200+ bytes.
+        // An absent table lets the JVM report "unknown line", which is honest; the previous
+        // degenerate one attributed every frame in the closure to line 1.
         return companion;
     }
 

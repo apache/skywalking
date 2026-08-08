@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -145,12 +144,16 @@ public class Rules {
     }
 
     private static Rule parseRule(final String ruleName, final byte[] bytes) {
-        try (Reader r = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8)) {
+        // Decode once and bind from the String: RuleSourceLines re-composes the SAME text to read
+        // positional marks, which snakeyaml's bean binding discards.
+        final String text = new String(bytes, StandardCharsets.UTF_8);
+        try (Reader r = new StringReader(text)) {
             Rule rule = new Yaml().loadAs(r, Rule.class);
             if (rule == null) {
                 return null;
             }
             rule.setName(ruleName);
+            RuleSourceLines.assign(rule, text);
             registerInlineLayers(ruleName, rule);
             return rule;
         } catch (IOException e) {

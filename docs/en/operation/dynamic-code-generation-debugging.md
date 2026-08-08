@@ -123,16 +123,17 @@ Reading this:
 | DSL | SourceFile Example | Generated Class Name | How to Read |
 |-----|-------------------|---------------------|-------------|
 | OAL | `(core.oal:20)ServiceRespTimeMetrics.java` | `ServiceRespTimeMetrics` | OAL file `core.oal`, line 20 defines this metric |
-| MAL | `(vm.yaml:25)cpu_total_percentage.java` | `vm_L25_cpu_total_percentage` | YAML file `vm.yaml`, line 25, rule `cpu_total_percentage` |
-| MAL filter | `(vm.yaml:20)filter.java` | `vm_L20_filter` | YAML file `vm.yaml`, line 20, filter expression |
+| MAL | `vm_L25_cpu_total_percentage.java` | `vm_L25_cpu_total_percentage` | YAML file `vm.yaml`, line 25, rule `cpu_total_percentage`. The `SourceFile` equals the generated class file so an IDE can resolve the frame; the YAML provenance is carried by the class name. |
+| MAL filter | `vm_L20_filter.java` | `vm_L20_filter` | YAML file `vm.yaml`, line 20, filter expression |
 | LAL | `(default.yaml:3)default.java` | `default_L3_default` | YAML file `default.yaml`, line 3, rule `default` |
 | Hierarchy | `(hierarchy-definition.yml:88)name.java` | `hierarchy_definition_L88_name` | Rule `name` at line 88 in `hierarchy-definition.yml` |
 
 **Notes:**
 - The class name pattern is `{yamlFileName}_L{lineNo}_{ruleName}` for all DSLs (except OAL).
   The yaml file name and line number from `yamlSource` are combined with the rule name or `filter`.
-- The number after `:` in the SourceFile prefix is the line number in the YAML file where the rule is defined (for MAL in production, this may be a 0-based rule index instead of a line number).
-- When source information is unavailable, the class name falls back to `MalExpr_<N>` / `LalExpr_<N>` / `HierarchyRule_<N>` and the SourceFile to just `ClassName.java` without the parenthesized prefix.
+- The number after `_L` in the class name is the 1-based line in the YAML file where the rule (or the `filter:`) is defined.
+- For MAL, the line number in a stack frame (`SourceFile:LineNumber`) is a line in the GENERATED `.java` file, not in the YAML. The two are different coordinate spaces: use the class name for YAML provenance, and the frame line to locate the generated statement. The per-stage YAML line is reported separately by the [DSL debugging API](../setup/backend/admin-api/dsl-debugging-mal.md) as `sourceLine`.
+- When source information is unavailable, the class name falls back to `MalExpr_<N>` / `LalExpr_<N>` / `HierarchyRule_<N>`. For MAL, a line that was expected but could not be resolved renders as `_Lunknown_` rather than being silently omitted, so the failure stays visible.
 
 ### Mapping Back to DSL Source
 

@@ -68,7 +68,7 @@ public interface MALDebugRecorder extends DebugRecorder {
     }
 
     /** First read of an input metric reference at the top of run(). */
-    void appendInput(String rule, String metricRef, SampleFamily family);
+    void appendInput(String rule, String metricRef, SampleFamily family, int sourceLine);
 
     /**
      * File-level filter probe. {@code surviving} carries every
@@ -78,13 +78,15 @@ public interface MALDebugRecorder extends DebugRecorder {
      * kept = true} when at least one family survived, {@code false}
      * when the rule short-circuits post-filter.
      */
-    void appendFilter(String rule, String filterText, Map<String, SampleFamily> surviving, boolean kept);
+    void appendFilter(String rule, String filterText, Map<String, SampleFamily> surviving,
+                      boolean kept, int sourceLine);
 
     /** Per-stage capture (chain method, binary op, unary neg, etc.). */
-    void appendStage(String rule, String sourceText, SampleFamily family);
+    void appendStage(String rule, String sourceText, SampleFamily family, int sourceLine);
 
     /** Downsample stage (rate / irate / increase / etc.). */
-    void appendDownsample(String rule, String function, String origin, SampleFamily family);
+    void appendDownsample(String rule, String function, String origin, SampleFamily family,
+                          int sourceLine);
 
     /**
      * Captures the {@code (value, timeBucket)} pair the ingest path is about to push —
@@ -97,5 +99,5 @@ public interface MALDebugRecorder extends DebugRecorder {
      * (unlike OAL where {@code appendBuild} fires before the entry function runs).
      */
     void appendMeterEmit(String rule, MeterEntity entity, String metricName,
-                         AcceptableValue<?> value, long timeBucket);
+                         AcceptableValue<?> value, long timeBucket, int sourceLine);
 }

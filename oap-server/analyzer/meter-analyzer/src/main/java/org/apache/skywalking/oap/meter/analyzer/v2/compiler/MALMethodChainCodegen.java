@@ -52,6 +52,16 @@ final class MALMethodChainCodegen {
         this.exprCodegen = exprCodegen;
     }
 
+    /**
+     * YAML line this chain stage was written on. A stage contributed by the file-level
+     * {@code expSuffix:} resolves to the suffix's line, not the rule's — which is the whole
+     * point of carrying an offset on {@link MALExpressionModel.MethodCall}.
+     */
+    private int yamlLineOf(final MALExpressionModel.MethodCall mc) {
+        final int resolved = exprCodegen.getSourceMap().yamlLineOf(mc.getSourceStartIndex());
+        return resolved > 0 ? resolved : exprCodegen.getDefaultYamlLine();
+    }
+
     // ==================== Chain codegen ====================
 
     /**
@@ -86,7 +96,7 @@ final class MALMethodChainCodegen {
 
             if (mc.isExtension()) {
                 emitExtensionCall(sb, var, mc);
-                MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var);
+                MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var, yamlLineOf(mc));
                 continue;
             }
             // Pre-compute complex expression arguments to temp variables
@@ -98,7 +108,7 @@ final class MALMethodChainCodegen {
             sb.append(");\n");
             preComputedArgs = null;
             // Capture the SampleFamily after this chain stage runs.
-            MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var);
+            MALCodegenHelper.emitCaptureStage(sb, rule, stageText, var, yamlLineOf(mc));
         }
     }
 

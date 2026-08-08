@@ -90,14 +90,15 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
     }
 
     @Override
-    public void appendInput(final String rule, final String metricRef, final SampleFamily family) {
-        addSample(new Sample(Sample.TYPE_INPUT, metricRef, true, payload(family), 0));
+    public void appendInput(final String rule, final String metricRef, final SampleFamily family,
+                            final int sourceLine) {
+        addSample(new Sample(Sample.TYPE_INPUT, metricRef, true, payload(family), sourceLine));
     }
 
     @Override
     public void appendFilter(final String rule, final String filterText,
                              final Map<String, SampleFamily> surviving,
-                             final boolean kept) {
+                             final boolean kept, final int sourceLine) {
         if (!kept) {
             // Kept-only capture: a rule whose file-level filter rejected the
             // entire input map isn't relevant to this rule's operator-facing
@@ -110,7 +111,7 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
             return;
         }
         addSample(new Sample(Sample.TYPE_FILTER, filterText, true,
-                             multiFamilyPayload(surviving), 0));
+                             multiFamilyPayload(surviving), sourceLine));
     }
 
     /**
@@ -141,25 +142,27 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
     }
 
     @Override
-    public void appendStage(final String rule, final String sourceText, final SampleFamily family) {
-        addSample(new Sample(Sample.TYPE_FUNCTION, sourceText, true, payload(family), 0));
+    public void appendStage(final String rule, final String sourceText, final SampleFamily family,
+                            final int sourceLine) {
+        addSample(new Sample(Sample.TYPE_FUNCTION, sourceText, true, payload(family), sourceLine));
     }
 
     @Override
     public void appendDownsample(final String rule, final String function,
-                                 final String origin, final SampleFamily family) {
+                                 final String origin, final SampleFamily family,
+                                 final int sourceLine) {
         // sourceText is the verbatim downsample function name (AVG / SUM / etc.).
         // The `origin` argument tells the UI whether the operator declared
         // `downsampling:` explicitly or MAL filled it in based on the metric
         // type — record both so the terminal output sample can echo it.
         lastDownsample.set(function + "(" + origin + ")");
-        addSample(new Sample(Sample.TYPE_FUNCTION, function, true, payload(family), 0));
+        addSample(new Sample(Sample.TYPE_FUNCTION, function, true, payload(family), sourceLine));
     }
 
     @Override
     public void appendMeterEmit(final String rule, final MeterEntity entity,
                                 final String metricName, final AcceptableValue<?> value,
-                                final long timeBucket) {
+                                final long timeBucket, final int sourceLine) {
         // One analysis pass can emit multiple meters (one per entity in
         // meterSamples) — they all land in the same record. The pass-level
         // appendEndAnalysis is the close point, not this one.
@@ -174,7 +177,7 @@ public final class MALDebugRecorderImpl extends AbstractDebugRecorder
             ? resolveFunctionName(value)
             : captured;
         addSample(new Sample(Sample.TYPE_OUTPUT, sourceText, true,
-            meterEmitPayload(entity, metricName, value, timeBucket), 0));
+            meterEmitPayload(entity, metricName, value, timeBucket), sourceLine));
     }
 
     private static String payload(final SampleFamily family) {

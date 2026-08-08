@@ -42,6 +42,8 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceMap;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceRef;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MALDebug;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -199,7 +201,27 @@ public class Analyzer {
                                     final javassist.ClassPool pool,
                                     final ClassLoader targetClassLoader,
                                     final StorageManipulationOpt storageOpt) {
-        Expression e = DSL.parse(metricName, expression, yamlSource, pool, targetClassLoader);
+        return prepare(metricName, filter, expression, meterSystem, yamlSource, pool,
+            targetClassLoader, storageOpt, MalSourceMap.EMPTY);
+    }
+
+    /**
+     * Source-mapped overload — see {@link DSL#parse(String, String, String,
+     * javassist.ClassPool, ClassLoader, MalSourceMap)}.
+     *
+     * @param sourceMap resolves each chain stage to its YAML line
+     */
+    public static Analyzer prepare(final String metricName,
+                                    final FilterExpression filter,
+                                    final String expression,
+                                    final MeterSystem meterSystem,
+                                    final String yamlSource,
+                                    final javassist.ClassPool pool,
+                                    final ClassLoader targetClassLoader,
+                                    final StorageManipulationOpt storageOpt,
+                                    final MalSourceMap sourceMap) {
+        Expression e = DSL.parse(metricName, expression, yamlSource, pool, targetClassLoader,
+            sourceMap);
         ExpressionMetadata ctx = e.parse();
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.pool = pool;
@@ -250,6 +272,14 @@ public class Analyzer {
      * MetadataRegistry populate without server-side DDL.
      */
     private StorageManipulationOpt storageOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+    /**
+     * YAML lines for the two probes this class fires by hand rather than through codegen. Both
+     * are file-level: the filter is declared once per file, and the terminal meterEmit stage is
+     * contributed by the file-level {@code expSuffix:} when one is declared (falling back to the
+     * rule's own {@code exp:} line when it is not).
+     */
+    private int filterYamlLine = MalSourceRef.UNRESOLVED;
+    private int meterEmitYamlLine = MalSourceRef.UNRESOLVED;
 
     /**
      * Analyse the full sample family map and produce meter-system metrics.
@@ -302,7 +332,7 @@ public class Analyzer {
                 MALDebug.captureFilter(debugHolder, metricName,
                                        filterExpression.getLiteral(),
                                        kept ? input : preFilter,
-                                       kept);
+                                       kept, filterYamlLine);
             }
             if (input.isEmpty()) {
                 if (log.isDebugEnabled()) {
@@ -416,6 +446,18 @@ public class Analyzer {
      * state. OAL splits build vs aggregation because its entry function mutates
      * the {@code Metrics} between them; MAL has nothing equivalent.
      */
+    /**
+     * Supply the file-level lines for the hand-written probes. Called by {@code MetricConvert}
+     * once the rule's anchors are known.
+     *
+     * @param filterLine    line of the file-level {@code filter:} key
+     * @param meterEmitLine line to attribute the terminal emit to
+     */
+    public void setProbeSourceLines(final int filterLine, final int meterEmitLine) {
+        this.filterYamlLine = filterLine > 0 ? filterLine : MalSourceRef.UNRESOLVED;
+        this.meterEmitYamlLine = meterEmitLine > 0 ? meterEmitLine : MalSourceRef.UNRESOLVED;
+    }
+
     private void captureMeterEmit(final GateHolder debugHolder,
                                   final MeterEntity entity,
                                   final AcceptableValue<?> value,
@@ -424,7 +466,8 @@ public class Analyzer {
             return;
         }
         MALDebug.captureMeterEmit(debugHolder, metricName, entity, metricName,
-                                  value, TimeBucket.getMinuteTimeBucket(sourceTimestamp));
+                                  value, TimeBucket.getMinuteTimeBucket(sourceTimestamp),
+                                  meterEmitYamlLine);
     }
 
     private long getValue(Sample sample) {

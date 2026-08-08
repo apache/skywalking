@@ -114,14 +114,15 @@ final class MALCodegenHelper {
      * @param var        the local variable holding the {@code SampleFamily} after the stage
      */
     static void emitCaptureStage(final StringBuilder sb, final String ruleName,
-                                 final String sourceText, final String var) {
+                                 final String sourceText, final String var,
+                                 final int sourceLine) {
         if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
             return;
         }
         sb.append("  if (this.debug.isGateOn()) ").append(MAL_DEBUG_FQCN)
           .append(".captureStage(this.debug, \"").append(escapeJava(ruleName))
           .append("\", \"").append(escapeJava(sourceText))
-          .append("\", ").append(var).append(");\n");
+          .append("\", ").append(var).append(", ").append(sourceLine).append(");\n");
     }
 
     /**
@@ -129,14 +130,15 @@ final class MALCodegenHelper {
      * metric reference is read from the input {@code samples} map.
      */
     static void emitCaptureInput(final StringBuilder sb, final String ruleName,
-                                 final String metricRef, final String var) {
+                                 final String metricRef, final String var,
+                                 final int sourceLine) {
         if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
             return;
         }
         sb.append("  if (this.debug.isGateOn()) ").append(MAL_DEBUG_FQCN)
           .append(".captureInput(this.debug, \"").append(escapeJava(ruleName))
           .append("\", \"").append(escapeJava(metricRef))
-          .append("\", ").append(var).append(");\n");
+          .append("\", ").append(var).append(", ").append(sourceLine).append(");\n");
     }
 
     // ---- Method classification sets ----

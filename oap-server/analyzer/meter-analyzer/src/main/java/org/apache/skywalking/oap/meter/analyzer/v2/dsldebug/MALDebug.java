@@ -85,8 +85,9 @@ public final class MALDebug {
     }
 
     public static void captureInput(final GateHolder holder, final String rule,
-                                    final String metricRef, final SampleFamily family) {
-        fanOut(holder, r -> r.appendInput(rule, metricRef, family));
+                                    final String metricRef, final SampleFamily family,
+                                    final int sourceLine) {
+        fanOut(holder, r -> r.appendInput(rule, metricRef, family, sourceLine));
     }
 
     /**
@@ -103,25 +104,28 @@ public final class MALDebug {
     public static void captureFilter(final GateHolder holder, final String rule,
                                      final String filterText,
                                      final Map<String, SampleFamily> surviving,
-                                     final boolean kept) {
-        fanOut(holder, r -> r.appendFilter(rule, filterText, surviving, kept));
+                                     final boolean kept, final int sourceLine) {
+        fanOut(holder, r -> r.appendFilter(rule, filterText, surviving, kept, sourceLine));
     }
 
     public static void captureStage(final GateHolder holder, final String rule,
-                                    final String sourceText, final SampleFamily family) {
-        fanOut(holder, r -> r.appendStage(rule, sourceText, family));
+                                    final String sourceText, final SampleFamily family,
+                                    final int sourceLine) {
+        fanOut(holder, r -> r.appendStage(rule, sourceText, family, sourceLine));
     }
 
     public static void captureDownsample(final GateHolder holder, final String rule,
                                          final String function, final String origin,
-                                         final SampleFamily family) {
-        fanOut(holder, r -> r.appendDownsample(rule, function, origin, family));
+                                         final SampleFamily family, final int sourceLine) {
+        fanOut(holder, r -> r.appendDownsample(rule, function, origin, family, sourceLine));
     }
 
     public static void captureMeterEmit(final GateHolder holder, final String rule,
                                         final MeterEntity entity, final String metricName,
-                                        final AcceptableValue<?> value, final long timeBucket) {
-        fanOut(holder, r -> r.appendMeterEmit(rule, entity, metricName, value, timeBucket));
+                                        final AcceptableValue<?> value, final long timeBucket,
+                                        final int sourceLine) {
+        fanOut(holder, r -> r.appendMeterEmit(rule, entity, metricName, value, timeBucket,
+            sourceLine));
     }
 
     private static void fanOut(final GateHolder holder, final Dispatch dispatch) {
