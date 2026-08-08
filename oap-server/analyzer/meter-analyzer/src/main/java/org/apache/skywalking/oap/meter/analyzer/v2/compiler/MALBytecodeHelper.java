@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -229,8 +232,14 @@ final class MALBytecodeHelper {
         }
         final File file = new File(
             classOutputDir, ctClass.getSimpleName() + ".java");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-            w.write("// Synthetic source — Javassist compile input for ");
+        // UTF-8 explicitly, NOT the platform default: the header below contains a non-ASCII
+        // character, and a FileWriter would encode it in whatever the JVM's default charset
+        // happens to be. On a JVM defaulting to GBK / Shift_JIS / windows-1252 that produces
+        // bytes which are not valid UTF-8, so the file an IDE (or a test) opens as UTF-8 fails
+        // to decode. The generated source must be readable the same way everywhere.
+        try (Writer w = new OutputStreamWriter(
+                new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            w.write("// Synthetic source - Javassist compile input for ");
             w.write(ctClass.getSimpleName());
             w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
             w.write("// source-attach to render the bytecode without FernFlower.\n\n");
