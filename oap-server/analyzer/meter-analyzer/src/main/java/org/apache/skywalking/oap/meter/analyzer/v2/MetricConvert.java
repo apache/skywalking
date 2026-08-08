@@ -34,6 +34,8 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALScriptParser;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceMap;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceRef;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -132,8 +134,20 @@ public class MetricConvert {
         final List<Analyzer> prepared = IntStream.range(0, rules.size()).mapToObj(
             i -> {
                 final MetricRuleConfig.RuleConfig r = rules.get(i);
-                final String yamlSource = sourceName != null
-                    ? sourceName + ".yaml:" + i : null;
+                // The rule's REAL line, not its position in the list. The two only ever agreed by
+                // accident, which is why a stack trace used to point at the top of the file.
+                // A line is always expected here; -1 marks a resolution failure so it stays
+                // visible in the artifact rather than silently degrading.
+                final String yamlSource = sourceName == null ? null
+                    : sourceName + ".yaml:" + (r.getLineNo() > 0 ? r.getLineNo() : MalSourceRef.UNRESOLVED);
+                // Build the source map from the SAME splice formatExp performs, so a stage's
+                // offset in the formatted text resolves to the fragment that authored it.
+                final MALScriptParser.PrefixInjection injection =
+                    MALScriptParser.injectExpPrefixTracked(r.getExp(), rule.getExpPrefix());
+                final boolean hasExpSuffix = !Strings.isNullOrEmpty(rule.getExpSuffix());
+                final MalSourceMap sourceMap = MalSourceMap.of(
+                    injection, hasExpSuffix,
+                    r.getExpLine(), rule.getExpPrefixLine(), rule.getExpSuffixLine());
                 final Analyzer analyzer = prepareAnalyzer(
                     formatMetricName(rule, r.getName()),
                     filter,
@@ -142,8 +156,13 @@ public class MetricConvert {
                     yamlSource,
                     pool,
                     targetClassLoader,
-                    storageOpt
+                    storageOpt,
+                    sourceMap
                 );
+                // The hand-written probes are file-level: the filter has its own line, and the
+                // terminal emit is contributed by expSuffix when one is declared.
+                analyzer.setProbeSourceLines(rule.getFilterLine(),
+                    hasExpSuffix ? rule.getExpSuffixLine() : r.getExpLine());
                 // Stamp the rule's structured fields onto the per-metric
                 // GateHolder so dsl-debugging records render the rule as
                 // {metricPrefix, name, filter, exp, expSuffix} alongside
@@ -268,7 +287,8 @@ public class MetricConvert {
                               final String yamlSource,
                               final javassist.ClassPool pool,
                               final ClassLoader targetClassLoader,
-                              final StorageManipulationOpt storageOpt) {
+                              final StorageManipulationOpt storageOpt,
+                              final MalSourceMap sourceMap) {
         return Analyzer.prepare(
             metricsName,
             filter,
@@ -277,7 +297,8 @@ public class MetricConvert {
             yamlSource,
             pool,
             targetClassLoader,
-            storageOpt
+            storageOpt,
+            sourceMap
         );
     }
 
@@ -289,8 +310,10 @@ public class MetricConvert {
             return null;
         }
         final String sourceName = rule.getSourceName();
-        final String yamlSource = sourceName != null
-            ? sourceName + ".yaml" : null;
+        // The filter has its own line, distinct from any rule's — it is file-level.
+        final String yamlSource = sourceName == null ? null
+            : sourceName + ".yaml:"
+                + (rule.getFilterLine() > 0 ? rule.getFilterLine() : MalSourceRef.UNRESOLVED);
         return new FilterExpression(filterText, "filter", yamlSource, pool, targetClassLoader);
     }
 

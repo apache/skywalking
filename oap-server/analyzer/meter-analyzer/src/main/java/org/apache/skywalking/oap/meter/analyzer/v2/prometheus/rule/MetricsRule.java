@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
 
@@ -34,4 +36,16 @@ import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
 public class MetricsRule implements MetricRuleConfig.RuleConfig {
     private String name;
     private String exp;
+    /**
+     * Source anchors, stamped by the loader from {@code MalYamlLineIndex} — not YAML-bound keys.
+     * Excluded from equals/hashCode/toString so a rule's identity stays its content: the
+     * runtime-rule delta classifier compares parsed rules, and a rule that merely moved down the
+     * file must not read as changed.
+     */
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private int lineNo;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private int expLine;
 }

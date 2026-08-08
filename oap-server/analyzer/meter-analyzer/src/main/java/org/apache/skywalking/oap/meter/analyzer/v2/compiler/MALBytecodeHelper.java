@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -118,7 +121,15 @@ final class MALBytecodeHelper {
         final StringBuilder sb = new StringBuilder();
         sb.append(MALCodegenHelper.sanitizeName(yamlBase));
         if (lineNo != null) {
-            sb.append("_L").append(lineNo);
+            // The unresolved marker is -1, which is not legal in a Java identifier; render it as
+            // "unknown" so the failure stays visible in the class name instead of vanishing.
+            int parsed;
+            try {
+                parsed = Integer.parseInt(lineNo.trim());
+            } catch (final NumberFormatException e) {
+                parsed = MalSourceRef.UNRESOLVED;
+            }
+            sb.append("_L").append(MalSourceRef.toIdentifierSegment(parsed));
         }
         sb.append('_').append(hint);
         return sb.toString();
@@ -146,15 +157,21 @@ final class MALBytecodeHelper {
     // ==================== Debug output ====================
 
     /**
-     * Builds the SourceFile name for a generated class.
-     * Example: {@code "(vm.yaml:25)cpu_total.java"}
+     * Builds the {@code SourceFile} name for a generated class.
+     *
+     * <p>This MUST equal the file {@link #writeSourceFile} actually writes — that is the entire
+     * contract an IDE relies on to resolve a stack frame to that source. It previously returned
+     * {@code "(vm.yaml:25)cpu_total.java"} while the file on disk was named after the class
+     * (e.g. {@code vm_L25_cpu_total.java}), so source-attach could never resolve, independent of
+     * whether the embedded line was correct.
+     *
+     * <p>The YAML provenance is NOT repeated here. It already lives in the class name (and hence
+     * in this file name), and the per-statement YAML lines belong to the operator coordinate
+     * carried on {@link MalSourceRef}, not to a per-file bytecode attribute that can only hold
+     * one value for a rule spliced from three source locations.
      */
-    String formatSourceFileName(final String metricName) {
-        final String classFile = metricName + ".java";
-        if (yamlSource != null) {
-            return "(" + yamlSource + ")" + classFile;
-        }
-        return classFile;
+    static String sourceFileNameOf(final CtClass ctClass) {
+        return ctClass.getSimpleName() + ".java";
     }
 
     /**
@@ -215,8 +232,14 @@ final class MALBytecodeHelper {
         }
         final File file = new File(
             classOutputDir, ctClass.getSimpleName() + ".java");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-            w.write("// Synthetic source — Javassist compile input for ");
+        // UTF-8 explicitly, NOT the platform default: the header below contains a non-ASCII
+        // character, and a FileWriter would encode it in whatever the JVM's default charset
+        // happens to be. On a JVM defaulting to GBK / Shift_JIS / windows-1252 that produces
+        // bytes which are not valid UTF-8, so the file an IDE (or a test) opens as UTF-8 fails
+        // to decode. The generated source must be readable the same way everywhere.
+        try (Writer w = new OutputStreamWriter(
+                new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            w.write("// Synthetic source - Javassist compile input for ");
             w.write(ctClass.getSimpleName());
             w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
             w.write("// source-attach to render the bytecode without FernFlower.\n\n");
@@ -232,12 +255,28 @@ final class MALBytecodeHelper {
     // ==================== Bytecode attributes ====================
 
     /**
-     * Adds a {@code LineNumberTable} attribute to the method.
-     * Scans bytecode for store instructions to local variable slots
-     * >= {@code firstResultSlot}, assigning sequential line numbers.
+     * Adds a {@code LineNumberTable} mapping each bytecode boundary to its line in the
+     * {@code .java} source written for the generated class.
+     *
+     * <p>Boundaries are the first instruction plus the instruction after every store to a local
+     * slot {@code >= firstResultSlot}, which for the variable-per-expression codegen is one per
+     * emitted statement. {@code boundaryLines} must list the corresponding method-relative source
+     * lines in the same order — {@link MalGeneratedSourceLines} derives them from the same
+     * generated text, so the two agree by construction.
+     *
+     * <p>This previously emitted {@code 1,2,3…} — statement ordinals that matched neither the generated
+     * class source nor the rule YAML, so no IDE could resolve a frame.
+     *
+     * @param method          the generated method
+     * @param firstResultSlot lowest local slot that holds a statement result
+     * @param statementLines  1-based lines WITHIN THE GENERATED METHOD, in boundary order
+     * @param methodSignatureLineInClass line the method signature occupies in the generated
+     *                        class source, used to convert method-relative to class-relative
      */
     void addLineNumberTable(final javassist.CtMethod method,
-                             final int firstResultSlot) {
+                             final int firstResultSlot,
+                             final java.util.List<Integer> statementLines,
+                             final int methodSignatureLineInClass) {
         try {
             final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
             final javassist.bytecode.CodeAttribute code =
@@ -246,14 +285,15 @@ final class MALBytecodeHelper {
                 return;
             }
             final List<int[]> entries = new ArrayList<>();
-            int line = 1;
+            int boundary = 0;
             boolean nextIsNewLine = true;
 
             final javassist.bytecode.CodeIterator ci = code.iterator();
             while (ci.hasNext()) {
                 final int pc = ci.next();
                 if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
+                    entries.add(new int[]{pc, lineInGeneratedClass(statementLines, boundary, methodSignatureLineInClass)});
+                    boundary++;
                     nextIsNewLine = false;
                 }
                 final int op = ci.byteAt(pc) & 0xFF;
@@ -270,6 +310,30 @@ final class MALBytecodeHelper {
 
             if (entries.isEmpty()) {
                 return;
+            }
+            if (statementLines == null || statementLines.isEmpty()
+                    || entries.size() != statementLines.size()) {
+                // Emit NOTHING rather than a table we already know is wrong. A desync means a
+                // codegen change altered the statement shape without the scanner learning about
+                // it, so the surviving entries are shifted -- plausible, and wrong. Note also
+                // that line_number is an unsigned u2, so an UNRESOLVED (-1) would serialize as
+                // 65535 and read as a real line, not as "unknown". Same policy as companion
+                // classes: no attribution beats false attribution, and an absent table makes the
+                // JVM report an unknown line honestly.
+                if (statementLines != null && !statementLines.isEmpty()) {
+                    log.warn("MAL LineNumberTable omitted for {}: {} bytecode boundaries vs {} "
+                            + "source lines. Frames will report an unknown line.",
+                        method.getName(), entries.size(), statementLines.size());
+                }
+                return;
+            }
+            for (final int[] entry : entries) {
+                if (entry[1] <= 0) {
+                    // An unresolved line cannot be represented: u2 would turn -1 into 65535.
+                    log.warn("MAL LineNumberTable omitted for {}: an entry had no resolvable "
+                        + "line.", method.getName());
+                    return;
+                }
             }
             final javassist.bytecode.ConstPool cp = mi.getConstPool();
             final byte[] info = new byte[2 + entries.size() * 4];
@@ -288,6 +352,26 @@ final class MALBytecodeHelper {
         } catch (Exception e) {
             log.warn("Failed to add LineNumberTable: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Sidecar line for boundary {@code i}, or {@link MalSourceRef#UNRESOLVED} when the scanner
+     * produced no line for it. {@code -1} is deliberate: a bogus-but-plausible line is worse than
+     * an obviously absent one, and the JVM tolerates it in a {@code LineNumberTable}.
+     */
+    private static int lineInGeneratedClass(final java.util.List<Integer> statementLines,
+                                            final int index,
+                                            final int methodSignatureLineInClass) {
+        if (statementLines == null || index >= statementLines.size()) {
+            return MalSourceRef.UNRESOLVED;
+        }
+        final Integer lineInMethod = statementLines.get(index);
+        if (lineInMethod == null || lineInMethod <= 0) {
+            return MalSourceRef.UNRESOLVED;
+        }
+        // Method-relative line 1 IS the signature line, so the class-relative line counts from
+        // there rather than adding a bare offset.
+        return methodSignatureLineInClass + lineInMethod - 1;
     }
 
     /**

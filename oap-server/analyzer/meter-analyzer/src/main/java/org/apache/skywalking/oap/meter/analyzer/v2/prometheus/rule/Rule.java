@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.NoArgsConstructor;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricRuleConfig;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
@@ -43,6 +45,20 @@ public class Rule implements MetricRuleConfig {
      * rule file is self-describing for any custom layers it references.
      */
     private List<LayerDefinition> layerDefinitions;
+    /**
+     * File-level source anchors, stamped by the loader from {@code MalYamlLineIndex} — not
+     * YAML-bound keys. Excluded from equals/hashCode/toString for the same reason as
+     * {@link MetricsRule}'s: a rule file that merely shifted must not read as content-changed.
+     */
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private int filterLine;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private int expPrefixLine;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private int expSuffixLine;
 
     @Override
     public String getSourceName() {

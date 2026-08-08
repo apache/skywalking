@@ -33,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.MetricsRule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.RuleSourceLines;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -279,6 +280,9 @@ public class MalFileApplier {
             if (rule.getName() == null || rule.getName().isEmpty()) {
                 rule.setName(sourceName);
             }
+            // Stamp YAML source anchors from the SAME text we just bound, so a hot-updated rule
+            // gets the same line provenance a disk-loaded one does.
+            RuleSourceLines.assign(rule, yamlContent);
             // layerDefinitions: are now permitted in runtime MAL rules; they're handled by
             // the layer registry on the apply path below. The rejection that used to live
             // here was removed when runtime dynamic layers became a first-class feature.

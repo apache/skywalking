@@ -255,6 +255,12 @@
   admin-host only" entry above for the public REST retirement.
 
 #### OAP Server
+* Fix MAL generated-class line attribution, which conflated three different coordinate spaces.
+  - The `_L<n>_` segment in a generated class name was the rules-list index, not a line, so every rule file's first rule was reported as `L0`. It now carries the rule's real YAML line (and the `filter:` line for filter classes).
+  - The `SourceFile` attribute named a file that was never written — it used the metric name while the generated source file is named after the class — so IDE source-attach could never resolve a MAL stack frame regardless of the line. It now equals the generated `.java` file.
+  - `LineNumberTable` held statement ordinals matching neither the YAML nor the generated source; it now points at real statements in the generated `.java`. Companion closure classes emit no `LineNumberTable` at all, since no source file is written for them and their entries were degenerate.
+  - MAL debug records now carry a per-stage `sourceLine` (previously hardcoded to 0 and documented as "omitted for MAL"). It is per stage rather than per rule because a compiled expression splices `expPrefix`, `exp` and `expSuffix` together, so a stage contributed by the file-level `expSuffix:` reports the suffix's line rather than the rule's.
+  - **Contract change:** `MALDebugRecorder`'s five `append*` methods take an additional `sourceLine` argument.
 * Support runtime rule hot-update and DSL debugging for the `meter-analyzer-config` catalog, bringing native meter (`MeterReportService`) rules to parity with `otel-rules`.
   - Meter rules now load through the same `Rules`/`Rule` pipeline `otel-rules` uses, so they participate in `RuleSetMerger`, are recorded in `StaticRuleRegistry`, support the optional `layerDefinitions` block, and generate source-named expression classes instead of falling back to `MalExpr_<N>`.
   - `MeterProcessService` now implements `MalConverterRegistry` and publishes debug holders at boot, so a meter rule can be added / overridden / inactivated at runtime, and attached to a DSL debug session, without restarting the OAP.

@@ -162,29 +162,49 @@ public final class MALExpressionModel {
          * — the probe path tolerates an empty source-text gracefully.
          */
         private final String sourceText;
+        /**
+         * Character offset of this call within the FORMATTED expression that was parsed — the
+         * concatenation of {@code expPrefix}, {@code exp} and {@code expSuffix}, not any one of
+         * them. {@code MalSourceMap} turns it into a YAML line by asking which fragment the
+         * offset falls in.
+         *
+         * <p>An offset is used rather than {@link #sourceLine} because that field counts lines
+         * within the concatenated expression, which is almost always 1 and so cannot distinguish
+         * a stage written in {@code exp:} from one written in {@code expSuffix:}.
+         *
+         * <p>{@code -1} for synthesised calls with no source position.
+         */
+        private final int sourceStartIndex;
 
         public MethodCall(final String name, final List<Argument> arguments) {
-            this(null, name, arguments, 0, "");
+            this(null, name, arguments, 0, "", -1);
         }
 
         public MethodCall(final String namespace, final String name,
                           final List<Argument> arguments) {
-            this(namespace, name, arguments, 0, "");
+            this(namespace, name, arguments, 0, "", -1);
         }
 
         public MethodCall(final String namespace, final String name,
                           final List<Argument> arguments, final int sourceLine) {
-            this(namespace, name, arguments, sourceLine, "");
+            this(namespace, name, arguments, sourceLine, "", -1);
         }
 
         public MethodCall(final String namespace, final String name,
                           final List<Argument> arguments, final int sourceLine,
                           final String sourceText) {
+            this(namespace, name, arguments, sourceLine, sourceText, -1);
+        }
+
+        public MethodCall(final String namespace, final String name,
+                          final List<Argument> arguments, final int sourceLine,
+                          final String sourceText, final int sourceStartIndex) {
             this.namespace = namespace;
             this.name = name;
             this.arguments = Collections.unmodifiableList(arguments);
             this.sourceLine = sourceLine;
             this.sourceText = sourceText == null ? "" : sourceText;
+            this.sourceStartIndex = sourceStartIndex;
         }
 
         public boolean isExtension() {

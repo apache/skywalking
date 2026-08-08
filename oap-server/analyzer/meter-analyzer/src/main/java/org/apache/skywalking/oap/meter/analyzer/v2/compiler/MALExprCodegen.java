@@ -49,6 +49,17 @@ final class MALExprCodegen {
     private final List<String> closureFieldNames;
     private final MALMethodChainCodegen chainCodegen;
     private final String ruleName;
+    /**
+     * Resolves a chain stage's offset in the formatted expression to the YAML line it was
+     * written on — which differs per stage, because {@code exp} / {@code expPrefix} /
+     * {@code expSuffix} are spliced together.
+     */
+    private MalSourceMap sourceMap = MalSourceMap.EMPTY;
+    /**
+     * Line for captures with no offset of their own. A metric reference is always written in
+     * the rule's own {@code exp:}, so that is the right answer for input captures.
+     */
+    private int defaultYamlLine = MalSourceRef.UNRESOLVED;
     private int closureFieldIndex;
     private int varCounter;
     private final Set<String> declaredVars = new HashSet<>();
@@ -130,6 +141,19 @@ final class MALExprCodegen {
     /**
      * Generates the complete {@code run(Map)} method source.
      */
+    void setSourceLines(final MalSourceMap map, final int expYamlLine) {
+        this.sourceMap = map == null ? MalSourceMap.EMPTY : map;
+        this.defaultYamlLine = expYamlLine > 0 ? expYamlLine : MalSourceRef.UNRESOLVED;
+    }
+
+    MalSourceMap getSourceMap() {
+        return sourceMap;
+    }
+
+    int getDefaultYamlLine() {
+        return defaultYamlLine;
+    }
+
     String generateRunMethod(final MALExpressionModel.Expr ast) {
         varCounter = 0;
         closureFieldIndex = 0;
@@ -197,7 +221,8 @@ final class MALExprCodegen {
           .append("\", ").append(SF).append(".EMPTY));\n");
         // First read of an input metric — capture the SampleFamily as it enters the chain.
         // The metric name itself is the sourceText: the UI shows "input: <metric>".
-        MALCodegenHelper.emitCaptureInput(sb, ruleName, expr.getMetricName(), var);
+        MALCodegenHelper.emitCaptureInput(sb, ruleName, expr.getMetricName(), var,
+            defaultYamlLine);
         chainCodegen.emitChainStatements(sb, var, expr.getMethodChain());
         return var;
     }
@@ -243,7 +268,8 @@ final class MALExprCodegen {
         // in the same waterfall column as named chain stages. The operator's method name
         // (plus, minus, multiply, divide) is the verbatim DSL fragment.
         MALCodegenHelper.emitCaptureStage(sb, ruleName,
-                                          MALCodegenHelper.opMethodName(op), resultVar);
+                                          MALCodegenHelper.opMethodName(op), resultVar,
+                                          defaultYamlLine);
         return resultVar;
     }
 
@@ -318,7 +344,7 @@ final class MALExprCodegen {
         final String var = emitExpr(sb, expr.getOperand());
         sb.append("  ").append(var).append(" = ")
           .append(var).append(".negative();\n");
-        MALCodegenHelper.emitCaptureStage(sb, ruleName, "negative", var);
+        MALCodegenHelper.emitCaptureStage(sb, ruleName, "negative", var, defaultYamlLine);
         return var;
     }
 

@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 
 import javassist.ClassPool;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel;
@@ -95,6 +96,23 @@ public final class DSL {
                                    final String yamlSource,
                                    final ClassPool pool,
                                    final ClassLoader targetClassLoader) {
+        return parse(metricName, expression, yamlSource, pool, targetClassLoader,
+            MalSourceMap.EMPTY);
+    }
+
+    /**
+     * Source-mapped overload. {@code sourceMap} resolves each chain stage to the YAML line it was
+     * written on, so a stage contributed by the file-level {@code expSuffix:} is reported against
+     * the suffix's line rather than the rule's.
+     *
+     * @param sourceMap per-rule map, or {@link MalSourceMap#EMPTY} when lines are unknown
+     */
+    public static Expression parse(final String metricName,
+                                   final String expression,
+                                   final String yamlSource,
+                                   final ClassPool pool,
+                                   final ClassLoader targetClassLoader,
+                                   final MalSourceMap sourceMap) {
         try {
             final MalExpression malExpr;
             if (pool != null && targetClassLoader != null) {
@@ -103,6 +121,7 @@ public final class DSL {
                 // yamlSource state that the shared GENERATOR carries between calls.
                 final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
                 perFile.setYamlSource(yamlSource);
+                perFile.setSourceMap(sourceMap);
                 // The verbatim MAL expression text is the rule's "content" — threaded
                 // into the GateHolder so dsl-debugging records carry the rule source
                 // inline. Same string ANTLR parsed; no extra plumbing.
@@ -110,6 +129,7 @@ public final class DSL {
                 malExpr = perFile.compile(metricName, expression);
             } else {
                 GENERATOR.setYamlSource(yamlSource);
+                GENERATOR.setSourceMap(sourceMap);
                 GENERATOR.setContent(expression);
                 malExpr = GENERATOR.compile(metricName, expression);
             }
