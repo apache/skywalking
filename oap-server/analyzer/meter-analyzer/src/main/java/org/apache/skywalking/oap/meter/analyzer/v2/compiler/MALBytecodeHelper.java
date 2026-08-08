@@ -311,13 +311,29 @@ final class MALBytecodeHelper {
             if (entries.isEmpty()) {
                 return;
             }
-            if (statementLines != null && !statementLines.isEmpty()
-                    && entries.size() != statementLines.size()) {
-                // A desync means a codegen change added or removed a statement shape without the
-                // scanner learning about it. Surface it: the numbers would still look plausible.
-                log.warn("MAL LineNumberTable desync for {}: {} bytecode boundaries vs {} source "
-                        + "lines. Some frames will resolve to the wrong line in the generated class.",
-                    method.getName(), entries.size(), statementLines.size());
+            if (statementLines == null || statementLines.isEmpty()
+                    || entries.size() != statementLines.size()) {
+                // Emit NOTHING rather than a table we already know is wrong. A desync means a
+                // codegen change altered the statement shape without the scanner learning about
+                // it, so the surviving entries are shifted -- plausible, and wrong. Note also
+                // that line_number is an unsigned u2, so an UNRESOLVED (-1) would serialize as
+                // 65535 and read as a real line, not as "unknown". Same policy as companion
+                // classes: no attribution beats false attribution, and an absent table makes the
+                // JVM report an unknown line honestly.
+                if (statementLines != null && !statementLines.isEmpty()) {
+                    log.warn("MAL LineNumberTable omitted for {}: {} bytecode boundaries vs {} "
+                            + "source lines. Frames will report an unknown line.",
+                        method.getName(), entries.size(), statementLines.size());
+                }
+                return;
+            }
+            for (final int[] entry : entries) {
+                if (entry[1] <= 0) {
+                    // An unresolved line cannot be represented: u2 would turn -1 into 65535.
+                    log.warn("MAL LineNumberTable omitted for {}: an entry had no resolvable "
+                        + "line.", method.getName());
+                    return;
+                }
             }
             final javassist.bytecode.ConstPool cp = mi.getConstPool();
             final byte[] info = new byte[2 + entries.size() * 4];

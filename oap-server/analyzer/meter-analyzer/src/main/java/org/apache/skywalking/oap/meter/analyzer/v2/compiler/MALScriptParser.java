@@ -27,6 +27,7 @@ import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.RecognitionException;
@@ -237,16 +238,61 @@ public final class MALScriptParser {
      * {@code split("\\|", -1)}. Regex literals after {@code =~} are handled
      * by the lexer mode and are NOT touched here.
      */
+    /**
+     * Maps an offset in the preprocessed expression back to the original.
+     *
+     * <p>{@link #preprocessRegexLiterals} rewrites {@code /\|/} to {@code "\\|"}, which is LONGER,
+     * so every offset after a regex literal drifts. {@code MethodCall.sourceStartIndex} must be in
+     * the ORIGINAL expression's space because that is the space {@code MalSourceMap}'s segments
+     * are built in — otherwise a stage after a regex literal resolves against the wrong fragment
+     * and reports a line that exists but is not its own.
+     */
+    static final class OffsetTranslator {
+        /** {@code {preprocessedStart, delta}} per rewrite, ascending. */
+        private final List<int[]> edits;
+
+        static final OffsetTranslator IDENTITY = new OffsetTranslator(Collections.emptyList());
+
+        OffsetTranslator(final List<int[]> edits) {
+            this.edits = edits;
+        }
+
+        int toOriginal(final int preprocessedOffset) {
+            if (preprocessedOffset < 0) {
+                return preprocessedOffset;
+            }
+            int shift = 0;
+            for (final int[] edit : edits) {
+                if (preprocessedOffset >= edit[0]) {
+                    shift += edit[1];
+                } else {
+                    break;
+                }
+            }
+            return preprocessedOffset - shift;
+        }
+    }
+
     static String preprocessRegexLiterals(final String expression) {
+        return preprocessRegexLiteralsTracked(expression).getKey();
+    }
+
+    /**
+     * @return the rewritten expression and a translator back to the original offset space
+     */
+    static java.util.Map.Entry<String, OffsetTranslator> preprocessRegexLiteralsTracked(
+            final String expression) {
         // Match /pattern/ that appears after ( or , (method arg context),
         // but NOT after =~ (which is handled by lexer mode)
         final Pattern argRegex = Pattern.compile(
             "(?<=[,(])\\s*/([^/\\r\\n]+)/");
         final Matcher m = argRegex.matcher(expression);
         if (!m.find()) {
-            return expression;
+            return new java.util.AbstractMap.SimpleImmutableEntry<>(
+                expression, OffsetTranslator.IDENTITY);
         }
         final StringBuffer sb = new StringBuffer();
+        final List<int[]> edits = new ArrayList<>();
         m.reset();
         while (m.find()) {
             // Escape backslashes: regex literal \| must become string literal \\|
@@ -254,16 +300,21 @@ public final class MALScriptParser {
             final String body = m.group(1).replace("\\", "\\\\");
             // Preserve leading whitespace from the match
             final String leading = m.group().substring(0, m.group().indexOf('/'));
-            m.appendReplacement(sb,
-                java.util.regex.Matcher.quoteReplacement(
-                    leading + "\"" + body + "\""));
+            final String replacement = leading + "\"" + body + "\"";
+            m.appendReplacement(sb, java.util.regex.Matcher.quoteReplacement(replacement));
+            // Record where this rewrite ENDS in the preprocessed text, and how much longer it
+            // made things, so offsets at or beyond it can be shifted back.
+            edits.add(new int[]{sb.length(), replacement.length() - (m.end() - m.start())});
         }
         m.appendTail(sb);
-        return sb.toString();
+        return new java.util.AbstractMap.SimpleImmutableEntry<>(
+            sb.toString(), new OffsetTranslator(edits));
     }
 
     public static Expr parse(final String expression) {
-        final String preprocessed = preprocessRegexLiterals(expression);
+        final java.util.Map.Entry<String, OffsetTranslator> pre =
+            preprocessRegexLiteralsTracked(expression);
+        final String preprocessed = pre.getKey();
         final MALLexer lexer = new MALLexer(CharStreams.fromString(preprocessed));
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
         final MALParser parser = new MALParser(tokens);
@@ -289,7 +340,7 @@ public final class MALScriptParser {
                     + " in expression: " + expression);
         }
 
-        return new MALExprVisitor().visit(tree.additiveExpression());
+        return new MALExprVisitor(pre.getValue()).visit(tree.additiveExpression());
     }
 
     /**
@@ -330,6 +381,17 @@ public final class MALScriptParser {
      * Visitor transforming ANTLR4 parse tree into MAL expression AST.
      */
     private static final class MALExprVisitor extends MALParserBaseVisitor<Expr> {
+
+        /** Translates ANTLR offsets (preprocessed space) back to the original expression. */
+        private final OffsetTranslator offsets;
+
+        MALExprVisitor() {
+            this(OffsetTranslator.IDENTITY);
+        }
+
+        MALExprVisitor(final OffsetTranslator offsets) {
+            this.offsets = offsets == null ? OffsetTranslator.IDENTITY : offsets;
+        }
 
         @Override
         public Expr visitAdditiveExpression(final MALParser.AdditiveExpressionContext ctx) {
@@ -413,7 +475,34 @@ public final class MALScriptParser {
             // exactly what the operator wrote. Used as the captured stage's sourceText.
             return new MethodCall(namespace, name, args,
                 ctx.getStart().getLine(), rawTextOf(ctx),
-                ctx.getStart().getStartIndex());
+                offsets.toOriginal(charOffsetOf(ctx.getStart())));
+        }
+
+        /**
+         * ANTLR token start as a Java {@code String} offset.
+         *
+         * <p>ANTLR indexes its {@code CharStream} by CODE POINT, while {@link MalSourceMap}
+         * builds its segments from {@code String.length()} / {@code substring} — UTF-16 code
+         * units. The two agree for BMP text and diverge by one per supplementary character, so a
+         * MAL expression containing an emoji in a string argument would shift every later stage
+         * and mis-resolve it against the wrong fragment. Converting here keeps a single space
+         * (UTF-16) everywhere downstream.
+         */
+        private int charOffsetOf(final org.antlr.v4.runtime.Token token) {
+            final int codePointIndex = token.getStartIndex();
+            if (codePointIndex <= 0) {
+                return codePointIndex;
+            }
+            final CharStream stream = token.getInputStream();
+            if (stream == null) {
+                return codePointIndex;
+            }
+            final String text = stream.getText(Interval.of(0, stream.size() - 1));
+            // Cheap path: no supplementary characters means the two spaces coincide.
+            if (text.length() == stream.size()) {
+                return codePointIndex;
+            }
+            return text.offsetByCodePoints(0, codePointIndex);
         }
 
         /**
