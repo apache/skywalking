@@ -21,6 +21,9 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -373,64 +376,6 @@ public final class LALClassGenerator {
         }
     }
 
-    /**
-     * Adds a {@code LineNumberTable} attribute by scanning bytecode for
-     * store instructions to local variable slots &ge; {@code firstResultSlot}.
-     */
-    private void addLineNumberTable(final javassist.CtMethod method,
-                                    final int firstResultSlot) {
-        try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
-            if (code == null) {
-                return;
-            }
-
-            final List<int[]> entries = new ArrayList<>();
-            int line = 1;
-            boolean nextIsNewLine = true;
-
-            final javassist.bytecode.CodeIterator ci = code.iterator();
-            while (ci.hasNext()) {
-                final int pc = ci.next();
-                if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
-                    nextIsNewLine = false;
-                }
-                final int op = ci.byteAt(pc) & 0xFF;
-                int slot = -1;
-                if (op >= 59 && op <= 78) {
-                    slot = (op - 59) % 4;
-                } else if (op >= 54 && op <= 58) {
-                    slot = ci.byteAt(pc + 1) & 0xFF;
-                }
-                if (slot >= firstResultSlot) {
-                    nextIsNewLine = true;
-                }
-            }
-
-            if (entries.isEmpty()) {
-                return;
-            }
-
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
-            final byte[] info = new byte[2 + entries.size() * 4];
-            info[0] = (byte) (entries.size() >> 8);
-            info[1] = (byte) entries.size();
-            for (int i = 0; i < entries.size(); i++) {
-                final int off = 2 + i * 4;
-                info[off] = (byte) (entries.get(i)[0] >> 8);
-                info[off + 1] = (byte) entries.get(i)[0];
-                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
-                info[off + 3] = (byte) entries.get(i)[1];
-            }
-            code.getAttributes().add(
-                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
-        } catch (Exception e) {
-            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
-        }
-    }
-
     private static void setSourceFile(final CtClass ctClass, final String name) {
         try {
             final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
@@ -443,19 +388,6 @@ public final class LALClassGenerator {
         } catch (Exception e) {
             // best-effort
         }
-    }
-
-    /**
-     * Builds the SourceFile name for a generated class. When YAML source info
-     * is available, produces {@code "default(ruleName.java)"};
-     * otherwise falls back to {@code "ruleName.java"}.
-     */
-    private String formatSourceFileName(final String ruleName) {
-        final String classFile = ruleName + ".java";
-        if (yamlSource != null) {
-            return "(" + yamlSource + ")" + classFile;
-        }
-        return classFile;
     }
 
     private void addLocalVariableTable(final javassist.CtMethod method,
@@ -569,7 +501,6 @@ public final class LALClassGenerator {
             final javassist.CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
             ctClass.addMethod(ctMethod);
             addLocalVariableTable(ctMethod, className, pm.lvtVars);
-            addLineNumberTable(ctMethod, pm.lvtVars.length + 1); // after this + params
         }
 
         final javassist.CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
@@ -590,10 +521,19 @@ public final class LALClassGenerator {
         execLvt.addAll(genCtx.localVarLvtVars);
         addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
-        addLineNumberTable(execMethod, 3); // slot 0=this, 1=filterSpec, 2=ctx
+        // No LineNumberTable. It numbered bytecode boundaries 1, 2, 3 -- statement ORDINALS,
+        // not lines in any file. That was harmless only while SourceFile named a file that did
+        // not exist, so no frame could resolve and act on the wrong number. Now that SourceFile
+        // names the sidecar actually written, an ordinal RESOLVES: line 1 of that file is the
+        // synthetic comment header, which an IDE presents as the frame's source. Emitting real
+        // lines needs the sidecar's geometry (preamble + package + class decl + preceding private
+        // methods, which vary per rule) the way MAL derives it; until that is computed and
+        // tested, an absent attribute reports an unknown line, which is honest.
 
-        setSourceFile(ctClass, formatSourceFileName(
-            classNameHint != null ? classNameHint : className));
+        // Must equal the .java written below: a SourceFile naming a file that does not exist
+        // reads as correct to an IDE right up until it fails to open it. YAML provenance
+        // belongs in the debug API, not in this attribute.
+        setSourceFile(ctClass, ctClass.getSimpleName() + ".java");
 
         writeClassFile(ctClass);
         writeSourceFile(ctClass, genCtx, executeBody);
@@ -623,7 +563,7 @@ public final class LALClassGenerator {
         }
         final File file = new File(classOutputDir, ctClass.getSimpleName() + ".java");
         final StringBuilder sb = new StringBuilder();
-        sb.append("// Synthetic source — Javassist compile input for ")
+        sb.append("// Synthetic source - Javassist compile input for ")
           .append(ctClass.getSimpleName()).append("\n")
           .append("// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n")
           .append("// source-attach to render the bytecode without FernFlower.\n\n");
@@ -648,7 +588,10 @@ public final class LALClassGenerator {
         }
         sb.append("    ").append(executeBody.replace("\n", "\n    ")).append("\n");
         sb.append("}\n");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
+        // UTF-8 explicitly, NOT the platform default: a FileWriter encodes in whatever charset
+        // the JVM happens to default to, while every reader of these files opens them as UTF-8.
+        try (Writer w = new OutputStreamWriter(
+                new FileOutputStream(file), StandardCharsets.UTF_8)) {
             w.write(sb.toString());
         } catch (Exception e) {
             log.warn("Failed to write source file {}: {}", file, e.getMessage());

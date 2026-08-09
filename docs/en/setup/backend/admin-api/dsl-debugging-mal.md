@@ -27,7 +27,9 @@ nodes[]
       sourceText                 — verbatim DSL fragment for this probe
       continueOn                 — true (MAL captures kept-only; see overview)
       payload                    — SampleFamily.toJson() at this probe stage
-      sourceLine                 — omitted for MAL (no per-line mapping)
+                                   written on. Per STAGE, not per rule: a stage from the
+                                   file-level `expSuffix:` reports the suffix's line, not
+                                   the rule's. Omitted when it could not be resolved.
 ```
 
 Sample types and the probes that emit them:

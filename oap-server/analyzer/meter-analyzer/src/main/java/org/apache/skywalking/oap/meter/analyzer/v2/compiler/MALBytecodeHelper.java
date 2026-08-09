@@ -20,6 +20,9 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
+import java.io.Writer;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,6 +30,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.bytecode.AttributeInfo;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.MethodInfo;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -54,7 +61,8 @@ final class MALBytecodeHelper {
 
     private File classOutputDir;
     private String classNameHint;
-    private String yamlSource;
+    /** Rule anchor, parsed once on the way in so nothing downstream re-splits it. */
+    private MalSourceRef ruleAnchor = MalSourceRef.ofRule(null, MalSourceRef.UNRESOLVED);
     /**
      * When true, each apply gets its own per-file classloader, so generated class names are
      * scoped to that loader and don't need the process-wide {@link #USED_CLASS_NAMES} dedup.
@@ -76,7 +84,7 @@ final class MALBytecodeHelper {
     }
 
     void setYamlSource(final String yamlSource) {
-        this.yamlSource = yamlSource;
+        this.ruleAnchor = MalSourceRef.parse(yamlSource);
     }
 
     void setPerFileClassLoader(final boolean perFileClassLoader) {
@@ -101,27 +109,38 @@ final class MALBytecodeHelper {
 
     private String buildHintedName() {
         final String hint = MALCodegenHelper.sanitizeName(classNameHint);
-        if (yamlSource == null) {
+        if (ruleAnchor.getYamlFile() == null) {
             return hint;
         }
-        String yamlBase = yamlSource;
-        String lineNo = null;
-        final int colonIdx = yamlSource.lastIndexOf(':');
-        if (colonIdx > 0) {
-            yamlBase = yamlSource.substring(0, colonIdx);
-            lineNo = yamlSource.substring(colonIdx + 1);
-        }
+        String yamlBase = ruleAnchor.getYamlFile();
         final int dotIdx = yamlBase.lastIndexOf('.');
         if (dotIdx > 0) {
             yamlBase = yamlBase.substring(0, dotIdx);
         }
         final StringBuilder sb = new StringBuilder();
         sb.append(MALCodegenHelper.sanitizeName(yamlBase));
-        if (lineNo != null) {
-            sb.append("_L").append(lineNo);
-        }
+        // The unresolved marker is -1, which is not legal in a Java identifier; render it as
+        // "unknown" so the failure stays visible in the class name instead of vanishing.
+        sb.append("_L").append(MalSourceRef.toIdentifierSegment(ruleAnchor.getYamlLine()));
         sb.append('_').append(hint);
         return sb.toString();
+    }
+
+    /**
+     * Coordinates of one generated class: the rule anchor this helper was configured with, paired
+     * with that class's own file name and line.
+     *
+     * <p>No parsing happens here: {@link #setYamlSource} already resolved the anchor through
+     * {@link MalSourceRef#parse}, which is the single place the {@code "vm.yaml:38"} wire form is
+     * split. Two call sites each re-splitting it with their own {@code lastIndexOf(':')} is what
+     * let the file and the line drift apart in the first place.
+     *
+     * @param ctClass     the generated class
+     * @param lineInClass 1-based line within that class's {@code .java}
+     * @return the paired coordinates for this one generated file
+     */
+    MalSourceRef sourceRefOf(final CtClass ctClass, final int lineInClass) {
+        return ruleAnchor.inGeneratedClass(ctClass.getSimpleName(), lineInClass);
     }
 
     private String dedupClassName(final String base) {
@@ -146,15 +165,21 @@ final class MALBytecodeHelper {
     // ==================== Debug output ====================
 
     /**
-     * Builds the SourceFile name for a generated class.
-     * Example: {@code "(vm.yaml:25)cpu_total.java"}
+     * Builds the {@code SourceFile} name for a generated class.
+     *
+     * <p>This MUST equal the file {@link #writeSourceFile} actually writes — that is the entire
+     * contract an IDE relies on to resolve a stack frame to that source. It previously returned
+     * {@code "(vm.yaml:25)cpu_total.java"} while the file on disk was named after the class
+     * (e.g. {@code vm_L25_cpu_total.java}), so source-attach could never resolve, independent of
+     * whether the embedded line was correct.
+     *
+     * <p>The YAML provenance is NOT repeated here. It already lives in the class name (and hence
+     * in this file name), and the per-statement YAML lines belong to the operator coordinate
+     * carried on {@link MalSourceRef}, not to a per-file bytecode attribute that can only hold
+     * one value for a rule spliced from three source locations.
      */
-    String formatSourceFileName(final String metricName) {
-        final String classFile = metricName + ".java";
-        if (yamlSource != null) {
-            return "(" + yamlSource + ")" + classFile;
-        }
-        return classFile;
+    static String sourceFileNameOf(final CtClass ctClass) {
+        return ctClass.getSimpleName() + ".java";
     }
 
     /**
@@ -215,8 +240,15 @@ final class MALBytecodeHelper {
         }
         final File file = new File(
             classOutputDir, ctClass.getSimpleName() + ".java");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-            w.write("// Synthetic source — Javassist compile input for ");
+        // UTF-8 explicitly, NOT the platform default. A FileWriter encodes in whatever charset the
+        // JVM happens to default to, which varies by machine and by CI runner, while every reader
+        // of these files -- IDE source-attach and the tests -- opens them as UTF-8. The generated
+        // source must decode the same way everywhere, so the encoding is pinned at the writer
+        // rather than left to depend on where the build ran. (project.build.sourceEncoding governs
+        // compilation only; it does not reach a FileWriter opened at runtime.)
+        try (Writer w = new OutputStreamWriter(
+                new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            w.write("// Synthetic source - Javassist compile input for ");
             w.write(ctClass.getSimpleName());
             w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
             w.write("// source-attach to render the bytecode without FernFlower.\n\n");
@@ -232,12 +264,28 @@ final class MALBytecodeHelper {
     // ==================== Bytecode attributes ====================
 
     /**
-     * Adds a {@code LineNumberTable} attribute to the method.
-     * Scans bytecode for store instructions to local variable slots
-     * >= {@code firstResultSlot}, assigning sequential line numbers.
+     * Adds a {@code LineNumberTable} mapping each bytecode boundary to its line in the
+     * {@code .java} source written for the generated class.
+     *
+     * <p>Boundaries are the first instruction plus the instruction after every store to a local
+     * slot {@code >= firstResultSlot}, which for the variable-per-expression codegen is one per
+     * emitted statement. {@code boundaryLines} must list the corresponding method-relative source
+     * lines in the same order — {@link MalGeneratedSourceLines} derives them from the same
+     * generated text, so the two agree by construction.
+     *
+     * <p>This previously emitted {@code 1,2,3…} — statement ordinals that matched neither the generated
+     * class source nor the rule YAML, so no IDE could resolve a frame.
+     *
+     * @param method          the generated method
+     * @param firstResultSlot lowest local slot that holds a statement result
+     * @param statementLines  1-based lines WITHIN THE GENERATED METHOD, in boundary order
+     * @param methodSignatureLineInClass line the method signature occupies in the generated
+     *                        class source, used to convert method-relative to class-relative
      */
     void addLineNumberTable(final javassist.CtMethod method,
-                             final int firstResultSlot) {
+                             final int firstResultSlot,
+                             final java.util.List<Integer> statementLines,
+                             final int methodSignatureLineInClass) {
         try {
             final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
             final javassist.bytecode.CodeAttribute code =
@@ -246,14 +294,15 @@ final class MALBytecodeHelper {
                 return;
             }
             final List<int[]> entries = new ArrayList<>();
-            int line = 1;
+            int boundary = 0;
             boolean nextIsNewLine = true;
 
             final javassist.bytecode.CodeIterator ci = code.iterator();
             while (ci.hasNext()) {
                 final int pc = ci.next();
                 if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
+                    entries.add(new int[]{pc, lineInGeneratedClass(statementLines, boundary, methodSignatureLineInClass)});
+                    boundary++;
                     nextIsNewLine = false;
                 }
                 final int op = ci.byteAt(pc) & 0xFF;
@@ -270,6 +319,30 @@ final class MALBytecodeHelper {
 
             if (entries.isEmpty()) {
                 return;
+            }
+            if (statementLines == null || statementLines.isEmpty()
+                    || entries.size() != statementLines.size()) {
+                // Emit NOTHING rather than a table we already know is wrong. A desync means a
+                // codegen change altered the statement shape without the scanner learning about
+                // it, so the surviving entries are shifted -- plausible, and wrong. Note also
+                // that line_number is an unsigned u2, so an UNRESOLVED (-1) would serialize as
+                // 65535 and read as a real line, not as "unknown". Same policy as companion
+                // classes: no attribution beats false attribution, and an absent table makes the
+                // JVM report an unknown line honestly.
+                if (statementLines != null && !statementLines.isEmpty()) {
+                    log.warn("MAL LineNumberTable omitted for {}: {} bytecode boundaries vs {} "
+                            + "source lines. Frames will report an unknown line.",
+                        method.getName(), entries.size(), statementLines.size());
+                }
+                return;
+            }
+            for (final int[] entry : entries) {
+                if (entry[1] <= 0) {
+                    // An unresolved line cannot be represented: u2 would turn -1 into 65535.
+                    log.warn("MAL LineNumberTable omitted for {}: an entry had no resolvable "
+                        + "line.", method.getName());
+                    return;
+                }
             }
             final javassist.bytecode.ConstPool cp = mi.getConstPool();
             final byte[] info = new byte[2 + entries.size() * 4];
@@ -288,6 +361,69 @@ final class MALBytecodeHelper {
         } catch (Exception e) {
             log.warn("Failed to add LineNumberTable: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Adds a single-entry {@code LineNumberTable} pointing the whole method at the line its
+     * signature occupies in the generated {@code .java}.
+     *
+     * <p>For a companion the per-statement scan in {@link #addLineNumberTable} is unusable: it
+     * marks boundaries at stores to a result slot, and a closure body stores nothing there. On the
+     * shipped rule set that means 96% of companions would collapse to one entry regardless, while
+     * the {@code forEach} companions over-count — 8 boundaries for 5 statements, because the scan
+     * also fires inside an {@code if/else-if/else} chain. Either way the per-statement table would
+     * be wrong in a way that reads as right.
+     *
+     * <p>One correct entry is therefore the honest maximum here, and it is worth having: a frame
+     * inside a closure resolves to the companion's own source file at its declaration, which is
+     * what an IDE needs in order to open it. Pointing at the SIGNATURE rather than the first
+     * statement is what keeps that true — the signature is the one line whose position does not
+     * depend on the body's shape.
+     *
+     * @param method      the generated SAM method
+     * @param lineInClass line the method signature occupies in the generated class source
+     */
+    void addMethodEntryLineNumber(final CtMethod method, final int lineInClass) {
+        if (lineInClass <= 0) {
+            // u2 cannot represent UNRESOLVED: -1 would serialize as 65535 and read as a real line.
+            return;
+        }
+        try {
+            final MethodInfo mi = method.getMethodInfo();
+            final CodeAttribute code = mi.getCodeAttribute();
+            if (code == null) {
+                return;
+            }
+            final byte[] info = new byte[]{
+                0, 1,
+                0, 0,
+                (byte) (lineInClass >> 8), (byte) lineInClass,
+            };
+            code.getAttributes().add(
+                new AttributeInfo(mi.getConstPool(), "LineNumberTable", info));
+        } catch (Exception e) {
+            log.warn("Failed to add companion LineNumberTable: {}", e.getMessage());
+        }
+    }
+
+    /**
+     * Sidecar line for boundary {@code i}, or {@link MalSourceRef#UNRESOLVED} when the scanner
+     * produced no line for it. {@code -1} is deliberate: a bogus-but-plausible line is worse than
+     * an obviously absent one, and the JVM tolerates it in a {@code LineNumberTable}.
+     */
+    private static int lineInGeneratedClass(final java.util.List<Integer> statementLines,
+                                            final int index,
+                                            final int methodSignatureLineInClass) {
+        if (statementLines == null || index >= statementLines.size()) {
+            return MalSourceRef.UNRESOLVED;
+        }
+        final Integer lineInMethod = statementLines.get(index);
+        if (lineInMethod == null || lineInMethod <= 0) {
+            return MalSourceRef.UNRESOLVED;
+        }
+        // Method-relative line 1 IS the signature line, so the class-relative line counts from
+        // there rather than adding a bare offset.
+        return methodSignatureLineInClass + lineInMethod - 1;
     }
 
     /**

@@ -34,6 +34,16 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 final class MALClosureCodegen {
 
+    /**
+     * Line the companion's SAM signature occupies in its written {@code .java}.
+     *
+     * <p>{@code writeSourceFile} emits a 4-line preamble, then {@link #wrapCompanionSource} adds
+     * {@code package}(1) + blank(1) + class declaration(1) + blank(1), putting the signature on
+     * line 9. Unlike the main expression class this is a constant, not {@code 10 + fields +
+     * injection}: a companion declares no closure fields and no injected {@code GateHolder}.
+     */
+    private static final int COMPANION_SAM_LINE_IN_CLASS = 9;
+
     private final ClassPool classPool;
     private final MALBytecodeHelper bytecodeHelper;
 
@@ -626,7 +636,14 @@ final class MALClosureCodegen {
         final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
         companion.addMethod(m);
         addCompanionLocalVariableTable(m, info);
-        bytecodeHelper.addLineNumberTable(m, firstResultSlot(info));
+        // A companion is its own class file, so it carries its own generated-source coordinates:
+        // its own .java, and a line into THAT file. Javassist's ClassFile constructor already
+        // names the file in the SourceFile attribute (simple name + ".java"); writing the file is
+        // what stops that name from dangling, which it did for every companion until now.
+        // One entry rather than a per-statement table -- see addMethodEntryLineNumber.
+        final MalSourceRef ref = bytecodeHelper.sourceRefOf(companion, COMPANION_SAM_LINE_IN_CLASS);
+        bytecodeHelper.writeSourceFile(companion, wrapCompanionSource(companion, info, methodBody));
+        bytecodeHelper.addMethodEntryLineNumber(m, ref.getGeneratedLine());
         return companion;
     }
 
@@ -732,14 +749,29 @@ final class MALClosureCodegen {
         }
     }
 
-    private int firstResultSlot(final ClosureInfo info) {
-        if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
-            return 3; // slot 0=this, 1=element, 2=tags, 3+=locals
-        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
-            return 3; // slot 0=this, 1=_arg, 2=paramName, 3+=locals
-        } else {
-            return 3; // slot 0=this, 1=_raw, 2=paramName, 3+=locals
-        }
+    /**
+     * The companion's {@code .java} sidecar: the same envelope handed to Javassist, so
+     * source-attach renders exactly the code that was compiled.
+     *
+     * <p>The line geometry here is load-bearing — {@link #COMPANION_SAM_LINE_IN_CLASS} counts
+     * these lines, so changing the envelope without changing that constant silently mis-attributes
+     * every closure frame.
+     *
+     * @param companion  the companion class being generated
+     * @param info       the closure it implements, for the {@code implements} clause
+     * @param methodBody the SAM method source fed to Javassist
+     * @return the full source of the sidecar file
+     */
+    private static String wrapCompanionSource(final CtClass companion,
+                                              final ClosureInfo info,
+                                              final String methodBody) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("package ").append(companion.getPackageName()).append(";\n\n");
+        sb.append("public class ").append(companion.getSimpleName())
+          .append(" implements ").append(info.interfaceType).append(" {\n\n");
+        sb.append("    ").append(methodBody.replace("\n", "\n    ")).append("\n");
+        sb.append("}\n");
+        return sb.toString();
     }
 
     void generateClosureCondition(final StringBuilder sb,

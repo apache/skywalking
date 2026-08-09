@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALScriptParser;
+import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MalSourceRef;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
@@ -132,8 +133,12 @@ public class MetricConvert {
         final List<Analyzer> prepared = IntStream.range(0, rules.size()).mapToObj(
             i -> {
                 final MetricRuleConfig.RuleConfig r = rules.get(i);
-                final String yamlSource = sourceName != null
-                    ? sourceName + ".yaml:" + i : null;
+                // The rule's REAL line, not its position in the list. The two only ever agreed by
+                // accident, which is why a stack trace used to point at the top of the file.
+                // A line is always expected here; -1 marks a resolution failure so it stays
+                // visible in the artifact rather than silently degrading.
+                final String yamlSource = sourceName == null ? null
+                    : MalSourceRef.ofRule(sourceName + ".yaml", r.getLineNo()).describeYaml();
                 final Analyzer analyzer = prepareAnalyzer(
                     formatMetricName(rule, r.getName()),
                     filter,
@@ -289,8 +294,9 @@ public class MetricConvert {
             return null;
         }
         final String sourceName = rule.getSourceName();
-        final String yamlSource = sourceName != null
-            ? sourceName + ".yaml" : null;
+        // The filter has its own line, distinct from any rule's — it is file-level.
+        final String yamlSource = sourceName == null ? null
+            : MalSourceRef.ofRule(sourceName + ".yaml", rule.getFilterLine()).describeYaml();
         return new FilterExpression(filterText, "filter", yamlSource, pool, targetClassLoader);
     }
 

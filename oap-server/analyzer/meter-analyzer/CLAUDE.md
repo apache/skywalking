@@ -248,7 +248,23 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
   *.class          — Main MalExpression class per expression
   *.java           — Javassist compile input (synthetic; for IDE source-attach)
   *$_tag.class     — Companion class per closure (one per tag/forEach/instance/decorate call)
+  *$_tag.java      — Companion compile input, one per companion class
 ```
+
+**One rule, N class files.** Javassist cannot emit lambdas or anonymous inner classes, so every
+closure becomes its own class, and the JVM allows exactly one `SourceFile` per class. A rule with
+two closures produces three class files, each needing its own file name and its own line numbering.
+That is why the YAML line and the generated-class line cannot be one number — their cardinality
+differs (one YAML anchor to N generated files; a file-level `filter:` maps the other way, one class
+shared by every rule in the document). `MalSourceRef` is the shared structure holding both, one
+instance per generated file.
+
+Companions carry a **single** `LineNumberTable` entry pointing at their SAM signature, not a
+per-statement table. The per-statement scan in `addLineNumberTable` marks boundaries at stores to a
+result slot; a closure body stores nothing there, so on the shipped rule set 96% of companions
+would collapse to one entry anyway while the `forEach` ones over-count inside `if/else` chains.
+`MALClosureCodegen.COMPANION_SAM_LINE_IN_CLASS` counts the sidecar's envelope — change
+`wrapCompanionSource` and that constant must change with it (`MalCompanionSourceTest` fails if not).
 
 The `.java` sidecar exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate fields, probe call sites, closure dispatch, the lot.
 
