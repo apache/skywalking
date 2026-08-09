@@ -200,11 +200,12 @@ public final class MALClassGenerator {
         ctClass.addMethod(testMethod);
         bytecodeHelper.addLocalVariableTable(testMethod, className,
             new String[][]{{paramName, "Ljava/util/Map;"}});
-        bytecodeHelper.addLineNumberTable(testMethod, 2);
+        // wrapMalFilterSource has no leading blank before the body, so the signature sits one
+        // line higher than the expression class's: file line 9.
+        bytecodeHelper.addLineNumberTable(testMethod, 2,
+            MalGeneratedSourceLines.statementLinesOf(filterBody), 9);
         MALBytecodeHelper.setSourceFile(ctClass,
-            bytecodeHelper.formatSourceFileName(
-                bytecodeHelper.getClassNameHint() != null
-                    ? bytecodeHelper.getClassNameHint() : "filter"));
+            MALBytecodeHelper.sourceFileNameOf(ctClass));
 
         bytecodeHelper.writeClassFile(ctClass);
         bytecodeHelper.writeSourceFile(ctClass, wrapMalFilterSource(ctClass, filterBody));
@@ -344,7 +345,15 @@ public final class MALClassGenerator {
         ctClass.addMethod(runMethod);
         bytecodeHelper.addRunLocalVariableTable(
             runMethod, className, exprCodegen.getDeclaredVars());
-        bytecodeHelper.addLineNumberTable(runMethod, 1);
+        // Sidecar geometry: writeSourceFile adds a 4-line preamble, then wrapMalExpressionSource
+        // emits package(2) + class decl(2) + one line per closure field + 2 injection members when
+        // enabled + 1 blank, so the run() signature lands at line 10 + C + I of the generated
+        // class source. The helper converts method-relative lines from there.
+        final int runMethodSignatureLineInClass = 10 + closureFieldNames.size()
+            + (org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch
+                   .isInjectionEnabled() ? 2 : 0);
+        bytecodeHelper.addLineNumberTable(runMethod, 1,
+            MalGeneratedSourceLines.statementLinesOf(runBody), runMethodSignatureLineInClass);
 
         final javassist.CtMethod metaMethod =
             CtNewMethod.make(metadataBody, ctClass);
@@ -357,7 +366,7 @@ public final class MALClassGenerator {
                 {"_pct", "[I"}
             });
         MALBytecodeHelper.setSourceFile(ctClass,
-            bytecodeHelper.formatSourceFileName(metricName));
+            MALBytecodeHelper.sourceFileNameOf(ctClass));
 
         // 6. Load companions, then main class
         for (final CtClass companion : companionClasses) {

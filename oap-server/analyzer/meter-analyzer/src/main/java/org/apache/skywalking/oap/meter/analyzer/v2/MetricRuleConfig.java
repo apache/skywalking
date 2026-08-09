@@ -58,6 +58,31 @@ public interface MetricRuleConfig {
         return null;
     }
 
+    /**
+     * 1-based line of the file-level {@code filter:} key in the source YAML, or {@code 0} when
+     * unknown. A compiled MAL expression splices up to three separate source locations together,
+     * so each needs its own anchor; see {@link MalYamlLineIndex}.
+     *
+     * @return the filter's line, or {@code 0}
+     */
+    default int getFilterLine() {
+        return 0;
+    }
+
+    /**
+     * @return 1-based line of the file-level {@code expPrefix:} key, or {@code 0} when unknown
+     */
+    default int getExpPrefixLine() {
+        return 0;
+    }
+
+    /**
+     * @return 1-based line of the file-level {@code expSuffix:} key, or {@code 0} when unknown
+     */
+    default int getExpSuffixLine() {
+        return 0;
+    }
+
     interface RuleConfig {
         /**
          * Get definition metrics name
@@ -68,5 +93,22 @@ public interface MetricRuleConfig {
          * Build metrics MAL
          */
         String getExp();
+
+        /**
+         * 1-based line of this rule's entry (its {@code - name:} anchor) in the source YAML, or
+         * {@code 0} when unknown. Used as the provenance label in the generated class name.
+         *
+         * @return the entry's line, or {@code 0}
+         */
+        default int getLineNo() {
+            return 0;
+        }
+
+        /**
+         * @return 1-based line of this rule's {@code exp:} key, or {@code 0} when unknown
+         */
+        default int getExpLine() {
+            return 0;
+        }
     }
 }
