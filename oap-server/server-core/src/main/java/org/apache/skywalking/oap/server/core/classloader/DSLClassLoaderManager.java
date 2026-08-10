@@ -37,11 +37,15 @@ import lombok.extern.slf4j.Slf4j;
  * version replaces them, and observe the JVM's collection of retired loaders so leaks surface
  * as a WARN instead of silent heap growth.
  *
- * <p><b>Why a singleton, not a {@code Service}.</b> Loaders are foundational JVM state — the
- * meter / log compile paths reach for {@code DSLClassLoaderManager.INSTANCE} from places that
- * have no {@code ModuleManager} in scope (the LAL / MAL applier static methods, test
- * fixtures). Threading the manager through every constructor would be churn for zero benefit;
- * lifetime is the JVM's, not a module's.
+ * <p><b>Why a singleton, not a {@code Service}.</b> Loaders are foundational JVM state whose
+ * lifetime is the JVM's, not a module's, and {@code RuleClassLoader} needs this class's
+ * {@code Kind} in its own constructor — a {@code Service} lookup cannot be threaded there.
+ *
+ * <p><b>Who actually uses it.</b> Only {@code server-admin/runtime-rule} (the apply, reconcile
+ * and engine paths) plus {@code RuleClassLoader} itself. <b>No DSL compiler module references
+ * it</b> — MAL and LAL accept a plain {@code ClassLoader} and narrow through
+ * {@link BytecodeClassDefiner}, so neither ever names this class. Do not add a shared-home
+ * justification here that the call sites do not support.
  *
  * <p><b>Static fall-over contract.</b> Bundled rules at boot are loaded the same way as
  * before — into the OAP main classloader, no per-file static loader, no entry in this map.

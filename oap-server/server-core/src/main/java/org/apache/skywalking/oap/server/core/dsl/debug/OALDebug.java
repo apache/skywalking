@@ -36,6 +36,13 @@ import org.apache.skywalking.oap.server.core.source.ISource;
  * <p>Every probe carries the metric's source-line in {@code core.oal} so
  * the captured records can render an in-source pointer alongside the
  * verbatim {@code sourceText}.
+ *
+ * <p><b>Why this is in {@code server-core} when MAL's and LAL's equivalents are not.</b> By
+ * symmetry it belongs in {@code oal-rt} — {@code MALDebug} and {@code LALDebug} each live in
+ * their own analyzer module. It cannot move: {@code server-admin/dsl-debugging}, which
+ * implements the recorder side, declares {@code meter-analyzer} and {@code log-analyzer} but
+ * <b>no {@code oal-rt}</b> dependency, so an implementation there could not see this type. The
+ * asymmetry is forced by the module graph, not an oversight.
  */
 public final class OALDebug {
 

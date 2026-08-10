@@ -97,7 +97,7 @@ class MalCompanionSourceTest {
 
         // The decisive assertion. A line number is only meaningful against the file it indexes,
         // so resolve it and check what is actually there. This fails if the generated source file wrapper ever
-        // gains or loses a line without COMPANION_SAM_LINE_IN_CLASS being updated to match.
+        // gains or loses a line without the SAM signature moving with it; the line is searched for, not counted, so it tracks the envelope automatically.
         final int line = table.get(0)[1];
         assertTrue(line >= 1 && line <= sourceLines.size(),
             "line " + line + " is outside the generated source file (" + sourceLines.size() + " lines)");

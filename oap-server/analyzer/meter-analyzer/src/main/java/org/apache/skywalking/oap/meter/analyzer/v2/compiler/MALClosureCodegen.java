@@ -746,16 +746,6 @@ final class MALClosureCodegen {
     }
 
     /**
-     * The companion's {@code .java} generated source file: the same envelope handed to Javassist, so
-     * source-attach renders exactly the code that was compiled.
-     *
-     *
-     * @param companion  the companion class being generated
-     * @param info       the closure it implements, for the {@code implements} clause
-     * @param methodBody the SAM method source fed to Javassist
-     * @return the full source of the generated source file file
-     */
-    /**
      * SAM method name for a closure kind, used to locate its signature in the sourceFile.
      *
      * @param info the closure
@@ -767,6 +757,15 @@ final class MALClosureCodegen {
             ? "accept" : "apply";
     }
 
+    /**
+     * The companion's generated {@code .java}: the same envelope handed to Javassist, so
+     * source-attach renders exactly the code that was compiled.
+     *
+     * @param companion  the companion class being generated
+     * @param info       the closure it implements, for the {@code implements} clause
+     * @param methodBody the SAM method source fed to Javassist
+     * @return the full source of the companion's generated .java
+     */
     private static String wrapCompanionSource(final CtClass companion,
                                               final ClosureInfo info,
                                               final String methodBody) {

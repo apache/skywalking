@@ -433,14 +433,11 @@ public final class LALClassGenerator {
         execLvt.addAll(genCtx.localVarLvtVars);
         DslGeneratedFileWriter.addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
-        // No LineNumberTable. It numbered bytecode boundaries 1, 2, 3 -- statement ORDINALS,
-        // not lines in any file. That was harmless only while SourceFile named a file that did
-        // not exist, so no frame could resolve and act on the wrong number. Now that SourceFile
-        // names the generated source file actually written, an ordinal RESOLVES: line 1 of that file is the
-        // synthetic comment header, which an IDE presents as the frame's source. Emitting real
-        // lines needs the generated source file's geometry (preamble + package + class decl + preceding private
-        // methods, which vary per rule) the way MAL derives it; until that is computed and
-        // tested, an absent attribute reports an unknown line, which is honest.
+        // One LineNumberTable entry per method, at its own signature line -- not a per-statement
+        // table. The per-statement scan marks boundaries at stores to a result slot, and LAL
+        // bodies are largely void invocations that store nothing there, so its numbers came out
+        // as statement ordinals (1, 2, 3...) matching no file. The signature line is searched for
+        // in the assembled source below, so it survives changes to the envelope.
 
         // In production NO generated source file exists -- it is written only under
         // SW_DYNAMIC_CLASS_ENGINE_DEBUG -- so naming it would name nothing. The rule file is what
@@ -470,13 +467,11 @@ public final class LALClassGenerator {
     }
 
     /**
-     * Mirror of {@link #writeClassFile}: when {@code classOutputDir} is set
-     * (debug build), dump the Javassist-input Java source of the generated
-     * class as a sibling {@code <ClassName>.java} file. The {@code SourceFile}
-     * attribute on the {@code .class} points at this name, so IDEA's
-     * source-attach renders it directly without ever running FernFlower —
-     * the user sees the EXACT code that Javassist compiled, not a decompiler
-     * approximation.
+     * Assembles the exact Java source handed to Javassist, and returns it rather than writing it:
+     * {@link DslGeneratedFileWriter#lineOfMethod} indexes this same text to find each method's
+     * signature line. The write happens once beside the {@code .class}, and only under
+     * {@code SW_DYNAMIC_CLASS_ENGINE_DEBUG}, so an IDE source-attach renders the exact code
+     * Javassist compiled instead of a decompiler's approximation.
      */
     private String buildSourceText(final CtClass ctClass,
                                    final GenCtx genCtx,
@@ -490,7 +485,7 @@ public final class LALClassGenerator {
         if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Same escapedContent the bytecode emits — the verbatim LAL DSL
             // for this rule, escaped for a Java string literal so the
-            // generated source file source compiles structurally identical to the .class.
+            // generated source compiles structurally identical to the .class.
             sb.append("    public final ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
               .append(" debug = new ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
               .append("(\"").append(DslJavaSourceText.toLiteral(content))

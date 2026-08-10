@@ -660,7 +660,7 @@ public class OALClassGeneratorV2 {
     /**
      * Sets the {@code SourceFile} attribute of the class to the given name.
      */
-    
+
 
     /**
      * @param ctClass  the generated class

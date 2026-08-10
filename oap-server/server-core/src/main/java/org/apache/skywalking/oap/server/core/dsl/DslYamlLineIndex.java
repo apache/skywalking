@@ -95,11 +95,6 @@ public final class DslYamlLineIndex {
         }
     }
 
-    /** All-zero index, for callers with no YAML text to inspect. */
-    public static DslYamlLineIndex empty() {
-        return EMPTY;
-    }
-
     public static DslYamlLineIndex index(final String yamlContent) {
         return index(yamlContent, DEFAULT_RULES_KEY);
     }
@@ -149,7 +144,7 @@ public final class DslYamlLineIndex {
         } catch (final RuntimeException e) {
             // Malformed YAML is the loader's problem to report, not ours — it will surface a far
             // better message than we could. Degrade to "no lines known".
-            log.debug("MAL YAML line index unavailable: {}", e.getMessage());
+            log.debug("DSL YAML line index unavailable: {}", e.getMessage());
             return EMPTY;
         }
     }

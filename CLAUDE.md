@@ -93,10 +93,17 @@ public class XxxModuleProvider extends ModuleProvider {
 - No fully-qualified class names inline in code — always add an `import` statement and
   use the short name. Acceptable exceptions: (a) two classes with the same simple name
   would collide if both imported, (b) the class appears exactly once in a Javadoc
-  `{@link}` where the short name would be ambiguous to the reader. Field declarations,
+  `{@link}` where the short name would be ambiguous to the reader, (c) the name is inside
+  GENERATED source — a codegen string literal or a `.ftl` template. Field declarations,
   method signatures, local variables, and generic type arguments should always use the
   imported short name — `private RemoteClientManager rcm;`, not `private
   org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager rcm;`.
+  - Exception (c) is a Javassist constraint, not a preference: its compiler has no
+    `import` statement and resolves simple names only against `java.lang`
+    (`ClassPool.importedPackages`; widening it needs `importPackage`, which is pool-wide
+    mutable state and is never called here). So generated source must fully qualify
+    everything, `java.util.Map` included. Shortening an FQCN in a codegen string or a
+    template compiles as Java and then fails at runtime — audit real Java only.
 - No one-line delegate methods. A wrapper whose only body is a single forwarding call
   to another class (`return Other.foo(a, b);`) adds a hop without value. Inline the
   call at the use site, or call the underlying object directly (including via method

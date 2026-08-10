@@ -84,7 +84,7 @@ class MalLineAttributionTest {
 
     @Test
     void aNestedRuleKeepsItsPathWhichTheClassNameCannotEncode() throws Exception {
-        // The case the class name provably cannot carry: sanitizeName maps '/', '-' and '.' all
+        // The case the class name provably cannot carry: DslJavaSourceText.toIdentifier maps '/', '-' and '.' all
         // to '_', so activemq_activemq_broker could be activemq/activemq-broker,
         // activemq-activemq-broker or activemq_activemq_broker. Only the attribute disambiguates.
         generator.setYamlSource("otel-rules/activemq/activemq-broker.yaml:32");

@@ -34,6 +34,13 @@ package org.apache.skywalking.oap.server.core.dsl.debug;
  * behind their own per-rule {@code MalExpression.debugHolder()} /
  * {@code LalExpression.debugHolder()} accessors; the registry caches those
  * holders on commit instead of asking the artefact on every install.
+ *
+ * <p><b>Why this is in {@code server-core} when MAL's and LAL's equivalents are not.</b> By
+ * symmetry it belongs in {@code oal-rt} — {@code MALDebug} and {@code LALDebug} each live in
+ * their own analyzer module. It cannot move: {@code server-admin/dsl-debugging}, which
+ * implements the recorder side, declares {@code meter-analyzer} and {@code log-analyzer} but
+ * <b>no {@code oal-rt}</b> dependency, so an implementation there could not see this type. The
+ * asymmetry is forced by the module graph, not an oversight.
  */
 public interface DebugHolderProvider {
     /**
