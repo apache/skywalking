@@ -35,7 +35,7 @@ import java.util.TreeSet;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.dsldebug.DebugHolderProvider;
+import org.apache.skywalking.oap.server.core.dsl.debug.DebugHolderProvider;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.source.ISource;

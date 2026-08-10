@@ -97,6 +97,7 @@ public class Rules {
         // Disk baseline: every file under `root` that matches the enabled-rules glob, keyed
         // by relative path without extension (the rule name).
         final Map<String, byte[]> diskBytes = new HashMap<>();
+        final Map<String, String> diskPaths = new HashMap<>();
         try (Stream<Path> stream = Files.walk(root)) {
             stream.filter(p -> {
                 File f = p.toFile();
@@ -114,6 +115,9 @@ public class Rules {
             }).forEach(p -> {
                 final String rel = root.relativize(p).toString();
                 final String ruleName = rel.substring(0, rel.lastIndexOf('.'));
+                // Keep the actual extension: both .yaml and .yml load, and synthesising .yaml for
+                // a .yml rule points the provenance at a file that does not exist.
+                diskPaths.put(ruleName, rel);
                 try {
                     diskBytes.put(ruleName, Files.readAllBytes(p));
                 } catch (IOException e) {
@@ -138,12 +142,13 @@ public class Rules {
             : RuleSetMerger.merge(path, diskBytes, manager);
 
         return merged.entrySet().stream()
-            .map(e -> parseRule(e.getKey(), e.getValue()))
+            .map(e -> parseRule(path, e.getKey(), diskPaths.get(e.getKey()), e.getValue()))
             .filter(java.util.Objects::nonNull)
             .collect(Collectors.toList());
     }
 
-    private static Rule parseRule(final String ruleName, final byte[] bytes) {
+    private static Rule parseRule(final String rulesetDir, final String ruleName,
+                                  final String relPath, final byte[] bytes) {
         // Decode once and bind from the String: RuleSourceLines re-composes the SAME text to read
         // positional marks, which snakeyaml's bean binding discards.
         final String text = new String(bytes, StandardCharsets.UTF_8);
@@ -153,6 +158,8 @@ public class Rules {
                 return null;
             }
             rule.setName(ruleName);
+            rule.setSourcePath(rulesetDir + "/"
+                + (relPath == null ? ruleName + ".yaml" : relPath));
             RuleSourceLines.assign(rule, text);
             registerInlineLayers(ruleName, rule);
             return rule;

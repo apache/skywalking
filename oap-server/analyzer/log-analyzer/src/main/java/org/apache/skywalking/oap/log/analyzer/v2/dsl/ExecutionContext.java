@@ -26,10 +26,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import lombok.Getter;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
-import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LalPayloadDebugDump;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LalPayloadDebugDump;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 

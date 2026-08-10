@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;

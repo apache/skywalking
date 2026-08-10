@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,8 +50,8 @@ public class FilterExpression {
 
     public FilterExpression(final String literal,
                             final String filterNameHint,
-                            final String yamlSource) {
-        this(literal, filterNameHint, yamlSource, null, null);
+                            final DslSourceRef sourceRef) {
+        this(literal, filterNameHint, sourceRef, null, null);
     }
 
     /**
@@ -63,26 +64,26 @@ public class FilterExpression {
      */
     public FilterExpression(final String literal,
                             final String filterNameHint,
-                            final String yamlSource,
+                            final DslSourceRef sourceRef,
                             final ClassPool pool,
                             final ClassLoader targetClassLoader) {
         this.literal = literal;
         try {
             if (pool != null && targetClassLoader != null) {
                 // Dedicated generator per filter — avoids mutating the shared singleton's
-                // classNameHint/yamlSource state and keeps runtime-rule compiles isolated
+                // classNameHint/sourceRef state and keeps runtime-rule compiles isolated
                 // from startup compiles running on the shared GENERATOR.
                 final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
                 if (filterNameHint != null) {
                     perFile.setClassNameHint(filterNameHint);
                 }
-                perFile.setYamlSource(yamlSource);
+                perFile.setSourceRef(sourceRef);
                 this.malFilter = perFile.compileFilter(literal);
             } else {
                 if (filterNameHint != null) {
                     GENERATOR.setClassNameHint(filterNameHint);
                 }
-                GENERATOR.setYamlSource(yamlSource);
+                GENERATOR.setSourceRef(sourceRef);
                 try {
                     this.malFilter = GENERATOR.compileFilter(literal);
                 } finally {

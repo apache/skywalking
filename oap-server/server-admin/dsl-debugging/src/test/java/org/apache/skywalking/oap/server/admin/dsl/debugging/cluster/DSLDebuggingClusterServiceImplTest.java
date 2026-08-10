@@ -40,8 +40,8 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugRecorde
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSessionRegistry;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

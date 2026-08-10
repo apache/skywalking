@@ -35,7 +35,7 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.lal.LALHolderRegistr
 import org.apache.skywalking.oap.server.admin.dsl.debugging.module.DSLDebuggingModule;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;

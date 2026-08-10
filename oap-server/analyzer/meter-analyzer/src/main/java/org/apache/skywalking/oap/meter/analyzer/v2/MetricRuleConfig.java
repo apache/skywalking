@@ -54,6 +54,17 @@ public interface MetricRuleConfig {
      *
      * @return source name, or {@code null} if unknown.
      */
+    /**
+     * Full rule-file path for stack frames, e.g. {@code otel-rules/vm.yaml}. Defaults to the
+     * source name with a {@code .yaml} extension when an implementation does not track the
+     * ruleset directory.
+     *
+     * @return the path an operator can open, or {@code null} when unknown
+     */
+    default String getSourcePath() {
+        return getSourceName() == null ? null : getSourceName() + ".yaml";
+    }
+
     default String getSourceName() {
         return null;
     }
@@ -61,7 +72,7 @@ public interface MetricRuleConfig {
     /**
      * 1-based line of the file-level {@code filter:} key in the source YAML, or {@code 0} when
      * unknown. A compiled MAL expression splices up to three separate source locations together,
-     * so each needs its own anchor; see {@link MalYamlLineIndex}.
+     * so each needs its own anchor; see {@link org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex}.
      *
      * @return the filter's line, or {@code 0}
      */

@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogFilterListener;
 import org.apache.skywalking.oap.server.core.classloader.Catalog;
 import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
@@ -174,7 +175,10 @@ public class LalFileApplier {
         //   during phase 2, the caller's rollback list is accurate.
         final List<LogFilterListener.Factory.CompiledLAL> compiled = new ArrayList<>(rules.size());
         for (final LALConfig c : rules) {
-            c.setSourceName(sourceName);
+            // Shared with the boot loader, not restated: runtime rule names carry no extension,
+            // and the sourceName it derives keys the dsl-debugging registry, so a hot update must
+            // land on the same key as its disk-loaded twin rather than beside it.
+            LALConfigs.stampSource(c, sourceName);
             try {
                 compiled.add(factory.compile(c, pool, ruleLoader));
             } catch (final Throwable t) {
@@ -322,6 +326,13 @@ public class LalFileApplier {
                 throw new ApplyException(
                     "LAL YAML parsed to empty/malformed — no rules list in " + sourceName,
                     null, Collections.emptyList());
+            }
+            // Resolve each rule's line from the SAME text, exactly as the boot loader does.
+            // Without this a hot-updated rule compiles to an unlabelled class while its
+            // disk-loaded twin is labelled — the two routes must agree.
+            final DslYamlLineIndex lineIndex = DslYamlLineIndex.index(yamlContent, "rules");
+            for (int i = 0; i < configs.getRules().size(); i++) {
+                configs.getRules().get(i).setLineNo(lineIndex.rule(i).getEntryLine());
             }
             // layerDefinitions: are now permitted in runtime LAL rules; the apply path
             // funnels them through the runtime-layer registry. The rejection that used to

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -45,7 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * <p>Javassist's {@code ClassFile} constructor always installs a {@code SourceFile} attribute
  * naming {@code <simpleName>.java}, so a companion has ALWAYS claimed a source file. Until the
- * sidecar was written that name dangled — it pointed at a file nobody ever created, which reads
+ * generated source file was written that name dangled — it pointed at a file nobody ever created, which reads
  * as correct to an IDE right up until it fails to open it. These tests pin that the name resolves.
  */
 class MalCompanionSourceTest {
@@ -71,11 +72,11 @@ class MalCompanionSourceTest {
         generator.compile("meter_vm_cpu", "metric.tag({ tags -> tags.service = 'svc1' })");
 
         final File companion = findCompanionClass();
-        final File sidecar = new File(
+        final File sourceFile = new File(
             outputDir, companion.getName().replace(".class", ".java"));
-        assertTrue(sidecar.isFile(),
+        assertTrue(sourceFile.isFile(),
             "companion .class exists but its SourceFile names a file that was never written: "
-                + sidecar.getName());
+                + sourceFile.getName());
     }
 
     @Test
@@ -84,7 +85,7 @@ class MalCompanionSourceTest {
         generator.compile("meter_vm_cpu", "metric.tag({ tags -> tags.service = 'svc1' })");
 
         final File companion = findCompanionClass();
-        final List<String> sidecarLines = Files.readAllLines(
+        final List<String> sourceLines = Files.readAllLines(
             new File(outputDir, companion.getName().replace(".class", ".java")).toPath(),
             StandardCharsets.UTF_8);
 
@@ -95,12 +96,12 @@ class MalCompanionSourceTest {
         assertEquals(0, table.get(0)[0], "the single entry covers the method from pc 0");
 
         // The decisive assertion. A line number is only meaningful against the file it indexes,
-        // so resolve it and check what is actually there. This fails if the sidecar wrapper ever
+        // so resolve it and check what is actually there. This fails if the generated source file wrapper ever
         // gains or loses a line without COMPANION_SAM_LINE_IN_CLASS being updated to match.
         final int line = table.get(0)[1];
-        assertTrue(line >= 1 && line <= sidecarLines.size(),
-            "line " + line + " is outside the sidecar (" + sidecarLines.size() + " lines)");
-        final String target = sidecarLines.get(line - 1);
+        assertTrue(line >= 1 && line <= sourceLines.size(),
+            "line " + line + " is outside the generated source file (" + sourceLines.size() + " lines)");
+        final String target = sourceLines.get(line - 1);
         assertTrue(target.contains("public ") && target.contains("(") && target.endsWith("{"),
             "line " + line + " should hold the SAM signature but was: '" + target + "'");
     }
@@ -124,23 +125,18 @@ class MalCompanionSourceTest {
                 "every generated class file needs its own source file: " + companion.getName());
         }
 
-        // ... all sharing the one operator anchor. This is the cardinality the shared structure
-        // exists to express: 1 YAML line, N generated files.
-        final MalSourceRef first = MalSourceRef.of("vm.yaml", 38, "vm_L38_multi$_tag", 9);
-        final MalSourceRef second = MalSourceRef.of("vm.yaml", 38, "vm_L38_multi$_tag_2", 9);
-        assertEquals(first.describeYaml(), second.describeYaml(), "same rule, same anchor");
-        assertEquals("vm_L38_multi$_tag.java", first.generatedFileName());
-        assertEquals("vm_L38_multi$_tag_2.java", second.generatedFileName());
     }
 
     @Test
-    void anUnresolvedGeneratedLineIsNeverWrittenIntoTheTable() {
+    void anUnresolvedLineIsNeverWrittenIntoTheTable() {
         // line_number is an unsigned u2, so UNRESOLVED (-1) would serialize as 65535 and read as
-        // a real line. Omitting the attribute is the only honest encoding of "unknown".
-        final MalSourceRef ref = MalSourceRef.of("vm.yaml", 38, "vm_L38_x$_tag", 0);
+        // a real line. DslGeneratedFileWriter.attachSignatureLine omits the attribute instead,
+        // which is the only honest encoding of "unknown".
+        final DslSourceRef ref = DslSourceRef.ofRule("vm.yaml", 0);
 
-        assertEquals(MalSourceRef.UNRESOLVED, ref.getGeneratedLine());
-        assertEquals("vm.yaml:38", ref.describeYaml(), "the yaml anchor survives independently");
+        assertEquals(DslSourceRef.UNRESOLVED, ref.getYamlLine());
+        assertEquals("vm.yaml:-1", ref.describeYaml(),
+            "an unresolved line stays visible as -1 rather than vanishing");
     }
 
     private File findCompanionClass() {

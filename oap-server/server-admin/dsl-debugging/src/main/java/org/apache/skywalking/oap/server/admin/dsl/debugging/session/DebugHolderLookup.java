@@ -18,8 +18,8 @@
 
 package org.apache.skywalking.oap.server.admin.dsl.debugging.session;
 
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * The session install path consults this contract to resolve the live

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.util.LinkedHashMap;
 import javassist.ClassPool;
 import lombok.AccessLevel;
@@ -26,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -82,9 +83,9 @@ public class DSL {
                          final Class<?> inputType,
                          final Class<?> outputType,
                          final String ruleName,
-                         final String yamlSource) throws ModuleStartException {
+                         final DslSourceRef sourceRef) throws ModuleStartException {
         return of(moduleManager, config, dsl, inputType, outputType, ruleName,
-            yamlSource, null, null);
+            sourceRef, null, null);
     }
 
     /**
@@ -102,7 +103,7 @@ public class DSL {
                          final Class<?> inputType,
                          final Class<?> outputType,
                          final String ruleName,
-                         final String yamlSource,
+                         final DslSourceRef sourceRef,
                          final ClassPool pool,
                          final ClassLoader targetClassLoader) throws ModuleStartException {
         try {
@@ -112,7 +113,7 @@ public class DSL {
             generator.setInputType(inputType);
             generator.setOutputType(outputType);
             generator.setClassNameHint(ruleName);
-            generator.setYamlSource(yamlSource);
+            generator.setSourceRef(sourceRef);
             // Pass the verbatim DSL text as the holder's "content" — dsl-debugging
             // captures stamp this on every record so the UI renders the rule source
             // inline. SHA-256 hash isn't useful to operators; raw text is.

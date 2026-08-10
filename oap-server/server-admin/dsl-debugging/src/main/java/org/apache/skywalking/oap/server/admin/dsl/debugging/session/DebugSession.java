@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.session;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Per-session aggregate carried by the registry: identity, the recorder

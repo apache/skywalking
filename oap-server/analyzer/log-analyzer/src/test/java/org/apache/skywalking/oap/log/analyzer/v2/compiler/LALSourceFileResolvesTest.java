@@ -75,10 +75,34 @@ class LALSourceFileResolvesTest {
                     new BufferedInputStream(Files.newInputStream(generated.toPath())))) {
                 sourceFile = new ClassFile(in).getSourceFile();
             }
-            assertEquals(generated.getName().replace(".class", ".java"), sourceFile,
-                "SourceFile must name the class's own sidecar, not the rule's YAML provenance");
-            assertTrue(new File(outputDir, sourceFile).isFile(),
-                "SourceFile names a file that was never written: " + sourceFile);
+            // A generated source file exists only under SW_DYNAMIC_CLASS_ENGINE_DEBUG, so in production this
+            // attribute cannot usefully name one. It names the RULE -- what an operator opens --
+            // and appends the generated file name for anyone who did dump classes.
+            assertEquals("(execution-basic.yaml:304)"
+                    + generated.getName().replace(".class", ".java"),
+                sourceFile,
+                "SourceFile must carry the rule location plus the generated file name");
+        }
+    }
+
+    @Test
+    void aNestedRulePathSurvivesWhereTheClassNameCannotEncodeIt() throws Exception {
+        // Sanitising maps '/', '-' and '.' all to '_', so lal_oap_cases_envoy_als could be any of
+        // several paths. Only this attribute disambiguates.
+        final LALClassGenerator generator = new LALClassGenerator();
+        generator.setClassOutputDir(outputDir);
+        generator.setYamlSource("lal/oap-cases/envoy-als.yaml:58");
+        generator.setClassNameHint("envoy-als-tcp");
+        generator.compile(DSL);
+
+        for (final File generated : outputDir.listFiles(
+                (dir, name) -> name.endsWith(".class") && name.contains("envoy"))) {
+            try (DataInputStream in = new DataInputStream(
+                    new BufferedInputStream(Files.newInputStream(generated.toPath())))) {
+                assertTrue(new ClassFile(in).getSourceFile()
+                        .startsWith("(lal/oap-cases/envoy-als.yaml:58)"),
+                    "the full rule path must survive into SourceFile");
+            }
         }
     }
 
@@ -90,20 +114,20 @@ class LALSourceFileResolvesTest {
         generator.setClassNameHint("auto-layer-not-set");
         generator.compile(DSL);
 
-        final File[] sidecars = outputDir.listFiles((dir, name) -> name.endsWith(".java"));
-        assertNotNull(sidecars);
-        assertTrue(sidecars.length > 0, "no .java written");
+        final File[] sourceFiles = outputDir.listFiles((dir, name) -> name.endsWith(".java"));
+        assertNotNull(sourceFiles);
+        assertTrue(sourceFiles.length > 0, "no .java written");
 
-        for (final File sidecar : sidecars) {
+        for (final File sourceFile : sourceFiles) {
             // Decoding as UTF-8 must not throw. A FileWriter on a JVM defaulting to GBK /
             // windows-1252 would have written bytes that are not valid UTF-8, which is exactly
-            // how the equivalent MAL sidecar broke CI with MalformedInputException.
+            // how the equivalent MAL generated source file broke CI with MalformedInputException.
             final String content =
-                new String(Files.readAllBytes(sidecar.toPath()), StandardCharsets.UTF_8);
-            assertTrue(content.contains("Synthetic source"), "header missing in " + sidecar);
+                new String(Files.readAllBytes(sourceFile.toPath()), StandardCharsets.UTF_8);
+            assertTrue(content.contains("Synthetic source"), "header missing in " + sourceFile);
             for (int i = 0; i < content.length(); i++) {
                 assertTrue(content.charAt(i) != '�',
-                    "replacement char at " + i + " means the file is not valid UTF-8: " + sidecar);
+                    "replacement char at " + i + " means the file is not valid UTF-8: " + sourceFile);
             }
         }
     }

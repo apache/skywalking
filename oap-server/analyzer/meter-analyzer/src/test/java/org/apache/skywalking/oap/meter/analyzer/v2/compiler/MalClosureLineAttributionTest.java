@@ -32,7 +32,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -122,27 +121,29 @@ class MalClosureLineAttributionTest {
         File found = null;
         for (final File companion : outputDir.listFiles(
                 (dir, name) -> name.contains("$") && name.endsWith(".class"))) {
-            final File sidecar = new File(
+            final File sourceFile = new File(
                 outputDir, companion.getName().replace(".class", ".java"));
-            if (sidecar.isFile() && new String(Files.readAllBytes(sidecar.toPath()),
+            if (sourceFile.isFile() && new String(Files.readAllBytes(sourceFile.toPath()),
                     StandardCharsets.UTF_8).contains(marker)) {
                 found = companion;
                 break;
             }
         }
-        assertNotNull(found, "no companion sidecar carries the " + position + " closure body");
+        assertNotNull(found, "no companion generated source file carries the " + position + " closure body");
 
-        final File sidecar = new File(outputDir, found.getName().replace(".class", ".java"));
-        assertEquals(found.getName().replace(".class", ".java"),
+        final File sourceFile = new File(outputDir, found.getName().replace(".class", ".java"));
+        // A companion is its own class file, so it carries the rule location plus ITS OWN
+        // generated name -- not its parent's, and not Javassist's bare default.
+        assertEquals("(vm.yaml:" + EXP_LINE + ")" + found.getName().replace(".class", ".java"),
             MalClassAttributes.sourceFileOf(found),
-            "SourceFile must name the companion's own file, for " + position);
+            "the companion must carry the rule location and its own file name, for " + position);
 
         final List<int[]> table = MalClassAttributes.lineNumberTableOf(found);
         assertEquals(1, table.size(), "one entry for the " + position + " companion");
 
         final int line = table.get(0)[1];
         final List<String> lines =
-            Files.readAllLines(sidecar.toPath(), StandardCharsets.UTF_8);
+            Files.readAllLines(sourceFile.toPath(), StandardCharsets.UTF_8);
         assertTrue(line >= 1 && line <= lines.size(),
             "line " + line + " is outside the " + position + " companion's own source");
         final String target = lines.get(line - 1);
@@ -159,17 +160,4 @@ class MalClosureLineAttributionTest {
         generator.compile("meter_vm_cpu", formatted);
     }
 
-    @Test
-    void theYamlAnchorIsSharedAcrossTheGeneratedFilesThatOneRuleProduces() {
-        // The cardinality the shared structure exists to express: the operator coordinate is fixed
-        // per rule, while the generated coordinate differs per file.
-        final MalSourceRef main = MalSourceRef.of("vm.yaml", EXP_LINE, "vm_L6_cpu", 11);
-        final MalSourceRef tag = MalSourceRef.of("vm.yaml", EXP_LINE, "vm_L6_cpu$_tag", 9);
-        final MalSourceRef tag2 = MalSourceRef.of("vm.yaml", EXP_LINE, "vm_L6_cpu$_tag_2", 9);
-
-        assertEquals(main.describeYaml(), tag.describeYaml());
-        assertEquals(tag.describeYaml(), tag2.describeYaml());
-        assertNotEquals(tag.generatedFileName(), tag2.generatedFileName());
-        assertEquals("vm_L6_cpu$_tag.java", tag.generatedFileName());
-    }
 }

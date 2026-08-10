@@ -24,6 +24,7 @@ import java.util.Set;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
  * Static AST analysis: extracts compile-time metadata from a MAL expression AST.
@@ -207,19 +208,19 @@ public final class MALMetadataExtractor {
         sb.append("  java.util.List _samples = new java.util.ArrayList();\n");
         for (final String sample : metadata.getSamples()) {
             sb.append("  _samples.add(\"")
-              .append(MALCodegenHelper.escapeJava(sample)).append("\");\n");
+              .append(DslJavaSourceText.toLiteral(sample)).append("\");\n");
         }
 
         sb.append("  java.util.Set _scopeLabels = new java.util.LinkedHashSet();\n");
         for (final String label : metadata.getScopeLabels()) {
             sb.append("  _scopeLabels.add(\"")
-              .append(MALCodegenHelper.escapeJava(label)).append("\");\n");
+              .append(DslJavaSourceText.toLiteral(label)).append("\");\n");
         }
 
         sb.append("  java.util.Set _aggLabels = new java.util.LinkedHashSet();\n");
         for (final String label : metadata.getAggregationLabels()) {
             sb.append("  _aggLabels.add(\"")
-              .append(MALCodegenHelper.escapeJava(label)).append("\");\n");
+              .append(DslJavaSourceText.toLiteral(label)).append("\");\n");
         }
 
         if (metadata.getPercentiles() != null) {

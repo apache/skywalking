@@ -46,7 +46,7 @@ import lombok.Setter;
  *       the step short-circuited (filter dropped, parser aborted,
  *       extractor abort()).</li>
  *   <li>{@code payloadJson} — pre-built JSON string of the step's data
- *       state. Built by {@link org.apache.skywalking.oap.server.core.dsldebug.ToJson#toJson}
+ *       state. Built by {@link org.apache.skywalking.oap.server.core.dsl.debug.ToJson#toJson}
  *       on the underlying domain object (ISource / SampleFamily /
  *       ExecutionContext). No recorder-side reflection.</li>
  *   <li>{@code sourceLine} — 1-based source line of this step in the

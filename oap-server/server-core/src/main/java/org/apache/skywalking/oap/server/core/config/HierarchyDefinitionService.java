@@ -18,8 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.config;
 
-import java.io.FileNotFoundException;
-import java.io.Reader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -34,6 +33,9 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import static java.util.stream.Collectors.toMap;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Loads hierarchy definitions from {@code hierarchy-definition.yml} and compiles
@@ -70,7 +72,29 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
      */
     @FunctionalInterface
     public interface HierarchyRuleProvider {
-        Map<String, BiFunction<Service, Service, Boolean>> buildRules(Map<String, String> ruleExpressions);
+        /**
+         * Compiles every hierarchy rule, given both its expression and its location.
+         *
+         * <p><b>Breaking change.</b> This replaces the former one-argument
+         * {@code buildRules(Map)}. A {@code ServiceLoader} provider compiled against that older
+         * signature will fail with {@link AbstractMethodError} and must be recompiled against this
+         * one. That is deliberate: a provider which cannot report where a rule came from produces
+         * classes labelled {@code _Lunknown_}, and a stack frame from one of them leads nowhere.
+         * Implementors that genuinely have no line information should pass through an empty map
+         * rather than silently dropping the parameter.
+         *
+         * <p>The lines travel separately because {@code ruleExpressions} is built by snakeyaml's
+         * bean binding, which has already discarded positional marks by the time the provider is
+         * called; they are recovered by a second compose pass over the same text
+         * ({@link DslYamlLineIndex#keyLines}).
+         *
+         * @param ruleExpressions rule name to expression
+         * @param ruleLines       rule name to its 1-based line in {@code hierarchy-definition.yml};
+         *                        empty when unresolvable
+         * @return rule name to compiled matcher
+         */
+        Map<String, BiFunction<Service, Service, Boolean>> buildRules(
+            Map<String, String> ruleExpressions, Map<String, Integer> ruleLines);
     }
 
     @Getter
@@ -124,14 +148,21 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
     @SuppressWarnings("unchecked")
     private void init(final HierarchyRuleProvider ruleProvider) {
         try {
-            final Reader applicationReader = ResourceUtils.read("hierarchy-definition.yml");
+            // Bind from the decoded text, then re-compose the SAME text for positional marks:
+            // snakeyaml's bean binding discards them, so the rule lines must be read separately.
+            // Same idiom as every other rule loader in the DSL path (Rules, LALConfigs,
+            // ZabbixConfigs): read the bytes once, decode as UTF-8 explicitly.
+            final String yamlText = new String(
+                ResourceUtils.readToStream("hierarchy-definition.yml").readAllBytes(), UTF_8);
             final Yaml yaml = new Yaml();
-            final Map<String, Map> config = yaml.loadAs(applicationReader, Map.class);
+            final Map<String, Map> config = yaml.loadAs(yamlText, Map.class);
             final Map<String, Map<String, String>> hierarchy = (Map<String, Map<String, String>>) config.get("hierarchy");
             final Map<String, String> ruleExpressions = (Map<String, String>) config.get("auto-matching-rules");
             this.layerLevels = (Map<String, Integer>) config.get("layer-levels");
 
-            final Map<String, BiFunction<Service, Service, Boolean>> builtRules = ruleProvider.buildRules(ruleExpressions);
+            final Map<String, BiFunction<Service, Service, Boolean>> builtRules = ruleProvider.buildRules(
+                ruleExpressions,
+                DslYamlLineIndex.keyLines(yamlText, "auto-matching-rules"));
 
             this.matchingRules = ruleExpressions.entrySet().stream().map(entry -> {
                 final BiFunction<Service, Service, Boolean> matcher = builtRules.get(entry.getKey());
@@ -149,7 +180,7 @@ public class HierarchyDefinitionService implements org.apache.skywalking.oap.ser
                 });
                 this.hierarchyDefinition.put(layer, rules);
             });
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new UnexpectedException("hierarchy-definition.yml not found.", e);
         }
     }

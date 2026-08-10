@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.mal;
 import com.google.gson.JsonObject;
 import java.util.Map;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MALDebugRecorder;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.debug.MALDebugRecorder;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.AbstractDebugRecorder;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.Sample;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
@@ -34,8 +34,8 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Concrete recorder for MAL debug sessions. One execution = one

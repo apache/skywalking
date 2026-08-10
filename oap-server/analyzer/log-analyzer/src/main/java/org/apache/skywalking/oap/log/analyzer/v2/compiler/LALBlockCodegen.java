@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
  * Code generation for LAL block-level structures: {@code extractor},
@@ -271,7 +272,7 @@ final class LALBlockCodegen {
             sb.append("h.parseTimestamp(");
             LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(", \"")
-              .append(LALCodegenHelper.escapeJava(field.getFormatPattern()))
+              .append(DslJavaSourceText.toLiteral(field.getFormatPattern()))
               .append("\")");
         } else if (paramType.isEnum() || paramType == Layer.class) {
             // `Layer` was historically an enum and is now a registry-backed value type with a
@@ -339,7 +340,7 @@ final class LALBlockCodegen {
         sb.append("  if (_metrics != null) {\n");
         if (block.getName() != null) {
             sb.append("  _metrics.name(\"")
-                .append(LALCodegenHelper.escapeJava(block.getName())).append("\");\n");
+                .append(DslJavaSourceText.toLiteral(block.getName())).append("\");\n");
         }
         if (block.getTimestampValue() != null) {
             sb.append("  _metrics.timestamp(");
@@ -352,7 +353,7 @@ final class LALBlockCodegen {
             for (final Map.Entry<String, LALScriptModel.TagValue> entry
                     : block.getLabels().entrySet()) {
                 sb.append("    _labels.put(\"")
-                    .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
+                    .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
                 LALValueCodegen.generateCastedValueAccess(sb, entry.getValue().getValue(),
                     entry.getValue().getCastType(), genCtx);
                 sb.append(");\n");
@@ -398,7 +399,7 @@ final class LALBlockCodegen {
         for (final Map.Entry<String, LALScriptModel.TagValue> entry
                 : tag.getTags().entrySet()) {
             sb.append("  _o.addTag(\"")
-              .append(LALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
+              .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
             LALValueCodegen.generateStringValueAccess(sb, entry.getValue().getValue(),
                 entry.getValue().getCastType(), genCtx);
             sb.append(");\n");
@@ -730,7 +731,7 @@ final class LALBlockCodegen {
             for (final LALScriptModel.InterpolationPart part : block.getIdParts()) {
                 sb.append(" + ");
                 if (part.isLiteral()) {
-                    sb.append("\"").append(LALCodegenHelper.escapeJava(part.getLiteral()))
+                    sb.append("\"").append(DslJavaSourceText.toLiteral(part.getLiteral()))
                       .append("\"");
                 } else {
                     sb.append("String.valueOf(");
@@ -739,7 +740,7 @@ final class LALBlockCodegen {
                 }
             }
         } else {
-            sb.append("\"").append(LALCodegenHelper.escapeJava(block.getId())).append("\"");
+            sb.append("\"").append(DslJavaSourceText.toLiteral(block.getId())).append("\"");
         }
         sb.append(", ").append(block.getRpm()).append(");\n");
     }
