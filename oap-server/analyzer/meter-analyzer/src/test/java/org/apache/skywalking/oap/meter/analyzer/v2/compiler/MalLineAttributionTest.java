@@ -43,7 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * End-to-end guard on the generated artifact's line attribution.
  *
- * <p>The unit tests for {@link MalYamlLineIndex} and {@link MalGeneratedSourceLines} check those
+ * <p>The unit tests for {@link DslYamlLineIndex} and {@link MalGeneratedSourceLines} check those
  * pieces in isolation. This one checks the thing that actually ships: that the {@code SourceFile}
  * attribute names the file that was really written, and that every {@code LineNumberTable} entry
  * indexes a line of THAT file which genuinely holds a statement.
@@ -63,22 +63,39 @@ class MalLineAttributionTest {
 
     @BeforeEach
     void setUp() {
-        org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.resetInjection();
+        org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.resetInjection();
         generator = new MALClassGenerator(new ClassPool(true));
         generator.setClassOutputDir(outputDir);
     }
 
     @Test
-    void sourceFileNamesTheFileThatWasActuallyWritten() throws Exception {
+    void sourceFileCarriesTheRuleLocationAndTheGeneratedFileName() throws Exception {
         compileMultiStageRule();
 
         final File javaFile = writtenFile(".java");
         final ClassFile classFile = readClassFile(writtenFile(".class"));
 
-        // The whole contract of SourceFile: an IDE resolves a frame by opening exactly this name
-        // next to the class. It used to read "(vm.yaml:0)cpu_total.java" while the file on disk
-        // was "vm_L0_cpu_total.java", so it could never resolve.
-        assertEquals(javaFile.getName(), classFile.getSourceFile());
+        // A generated source file exists only under SW_DYNAMIC_CLASS_ENGINE_DEBUG, so in production this
+        // attribute cannot usefully name one. It names the RULE, which is what an operator can
+        // open, and appends the generated file name so a developer who did dump classes can still
+        // find it by name.
+        assertEquals("(vm.yaml:37)" + javaFile.getName(), classFile.getSourceFile());
+    }
+
+    @Test
+    void aNestedRuleKeepsItsPathWhichTheClassNameCannotEncode() throws Exception {
+        // The case the class name provably cannot carry: sanitizeName maps '/', '-' and '.' all
+        // to '_', so activemq_activemq_broker could be activemq/activemq-broker,
+        // activemq-activemq-broker or activemq_activemq_broker. Only the attribute disambiguates.
+        generator.setYamlSource("otel-rules/activemq/activemq-broker.yaml:32");
+        generator.setClassNameHint("service_meter");
+        generator.compile("meter_activemq_service", "metric.sum(['service'])");
+
+        final ClassFile classFile = readClassFile(writtenFile(".class", "service_meter"));
+        assertTrue(classFile.getSourceFile()
+                .startsWith("(otel-rules/activemq/activemq-broker.yaml:32)"),
+            "the full rule path must survive into SourceFile, got: "
+                + classFile.getSourceFile());
     }
 
     @Test
@@ -145,8 +162,12 @@ class MalLineAttributionTest {
     }
 
     private File writtenFile(final String suffix) {
+        return writtenFile(suffix, "cpu_total");
+    }
+
+    private File writtenFile(final String suffix, final String hint) {
         final File[] matches = outputDir.listFiles(
-            (dir, name) -> name.endsWith(suffix) && name.contains("cpu_total"));
+            (dir, name) -> name.endsWith(suffix) && name.contains(hint));
         assertNotNull(matches, "no files written to " + outputDir);
         assertTrue(matches.length > 0, "no " + suffix + " written to " + outputDir);
         return matches[0];

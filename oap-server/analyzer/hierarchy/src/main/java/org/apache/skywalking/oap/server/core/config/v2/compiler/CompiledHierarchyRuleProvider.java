@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.config.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -47,19 +48,28 @@ import org.apache.skywalking.oap.server.core.query.type.Service;
 @Slf4j
 public class CompiledHierarchyRuleProvider implements HierarchyDefinitionService.HierarchyRuleProvider {
 
+    /** Rule file these classes are generated from, relative to the config root. */
+    private static final String HIERARCHY_RULE_FILE = "hierarchy-definition.yml";
+
     private final HierarchyRuleClassGenerator generator;
 
     public CompiledHierarchyRuleProvider() {
         generator = new HierarchyRuleClassGenerator();
-        generator.setYamlSource("hierarchy-definition.yml");
     }
 
     @Override
     public Map<String, BiFunction<Service, Service, Boolean>> buildRules(
-            final Map<String, String> ruleExpressions) {
+            final Map<String, String> ruleExpressions,
+            final Map<String, Integer> ruleLines) {
         final Map<String, BiFunction<Service, Service, Boolean>> rules = new HashMap<>();
         ruleExpressions.forEach((name, expression) -> {
             try {
+                // Per rule, not per file: the generator labels the class _L<line>_ and puts
+                // (file:line) in SourceFile, so a single file-level coordinate would give every
+                // hierarchy rule the same line.
+                final Integer line = ruleLines.get(name);
+                generator.setSourceRef(DslSourceRef.ofRule(
+                    HIERARCHY_RULE_FILE, line == null ? 0 : line));
                 rules.put(name, generator.compile(name, expression));
                 log.debug("Compiled hierarchy rule: {}", name);
             } catch (Exception e) {

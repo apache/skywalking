@@ -29,7 +29,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
 import java.nio.ByteBuffer;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LalPayloadDebugDump;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LalPayloadDebugDump;
 
 /**
  * Canonical "Envoy ALS entry to readable JSON" for SkyWalking, covering both

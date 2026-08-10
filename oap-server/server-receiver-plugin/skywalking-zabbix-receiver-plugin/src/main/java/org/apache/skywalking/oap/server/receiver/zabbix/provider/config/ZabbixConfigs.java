@@ -26,9 +26,10 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,8 +59,26 @@ public class ZabbixConfigs {
                 if (!fileNames.contains(fileName)) {
                     return null;
                 }
-                try (Reader r = new FileReader(f)) {
-                    return new Yaml().<ZabbixConfig>loadAs(r, ZabbixConfig.class);
+                try {
+                    // Bind from the decoded String, then re-compose the SAME text for positional
+                    // marks: snakeyaml's bean binding discards them. Zabbix keys its rules under
+                    // `metrics:` rather than `metricsRules:`, hence the explicit key.
+                    final String text = new String(
+                        Files.readAllBytes(f.toPath()), StandardCharsets.UTF_8);
+                    final ZabbixConfig config = new Yaml().loadAs(text, ZabbixConfig.class);
+                    if (config == null) {
+                        return null;
+                    }
+                    config.setSourceName(fileName);
+                    config.setSourcePath(path + "/" + f.getName());
+                    final DslYamlLineIndex lineIndex = DslYamlLineIndex.index(text, "metrics");
+                    final List<ZabbixConfig.Metric> ms = config.getMetrics();
+                    if (ms != null) {
+                        for (int i = 0; i < ms.size(); i++) {
+                            ms.get(i).setLineNo(lineIndex.rule(i).getEntryLine());
+                        }
+                    }
+                    return config;
                 } catch (IOException e) {
                     log.warn("Reading file {} failed", f, e);
                 }

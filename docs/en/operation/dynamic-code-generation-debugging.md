@@ -57,7 +57,7 @@ apache-skywalking-apm-bin/
 │   ├── metrics/              ←   e.g., ServiceRespTimeMetrics.class
 │   ├── metrics/builder/      ←   e.g., ServiceRespTimeMetricsBuilder.class
 │   └── dispatcher/           ←   e.g., ServiceDispatcher.class
-├── mal-rt/                   ← Generated MAL classes (e.g., vm_L25_cpu_total_percentage.class, vm_L20_filter.class)
+├── mal-rt/                   ← Generated MAL classes (e.g., otel_rules_vm_L25_cpu_total_percentage.class, meter_analyzer_config_vm_L20_filter.class)
 ├── lal-rt/                   ← Generated LAL classes (e.g., default_L3_default.class)
 └── hierarchy-rt/             ← Generated Hierarchy classes (e.g., hierarchy_definition_L88_name.class)
 ```
@@ -98,84 +98,100 @@ When a runtime error occurs inside a generated class, the JVM prints a stack tra
 at <package>.<ClassName>.<method>(SourceFile:LineNumber)
 ```
 
-The `.java` sidecar is written ON DEMAND only — when `SW_DYNAMIC_CLASS_ENGINE_DEBUG` is set.
-Javassist compiles from an in-memory string, so a default deployment produces classes with no
-sidecar on disk at all.
-
-When a sidecar IS written, `SourceFile` names it, so an IDE can resolve the frame to real source:
+The `.java` generated source file is written ON DEMAND only — when `SW_DYNAMIC_CLASS_ENGINE_DEBUG` is set.
+Javassist compiles from an in-memory string, so a default deployment produces classes with **no
+generated source file on disk at all**. `SourceFile` therefore names the thing an operator *can* open — the rule
+file — and appends the generated class file name for anyone who did dump classes:
 
 ```
-<GeneratedClassName>.java
+(<dsl-file-path>:<rule-line>)<GeneratedClassName>.java
 ```
 
-When none is written, the frame's usefulness depends on the DSL. MAL and LAL encode the rule's line
-in the CLASS NAME (`vm_L38_cpu_total`, `execution_basic_L304_…`), so the location survives regardless.
-An OAL class is named after its metric (`ServiceRespTimeMetrics`) and carries no line elsewhere, so
-its `SourceFile` keeps a `(core.oal:20)` prefix outside debug mode — and always, for the
-metrics-builder and Hierarchy classes, which write no sidecar in any mode. A dispatcher is shared by
-every metric of a scope, so it names no line at all rather than borrow one metric's.
+Examples, all four DSLs:
 
-For MAL and LAL it no longer embeds the DSL location in parentheses. That form described where a rule came from but
-addressed no file on disk, so source-attach could never resolve a frame. The DSL location is instead
-carried by the generated class NAME (`vm_L38_cpu_total` is line 38 of `vm.yaml`).
+```
+(otel-rules/activemq/activemq-broker.yaml:32)otel_rules_activemq_activemq_broker_L32_service_meter.java
+(lal/execution-basic.yaml:110)execution_basic_L110_if_else_if_warn.java
+(core.oal:20)ServiceRespTimeMetrics.java
+(hierarchy-definition.yml:12)hierarchy_definition_L12_service_rule.java
+```
 
-Line numbers differ by DSL. MAL attaches a `LineNumberTable` mapping each statement to its line in
-the sidecar, and one entry at the SAM signature for closure companions. LAL and OAL attach no line
-table: theirs numbered statements 1, 2, 3 rather than addressing sidecar lines, and once `SourceFile`
-started resolving, those ordinals resolved too — to the sidecar's comment header. An absent table
-makes the JVM report an unknown line, which is honest; real lines there require the sidecar geometry
-to be derived and tested, which is not yet done.
+The path is complete and paste-able. The class name cannot substitute for it: name sanitising maps
+`/`, `-` and `.` all to `_`, so `otel_rules_activemq_activemq_broker` could be any of several paths,
+and the extension is dropped entirely.
+
+A class shared by several rules names the file without a line — an OAL dispatcher handles every
+metric of one scope, so no single rule line would be true for it:
+
+```
+(core.oal)ServiceRespTimeDispatcher.java
+```
+
+**Line numbers after the final `:`** address the generated `.java`, and how precise they are
+depends on the DSL:
+
+| DSL | granularity | why |
+|---|---|---|
+| MAL | per statement | its codegen assigns each statement to a named variable, so a store marks a real boundary |
+| MAL closure companion | one entry, at the SAM signature | a closure body stores nothing to a result slot |
+| LAL, OAL | one entry, at the method signature | their statements are void invocations that store nothing, and a stack-depth detector is defeated by the debug probes, whose `ifeq` consumes its operand mid-statement |
+| Hierarchy | none | it writes no generated source file, so there is no file for a line to index |
+
+Every method's line is located by searching the assembled generated source file text for its
+declaration, not by counting from the method above it — the envelope varies per rule, so a
+per-method constant would drift the moment codegen changes. One fixed offset does remain,
+`DslGeneratedFileWriter.SOURCE_FILE_PREAMBLE_LINES`: the licence header the writer itself prepends
+is the same for every file, so it is a property of the writer rather than of any rule.
 
 ### Example Stack Trace
 
 ```
 java.lang.ArithmeticException: / by zero
-    at ...metrics.generated.ServiceRespTimeMetrics.id0(ServiceRespTimeMetrics.java:3)
+    at ...metrics.generated.ServiceRespTimeMetrics.id0((core.oal:20)ServiceRespTimeMetrics.java:9)
     at ...worker.MetricsStreamProcessor.in(MetricsStreamProcessor.java:...)
     ...
 ```
 
 Reading this:
-- `(core.oal:20)` — the error originates from OAL file `core.oal`, line 20
-- `ServiceRespTimeMetrics.java` — the generated class for metric `ServiceRespTime`
-- `:3` — statement 3 within the generated `id0` method
+- `(core.oal:20)` — the rule is on line 20 of `core.oal`, under `config/`. This is the part to open.
+- `ServiceRespTimeMetrics.java` — the generated class for metric `ServiceRespTime`; it exists on
+  disk only when `SW_DYNAMIC_CLASS_ENGINE_DEBUG` is set
+- `:9` — the `id0` method's signature line in that generated source. OAL carries one entry per
+  method, so this locates the METHOD, not the statement inside it
 
 ### Format Per DSL
 
-| DSL | SourceFile Example | Generated Class Name | How to Read |
-|-----|-------------------|---------------------|-------------|
-| OAL | `ServiceRespTimeMetrics.java` | `ServiceRespTimeMetrics` | OAL file `core.oal`, line 20 defines this metric |
-| MAL | `vm_L25_cpu_total_percentage.java` | `vm_L25_cpu_total_percentage` | YAML file `vm.yaml`, line 25, rule `cpu_total_percentage`. The `SourceFile` equals the generated class file so an IDE can resolve the frame; the YAML provenance is carried by the class name. |
-| MAL filter | `vm_L20_filter.java` | `vm_L20_filter` | YAML file `vm.yaml`, line 20, filter expression |
-| LAL | `default.java` | `default_L3_default` | YAML file `default.yaml`, line 3, rule `default` |
-| Hierarchy | `name.java` | `hierarchy_definition_L88_name` | Rule `name` at line 88 in `hierarchy-definition.yml` |
+| DSL | `SourceFile` | Generated class name | Generated line |
+|-----|--------------|----------------------|----------------|
+| OAL | `(core.oal:20)ServiceRespTimeMetrics.java` | `ServiceRespTimeMetrics` | one per method |
+| OAL dispatcher | `(core.oal)ServiceRespTimeDispatcher.java` | `ServiceRespTimeDispatcher` | one per method |
+| MAL | `(otel-rules/vm.yaml:25)otel_rules_vm_L25_cpu_total_percentage.java` | `otel_rules_vm_L25_cpu_total_percentage` | per statement |
+| MAL filter | `(meter-analyzer-config/vm.yaml:20)meter_analyzer_config_vm_L20_filter.java` | `meter_analyzer_config_vm_L20_filter` | per statement |
+| MAL closure companion | `(otel-rules/vm.yaml:25)otel_rules_vm_L25_cpu_total_percentage$_tag.java` | `…$_tag` | one, at the SAM signature |
+| LAL | `(lal/default.yaml:3)default_L3_default.java` | `default_L3_default` | one, at `execute()` |
+| Hierarchy | `(hierarchy-definition.yml:88)hierarchy_definition_L88_name.java` | `hierarchy_definition_L88_name` | none |
 
 **Notes:**
-- The class name pattern is `{yamlFileName}_L{lineNo}_{ruleName}` for all DSLs (except OAL).
-  The yaml file name and line number from `yamlSource` are combined with the rule name or `filter`.
-- The number after `_L` in the class name is the 1-based line in the YAML file where the rule (or the `filter:`) is defined.
-- For MAL, the line number in a stack frame (`SourceFile:LineNumber`) is a line in the GENERATED `.java` file, not in the YAML. The two are different coordinate spaces: use the class name for YAML provenance, and the frame line to locate the generated statement. The per-stage YAML line is reported separately by the [DSL debugging API](../setup/backend/admin-api/dsl-debugging-mal.md) as `sourceLine`.
-- When source information is unavailable, the class name falls back to `MalExpr_<N>` / `LalExpr_<N>` / `HierarchyRule_<N>`. For MAL, a line that was expected but could not be resolved renders as `_Lunknown_` rather than being silently omitted, so the failure stays visible.
 
-### Mapping Back to DSL Source
-
-1. **Identify the DSL type** from the package or class name:
-   - `...metrics.generated.*Metrics` or `...Dispatcher` → OAL
-   - `...meter.analyzer.v2.compiler.rt.*` → MAL (class name: `{yamlName}_L{lineNo}_{ruleName}` or `MalExpr_<N>`)
-   - `...log.analyzer.v2.compiler.rt.*` → LAL (class name: `{yamlName}_L{lineNo}_{ruleName}` or `LalExpr_<N>`)
-   - `...hierarchy.rule.rt.*` → Hierarchy (class name: `{yamlName}_L{lineNo}_{ruleName}` or `HierarchyRule_<N>`)
-
-2. **Find the source file** from the class name prefix (e.g., `vm_L25_...` → `vm.yaml`). These files are
-   in the `config/` directory. OAL classes are named after the metric rather than the file, so their
-   `SourceFile` keeps a `(core.oal:20)` prefix when no sidecar was written — that is the only place an
-   OAL frame carries its rule location.
-
-3. **Locate the rule** using the line number in the class name (`_L25_`), or the `(file:line)` prefix
-   for OAL.
-
-4. **Use the line number after the last `:`** to find the statement inside the generated `.java`. MAL
-   frames carry a real line there; LAL and OAL frames carry none, so they identify the method but not
-   the statement. Dump the class (see above) and use `javap -v` to inspect the mapping.
+- `SourceFile` names the RULE, then the generated class file. The rule file is the part to open: the
+  `.java` is written only when `SW_DYNAMIC_CLASS_ENGINE_DEBUG` is set, so in a default deployment it
+  does not exist on disk.
+- The class name's stem is the rule file's path with the catalog kept only where the generated
+  class's package does not already imply it. MAL's catalogs share one package and two of them ship
+  a `vm.yaml`, so MAL keeps it; LAL has a single catalog and its own package, so `lal/` appears in
+  `SourceFile` but not in the name.
+- The class name carries the same line as `_L{lineNo}_`, but it cannot substitute for the path —
+  name sanitising maps `/`, `-` and `.` all to `_` and drops the extension, so
+  `otel_rules_activemq_activemq_broker` matches several distinct paths.
+- A dispatcher is shared by every metric of its scope, so it names the file without a line rather
+  than borrow one metric's.
+- A line that was expected but could not be resolved renders as `_Lunknown_` in the class name and
+  is omitted from `SourceFile`, so the failure stays visible instead of silently degrading.
+- When no source information is available at all, the class name falls back to `MalExpr_<N>` /
+  `LalExpr_<N>` / `HierarchyRule_<N>`.
+- All four DSLs share one implementation of this —
+  `org.apache.skywalking.oap.server.core.dsl.DslSourceRef` — which owns the class-name segment, the
+  `SourceFile` value, the generated source file, the signature-line lookup and the `LineNumberTable`.
 
 ## Generating All DSL Classes Offline
 
@@ -234,11 +250,13 @@ MAL and LAL errors during metric processing are caught and logged per-expression
 ```
 ERROR o.a.s.o.m.a.v.MetricConvert - Analyze Analyzer{...} error
 java.lang.NullPointerException
-    at ...vm_L25_cpu_total_percentage.run(cpu_total_percentage.java:5)
+    at ...otel_rules_vm_L25_cpu_total_percentage.run((otel-rules/vm.yaml:25)otel_rules_vm_L25_cpu_total_percentage.java:5)
 ```
 
-This tells you: the error is in `vm.yaml`, line 25, metric `cpu_total_percentage`,
-at statement 5 of the generated `run()` method.
+This tells you: the error is in `otel-rules/vm.yaml`, line 25, metric `cpu_total_percentage`,
+at statement 5 of the generated `run()` method. The parenthesised part is the rule coordinate the
+JVM prints verbatim from `SourceFile` — it is what to open, and it resolves whether or not the
+`.java` was dumped.
 The processing continues for other metrics — a single expression failure does not crash the server.
 
 ### Hierarchy Compilation Failure

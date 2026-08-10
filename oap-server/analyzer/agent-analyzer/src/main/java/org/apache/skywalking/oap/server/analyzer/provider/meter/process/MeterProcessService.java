@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.debug.MalStaticBindingHook;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;

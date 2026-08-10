@@ -32,7 +32,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPRequestProperties;
 import io.envoyproxy.envoy.data.accesslog.v3.HTTPResponseProperties;
 import io.envoyproxy.envoy.data.accesslog.v3.TCPAccessLogEntry;
-import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LalPayloadDebugDump;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LalPayloadDebugDump;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;

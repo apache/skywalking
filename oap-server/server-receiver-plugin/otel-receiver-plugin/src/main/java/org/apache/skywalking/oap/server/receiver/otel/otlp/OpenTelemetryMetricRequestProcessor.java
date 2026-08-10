@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.debug.MalStaticBindingHook;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.PrometheusMetricConverter;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;

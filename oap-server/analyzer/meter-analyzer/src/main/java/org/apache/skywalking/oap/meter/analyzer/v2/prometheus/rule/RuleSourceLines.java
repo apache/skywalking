@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 
 import java.util.List;
-import org.apache.skywalking.oap.meter.analyzer.v2.MalYamlLineIndex;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 
 /**
  * Stamps YAML source anchors onto a parsed {@link Rule}.
@@ -48,7 +48,7 @@ public final class RuleSourceLines {
         if (rule == null || yamlContent == null) {
             return;
         }
-        final MalYamlLineIndex index = MalYamlLineIndex.index(yamlContent);
+        final DslYamlLineIndex index = DslYamlLineIndex.index(yamlContent);
         rule.setFilterLine(index.getFilterLine());
         rule.setExpPrefixLine(index.getExpPrefixLine());
         rule.setExpSuffixLine(index.getExpSuffixLine());
@@ -63,7 +63,7 @@ public final class RuleSourceLines {
             if (metricsRule == null) {
                 continue;
             }
-            final MalYamlLineIndex.RuleLines lines = index.rule(i);
+            final DslYamlLineIndex.RuleLines lines = index.rule(i);
             metricsRule.setLineNo(lines.getEntryLine());
             metricsRule.setExpLine(lines.getExpLine());
         }

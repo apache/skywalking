@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 import java.util.Map;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 
 /**
  * Wraps a compiled {@link MalExpression} with runtime state management.

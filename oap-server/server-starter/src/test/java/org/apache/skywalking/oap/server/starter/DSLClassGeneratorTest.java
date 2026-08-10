@@ -40,7 +40,7 @@ import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
-import org.apache.skywalking.oap.meter.analyzer.v2.MalYamlLineIndex;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
@@ -248,7 +248,7 @@ public class DSLClassGeneratorTest {
             // Resolve real YAML lines once per file: the offline generator must stamp the same
             // coordinates production does, or the artifacts it produces are labelled differently
             // from the ones the OAP writes at runtime.
-            final MalYamlLineIndex lineIndex = MalYamlLineIndex.index(
+            final DslYamlLineIndex lineIndex = DslYamlLineIndex.index(
                 new String(java.nio.file.Files.readAllBytes(yamlFile.toPath()),
                     java.nio.charset.StandardCharsets.UTF_8));
 

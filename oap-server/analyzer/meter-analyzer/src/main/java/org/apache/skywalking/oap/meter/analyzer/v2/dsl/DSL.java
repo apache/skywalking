@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
@@ -50,13 +51,13 @@ public final class DSL {
      *
      * @param metricName the name of metric defined in mal rule
      * @param expression string literal represents the DSL expression.
-     * @param yamlSource YAML source identifier (e.g., "spring-sleuth[3]"), or null.
+     * @param sourceRef YAML source identifier (e.g., "spring-sleuth[3]"), or null.
      * @return Expression object could be executed.
      */
     public static Expression parse(final String metricName,
                                    final String expression,
-                                   final String yamlSource) {
-        return parse(metricName, expression, yamlSource, null, null);
+                                   final DslSourceRef sourceRef) {
+        return parse(metricName, expression, sourceRef, null, null);
     }
 
     /**
@@ -92,7 +93,7 @@ public final class DSL {
 
     public static Expression parse(final String metricName,
                                    final String expression,
-                                   final String yamlSource,
+                                   final DslSourceRef sourceRef,
                                    final ClassPool pool,
                                    final ClassLoader targetClassLoader) {
         try {
@@ -100,16 +101,16 @@ public final class DSL {
             if (pool != null && targetClassLoader != null) {
                 // Per-file generator: one instance per compile is fine — it's just a thin
                 // orchestrator over ClassPool. Prevents cross-contamination of classNameHint /
-                // yamlSource state that the shared GENERATOR carries between calls.
+                // sourceRef state that the shared GENERATOR carries between calls.
                 final MALClassGenerator perFile = new MALClassGenerator(pool, targetClassLoader);
-                perFile.setYamlSource(yamlSource);
+                perFile.setSourceRef(sourceRef);
                 // The verbatim MAL expression text is the rule's "content" — threaded
                 // into the GateHolder so dsl-debugging records carry the rule source
                 // inline. Same string ANTLR parsed; no extra plumbing.
                 perFile.setContent(expression);
                 malExpr = perFile.compile(metricName, expression);
             } else {
-                GENERATOR.setYamlSource(yamlSource);
+                GENERATOR.setSourceRef(sourceRef);
                 GENERATOR.setContent(expression);
                 malExpr = GENERATOR.compile(metricName, expression);
             }

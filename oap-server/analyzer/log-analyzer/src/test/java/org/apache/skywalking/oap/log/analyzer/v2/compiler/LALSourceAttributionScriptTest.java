@@ -25,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -91,25 +92,50 @@ class LALSourceAttributionScriptTest {
 
         for (final File classFile : generated) {
             final String sourceFile = sourceFileOf(classFile);
-            assertEquals(classFile.getName().replace(".class", ".java"), sourceFile,
-                "SourceFile must name the class's own sidecar");
-            assertTrue(new File(classFile.getParentFile(), sourceFile).isFile(),
-                "SourceFile names a file that was never written: " + sourceFile);
+            // The rule location is what an operator can open; production writes no sourceFile.
+            assertTrue(sourceFile.startsWith("(source-attribution.yaml:"),
+                "SourceFile must carry the rule location, got: " + sourceFile);
+            assertTrue(sourceFile.endsWith(classFile.getName().replace(".class", ".java")),
+                "SourceFile must also name the generated file, got: " + sourceFile);
         }
     }
 
     @Test
-    void noGeneratedMethodClaimsALineItCannotSubstantiate() throws Exception {
-        // The regression this pins: line numbers used to be statement ORDINALS (1, 2, 3...). While
-        // SourceFile named a nonexistent file that was inert. Once SourceFile resolves, an ordinal
-        // resolves too — line 1 of the sidecar is its synthetic comment header, which an IDE would
-        // present as the frame's source. Absent beats confidently wrong.
-        for (final File classFile : compileAll()) {
-            final List<int[]> table = lineNumberTableOf(classFile);
-            assertTrue(table.isEmpty(),
-                "expected no LineNumberTable for " + classFile.getName() + " but found "
-                    + table.size() + " entries, first pointing at line "
-                    + (table.isEmpty() ? "-" : String.valueOf(table.get(0)[1])));
+    void everyGeneratedMethodCarriesOneLineLandingOnItsOwnSignature() throws Exception {
+        // Not merely "a line exists": resolve each entry against the generated source file and check the text
+        // there is that method's declaration. A count-only assertion passed while the lookup was
+        // an unrestricted indexOf that could land inside embedded DSL text.
+        final List<File> generated = compileAll();
+        assertEquals(dsls.size(), generated.size(), "each rule should produce one main class");
+
+        for (final File classFile : generated) {
+            final File sourceFile = new File(
+                classFile.getParentFile(), classFile.getName().replace(".class", ".java"));
+            final List<String> lines = Files.readAllLines(sourceFile.toPath(), StandardCharsets.UTF_8);
+
+            final List<Map.Entry<String, List<int[]>>> tables = lineNumberTablesByMethod(classFile);
+            // Without this the test is vacuous in the exact direction that matters:
+            // attachSignatureLine DROPS the attribute when lineOfMethod cannot find a declaration,
+            // so a lost table is a MISSING map entry, and the loop below would simply not run.
+            // Pinning the count against the class's own method list is what makes this fail on the
+            // pre-change behaviour, where no method carried a table at all. Minus one for <init>,
+            // which Javassist emits and codegen never attributes.
+            assertEquals(methodCountOf(classFile) - 1, tables.size(),
+                classFile.getName() + ": every generated method must carry a LineNumberTable");
+
+            for (final Map.Entry<String, List<int[]>> e : tables) {
+                final String method = e.getKey();
+                final List<int[]> table = e.getValue();
+                assertEquals(1, table.size(),
+                    "one entry per method; " + method + " had " + table.size());
+                final int line = table.get(0)[1];
+                assertTrue(line >= 1 && line <= lines.size(),
+                    method + " points outside the generated source file: " + line);
+                final String text = lines.get(line - 1).trim();
+                assertTrue(text.contains(method + "("),
+                    "entry for " + method + " should land on its declaration, but line " + line
+                        + " is: '" + text + "'");
+            }
         }
     }
 
@@ -179,8 +205,10 @@ class LALSourceAttributionScriptTest {
         }
     }
 
-    private static List<int[]> lineNumberTableOf(final File classFile) throws Exception {
-        final List<int[]> out = new ArrayList<>();
+    /** {@code method -> its LineNumberTable entries}, for methods that carry one. */
+    private static List<Map.Entry<String, List<int[]>>> lineNumberTablesByMethod(
+            final File classFile) throws Exception {
+        final List<Map.Entry<String, List<int[]>>> out = new ArrayList<>();
         try (DataInputStream in = new DataInputStream(
                 new BufferedInputStream(Files.newInputStream(classFile.toPath())))) {
             final ClassFile cf = new ClassFile(in);
@@ -194,11 +222,14 @@ class LALSourceAttributionScriptTest {
                 if (lna == null) {
                     continue;
                 }
+                final List<int[]> entries = new ArrayList<>();
                 for (int i = 0; i < lna.tableLength(); i++) {
-                    out.add(new int[]{lna.startPc(i), lna.lineNumber(i)});
+                    entries.add(new int[]{lna.startPc(i), lna.lineNumber(i)});
                 }
+                out.add(new SimpleEntry<>(mi.getName(), entries));
             }
         }
         return out;
     }
+
 }

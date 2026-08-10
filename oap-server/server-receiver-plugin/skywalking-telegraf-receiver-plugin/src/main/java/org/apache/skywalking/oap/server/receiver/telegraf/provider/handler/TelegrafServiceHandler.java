@@ -28,7 +28,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamilyBuilder;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MalStaticBindingHook;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.debug.MalStaticBindingHook;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
