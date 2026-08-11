@@ -1,80 +1,77 @@
 # APISIX monitoring
-## APISIX  performance from `apisix prometheus plugin`
-SkyWalking leverages OpenTelemetry Collector to transfer the metrics to
-[OpenTelemetry receiver](opentelemetry-receiver.md) and into the [Meter System](./../../concepts-and-designs/mal.md).
+
+## APISIX performance metrics
+
+SkyWalking uses the OpenTelemetry Collector to transfer metrics exported by the Apache APISIX [`prometheus` plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) to the SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md). The OAP Server then processes the metrics with [Meter Analysis Language](../../concepts-and-designs/mal.md) rules.
 
 ### Data flow
-1. [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) collects metrics data from APSIX.
-2. OpenTelemetry Collector fetches metrics from [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) via Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
-3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
+
+1. The APISIX `prometheus` plugin exports APISIX metrics.
+2. The OpenTelemetry Collector Prometheus receiver scrapes the APISIX metrics endpoint and sends the metrics to the SkyWalking OAP Server through OTLP.
+3. The OAP Server applies the APISIX MAL rules and stores the resulting service, instance, and endpoint metrics.
 
 ### Set up
-1. Enable APISIX [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) .
-2. Set up [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/getting-started/#docker). For details on Prometheus Receiver in OpenTelemetry Collector, refer to [here](../../../../test/e2e-v2/cases/apisix/otel-collector/otel-collector-config.yaml).
-3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-### APISIX Monitoring
-[APISIX prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) provide multiple dimensions metrics for APISIX server , upstream , route , etc. 
-Accordingly, SkyWalking observes the status, payload, and latency of the APISIX server, which is cataloged as a `LAYER: APISIX` `Service` in the OAP. Meanwhile, the instances would be recognized as `LAYER: APISIX` `instance`s. The route rules and nodes would be recognized as `endpoint`s with `route/` and `upstream/` prefixes.
+1. Enable the APISIX [`prometheus` plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/).
+2. Configure the OpenTelemetry Collector [Prometheus receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/receiver/prometheusreceiver) to scrape the APISIX metrics endpoint. The APISIX E2E test provides a repository-local [Collector configuration](../../../../test/e2e-v2/cases/apisix/otel-collector/otel-collector-config.yaml).
+3. Configure the SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
 
-#### Specify SkyWalking Service name  
+### APISIX entities in SkyWalking
 
-SkyWalking expects OTEL Collector attribute `skywalking_service` to be the `Service` name.
+The APISIX MAL rule creates a service in the `APISIX` layer. APISIX data-plane nodes are represented as instances. Matched routes and upstream nodes are represented as endpoints with `route/` and `upstream/` prefixes.
 
-Make sure `skywalking_service` attribute exists through `static_configs` of OTEL Prometheus scape config.
+#### Specify the SkyWalking service name
+
+The APISIX MAL rule reads the `skywalking_service` label and prefixes the resulting service name with `APISIX::`. Add the label through `static_configs` in the Collector Prometheus receiver:
 
 ```yaml
 receivers:
   prometheus:
-    config: 
-     scrape_configs:
-       - job_name: 'apisix-monitoring' 
-         static_configs:
-           - targets: ['apisix:9091']
-             labels:
-               skywalking_service: exmple_service_name  # Specify SkyWalking Service name              
+    config:
+      scrape_configs:
+        - job_name: apisix-monitoring
+          metrics_path: /apisix/prometheus/metrics
+          static_configs:
+            - targets:
+                - apisix:9091
+              labels:
+                skywalking_service: example_service_name
 ```
 
-You also could leverage OTEL Collector processor to add `skywalking_service` attribute , as following :
+Keep `job_name: apisix-monitoring` unless you also update the APISIX MAL filter in OAP. If `skywalking_service` is absent or blank, the MAL rule uses `APISIX`, resulting in the default service name `APISIX::APISIX`.
 
-```yaml      
-processors:
-  resource/skywalking-service:
-    attributes:
-    - key: skywalking_service   
-      value: exmple_service_name # Specify Skywalking Service name 
-      action: insert                     
-```
-Notice , if you don't specify `skywalking_service` attribute, SkyWalking OAP would use `APISIX` as the default service name  
+#### Supported metrics
 
-#### Supported Metrics 
-| Monitoring Panel                    | Unit | Metric Name                                        | Catalog  | Description                                                                                                            | Data Source              |
-|-------------------------------------|------|----------------------------------------------------|----------|------------------------------------------------------------------------------------------------------------------------|--------------------------|
-| HTTP status                         |      | meter_apisix_sv_http_status                        | Service  | The increment rate of the status of HTTP requests                                                                      | APISIX Prometheus plugin |
-| HTTP latency                        |      | meter_apisix_sv_http_latency                       | Service  | The increment rate of the latency of HTTP requests                                                                     | APISIX Prometheus plugin |
-| HTTP bandwidth                      | KB   | meter_apisix_sv_bandwidth                          | Service  | The increment rate of the bandwidth of HTTP requests                                                                   | APISIX Prometheus plugin |
-| HTTP status of non-matched requests |      | meter_apisix_sv_http_status                        | Service  | The increment rate of the status of HTTP requests, which don't match any route                                         | APISIX Prometheus plugin |
-| HTTP latency non-matched requests   |      | meter_apisix_sv_http_latency                       | Service  | The increment rate of the latency of HTTP requests, which don't match any route                                        | APISIX Prometheus plugin |
-| HTTP bandwidth non-matched requests | KB   | meter_apisix_sv_bandwidth                          | Service  | The increment rate of the bandwidth of HTTP requests ,which don't match any route                                      | APISIX Prometheus plugin |
-| HTTP connection                     |      | meter_apisix_sv_http_connections                   | Service  | The avg number of the connections                                                                                      | APISIX Prometheus plugin |
-| HTTP Request Trend                  |      | meter_apisix_http_requests                         | Service  | The increment rate of HTTP requests                                                                                    | APISIX Prometheus plugin |
-| HTTP status                         |      | meter_apisix_instance_http_status                  | Instance | The increment rate of the status of HTTP requests                                                                      | APISIX Prometheus plugin |
-| HTTP latency                        |      | meter_apisix_instance_http_latency                 | Instance | The increment rate of the latency of HTTP requests                                                                     | APISIX Prometheus plugin |
-| HTTP bandwidth                      | KB   | meter_apisix_instance_bandwidth                    | Instance | The increment rate of the bandwidth of HTTP requests                                                                   | APISIX Prometheus plugin |
-| HTTP status of non-matched requests |      | meter_apisix_instance_http_status                  | Instance | The increment rate of the status of HTTP requests, which don't match any route                                         | APISIX Prometheus plugin |
-| HTTP latency non-matched requests   |      | meter_apisix_instance_http_latency                 | Instance | The increment rate of the latency of HTTP requests, which don't match any route                                        | APISIX Prometheus plugin |
-| HTTP bandwidth non-matched requests | KB   | meter_apisix_instance_bandwidth                    | Instance | The increment rate of the bandwidth of HTTP requests ,which don't match any route                                      | APISIX Prometheus plugin |
-| HTTP connection                     |      | meter_apisix_instance_http_connections             | Instance | The avg number of the connections                                                                                      | APISIX Prometheus plugin |
-| HTTP Request Trend                  |      | meter_apisix_instance_http_requests                | Instance | The increment rate of HTTP requests                                                                                    | APISIX Prometheus plugin |
-| Shared dict capacity                | MB   | meter_apisix_instance_shared_dict_capacity_bytes   | Instance | The avg capacity of shared dict capacity                                                                               | APISIX Prometheus plugin |
-| Shared free space                   | MB   | meter_apisix_instance_shared_dict_free_space_bytes | Instance | The avg free space of shared dict capacity                                                                             | APISIX Prometheus plugin |
-| etcd index                          |      | meter_apisix_instance_sv_etcd_indexes              | Instance | etcd modify index for APISIX keys                                                                                      | APISIX Prometheus plugin |
-| etcd latest reachability            |      | meter_apisix_instance_sv_etcd_reachable            | Instance | etcd latest reachable , Refer to [APISIX Prometheus plugin](https://apisix.apache.org/docs/apisix/plugins/prometheus/) | APISIX Prometheus plugin |
-| HTTP status                         |      | meter_apisix_endpoint_node_http_status             | Endpoint | The increment rate of the status of HTTP requests                                                                      | APISIX Prometheus plugin |
-| HTTP latency                        |      | meter_apisix_endpoint_node_http_latency            | Endpoint | The increment rate of the latency of HTTP requests                                                                     | APISIX Prometheus plugin |
-| HTTP bandwidth                      | KB   | meter_apisix_endpoint_node_bandwidth               | Endpoint | The increment rate of the bandwidth of HTTP requests                                                                   | APISIX Prometheus plugin |
+| Monitoring Panel | Unit | Metric Name | Catalog | Description | Data Source |
+| --- | --- | --- | --- | --- | --- |
+| HTTP Request Trend | | `meter_apisix_sv_http_requests` | Service | Request rate across the APISIX service | APISIX Prometheus plugin |
+| HTTP Connections | | `meter_apisix_sv_http_connections` | Service | Current connections grouped by state | APISIX Prometheus plugin |
+| HTTP Status Trend | | `meter_apisix_sv_http_status_matched` | Service | Matched request rate grouped by HTTP status code | APISIX Prometheus plugin |
+| HTTP Latency | ms | `meter_apisix_sv_http_latency_matched` | Service | Matched request latency grouped by type and percentile | APISIX Prometheus plugin |
+| HTTP Bandwidth | KB | `meter_apisix_sv_bandwidth_matched` | Service | Matched ingress and egress bandwidth | APISIX Prometheus plugin |
+| Non-matched Status Trend | | `meter_apisix_sv_http_status_unmatched` | Service | Non-matched request rate grouped by HTTP status code | APISIX Prometheus plugin |
+| Non-matched Latency | ms | `meter_apisix_sv_http_latency_unmatched` | Service | Request latency for traffic that did not match a route | APISIX Prometheus plugin |
+| Non-matched Bandwidth | KB | `meter_apisix_sv_bandwidth_unmatched` | Service | Bandwidth for traffic that did not match a route | APISIX Prometheus plugin |
+| HTTP Request Trend | | `meter_apisix_instance_http_requests` | Instance | Request rate for an APISIX data-plane node | APISIX Prometheus plugin |
+| HTTP Connections | | `meter_apisix_instance_http_connections` | Instance | Current connections for a node, grouped by state | APISIX Prometheus plugin |
+| HTTP Status Trend | | `meter_apisix_instance_http_status_matched` | Instance | Matched request rate for a node, grouped by HTTP status code | APISIX Prometheus plugin |
+| HTTP Latency | ms | `meter_apisix_instance_http_latency_matched` | Instance | Matched request latency for a node | APISIX Prometheus plugin |
+| HTTP Bandwidth | KB | `meter_apisix_instance_bandwidth_matched` | Instance | Matched ingress and egress bandwidth for a node | APISIX Prometheus plugin |
+| Shared Dict | MB | `meter_apisix_instance_shared_dict_capacity_bytes` | Instance | Shared dictionary capacity for a node | APISIX Prometheus plugin |
+| Shared Dict | MB | `meter_apisix_instance_shared_dict_free_space_bytes` | Instance | Free shared dictionary space for a node | APISIX Prometheus plugin |
+| etcd Reachable | | `meter_apisix_instance_etcd_reachable` | Instance | Whether a node can reach etcd | APISIX Prometheus plugin |
+| etcd Indexes | | `meter_apisix_instance_etcd_indexes` | Instance | Latest etcd modification index observed by a node | APISIX Prometheus plugin |
+| Non-matched Traffic | | `meter_apisix_instance_http_status_unmatched` | Instance | Non-matched request rate for a node, grouped by HTTP status code | APISIX Prometheus plugin |
+| Non-matched Traffic | ms | `meter_apisix_instance_http_latency_unmatched` | Instance | Non-matched request latency for a node | APISIX Prometheus plugin |
+| Non-matched Traffic | KB | `meter_apisix_instance_bandwidth_unmatched` | Instance | Non-matched bandwidth for a node | APISIX Prometheus plugin |
+| HTTP Status Trend | | `meter_apisix_endpoint_http_status` | Endpoint | Request rate for a route or upstream node, grouped by HTTP status code | APISIX Prometheus plugin |
+| HTTP Latency | ms | `meter_apisix_endpoint_http_latency` | Endpoint | Request latency for a route or upstream node | APISIX Prometheus plugin |
+| HTTP Bandwidth | KB | `meter_apisix_endpoint_bandwidth` | Endpoint | Ingress and egress bandwidth for a route or upstream node | APISIX Prometheus plugin |
+
+For Dashboard widget semantics and display units, see the Horizon UI [APISIX Dashboard reference](https://github.com/apache/skywalking-horizon-ui/blob/main/docs/dashboards/apisix.md).
 
 ### Customizations
-You can customize your own metrics/expression/dashboard panel.
-The metrics definition and expression rules are found in `/config/otel-rules/apisix.yaml`.
-The APISIX dashboard panel configurations ship from the SkyWalking Horizon UI bundle (apache/skywalking-horizon-ui); the OAP backend no longer hosts UI dashboard JSONs.
+
+The APISIX metric definitions and expressions are in [`oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml`](../../../../oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml).
+
+The Horizon UI bundled APISIX Dashboard is maintained in the [`apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui) repository; the OAP backend no longer hosts the UI Dashboard JSON.
