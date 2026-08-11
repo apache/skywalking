@@ -25,6 +25,7 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtMethod;
 
 /**
  * Generates closure classes for MAL expressions using Javassist bytecode generation.
@@ -625,7 +626,7 @@ final class MALClosureCodegen {
         if (log.isDebugEnabled()) {
             log.debug("Companion class [{}] apply():\n{}", companionName, methodBody);
         }
-        final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
+        final CtMethod m = CtNewMethod.make(methodBody, companion);
         companion.addMethod(m);
         addCompanionLocalVariableTable(m, info);
         // A companion is its own class file, so it carries its own coordinates: its own .java and
@@ -717,7 +718,7 @@ final class MALClosureCodegen {
         return sb.toString();
     }
 
-    private void addCompanionLocalVariableTable(final javassist.CtMethod m,
+    private void addCompanionLocalVariableTable(final CtMethod m,
                                                 final ClosureInfo info) {
         final List<String> params = info.closure.getParams();
         if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import java.lang.reflect.Method;
 
 /**
  * Code generation for LAL expression evaluation: value access, conditions,
@@ -1113,7 +1114,7 @@ final class LALValueCodegen {
             final String getterName = "get" + Character.toUpperCase(field.charAt(0))
                 + field.substring(1);
 
-            final java.lang.reflect.Method getter;
+            final Method getter;
             try {
                 getter = currentType.getMethod(getterName);
             } catch (NoSuchMethodException e) {

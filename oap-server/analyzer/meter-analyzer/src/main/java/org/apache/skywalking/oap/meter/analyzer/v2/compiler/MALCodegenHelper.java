@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import java.lang.reflect.Method;
 
 /**
  * Static utility methods and constants shared across MAL code generation classes.
@@ -231,7 +232,7 @@ final class MALCodegenHelper {
         if (lastMethodName == null) {
             return false;
         }
-        for (final java.lang.reflect.Method m : String.class.getMethods()) {
+        for (final Method m : String.class.getMethods()) {
             if (m.getName().equals(lastMethodName)
                     && m.getReturnType() == boolean.class) {
                 return true;

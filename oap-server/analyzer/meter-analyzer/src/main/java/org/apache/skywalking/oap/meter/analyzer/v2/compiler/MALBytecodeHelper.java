@@ -32,6 +32,7 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.MethodInfo;
 import lombok.extern.slf4j.Slf4j;
+import javassist.bytecode.CodeIterator;
 
 /**
  * Javassist bytecode utilities for MAL-generated classes.
@@ -193,7 +194,7 @@ final class MALBytecodeHelper {
             int boundary = 0;
             boolean nextIsNewLine = true;
 
-            final javassist.bytecode.CodeIterator ci = code.iterator();
+            final CodeIterator ci = code.iterator();
             while (ci.hasNext()) {
                 final int pc = ci.next();
                 if (nextIsNewLine) {

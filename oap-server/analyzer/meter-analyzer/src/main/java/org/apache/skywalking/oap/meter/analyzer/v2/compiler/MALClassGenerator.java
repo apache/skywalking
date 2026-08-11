@@ -36,6 +36,9 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.LoaderClassPath;
 
 /**
  * Public API for compiling MAL expressions into {@link MalExpression} implementation classes.
@@ -80,7 +83,7 @@ public final class MALClassGenerator {
     private static ClassPool createClassPool() {
         final ClassPool pool = new ClassPool(true);
         pool.appendClassPath(
-            new javassist.LoaderClassPath(
+            new LoaderClassPath(
                 Thread.currentThread().getContextClassLoader()));
         return pool;
     }
@@ -207,7 +210,7 @@ public final class MALClassGenerator {
         final List<String> params = closure.getParams();
         final String paramName = params.isEmpty() ? "it" : params.get(0);
 
-        final javassist.CtMethod testMethod =
+        final CtMethod testMethod =
             CtNewMethod.make(filterBody, ctClass);
         ctClass.addMethod(testMethod);
         DslGeneratedFileWriter.addLocalVariableTable(testMethod, className,
@@ -292,7 +295,7 @@ public final class MALClassGenerator {
         }
 
         for (int i = 0; i < closures.size(); i++) {
-            ctClass.addField(javassist.CtField.make(
+            ctClass.addField(CtField.make(
                 "public static final " + closureInterfaceTypes.get(i) + " "
                     + closureFieldNames.get(i) + ";", ctClass));
         }
@@ -336,7 +339,7 @@ public final class MALClassGenerator {
         }
 
         // 5. Add methods and bytecode attributes
-        final javassist.CtMethod runMethod =
+        final CtMethod runMethod =
             CtNewMethod.make(runBody, ctClass);
         ctClass.addMethod(runMethod);
         bytecodeHelper.addRunLocalVariableTable(
@@ -350,7 +353,7 @@ public final class MALClassGenerator {
             MalGeneratedSourceLines.statementLinesOf(runBody),
             DslGeneratedFileWriter.lineOfMethod(expressionSource, "run"));
 
-        final javassist.CtMethod metaMethod =
+        final CtMethod metaMethod =
             CtNewMethod.make(metadataBody, ctClass);
         ctClass.addMethod(metaMethod);
         DslGeneratedFileWriter.addLocalVariableTable(metaMethod, className,
@@ -415,7 +418,7 @@ public final class MALClassGenerator {
      * call sites that read the field directly. The constructor arg is the
      * configured {@link #content}, escaped as a Java string literal.
      */
-    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
+    private void emitDebugHolderMembers(final CtClass ctClass) throws CannotCompileException {
         if (!org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Injection off — generated class inherits MalExpression.debugHolder()'s
             // default null return, no GateHolder field is emitted, and the captureXxx
@@ -427,7 +430,7 @@ public final class MALClassGenerator {
         final String escapedContent = DslJavaSourceText.toLiteral(content);
         // Per-rule capture binding — instance field, lowercase per Java
         // convention (it's a final but not a static-final constant).
-        ctClass.addField(javassist.CtField.make(
+        ctClass.addField(CtField.make(
             "public final " + holderFqcn + " debug = new " + holderFqcn
                 + "(\"" + escapedContent + "\");",
             ctClass));
