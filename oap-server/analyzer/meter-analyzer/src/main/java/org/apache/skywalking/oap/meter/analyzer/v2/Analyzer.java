@@ -73,6 +73,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import javassist.ClassPool;
 
 /**
  * Analyzer analyses DSL expression with input samples, then to generate meter-system metrics.
@@ -155,7 +156,7 @@ public class Analyzer {
                                  final String expression,
                                  final MeterSystem meterSystem,
                                  final DslSourceRef sourceRef,
-                                 final javassist.ClassPool pool,
+                                 final ClassPool pool,
                                  final ClassLoader targetClassLoader) {
         final Analyzer analyzer = prepare(
             metricName, filter, expression, meterSystem, sourceRef, pool, targetClassLoader);
@@ -179,7 +180,7 @@ public class Analyzer {
                                     final String expression,
                                     final MeterSystem meterSystem,
                                     final DslSourceRef sourceRef,
-                                    final javassist.ClassPool pool,
+                                    final ClassPool pool,
                                     final ClassLoader targetClassLoader) {
         // Static boot / default path: create-if-absent. Runtime-rule on-demand apply passes
         // withSchemaChange() via the explicit-opt overload.
@@ -197,7 +198,7 @@ public class Analyzer {
                                     final String expression,
                                     final MeterSystem meterSystem,
                                     final DslSourceRef sourceRef,
-                                    final javassist.ClassPool pool,
+                                    final ClassPool pool,
                                     final ClassLoader targetClassLoader,
                                     final StorageManipulationOpt storageOpt) {
         Expression e = DSL.parse(metricName, expression, sourceRef, pool, targetClassLoader);
@@ -239,7 +240,7 @@ public class Analyzer {
     private int[] percentiles;
 
     /** Per-file Javassist pool for runtime-rule hot-update, null on startup path. */
-    private javassist.ClassPool pool;
+    private ClassPool pool;
     /** Per-file target classloader for runtime-rule hot-update, null on startup path. */
     private ClassLoader targetClassLoader;
     /**

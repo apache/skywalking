@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import java.lang.reflect.Method;
 
 /**
  * Code generation for LAL block-level structures: {@code extractor},
@@ -250,7 +251,7 @@ final class LALBlockCodegen {
             final LALClassGenerator.GenCtx genCtx) {
         final String[] candidates =
             FIELD_TYPE_SETTER_CANDIDATES[field.getFieldType().ordinal()];
-        java.lang.reflect.Method setter = null;
+        Method setter = null;
         for (final String candidate : candidates) {
             setter = findSetter(genCtx.outputType, candidate);
             if (setter != null) {
@@ -482,7 +483,7 @@ final class LALBlockCodegen {
         }
 
         // Compile-time validation: verify the setter exists on the output type
-        final java.lang.reflect.Method setter = findSetter(genCtx.outputType, setterName);
+        final Method setter = findSetter(genCtx.outputType, setterName);
         if (setter == null) {
             throw new IllegalArgumentException(
                 "Output type " + genCtx.outputType.getName()
@@ -507,11 +508,11 @@ final class LALBlockCodegen {
         sb.append(");\n");
     }
 
-    private static java.lang.reflect.Method findSetter(
+    private static Method findSetter(
             final Class<?> clazz, final String setterName) {
         Class<?> c = clazz;
         while (c != null && c != Object.class) {
-            for (final java.lang.reflect.Method m : c.getDeclaredMethods()) {
+            for (final Method m : c.getDeclaredMethods()) {
                 if (m.getName().equals(setterName)
                         && m.getParameterCount() == 1) {
                     return m;

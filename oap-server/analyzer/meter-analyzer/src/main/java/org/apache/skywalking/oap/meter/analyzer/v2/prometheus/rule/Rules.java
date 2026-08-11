@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import java.util.Objects;
 
 /**
  * Rules is factory to instance {@link Rule} from a local file.
@@ -143,7 +144,7 @@ public class Rules {
 
         return merged.entrySet().stream()
             .map(e -> parseRule(path, e.getKey(), diskPaths.get(e.getKey()), e.getValue()))
-            .filter(java.util.Objects::nonNull)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 

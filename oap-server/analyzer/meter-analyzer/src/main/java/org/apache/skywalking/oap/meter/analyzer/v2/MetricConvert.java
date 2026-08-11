@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 
 import static java.util.stream.Collectors.toList;
+import javassist.ClassPool;
 
 /**
  * MetricConvert converts {@link SampleFamily} collection to meter-system metrics, then store them to backend storage.
@@ -89,7 +90,7 @@ public class MetricConvert {
     }
 
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
-                         final javassist.ClassPool pool,
+                         final ClassPool pool,
                          final ClassLoader targetClassLoader) {
         this(rule, service, pool, targetClassLoader,
              StorageManipulationOpt.schemaCreateIfAbsent());
@@ -106,7 +107,7 @@ public class MetricConvert {
      *                   peer-node passes withoutSchemaChange to skip server DDL
      */
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
-                         final javassist.ClassPool pool,
+                         final ClassPool pool,
                          final ClassLoader targetClassLoader,
                          final StorageManipulationOpt storageOpt) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
@@ -244,7 +245,7 @@ public class MetricConvert {
                            final String exp,
                            final MeterSystem service,
                            final DslSourceRef sourceRef,
-                           final javassist.ClassPool pool,
+                           final ClassPool pool,
                            final ClassLoader targetClassLoader) {
         return Analyzer.build(
             metricsName,
@@ -274,7 +275,7 @@ public class MetricConvert {
                               final String exp,
                               final MeterSystem service,
                               final DslSourceRef sourceRef,
-                              final javassist.ClassPool pool,
+                              final ClassPool pool,
                               final ClassLoader targetClassLoader,
                               final StorageManipulationOpt storageOpt) {
         return Analyzer.prepare(
@@ -290,7 +291,7 @@ public class MetricConvert {
     }
 
     private static FilterExpression buildFilter(final MetricRuleConfig rule,
-                                                final javassist.ClassPool pool,
+                                                final ClassPool pool,
                                                 final ClassLoader targetClassLoader) {
         final String filterText = rule.getFilter();
         if (Strings.isNullOrEmpty(filterText)) {

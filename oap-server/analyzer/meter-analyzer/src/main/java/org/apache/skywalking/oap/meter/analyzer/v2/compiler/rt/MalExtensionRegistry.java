@@ -28,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.meter.analyzer.v2.spi.MALContextFunction;
 import org.apache.skywalking.oap.meter.analyzer.v2.spi.MalFunctionExtension;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.List;
 
 /**
  * Compile-time registry for MAL extension functions discovered via SPI.
@@ -92,12 +95,12 @@ public final class MalExtensionRegistry {
             final Class<?>[] extraParamTypes = new Class<?>[paramTypes.length - 1];
             System.arraycopy(paramTypes, 1, extraParamTypes, 0, extraParamTypes.length);
             // Validate List params use List<String> (the only List type MAL supports)
-            final java.lang.reflect.Type[] genericTypes = m.getGenericParameterTypes();
+            final Type[] genericTypes = m.getGenericParameterTypes();
             for (int i = 1; i < genericTypes.length; i++) {
-                if (java.util.List.class.isAssignableFrom(extraParamTypes[i - 1])
-                        && genericTypes[i] instanceof java.lang.reflect.ParameterizedType) {
-                    final java.lang.reflect.Type elementType =
-                        ((java.lang.reflect.ParameterizedType) genericTypes[i])
+                if (List.class.isAssignableFrom(extraParamTypes[i - 1])
+                        && genericTypes[i] instanceof ParameterizedType) {
+                    final Type elementType =
+                        ((ParameterizedType) genericTypes[i])
                             .getActualTypeArguments()[0];
                     if (!String.class.equals(elementType)) {
                         throw new IllegalArgumentException(

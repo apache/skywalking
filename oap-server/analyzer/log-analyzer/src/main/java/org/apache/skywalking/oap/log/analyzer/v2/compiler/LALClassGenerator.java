@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtField;
 
 /**
  * Generates {@link LalExpression} implementation classes from
@@ -305,7 +306,7 @@ public final class LALClassGenerator {
      * {@code if (this.debug.isGateOn()) LALDebug.captureXxx(this.debug, ...)} call sites
      * that read the field directly.
      */
-    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
+    private void emitDebugHolderMembers(final CtClass ctClass) throws CannotCompileException {
         if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Injection off — fall back to the LalExpression.debugHolder() default
             // (null), no GateHolder field, no probe call sites.
@@ -314,7 +315,7 @@ public final class LALClassGenerator {
         final String escapedContent = DslJavaSourceText.toLiteral(content);
         // Per-rule capture binding — instance field, lowercase per Java
         // convention (it's a final but not a static-final constant).
-        ctClass.addField(javassist.CtField.make(
+        ctClass.addField(CtField.make(
             "public final " + LALCodegenHelper.GATE_HOLDER_FQCN + " debug = new "
                 + LALCodegenHelper.GATE_HOLDER_FQCN + "(\"" + escapedContent + "\");",
             ctClass));

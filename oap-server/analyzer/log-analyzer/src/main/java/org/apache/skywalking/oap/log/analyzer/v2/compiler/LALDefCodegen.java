@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import java.util.List;
+import java.lang.reflect.Method;
 
 /**
  * Code generation for LAL {@code def} local variable declarations and
@@ -260,7 +261,7 @@ final class LALDefCodegen {
                 final String methodName = ms.getName();
 
                 // Resolve method on currentType via reflection
-                final java.lang.reflect.Method method =
+                final Method method =
                     resolveMethod(currentType, methodName, ms.getArguments());
                 if (method == null) {
                     throw new IllegalArgumentException(
@@ -299,7 +300,7 @@ final class LALDefCodegen {
                 final String getterName = "get"
                     + Character.toUpperCase(fieldName.charAt(0))
                     + fieldName.substring(1);
-                java.lang.reflect.Method getter = null;
+                Method getter = null;
                 try {
                     getter = currentType.getMethod(getterName);
                 } catch (NoSuchMethodException e) {
@@ -337,7 +338,7 @@ final class LALDefCodegen {
             } else if (seg instanceof LALScriptModel.IndexSegment) {
                 final int index = ((LALScriptModel.IndexSegment) seg).getIndex();
                 // Try get(int) method (e.g., JsonArray.get(int))
-                java.lang.reflect.Method getMethod = null;
+                Method getMethod = null;
                 try {
                     getMethod = currentType.getMethod("get", int.class);
                 } catch (NoSuchMethodException e) {
@@ -367,7 +368,7 @@ final class LALDefCodegen {
      * For methods with String arguments (like JsonObject.get(String)),
      * prioritizes exact match by parameter types.
      */
-    private static java.lang.reflect.Method resolveMethod(
+    private static Method resolveMethod(
             final Class<?> type, final String name,
             final List<LALScriptModel.FunctionArg> args) {
         final int argCount = args != null ? args.size() : 0;
@@ -392,7 +393,7 @@ final class LALDefCodegen {
             }
         }
         // Fallback: find by name and arg count
-        for (final java.lang.reflect.Method m : type.getMethods()) {
+        for (final Method m : type.getMethods()) {
             if (m.getName().equals(name)
                     && m.getParameterCount() == argCount) {
                 return m;

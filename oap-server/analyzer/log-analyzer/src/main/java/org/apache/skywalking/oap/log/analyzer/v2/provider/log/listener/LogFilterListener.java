@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
+import javassist.ClassPool;
 
 /**
  * Runtime listener that executes compiled LAL rules against incoming log data.
@@ -284,7 +285,7 @@ public class LogFilterListener implements LogAnalysisListener {
          * {@code RuleClassLoader} it creates on every compile.
          */
         public CompiledLAL compile(final LALConfig c,
-                                   final javassist.ClassPool pool,
+                                   final ClassPool pool,
                                    final ClassLoader targetClassLoader) throws ModuleStartException {
             final boolean isAuto = LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer());
             final Layer layer = isAuto ? null : Layer.nameOf(c.getLayer());

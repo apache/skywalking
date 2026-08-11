@@ -471,7 +471,7 @@ public class OALClassGeneratorV2 {
                     // stamped with {ruleName, sourceLine} at instance-init time
                     // — the dsl-debugging records carry a structured per-rule
                     // envelope alongside the verbatim dsl source.
-                    dispatcherClass.addField(javassist.CtField.make(
+                    dispatcherClass.addField(CtField.make(
                         "public final " + holderFqcn + " debug_" + metric.getTableName()
                             + " = " + holderFqcn + ".withMetadata(\""
                             + perMetricContent + "\", \""
