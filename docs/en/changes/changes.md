@@ -382,5 +382,6 @@
 * Add PHP runtime metrics (PHM) dashboard documentation (agent setup, OAP `php-runtime` MAL rules, Horizon UI widgets).
 * Add Node.js runtime metrics dashboard documentation (agent setup, OAP `nodejs-runtime` MAL rules, Horizon UI widgets).
 * Add a BanyanDB trace tail sampling guide under "BanyanDB Exclusive Setup", covering how a trace is judged (the OR-ed rule chain, the end-to-end duration envelope rather than a per-span maximum, and the deterministic trace-ID hash behind `healthySampleRate`), what the two first-party samplers read from each trace schema, the MERGE vs FINALIZE events and their grace windows, the fail-open behaviour when a plugin is absent or unloadable, and the metrics to watch. Also document the Zipkin receiver's previously undocumented `sampleRate` and `maxSpansPerSecond` in the server-side trace sampling guide.
+* Correct the APISIX monitoring guide to align its Collector configuration and metric names with the current APISIX MAL rules and Horizon UI Dashboard.
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.0.0)
