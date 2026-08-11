@@ -275,7 +275,8 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
   items). The changelog becomes the GitHub release body, which GitHub renders as GFM where a single
   newline continuing a bullet becomes a `<br>`, so prose-wrapped bullets show jagged mid-sentence breaks on
   the release page (verified on v10.4.0; the docs website reflows and hides the problem). See
-  `guides/How-to-release.md`.
+  `guides/How-to-release.md`. Append a new entry at the **end** of its section, never at the top —
+  the section reads in the order the changes landed.
 - `swip/` - SkyWalking Improvement Proposals
 
 ### SWIP vs. operator docs
