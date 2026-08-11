@@ -20,23 +20,21 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder;
-import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefiner;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter;
-import org.apache.skywalking.oap.server.core.WorkPath;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
@@ -76,10 +74,7 @@ public final class MALClassGenerator {
 
     public MALClassGenerator() {
         this(createClassPool(), null);
-        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
-            bytecodeHelper.setClassOutputDir(
-                new File(WorkPath.getPath().getParentFile(), "mal-rt"));
-        }
+        bytecodeHelper.setClassOutputDir(DslGeneratedFileWriter.resolveClassDumpDir("mal"));
     }
 
     private static ClassPool createClassPool() {
@@ -251,29 +246,12 @@ public final class MALClassGenerator {
      * (startup path: class lands in the OAP app loader alongside
      * {@link MalExpressionPackageHolder}).
      *
-     * <p>When {@code targetClassLoader} implements
-     * {@link org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner
-     * BytecodeClassDefiner} (the runtime-rule {@code RuleClassLoader} does), we hand
-     * the loader the {@code CtClass.toBytecode()} bytes and let it invoke its public
-     * {@code defineClass} directly — no Javassist {@code toClass(loader,
-     * ProtectionDomain)} reflection, no {@code --add-opens java.base/java.lang}
-     * requirement on JDK 17+. Otherwise we fall back to the legacy 2-arg toClass for
-     * back-compat, but no shipped loader uses that path today.
+     * <p>Which of the two definition paths applies, and why the
+     * {@link BytecodeClassDefiner} one exists at all, is documented on
+     * {@link BytecodeClassDefiner#define}.
      */
-    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
-        if (targetClassLoader != null) {
-            if (targetClassLoader instanceof BytecodeClassDefiner) {
-                try {
-                    return ((BytecodeClassDefiner) targetClassLoader)
-                        .defineClass(ctClass.getName(), ctClass.toBytecode());
-                } catch (final IOException e) {
-                    throw new javassist.CannotCompileException(
-                        "failed to serialise " + ctClass.getName() + " bytes", e);
-                }
-            }
-            return ctClass.toClass(targetClassLoader, null);
-        }
-        return ctClass.toClass(MalExpressionPackageHolder.class);
+    private Class<?> defineClass(final CtClass ctClass) throws CannotCompileException {
+        return BytecodeClassDefiner.define(ctClass, targetClassLoader, MalExpressionPackageHolder.class);
     }
 
     /**

@@ -20,7 +20,7 @@ package org.apache.skywalking.oap.server.core.dsl.debug;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

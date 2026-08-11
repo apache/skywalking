@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.receiver.runtimerule.metrics.LockMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmKernelService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;

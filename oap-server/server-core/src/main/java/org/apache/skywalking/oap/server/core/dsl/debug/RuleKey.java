@@ -22,7 +22,7 @@ import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 
 /**
  * Typed identity for one rule in the DSL debug API. Replaces every

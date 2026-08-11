@@ -37,9 +37,9 @@ import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.RuleSourceLin
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
-import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;

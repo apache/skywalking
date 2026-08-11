@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.reconcile;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyContext;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.ApplyInputs;

@@ -52,11 +52,11 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import java.nio.charset.StandardCharsets;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.admin.server.cluster.AdminClusterChannelManager;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
-import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
@@ -68,6 +68,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DSLDelta;
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.DeltaClassifier;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.Classification;
 import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngine;
+import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngineRegistry;
+import org.apache.skywalking.oap.server.receiver.runtimerule.engine.lal.LalRuleEngine;
+import org.apache.skywalking.oap.server.receiver.runtimerule.engine.mal.MalRuleEngine;
 import org.apache.skywalking.oap.server.receiver.runtimerule.extension.DbOverrideRuntimeRuleResolver;
 import org.apache.skywalking.oap.server.receiver.runtimerule.layer.LayerConflictException;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.MainRouter;
@@ -1038,9 +1041,25 @@ public class RuntimeRuleService {
             // Engine-driven classification — routes via RuleEngineRegistry so a catalog
             // declared on MalRuleEngine.supportedCatalogs (e.g., telegraf-rules) classifies
             // as MAL automatically, no parallel string list to maintain.
-            delta = DSLScriptKey.isMalCatalog(dslManager.getEngineRegistry(), catalog)
-                ? DeltaClassifier.classifyMal(priorContent, content)
-                : DeltaClassifier.classifyLal(priorContent, content);
+            //
+            // Each engine gets its own named branch. This was a MAL/LAL ternary, written when
+            // those were the only two engines, so its else meant "LAL" — and would silently
+            // hand a THIRD engine's rule to the LAL classifier. An unknown catalog cannot reach
+            // here: validate() above rejects it with invalid_catalog using the same
+            // registry lookup (isValidCatalog). So NONE means a catalog whose engine is
+            // registered but has no delta classifier, which today cannot happen and tomorrow
+            // should fail loudly rather than be parsed as LAL.
+            final EngineKind kind = engineKindFor(dslManager.getEngineRegistry(), catalog);
+            if (kind == EngineKind.MAL) {
+                delta = DeltaClassifier.classifyMal(priorContent, content);
+            } else if (kind == EngineKind.LAL) {
+                delta = DeltaClassifier.classifyLal(priorContent, content);
+            } else {
+                log.warn("runtime-rule: catalog {} is served by an engine with no delta "
+                    + "classifier, rule {}", catalog, name);
+                return badRequest("unsupported_engine", catalog, name,
+                    "no delta classifier for the engine serving catalog " + catalog);
+            }
         } catch (final RuntimeException pe) {
             log.warn("runtime-rule: compile_failed during classify for {}/{}: {}",
                 catalog, name, pe.getMessage());
@@ -2433,4 +2452,33 @@ public class RuntimeRuleService {
         row.addProperty("pendingUnregister", false);
         return row;
     }
+
+    /** Which DSL owns a catalog, or {@link #NONE} when no engine is registered for it. */
+    enum EngineKind { MAL, LAL, NONE }
+
+    /**
+     * Resolves the engine owning a catalog to a three-valued answer.
+     *
+     * <p>Package-private and extracted so the {@code NONE} case is testable. This used to be a
+     * MAL/LAL ternary whose {@code else} was reached by anything not MAL, so a third engine's
+     * rule would have been handed to the LAL classifier. Callers on the REST path have already
+     * passed {@code validate()}, which rejects an unregistered catalog with
+     * {@code invalid_catalog} using this same registry lookup, so {@code NONE} there means a
+     * registered engine this method does not know — not bad input.
+     *
+     * @param registry the live engine registry
+     * @param catalog  the catalog named in the request
+     * @return which engine owns it, or {@code NONE}
+     */
+    static EngineKind engineKindFor(final RuleEngineRegistry registry, final String catalog) {
+        final RuleEngine<?> engine = registry.forCatalog(catalog);
+        if (engine instanceof MalRuleEngine) {
+            return EngineKind.MAL;
+        }
+        if (engine instanceof LalRuleEngine) {
+            return EngineKind.LAL;
+        }
+        return EngineKind.NONE;
+    }
+
 }

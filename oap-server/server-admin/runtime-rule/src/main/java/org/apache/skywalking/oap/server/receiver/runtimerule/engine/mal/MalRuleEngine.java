@@ -37,10 +37,10 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.mal.MALHolderRegistr
 import org.apache.skywalking.oap.server.admin.dsl.debugging.module.DSLDebuggingModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
-import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;

@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.classloader;
+package org.apache.skywalking.oap.server.core.dsl.classloader;
 
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

@@ -46,7 +46,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleSc
  * <p>After a successful teardown, the engine's {@code installBundled} hook is invoked so any
  * bundled rule that the now-removed runtime override was masking gets brought back into
  * service via a fresh {@code bundled:} loader from
- * {@link org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}.
+ * {@link org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager}.
  *
  * <p><b>{@code invokeAlarmOnRemove}.</b> Two legitimate call modes:
  * <ul>

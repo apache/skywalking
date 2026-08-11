@@ -27,7 +27,7 @@ import com.linecorp.armeria.server.annotation.Header;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Post;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.runtimerule.cluster.RuntimeRuleClusterClient;
 import org.apache.skywalking.oap.server.receiver.runtimerule.reconcile.DSLManager;
