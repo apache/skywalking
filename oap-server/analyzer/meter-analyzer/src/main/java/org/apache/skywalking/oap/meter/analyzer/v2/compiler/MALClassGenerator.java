@@ -133,6 +133,12 @@ public final class MALClassGenerator {
         bytecodeHelper.setSourceRef(ref);
     }
 
+    /**
+     * @param yamlSource the rule coordinate as {@code file:line}
+     * @deprecated pass a typed {@link DslSourceRef} to {@link #setSourceRef} instead; this parses
+     *     a string the caller already had structured. Kept for callers outside this repo.
+     */
+    @Deprecated
     @SuppressWarnings("deprecation")
     public void setYamlSource(final String yamlSource) {
         bytecodeHelper.setYamlSource(yamlSource);
@@ -439,7 +445,7 @@ public final class MALClassGenerator {
             // bytecode is byte-identical to a build without SWIP-13.
             return;
         }
-        final String holderFqcn = "org.apache.skywalking.oap.server.core.dsl.debug.GateHolder";
+        final String holderFqcn = MALCodegenHelper.GATE_HOLDER_FQCN;
         final String escapedContent = DslJavaSourceText.toLiteral(content);
         // Per-rule capture binding — instance field, lowercase per Java
         // convention (it's a final but not a static-final constant).

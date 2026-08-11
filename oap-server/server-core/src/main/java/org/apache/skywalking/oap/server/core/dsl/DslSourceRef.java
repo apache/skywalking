@@ -80,16 +80,10 @@ public final class DslSourceRef {
     }
 
     /**
-     * Non-positive lines normalise to {@link #UNRESOLVED}, so a {@code 0} from an older accessor
-     * cannot be mistaken for a real line.
-     *
-     * @param yamlFile       rule file name, e.g. {@code vm.yaml}
-     * @param yamlLine       1-based line in that rule file
-     * @return the coordinates of one generated file
-     */
-    /**
      * The rule anchor alone, before any class has been generated from it.
      *
+     * <p>Non-positive lines normalise to {@link #UNRESOLVED}, so a {@code 0} cannot be mistaken
+     * for a real line.
      *
      * @param yamlFile rule file name, e.g. {@code vm.yaml}
      * @param yamlLine 1-based line in that rule file

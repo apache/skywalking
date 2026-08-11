@@ -78,10 +78,6 @@ final class MALExprCodegen {
         return ruleName;
     }
 
-    int getVarCount() {
-        return varCounter;
-    }
-
     /**
      * Returns all variable names declared during code generation,
      * for building the {@code LocalVariableTable}.

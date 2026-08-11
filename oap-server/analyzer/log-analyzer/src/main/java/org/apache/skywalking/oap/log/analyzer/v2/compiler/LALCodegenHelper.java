@@ -38,12 +38,6 @@ final class LALCodegenHelper {
     static final Map<String, String> METADATA_TRACE_GETTERS = new HashMap<>();
     /** LogData-only fields — require the input to be {@code LogData}. */
     static final Map<String, String> LOG_GETTERS = new HashMap<>();
-    /**
-     * Getter-name overrides for reflection-based access.
-     * Applied by {@link LALBlockCodegen#generateExtraLogAccess} when a getter
-     * is not found on the current type — tries the alias before failing.
-     */
-    static final Map<String, String> METADATA_GETTER_ALIASES = Map.of();
     static final Set<String> LONG_FIELDS = new HashSet<>();
     static final Set<String> INT_FIELDS = new HashSet<>();
     static final Class<?> LOGDATA_BUILDER_CLASS = LogData.Builder.class;

@@ -1110,18 +1110,8 @@ final class LALValueCodegen {
         for (int i = 0; i < fieldSegments.size(); i++) {
             final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
             final String field = seg.getName();
-            String getterName = "get" + Character.toUpperCase(field.charAt(0))
+            final String getterName = "get" + Character.toUpperCase(field.charAt(0))
                 + field.substring(1);
-
-            // Apply getter aliases (e.g., traceSegmentId → segmentId on LogMetadata)
-            final String alias = LALCodegenHelper.METADATA_GETTER_ALIASES.get(getterName);
-            if (alias != null) {
-                try {
-                    currentType.getMethod(getterName);
-                } catch (NoSuchMethodException ignored) {
-                    getterName = alias;
-                }
-            }
 
             final java.lang.reflect.Method getter;
             try {

@@ -43,9 +43,11 @@ import org.apache.skywalking.apm.network.logging.v3.TraceContext;
  *   <li>{@code YAML} — the literal yaml string under {@code body.yaml}.</li>
  * </ul>
  *
- * <p>Lives in core so {@link org.apache.skywalking.oap.server.core.source.LALOutputBuilder}
- * implementations (e.g., {@code LogBuilder}) can render their cached
- * {@link LogData} input without crossing back into the analyzer module.
+ * <p>Lives in core because it renders {@link LogData}, whose generated protobuf class comes from
+ * {@code apm-network} — a dependency core already has and the debug contract is declared against.
+ * Its only caller today is {@code LalPayloadDebugDump} in {@code analyzer/log-analyzer}; no
+ * core class calls it. An earlier note here claimed {@code LALOutputBuilder} implementations
+ * render through it, which was never true.
  */
 public final class LogDataDebugDump {
 

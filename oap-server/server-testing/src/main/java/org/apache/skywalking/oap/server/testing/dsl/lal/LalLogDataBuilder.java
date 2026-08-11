@@ -41,8 +41,8 @@ public final class LalLogDataBuilder {
      * Builds a {@link LogData.Builder} from a test input map.
      *
      * <p>Supported keys: {@code service}, {@code instance}, {@code trace-id},
-     * {@code timestamp}, {@code body-type} ({@code json}/{@code text}),
-     * {@code body}, {@code tags} (Map).
+     * {@code trace-segment-id}, {@code span-id}, {@code timestamp},
+     * {@code body-type} ({@code json}/{@code text}), {@code body}, {@code tags} (Map).
      */
     @SuppressWarnings("unchecked")
     public static LogData.Builder buildLogData(final Map<String, Object> input) {
@@ -58,10 +58,23 @@ public final class LalLogDataBuilder {
             builder.setServiceInstance(instance);
         }
 
+        // All three trace fields go into ONE TraceContext: setting them separately would
+        // have each call replace the previous message.
         final String traceId = (String) input.get("trace-id");
-        if (traceId != null) {
-            builder.setTraceContext(
-                TraceContext.newBuilder().setTraceId(traceId));
+        final String traceSegmentId = (String) input.get("trace-segment-id");
+        final Object spanIdObj = input.get("span-id");
+        if (traceId != null || traceSegmentId != null || spanIdObj != null) {
+            final TraceContext.Builder trace = TraceContext.newBuilder();
+            if (traceId != null) {
+                trace.setTraceId(traceId);
+            }
+            if (traceSegmentId != null) {
+                trace.setTraceSegmentId(traceSegmentId);
+            }
+            if (spanIdObj != null) {
+                trace.setSpanId(Integer.parseInt(String.valueOf(spanIdObj)));
+            }
+            builder.setTraceContext(trace);
         }
 
         final Object tsObj = input.get("timestamp");

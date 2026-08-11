@@ -45,7 +45,7 @@ public final class DslClassNaming {
     private DslClassNaming() {
     }
 
-    
+
     /**
      * The deterministic stem for a generated class.
      *
@@ -112,5 +112,4 @@ public final class DslClassNaming {
             }
         }
     }
-
-    }
+}

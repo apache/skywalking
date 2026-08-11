@@ -32,9 +32,6 @@ final class MALCodegenHelper {
     /** FQCN of {@code SampleFamily} — used in generated method signatures and casts. */
     static final String SF = "org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily";
 
-    /** Local variable name for the running SampleFamily in generated {@code run()} methods. */
-    static final String RUN_VAR = "sf";
-
     private MALCodegenHelper() {
     }
 

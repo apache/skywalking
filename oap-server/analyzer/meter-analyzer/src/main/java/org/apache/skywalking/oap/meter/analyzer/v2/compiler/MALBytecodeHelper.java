@@ -59,7 +59,7 @@ final class MALBytecodeHelper {
     private DslSourceRef ruleAnchor = DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED);
     /**
      * When true, each apply gets its own per-file classloader, so generated class names are
-     * scoped to that loader and don't need the process-wide dedup in {@link org.apache.skywalking.oap.server.core.dsl.DslClassNaming}.
+     * scoped to that loader and don't need the process-wide dedup in {@link DslClassNaming}.
      * Set by {@link MALClassGenerator} when its {@code targetClassLoader} is non-null — the
      * runtime-rule hot-update path. Legacy startup (shared OAP app loader) keeps dedup on.
      */
@@ -121,13 +121,9 @@ final class MALBytecodeHelper {
     /**
      * Builds the {@code SourceFile} name for a generated class.
      *
- * <p>It leads with the RULE, then the generated file name. Equalling the written .java was the
-     * earlier contract and is no longer the goal: that file exists only under
-     * SW_DYNAMIC_CLASS_ENGINE_DEBUG, so in production it addresses nothing.
-     *
      * <p>The value leads with the RULE — {@code (otel-rules/vm.yaml:38)vm_L38_cpu.java} — because
-     * the generated source file exists only under SW_DYNAMIC_CLASS_ENGINE_DEBUG, so in production there is no
-     * .java on disk for a bare file name to address.
+     * the generated {@code .java} exists only under {@code SW_DYNAMIC_CLASS_ENGINE_DEBUG}, so in
+     * production there is no file on disk for a bare name to address.
      */
     String sourceFileNameOf(final CtClass ctClass) {
         return ruleAnchor.sourceFileOf(ctClass.getSimpleName());
@@ -177,7 +173,7 @@ final class MALBytecodeHelper {
      */
     void addLineNumberTable(final CtMethod method,
                              final int firstResultSlot,
-                             final java.util.List<Integer> statementLines,
+                             final List<Integer> statementLines,
                              final int methodSignatureLineInClass) {
         try {
             final MethodInfo mi = method.getMethodInfo();
@@ -268,7 +264,7 @@ final class MALBytecodeHelper {
      * produced no line for it. {@code -1} is deliberate: a bogus-but-plausible line is worse than
      * an obviously absent one, and the JVM tolerates it in a {@code LineNumberTable}.
      */
-    private static int lineInGeneratedClass(final java.util.List<Integer> statementLines,
+    private static int lineInGeneratedClass(final List<Integer> statementLines,
                                             final int index,
                                             final int methodSignatureLineInClass) {
         if (statementLines == null || index >= statementLines.size()) {
