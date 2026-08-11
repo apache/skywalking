@@ -19,12 +19,12 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
@@ -35,12 +35,10 @@ import org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackag
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
 import org.apache.skywalking.oap.server.core.dsl.DslClassNaming;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
-import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefiner;
 import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
-import org.apache.skywalking.oap.server.core.WorkPath;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
@@ -219,9 +217,7 @@ public final class LALClassGenerator {
 
     public LALClassGenerator() {
         this(ClassPool.getDefault(), null);
-        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
-            classOutputDir = new File(WorkPath.getPath().getParentFile(), "lal-rt");
-        }
+        classOutputDir = DslGeneratedFileWriter.resolveClassDumpDir("lal");
     }
 
     public LALClassGenerator(final ClassPool classPool) {
@@ -508,26 +504,12 @@ public final class LALClassGenerator {
      * (startup path: class lands in the OAP app loader alongside
      * {@link LalExpressionPackageHolder}).
      *
-     * <p>{@link BytecodeClassDefiner} loaders (the runtime-rule {@code RuleClassLoader})
-     * receive the {@code CtClass.toBytecode()} bytes via their public {@code defineClass}
-     * — bypasses Javassist's deprecated {@code toClass(loader, ProtectionDomain)} reflection
-     * path so we don't need {@code --add-opens java.base/java.lang} on the OAP container.
-     * Same shape as {@code MALClassGenerator}; both DSLs share the contract.
+     * <p>Which of the two definition paths applies, and why the
+     * {@link BytecodeClassDefiner} one exists at all, is documented on
+     * {@link BytecodeClassDefiner#define}.
      */
-    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
-        if (targetClassLoader != null) {
-            if (targetClassLoader instanceof BytecodeClassDefiner) {
-                try {
-                    return ((BytecodeClassDefiner) targetClassLoader)
-                        .defineClass(ctClass.getName(), ctClass.toBytecode());
-                } catch (final IOException e) {
-                    throw new javassist.CannotCompileException(
-                        "failed to serialise " + ctClass.getName() + " bytes", e);
-                }
-            }
-            return ctClass.toClass(targetClassLoader, null);
-        }
-        return ctClass.toClass(LalExpressionPackageHolder.class);
+    private Class<?> defineClass(final CtClass ctClass) throws CannotCompileException {
+        return BytecodeClassDefiner.define(ctClass, targetClassLoader, LalExpressionPackageHolder.class);
     }
 
     private static boolean hasParsedAccess(

@@ -16,9 +16,10 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.classloader;
+package org.apache.skywalking.oap.server.core.dsl;
 
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 
 /**
  * Strongly-typed catalog identifier consumed by {@link DSLClassLoaderManager} so the manager's

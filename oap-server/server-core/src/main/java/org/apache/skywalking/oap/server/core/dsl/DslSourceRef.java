@@ -59,6 +59,17 @@ import lombok.Getter;
  * pair — it is the join key tying them back together, and what the dsl-debugging API reports so a
  * captured sample names an editable location.
  *
+ * <p><b>One entrance, on purpose — do not add a producer interface.</b> Each DSL converts its own
+ * config into this type at its own call site: MAL from {@code MetricRuleConfig}, LAL from
+ * {@code LALConfig}'s fields, OAL from a {@code SourceLocation}, Hierarchy from a constant plus a
+ * name-to-line map. That looks like four answers to one question, and a shared
+ * {@code sourcePath()/lineNo()} interface has been proposed to unify it. It should not be added:
+ * two of the four cannot implement it. OAL's dispatcher deliberately wants a LINELESS ref, because
+ * one dispatcher spans every metric of a scope, and Hierarchy has no per-rule object to hang an
+ * interface on. The remaining two would gain little, and the escape hatches for the other two
+ * would cost more than the duplication. The narrow entrance below — a file and a line — is the
+ * contract; what each DSL knows about its own rules stays where that knowledge lives.
+ *
  * <p><b>Unresolved lines.</b> A line is normally always available: rules are bound from YAML
  * snakeyaml can re-compose. {@link #UNRESOLVED} is a defensive fallback, deliberately {@code -1}
  * rather than {@code 0}: a silently missing line hides the failure, whereas {@code -1} stays

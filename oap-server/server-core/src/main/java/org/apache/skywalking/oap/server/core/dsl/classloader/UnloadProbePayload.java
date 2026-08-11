@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.classloader;
+package org.apache.skywalking.oap.server.core.dsl.classloader;
 
 /**
  * Bytecode payload for {@link ClassLoaderGc}'s unload-evidence probe. Never instantiated and

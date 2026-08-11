@@ -34,6 +34,8 @@ import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 import javassist.bytecode.SourceFileAttribute;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.WorkPath;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * Emits the artifacts of a generated DSL class: the {@code .class}, the {@code .java} beside it,
@@ -243,5 +245,25 @@ public final class DslGeneratedFileWriter {
         } catch (Exception e) {
             log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
         }
+    }
+
+    /**
+     * Where a DSL dumps its generated {@code .class} / {@code .java}, or null when it should not.
+     *
+     * <p>Four generators each had their own copy of this env lookup; MAL, LAL and Hierarchy adopt
+     * this one. OAL keeps its own, because its debug flag is settable independently of the
+     * environment variable and two tests rely on that. The kernel already
+     * owns the write ({@link #writeClassFile}, {@link #writeSourceFile}), the file naming
+     * ({@link DslSourceRef#sourceFileOf}) and the sibling codegen switch, so whether and where to
+     * dump is the last part of one story that lived elsewhere.
+     *
+     * @param dslName short DSL name, e.g. {@code mal} — the directory is {@code <dslName>-rt}
+     * @return the directory, or null when {@code SW_DYNAMIC_CLASS_ENGINE_DEBUG} is unset
+     */
+    public static File resolveClassDumpDir(final String dslName) {
+        if (StringUtil.isEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
+            return null;
+        }
+        return new File(WorkPath.getPath().getParentFile(), dslName + "-rt");
     }
 }

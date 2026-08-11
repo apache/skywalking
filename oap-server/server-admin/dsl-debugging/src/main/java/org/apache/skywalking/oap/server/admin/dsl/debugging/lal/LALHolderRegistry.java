@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.lal;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugHolderLookup;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 import org.apache.skywalking.oap.server.library.module.Service;

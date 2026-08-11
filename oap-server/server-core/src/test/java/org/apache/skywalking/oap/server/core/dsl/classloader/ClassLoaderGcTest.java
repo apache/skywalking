@@ -16,8 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.classloader;
+package org.apache.skywalking.oap.server.core.dsl.classloader;
 
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import java.lang.ref.Reference;
 import java.util.Collection;
 import org.junit.jupiter.api.Test;

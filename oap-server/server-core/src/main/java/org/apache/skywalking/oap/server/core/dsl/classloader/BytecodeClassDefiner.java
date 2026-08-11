@@ -16,7 +16,11 @@
  *
  */
 
-package org.apache.skywalking.oap.server.core.classloader;
+package org.apache.skywalking.oap.server.core.dsl.classloader;
+
+import java.io.IOException;
+import javassist.CannotCompileException;
+import javassist.CtClass;
 
 /**
  * Marker contract for class loaders that expose a public {@code defineClass} so generated
@@ -55,4 +59,42 @@ public interface BytecodeClassDefiner {
      * @return the resolved {@link Class} object loaded by this defining loader.
      */
     Class<?> defineClass(String className, byte[] bytecode);
+
+    /**
+     * Loads a generated class, choosing the definition path from the target loader.
+     *
+     * <p>Three call sites did this identically — MAL's and LAL's generators and
+     * {@code MeterSystem} — so a change had to be made three times and the reasoning above was
+     * restated in four places. It lives on this interface rather than in a class of its own
+     * because the whole decision is about whether the loader implements this interface.
+     *
+     * @param ctClass           the generated class, not yet loaded
+     * @param targetClassLoader the loader to define into; null selects the neighbour form, which
+     *                          puts the class in {@code packageAnchor}'s package and loader
+     * @param packageAnchor     a class naming the package to define into when there is no target
+     *                          loader — each DSL keeps its own empty holder for this
+     * @return the loaded class
+     * @throws CannotCompileException if Javassist cannot define it, or if serialising its bytes
+     *                                fails
+     */
+    static Class<?> define(final CtClass ctClass,
+                           final ClassLoader targetClassLoader,
+                           final Class<?> packageAnchor) throws CannotCompileException {
+        if (targetClassLoader == null) {
+            return ctClass.toClass(packageAnchor);
+        }
+        if (targetClassLoader instanceof BytecodeClassDefiner) {
+            try {
+                return ((BytecodeClassDefiner) targetClassLoader)
+                    .defineClass(ctClass.getName(), ctClass.toBytecode());
+            } catch (final IOException e) {
+                // Reported as a compile failure rather than propagated: every caller already
+                // handles CannotCompileException, and failing to serialise bytes this process
+                // just generated is not meaningfully different from a compile failure.
+                throw new CannotCompileException(
+                    "failed to serialise " + ctClass.getName() + " bytes", e);
+            }
+        }
+        return ctClass.toClass(targetClassLoader, null);
+    }
 }

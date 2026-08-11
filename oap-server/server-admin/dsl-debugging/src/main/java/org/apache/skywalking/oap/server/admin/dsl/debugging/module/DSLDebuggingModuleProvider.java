@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.oal.OALHolderLookup;
 import org.apache.skywalking.oap.server.admin.server.cluster.AdminClusterChannelManager;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
 import org.apache.skywalking.oap.server.core.analysis.DispatcherManager;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
 import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
