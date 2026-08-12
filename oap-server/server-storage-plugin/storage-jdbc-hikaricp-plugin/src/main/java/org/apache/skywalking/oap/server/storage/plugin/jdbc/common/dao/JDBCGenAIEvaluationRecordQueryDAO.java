@@ -28,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -55,13 +57,13 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         GenAIEvaluationRecord.PROVIDER_ID,
         GenAIEvaluationRecord.MODEL_ID,
         GenAIEvaluationRecord.OPERATION_NAME,
-        GenAIEvaluationRecord.SCORE_VALUE,
+        GenAIEvaluationRecord.EVAL_NUMBER_VALUE,
         GenAIEvaluationRecord.SEGMENT_ID,
         GenAIEvaluationRecord.SPAN_ID,
         GenAIEvaluationRecord.SPAN_TYPE,
         GenAIEvaluationRecord.TASK_NAME,
         GenAIEvaluationRecord.VALUE_TYPE,
-        GenAIEvaluationRecord.VALUE,
+        GenAIEvaluationRecord.EVAL_STRING_VALUE,
         GenAIEvaluationRecord.EVALUATION_LEVEL,
         GenAIEvaluationRecord.REASON,
         GenAIEvaluationRecord.JUDGE_MODEL
@@ -74,13 +76,13 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         GenAIEvaluationRecord.PROVIDER_ID,
         GenAIEvaluationRecord.MODEL_ID,
         GenAIEvaluationRecord.OPERATION_NAME,
-        GenAIEvaluationRecord.SCORE_VALUE,
+        GenAIEvaluationRecord.EVAL_NUMBER_VALUE,
         GenAIEvaluationRecord.SEGMENT_ID,
         GenAIEvaluationRecord.SPAN_ID,
         GenAIEvaluationRecord.SPAN_TYPE,
         GenAIEvaluationRecord.TASK_NAME,
         GenAIEvaluationRecord.VALUE_TYPE,
-        GenAIEvaluationRecord.VALUE,
+        GenAIEvaluationRecord.EVAL_STRING_VALUE,
         GenAIEvaluationRecord.EVALUATION_LEVEL,
         GenAIEvaluationRecord.REASON,
         GenAIEvaluationRecord.JUDGE_MODEL,
@@ -95,7 +97,8 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
     public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceId,
                                                              final String providerId,
                                                              final String modelId,
-                                                             final Double minScore, final Double maxScore, final String sortField,
+                                                             final GenAIEvaluationValueType valueType,
+                                                             final Double minScore, final Double maxScore, final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
@@ -127,7 +130,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         final var records = new ArrayList<GenAIEvaluationRecord>();
         for (final var table : tables) {
             final var sqlAndParameters = buildSQL(
-                serviceId, providerId, modelId, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, from, limit, duration, tags, table);
             records.addAll(
                 jdbcClient.executeQuery(
@@ -138,7 +141,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             );
         }
 
-        Comparator<GenAIEvaluationRecord> comparator = GenAIEvaluationRecord.SCORE_VALUE.equalsIgnoreCase(sortField)
+        Comparator<GenAIEvaluationRecord> comparator = GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)
             ? comparing((GenAIEvaluationRecord record) -> record.getScoreValue() == null ? Double.NEGATIVE_INFINITY : record.getScoreValue())
             : comparing(GenAIEvaluationRecord::getEvaluationTime);
         if (Order.DES.equals(queryOrder)) {
@@ -159,14 +162,14 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             record.setProviderId(resultSet.getString(GenAIEvaluationRecord.PROVIDER_ID));
             record.setModelId(resultSet.getString(GenAIEvaluationRecord.MODEL_ID));
             record.setOperationName(resultSet.getString(GenAIEvaluationRecord.OPERATION_NAME));
-            final long scoreValue = resultSet.getLong(GenAIEvaluationRecord.SCORE_VALUE);
-            record.setScoreValuePpm(resultSet.wasNull() ? null : scoreValue);
+            final long numberValue = resultSet.getLong(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
+            record.setEvaNumberValue(resultSet.wasNull() ? null : numberValue);
             record.setSegmentId(resultSet.getString(GenAIEvaluationRecord.SEGMENT_ID));
             record.setSpanId(resultSet.getInt(GenAIEvaluationRecord.SPAN_ID));
             record.setSpanType(resultSet.getString(GenAIEvaluationRecord.SPAN_TYPE));
             record.setTaskName(resultSet.getString(GenAIEvaluationRecord.TASK_NAME));
             record.setValueType(resultSet.getString(GenAIEvaluationRecord.VALUE_TYPE));
-            record.setValue(resultSet.getString(GenAIEvaluationRecord.VALUE));
+            record.setEvalStringValue(resultSet.getString(GenAIEvaluationRecord.EVAL_STRING_VALUE));
             record.setEvaluationLevel(resultSet.getString(GenAIEvaluationRecord.EVALUATION_LEVEL));
             record.setReason(resultSet.getString(GenAIEvaluationRecord.REASON));
             record.setJudgeModel(resultSet.getString(GenAIEvaluationRecord.JUDGE_MODEL));
@@ -179,9 +182,10 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
     protected SQLAndParameters buildSQL(final String serviceId,
                                         final String providerId,
                                         final String modelId,
+                                        final GenAIEvaluationValueType valueType,
                                         final Double minScore,
                                         final Double maxScore,
-                                        final String sortField,
+                                        final GenAIEvaluationRecordSortBy sortBy,
                                         final String taskName,
                                         final String evaluationLevel,
                                         final String judgeModel,
@@ -227,12 +231,16 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.MODEL_ID)).append(" = ?");
             parameters.add(modelId);
         }
+        if (valueType != null) {
+            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.VALUE_TYPE)).append(" = ?");
+            parameters.add(valueType.name());
+        }
         if (minScore != null) {
-            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SCORE_VALUE)).append(" >= ?");
+            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.EVAL_NUMBER_VALUE)).append(" >= ?");
             parameters.add(GenAIEvaluationRecord.minScoreValuePpm(minScore));
         }
         if (maxScore != null) {
-            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SCORE_VALUE)).append(" <= ?");
+            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.EVAL_NUMBER_VALUE)).append(" <= ?");
             parameters.add(GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
         }
         if (StringUtil.isNotEmpty(taskName)) {
@@ -273,8 +281,8 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         }
 
         sql.append(" order by ")
-           .append(storageColumn(GenAIEvaluationRecord.SCORE_VALUE.equalsIgnoreCase(sortField)
-               ? GenAIEvaluationRecord.SCORE_VALUE : GenAIEvaluationRecord.EVALUATION_TIME))
+           .append(storageColumn(GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)
+               ? GenAIEvaluationRecord.EVAL_NUMBER_VALUE : GenAIEvaluationRecord.EVALUATION_TIME))
            .append(" ")
            .append(Order.DES.equals(queryOrder) ? "desc" : "asc");
         sql.append(" limit ").append(from + limit);

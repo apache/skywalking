@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.query;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -56,9 +58,10 @@ public class GenAIEvaluationRecordQueryService implements Service {
     public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId,
                                                              String providerId,
                                                              String modelId,
+                                                             GenAIEvaluationValueType valueType,
                                                              Double minScore,
                                                              Double maxScore,
-                                                             String sortField,
+                                                             GenAIEvaluationRecordSortBy sortBy,
                                                              String taskName,
                                                              String evaluationLevel,
                                                              String judgeModel,
@@ -67,6 +70,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              Order queryOrder,
                                                              final Duration duration,
                                                              final List<Tag> tags) throws IOException {
+        sortBy = sortBy == null ? GenAIEvaluationRecordSortBy.EVALUATION_TIME : sortBy;
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -84,7 +88,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                serviceId, providerId, toStoredModelId(modelId), minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, toStoredModelId(modelId), valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, paging, queryOrder, duration, tags
             );
         } finally {
@@ -97,9 +101,10 @@ public class GenAIEvaluationRecordQueryService implements Service {
     private GenAIEvaluationRecords queryGenAIEvaluationRecordInternal(String serviceId,
                                                                       String providerId,
                                                                       String modelId,
+                                                                      GenAIEvaluationValueType valueType,
                                                                       Double minScore,
                                                                       Double maxScore,
-                                                                      String sortField,
+                                                                      GenAIEvaluationRecordSortBy sortBy,
                                                                       String taskName,
                                                                       String evaluationLevel,
                                                                       String judgeModel,
@@ -111,7 +116,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
-                serviceId, providerId, modelId, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
         );
     }

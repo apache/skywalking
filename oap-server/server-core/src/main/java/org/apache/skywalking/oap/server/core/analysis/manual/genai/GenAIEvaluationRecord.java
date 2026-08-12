@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis.manual.genai;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -28,6 +29,7 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -56,14 +58,14 @@ public class GenAIEvaluationRecord extends Record {
     public static final String MODEL_ID = "model_id";
     public static final String SERVICE_ID = "service_id";
     public static final String OPERATION_NAME = "operation_name";
-    public static final String SCORE_VALUE = "score_value";
+    public static final String EVAL_NUMBER_VALUE = "evaNumberValue";
     public static final long SCORE_SCALE = 1_000_000L;
     public static final String SEGMENT_ID = "segment_id";
     public static final String SPAN_ID = "span_id";
     public static final String SPAN_TYPE = "span_type";
     public static final String TASK_NAME = "task_name";
     public static final String VALUE_TYPE = "value_type";
-    public static final String VALUE = "value";
+    public static final String EVAL_STRING_VALUE = "evalStringValue";
     public static final String EVALUATION_LEVEL = "evaluation_level";
     public static final String REASON = "reason";
     public static final String JUDGE_MODEL = "judge_model";
@@ -96,8 +98,8 @@ public class GenAIEvaluationRecord extends Record {
 
     @ElasticSearch.EnableDocValues
     @BanyanDB.EnableSort
-    @Column(name = SCORE_VALUE)
-    private Long scoreValuePpm;
+    @Column(name = EVAL_NUMBER_VALUE)
+    private Long evaNumberValue;
 
     @Column(name = SEGMENT_ID, length = 150, storageOnly = true)
     private String segmentId;
@@ -113,11 +115,12 @@ public class GenAIEvaluationRecord extends Record {
     @Column(name = TASK_NAME, length = 512)
     private String taskName;
 
+    @Getter(AccessLevel.NONE)
     @Column(name = VALUE_TYPE, length = 64, storageOnly = true)
     private String valueType;
 
-    @Column(name = VALUE, length = 4096, storageOnly = true)
-    private String value;
+    @Column(name = EVAL_STRING_VALUE, length = 4096, storageOnly = true)
+    private String evalStringValue;
 
     @ElasticSearch.EnableDocValues
     @Column(name = EVALUATION_LEVEL, length = 64)
@@ -135,7 +138,22 @@ public class GenAIEvaluationRecord extends Record {
     private long evaluationTime;
 
     public Double getScoreValue() {
-        return scoreValuePpm == null ? null : scoreValuePpm / (double) SCORE_SCALE;
+        return evaNumberValue == null ? null : evaNumberValue / (double) SCORE_SCALE;
+    }
+
+    public String getValue() {
+        return evalStringValue;
+    }
+
+    public GenAIEvaluationValueType getValueType() {
+        if (valueType == null || valueType.isEmpty()) {
+            return null;
+        }
+        try {
+            return GenAIEvaluationValueType.valueOf(valueType);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     public static Long toScoreValuePpm(final Double score) {
@@ -210,14 +228,14 @@ public class GenAIEvaluationRecord extends Record {
             record.setProviderId((String) converter.get(PROVIDER_ID));
             record.setModelId((String) converter.get(MODEL_ID));
             record.setOperationName((String) converter.get(OPERATION_NAME));
-            final Number scoreValue = (Number) converter.get(SCORE_VALUE);
-            record.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
+            final Number numberValue = (Number) converter.get(EVAL_NUMBER_VALUE);
+            record.setEvaNumberValue(numberValue == null ? null : numberValue.longValue());
             record.setSegmentId((String) converter.get(SEGMENT_ID));
             record.setSpanId(((Number) converter.get(SPAN_ID)).intValue());
             record.setSpanType((String) converter.get(SPAN_TYPE));
             record.setTaskName((String) converter.get(TASK_NAME));
             record.setValueType((String) converter.get(VALUE_TYPE));
-            record.setValue((String) converter.get(VALUE));
+            record.setEvalStringValue((String) converter.get(EVAL_STRING_VALUE));
             record.setEvaluationLevel((String) converter.get(EVALUATION_LEVEL));
             record.setReason((String) converter.get(REASON));
             record.setJudgeModel((String) converter.get(JUDGE_MODEL));
@@ -234,13 +252,13 @@ public class GenAIEvaluationRecord extends Record {
             converter.accept(PROVIDER_ID, storageData.getProviderId());
             converter.accept(MODEL_ID, storageData.getModelId());
             converter.accept(OPERATION_NAME, storageData.getOperationName());
-            converter.accept(SCORE_VALUE, storageData.getScoreValuePpm());
+            converter.accept(EVAL_NUMBER_VALUE, storageData.getEvaNumberValue());
             converter.accept(SEGMENT_ID, storageData.getSegmentId());
             converter.accept(SPAN_ID, storageData.getSpanId());
             converter.accept(SPAN_TYPE, storageData.getSpanType());
             converter.accept(TASK_NAME, storageData.getTaskName());
-            converter.accept(VALUE_TYPE, storageData.getValueType());
-            converter.accept(VALUE, storageData.getValue());
+            converter.accept(VALUE_TYPE, storageData.valueType);
+            converter.accept(EVAL_STRING_VALUE, storageData.getEvalStringValue());
             converter.accept(EVALUATION_LEVEL, storageData.getEvaluationLevel());
             converter.accept(REASON, storageData.getReason());
             converter.accept(JUDGE_MODEL, storageData.getJudgeModel());

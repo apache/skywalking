@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -41,9 +43,10 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
     default GenAIEvaluationRecords queryGenAIEvaluationRecordDebuggable(String serviceId,
                                                       String providerId,
                                                       String modelId,
+                                                      GenAIEvaluationValueType valueType,
                                                       Double minScore,
                                                       Double maxScore,
-                                                      String sortField,
+                                                      GenAIEvaluationRecordSortBy sortBy,
                                                       String taskName,
                                                       String evaluationLevel,
                                                       String judgeModel,
@@ -71,7 +74,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecord(
-                serviceId, providerId, modelId, minScore, maxScore, sortField, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, from, limit, duration, tags
             );
         } finally {
@@ -84,9 +87,10 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
     GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId,
                                                       String providerId,
                                                       String modelId,
+                                                      GenAIEvaluationValueType valueType,
                                                       Double minScore,
                                                       Double maxScore,
-                                                      String sortField,
+                                                      GenAIEvaluationRecordSortBy sortBy,
                                                       String taskName,
                                                       String evaluationLevel,
                                                       String judgeModel,

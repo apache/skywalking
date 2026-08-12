@@ -23,6 +23,8 @@ import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -47,13 +49,13 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
             GenAIEvaluationRecord.PROVIDER_ID,
             GenAIEvaluationRecord.MODEL_ID,
             GenAIEvaluationRecord.OPERATION_NAME,
-            GenAIEvaluationRecord.SCORE_VALUE,
+            GenAIEvaluationRecord.EVAL_NUMBER_VALUE,
             GenAIEvaluationRecord.SEGMENT_ID,
             GenAIEvaluationRecord.SPAN_ID,
             GenAIEvaluationRecord.SPAN_TYPE,
             GenAIEvaluationRecord.TASK_NAME,
             GenAIEvaluationRecord.VALUE_TYPE,
-            GenAIEvaluationRecord.VALUE,
+            GenAIEvaluationRecord.EVAL_STRING_VALUE,
             GenAIEvaluationRecord.EVALUATION_LEVEL,
             GenAIEvaluationRecord.REASON,
             GenAIEvaluationRecord.JUDGE_MODEL,
@@ -65,7 +67,7 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, Double minScore, Double maxScore, String sortField,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, GenAIEvaluationValueType valueType, Double minScore, Double maxScore, GenAIEvaluationRecordSortBy sortBy,
                                                              String taskName, String evaluationLevel, String judgeModel,
                                                              TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                                                              Duration duration, List<Tag> tags) throws IOException {
@@ -80,11 +82,14 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
         if (StringUtil.isNotEmpty(modelId)) {
             where.eq(GenAIEvaluationRecord.MODEL_ID, modelId);
         }
+        if (valueType != null) {
+            where.eq(GenAIEvaluationRecord.VALUE_TYPE, valueType.name());
+        }
         if (minScore != null) {
-            where.gte(GenAIEvaluationRecord.SCORE_VALUE, GenAIEvaluationRecord.minScoreValuePpm(minScore));
+            where.gte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, GenAIEvaluationRecord.minScoreValuePpm(minScore));
         }
         if (maxScore != null) {
-            where.lte(GenAIEvaluationRecord.SCORE_VALUE, GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+            where.lte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
         }
         if (StringUtil.isNotEmpty(taskName)) {
             where.eq(GenAIEvaluationRecord.TASK_NAME, taskName);
@@ -115,8 +120,8 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
                 }
             }
         }
-        if (GenAIEvaluationRecord.SCORE_VALUE.equalsIgnoreCase(sortField)) {
-            where.orderBy(GenAIEvaluationRecord.SCORE_VALUE, queryOrder == Order.ASC ? "ASC" : "DESC");
+        if (GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)) {
+            where.orderBy(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, queryOrder == Order.ASC ? "ASC" : "DESC");
         } else if (queryOrder == Order.ASC) {
             where.orderByAsc();
         } else {
@@ -135,15 +140,15 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
             evaluationRecord.setProviderId(rowEntity.getTagValue(GenAIEvaluationRecord.PROVIDER_ID));
             evaluationRecord.setModelId(rowEntity.getTagValue(GenAIEvaluationRecord.MODEL_ID));
             evaluationRecord.setOperationName(rowEntity.getTagValue(GenAIEvaluationRecord.OPERATION_NAME));
-            final Number scoreValue = rowEntity.getTagValue(GenAIEvaluationRecord.SCORE_VALUE);
-            evaluationRecord.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
+            final Number numberValue = rowEntity.getTagValue(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
+            evaluationRecord.setEvaNumberValue(numberValue == null ? null : numberValue.longValue());
             evaluationRecord.setSegmentId(rowEntity.getTagValue(GenAIEvaluationRecord.SEGMENT_ID));
             evaluationRecord.setSpanId(((Number) rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_ID)).intValue());
             evaluationRecord.setSpanType(rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_TYPE));
             evaluationRecord.setTaskName(rowEntity.getTagValue(GenAIEvaluationRecord.TASK_NAME));
             evaluationRecord.setEvaluationTime(((Number) rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_TIME)).longValue());
             evaluationRecord.setValueType(rowEntity.getTagValue(GenAIEvaluationRecord.VALUE_TYPE));
-            evaluationRecord.setValue(rowEntity.getTagValue(GenAIEvaluationRecord.VALUE));
+            evaluationRecord.setEvalStringValue(rowEntity.getTagValue(GenAIEvaluationRecord.EVAL_STRING_VALUE));
             evaluationRecord.setEvaluationLevel(rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_LEVEL));
             evaluationRecord.setReason(rowEntity.getTagValue(GenAIEvaluationRecord.REASON));
             evaluationRecord.setJudgeModel(rowEntity.getTagValue(GenAIEvaluationRecord.JUDGE_MODEL));

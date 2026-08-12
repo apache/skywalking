@@ -23,6 +23,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 
@@ -33,9 +35,10 @@ public class GenAIEvaluationRecordQueryCondition {
     private String serviceId;
     private String providerId;
     private String modelId;
+    private GenAIEvaluationValueType valueType;
     private Double minScore;
     private Double maxScore;
-    private String sortField;
+    private GenAIEvaluationRecordSortBy sortBy;
     private String taskName;
     private String evaluationLevel;
     private String judgeModel;

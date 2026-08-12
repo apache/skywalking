@@ -131,8 +131,11 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
             record.setSpanType(plan.getSpanType() == null ? "" : plan.getSpanType().name());
             record.setTaskName(result.getName());
             record.setValueType(result.getValueType() == null ? "" : result.getValueType().name());
-            record.setValue(result.getValue());
-            record.setScoreValuePpm(GenAIEvaluationRecord.toScoreValuePpm(numericValue(result.getValue())));
+            if (result.getValueType() == ValueType.SCORE || result.getValueType() == ValueType.BOOLEAN) {
+                record.setEvaNumberValue(GenAIEvaluationRecord.toScoreValuePpm(numericValue(result.getValue())));
+            } else {
+                record.setEvalStringValue(result.getValue());
+            }
             record.setEvaluationLevel(levelResolver.resolve(result.getValueType(), result.getValue()));
             record.setReason(result.getReason());
             record.setJudgeModel(judgeModel);
@@ -168,6 +171,12 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
     }
 
     private static Double numericValue(final String value) {
+        if ("true".equalsIgnoreCase(value)) {
+            return 1D;
+        }
+        if ("false".equalsIgnoreCase(value)) {
+            return 0D;
+        }
         try {
             return Double.valueOf(value);
         } catch (NumberFormatException e) {

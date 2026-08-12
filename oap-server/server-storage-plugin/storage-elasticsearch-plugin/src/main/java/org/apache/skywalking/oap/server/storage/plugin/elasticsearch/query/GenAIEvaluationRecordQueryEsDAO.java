@@ -31,6 +31,8 @@ import org.apache.skywalking.library.elasticsearch.response.search.SearchRespons
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
@@ -52,13 +54,13 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         GenAIEvaluationRecord.PROVIDER_ID,
         GenAIEvaluationRecord.MODEL_ID,
         GenAIEvaluationRecord.OPERATION_NAME,
-        GenAIEvaluationRecord.SCORE_VALUE,
+        GenAIEvaluationRecord.EVAL_NUMBER_VALUE,
         GenAIEvaluationRecord.SEGMENT_ID,
         GenAIEvaluationRecord.SPAN_ID,
         GenAIEvaluationRecord.SPAN_TYPE,
         GenAIEvaluationRecord.TASK_NAME,
         GenAIEvaluationRecord.VALUE_TYPE,
-        GenAIEvaluationRecord.VALUE,
+        GenAIEvaluationRecord.EVAL_STRING_VALUE,
         GenAIEvaluationRecord.EVALUATION_LEVEL,
         GenAIEvaluationRecord.REASON,
         GenAIEvaluationRecord.JUDGE_MODEL
@@ -72,7 +74,8 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
     public GenAIEvaluationRecords queryGenAIEvaluationRecord(final String serviceId,
                                                              final String providerId,
                                                              final String modelId,
-                                                             final Double minScore, final Double maxScore, final String sortField,
+                                                             final GenAIEvaluationValueType valueType,
+                                                             final Double minScore, final Double maxScore, final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
@@ -106,8 +109,11 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         if (isNotEmpty(modelId)) {
             query.must(Query.term(GenAIEvaluationRecord.MODEL_ID, modelId));
         }
+        if (valueType != null) {
+            query.must(Query.term(GenAIEvaluationRecord.VALUE_TYPE, valueType.name()));
+        }
         if (minScore != null || maxScore != null) {
-            final var scoreRange = Query.range(GenAIEvaluationRecord.SCORE_VALUE);
+            final var scoreRange = Query.range(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
             if (minScore != null) scoreRange.gte(GenAIEvaluationRecord.minScoreValuePpm(minScore));
             if (maxScore != null) scoreRange.lte(GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
             query.must(scoreRange);
@@ -146,7 +152,7 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(
-                                               GenAIEvaluationRecord.SCORE_VALUE.equalsIgnoreCase(sortField) ? GenAIEvaluationRecord.SCORE_VALUE : GenAIEvaluationRecord.EVALUATION_TIME,
+                                               GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy) ? GenAIEvaluationRecord.EVAL_NUMBER_VALUE : GenAIEvaluationRecord.EVALUATION_TIME,
                                                Order.DES.equals(queryOrder) ? Sort.Order.DESC : Sort.Order.ASC
                                            )
                                            .size(limit)
@@ -174,14 +180,14 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         record.setProviderId((String) source.get(GenAIEvaluationRecord.PROVIDER_ID));
         record.setModelId((String) source.get(GenAIEvaluationRecord.MODEL_ID));
         record.setOperationName((String) source.get(GenAIEvaluationRecord.OPERATION_NAME));
-        final Number scoreValue = (Number) source.get(GenAIEvaluationRecord.SCORE_VALUE);
-        record.setScoreValuePpm(scoreValue == null ? null : scoreValue.longValue());
+        final Number numberValue = (Number) source.get(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
+        record.setEvaNumberValue(numberValue == null ? null : numberValue.longValue());
         record.setSegmentId((String) source.get(GenAIEvaluationRecord.SEGMENT_ID));
         record.setSpanId(((Number) source.get(GenAIEvaluationRecord.SPAN_ID)).intValue());
         record.setSpanType((String) source.get(GenAIEvaluationRecord.SPAN_TYPE));
         record.setTaskName((String) source.get(GenAIEvaluationRecord.TASK_NAME));
         record.setValueType((String) source.get(GenAIEvaluationRecord.VALUE_TYPE));
-        record.setValue((String) source.get(GenAIEvaluationRecord.VALUE));
+        record.setEvalStringValue((String) source.get(GenAIEvaluationRecord.EVAL_STRING_VALUE));
         record.setEvaluationLevel((String) source.get(GenAIEvaluationRecord.EVALUATION_LEVEL));
         record.setReason((String) source.get(GenAIEvaluationRecord.REASON));
         record.setJudgeModel((String) source.get(GenAIEvaluationRecord.JUDGE_MODEL));
