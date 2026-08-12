@@ -40,6 +40,8 @@ receivers:
 
 Keep `job_name: apisix-monitoring` unless you also update the APISIX MAL filter in OAP. If `skywalking_service` is absent or blank, the MAL rule uses `APISIX`, resulting in the default service name `APISIX::APISIX`.
 
+Do **not** use the OpenTelemetry `service.name` resource attribute to name the service. The Collector's Prometheus receiver converts the Prometheus `job` label into `service.name`, and the SkyWalking OpenTelemetry receiver maps `service.name` back to `job_name` — the very label the APISIX MAL rule filters on. Setting `service.name` therefore changes the filter key rather than the service name, and the rule stops matching, so no APISIX metrics are produced. `skywalking_service` exists precisely because `service.name` is already taken.
+
 #### Supported metrics
 
 | Monitoring Panel | Unit | Metric Name | Catalog | Description | Data Source |
@@ -72,6 +74,8 @@ For Dashboard widget semantics and display units, see the Horizon UI [APISIX Das
 
 ### Customizations
 
-The APISIX metric definitions and expressions are in [`oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml`](../../../../oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml).
+The APISIX metric definitions and expressions are in `/config/otel-rules/apisix.yaml` of your OAP installation. In the source tree the same file is [`oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml`](../../../../oap-server/server-starter/src/main/resources/otel-rules/apisix.yaml).
+
+Each metric name in the table above is the rule's `metricPrefix` (`meter_apisix`) joined to the `name` of its entry in that file — the entry named `sv_http_requests` produces `meter_apisix_sv_http_requests`.
 
 The Horizon UI bundled APISIX Dashboard is maintained in the [`apache/skywalking-horizon-ui`](https://github.com/apache/skywalking-horizon-ui) repository; the OAP backend no longer hosts the UI Dashboard JSON.
