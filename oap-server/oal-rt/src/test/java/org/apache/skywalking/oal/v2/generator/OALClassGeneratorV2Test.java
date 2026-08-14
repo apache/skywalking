@@ -72,16 +72,24 @@ public class OALClassGeneratorV2Test {
 
     @BeforeAll
     public static void initializeScopes() {
-        try {
-            DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
-            listener.notify(Service.class);
-            listener.notify(Endpoint.class);
-            listener.notify(ServiceRelation.class);
-            listener.notify(K8SService.class);
-            listener.notify(K8SServiceInstance.class);
-            listener.notify(TCPService.class);
-        } catch (RuntimeException e) {
-            // Scopes may already be registered by other tests
+        // Each registration is guarded separately. notify() throws when a scope id is already
+        // registered by another test in this JVM, and a single try around the whole block would
+        // swallow that and silently skip every scope after it — leaving the rest unregistered and
+        // failing later with "ScopeDefine name = ... not found". Which scope trips first depends
+        // on surefire's run order, so the truncation only shows up on some platforms.
+        final DefaultScopeDefine.Listener listener = new DefaultScopeDefine.Listener();
+        for (final Class<?> scope : List.of(
+            Service.class,
+            Endpoint.class,
+            ServiceRelation.class,
+            K8SService.class,
+            K8SServiceInstance.class,
+            TCPService.class)) {
+            try {
+                listener.notify(scope);
+            } catch (RuntimeException e) {
+                // Already registered by a sibling test; the remaining scopes still need registering.
+            }
         }
     }
 
