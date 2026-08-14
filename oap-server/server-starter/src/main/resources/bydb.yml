@@ -116,6 +116,52 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    # Group-scoped trace retention pipeline (sampler plugins). Only applies to this CATALOG_TRACE group.
+    # Requires each data node to run with `-trace-pipeline-native-plugin-enabled=true` and
+    # `-trace-pipeline-trusted-plugin-dir` set, with the sampler `.so` mounted in that trusted directory.
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      # Pipeline-wide events to run, comma-separated: PIPELINE_EVENT_MERGE and/or
+      # PIPELINE_EVENT_FINALIZE. An empty value falls back to MERGE on the data node for
+      # backward compatibility, so FINALIZE only ever runs when named here explicitly.
+      enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
+      # Maturity windows before a trace/segment is eligible for filtering, in seconds.
+      # Only a POSITIVE value overrides the data node default. -1 means "not set here", leaving the
+      # node's own default in force: 30s for merge, 5m for finalize
+      # (`-trace-pipeline-merge-grace-default` / `-trace-pipeline-finalize-grace-default`). 0 is not
+      # "no grace": the node treats any non-positive grace as unset, so zero can only be set on the
+      # node flag itself. A blank value is skipped and leaves the field unset, same as omitting it.
+      # Merge ships an explicit 30 minutes ON PURPOSE — it does NOT inherit the node's 30s. A trace
+      # is usually read soon after it is written, so the node default would let the sampler drop
+      # traces while someone is still looking at them. Finalize inherits (-1) because its own
+      # default is already 5m. Set -1 here to hand the decision back to the node.
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
+      finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
+      plugins:
+        - name: sw-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_SO:sw-trace-sampler.so}
+          abiVersion: 1
+          # Plugin-defined config; keys are passed verbatim (as a protobuf Struct) to the sampler constructor.
+          config:
+            # Keep any trace whose end-to-end duration (envelope of the segments' start_time+latency)
+            # reaches this many ms.
+            durationThresholdMs: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS:500}
+            # Keep any trace whose is_error tag is truthy.
+            keepErrors: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_ERRORS:true}
+            # Keep a deterministic hash(trace_id) fraction of the healthy remainder. 0 disables it,
+            # so only the sure-keep rules above retain anything.
+            healthySampleRate: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.1}
+            # Sure-keep rules matched against the flattened "tags" searchable tags ("key=value").
+            # Compact form — comma-separated, each rule one of:
+            #   key=value    keep when the tag equals this value
+            #   key=~regex   keep when the tag value matches this RE2 regex
+            #   key          keep when the tag is present at all (bare key or key=value)
+            # Commas inside (), [] or {} do not separate rules, so 5\d{2,3} is safe.
+            #   SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_TAG_RULES='db.type=PostgreSQL,mq.queue=queue-songs-ping'
+            # The explicit form is still accepted and is the only way to express "in":
+            #   '[{tagKey: http.method, in: [GET, POST]}]'
+            # Empty = no tag rules.
+            keepTagRules: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_TAG_RULES:[]}
   zipkinTrace:
     shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SI_DAYS:1}
@@ -135,6 +181,30 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    # Group-scoped trace retention pipeline for the Zipkin schema (CATALOG_TRACE).
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
+      # Merge ships an explicit 30 minutes on purpose; finalize inherits the node default (5m).
+      # See the trace group above for the full semantics.
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
+      finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
+      plugins:
+        - name: zipkin-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_SO:zipkin-trace-sampler.so}
+          abiVersion: 1
+          config:
+            durationThresholdMs: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_DURATION_THRESHOLD_MS:1000}
+            # The Zipkin schema has no is_error column, so this detects Zipkin's conventional
+            # "error" span tag inside the flattened "query" attributes. Instrumentations that
+            # signal failure only through http.status_code 5xx or otel.status_code are NOT
+            # covered by this flag — add a keepTagRules entry for those.
+            keepErrors: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_ERRORS:true}
+            healthySampleRate: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.05}
+            # Sure-keep rules matched against the flattened "query" attributes, whose entries
+            # include both bare keys and "key=value". Same compact grammar as the trace group:
+            #   SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_TAG_RULES='http.status_code=~5\d\d'
+            keepTagRules: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_TAG_RULES:[]}
   recordsLog:
     shardNum: ${SW_STORAGE_BANYANDB_LOG_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_LOG_SI_DAYS:1}

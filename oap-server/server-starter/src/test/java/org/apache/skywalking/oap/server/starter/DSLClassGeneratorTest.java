@@ -40,6 +40,7 @@ import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.parser.OALScriptParserV2;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALClassGenerator;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALClassGenerator;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.SourceDecoratorManager;
@@ -244,6 +245,12 @@ public class DSLClassGeneratorTest {
             final String relPath = baseDir.toPath().relativize(yamlFile.toPath()).toString();
             final String sourceName = relPath.substring(0, relPath.lastIndexOf('.'));
             final String yamlSource = yamlFile.getName();
+            // Resolve real YAML lines once per file: the offline generator must stamp the same
+            // coordinates production does, or the artifacts it produces are labelled differently
+            // from the ones the OAP writes at runtime.
+            final DslYamlLineIndex lineIndex = DslYamlLineIndex.index(
+                new String(java.nio.file.Files.readAllBytes(yamlFile.toPath()),
+                    java.nio.charset.StandardCharsets.UTF_8));
 
             final String expPrefix = (String) config.get("expPrefix");
             final String expSuffix = (String) config.get("expSuffix");
@@ -254,7 +261,7 @@ public class DSLClassGeneratorTest {
             if (filterText != null && !filterText.trim().isEmpty()) {
                 try {
                     generator.setClassNameHint("filter");
-                    generator.setYamlSource(yamlSource);
+                    generator.setYamlSource(yamlSource + ":" + lineIndex.getFilterLine());
                     generator.compileFilter(filterText);
                     filters++;
                 } catch (Exception e) {
@@ -290,7 +297,10 @@ public class DSLClassGeneratorTest {
 
                 try {
                     generator.setClassNameHint(ruleName);
-                    generator.setYamlSource(yamlSource + ":" + i);
+                    // The rule's REAL line, not its index in the list. They agree only by
+                    // accident, and index 0 would render as the unresolved marker.
+                    generator.setYamlSource(
+                        yamlSource + ":" + lineIndex.rule(i).getEntryLine());
                     generator.compile(metricName, fullExp);
                     expressions++;
                 } catch (Exception e) {

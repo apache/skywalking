@@ -230,6 +230,8 @@ catalog:
             path: "/en/banyandb/ttl"
           - name: "Data Lifecycle Stages(Hot/Warm/Cold)"
             path: "/en/banyandb/stages"
+          - name: "Trace Tail Sampling"
+            path: "/en/banyandb/tail-sampling"
           - name: "BanyanDB self observability dashboard"
             path: "/en/banyandb/dashboards-banyandb"
       - name: "Tracing"

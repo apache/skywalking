@@ -93,10 +93,17 @@ public class XxxModuleProvider extends ModuleProvider {
 - No fully-qualified class names inline in code — always add an `import` statement and
   use the short name. Acceptable exceptions: (a) two classes with the same simple name
   would collide if both imported, (b) the class appears exactly once in a Javadoc
-  `{@link}` where the short name would be ambiguous to the reader. Field declarations,
+  `{@link}` where the short name would be ambiguous to the reader, (c) the name is inside
+  GENERATED source — a codegen string literal or a `.ftl` template. Field declarations,
   method signatures, local variables, and generic type arguments should always use the
   imported short name — `private RemoteClientManager rcm;`, not `private
   org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager rcm;`.
+  - Exception (c) is a Javassist constraint, not a preference: its compiler has no
+    `import` statement and resolves simple names only against `java.lang`
+    (`ClassPool.importedPackages`; widening it needs `importPackage`, which is pool-wide
+    mutable state and is never called here). So generated source must fully qualify
+    everything, `java.util.Map` included. Shortening an FQCN in a codegen string or a
+    template compiles as Java and then fails at runtime — audit real Java only.
 - No one-line delegate methods. A wrapper whose only body is a single forwarding call
   to another class (`return Other.foo(a, b);`) adds a hop without value. Inline the
   call at the use site, or call the underlying object directly (including via method
@@ -268,18 +275,34 @@ Always use `--recurse-submodules` when cloning or update submodules manually.
   items). The changelog becomes the GitHub release body, which GitHub renders as GFM where a single
   newline continuing a bullet becomes a `<br>`, so prose-wrapped bullets show jagged mid-sentence breaks on
   the release page (verified on v10.4.0; the docs website reflows and hides the problem). See
-  `guides/How-to-release.md`.
+  `guides/How-to-release.md`. Append a new entry at the **end** of its section, never at the top —
+  the section reads in the order the changes landed.
 - `swip/` - SkyWalking Improvement Proposals
 
 ### SWIP vs. operator docs
 
-A SWIP (`docs/en/swip/SWIP-N.md`) is the **stable design doc** for a feature. When the
-implementation of a SWIP lands, sync the SWIP once to what was actually built — every
+The two kinds of document answer different questions and have different lifetimes:
+
+- **`docs/en/swip/SWIP-N.md` records the design discussion up to first acceptance.** It is a
+  historical record of what was proposed and agreed, not a description of current behaviour.
+- **The operator / end-user docs describe how the system behaves today.** They are the only
+  place a reader should be sent for current truth.
+
+When the implementation of a SWIP lands, sync the SWIP once to what was actually built — every
 proposed change written in implemented/past tense, with **no `TODO` / "future work" /
 "open dependency" / "lands later" / "empty until X" language for anything in the SWIP's
-scope**. After that sync the SWIP is effectively **frozen**: further metrics, dashboards,
-and incremental enhancements go into the **operator doc**, not the SWIP. Only genuinely
-small, optional follow-ups may stay under a SWIP's "future work" — never a big change.
+scope**. **Once that SWIP ships as part of a release, it is frozen and must not be edited again.**
+
+Frozen means frozen even when the SWIP's text becomes factually stale. A later refactor that
+renames a package, moves a class, deletes a constant or changes a class-naming scheme **does not**
+license updating the SWIP to match — not to keep code references accurate, not for internal
+consistency, and not because the same PR already touched it. Ask instead: *would an end user read
+this to learn how the system works today?* If yes it is an operator doc and must be updated; if it
+is a SWIP the answer is no, and the fix belongs in the operator doc plus `changes.md`.
+
+After that first sync, further metrics, dashboards, and incremental enhancements go into the
+**operator doc**, not the SWIP. Only genuinely small, optional follow-ups may stay under a SWIP's
+"future work" — never a big change.
 
 - BanyanDB self-observability: the SWIP is `docs/en/swip/SWIP-15.md`; the living operator
   catalog is `docs/en/banyandb/dashboards-banyandb.md` (menu: "BanyanDB self observability

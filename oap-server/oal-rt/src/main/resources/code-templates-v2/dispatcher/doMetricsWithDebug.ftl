@@ -15,7 +15,7 @@ if (this.debug_${tableName}.isGateOn()) {
     // sourceText is the verbatim "from(SourceName.attr)" / "from(SourceName.*)"
     // slice — what the operator wrote in .oal — so the UI's source sample
     // matches the original DSL byte-for-byte.
-    org.apache.skywalking.oap.server.core.dsldebug.OALDebug.captureSource(
+    org.apache.skywalking.oap.server.core.dsl.debug.OALDebug.captureSource(
         this.debug_${tableName}, "${from.fromText?j_string}", ${sourceLine}, source);
 }
 
@@ -29,7 +29,7 @@ if (this.debug_${tableName}.isGateOn()) {
                 // see both "this filter let this source through" (continueOn=true) and
                 // "this filter dropped it" (continueOn=false). sourceText is the verbatim
                 // ANTLR Interval slice (e.g. ".filter(detectPoint == DetectPoint.SERVER)").
-                org.apache.skywalking.oap.server.core.dsldebug.OALDebug.captureFilter(
+                org.apache.skywalking.oap.server.core.dsl.debug.OALDebug.captureFilter(
                     this.debug_${tableName}, "${filterExpression.sourceText?j_string}", ${sourceLine},
                     source, _filterMatch_${filterExpression_index});
             }
@@ -56,7 +56,7 @@ metrics.setTimeBucket(source.getTimeBucket());
 if (this.debug_${tableName}.isGateOn()) {
     // build: metric arg is the OAL rule's user-facing name (snake_case),
     // matching what operators read in their .oal files.
-    org.apache.skywalking.oap.server.core.dsldebug.OALDebug.captureBuild(
+    org.apache.skywalking.oap.server.core.dsl.debug.OALDebug.captureBuild(
         this.debug_${tableName}, "${tableName}", ${sourceLine}, metrics);
 }
 
@@ -73,9 +73,9 @@ if (this.debug_${tableName}.isGateOn()) {
     // aggregation: sourceText is the verbatim OAL aggregation clause (e.g. "cpm()" /
     // "percentile2(10)"). emit: sourceText is the OAL rule's user-facing name
     // (snake_case) so the UI groups records by what operators wrote in their .oal.
-    org.apache.skywalking.oap.server.core.dsldebug.OALDebug.captureAggregation(
+    org.apache.skywalking.oap.server.core.dsl.debug.OALDebug.captureAggregation(
         this.debug_${tableName}, "${tableName}", "${aggregationSourceText?j_string}", ${sourceLine}, metrics);
-    org.apache.skywalking.oap.server.core.dsldebug.OALDebug.captureEmit(
+    org.apache.skywalking.oap.server.core.dsl.debug.OALDebug.captureEmit(
         this.debug_${tableName}, "${tableName}", ${sourceLine}, metrics);
 }
 

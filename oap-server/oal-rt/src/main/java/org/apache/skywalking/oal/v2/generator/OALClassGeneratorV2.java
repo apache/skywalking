@@ -20,9 +20,7 @@ package org.apache.skywalking.oal.v2.generator;
 
 import freemarker.template.Configuration;
 import freemarker.template.Version;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.CtField;
+import javassist.CtMethod;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import javassist.NotFoundException;
@@ -48,11 +47,14 @@ import javassist.bytecode.annotation.IntegerMemberValue;
 import javassist.bytecode.annotation.StringMemberValue;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.skywalking.oal.v2.model.SourceLocation;
 import org.apache.skywalking.oap.server.core.WorkPath;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
-import org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
+import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.oal.rt.OALCompileException;
 import org.apache.skywalking.oap.server.core.oal.rt.OALDefine;
 import org.apache.skywalking.oap.server.core.source.oal.rt.dispatcher.DispatcherClassPackageHolder;
@@ -63,6 +65,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
  * V2 OAL class generator.
@@ -76,9 +79,9 @@ public class OALClassGeneratorV2 {
     private static final String WITH_METADATA_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata";
     private static final String DISPATCHER_INTERFACE = "org.apache.skywalking.oap.server.core.analysis.SourceDispatcher";
     private static final String DEBUG_HOLDER_PROVIDER_INTERFACE =
-        "org.apache.skywalking.oap.server.core.dsldebug.DebugHolderProvider";
+        "org.apache.skywalking.oap.server.core.dsl.debug.DebugHolderProvider";
     private static final String GATE_HOLDER_CLASS =
-        "org.apache.skywalking.oap.server.core.dsldebug.GateHolder";
+        "org.apache.skywalking.oap.server.core.dsl.debug.GateHolder";
     private static final String METRICS_STREAM_PROCESSOR = "org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor";
     private static final String[] METRICS_CLASS_METHODS = {
         "id",
@@ -272,14 +275,15 @@ public class OALClassGeneratorV2 {
 
         // Generate methods using V2 templates
         final StringBuilder sourceMethods = new StringBuilder();
+        final List<CtMethod> generatedMethods = new ArrayList<>();
         for (String method : METRICS_CLASS_METHODS) {
             StringWriter methodEntity = new StringWriter();
             try {
                 configuration.getTemplate("metrics/" + method + ".ftl").process(model, methodEntity);
                 final String body = methodEntity.toString();
-                javassist.CtMethod m = CtNewMethod.make(body, metricsClass);
+                CtMethod m = CtNewMethod.make(body, metricsClass);
                 metricsClass.addMethod(m);
-                addLineNumberTable(m, 1);
+                generatedMethods.add(m);
                 sourceMethods.append("    ").append(body.replace("\n", "\n    ")).append("\n\n");
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
@@ -300,7 +304,19 @@ public class OALClassGeneratorV2 {
         annotationsAttribute.addAnnotation(streamAnnotation);
         metricsClassClassFile.addAttribute(annotationsAttribute);
 
-        setSourceFile(metricsClass, formatSourceFileName(model, "Metrics"));
+        // Leads with the rule, then the generated file name: the .java exists only under
+        // SW_DYNAMIC_CLASS_ENGINE_DEBUG, so naming it alone would address nothing in production.
+        final DslSourceRef metricsRef = refOf(model.getMetricDefinition().getLocation(), false);
+        DslGeneratedFileWriter.setSourceFile(metricsClass, metricsRef.sourceFileOf(metricsClass.getSimpleName()));
+
+        // Assemble the generated source file text BEFORE toClass(), so each method can be pointed at its own
+        // signature line inside it. One entry per method: OAL bodies come from templates and are
+        // largely void invocations, so there is no sound per-statement boundary to detect.
+        final String metricsSource =
+            wrapMetricsClassSource(metricsClass, model, sourceMethods.toString());
+        for (final CtMethod m : generatedMethods) {
+            DslGeneratedFileWriter.attachSignatureLine(m, DslGeneratedFileWriter.lineOfMethod(metricsSource, m.getName()));
+        }
 
         Class targetClass;
         try {
@@ -312,8 +328,7 @@ public class OALClassGeneratorV2 {
 
         log.debug("Generated V2 metrics class: " + metricsClass.getName());
         writeGeneratedFile(metricsClass, "metrics");
-        writeGeneratedSourceFile(metricsClass, "metrics",
-            wrapMetricsClassSource(metricsClass, model, sourceMethods.toString()));
+        writeGeneratedSourceFile(metricsClass, "metrics", metricsSource);
 
         return targetClass;
     }
@@ -366,16 +381,22 @@ public class OALClassGeneratorV2 {
                 configuration
                     .getTemplate(storageBuilderFactory.builderTemplate().getTemplatePath() + "/" + method + ".ftl")
                     .process(model, methodEntity);
-                javassist.CtMethod m = CtNewMethod.make(methodEntity.toString(), metricsBuilderClass);
+                CtMethod m = CtNewMethod.make(methodEntity.toString(), metricsBuilderClass);
                 metricsBuilderClass.addMethod(m);
-                addLineNumberTable(m, 1);
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
                 throw new OALCompileException(e.getMessage(), e);
             }
         }
 
-        setSourceFile(metricsBuilderClass, formatSourceFileName(model, "MetricsBuilder"));
+        // The builder writes no generated source file in ANY mode (writeGeneratedFile below has no
+        // writeGeneratedSourceFile beside it), so its own name would never resolve. The rule
+        // provenance is the only part of this a reader can act on, hence no LineNumberTable
+        // either -- see OALSourceAttributionTest. Add the plain file name only together with a
+        // builder source file that makes it resolve.
+        DslGeneratedFileWriter.setSourceFile(metricsBuilderClass,
+            refOf(model.getMetricDefinition().getLocation(), false)
+                .sourceFileOf(metricsBuilderClass.getSimpleName()));
 
         try {
             metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
@@ -432,7 +453,7 @@ public class OALClassGeneratorV2 {
         // absent, and doMetrics.ftl skips every probe call site — bytecode
         // matches a build without SWIP-13.
         if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
-            final String holderFqcn = "org.apache.skywalking.oap.server.core.dsldebug.GateHolder";
+            final String holderFqcn = "org.apache.skywalking.oap.server.core.dsl.debug.GateHolder";
             try {
                 dispatcherClass.addInterface(classPool.get(DEBUG_HOLDER_PROVIDER_INTERFACE));
 
@@ -445,16 +466,16 @@ public class OALClassGeneratorV2 {
                 // Java identifier, so we splice it straight into the field name —
                 // `debug_service_relation_server_cpm`.
                 for (CodeGenModel metric : dispatcherContext.getMetrics()) {
-                    final String perMetricContent = escapeJavaLiteral(metric.getMetricSourceText());
+                    final String perMetricContent = DslJavaSourceText.toLiteral(metric.getMetricSourceText());
                     // Use the GateHolder.withMetadata factory so each holder is
                     // stamped with {ruleName, sourceLine} at instance-init time
                     // — the dsl-debugging records carry a structured per-rule
                     // envelope alongside the verbatim dsl source.
-                    dispatcherClass.addField(javassist.CtField.make(
+                    dispatcherClass.addField(CtField.make(
                         "public final " + holderFqcn + " debug_" + metric.getTableName()
                             + " = " + holderFqcn + ".withMetadata(\""
                             + perMetricContent + "\", \""
-                            + escapeJavaLiteral(metric.getTableName()) + "\", "
+                            + DslJavaSourceText.toLiteral(metric.getTableName()) + "\", "
                             + metric.getSourceLine() + ");",
                         dispatcherClass));
                 }
@@ -467,7 +488,7 @@ public class OALClassGeneratorV2 {
                           .append(" debugHolder(String metricName) {\n");
                 for (CodeGenModel metric : dispatcherContext.getMetrics()) {
                     lookupBody.append("  if (\"")
-                              .append(escapeJavaLiteral(metric.getTableName()))
+                              .append(DslJavaSourceText.toLiteral(metric.getTableName()))
                               .append("\".equals(metricName)) return this.debug_")
                               .append(metric.getTableName()).append(";\n");
                 }
@@ -484,7 +505,7 @@ public class OALClassGeneratorV2 {
                     }
                     // Surface the snake_case OAL rule name — that's what operators
                     // see in their .oal files and what they pass on the install API.
-                    namesBody.append("\"").append(escapeJavaLiteral(metric.getTableName())).append("\"");
+                    namesBody.append("\"").append(DslJavaSourceText.toLiteral(metric.getTableName())).append("\"");
                     first = false;
                 }
                 namesBody.append("};\n}\n");
@@ -510,14 +531,15 @@ public class OALClassGeneratorV2 {
             ? "dispatcher/doMetricsWithDebug.ftl"
             : "dispatcher/doMetrics.ftl";
         final StringBuilder dispatcherSourceMethods = new StringBuilder();
+        final List<CtMethod> dispatcherMethods = new ArrayList<>();
         for (CodeGenModel metric : dispatcherContext.getMetrics()) {
             StringWriter methodEntity = new StringWriter();
             try {
                 configuration.getTemplate(doMetricsTemplate).process(metric, methodEntity);
                 final String body = methodEntity.toString();
-                javassist.CtMethod m = CtNewMethod.make(body, dispatcherClass);
+                CtMethod m = CtNewMethod.make(body, dispatcherClass);
                 dispatcherClass.addMethod(m);
-                addLineNumberTable(m, 1);
+                dispatcherMethods.add(m);
                 dispatcherSourceMethods.append("    ").append(body.replace("\n", "\n    ")).append("\n\n");
             } catch (Exception e) {
                 log.error("Can't generate method do" + metric.getMetricsName() + " for " + className + ".", e);
@@ -531,26 +553,31 @@ public class OALClassGeneratorV2 {
             StringWriter methodEntity = new StringWriter();
             configuration.getTemplate("dispatcher/dispatch.ftl").process(dispatcherContext, methodEntity);
             final String body = methodEntity.toString();
-            javassist.CtMethod m = CtNewMethod.make(body, dispatcherClass);
+            CtMethod m = CtNewMethod.make(body, dispatcherClass);
             dispatcherClass.addMethod(m);
-            addLineNumberTable(m, 1);
+            dispatcherMethods.add(m);
             dispatcherSourceMethods.append("    ").append(body.replace("\n", "\n    ")).append("\n\n");
         } catch (Exception e) {
             log.error("Can't generate method dispatch for " + className + ".", e);
             throw new OALCompileException(e.getMessage(), e);
         }
 
-        // Use first metric's location for dispatcher SourceFile
-        if (!dispatcherContext.getMetrics().isEmpty()) {
-            final CodeGenModel first = dispatcherContext.getMetrics().get(0);
-            final org.apache.skywalking.oal.v2.model.SourceLocation loc =
-                first.getMetricDefinition().getLocation();
-            final String dispatcherFile = scopeName + "Dispatcher.java";
-            if (loc != null && loc != org.apache.skywalking.oal.v2.model.SourceLocation.UNKNOWN) {
-                setSourceFile(dispatcherClass, "(" + loc.getFileName() + ")" + dispatcherFile);
-            } else {
-                setSourceFile(dispatcherClass, dispatcherFile);
-            }
+        // A dispatcher combines every metric of one scope into one class, so no single rule LINE
+        // is true for the CLASS -- it names the .oal file without one. Each do<Metric> method does
+        // map to exactly one rule, and its entry addresses the generated .java, so per-method
+        // attribution is both possible and correct. The per-metric .oal line is carried separately,
+        // by the GateHolder metadata the debug path reads.
+        DslGeneratedFileWriter.setSourceFile(dispatcherClass,
+            refOf(dispatcherContext.getMetrics().isEmpty() ? null
+                    : dispatcherContext.getMetrics().get(0).getMetricDefinition().getLocation(),
+                true).sourceFileOf(dispatcherClass.getSimpleName()));
+
+        // Assemble before toClass(), so each do<Metric> can be pointed at its own signature line.
+        final String dispatcherSource = wrapDispatcherClassSource(
+            dispatcherClass, dispatcherContext, dispatcherSourceMethods.toString());
+        for (final CtMethod m : dispatcherMethods) {
+            DslGeneratedFileWriter.attachSignatureLine(m,
+                DslGeneratedFileWriter.lineOfMethod(dispatcherSource, m.getName()));
         }
 
         Class targetClass;
@@ -562,8 +589,7 @@ public class OALClassGeneratorV2 {
         }
 
         writeGeneratedFile(dispatcherClass, "dispatcher");
-        writeGeneratedSourceFile(dispatcherClass, "dispatcher",
-            wrapDispatcherClassSource(dispatcherClass, dispatcherContext, dispatcherSourceMethods.toString()));
+        writeGeneratedSourceFile(dispatcherClass, "dispatcher", dispatcherSource);
         return targetClass;
     }
 
@@ -581,11 +607,11 @@ public class OALClassGeneratorV2 {
           .append(" implements org.apache.skywalking.oap.server.core.analysis.SourceDispatcher<")
           .append(ctx.getSourcePackage()).append(ctx.getSourceName()).append("> {\n\n");
         if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
-            // The .java sidecar must compile cleanly for IDE source-attach. Final
+            // The .java generated source file must compile cleanly for IDE source-attach. Final
             // fields without initializers and stub method bodies would both
             // reject — emit `null` initializers + return-null bodies. The actual
             // bytecode this stands in for is produced by Javassist with full
-            // initializers in <clinit> and full method bodies; the sidecar only
+            // initializers in <clinit> and full method bodies; the generated source file only
             // needs to round-trip through javac so source viewers can read it.
             for (CodeGenModel metric : ctx.getMetrics()) {
                 sb.append("    public final ").append(GATE_HOLDER_CLASS).append(' ')
@@ -632,145 +658,40 @@ public class OALClassGeneratorV2 {
     }
 
     /**
-     * Builds the SourceFile name for a generated metrics/builder class.
-     * Format: {@code (core.oal:20)ServiceRespTime.java} when location is known,
-     * or {@code ServiceRespTime.java} as fallback.
-     */
-    private String formatSourceFileName(final CodeGenModel model, final String classSuffix) {
-        final String classFile = model.getMetricsName() + classSuffix + ".java";
-        final org.apache.skywalking.oal.v2.model.SourceLocation loc =
-            model.getMetricDefinition().getLocation();
-        if (loc != null && loc != org.apache.skywalking.oal.v2.model.SourceLocation.UNKNOWN) {
-            return "(" + loc.getFileName() + ":" + loc.getLine() + ")" + classFile;
-        }
-        return classFile;
-    }
-
-    /**
      * Sets the {@code SourceFile} attribute of the class to the given name.
      */
-    private static void setSourceFile(final CtClass ctClass, final String name) {
-        try {
-            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
-            final javassist.bytecode.AttributeInfo sf = cf.getAttribute("SourceFile");
-            if (sf != null) {
-                final javassist.bytecode.ConstPool cp = cf.getConstPool();
-                final int idx = cp.addUtf8Info(name);
-                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
-            }
-        } catch (Exception e) {
-            // best-effort
-        }
-    }
+
 
     /**
-     * Adds a {@code LineNumberTable} attribute by scanning bytecode for
-     * store instructions to local variable slots &ge; {@code firstResultSlot}.
+     * @param ctClass  the generated class
+     * @param loc      originating OAL location
+     * @param lineless true to name the file without a line, for classes shared by several rules
+     * @return the attribute value
      */
     /**
-     * Escape a string for embedding inside a Java source-string literal — same shape as
-     * the helpers in MAL / LAL codegen but kept local so this generator stays
-     * self-contained.
+     * Adapts an OAL {@link SourceLocation} to the shared
+     * source-coordinate model used by every DSL.
+     *
+     * @param loc      the rule's location, may be null or UNKNOWN
+     * @param lineless true for a class shared by several rules, where no single line is true
+     * @return the ref
      */
-    private static String escapeJavaLiteral(final String s) {
-        if (s == null) {
-            return "";
+    private static DslSourceRef refOf(final SourceLocation loc,
+                                      final boolean lineless) {
+        if (loc == null || loc == SourceLocation.UNKNOWN) {
+            return DslSourceRef.ofRule(null, 0);
         }
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\t", "\\t");
+        return DslSourceRef.ofRule(loc.getFileName(), lineless ? 0 : loc.getLine());
     }
 
-    private void addLineNumberTable(final javassist.CtMethod method,
-                                    final int firstResultSlot) {
-        try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
-            if (code == null) {
-                return;
-            }
-
-            final ArrayList<int[]> entries = new ArrayList<>();
-            int line = 1;
-            boolean nextIsNewLine = true;
-
-            final javassist.bytecode.CodeIterator ci = code.iterator();
-            while (ci.hasNext()) {
-                final int pc = ci.next();
-                if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
-                    nextIsNewLine = false;
-                }
-                final int op = ci.byteAt(pc) & 0xFF;
-                int slot = -1;
-                if (op >= 59 && op <= 78) {
-                    slot = (op - 59) % 4;
-                } else if (op >= 54 && op <= 58) {
-                    slot = ci.byteAt(pc + 1) & 0xFF;
-                }
-                if (slot >= firstResultSlot) {
-                    nextIsNewLine = true;
-                }
-            }
-
-            if (entries.isEmpty()) {
-                return;
-            }
-
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
-            final byte[] info = new byte[2 + entries.size() * 4];
-            info[0] = (byte) (entries.size() >> 8);
-            info[1] = (byte) entries.size();
-            for (int i = 0; i < entries.size(); i++) {
-                final int off = 2 + i * 4;
-                info[off] = (byte) (entries.get(i)[0] >> 8);
-                info[off + 1] = (byte) entries.get(i)[0];
-                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
-                info[off + 3] = (byte) entries.get(i)[1];
-            }
-            code.getAttributes().add(
-                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
-        } catch (Exception e) {
-            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
+    private void writeGeneratedFile(final CtClass ctClass, final String type) {
+        if (!openEngineDebug) {
+            return;
         }
-    }
-
-    private void writeGeneratedFile(CtClass ctClass, String type) throws OALCompileException {
-        if (openEngineDebug) {
-            String className = ctClass.getSimpleName();
-            DataOutputStream printWriter = null;
-            try {
-                File folder = new File(getGeneratedFilePath() + File.separator + type);
-                if (!folder.exists()) {
-                    folder.mkdirs();
-                }
-                File file = new File(folder, className + ".class");
-                if (file.exists()) {
-                    file.delete();
-                }
-                file.createNewFile();
-
-                printWriter = new DataOutputStream(new FileOutputStream(file));
-                ctClass.toBytecode(printWriter);
-                printWriter.flush();
-            } catch (IOException e) {
-                log.warn("Can't create " + className + ".txt, ignore.", e);
-                return;
-            } catch (CannotCompileException e) {
-                log.warn("Can't compile " + className + ".class(should not happen), ignore.", e);
-                return;
-            } finally {
-                if (printWriter != null) {
-                    try {
-                        printWriter.close();
-                    } catch (IOException e) {
-                        // Ignore
-                    }
-                }
-            }
-        }
+        // Same operation as every other DSL: make the directory, write <SimpleName>.class. OAL
+        // writes into a per-type subdirectory, which is a different PATH, not a different write.
+        DslGeneratedFileWriter.writeClassFile(
+            new File(getGeneratedFilePath() + File.separator + type), ctClass);
     }
 
     /**
@@ -783,28 +704,14 @@ public class OALClassGeneratorV2 {
      * own buffer during method-body generation.
      */
     private void writeGeneratedSourceFile(final CtClass ctClass, final String type, final String javaSource) {
-        if (!openEngineDebug || javaSource == null) {
+        if (!openEngineDebug) {
             return;
         }
-        try {
-            final File folder = new File(getGeneratedFilePath() + File.separator + type);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            final File file = new File(folder, ctClass.getSimpleName() + ".java");
-            try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-                w.write("// Synthetic source — Javassist compile input for ");
-                w.write(ctClass.getSimpleName());
-                w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
-                w.write("// source-attach to render the bytecode without FernFlower.\n\n");
-                w.write(javaSource);
-                if (!javaSource.endsWith("\n")) {
-                    w.write("\n");
-                }
-            }
-        } catch (IOException e) {
-            log.warn("Can't write source file for " + ctClass.getSimpleName() + ", ignore.", e);
-        }
+        // Shared writer, not a local copy: DslGeneratedFileWriter.lineOfMethod counts from its preamble, so
+        // a second implementation here would silently shift every OAL line number if it drifted.
+        DslGeneratedFileWriter.writeSourceFile(
+            new File(getGeneratedFilePath() + File.separator + type),
+            ctClass.getSimpleName(), javaSource);
     }
 
     public void setStorageBuilderFactory(StorageBuilderFactory storageBuilderFactory) {
@@ -825,7 +732,6 @@ public class OALClassGeneratorV2 {
     public void setOpenEngineDebug(boolean debug) {
         this.openEngineDebug = debug;
     }
-
 
     /**
      * V2 dispatcher context for grouping metrics by source.

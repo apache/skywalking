@@ -17,17 +17,22 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
-import java.io.DataOutputStream;
+import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
+import org.apache.skywalking.oap.server.core.dsl.DslClassNaming;
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.bytecode.AttributeInfo;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.MethodInfo;
 import lombok.extern.slf4j.Slf4j;
+import javassist.bytecode.CodeIterator;
 
 /**
  * Javassist bytecode utilities for MAL-generated classes.
@@ -49,15 +54,13 @@ final class MALBytecodeHelper {
 
     private static final AtomicInteger CLASS_COUNTER = new AtomicInteger(0);
 
-    private static final Set<String> USED_CLASS_NAMES =
-        Collections.synchronizedSet(new HashSet<>());
-
     private File classOutputDir;
     private String classNameHint;
-    private String yamlSource;
+    /** Rule anchor, parsed once on the way in so nothing downstream re-splits it. */
+    private DslSourceRef ruleAnchor = DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED);
     /**
      * When true, each apply gets its own per-file classloader, so generated class names are
-     * scoped to that loader and don't need the process-wide {@link #USED_CLASS_NAMES} dedup.
+     * scoped to that loader and don't need the process-wide dedup in {@link DslClassNaming}.
      * Set by {@link MALClassGenerator} when its {@code targetClassLoader} is non-null — the
      * runtime-rule hot-update path. Legacy startup (shared OAP app loader) keeps dedup on.
      */
@@ -75,8 +78,19 @@ final class MALBytecodeHelper {
         return classNameHint;
     }
 
+    void setSourceRef(final DslSourceRef ref) {
+        this.ruleAnchor = ref == null ? DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED) : ref;
+    }
+
+    /**
+     * @param yamlSource the fused {@code "vm.yaml:38"} form, for callers that still hold a string
+     * @deprecated pass a {@link DslSourceRef} via {@link #setSourceRef}; the string form exists
+     *     only for tests and the offline generator, and parsing it is a self-imposed boundary
+     *     between in-process producers and consumers that both depend on server-core.
+     */
+    @Deprecated
     void setYamlSource(final String yamlSource) {
-        this.yamlSource = yamlSource;
+        this.ruleAnchor = DslSourceRef.parse(yamlSource);
     }
 
     void setPerFileClassLoader(final boolean perFileClassLoader) {
@@ -94,106 +108,33 @@ final class MALBytecodeHelper {
      */
     String makeClassName(final String defaultPrefix) {
         if (classNameHint != null) {
-            return dedupClassName(PACKAGE_PREFIX + buildHintedName());
+            // The runtime-rule path gives each apply its own classloader, so identical names are
+            // already isolated there and a process-wide dedup set would only grow.
+            return DslClassNaming.allocate(
+                PACKAGE_PREFIX + DslClassNaming.stem(ruleAnchor, classNameHint),
+                !perFileClassLoader);
         }
         return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
-    }
-
-    private String buildHintedName() {
-        final String hint = MALCodegenHelper.sanitizeName(classNameHint);
-        if (yamlSource == null) {
-            return hint;
-        }
-        String yamlBase = yamlSource;
-        String lineNo = null;
-        final int colonIdx = yamlSource.lastIndexOf(':');
-        if (colonIdx > 0) {
-            yamlBase = yamlSource.substring(0, colonIdx);
-            lineNo = yamlSource.substring(colonIdx + 1);
-        }
-        final int dotIdx = yamlBase.lastIndexOf('.');
-        if (dotIdx > 0) {
-            yamlBase = yamlBase.substring(0, dotIdx);
-        }
-        final StringBuilder sb = new StringBuilder();
-        sb.append(MALCodegenHelper.sanitizeName(yamlBase));
-        if (lineNo != null) {
-            sb.append("_L").append(lineNo);
-        }
-        sb.append('_').append(hint);
-        return sb.toString();
-    }
-
-    private String dedupClassName(final String base) {
-        // Runtime-rule hot-update gives every apply its own RuleClassLoader — same class name
-        // across applies lands in different loader namespaces. Skip the process-wide dedup set
-        // so it doesn't grow without bound across thousands of hot-updates. Legacy startup
-        // path (shared app loader) still needs dedup.
-        if (perFileClassLoader) {
-            return base;
-        }
-        if (USED_CLASS_NAMES.add(base)) {
-            return base;
-        }
-        for (int i = 2; ; i++) {
-            final String candidate = base + "_" + i;
-            if (USED_CLASS_NAMES.add(candidate)) {
-                return candidate;
-            }
-        }
     }
 
     // ==================== Debug output ====================
 
     /**
-     * Builds the SourceFile name for a generated class.
-     * Example: {@code "(vm.yaml:25)cpu_total.java"}
+     * Builds the {@code SourceFile} name for a generated class.
+     *
+     * <p>The value leads with the RULE — {@code (otel-rules/vm.yaml:38)vm_L38_cpu.java} — because
+     * the generated {@code .java} exists only under {@code SW_DYNAMIC_CLASS_ENGINE_DEBUG}, so in
+     * production there is no file on disk for a bare name to address.
      */
-    String formatSourceFileName(final String metricName) {
-        final String classFile = metricName + ".java";
-        if (yamlSource != null) {
-            return "(" + yamlSource + ")" + classFile;
-        }
-        return classFile;
-    }
-
-    /**
-     * Sets the {@code SourceFile} attribute so stack traces show the metric name.
-     */
-    static void setSourceFile(final CtClass ctClass, final String name) {
-        try {
-            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
-            final javassist.bytecode.AttributeInfo sf =
-                cf.getAttribute("SourceFile");
-            if (sf != null) {
-                final javassist.bytecode.ConstPool cp = cf.getConstPool();
-                final int idx = cp.addUtf8Info(name);
-                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
-            }
-        } catch (Exception e) {
-            // best-effort
-        }
+    String sourceFileNameOf(final CtClass ctClass) {
+        return ruleAnchor.sourceFileOf(ctClass.getSimpleName());
     }
 
     /**
      * Writes a {@code .class} file for debugging when {@code classOutputDir} is set.
      */
     void writeClassFile(final CtClass ctClass) {
-        if (classOutputDir == null) {
-            return;
-        }
-        if (!classOutputDir.exists()) {
-            classOutputDir.mkdirs();
-        }
-        final File file = new File(
-            classOutputDir, ctClass.getSimpleName() + ".class");
-        try (DataOutputStream out =
-                 new DataOutputStream(new FileOutputStream(file))) {
-            ctClass.toBytecode(out);
-        } catch (Exception e) {
-            log.warn("Failed to write class file {}: {}",
-                     file, e.getMessage(), e);
-        }
+        DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
     }
 
     /**
@@ -207,53 +148,58 @@ final class MALBytecodeHelper {
      * strings concatenated with the public class envelope).
      */
     void writeSourceFile(final CtClass ctClass, final String javaSource) {
-        if (classOutputDir == null || javaSource == null) {
-            return;
-        }
-        if (!classOutputDir.exists()) {
-            classOutputDir.mkdirs();
-        }
-        final File file = new File(
-            classOutputDir, ctClass.getSimpleName() + ".java");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-            w.write("// Synthetic source — Javassist compile input for ");
-            w.write(ctClass.getSimpleName());
-            w.write("\n// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n");
-            w.write("// source-attach to render the bytecode without FernFlower.\n\n");
-            w.write(javaSource);
-            if (!javaSource.endsWith("\n")) {
-                w.write("\n");
-            }
-        } catch (Exception e) {
-            log.warn("Failed to write source file {}: {}", file, e.getMessage(), e);
-        }
+        DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), javaSource);
     }
 
     // ==================== Bytecode attributes ====================
 
     /**
-     * Adds a {@code LineNumberTable} attribute to the method.
-     * Scans bytecode for store instructions to local variable slots
-     * >= {@code firstResultSlot}, assigning sequential line numbers.
+     * Adds a {@code LineNumberTable} mapping each bytecode boundary to its line in the
+     * {@code .java} source written for the generated class.
+     *
+     * <p>Boundaries are the first instruction plus the instruction after every store to a local
+     * slot {@code >= firstResultSlot}, which for the variable-per-expression codegen is one per
+     * emitted statement. {@code boundaryLines} must list the corresponding method-relative source
+     * lines in the same order — {@link MalGeneratedSourceLines} derives them from the same
+     * generated text, so the two agree by construction.
+     *
+     * <p>This previously emitted {@code 1,2,3…} — statement ordinals that matched neither the generated
+     * class source nor the rule YAML, so no IDE could resolve a frame.
+     *
+     * @param method          the generated method
+     * @param firstResultSlot lowest local slot that holds a statement result
+     * @param statementLines  1-based lines WITHIN THE GENERATED METHOD, in boundary order
+     * @param methodSignatureLineInClass line the method signature occupies in the generated
+     *                        class source, used to convert method-relative to class-relative
      */
-    void addLineNumberTable(final javassist.CtMethod method,
-                             final int firstResultSlot) {
+    void addLineNumberTable(final CtMethod method,
+                             final int firstResultSlot,
+                             final List<Integer> statementLines,
+                             final int methodSignatureLineInClass) {
         try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code =
+            final MethodInfo mi = method.getMethodInfo();
+            final CodeAttribute code =
                 mi.getCodeAttribute();
             if (code == null) {
                 return;
             }
+            // No attribution beats false attribution. Since the signature line is now SEARCHED
+            // rather than computed, it can come back UNRESOLVED (-1) -- and -1 + lineInMethod - 1
+            // is POSITIVE for any statement past the second, so it would sail past the per-entry
+            // "<= 0" bail below and emit a confidently wrong table.
+            if (methodSignatureLineInClass <= 0) {
+                return;
+            }
             final List<int[]> entries = new ArrayList<>();
-            int line = 1;
+            int boundary = 0;
             boolean nextIsNewLine = true;
 
-            final javassist.bytecode.CodeIterator ci = code.iterator();
+            final CodeIterator ci = code.iterator();
             while (ci.hasNext()) {
                 final int pc = ci.next();
                 if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
+                    entries.add(new int[]{pc, lineInGeneratedClass(statementLines, boundary, methodSignatureLineInClass)});
+                    boundary++;
                     nextIsNewLine = false;
                 }
                 final int op = ci.byteAt(pc) & 0xFF;
@@ -271,7 +217,31 @@ final class MALBytecodeHelper {
             if (entries.isEmpty()) {
                 return;
             }
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
+            if (statementLines == null || statementLines.isEmpty()
+                    || entries.size() != statementLines.size()) {
+                // Emit NOTHING rather than a table we already know is wrong. A desync means a
+                // codegen change altered the statement shape without the scanner learning about
+                // it, so the surviving entries are shifted -- plausible, and wrong. Note also
+                // that line_number is an unsigned u2, so an UNRESOLVED (-1) would serialize as
+                // 65535 and read as a real line, not as "unknown". Same policy as companion
+                // classes: no attribution beats false attribution, and an absent table makes the
+                // JVM report an unknown line honestly.
+                if (statementLines != null && !statementLines.isEmpty()) {
+                    log.warn("MAL LineNumberTable omitted for {}: {} bytecode boundaries vs {} "
+                            + "source lines. Frames will report an unknown line.",
+                        method.getName(), entries.size(), statementLines.size());
+                }
+                return;
+            }
+            for (final int[] entry : entries) {
+                if (entry[1] <= 0) {
+                    // An unresolved line cannot be represented: u2 would turn -1 into 65535.
+                    log.warn("MAL LineNumberTable omitted for {}: an entry had no resolvable "
+                        + "line.", method.getName());
+                    return;
+                }
+            }
+            final ConstPool cp = mi.getConstPool();
             final byte[] info = new byte[2 + entries.size() * 4];
             info[0] = (byte) (entries.size() >> 8);
             info[1] = (byte) entries.size();
@@ -283,7 +253,7 @@ final class MALBytecodeHelper {
                 info[off + 3] = (byte) entries.get(i)[1];
             }
             code.getAttributes().add(
-                new javassist.bytecode.AttributeInfo(
+                new AttributeInfo(
                     cp, "LineNumberTable", info));
         } catch (Exception e) {
             log.warn("Failed to add LineNumberTable: {}", e.getMessage());
@@ -291,46 +261,30 @@ final class MALBytecodeHelper {
     }
 
     /**
-     * Adds a {@code LocalVariableTable} attribute for debug info.
+     * Generated source file line for boundary {@code i}, or {@link DslSourceRef#UNRESOLVED} when the scanner
+     * produced no line for it. {@code -1} is deliberate: a bogus-but-plausible line is worse than
+     * an obviously absent one, and the JVM tolerates it in a {@code LineNumberTable}.
      */
-    void addLocalVariableTable(final javassist.CtMethod method,
-                                final String className,
-                                final String[][] vars) {
-        try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code =
-                mi.getCodeAttribute();
-            if (code == null) {
-                return;
-            }
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
-            final int len = code.getCodeLength();
-
-            final javassist.bytecode.LocalVariableAttribute lva =
-                new javassist.bytecode.LocalVariableAttribute(cp);
-            int slot = 0;
-            lva.addEntry(0, len,
-                cp.addUtf8Info("this"),
-                cp.addUtf8Info(
-                    "L" + className.replace('.', '/') + ";"),
-                slot++);
-            for (final String[] var : vars) {
-                lva.addEntry(0, len,
-                    cp.addUtf8Info(var[0]),
-                    cp.addUtf8Info(var[1]), slot++);
-            }
-            code.getAttributes().add(lva);
-        } catch (Exception e) {
-            log.warn("Failed to add LocalVariableTable: {}",
-                     e.getMessage());
+    private static int lineInGeneratedClass(final List<Integer> statementLines,
+                                            final int index,
+                                            final int methodSignatureLineInClass) {
+        if (statementLines == null || index >= statementLines.size()) {
+            return DslSourceRef.UNRESOLVED;
         }
+        final Integer lineInMethod = statementLines.get(index);
+        if (lineInMethod == null || lineInMethod <= 0) {
+            return DslSourceRef.UNRESOLVED;
+        }
+        // Method-relative line 1 IS the signature line, so the class-relative line counts from
+        // there rather than adding a bare offset.
+        return methodSignatureLineInClass + lineInMethod - 1;
     }
 
     /**
      * Adds {@code LocalVariableTable} for the {@code run(Map)} method,
      * including all generated variables ({@code _metric1}, {@code _metric2}, {@code _t0}, ...).
      */
-    void addRunLocalVariableTable(final javassist.CtMethod method,
+    void addRunLocalVariableTable(final CtMethod method,
                                    final String className,
                                    final Set<String> varNames) {
         final String sfDesc =
@@ -341,6 +295,6 @@ final class MALBytecodeHelper {
         for (final String name : varNames) {
             vars[i++] = new String[]{name, sfDesc};
         }
-        addLocalVariableTable(method, className, vars);
+        DslGeneratedFileWriter.addLocalVariableTable(method, className, vars);
     }
 }

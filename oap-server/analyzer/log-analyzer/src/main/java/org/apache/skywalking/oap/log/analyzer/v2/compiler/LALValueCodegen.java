@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import java.lang.reflect.Method;
 
 /**
  * Code generation for LAL expression evaluation: value access, conditions,
@@ -431,7 +433,7 @@ final class LALValueCodegen {
                                         final LALClassGenerator.GenCtx genCtx) {
         if (cv instanceof LALScriptModel.StringConditionValue) {
             sb.append('"')
-              .append(LALCodegenHelper.escapeJava(
+              .append(DslJavaSourceText.toLiteral(
                   ((LALScriptModel.StringConditionValue) cv).getValue()))
               .append('"');
         } else if (cv instanceof LALScriptModel.NumberConditionValue) {
@@ -753,7 +755,7 @@ final class LALValueCodegen {
             sb.append("h.tagValue(\"");
             final String key = value.getFunctionCallArgs().get(0)
                 .getValue().getSegments().get(0);
-            sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
+            sb.append(DslJavaSourceText.toLiteral(key)).append("\")");
             return;
         }
 
@@ -769,13 +771,13 @@ final class LALValueCodegen {
             sb.append("h.sourceAttributeValue(\"");
             final String key = value.getFunctionCallArgs().get(0)
                 .getValue().getSegments().get(0);
-            sb.append(LALCodegenHelper.escapeJava(key)).append("\")");
+            sb.append(DslJavaSourceText.toLiteral(key)).append("\")");
             return;
         }
 
         // Handle string/number literals
         if (value.isStringLiteral() && value.getChain().isEmpty()) {
-            sb.append("\"").append(LALCodegenHelper.escapeJava(value.getSegments().get(0)))
+            sb.append("\"").append(DslJavaSourceText.toLiteral(value.getSegments().get(0)))
               .append("\"");
             return;
         }
@@ -1038,7 +1040,7 @@ final class LALValueCodegen {
             case TEXT:
                 if (!fieldKeys.isEmpty()) {
                     current = "h.group(\""
-                        + LALCodegenHelper.escapeJava(fieldKeys.get(0)) + "\")";
+                        + DslJavaSourceText.toLiteral(fieldKeys.get(0)) + "\")";
                 } else {
                     current = "h.ctx().parsed()";
                 }
@@ -1109,20 +1111,10 @@ final class LALValueCodegen {
         for (int i = 0; i < fieldSegments.size(); i++) {
             final LALScriptModel.FieldSegment seg = fieldSegments.get(i);
             final String field = seg.getName();
-            String getterName = "get" + Character.toUpperCase(field.charAt(0))
+            final String getterName = "get" + Character.toUpperCase(field.charAt(0))
                 + field.substring(1);
 
-            // Apply getter aliases (e.g., traceSegmentId → segmentId on LogMetadata)
-            final String alias = LALCodegenHelper.METADATA_GETTER_ALIASES.get(getterName);
-            if (alias != null) {
-                try {
-                    currentType.getMethod(getterName);
-                } catch (NoSuchMethodException ignored) {
-                    getterName = alias;
-                }
-            }
-
-            final java.lang.reflect.Method getter;
+            final Method getter;
             try {
                 getter = currentType.getMethod(getterName);
             } catch (NoSuchMethodException e) {
@@ -1750,7 +1742,7 @@ final class LALValueCodegen {
                 continue;
             }
             if (va.isStringLiteral()) {
-                sb.append("\"").append(LALCodegenHelper.escapeJava(
+                sb.append("\"").append(DslJavaSourceText.toLiteral(
                     va.getSegments().get(0))).append("\"");
             } else if (va.isNumberLiteral()) {
                 // Normalise the literal text — e.g. `1f` → `1.0f`, `1d`

@@ -1,0 +1,145 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  # Carrier init: the "-plugins-carrier" image ships the lockstep sampler .so at
+  # /plugins. Copy it into a shared volume and exit; banyandb waits for completion.
+  plugin-carrier:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins-carrier"
+    command: sh -c "cp /plugins/*.so /shared/ && ls -l /shared"
+    volumes:
+      - plugins:/shared
+    networks:
+      - e2e
+
+  # The plugin-capable (CGO/distroless-glibc) "-plugins" host image. max-merge-parts=2 +
+  # a short flush timeout make a filtering merge fire as soon as a second part lands, so
+  # the drop verdict is observable within the test's lifetime.
+  banyandb:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins"
+    command: standalone --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --trace-pipeline-native-plugin-enabled=true --trace-pipeline-trusted-plugin-dir=/plugins --trace-max-merge-parts=2 --trace-flush-timeout=500ms
+    volumes:
+      - plugins:/plugins
+    # No published ports: the distroless -plugins image has no /bin/sh, and infra-e2e's
+    # port-readiness probe execs /bin/sh inside the container. Host access to the HTTP
+    # (17913) and metrics (2121) ports goes through the bydbgw sidecar below instead.
+    depends_on:
+      plugin-carrier:
+        condition: service_completed_successfully
+    networks:
+      - e2e
+
+  # Shell-capable TCP proxy publishing banyandb's HTTP (17913) and metrics (2121) ports,
+  # needed only because the -plugins host is distroless. Verify queries hit
+  # ${bydbgw_17913} / ${bydbgw_2121}. Hyphen-free name so the exported vars are valid
+  # shell identifiers.
+  bydbgw:
+    image: alpine/socat
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "socat TCP-LISTEN:17913,fork,reuseaddr TCP:banyandb:17913 & socat TCP-LISTEN:2121,fork,reuseaddr TCP:banyandb:2121 & wait"
+    expose:
+      - "17913"
+      - "2121"
+    ports:
+      - 17913:17913
+      - 2121:2121
+    depends_on:
+      - banyandb
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_ADMIN_SERVER: default
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "banyandb:17912"
+      SW_RECEIVER_ZIPKIN: default
+      SW_QUERY_ZIPKIN: default
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED: "true"
+      # One shard so every posted span lands in the same shard: the in-merge filter runs
+      # per shard, and spreading a handful of spans over the default 2 shards can leave
+      # each with a single part, which never reaches max-merge-parts and never merges.
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM: "1"
+      # Make every mocked Zipkin trace fail EVERY sure-keep rule so the sampler must drop
+      # them once they age past the merge grace and a filtering merge runs:
+      #   - the mocked spans are ~5ms, so a 60s threshold never fires;
+      #   - healthySampleRate 0 removes the probabilistic keep;
+      #   - bydb.yml ships no keepTagRules, and the Zipkin schema has no keepErrors.
+      # mergeGraceSeconds=20 keeps freshly written spans queryable long enough for the
+      # "present" assertion before they become eligible for filtering.
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_DURATION_THRESHOLD_MS: "60000"
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE: "0"
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS: "20"
+    expose:
+      - 9411
+    ports:
+      - 9412
+      - 12800
+      - 17128
+    depends_on:
+      banyandb:
+        condition: service_started
+
+  # Posts a fixed, bounded set of Zipkin v2 spans straight to OAP's Zipkin HTTP receiver.
+  # Deterministic content (known service name, short durations) is what lets the drop
+  # assertion be exact; a bounded count is what lets "all traces dropped" ever become
+  # true. Plays the same role the trace-mocker does for the SkyWalking-native case.
+  zipkin-mocker:
+    image: curlimages/curl:8.11.1
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Probe the Zipkin receiver itself with an empty batch: depends_on waits for OAP's
+        # health check (gRPC 11800), which can pass before the 9411 HTTP receiver binds.
+        until curl -sf -o /dev/null -X POST http://oap:9411/api/v2/spans \
+          -H 'Content-Type: application/json' -d '[]'; do sleep 2; done
+        # Capture the span timestamp ONCE, before the loop — exactly what AgentDataMock does
+        # for the SkyWalking-native case. Every span then carries the same, progressively
+        # ageing data timestamp, so once it passes mergeGraceSeconds every part is
+        # permanently cold while later posts keep supplying fresh merge triggers. Re-stamping
+        # per iteration (date inside the loop) makes every part hot at merge time, and
+        # isMergeHot() skips the filter on every merge — the sampler would never drop.
+        ts=$$(( $$(date +%s) * 1000000 ))
+        i=0
+        while [ $$i -lt 5 ]; do
+          i=$$((i+1))
+          tid=$$(head -c 16 /dev/urandom | od -An -tx1 | tr -d ' \n')
+          sid=$$(head -c 8 /dev/urandom | od -An -tx1 | tr -d ' \n')
+          curl -s -o /dev/null -X POST http://oap:9411/api/v2/spans \
+            -H 'Content-Type: application/json' \
+            -d "[{\"traceId\":\"$$tid\",\"id\":\"$$sid\",\"kind\":\"SERVER\",\"name\":\"get /mock\",\"timestamp\":$$ts,\"duration\":5000,\"localEndpoint\":{\"serviceName\":\"zipkin-mock-frontend\"},\"tags\":{\"http.method\":\"GET\",\"http.status_code\":\"200\"}}]"
+          echo "posted zipkin trace $$i/5 traceId=$$tid"
+          # 30s spacing so each post falls in its own OAP persistence cycle and becomes a
+          # separate BanyanDB part; parts are what a filtering merge consumes, so posting
+          # faster than the flush interval would batch everything into one unmergeable part.
+          sleep 30
+        done
+        echo "zipkin-mocker done"
+        sleep infinity
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+volumes:
+  plugins:
+
+networks:
+  e2e:

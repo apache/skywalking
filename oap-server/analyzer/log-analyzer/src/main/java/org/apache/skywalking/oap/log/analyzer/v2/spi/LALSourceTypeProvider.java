@@ -75,7 +75,7 @@ public interface LALSourceTypeProvider {
      *   <li>A {@code com.google.protobuf.Message} subclass — typed
      *       receiver inputs like {@code HTTPAccessLogEntry}.</li>
      *   <li>A class implementing
-     *       {@link org.apache.skywalking.oap.server.core.dsldebug.ToJson}
+     *       {@link org.apache.skywalking.oap.server.core.dsl.debug.ToJson}
      *       — explicit opt-in for custom POJO inputs.</li>
      * </ul>
      * The framework validates this at boot — providers declaring

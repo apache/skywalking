@@ -21,16 +21,16 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.mal;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.AbstractDebugRecorder;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugRecorderFactory;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Builds {@link MALDebugRecorderImpl} for any {@link RuleKey} whose catalog
  * is a MAL catalog ({@code OTEL_RULES}, {@code LOG_MAL_RULES},
- * {@code TELEGRAF_RULES}). LAL and OAL register their own factories in
- * later phases so the registry's dispatch stays first-match-wins without
- * a per-DSL conditional.
+ * {@code TELEGRAF_RULES}, {@code METER_ANALYZER_CONFIG}). LAL and OAL
+ * register their own factories in later phases so the registry's dispatch
+ * stays first-match-wins without a per-DSL conditional.
  */
 public final class MALDebugRecorderFactory implements DebugRecorderFactory {
 
@@ -39,7 +39,8 @@ public final class MALDebugRecorderFactory implements DebugRecorderFactory {
         final Catalog c = key.getCatalog();
         return c == Catalog.OTEL_RULES
             || c == Catalog.LOG_MAL_RULES
-            || c == Catalog.TELEGRAF_RULES;
+            || c == Catalog.TELEGRAF_RULES
+            || c == Catalog.METER_ANALYZER_CONFIG;
     }
 
     @Override

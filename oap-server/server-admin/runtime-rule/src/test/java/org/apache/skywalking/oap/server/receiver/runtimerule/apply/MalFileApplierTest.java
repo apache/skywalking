@@ -118,7 +118,7 @@ class MalFileApplierTest {
         assertNotNull(applied);
         assertNotNull(applied.getRuleClassLoader(),
             "per-file loader must be retained for graveyard observation");
-        assertEquals(org.apache.skywalking.oap.server.core.classloader.Catalog.OTEL_RULES,
+        assertEquals(org.apache.skywalking.oap.server.core.dsl.Catalog.OTEL_RULES,
             applied.getRuleClassLoader().getCatalog());
         assertEquals("vm", applied.getRuleClassLoader().getRule());
         assertEquals("hashA", applied.getRuleClassLoader().getContentHash());

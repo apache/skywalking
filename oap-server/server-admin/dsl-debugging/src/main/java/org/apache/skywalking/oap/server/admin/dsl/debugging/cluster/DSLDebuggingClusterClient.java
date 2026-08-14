@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByCli
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionRequest;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Outbound cluster broadcasts for the four debug-session RPCs.

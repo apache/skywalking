@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
  * Generates Java source for the {@code run(Map)} method body from a MAL expression AST.
@@ -77,10 +78,6 @@ final class MALExprCodegen {
         return ruleName;
     }
 
-    int getVarCount() {
-        return varCounter;
-    }
-
     /**
      * Returns all variable names declared during code generation,
      * for building the {@code LocalVariableTable}.
@@ -104,7 +101,7 @@ final class MALExprCodegen {
      * Uses {@code _metricName} if not taken, otherwise {@code _metricName_2}, etc.
      */
     private String metricVar(final String metricName) {
-        final String base = "_" + MALCodegenHelper.sanitizeName(metricName);
+        final String base = "_" + DslJavaSourceText.toIdentifier(metricName);
         String name = base;
         int suffix = 2;
         while (declaredVars.contains(name)) {
@@ -193,7 +190,7 @@ final class MALExprCodegen {
         sb.append("  ").append(SF).append(" ").append(var)
           .append(" = ((").append(SF)
           .append(") samples.getOrDefault(\"")
-          .append(MALCodegenHelper.escapeJava(expr.getMetricName()))
+          .append(DslJavaSourceText.toLiteral(expr.getMetricName()))
           .append("\", ").append(SF).append(".EMPTY));\n");
         // First read of an input metric — capture the SampleFamily as it enters the chain.
         // The metric name itself is the sourceText: the UI shows "input: <metric>".

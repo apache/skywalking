@@ -111,6 +111,29 @@ public class BanyanDBConfigDumpExtension implements ConfigDumpExtension {
         for (int i = 0; i < stages.size(); i++) {
             flattenStage(p + ".additionalLifecycleStages." + i, stages.get(i), dump);
         }
+        flattenPipeline(p + ".pipeline", group.getTracePipeline(), dump);
+    }
+
+    private void flattenPipeline(final String p, final BanyanDBStorageConfig.TracePipeline pipeline,
+                                 final Map<String, String> dump) {
+        // Only trace groups carry a populated pipeline; skip the empty default on every other group.
+        if (pipeline == null || pipeline.getPlugins().isEmpty()) {
+            return;
+        }
+        dump.put(p + ".enabled", String.valueOf(pipeline.isEnabled()));
+        dump.put(p + ".enabledEvents", pipeline.getEnabledEvents().toString());
+        dump.put(p + ".mergeGraceSeconds", String.valueOf(pipeline.getMergeGraceSeconds()));
+        dump.put(p + ".finalizeGraceSeconds", String.valueOf(pipeline.getFinalizeGraceSeconds()));
+        final List<BanyanDBStorageConfig.SamplerPluginConfig> plugins = pipeline.getPlugins();
+        for (int i = 0; i < plugins.size(); i++) {
+            final BanyanDBStorageConfig.SamplerPluginConfig plugin = plugins.get(i);
+            final String pp = p + ".plugins." + i;
+            dump.put(pp + ".name", Strings.nullToEmpty(plugin.getName()));
+            dump.put(pp + ".path", Strings.nullToEmpty(plugin.getPath()));
+            dump.put(pp + ".symbol", Strings.nullToEmpty(plugin.getSymbol()));
+            dump.put(pp + ".abiVersion", String.valueOf(plugin.getAbiVersion()));
+            plugin.getConfig().forEach((k, v) -> dump.put(pp + ".config." + k, String.valueOf(v)));
+        }
     }
 
     private void flattenStage(final String p, final Stage stage, final Map<String, String> dump) {

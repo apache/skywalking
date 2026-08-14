@@ -965,7 +965,7 @@ public final class MALScriptParser {
      * Interpret Java/Groovy escape sequences in a string literal body.
      * ANTLR4 preserves raw source bytes, so {@code "\\|"} yields {@code \\|}
      * after quote stripping. This method converts it to the logical value
-     * {@code \|} so that codegen's escapeJava round-trips correctly.
+     * {@code \|} so that codegen's DslJavaSourceText.toLiteral round-trips correctly.
      */
     private static String unescapeString(final String s) {
         if (s.indexOf('\\') < 0) {

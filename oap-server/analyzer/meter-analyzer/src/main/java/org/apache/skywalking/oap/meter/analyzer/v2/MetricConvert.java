@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
@@ -37,10 +38,11 @@ import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALScriptParser;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 
 import static java.util.stream.Collectors.toList;
+import javassist.ClassPool;
 
 /**
  * MetricConvert converts {@link SampleFamily} collection to meter-system metrics, then store them to backend storage.
@@ -88,7 +90,7 @@ public class MetricConvert {
     }
 
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
-                         final javassist.ClassPool pool,
+                         final ClassPool pool,
                          final ClassLoader targetClassLoader) {
         this(rule, service, pool, targetClassLoader,
              StorageManipulationOpt.schemaCreateIfAbsent());
@@ -105,11 +107,10 @@ public class MetricConvert {
      *                   peer-node passes withoutSchemaChange to skip server DDL
      */
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
-                         final javassist.ClassPool pool,
+                         final ClassPool pool,
                          final ClassLoader targetClassLoader,
                          final StorageManipulationOpt storageOpt) {
         Preconditions.checkState(!Strings.isNullOrEmpty(rule.getMetricPrefix()));
-        final String sourceName = rule.getSourceName();
         final FilterExpression filter = buildFilter(rule, pool, targetClassLoader);
         final List<? extends MetricRuleConfig.RuleConfig> rules = rule.getMetricsRules();
 
@@ -132,14 +133,22 @@ public class MetricConvert {
         final List<Analyzer> prepared = IntStream.range(0, rules.size()).mapToObj(
             i -> {
                 final MetricRuleConfig.RuleConfig r = rules.get(i);
-                final String yamlSource = sourceName != null
-                    ? sourceName + ".yaml:" + i : null;
+                // The rule's REAL line, not its position in the list. The two only ever agreed by
+                // accident, which is why a stack trace used to point at the top of the file.
+                // A line is always expected here; -1 marks a resolution failure so it stays
+                // visible in the artifact rather than silently degrading.
+                // Typed end to end: rendering to "file:line" here only to re-parse it in the
+                // generator was a boundary we imposed on ourselves, and it is where the two
+                // hand-rolled splitters lived.
+                // Guarded on the field passed, not its sibling: see buildFilter.
+                final DslSourceRef sourceRef = rule.getSourcePath() == null ? null
+                    : DslSourceRef.ofRule(rule.getSourcePath(), r.getLineNo());
                 final Analyzer analyzer = prepareAnalyzer(
                     formatMetricName(rule, r.getName()),
                     filter,
                     formatExp(rule.getExpPrefix(), rule.getExpSuffix(), r.getExp()),
                     service,
-                    yamlSource,
+                    sourceRef,
                     pool,
                     targetClassLoader,
                     storageOpt
@@ -227,23 +236,23 @@ public class MetricConvert {
                            final FilterExpression filter,
                            final String exp,
                            final MeterSystem service,
-                           final String yamlSource) {
-        return buildAnalyzer(metricsName, filter, exp, service, yamlSource, null, null);
+                           final DslSourceRef sourceRef) {
+        return buildAnalyzer(metricsName, filter, exp, service, sourceRef, null, null);
     }
 
     Analyzer buildAnalyzer(final String metricsName,
                            final FilterExpression filter,
                            final String exp,
                            final MeterSystem service,
-                           final String yamlSource,
-                           final javassist.ClassPool pool,
+                           final DslSourceRef sourceRef,
+                           final ClassPool pool,
                            final ClassLoader targetClassLoader) {
         return Analyzer.build(
             metricsName,
             filter,
             exp,
             service,
-            yamlSource,
+            sourceRef,
             pool,
             targetClassLoader
         );
@@ -265,8 +274,8 @@ public class MetricConvert {
                               final FilterExpression filter,
                               final String exp,
                               final MeterSystem service,
-                              final String yamlSource,
-                              final javassist.ClassPool pool,
+                              final DslSourceRef sourceRef,
+                              final ClassPool pool,
                               final ClassLoader targetClassLoader,
                               final StorageManipulationOpt storageOpt) {
         return Analyzer.prepare(
@@ -274,7 +283,7 @@ public class MetricConvert {
             filter,
             exp,
             service,
-            yamlSource,
+            sourceRef,
             pool,
             targetClassLoader,
             storageOpt
@@ -282,16 +291,18 @@ public class MetricConvert {
     }
 
     private static FilterExpression buildFilter(final MetricRuleConfig rule,
-                                                final javassist.ClassPool pool,
+                                                final ClassPool pool,
                                                 final ClassLoader targetClassLoader) {
         final String filterText = rule.getFilter();
         if (Strings.isNullOrEmpty(filterText)) {
             return null;
         }
-        final String sourceName = rule.getSourceName();
-        final String yamlSource = sourceName != null
-            ? sourceName + ".yaml" : null;
-        return new FilterExpression(filterText, "filter", yamlSource, pool, targetClassLoader);
+        // Guard the field that is actually passed: sourcePath is settable independently of
+        // sourceName, so testing the other one drops attribution for a rule that has a path.
+        // The filter has its own line, distinct from any rule's — it is file-level.
+        final DslSourceRef sourceRef = rule.getSourcePath() == null ? null
+            : DslSourceRef.ofRule(rule.getSourcePath(), rule.getFilterLine());
+        return new FilterExpression(filterText, "filter", sourceRef, pool, targetClassLoader);
     }
 
     /**

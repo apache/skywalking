@@ -252,3 +252,47 @@ text-abort-on-failure-false:
     abort: false
     save: true
     noDropReason: true
+
+trace-context-read:
+  body-type: json
+  body: '{"service":"trace-svc"}'
+  trace-id: trace-aaa
+  trace-segment-id: segment-bbb
+  span-id: 7
+  expect:
+    service: trace-svc
+    tag.tid: trace-aaa
+    tag.sid: segment-bbb
+    tag.spid: "7"
+    traceId: trace-aaa
+    segmentId: segment-bbb
+    spanId: "7"
+    save: true
+    abort: false
+
+trace-segment-override:
+  body-type: json
+  body: '{"service":"trace-svc","seg":"segment-from-body"}'
+  trace-id: trace-aaa
+  trace-segment-id: segment-bbb
+  span-id: 7
+  expect:
+    service: trace-svc
+    segmentId: segment-from-body
+    traceId: trace-aaa
+    save: true
+    abort: false
+
+trace-write-all-three:
+  body-type: json
+  body: '{"service":"trace-svc","tid":"tid-from-body","seg":"seg-from-body","sp":"3"}'
+  trace-id: trace-aaa
+  trace-segment-id: segment-bbb
+  span-id: 7
+  expect:
+    service: trace-svc
+    traceId: tid-from-body
+    segmentId: seg-from-body
+    spanId: "3"
+    save: true
+    abort: false

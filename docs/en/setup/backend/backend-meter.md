@@ -77,6 +77,10 @@ section `agent-analyzer` in `application.yml` of skywalking backend.
      meterAnalyzerActiveFiles: ${SW_METER_ANALYZER_ACTIVE_FILES:your-custom-meter-conf-without-ext-name} # The multiple files should be separated by ","
 ```
 
+Every entry listed in `meterAnalyzerActiveFiles` must have a matching rule file under
+`$CLASSPATH/meter-analyzer-config`. An entry with no matching file fails the OAP startup; in previous
+releases such an entry was silently ignored.
+
 Meter-analyzer-config file is written in YAML format, defined by the scheme described below. Brackets indicate that a
 parameter is optional.
 
@@ -91,6 +95,17 @@ expPrefix: <string>
 expSuffix: <string>
 # insert metricPrefix into metric name:  <metricPrefix>_<raw_metric_name>
 metricPrefix: <string>
+# Optional. Declares custom layers inline, registered before the rules in this file compile,
+# so that a layer referenced by `expSuffix`/`exp` needs no change in the OAP source.
+layerDefinitions:
+    # Layer name, must match [A-Z][A-Z0-9_]*.
+  - name: <string>
+    # Ordinal, unique across all layers and persisted in storage. The ordinal space is
+    # partitioned by tier: 0-9999 built-in, 10000-99999 boot-time external (this file when
+    # shipped on disk), 100000+ runtime rules pushed through the hot-update API.
+    ordinal: <int>
+    # true = services in this layer are agent-installed (default), false = conjectured.
+    normal: <bool>
 # Metrics rule allow you to recompute queries.
 metricsRules:
   # The name of rule, which combinates with a prefix '<metricPrefix>_' as the index/table name in storage.
@@ -110,3 +125,12 @@ client-side APIs to run these functions. The reasons are as follows:
 1. The OAP has to set up caches to calculate the values.
 1. Once the agent reconnects to another OAP instance, the time windows of rate calculation break. This leads to
    inaccurate results.
+
+## Runtime hot-update and debugging
+
+Meter-analyzer-config rules are loaded through the same rule pipeline as `otel-rules`, so they can be
+added, overridden, inactivated, and reverted to the bundled content at runtime, without restarting the
+OAP. They can also be attached to a sampling debug session to inspect the intermediate result of every
+stage of a MAL expression. The catalog name to use in both APIs is `meter-analyzer-config`.
+See [Runtime Rule Hot-Update API](admin-api/runtime-rule.md)
+and [DSL Debug API — MAL](admin-api/dsl-debugging-mal.md).

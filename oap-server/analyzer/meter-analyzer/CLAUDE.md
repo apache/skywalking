@@ -75,7 +75,7 @@ All v2 classes live under `org.apache.skywalking.oap.meter.analyzer.v2.*` to avo
 | Functional interface | `org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression` |
 
 Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name or `filter`).
-Example: `vm_L25_cpu_total_percentage` (expression), `gateway_service_L33_filter` (filter).
+Example: `otel_rules_vm_L25_cpu_total_percentage` (expression), `meter_analyzer_config_gateway_service_L33_filter` (filter). The stem is the rule file's catalog-qualified path, sanitised and with the extension dropped, so two catalogs holding a `vm.yaml` stay distinct.
 Falls back to `MalExpr_<N>` (global counter) when no hint is set.
 
 ## Extension Function SPI (`namespace::method()`)
@@ -241,16 +241,43 @@ Metadata is extracted statically from the AST at compile time by `MALMetadataExt
 
 ## Debug Output
 
-When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection. Each `.class` is paired with a `<ClassName>.java` sidecar — the verbatim Java source the codegen fed Javassist:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection. Each `.class` is paired with a `<ClassName>.java` generated source file — the verbatim Java source the codegen fed Javassist:
 
 ```
 {skywalking}/mal-rt/
   *.class          — Main MalExpression class per expression
   *.java           — Javassist compile input (synthetic; for IDE source-attach)
   *$_tag.class     — Companion class per closure (one per tag/forEach/instance/decorate call)
+  *$_tag.java      — Companion compile input, one per companion class
 ```
 
-The `.java` sidecar exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate fields, probe call sites, closure dispatch, the lot.
+**One rule, N class files.** Javassist cannot emit lambdas or anonymous inner classes, so every
+closure becomes its own class, and the JVM allows exactly one `SourceFile` per class. A rule with
+two closures produces three class files, each needing its own file name and its own line numbering.
+That is why the YAML line and the generated-class line cannot be one number — their cardinality
+differs (one YAML anchor to N generated files; a file-level `filter:` maps the other way, one class
+shared by every rule in the document). `org.apache.skywalking.oap.server.core.dsl.DslSourceRef` is the shared structure holding both, one
+instance per generated file.
+
+Companions carry a **single** `LineNumberTable` entry pointing at their SAM signature, not a
+per-statement table. The per-statement scan in `addLineNumberTable` marks boundaries at stores to a
+result slot; a closure body stores nothing there, so on the shipped rule set 96% of companions
+would collapse to one entry anyway while the `forEach` ones over-count inside `if/else` chains.
+Every MAL signature line — the companion's SAM, `run()` on the expression class, and `test()` on a
+filter class — is found by searching that class's generated source file for the declaration
+(`DslGeneratedFileWriter.lineOfMethod`). Editing a `wrap*Source` envelope therefore no longer
+requires updating a constant in step with it. The three constants this replaced were
+`COMPANION_SAM_LINE_IN_CLASS`, `10 + closures + injection` for `run()`, and a bare `9` for the
+filter; the last of those was never read back by any test, so an envelope edit shifted every filter
+frame silently. `MalCompanionSourceTest`, `MalLineAttributionTest` and `MalFilterLineAttributionTest`
+now pin the resulting entries against the written `.java`.
+
+An unresolved signature emits NO table rather than a wrong one: `addLineNumberTable` returns early
+on a non-positive signature line, because statement lines are counted forward from it and
+`-1 + n - 1` turns positive from the third statement on, which would slip past the per-entry
+bounds check.
+
+The `.java` generated source file exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate fields, probe call sites, closure dispatch, the lot.
 
 When `SW_DSL_DEBUGGING_INJECTION_ENABLED=true` is also set, the codegen emits the per-rule `GateHolder debug` field plus `MALDebug.captureXxx(...)` probe sites at every chain stage. Both `.class` and `.java` reflect the with-debug shape. The two env vars are independent: `SW_DYNAMIC_CLASS_ENGINE_DEBUG` controls disk dump; `SW_DSL_DEBUGGING_INJECTION_ENABLED` controls codegen branch.
 

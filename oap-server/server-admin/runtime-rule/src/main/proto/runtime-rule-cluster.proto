@@ -64,7 +64,7 @@ service RuntimeRuleClusterService {
 }
 
 message SuspendRequest {
-    // otel-rules | log-mal-rules | lal
+    // otel-rules | log-mal-rules | telegraf-rules | meter-analyzer-config | lal
     string catalog = 1;
     // relative path under the catalog root, no extension, may contain '/'
     string name = 2;

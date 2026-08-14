@@ -18,7 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
-import org.apache.skywalking.oap.server.core.dsldebug.ToJson;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 
 /**
  * Every source-of-truth event that flows through the OAP analysis

@@ -72,7 +72,7 @@ All v2 classes live under `org.apache.skywalking.oap.log.analyzer.v2.*` to avoid
 | Functional interface | `org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression` |
 
 Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name).
-Example: `default_L3_default` (rule `default` at line 3 of `default.yaml`).
+Example: `default_L3_default` (rule `default` at line 3 of `lal/default.yaml`). `sourcePath` carries the `lal/` catalog for `SourceFile`, but `DslClassNaming.stem` is told to drop it (`LALConfigs.LAL_CATALOG`): the generated class's package already identifies the DSL and LAL has no second catalog to disambiguate against.
 Falls back to `LalExpr_<N>` (global counter) when no hint is set.
 
 ## Single Class with Private Methods
@@ -374,7 +374,7 @@ oap-server/analyzer/dsl-scripts-test/src/test/resources/scripts/lal/test-lal/
 
 ## Debug Output
 
-When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection. Each `.class` is paired with a `<ClassName>.java` sidecar — the verbatim Java source the codegen fed Javassist:
+When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated `.class` files are written to disk for inspection. Each `.class` is paired with a `<ClassName>.java` generated source file — the verbatim Java source the codegen fed Javassist:
 
 ```
 {skywalking}/lal-rt/
@@ -382,7 +382,7 @@ When `SW_DYNAMIC_CLASS_ENGINE_DEBUG=true` environment variable is set, generated
   *.java           - Javassist compile input (synthetic; for IDE source-attach)
 ```
 
-The `.java` sidecar exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate field, probe call sites, the `_extractor()` / `_sink()` private methods, the lot.
+The `.java` generated source file exists so IDE source-attach renders the actual codegen input directly without relying on FernFlower / a decompiler. Javassist-emitted bytecode often confuses decompilers (no `goto` consolidation, slot reuse with mixed types, debug-injected `if (gate.isGateOn()) { ... }` chains), and FernFlower frequently bails to "compiled code" stubs. The source-attach path always works and shows the EXACT code Javassist compiled — gate field, probe call sites, the `_extractor()` / `_sink()` private methods, the lot.
 
 When `SW_DSL_DEBUGGING_INJECTION_ENABLED=true` is also set, the codegen emits the per-rule `GateHolder debug` field plus `LALDebug.captureXxx(...)` probe sites at every block / per-statement boundary. Both `.class` and `.java` reflect the with-debug shape. The two env vars are independent: `SW_DYNAMIC_CLASS_ENGINE_DEBUG` controls disk dump; `SW_DSL_DEBUGGING_INJECTION_ENABLED` controls codegen branch. In tests, use `setClassOutputDir(dir)` instead.
 
