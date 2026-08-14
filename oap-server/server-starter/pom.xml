@@ -376,6 +376,8 @@
                         <exclude>log-mal-rules/</exclude>
                         <exclude>telegraf-rules/</exclude>
                         <exclude>cilium-rules/</exclude>
+                        <exclude>ai-evaluation.yml</exclude>
+                        <exclude>gen-ai-evaluation-rules/</exclude>
                         <exclude>gen-ai-config.yml</exclude>
                         <exclude>layer-extensions.yml</exclude>
                     </excludes>
