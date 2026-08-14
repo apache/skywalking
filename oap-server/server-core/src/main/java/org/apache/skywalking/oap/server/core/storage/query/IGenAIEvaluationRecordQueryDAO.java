@@ -44,8 +44,9 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       String providerId,
                                                       String modelId,
                                                       GenAIEvaluationValueType valueType,
-                                                      Double minScore,
-                                                      Double maxScore,
+                                                      Long minScore,
+                                                      Long maxScore,
+                                                      Boolean booleanValue,
                                                       GenAIEvaluationRecordSortBy sortBy,
                                                       String taskName,
                                                       String evaluationLevel,
@@ -74,7 +75,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecord(
-                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, from, limit, duration, tags
             );
         } finally {
@@ -88,8 +89,9 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       String providerId,
                                                       String modelId,
                                                       GenAIEvaluationValueType valueType,
-                                                      Double minScore,
-                                                      Double maxScore,
+                                                      Long minScore,
+                                                      Long maxScore,
+                                                      Boolean booleanValue,
                                                       GenAIEvaluationRecordSortBy sortBy,
                                                       String taskName,
                                                       String evaluationLevel,

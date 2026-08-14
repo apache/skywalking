@@ -100,7 +100,7 @@ tasks:
     instruction: Evaluate response relevance.
 
   - name: TaskCompletion
-    valueType: SCORE
+    valueType: BOOLEAN
     instruction: Evaluate task completion.
 
   - name: Hallucination

@@ -36,8 +36,9 @@ public class GenAIEvaluationRecordQueryCondition {
     private String providerId;
     private String modelId;
     private GenAIEvaluationValueType valueType;
-    private Double minScore;
-    private Double maxScore;
+    private Long minScore;
+    private Long maxScore;
+    private Boolean booleanValue;
     private GenAIEvaluationRecordSortBy sortBy;
     private String taskName;
     private String evaluationLevel;

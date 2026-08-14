@@ -59,8 +59,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              String providerId,
                                                              String modelId,
                                                              GenAIEvaluationValueType valueType,
-                                                             Double minScore,
-                                                             Double maxScore,
+                                                             Long minScore,
+                                                             Long maxScore,
+                                                             Boolean booleanValue,
                                                              GenAIEvaluationRecordSortBy sortBy,
                                                              String taskName,
                                                              String evaluationLevel,
@@ -71,6 +72,11 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              final Duration duration,
                                                              final List<Tag> tags) throws IOException {
         sortBy = sortBy == null ? GenAIEvaluationRecordSortBy.EVALUATION_TIME : sortBy;
+        if (booleanValue != null) {
+            valueType = GenAIEvaluationValueType.BOOLEAN;
+        } else if (minScore != null || maxScore != null) {
+            valueType = GenAIEvaluationValueType.SCORE;
+        }
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -88,7 +94,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                serviceId, providerId, toStoredModelId(modelId), valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, toStoredModelId(modelId), valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, paging, queryOrder, duration, tags
             );
         } finally {
@@ -102,8 +108,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                                       String providerId,
                                                                       String modelId,
                                                                       GenAIEvaluationValueType valueType,
-                                                                      Double minScore,
-                                                                      Double maxScore,
+                                                                      Long minScore,
+                                                                      Long maxScore,
+                                                                      Boolean booleanValue,
                                                                       GenAIEvaluationRecordSortBy sortBy,
                                                                       String taskName,
                                                                       String evaluationLevel,
@@ -116,7 +123,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
-                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
         );
     }

@@ -98,7 +98,8 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                                                              final String providerId,
                                                              final String modelId,
                                                              final GenAIEvaluationValueType valueType,
-                                                             final Double minScore, final Double maxScore, final GenAIEvaluationRecordSortBy sortBy,
+                                                             final Long minScore, final Long maxScore, final Boolean booleanValue,
+                                                             final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
@@ -130,7 +131,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
         final var records = new ArrayList<GenAIEvaluationRecord>();
         for (final var table : tables) {
             final var sqlAndParameters = buildSQL(
-                serviceId, providerId, modelId, valueType, minScore, maxScore, sortBy, taskName, evaluationLevel, judgeModel,
+                serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, from, limit, duration, tags, table);
             records.addAll(
                 jdbcClient.executeQuery(
@@ -183,8 +184,9 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                                         final String providerId,
                                         final String modelId,
                                         final GenAIEvaluationValueType valueType,
-                                        final Double minScore,
-                                        final Double maxScore,
+                                        final Long minScore,
+                                        final Long maxScore,
+                                        final Boolean booleanValue,
                                         final GenAIEvaluationRecordSortBy sortBy,
                                         final String taskName,
                                         final String evaluationLevel,
@@ -235,13 +237,16 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.VALUE_TYPE)).append(" = ?");
             parameters.add(valueType.name());
         }
-        if (minScore != null) {
+        if (booleanValue != null) {
+            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.EVAL_NUMBER_VALUE)).append(" = ?");
+            parameters.add(booleanValue ? GenAIEvaluationRecord.SCORE_SCALE : 0);
+        } else if (minScore != null) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.EVAL_NUMBER_VALUE)).append(" >= ?");
-            parameters.add(GenAIEvaluationRecord.minScoreValuePpm(minScore));
+            parameters.add(minScore);
         }
-        if (maxScore != null) {
+        if (booleanValue == null && maxScore != null) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.EVAL_NUMBER_VALUE)).append(" <= ?");
-            parameters.add(GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+            parameters.add(maxScore);
         }
         if (StringUtil.isNotEmpty(taskName)) {
             sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.TASK_NAME)).append(" = ?");

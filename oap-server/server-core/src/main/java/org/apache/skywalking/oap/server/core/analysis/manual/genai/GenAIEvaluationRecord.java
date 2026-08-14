@@ -137,8 +137,8 @@ public class GenAIEvaluationRecord extends Record {
     @Column(name = EVALUATION_TIME)
     private long evaluationTime;
 
-    public Double getScoreValue() {
-        return evaNumberValue == null ? null : evaNumberValue / (double) SCORE_SCALE;
+    public Long getScoreValue() {
+        return evaNumberValue;
     }
 
     public String getValue() {

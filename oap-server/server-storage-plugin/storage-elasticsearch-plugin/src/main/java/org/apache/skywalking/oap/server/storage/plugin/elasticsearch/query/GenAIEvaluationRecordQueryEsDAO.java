@@ -75,7 +75,8 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
                                                              final String providerId,
                                                              final String modelId,
                                                              final GenAIEvaluationValueType valueType,
-                                                             final Double minScore, final Double maxScore, final GenAIEvaluationRecordSortBy sortBy,
+                                                             final Long minScore, final Long maxScore, final Boolean booleanValue,
+                                                             final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
                                                              final TraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
@@ -112,10 +113,12 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         if (valueType != null) {
             query.must(Query.term(GenAIEvaluationRecord.VALUE_TYPE, valueType.name()));
         }
-        if (minScore != null || maxScore != null) {
+        if (booleanValue != null) {
+            query.must(Query.term(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, booleanValue ? GenAIEvaluationRecord.SCORE_SCALE : 0));
+        } else if (minScore != null || maxScore != null) {
             final var scoreRange = Query.range(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
-            if (minScore != null) scoreRange.gte(GenAIEvaluationRecord.minScoreValuePpm(minScore));
-            if (maxScore != null) scoreRange.lte(GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+            if (minScore != null) scoreRange.gte(minScore);
+            if (maxScore != null) scoreRange.lte(maxScore);
             query.must(scoreRange);
         }
         if (isNotEmpty(taskName)) {

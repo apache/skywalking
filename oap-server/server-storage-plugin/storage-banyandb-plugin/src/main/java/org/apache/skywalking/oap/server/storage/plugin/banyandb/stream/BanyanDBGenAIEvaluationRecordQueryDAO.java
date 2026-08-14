@@ -67,7 +67,7 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
     }
 
     @Override
-    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, GenAIEvaluationValueType valueType, Double minScore, Double maxScore, GenAIEvaluationRecordSortBy sortBy,
+    public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, GenAIEvaluationValueType valueType, Long minScore, Long maxScore, Boolean booleanValue, GenAIEvaluationRecordSortBy sortBy,
                                                              String taskName, String evaluationLevel, String judgeModel,
                                                              TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                                                              Duration duration, List<Tag> tags) throws IOException {
@@ -85,11 +85,13 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
         if (valueType != null) {
             where.eq(GenAIEvaluationRecord.VALUE_TYPE, valueType.name());
         }
-        if (minScore != null) {
-            where.gte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, GenAIEvaluationRecord.minScoreValuePpm(minScore));
+        if (booleanValue != null) {
+            where.eq(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, booleanValue ? GenAIEvaluationRecord.SCORE_SCALE : 0);
+        } else if (minScore != null) {
+            where.gte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, minScore);
         }
-        if (maxScore != null) {
-            where.lte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, GenAIEvaluationRecord.maxScoreValuePpm(maxScore));
+        if (booleanValue == null && maxScore != null) {
+            where.lte(GenAIEvaluationRecord.EVAL_NUMBER_VALUE, maxScore);
         }
         if (StringUtil.isNotEmpty(taskName)) {
             where.eq(GenAIEvaluationRecord.TASK_NAME, taskName);

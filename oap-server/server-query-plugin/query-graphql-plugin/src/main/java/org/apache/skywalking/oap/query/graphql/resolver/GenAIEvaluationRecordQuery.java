@@ -100,6 +100,7 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
                 condition.getValueType(),
                 condition.getMinScore(),
                 condition.getMaxScore(),
+                condition.getBooleanValue(),
                 condition.getSortBy(),
                 condition.getTaskName(),
                 condition.getEvaluationLevel(),
