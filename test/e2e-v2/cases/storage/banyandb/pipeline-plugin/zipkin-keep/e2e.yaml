@@ -1,0 +1,109 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# End-to-end verification that a keepTagRules entry overrides an otherwise certain drop
+# on the Zipkin schema.
+#
+# The sampler config is identical to ../zipkin — which proves these same mocked spans are
+# dropped — except for the added rule "http.method=GET", matching a tag the mocker emits.
+# The two cases form a controlled pair: same data, same thresholds, opposite verdicts,
+# with the tag rule as the only variable.
+#
+# Unlike the SkyWalking-native pair, the rule here matches an entry of the flattened
+# "query" attributes, which is where OAP puts every Zipkin span tag.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+# No trigger: the zipkin-mocker service posts the spans to OAP on its own.
+
+verify:
+  retry:
+    count: 40
+    interval: 10s
+  cases:
+    # 1. The compact rule survived OAP's ${ENV:default} resolution as a plain string.
+    - query: |
+        dump=$(curl -s http://${oap_host}:${oap_17128}/debugging/config/dump)
+        exact() { echo "$dump" | grep -Fqx "$1" || { echo "missing or unexpected: $1"; exit 1; }; }
+        exact 'storage.banyandb.zipkinTrace.pipeline.enabled=true'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.path=zipkin-trace-sampler.so'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.config.keepTagRules=http.method=GET'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.config.durationThresholdMs=60000'
+        exact 'storage.banyandb.zipkinTrace.pipeline.plugins.0.config.healthySampleRate=0'
+        echo config-pipeline-ok
+      expected: expected/config-dump-pipeline.yml
+
+    # 2. OAP pushed the rule onto the BanyanDB sw_zipkinTrace group verbatim.
+    - query: |
+        resp=$(curl -s http://${bydbgw_host}:${bydbgw_17913}/api/v1/group/schema/sw_zipkinTrace)
+        eq() {
+          actual=$(echo "$resp" | yq -p json "$2" -)
+          [ "$actual" = "$1" ] || { echo "expected $2 to be '$1' but was '$actual'"; echo "$resp"; exit 1; }
+        }
+        eq true '.group.pipeline.enabled'
+        eq zipkin-trace-sampler '.group.pipeline.plugins[0].name'
+        eq http.method=GET '.group.pipeline.plugins[0].sampler.config.keepTagRules'
+        echo group-pipeline-ok
+      expected: expected/group-pipeline.yml
+
+    # 3. The data node loaded and activated the sampler for the Zipkin group.
+    - query: |
+        m=$(curl -s http://${bydbgw_host}:${bydbgw_2121}/metrics)
+        echo "$m" | grep -qE 'banyandb_trace_pipeline_sampler_active_count\{group="sw_zipkinTrace"\} [1-9]' \
+          || { echo "sampler not active for sw_zipkinTrace"; echo "$m" | grep -i sampler; exit 1; }
+        if echo "$m" | grep -E '^banyandb_trace_pipeline_sampler_load_failed' | grep -qvE ' 0$'; then
+          echo "sampler load failure detected"; echo "$m" | grep -i load_failed; exit 1
+        fi
+        echo sampler-loaded-ok
+      expected: expected/sampler-loaded.yml
+
+    # 4. The mocked spans arrive.
+    - query: |
+        curl -s "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&limit=100" \
+          | yq 'length' -
+      expected: expected/traces-present.yml
+
+    # 5. …and are STILL there well after the point at which ../zipkin has already dropped
+    #    them. The wait is inside the query on purpose: infra-e2e retries a case until it
+    #    passes, so a bare "still present" check would pass instantly and prove nothing.
+    - query: |
+        sleep 180
+        curl -s "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&limit=100" \
+          | yq 'length' -
+      expected: expected/traces-kept.yml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/

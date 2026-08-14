@@ -19,10 +19,6 @@
 package org.apache.skywalking.oap.server.receiver.runtimerule.reconcile;
 
 import org.apache.skywalking.oap.server.receiver.runtimerule.apply.LalFileApplier;
-import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngine;
-import org.apache.skywalking.oap.server.receiver.runtimerule.engine.RuleEngineRegistry;
-import org.apache.skywalking.oap.server.receiver.runtimerule.engine.lal.LalRuleEngine;
-import org.apache.skywalking.oap.server.receiver.runtimerule.engine.mal.MalRuleEngine;
 
 /**
  * Pure key-format helpers shared across the runtime-rule dslManager, REST handler, and
@@ -68,21 +64,4 @@ public final class DSLScriptKey {
         return hash.substring(0, 8);
     }
 
-    /**
-     * True for catalogs whose rule files parse as MAL. Routes through the engine registry
-     * rather than a hardcoded string set so a catalog added to {@link MalRuleEngine#supportedCatalogs}
-     * (e.g. {@code telegraf-rules}) is automatically recognised by every {@code isMalCatalog}
-     * caller — no parallel string list to keep in sync.
-     */
-    public static boolean isMalCatalog(final RuleEngineRegistry registry, final String catalog) {
-        final RuleEngine<?> engine = registry.forCatalog(catalog);
-        return engine instanceof MalRuleEngine;
-    }
-
-    /** True for catalogs whose rule files parse as LAL. Same registry-driven routing as
-     *  {@link #isMalCatalog}. */
-    public static boolean isLalCatalog(final RuleEngineRegistry registry, final String catalog) {
-        final RuleEngine<?> engine = registry.forCatalog(catalog);
-        return engine instanceof LalRuleEngine;
-    }
 }

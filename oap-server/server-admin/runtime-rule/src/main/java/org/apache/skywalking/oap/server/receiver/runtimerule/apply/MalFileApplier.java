@@ -33,12 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.MetricsRule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.RuleSourceLines;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
-import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -49,8 +50,9 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.EngineApplied
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Turns a runtime-rule MAL file (one of the {@code otel-rules} / {@code log-mal-rules}
- * catalogs) into a live {@link MetricConvert} on this OAP node.
+ * Turns a runtime-rule MAL file (one of the {@code otel-rules} / {@code log-mal-rules} /
+ * {@code telegraf-rules} / {@code meter-analyzer-config} catalogs) into a live
+ * {@link MetricConvert} on this OAP node.
  *
  * <p>This is the MAL half of the apply pipeline: parse the stored YAML, construct a
  * {@link MetricConvert}, and let the existing meter-analyzer path register each declared
@@ -278,6 +280,9 @@ public class MalFileApplier {
             if (rule.getName() == null || rule.getName().isEmpty()) {
                 rule.setName(sourceName);
             }
+            // Stamp YAML source anchors from the SAME text we just bound, so a hot-updated rule
+            // gets the same line provenance a disk-loaded one does.
+            RuleSourceLines.assign(rule, yamlContent);
             // layerDefinitions: are now permitted in runtime MAL rules; they're handled by
             // the layer registry on the apply path below. The rejection that used to live
             // here was removed when runtime dynamic layers became a first-class feature.

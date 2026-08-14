@@ -20,10 +20,10 @@ package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 import lombok.SneakyThrows;
 
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
-import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LALDebug;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LALDebug;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;

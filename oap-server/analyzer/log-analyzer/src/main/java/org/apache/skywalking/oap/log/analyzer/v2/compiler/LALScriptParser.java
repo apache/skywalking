@@ -233,6 +233,14 @@ public final class LALScriptParser {
             return visitFieldAssignment(FieldType.TRACE_ID, ctx.traceIdStatement().valueAccess(),
                 ctx.traceIdStatement().typeCast()).withSource(sourceLine, sourceText);
         }
+        if (ctx.segmentIdStatement() != null) {
+            return visitFieldAssignment(FieldType.SEGMENT_ID, ctx.segmentIdStatement().valueAccess(),
+                ctx.segmentIdStatement().typeCast()).withSource(sourceLine, sourceText);
+        }
+        if (ctx.spanIdStatement() != null) {
+            return visitFieldAssignment(FieldType.SPAN_ID, ctx.spanIdStatement().valueAccess(),
+                ctx.spanIdStatement().typeCast()).withSource(sourceLine, sourceText);
+        }
         if (ctx.timestampStatement() != null) {
             final ValueAccess va = visitValueAccess(ctx.timestampStatement().valueAccess());
             final String cast = extractCastType(ctx.timestampStatement().typeCast());
@@ -255,7 +263,15 @@ public final class LALScriptParser {
         }
         // ifStatement carries its own per-branch line info; surface the if-line
         // here for the surrounding statement-level capture.
-        return (ExtractorStatement) visitIfStatement(ctx.ifStatement());
+        if (ctx.ifStatement() != null) {
+            return (ExtractorStatement) visitIfStatement(ctx.ifStatement());
+        }
+        // Every alternative in the grammar's extractorStatement rule must have a branch above.
+        // Falling through used to run visitIfStatement(null), which threw a NullPointerException
+        // naming IfStatementContext — for a rule line containing no `if`, telling the author
+        // nothing. That is how segmentId and spanId stayed unimplemented without anyone noticing.
+        throw new IllegalArgumentException(
+            "Unsupported extractor statement in LAL rule at line " + sourceLine + ": " + sourceText);
     }
 
     /**

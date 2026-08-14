@@ -210,7 +210,7 @@ class LalFileApplierTest {
         assertNotNull(applied.getRuleClassLoader(),
             "per-file loader must be retained so the dslManager can retire it through the "
                 + "graveyard on unregister");
-        assertEquals(org.apache.skywalking.oap.server.core.classloader.Catalog.LAL,
+        assertEquals(org.apache.skywalking.oap.server.core.dsl.Catalog.LAL,
             applied.getRuleClassLoader().getCatalog());
         assertEquals("multi", applied.getRuleClassLoader().getRule());
         assertEquals("h-ok", applied.getRuleClassLoader().getContentHash());

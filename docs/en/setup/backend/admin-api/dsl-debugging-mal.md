@@ -27,7 +27,9 @@ nodes[]
       sourceText                 — verbatim DSL fragment for this probe
       continueOn                 — true (MAL captures kept-only; see overview)
       payload                    — SampleFamily.toJson() at this probe stage
-      sourceLine                 — omitted for MAL (no per-line mapping)
+                                   written on. Per STAGE, not per rule: a stage from the
+                                   file-level `expSuffix:` reports the suffix's line, not
+                                   the rule's. Omitted when it could not be resolved.
 ```
 
 Sample types and the probes that emit them:
@@ -84,11 +86,11 @@ SW_DSL_DEBUGGING_INJECTION_ENABLED=false   # default is true; set false to disab
 A session targets one MAL metric rule. The key tuple is
 `(catalog, name, ruleName)`:
 
-| Field      | Source                                                                                       |
-|------------|----------------------------------------------------------------------------------------------|
-| `catalog`  | One of `otel-rules`, `log-mal-rules`, `telegraf-rules` — the directory the rule file lives in |
-| `name`     | The rule **file** name, without `.yaml`                                                       |
-| `ruleName` | The full metric name (`metricPrefix` + `_` + per-rule `name`)                                 |
+| Field      | Source                                                                                                                |
+|------------|-----------------------------------------------------------------------------------------------------------------------|
+| `catalog`  | One of `otel-rules`, `log-mal-rules`, `telegraf-rules`, `meter-analyzer-config` — the directory the rule file lives in |
+| `name`     | The rule **file** name, without `.yaml`                                                                                |
+| `ruleName` | The full metric name (`metricPrefix` + `_` + per-rule `name`)                                                          |
 
 Example — the shipped `otel-rules/vm.yaml` declares a metric prefix
 `vm` and per-rule name `cpu_total_percentage`. The full metric name is

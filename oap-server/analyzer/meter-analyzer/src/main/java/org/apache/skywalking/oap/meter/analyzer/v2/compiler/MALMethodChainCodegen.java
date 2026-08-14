@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExtensionRegistry;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
  * Generates Java source for method chain calls on a named variable.
@@ -178,7 +179,7 @@ final class MALMethodChainCodegen {
         if (expectedType == String.class) {
             if (arg instanceof MALExpressionModel.StringArgument) {
                 sb.append('"')
-                  .append(MALCodegenHelper.escapeJava(
+                  .append(DslJavaSourceText.toLiteral(
                       ((MALExpressionModel.StringArgument) arg).getValue()))
                   .append('"');
             } else {
@@ -224,7 +225,7 @@ final class MALMethodChainCodegen {
                         sb.append(", ");
                     }
                     sb.append('"')
-                      .append(MALCodegenHelper.escapeJava(values.get(i)))
+                      .append(DslJavaSourceText.toLiteral(values.get(i)))
                       .append('"');
                 }
                 sb.append("})");
@@ -280,7 +281,7 @@ final class MALMethodChainCodegen {
                            final MALExpressionModel.Argument arg) {
         if (arg instanceof MALExpressionModel.StringArgument) {
             sb.append('"')
-              .append(MALCodegenHelper.escapeJava(
+              .append(DslJavaSourceText.toLiteral(
                   ((MALExpressionModel.StringArgument) arg).getValue()))
               .append('"');
         } else if (arg instanceof MALExpressionModel.StringListArgument) {
@@ -292,7 +293,7 @@ final class MALMethodChainCodegen {
                     sb.append(", ");
                 }
                 sb.append('"')
-                  .append(MALCodegenHelper.escapeJava(vals.get(i)))
+                  .append(DslJavaSourceText.toLiteral(vals.get(i)))
                   .append('"');
             }
             sb.append("})");
@@ -355,7 +356,7 @@ final class MALMethodChainCodegen {
                     // Bare metric reference — emit inline lookup
                     sb.append("((").append(MALCodegenHelper.SF)
                       .append(") samples.getOrDefault(\"")
-                      .append(MALCodegenHelper.escapeJava(name))
+                      .append(DslJavaSourceText.toLiteral(name))
                       .append("\", ").append(MALCodegenHelper.SF)
                       .append(".EMPTY))");
                 }

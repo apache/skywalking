@@ -114,6 +114,26 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
+      # Mirrors the shipped bydb.yml: -1 means "use the data node's default grace".
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:-1}
+      finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
+      plugins:
+        - name: sw-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_SO:sw-trace-sampler.so}
+          abiVersion: 1
+          config:
+            durationThresholdMs: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS:500}
+            keepErrors: true
+            healthySampleRate: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.1}
+            # Placeholder form, mirroring the shipped bydb.yml. The inline default proves a
+            # flow sequence (colons and all) survives ${ENV:default} resolution; the env
+            # override path is covered by shouldOverrideKeepTagRulesFromEnvironment.
+            # Quoted: an inline flow sequence contains ": ", which YAML would otherwise read as a
+            # nested mapping ("mapping values are not allowed here").
+            keepTagRules: "${SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_TAG_RULES:[{tagKey: db.type, equals: PostgreSQL},{tagKey: mq.queue, equals: queue-songs-ping}]}"
   zipkinTrace:
     shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SI_DAYS:1}
@@ -133,6 +153,27 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      # Left as a block list on purpose: the trace group above uses the ${ENV:default}
+      # scalar form, so between them both shapes the loader must accept stay covered.
+      enabledEvents:
+        - PIPELINE_EVENT_MERGE
+      # Intentionally blank: a blank YAML value used to fail OAP startup with an NPE
+      # (Properties rejects nulls). It must now be skipped and leave the field unset.
+      finalizeGraceSeconds:
+      plugins:
+        - name: zipkin-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_SO:zipkin-trace-sampler.so}
+          abiVersion: 1
+          config:
+            durationThresholdMs: 1000
+            healthySampleRate: 0.05
+            keepTagRules:
+              - tagKey: query
+                regex: "http\\.status_code=5\\d\\d"
+              - tagKey: local_endpoint_service_name
+                equals: gateway.sample-services
   recordsLog:
     shardNum: ${SW_STORAGE_BANYANDB_LOG_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_LOG_SI_DAYS:1}

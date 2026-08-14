@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
@@ -43,10 +44,10 @@ import org.apache.skywalking.oap.meter.analyzer.v2.dsl.FilterExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Result;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.SampleFamily;
-import org.apache.skywalking.oap.meter.analyzer.v2.dsldebug.MALDebug;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.debug.MALDebug;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.instance.ServiceInstanceRelationClientSideMetrics;
@@ -72,6 +73,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
+import javassist.ClassPool;
 
 /**
  * Analyzer analyses DSL expression with input samples, then to generate meter-system metrics.
@@ -120,20 +122,20 @@ public class Analyzer {
                                  final String filterExpression,
                                  final String expression,
                                  final MeterSystem meterSystem,
-                                 final String yamlSource) {
+                                 final DslSourceRef sourceRef) {
         FilterExpression filter = null;
         if (!Strings.isNullOrEmpty(filterExpression)) {
             filter = new FilterExpression(filterExpression);
         }
-        return build(metricName, filter, expression, meterSystem, yamlSource);
+        return build(metricName, filter, expression, meterSystem, sourceRef);
     }
 
     public static Analyzer build(final String metricName,
                                  final FilterExpression filter,
                                  final String expression,
                                  final MeterSystem meterSystem,
-                                 final String yamlSource) {
-        return build(metricName, filter, expression, meterSystem, yamlSource, null, null);
+                                 final DslSourceRef sourceRef) {
+        return build(metricName, filter, expression, meterSystem, sourceRef, null, null);
     }
 
     /**
@@ -153,11 +155,11 @@ public class Analyzer {
                                  final FilterExpression filter,
                                  final String expression,
                                  final MeterSystem meterSystem,
-                                 final String yamlSource,
-                                 final javassist.ClassPool pool,
+                                 final DslSourceRef sourceRef,
+                                 final ClassPool pool,
                                  final ClassLoader targetClassLoader) {
         final Analyzer analyzer = prepare(
-            metricName, filter, expression, meterSystem, yamlSource, pool, targetClassLoader);
+            metricName, filter, expression, meterSystem, sourceRef, pool, targetClassLoader);
         analyzer.register();
         return analyzer;
     }
@@ -177,12 +179,12 @@ public class Analyzer {
                                     final FilterExpression filter,
                                     final String expression,
                                     final MeterSystem meterSystem,
-                                    final String yamlSource,
-                                    final javassist.ClassPool pool,
+                                    final DslSourceRef sourceRef,
+                                    final ClassPool pool,
                                     final ClassLoader targetClassLoader) {
         // Static boot / default path: create-if-absent. Runtime-rule on-demand apply passes
         // withSchemaChange() via the explicit-opt overload.
-        return prepare(metricName, filter, expression, meterSystem, yamlSource, pool, targetClassLoader,
+        return prepare(metricName, filter, expression, meterSystem, sourceRef, pool, targetClassLoader,
             StorageManipulationOpt.schemaCreateIfAbsent());
     }
 
@@ -195,11 +197,11 @@ public class Analyzer {
                                     final FilterExpression filter,
                                     final String expression,
                                     final MeterSystem meterSystem,
-                                    final String yamlSource,
-                                    final javassist.ClassPool pool,
+                                    final DslSourceRef sourceRef,
+                                    final ClassPool pool,
                                     final ClassLoader targetClassLoader,
                                     final StorageManipulationOpt storageOpt) {
-        Expression e = DSL.parse(metricName, expression, yamlSource, pool, targetClassLoader);
+        Expression e = DSL.parse(metricName, expression, sourceRef, pool, targetClassLoader);
         ExpressionMetadata ctx = e.parse();
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.pool = pool;
@@ -238,7 +240,7 @@ public class Analyzer {
     private int[] percentiles;
 
     /** Per-file Javassist pool for runtime-rule hot-update, null on startup path. */
-    private javassist.ClassPool pool;
+    private ClassPool pool;
     /** Per-file target classloader for runtime-rule hot-update, null on startup path. */
     private ClassLoader targetClassLoader;
     /**

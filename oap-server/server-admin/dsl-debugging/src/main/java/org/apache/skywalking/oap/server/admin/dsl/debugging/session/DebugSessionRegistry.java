@@ -26,8 +26,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Owns the lifecycle of every active debug session on this OAP node.

@@ -143,8 +143,8 @@ Implicit catalog in the path — useful when scripting against a single catalog:
 - `/runtime/mal/log/{addOrUpdate,inactivate,delete}` → `catalog=log-mal-rules`
 - `/runtime/lal/{addOrUpdate,inactivate,delete}` → `catalog=lal`
 
-`telegraf-rules` is supported by the canonical `/runtime/rule/...` routes; it does not
-currently have a shortcut route.
+`telegraf-rules` and `meter-analyzer-config` are supported by the canonical
+`/runtime/rule/...` routes; they do not currently have shortcut routes.
 
 ### Valid catalogs + names
 
@@ -153,6 +153,7 @@ currently have a shortcut route.
 | `otel-rules` | OTEL MAL rule YAML files |
 | `log-mal-rules` | Log-derived MAL rule YAML files |
 | `telegraf-rules` | Telegraf MAL rule YAML files |
+| `meter-analyzer-config` | Native meter protocol MAL rule YAML files |
 | `lal` | LAL rule YAML files |
 
 Rule `name` mirrors the static filesystem layout — a relative path under the catalog root

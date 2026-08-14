@@ -1,0 +1,27 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# EDIT of meter-v1.yaml under the same (catalog, name). Declares one ADDITIONAL
+# metric, so the apply classifies as STRUCTURAL: the engine must re-compile the
+# bundle, register the new metric with MeterSystem, and swap the converter in
+# MeterProcessService's registry — all without dropping the metric that v1
+# already registered.
+expSuffix: instance(['service'], ['instance'], Layer.GENERAL)
+metricPrefix: e2e_rr_meter
+metricsRules:
+  - name: batch
+    exp: batch_test
+  - name: batch_scaled
+    exp: batch_test * 2

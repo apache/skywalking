@@ -99,6 +99,9 @@ hooks:
 #    default:
 #      is-default: true
 #      text-template: "Apache SkyWalking Alarm: \n %s."
+#    #    # Events API v2 endpoint. Defaults to the US service region; set the EU endpoint
+#    #    # (https://events.eu.pagerduty.com/v2/enqueue) if your PagerDuty account is in the EU region.
+#      events-api-url: https://events.pagerduty.com/v2/enqueue
 #      integration-keys:
 #    #    # you can find your integration key(s) on the Events API V2 integration page for your PagerDuty service(s).
 #    #    # (you may need to create an Events API V2 integration for your PagerDuty service if you don't have one yet)

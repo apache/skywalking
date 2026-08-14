@@ -37,10 +37,10 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.mal.MALHolderRegistr
 import org.apache.skywalking.oap.server.admin.dsl.debugging.module.DSLDebuggingModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
-import org.apache.skywalking.oap.server.core.classloader.RuleClassLoader;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader;
 import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
@@ -67,10 +67,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 /**
  * MAL implementation of {@link RuleEngine}. Owns the metric-name lifecycle: parse / classify /
  * compile / register / verify / commit / unregister for {@code otel-rules},
- * {@code log-mal-rules}, and {@code telegraf-rules}. All three catalogs share the same MAL
- * syntax, so one engine handles all three — the catalog name only routes which dispatcher the
- * MAL converter writes into (MeterSystem for otel-rules / telegraf-rules; LAL-extracted MAL
- * for log-mal-rules).
+ * {@code log-mal-rules}, {@code telegraf-rules}, and {@code meter-analyzer-config}. All four
+ * catalogs share the same MAL syntax, so one engine handles them all — the catalog name only
+ * routes which dispatcher the MAL converter writes into (MeterSystem for otel-rules /
+ * telegraf-rules / meter-analyzer-config; LAL-extracted MAL for log-mal-rules).
  *
  * <p>Holds a stable reference to the scheduler's unified {@code rules} map at construction.
  * Each rule's MAL-applied artifact lives on {@link AppliedRuleScript#getApplied} (an
@@ -88,7 +88,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  */
 @Slf4j
 public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
-    private static final Set<String> CATALOGS = Set.of("otel-rules", "log-mal-rules", "telegraf-rules");
+    private static final Set<String> CATALOGS =
+        Set.of("otel-rules", "log-mal-rules", "telegraf-rules", "meter-analyzer-config");
 
     private final Map<String, AppliedRuleScript> rules;
     private final ModuleManager moduleManager;
@@ -154,6 +155,12 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
             case "telegraf-rules":
                 // String literal keeps telegraf-receiver-plugin out of runtime-rule's pom.
                 moduleName = "receiver-telegraf";
+                break;
+            case "meter-analyzer-config":
+                // String literal keeps agent-analyzer out of runtime-rule's pom. The registry
+                // is MeterProcessService, which serves both the native meter gRPC receiver and
+                // the Kafka meter fetcher — one registry covers both ingest paths.
+                moduleName = "agent-analyzer";
                 break;
             default:
                 return null;

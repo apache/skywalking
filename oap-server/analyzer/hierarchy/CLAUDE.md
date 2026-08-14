@@ -56,9 +56,20 @@ oap-server/analyzer/hierarchy/
 | SPI provider | `org.apache.skywalking.oap.server.core.config.v2.compiler.CompiledHierarchyRuleProvider` |
 | Service type | `org.apache.skywalking.oap.server.core.query.type.Service` (in server-core) |
 
-Class names are built from `yamlSource` (file name + line number) and `classNameHint` (rule name).
+Class names are built from the rule's `DslSourceRef` (file name + line number) and `classNameHint`
+(rule name).
 Example: `hierarchy_definition_L88_name` (rule `name` at line 88 of `hierarchy-definition.yml`).
-Falls back to `HierarchyRule_<N>` (global counter) when no hint is set.
+
+**The SPI carries the line.** `HierarchyDefinitionService.HierarchyRuleProvider` declares
+`buildRules(Map<String, String> ruleExpressions, Map<String, Integer> ruleLines)`. This replaced a
+one-argument `buildRules(Map)` and is a **breaking change**: a third-party provider compiled against
+the old signature fails with `AbstractMethodError` and must be recompiled. The line map is separate
+because snakeyaml's bean binding discards positional marks, so the expression map cannot carry them;
+`HierarchyDefinitionService` resolves it with `DslYamlLineIndex.keyLines(yaml, "auto-matching-rules")`
+— `keyLines`, not the ordinal `index`, because hierarchy rules are a YAML **mapping** rather than a
+sequence. A provider with no line information should pass an empty map, which yields `_Lunknown_`
+class names.
+Falls back to `HierarchyRule_<N>` (global counter) when no hint is set. Hierarchy defines into the shared application loader, so it deduplicates names process-wide: the same rule compiled twice in one JVM yields `..._2`.
 
 ## Code Generation Details
 

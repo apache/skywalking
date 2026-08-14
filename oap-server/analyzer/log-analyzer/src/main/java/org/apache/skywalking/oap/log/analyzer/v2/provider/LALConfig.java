@@ -30,6 +30,9 @@ public class LALConfig {
     public static final String LAYER_AUTO = "auto";
     private String name;
 
+    /** 1-based line of this rule's entry in its source YAML; 0 when unresolved. */
+    private int lineNo;
+
     private String dsl;
 
     private String layer;
@@ -48,8 +51,22 @@ public class LALConfig {
     private String outputType;
 
     /**
-     * Source YAML file name (without extension), set during loading by
-     * {@link LALConfigs}. Used for informative stack traces in generated code.
+     * Source YAML file name, set during loading by {@link LALConfigs}.
+     *
+     * <p>This is the rule file's <b>identity</b>: it is the middle component of the
+     * dsl-debugging {@code RuleKey (LAL, sourceName, ruleName)}, and the boot loader and the
+     * runtime-rule applier must produce the same value for the same file or a hot update
+     * registers a second binding instead of replacing the static one.
      */
     private transient String sourceName;
+
+    /**
+     * Catalog-qualified path to the rule file, e.g. {@code lal/default.yaml} — what a generated
+     * class names in its {@code SourceFile}.
+     *
+     * <p>Separate from {@link #sourceName} on purpose: attribution wants the path an operator can
+     * open, the debug registry wants a stable identity, and one field cannot change to suit the
+     * first without silently re-keying the second.
+     */
+    private transient String sourcePath;
 }

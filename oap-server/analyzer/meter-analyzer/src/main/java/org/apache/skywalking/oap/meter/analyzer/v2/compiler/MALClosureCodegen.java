@@ -17,12 +17,15 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import java.util.List;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtMethod;
 
 /**
  * Generates closure classes for MAL expressions using Javassist bytecode generation.
@@ -222,7 +225,7 @@ final class MALClosureCodegen {
                              final boolean beanMode) {
         if (expr instanceof MALExpressionModel.ClosureStringLiteral) {
             sb.append('"')
-              .append(MALCodegenHelper.escapeJava(((MALExpressionModel.ClosureStringLiteral) expr).getValue()))
+              .append(DslJavaSourceText.toLiteral(((MALExpressionModel.ClosureStringLiteral) expr).getValue()))
               .append('"');
         } else if (expr instanceof MALExpressionModel.ClosureNumberLiteral) {
             final double val =
@@ -245,7 +248,7 @@ final class MALClosureCodegen {
                     sb.append(", ");
                 }
                 final MALExpressionModel.MapEntry entry = mapLit.getEntries().get(i);
-                sb.append('"').append(MALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
+                sb.append('"').append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
                 generateClosureExpr(sb, entry.getValue(), paramName, beanMode);
             }
             sb.append(")");
@@ -325,7 +328,7 @@ final class MALClosureCodegen {
                 (MALExpressionModel.ClosureRegexMatchExpr) expr;
             sb.append(MALCodegenHelper.RUNTIME_HELPER_FQCN).append(".regexMatch(String.valueOf(");
             generateClosureExpr(sb, rm.getTarget(), paramName, beanMode);
-            sb.append("), \"").append(MALCodegenHelper.escapeJava(rm.getPattern())).append("\")");
+            sb.append("), \"").append(DslJavaSourceText.toLiteral(rm.getPattern())).append("\")");
         } else if (expr instanceof MALExpressionModel.ClosureExprChain) {
             final MALExpressionModel.ClosureExprChain chain =
                 (MALExpressionModel.ClosureExprChain) expr;
@@ -517,7 +520,7 @@ final class MALClosureCodegen {
             final String key =
                 ((MALExpressionModel.ClosureFieldAccess) segs.get(0)).getName();
             sb.append("(String) ").append(resolvedTarget).append(".get(\"")
-              .append(MALCodegenHelper.escapeJava(key)).append("\")");
+              .append(DslJavaSourceText.toLiteral(key)).append("\")");
         } else if (segs.size() == 1
                 && segs.get(0) instanceof MALExpressionModel.ClosureIndexAccess) {
             sb.append("(String) ").append(resolvedTarget).append(".get(");
@@ -541,7 +544,7 @@ final class MALClosureCodegen {
                         final String prior = local.toString();
                         local.setLength(0);
                         local.append("((String) ").append(prior).append(".get(\"")
-                          .append(MALCodegenHelper.escapeJava(name)).append("\"))");
+                          .append(DslJavaSourceText.toLiteral(name)).append("\"))");
                         pastMapAccess = true;
                     } else {
                         local.append('.').append(name);
@@ -623,10 +626,21 @@ final class MALClosureCodegen {
         if (log.isDebugEnabled()) {
             log.debug("Companion class [{}] apply():\n{}", companionName, methodBody);
         }
-        final javassist.CtMethod m = CtNewMethod.make(methodBody, companion);
+        final CtMethod m = CtNewMethod.make(methodBody, companion);
         companion.addMethod(m);
         addCompanionLocalVariableTable(m, info);
-        bytecodeHelper.addLineNumberTable(m, firstResultSlot(info));
+        // A companion is its own class file, so it carries its own coordinates: its own .java and
+        // a line into THAT file. Javassist already names a SourceFile (simple name + ".java"),
+        // which both dangles and loses the rule the closure came from -- hence overwriting it
+        // below, and writing the file so the name resolves. One LineNumberTable entry, not a
+        // per-statement table: a closure body stores nothing to a result slot, so the
+        // per-statement boundary scan has nothing to detect.
+        final String companionSource = wrapCompanionSource(companion, info, methodBody);
+        DslGeneratedFileWriter.setSourceFile(companion, bytecodeHelper.sourceFileNameOf(companion));
+        bytecodeHelper.writeSourceFile(companion, companionSource);
+        // Found by searching the assembled text for the SAM declaration, so changing
+        // wrapCompanionSource no longer requires updating a constant in step with it.
+        DslGeneratedFileWriter.attachSignatureLine(m, DslGeneratedFileWriter.lineOfMethod(companionSource, samName(info)));
         return companion;
     }
 
@@ -676,7 +690,7 @@ final class MALClosureCodegen {
                 sb.append("  java.util.Map _result = new java.util.HashMap();\n");
                 for (final MALExpressionModel.MapEntry entry : mapLit.getEntries()) {
                     sb.append("  _result.put(\"")
-                      .append(MALCodegenHelper.escapeJava(entry.getKey())).append("\", ");
+                      .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
                     generateClosureExpr(sb, entry.getValue(), paramName);
                     sb.append(");\n");
                 }
@@ -704,42 +718,65 @@ final class MALClosureCodegen {
         return sb.toString();
     }
 
-    private void addCompanionLocalVariableTable(final javassist.CtMethod m,
+    private void addCompanionLocalVariableTable(final CtMethod m,
                                                 final ClosureInfo info) {
         final List<String> params = info.closure.getParams();
         if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
             final String elementParam = params.size() >= 1 ? params.get(0) : "element";
             final String tagsParam = params.size() >= 2 ? params.get(1) : "tags";
             // instance method: slot 0=this, 1=element, 2=tags
-            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            DslGeneratedFileWriter.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {elementParam, "Ljava/lang/String;"},
                 {tagsParam, "Ljava/util/Map;"}
             });
         } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
             final String paramName = params.isEmpty() ? "it" : params.get(0);
             // instance method: slot 0=this, 1=_arg, 2=paramName
-            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            DslGeneratedFileWriter.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {"_arg", "Ljava/lang/Object;"},
                 {paramName, "L" + MALCodegenHelper.METER_ENTITY_FQCN.replace('.', '/') + ";"}
             });
         } else {
             final String paramName = params.isEmpty() ? "it" : params.get(0);
             // instance method: slot 0=this, 1=_raw, 2=paramName
-            bytecodeHelper.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
+            DslGeneratedFileWriter.addLocalVariableTable(m, m.getDeclaringClass().getName(), new String[][]{
                 {"_raw", "Ljava/lang/Object;"},
                 {paramName, "Ljava/util/Map;"}
             });
         }
     }
 
-    private int firstResultSlot(final ClosureInfo info) {
-        if (MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)) {
-            return 3; // slot 0=this, 1=element, 2=tags, 3+=locals
-        } else if (MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)) {
-            return 3; // slot 0=this, 1=_arg, 2=paramName, 3+=locals
-        } else {
-            return 3; // slot 0=this, 1=_raw, 2=paramName, 3+=locals
-        }
+    /**
+     * SAM method name for a closure kind, used to locate its signature in the sourceFile.
+     *
+     * @param info the closure
+     * @return {@code accept} for the void-returning interfaces, {@code apply} otherwise
+     */
+    private static String samName(final ClosureInfo info) {
+        return MALCodegenHelper.FOR_EACH_FUNCTION_TYPE.equals(info.interfaceType)
+            || MALCodegenHelper.DECORATE_FUNCTION_TYPE.equals(info.interfaceType)
+            ? "accept" : "apply";
+    }
+
+    /**
+     * The companion's generated {@code .java}: the same envelope handed to Javassist, so
+     * source-attach renders exactly the code that was compiled.
+     *
+     * @param companion  the companion class being generated
+     * @param info       the closure it implements, for the {@code implements} clause
+     * @param methodBody the SAM method source fed to Javassist
+     * @return the full source of the companion's generated .java
+     */
+    private static String wrapCompanionSource(final CtClass companion,
+                                              final ClosureInfo info,
+                                              final String methodBody) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("package ").append(companion.getPackageName()).append(";\n\n");
+        sb.append("public class ").append(companion.getSimpleName())
+          .append(" implements ").append(info.interfaceType).append(" {\n\n");
+        sb.append("    ").append(methodBody.replace("\n", "\n    ")).append("\n");
+        sb.append("}\n");
+        return sb.toString();
     }
 
     void generateClosureCondition(final StringBuilder sb,
@@ -808,7 +845,7 @@ final class MALClosureCodegen {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                sb.append('"').append(MALCodegenHelper.escapeJava(ic.getValues().get(i))).append('"');
+                sb.append('"').append(DslJavaSourceText.toLiteral(ic.getValues().get(i))).append('"');
             }
             sb.append(").contains(");
             generateClosureExpr(sb, ic.getExpr(), paramName, beanMode);

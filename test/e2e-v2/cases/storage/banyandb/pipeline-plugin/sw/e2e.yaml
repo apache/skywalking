@@ -1,0 +1,118 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# End-to-end verification that the first-party sw-trace-sampler plugin LOADS and
+# activates on the SkyWalking-native segment schema: the "-plugins" CGO host image
+# loads the .so delivered by the "-plugins-carrier" image, OAP pushes the
+# TracePipelineConfig (with the sw-trace-sampler config) to the sw_trace group, and
+# the data node activates the sampler. Unlike the reference latencystatussampler
+# (../), sw-trace-sampler reads the real segment columns (is_error / the flattened
+# "tags" array) and takes duration from the intrinsic MinTS/MaxTS.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+# No trigger: the trace-mocker service sends the trace segments to OAP on its own.
+
+verify:
+  # The drop assertion cannot pass until the mocker has written all 5 traces (10s + 4x30s
+  # = ~130s), those segments age past the 20s merge grace, and a filtering merge runs — so
+  # the budget is deliberately larger than the other cases need.
+  retry:
+    count: 40
+    interval: 10s
+  cases:
+    # 1. OAP parsed the pipeline block, resolved the ${ENV:default} placeholder for the
+    #    duration threshold, and preserved the config value types.
+    - query: |
+        dump=$(curl -s http://${oap_host}:${oap_17128}/debugging/config/dump)
+        exact() { echo "$dump" | grep -Fqx "$1" || { echo "missing or unexpected: $1"; exit 1; }; }
+        exact 'storage.banyandb.trace.pipeline.enabled=true'
+        exact 'storage.banyandb.trace.pipeline.plugins.0.path=sw-trace-sampler.so'
+        exact 'storage.banyandb.trace.pipeline.plugins.0.config.durationThresholdMs=60000'
+        exact 'storage.banyandb.trace.pipeline.plugins.0.config.keepErrors=false'
+        exact 'storage.banyandb.trace.pipeline.plugins.0.config.healthySampleRate=0'
+        exact 'storage.banyandb.trace.pipeline.mergeGraceSeconds=20'
+        echo config-pipeline-ok
+      expected: expected/config-dump-pipeline.yml
+
+    # 2. OAP pushed the TracePipelineConfig onto the BanyanDB sw_trace group.
+    - query: |
+        resp=$(curl -s http://${bydbgw_host}:${bydbgw_17913}/api/v1/group/schema/sw_trace)
+        eq() {
+          actual=$(echo "$resp" | yq -p json "$2" -)
+          [ "$actual" = "$1" ] || { echo "expected $2 to be '$1' but was '$actual'"; echo "$resp"; exit 1; }
+        }
+        eq true '.group.pipeline.enabled'
+        eq sw-trace-sampler '.group.pipeline.plugins[0].name'
+        eq sw-trace-sampler.so '.group.pipeline.plugins[0].sampler.path'
+        eq 60000 '.group.pipeline.plugins[0].sampler.config.durationThresholdMs'
+        echo group-pipeline-ok
+      expected: expected/group-pipeline.yml
+
+    # 3. The key assertion: the data node actually LOADED the sampler plugin. The
+    #    -plugins host dlopen'd the carrier-delivered .so and activated it for
+    #    sw_trace. A bad/mismatched .so would fail open and loud, surfacing as
+    #    sampler_load_failed instead. Queried from BanyanDB's own metrics (:2121).
+    - query: |
+        m=$(curl -s http://${bydbgw_host}:${bydbgw_2121}/metrics)
+        echo "$m" | grep -qE 'banyandb_trace_pipeline_sampler_active_count\{group="sw_trace"\} [1-9]' \
+          || { echo "sampler not active for sw_trace"; echo "$m" | grep -i sampler; exit 1; }
+        if echo "$m" | grep -E '^banyandb_trace_pipeline_sampler_load_failed' | grep -qvE ' 0$'; then
+          echo "sampler load failure detected"; echo "$m" | grep -i load_failed; exit 1
+        fi
+        echo sampler-loaded-ok
+      expected: expected/sampler-loaded.yml
+
+    # 4. The traces ARRIVE and are queryable first. Freshly written segments are younger
+    #    than mergeGraceSeconds (20s), so isMergeHot() exempts them and the sampler leaves
+    #    them alone — this proves the data really reached BanyanDB before any drop.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql tv2 ls --service-name=mock_a_service
+      expected: expected/traces-list.yml
+
+    # 5. …and are then DROPPED by the sampler. Once the mocker has finished writing and the
+    #    segments age past the 20s merge grace, the next filtering merge (max-merge-parts=2)
+    #    applies the verdict: every mocked trace fails all sure-keep rules (envelope 6000ms <
+    #    60000ms threshold, keepErrors=false despite mock_b's is_error, healthySampleRate=0,
+    #    no tag rules), so the trace list must become empty. This is the sampler actually
+    #    removing data, not merely being loaded.
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql \
+          tv2 ls --service-name=mock_a_service 2>/dev/null \
+          | yq '.traces | length' -
+      expected: expected/traces-dropped.yml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-data
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/

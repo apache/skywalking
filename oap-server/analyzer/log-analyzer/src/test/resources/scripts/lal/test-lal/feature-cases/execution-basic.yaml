@@ -382,3 +382,50 @@ rules:
         }
         sink {}
       }
+
+  # METADATA_TRACE_GETTERS: traceId / traceSegmentId / spanId. Read them out of the
+  # metadata's TraceContext and park them in tags so the assertions can see them.
+  - name: trace-context-read
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          tag 'tid': log.traceContext.traceId
+          tag 'sid': log.traceContext.traceSegmentId
+          tag 'spid': log.traceContext.spanId
+        }
+        sink {}
+      }
+
+  # The write direction. LogBuilder copies traceId / segmentId / spanId from the metadata's
+  # TraceContext only when a rule has NOT set them, so assigning here must win over the
+  # incoming values. segmentId and spanId had no branch in the parser's visitor: the grammar
+  # accepted them, and compiling threw a NullPointerException naming IfStatementContext.
+  - name: trace-write-all-three
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          traceId parsed.tid as String
+          segmentId parsed.seg as String
+          spanId parsed.sp as String
+        }
+        sink {}
+      }
+
+  # segmentId alone — the single-statement shape that used to NPE.
+  - name: trace-segment-override
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          segmentId parsed.seg as String
+        }
+        sink {}
+      }

@@ -18,11 +18,14 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider;
 
+import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
+import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterProcessService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
@@ -45,10 +48,12 @@ import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationSe
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.CoreOALDefine;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 
 public class AnalyzerModuleProvider extends ModuleProvider {
@@ -65,7 +70,6 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     @Getter
     private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
-    private List<MeterConfig> meterConfigs;
     @Getter
     private MeterProcessService processService;
 
@@ -111,10 +115,11 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
         this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
 
-        meterConfigs = MeterConfigs.loadConfig(
-            moduleConfig.getConfigPath(), moduleConfig.meterAnalyzerActiveFileNames());
         processService = new MeterProcessService(getManager());
         this.registerServiceImplementation(IMeterProcessService.class, processService);
+        // Same instance under both contracts: IMeterProcessService is the ingest-side view
+        // (receiver + Kafka fetcher), MalConverterRegistry is the runtime-rule hot-update view.
+        this.registerServiceImplementation(MalConverterRegistry.class, processService);
     }
 
     @Override
@@ -137,7 +142,31 @@ public class AnalyzerModuleProvider extends ModuleProvider {
 
         segmentParserService.setListenerManager(listenerManager());
 
-        processService.start(meterConfigs);
+        processService.start(loadMeterRules());
+    }
+
+    /**
+     * Load the active {@code meter-analyzer-config} rule files through the same
+     * {@link Rules} loader the otel catalog uses, so meter rules participate in
+     * {@code RuleSetMerger} (runtime-rule DB overrides win over disk) and land in
+     * {@code StaticRuleRegistry} (which is what makes {@code /runtime/rule/list},
+     * {@code /inactivate} and revert-to-bundled see a shipped meter rule at all).
+     *
+     * <p>Runs in {@code start()} rather than {@code prepare()} — the merge consults the
+     * runtime-rule override resolver, which needs a live storage module. This mirrors
+     * {@code OpenTelemetryMetricRequestProcessor.start()}.
+     */
+    private List<Rule> loadMeterRules() throws ModuleStartException {
+        final List<String> activeFiles = moduleConfig.meterAnalyzerActiveFileNames();
+        // Null when meterAnalyzerActiveFiles is unset; Rules.loadRules would NPE on it.
+        if (CollectionUtils.isEmpty(activeFiles)) {
+            return Collections.emptyList();
+        }
+        try {
+            return Rules.loadRules(moduleConfig.getConfigPath(), activeFiles);
+        } catch (IOException e) {
+            throw new ModuleStartException("Load meter analyzer configs failed", e);
+        }
     }
 
     @Override
@@ -150,7 +179,16 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         return new String[] {
             TelemetryModule.NAME,
             CoreModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            // StorageModule is declared so Storage.start() (which registers the
+            // runtime_rule management table) runs before this provider's start(),
+            // guaranteeing the RuntimeRuleOverrideResolver's DB-backed resolver can load
+            // while loadMeterRules() registers the static meter rules. Without this dep
+            // the module-system sort places agent-analyzer ahead of Storage, the resolver
+            // silently no-ops at boot, and an operator's meter-rule override / inactivate
+            // would not take effect until the reconciler's next tick. Same rationale the
+            // otel / telegraf / envoy / log-analyzer providers carry.
+            StorageModule.NAME
         };
     }
 

@@ -106,7 +106,7 @@ public final class DSLRuntimeState {
     }
 
     /** Coarse hint about whether the bundle's {@link
-     *  org.apache.skywalking.oap.server.core.classloader.RuleClassLoader} has been retired
+     *  org.apache.skywalking.oap.server.core.dsl.classloader.RuleClassLoader} has been retired
      *  and, if so, whether the JVM has confirmed collection. */
     public enum LoaderGc {
         /** The loader is alive, serving active classes. */

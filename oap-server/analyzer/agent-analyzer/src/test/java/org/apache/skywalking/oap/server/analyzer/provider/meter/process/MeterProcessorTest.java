@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,8 +26,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterBucketValue;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterData;
 import org.apache.skywalking.apm.network.language.agent.v3.MeterHistogram;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.meter.config.MeterConfigs;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
+import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
@@ -77,7 +78,7 @@ public class MeterProcessorTest {
     }
 
     @BeforeEach
-    public void setup() throws StorageException, ModuleStartException {
+    public void setup() throws StorageException, ModuleStartException, IOException {
         meterSystem = spy(new MeterSystem(moduleManager));
         when(moduleManager.find(anyString())).thenReturn(mock(ModuleProviderHolder.class));
         when(moduleManager.find(CoreModule.NAME).provider()).thenReturn(mock(ModuleServiceHolder.class));
@@ -92,7 +93,7 @@ public class MeterProcessorTest {
         // the shape-mismatch gate at the installer level can surface to stream registration.
         doNothing().when(mockProcessor).create(any(), (StreamDefinition) any(), any(), any());
         final MeterProcessService processService = new MeterProcessService(moduleManager);
-        List<MeterConfig> config = MeterConfigs.loadConfig("meter-analyzer-config", Arrays.asList("config"));
+        List<Rule> config = Rules.loadRules("meter-analyzer-config", Arrays.asList("config"));
         processService.start(config);
         processor = new MeterProcessor(processService);
     }

@@ -47,9 +47,9 @@ abstract class LALClassGeneratorTestBase {
         // debug-probe-injected generated classes (gate field +
         // probe call sites) in target/lal-generated-classes/.
         if ("true".equalsIgnoreCase(System.getenv("SW_DSL_DEBUGGING_INJECTION_ENABLED"))) {
-            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.enableInjection();
+            org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.enableInjection();
         } else {
-            org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.resetInjection();
+            org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.resetInjection();
         }
         generator = new LALClassGenerator(new ClassPool(true));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("lal"));

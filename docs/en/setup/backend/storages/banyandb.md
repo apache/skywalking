@@ -128,6 +128,20 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    # Group-scoped trace retention pipeline (sampler plugins). See "Trace retention pipeline" below.
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED:false}
+      enabledEvents: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
+      finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
+      plugins:
+        - name: sw-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_SO:sw-trace-sampler.so}
+          abiVersion: 1
+          config:
+            durationThresholdMs: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS:500}
+            keepErrors: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_ERRORS:true}
+            healthySampleRate: ${SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.1}
   zipkinTrace:
     shardNum: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SI_DAYS:1}
@@ -147,6 +161,21 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_COLD_NODE_SELECTOR:"type=cold"}
+    # The Zipkin schema has no is_error column, so keepErrors here detects Zipkin's
+    # conventional "error" span tag inside the flattened "query" attributes.
+    pipeline:
+      enabled: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED:false}
+      enabledEvents: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_ENABLED_EVENTS:PIPELINE_EVENT_MERGE}
+      mergeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_MERGE_GRACE_SECONDS:1800}
+      finalizeGraceSeconds: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_PIPELINE_FINALIZE_GRACE_SECONDS:-1}
+      plugins:
+        - name: zipkin-trace-sampler
+          path: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_SO:zipkin-trace-sampler.so}
+          abiVersion: 1
+          config:
+            durationThresholdMs: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_DURATION_THRESHOLD_MS:1000}
+            keepErrors: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_ERRORS:true}
+            healthySampleRate: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE:0.05}
   recordsLog:
     shardNum: ${SW_STORAGE_BANYANDB_LOG_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_LOG_SI_DAYS:1}
@@ -264,6 +293,81 @@ groups:
     replicas: ${SW_STORAGE_BANYANDB_PROPERTY_REPLICAS:0}
 
 ```
+
+### Trace retention pipeline
+
+> This section is the configuration reference. For how a trace is actually judged — the rule
+> chain, the duration envelope, the sampling hash, and what happens when a plugin is missing —
+> see [Trace Tail Sampling](../../../banyandb/tail-sampling.md).
+The `trace` and `zipkinTrace` groups may run a **sampler plugin inside the BanyanDB data node**,
+which drops traces during Hot-phase LSM compaction. Unlike
+[server-side trace sampling](../trace-sampling.md), which decides at ingest and prevents writes,
+this runs *after* storage: it reclaims space from data already written, and its verdict is per
+whole trace, so all of a trace's segments (or spans) are seen together and kept or dropped as a
+unit. It is disabled by default (`enabled: false`).
+
+Each data node must run with `-trace-pipeline-native-plugin-enabled=true` and
+`-trace-pipeline-trusted-plugin-dir` pointing at a directory holding the sampler `.so`.
+
+| Setting | Meaning |
+|---|---|
+| `enabled` | Activates the pipeline for this group. **Off by default** — this deletes stored traces, so it is opt-in. It also only has any effect on a data node running the plugin-capable image with `-trace-pipeline-native-plugin-enabled=true` and the sampler `.so` present in its trusted directory; elsewhere the config is pushed and ignored, and merges run unfiltered. |
+| `enabledEvents` | When the chain runs: `PIPELINE_EVENT_MERGE` (during compaction) and/or `PIPELINE_EVENT_FINALIZE` (once a segment has settled). Accepts a comma-separated string, so it can be set from the environment (`SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED_EVENTS`, and the `ZIPKIN_` variant), or a YAML block list in the file. An empty value falls back to MERGE for backward compatibility, so FINALIZE runs only when named explicitly. |
+| `mergeGraceSeconds` | Maturity window before a trace may be dropped at merge, so traces whose remaining spans may still arrive are not destroyed prematurely. Ships as **1800** (30 minutes): a trace is usually read soon after it is written, so the data node's own 30s default would let the sampler drop traces still being looked at. Set `-1` to hand the decision back to the node. |
+| `finalizeGraceSeconds` | Settling window for the finalization pass. `-1` uses the data node default (5m). |
+| `plugins[].path` | The `.so` filename, resolved inside the trusted plugin directory. |
+| `plugins[].config` | Passed verbatim to the plugin constructor; the engine does not interpret the keys. The first-party samplers **reject an unrecognized key** rather than ignoring it — every option they have is a keep rule, so a key that silently missed would leave a sampler that drops the whole group. Note the reference `_example` plugin uses `snake_case` names; these two use `camelCase`, so a config copied from it is refused outright instead of quietly retaining nothing. |
+
+Only a **positive** grace overrides the data node default. `0` is not "no grace": the data node
+treats any non-positive value as unset, so zero grace can only be set with the node's
+`-trace-pipeline-merge-grace-default=0` flag. A blank value is treated as unset and leaves the
+field at its default, the same as omitting the line.
+
+The first-party samplers accept:
+
+| Config key | Meaning |
+|---|---|
+| `durationThresholdMs` | Keep a trace whose end-to-end duration reaches this many milliseconds. `0` disables the rule. |
+| `keepErrors` | Keep a trace that carries an error. `sw-trace-sampler` reads the `is_error` column. `zipkin-trace-sampler` has no such column, so it detects Zipkin's conventional `error` span tag inside the flattened `query` attributes — a tag convention, so failures signalled only by `http.status_code` 5xx or `otel.status_code` need an explicit rule instead. **On Zipkin it also misses long errors**: OAP drops both the bare key and `key=value` from `query` when either exceeds 256 characters, so an `error` tag carrying a long exception message is invisible to this option. Catch those with a `keepTagRules` entry on a short-valued tag. |
+| `healthySampleRate` | Fraction (0–1) of the remaining traces to keep, chosen by a deterministic hash of the trace ID. `0` keeps none of them. |
+| `keepTagRules` | Sure-keep rules matched against the searchable tags: a list of `{tagKey, exists\|equals\|in\|regex}`. Empty list = no tag rules. An `exists` rule matches the key in either stored form — the bare key or `key=value` — using an exact comparison, so `exists` on `error` is not satisfied by `error_rate`. |
+| `errorTag` | Overrides which tag `keepErrors` reads, for instrumentation that signals failure through a non-standard tag. Defaults to `is_error` for `sw-trace-sampler` and `error` for `zipkin-trace-sampler`; ignored unless `keepErrors` is `true`. |
+
+A `tagKey` may only name a **searchable tag**, because all of them are flattened into one
+array column (`tags` for segments, `query` for Zipkin). A rule naming a first-class column
+such as `service_id` or `local_endpoint_service_name` can never match. Each sampler carries
+its model's full column list and rejects such a rule at startup rather than let it silently
+never fire — so `{tagKey: service_id, equals: ...}`, the natural way to write "keep
+everything from the payment service", fails loudly instead of dropping exactly those traces.
+"Keep everything from service X" has to key off a tag the instrumentation actually emits.
+
+If a searchable tag legitimately shares a name with a column — a Zipkin span tag called
+`duration`, say — match it through the array column itself, which sees the raw
+`key=value` entries: `{tagKey: query, regex: "^duration="}`.
+
+`keepTagRules` is a list of objects, so an environment override must be a **one-line YAML/JSON
+flow sequence**:
+
+```shell
+SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_TAG_RULES='[{tagKey: db.type, equals: PostgreSQL},{tagKey: mq.queue, equals: queue-songs-ping}]'
+SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_TAG_RULES='[{tagKey: query, regex: "http\.status_code=5\d\d"}]'
+```
+
+Nested values work too (`{tagKey: http.method, in: [GET, POST]}`). To set the rules in the file
+instead, replace the whole `${...}` placeholder with a normal block list. If you write an inline
+flow sequence *inside* `bydb.yml`, quote it — the `": "` in it would otherwise be parsed as a
+nested mapping.
+
+A trace is kept when **any** rule matches; otherwise the `healthySampleRate` hash decides.
+
+Expect a CPU cost on merge. BanyanDB can normally copy a single-block trace through a merge
+as raw bytes without decoding it, but a sampler that projects any tag — which every useful
+config does — disables that fast path, so each block is decoded in full during merges that
+run the filter. Budget for it before enabling the pipeline on a busy cluster; the reward is
+that dropped traces are never re-written, reclaiming the space instead of leaving tombstones.
+Note that this composes with ingest-side sampling — enabling both multiplies the drop rate; see
+[Trace Sampling at server side](../trace-sampling.md).
+
 ### TopN Rules Configuration
 The BanyanDB storage supports TopN pre-aggregation in the BanyanDB server side, which trades off more disk_volume for pre-aggregation to save CPU cost, and perform faster query in the query stage. 
 You can define the TopN rules for different metrics. The configuration is defined in the `bydb-topn.yaml` file:

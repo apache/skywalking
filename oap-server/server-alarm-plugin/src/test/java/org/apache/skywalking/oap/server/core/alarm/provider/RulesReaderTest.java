@@ -32,11 +32,14 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetad
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import java.io.StringReader;
 import java.util.List;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RulesReaderTest {
     @BeforeEach
@@ -45,6 +48,48 @@ public class RulesReaderTest {
             "service_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Service.getScopeId());
         ValueColumnMetadata.INSTANCE.putIfAbsent(
             "endpoint_percent", "testColumn", Column.ValueDataType.COMMON_VALUE, 0, Scope.Endpoint.getScopeId());
+    }
+
+    /**
+     * A bad endpoint must fail while the config is read. Left to the hook callback it would reach
+     * {@code URI.create} once per alarm, where every alarm is dropped with only an error log.
+     */
+    @Test
+    public void testReadPagerDutyRejectsInvalidEventsApiUrl() {
+        for (String invalid : new String[] {
+            "not a valid url",
+            "events.pagerduty.com/v2/enqueue",
+            "ftp://events.pagerduty.com/v2/enqueue"
+        }) {
+            IllegalArgumentException e = assertThrows(
+                IllegalArgumentException.class,
+                () -> new RulesReader(new StringReader(pagerDutyConfig(invalid)), null).readRules(),
+                "an events-api-url of [" + invalid + "] must be rejected at config load"
+            );
+            assertTrue(
+                e.getMessage().contains("events-api-url"),
+                "the error must name the offending setting, but was: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testReadPagerDutyAcceptsValidEventsApiUrl() {
+        Rules rules = new RulesReader(
+            new StringReader(pagerDutyConfig("https://events.eu.pagerduty.com/v2/enqueue")), null).readRules();
+        assertEquals(
+            "https://events.eu.pagerduty.com/v2/enqueue",
+            rules.getPagerDutySettingsMap().get(AlarmHooksType.pagerduty.name() + ".default").getEventsApiUrl());
+    }
+
+    private static String pagerDutyConfig(String eventsApiUrl) {
+        return "hooks:\n"
+            + "  pagerduty:\n"
+            + "    default:\n"
+            + "      is-default: true\n"
+            + "      text-template: \"Apache SkyWalking Alarm: %s\"\n"
+            + "      events-api-url: \"" + eventsApiUrl + "\"\n"
+            + "      integration-keys:\n"
+            + "        - dummy_key\n";
     }
 
     @Test
@@ -120,6 +165,10 @@ public class RulesReaderTest {
         assertEquals(2, pagerDutyIntegrationKeys.size());
         assertEquals("dummy_key", pagerDutyIntegrationKeys.get(0));
         assertEquals("dummy_key2", pagerDutyIntegrationKeys.get(1));
+        assertEquals(PagerDutySettings.DEFAULT_EVENTS_API_URL, pagerDutySettings.getEventsApiUrl());
+        assertEquals(
+            "https://events.eu.pagerduty.com/v2/enqueue",
+            rules.getPagerDutySettingsMap().get(AlarmHooksType.pagerduty.name() + ".custom1").getEventsApiUrl());
 
         WeLinkSettings weLinkSettings = rules.getWeLinkSettingsMap().get(AlarmHooksType.welink.name() + ".default");
         assertThat(weLinkSettings.getTextTemplate()).isInstanceOfAny(String.class);

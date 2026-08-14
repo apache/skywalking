@@ -19,7 +19,7 @@
 package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.spec.filter.FilterSpec;
-import org.apache.skywalking.oap.server.core.dsldebug.GateHolder;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 
 /**
  * Implemented by each compiled LAL class.
@@ -42,7 +42,7 @@ public interface LalExpression {
      * Returns the per-rule capture binding for this compiled LAL rule.
      * Codegen emits the {@code public final GateHolder debug} field + this
      * override only when
-     * {@link org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch#isInjectionEnabled()
+     * {@link org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch#isInjectionEnabled()
      * dsl-debugging is enabled at boot}. When injection is off, this default
      * returns {@code null}.
      */

@@ -252,6 +252,17 @@ class LALScriptExecutionTest {
                 case "timestamp":
                     assertOutputField(ruleName, output, "timestamp", expected);
                     break;
+                // Trace fields: LogBuilder copies these from the metadata's TraceContext
+                // unless a rule set them, so these assertions cover both directions.
+                case "traceId":
+                    assertOutputField(ruleName, output, "traceId", expected);
+                    break;
+                case "segmentId":
+                    assertOutputField(ruleName, output, "segmentId", expected);
+                    break;
+                case "spanId":
+                    assertOutputField(ruleName, output, "spanId", expected);
+                    break;
                 case "contentType":
                     assertEquals(expected, bodyContentType(logBuilder),
                         ruleName + ": persisted body content type mismatch");

@@ -52,8 +52,8 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.session.ExecutionRec
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.Granularity;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.Sample;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
-import org.apache.skywalking.oap.server.core.classloader.Catalog;
-import org.apache.skywalking.oap.server.core.dsldebug.RuleKey;
+import org.apache.skywalking.oap.server.core.dsl.Catalog;
+import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
 /**
  * Session control plane for the DSL debug API. Routes mount on the shared

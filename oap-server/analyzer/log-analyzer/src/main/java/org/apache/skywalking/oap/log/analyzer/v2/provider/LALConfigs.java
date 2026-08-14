@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.LayerDefinition;
 import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
+import org.apache.skywalking.oap.server.core.dsl.DslYamlLineIndex;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
@@ -56,6 +57,40 @@ public class LALConfigs {
      * LAL file is self-describing for any custom layers it references.
      */
     private List<LayerDefinition> layerDefinitions;
+
+    /**
+     * Catalog every LAL rule file lives under, both on disk and as a runtime rule.
+     *
+     * <p>It stays in {@code sourcePath} because that is the path an operator opens, and it is the
+     * segment {@code DslClassNaming.stem} drops, because the generated class's package already
+     * identifies the DSL and LAL has no second catalog to disambiguate against. Read from both the
+     * stamp site and the strip site on purpose: two copies in two packages is how they drift.
+     */
+    public static final String LAL_CATALOG = "lal/";
+
+    /**
+     * Stamps a rule's identity and attribution coordinates from its file name.
+     *
+     * <p>Both routes that load LAL — this boot loader and the runtime-rule applier — call this,
+     * because the two coordinates are related but not equal and the relationship is easy to get
+     * wrong in one place only. {@code sourcePath} is the catalog-qualified path a generated class
+     * names; {@code sourceName} is the rule file's identity.
+     *
+     * <p>The dsl-debugging key is NOT this field's problem: the runtime-rule route never reads it
+     * — {@code LalRuleEngine.publishDebugBindings} builds its own key from the rule's bare name —
+     * so boot and hot update once disagreed on the extension. That is fixed where it belongs, in
+     * {@code RuleKey}'s constructor, which canonicalises the file name so both spellings are one
+     * key.
+     *
+     * @param config   the rule to stamp
+     * @param fileName the rule file's name, with or without a YAML extension
+     */
+    public static void stampSource(final LALConfig config, final String fileName) {
+        final String canonical = fileName.endsWith(".yaml") || fileName.endsWith(".yml")
+            ? fileName : fileName + ".yaml";
+        config.setSourceName(canonical);
+        config.setSourcePath(LAL_CATALOG + canonical);
+    }
 
     public static List<LALConfigs> load(final String path, final List<String> files) throws Exception {
         return loadInternal(path, files, null, /* useInstalledManager= */ true);
@@ -140,7 +175,16 @@ public class LALConfigs {
                     // sourceFileName is only present for entries that came from disk; resolver-
                     // only rules synthesise a name so diagnostics still print something.
                     final String src = sourceFileName.getOrDefault(ruleName, ruleName + ".yaml");
-                    configs.getRules().forEach(c -> c.setSourceName(src));
+                    // Resolve each rule's line in the SAME text, so a generated class can name the
+                    // location an operator opens. Without this the compiler receives only a file
+                    // name and every class is labelled unknown. snakeyaml's bean binding discards
+                    // positional marks, hence the second compose pass.
+                    final DslYamlLineIndex lineIndex = DslYamlLineIndex.index(
+                        new String(bytes, StandardCharsets.UTF_8), "rules");
+                    for (int i = 0; i < configs.getRules().size(); i++) {
+                        stampSource(configs.getRules().get(i), src);
+                        configs.getRules().get(i).setLineNo(lineIndex.rule(i).getEntryLine());
+                    }
                     out.add(configs);
                 } catch (final IOException ioe) {
                     log.debug("Failed to parse LAL rule {}", ruleName, ioe);

@@ -30,3 +30,15 @@ metricsRules:
     exp: instance_nodejs_rss
   - name: instance_nodejs_external_memory
     exp: instance_nodejs_external_memory
+  - name: instance_nodejs_array_buffers
+    exp: instance_nodejs_array_buffers
+  - name: instance_nodejs_uptime
+    exp: instance_nodejs_uptime
+  - name: instance_nodejs_peak_malloced_memory
+    exp: instance_nodejs_peak_malloced_memory
+  - name: instance_nodejs_malloced_memory
+    exp: instance_nodejs_malloced_memory
+  - name: instance_nodejs_old_space_used
+    exp: instance_nodejs_old_space_used
+  - name: instance_nodejs_new_space_used
+    exp: instance_nodejs_new_space_used

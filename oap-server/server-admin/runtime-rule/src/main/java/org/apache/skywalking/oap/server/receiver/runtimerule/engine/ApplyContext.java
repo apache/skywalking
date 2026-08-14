@@ -40,7 +40,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleSc
  * method takes one as a parameter and uses it transactionally.
  *
  * <p>Classloader retire / install is NOT exposed on the context. Engines reach the
- * {@link org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager#INSTANCE}
+ * {@link org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager#INSTANCE}
  * singleton directly when they need to mint or drop a per-file loader; threading the manager
  * through every context would add coupling without value (lifetime is process-wide, not
  * per-call).

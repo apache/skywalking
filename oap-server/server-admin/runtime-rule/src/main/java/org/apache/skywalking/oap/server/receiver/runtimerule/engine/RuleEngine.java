@@ -21,7 +21,7 @@ package org.apache.skywalking.oap.server.receiver.runtimerule.engine;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager;
+import org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -182,7 +182,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 public interface RuleEngine<C extends ApplyContext> {
     /**
      * Catalogs this engine handles, e.g. {@code {"otel-rules", "log-mal-rules",
-     * "telegraf-rules"}} for the MAL engine, {@code {"lal"}} for the LAL engine.
+     * "telegraf-rules", "meter-analyzer-config"}} for the MAL engine, {@code {"lal"}} for
+     * the LAL engine.
      * {@link RuleEngineRegistry} reads this once at registration time.
      */
     Set<String> supportedCatalogs();
@@ -264,7 +265,7 @@ public interface RuleEngine<C extends ApplyContext> {
      * scheduler stamps {@code applyError} on the snapshot and surfaces to the caller.
      *
      * <p>{@code kind} controls how the per-file classloader is tagged in {@link
-     * org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}:
+     * org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager}:
      * {@link DSLClassLoaderManager.Kind#RUNTIME} for {@code /addOrUpdate} and tick paths,
      * {@link DSLClassLoaderManager.Kind#BUNDLED} for the {@code /delete?mode=revertToBundled}
      * path that re-installs the bundled YAML through the standard apply pipeline. The kind
@@ -295,7 +296,7 @@ public interface RuleEngine<C extends ApplyContext> {
     /**
      * Phase: commit. Swap the in-memory cache (engine-owned applied state + appliedContent
      * for this key), promote the freshly-built classloader via {@link
-     * org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager#commit} and
+     * org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager#commit} and
      * retire any displaced prior loader through the manager, fire alarm-reset for the
      * affected metric name set via the context's alarmResetter callback. From this call
      * onward the bundle is live; up to this call all phases can be rolled back cleanly.
@@ -344,7 +345,7 @@ public interface RuleEngine<C extends ApplyContext> {
      * bundled rule from {@link
      * org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry} (if any) and bring
      * it back into service via a fresh {@code bundled:} loader from
-     * {@link org.apache.skywalking.oap.server.core.classloader.DSLClassLoaderManager}.
+     * {@link org.apache.skywalking.oap.server.core.dsl.classloader.DSLClassLoaderManager}.
      *
      * <p>Returns {@code true} when a bundled rule was found and reinstalled; {@code false}
      * when no bundled rule exists for this key (the rule is genuinely gone) or the engine

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,14 +33,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
-import org.apache.skywalking.oap.log.analyzer.v2.dsldebug.LalStaticBindingHook;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LalStaticBindingHook;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
 import com.google.protobuf.Message;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.oap.log.analyzer.v2.spi.LALSourceTypeProvider;
-import org.apache.skywalking.oap.server.core.dsldebug.ToJson;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
@@ -47,6 +48,7 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
+import javassist.ClassPool;
 
 /**
  * Runtime listener that executes compiled LAL rules against incoming log data.
@@ -257,9 +259,9 @@ public class LogFilterListener implements LogAnalysisListener {
                             "Layer " + compiled.layer.name() + " has already set " + c.getName() + " rule.");
                     }
                 }
-                // Publish per-rule debug holder into the dsl-debugging registry. Static and
-                // runtime-rule entries share the same (LAL, fileName, ruleName) key shape so
-                // a runtime-rule replace puts over the static binding without orphaning it.
+                // Publish per-rule debug holder into the dsl-debugging registry. sourceName, not
+                // sourcePath: both routes derive it through LALConfigs.stampSource, so a
+                // runtime-rule replace puts over the static binding without orphaning it.
                 LalStaticBindingHook.publish(c.getSourceName(), c.getName(), compiled.dsl.getExpression());
             }
             // Publish: readers from now on see the startup-complete registry.
@@ -283,7 +285,7 @@ public class LogFilterListener implements LogAnalysisListener {
          * {@code RuleClassLoader} it creates on every compile.
          */
         public CompiledLAL compile(final LALConfig c,
-                                   final javassist.ClassPool pool,
+                                   final ClassPool pool,
                                    final ClassLoader targetClassLoader) throws ModuleStartException {
             final boolean isAuto = LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer());
             final Layer layer = isAuto ? null : Layer.nameOf(c.getLayer());
@@ -293,7 +295,10 @@ public class LogFilterListener implements LogAnalysisListener {
             final DSL dsl = DSL.of(
                 moduleManager, analyzerConfig, c.getDsl(),
                 resolvedInputType, resolvedOutputType,
-                c.getName(), c.getSourceName(),
+                c.getName(),
+                // sourcePath, not sourceName: attribution wants the catalog-qualified path an
+                // operator can open. sourceName is the debug registry's key and must not vary.
+                DslSourceRef.ofRule(c.getSourcePath(), c.getLineNo()),
                 pool, targetClassLoader);
             return new CompiledLAL(layer, c.getName(), dsl);
         }

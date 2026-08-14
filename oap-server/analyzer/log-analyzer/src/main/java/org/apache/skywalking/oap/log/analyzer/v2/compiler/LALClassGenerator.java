@@ -17,30 +17,30 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
-import java.io.DataOutputStream;
+import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
+import javassist.CtMethod;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalExpressionPackageHolder;
-import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
-import org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfigs;
+import org.apache.skywalking.oap.server.core.dsl.DslClassNaming;
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
+import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.source.LogBuilder;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.LalExpression;
-import org.apache.skywalking.oap.server.core.WorkPath;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtField;
 
 /**
  * Generates {@link LalExpression} implementation classes from
@@ -68,9 +68,6 @@ public final class LALClassGenerator {
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
 
-    private static final Set<String> USED_CLASS_NAMES =
-        Collections.synchronizedSet(new HashSet<>());
-
     private final ClassPool classPool;
     /**
      * When non-null, generated LAL classes are defined in this ClassLoader via
@@ -93,7 +90,7 @@ public final class LALClassGenerator {
      * by {@link #compileFromModel}.
      */
     private Class<?> effectiveInputType;
-    private String yamlSource;
+    private DslSourceRef sourceRef = DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED);
     /**
      * Optional content hash threaded into every generated rule's {@code GateHolder}
      * constructor argument. Stamped onto every captured debug record so a UI / CLI
@@ -221,9 +218,7 @@ public final class LALClassGenerator {
 
     public LALClassGenerator() {
         this(ClassPool.getDefault(), null);
-        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
-            classOutputDir = new File(WorkPath.getPath().getParentFile(), "lal-rt");
-        }
+        classOutputDir = DslGeneratedFileWriter.resolveClassDumpDir("lal");
     }
 
     public LALClassGenerator(final ClassPool classPool) {
@@ -261,8 +256,16 @@ public final class LALClassGenerator {
         return effectiveInputType;
     }
 
+    /**
+     * @param ref the rule's coordinate
+     */
+    public void setSourceRef(final DslSourceRef ref) {
+        this.sourceRef = ref == null ? DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED) : ref;
+    }
+
+    @Deprecated
     public void setYamlSource(final String yamlSource) {
-        this.yamlSource = yamlSource;
+        this.sourceRef = DslSourceRef.parse(yamlSource);
     }
 
     /**
@@ -275,62 +278,25 @@ public final class LALClassGenerator {
         this.content = content == null ? "" : content;
     }
 
+    /**
+     * Builds the class name as {@code {yamlBaseName}_L{lineNo}_{hint}}, falling back to a
+     * counter-suffixed default when no hint is set.
+     *
+     * <p>A non-null {@code targetClassLoader} means the runtime-rule path gave this apply its own
+     * loader, so identical names are already isolated and process-wide dedup would only grow
+     * without bound — hence the allocation policy, unlike the stem, is decided here.
+     *
+     * @param defaultPrefix prefix for the counter-based fallback name
+     * @return the fully-qualified name to define
+     */
     private String makeClassName(final String defaultPrefix) {
         if (classNameHint != null) {
-            return dedupClassName(PACKAGE_PREFIX + buildHintedName());
+            return DslClassNaming.allocate(
+                PACKAGE_PREFIX + DslClassNaming.stem(
+                    sourceRef, classNameHint, LALConfigs.LAL_CATALOG),
+                targetClassLoader == null);
         }
         return PACKAGE_PREFIX + defaultPrefix + CLASS_COUNTER.getAndIncrement();
-    }
-
-    /**
-     * Builds class name from {@code yamlSource} + {@code classNameHint}.
-     * Pattern: {@code {yamlBaseName}_L{lineNo}_{hint}} when yamlSource is available,
-     * falls back to just {@code {hint}} otherwise.
-     */
-    private String buildHintedName() {
-        final String hint = LALCodegenHelper.sanitizeName(classNameHint);
-        if (yamlSource == null) {
-            return hint;
-        }
-        String yamlBase = yamlSource;
-        String lineNo = null;
-        final int colonIdx = yamlSource.lastIndexOf(':');
-        if (colonIdx > 0) {
-            yamlBase = yamlSource.substring(0, colonIdx);
-            lineNo = yamlSource.substring(colonIdx + 1);
-        }
-        final int dotIdx = yamlBase.lastIndexOf('.');
-        if (dotIdx > 0) {
-            yamlBase = yamlBase.substring(0, dotIdx);
-        }
-        final StringBuilder sb = new StringBuilder();
-        sb.append(LALCodegenHelper.sanitizeName(yamlBase));
-        if (lineNo != null) {
-            sb.append("_L").append(lineNo);
-        }
-        sb.append('_').append(hint);
-        return sb.toString();
-    }
-
-    private String dedupClassName(final String base) {
-        // Runtime-rule hot-update path: every apply gets a fresh per-file RuleClassLoader, so
-        // two apps of the same rule can safely carry the same generated class name — they live
-        // in different classloader namespaces. Skip the process-wide dedup set to keep it from
-        // growing without bound over thousands of hot-updates. The legacy startup path
-        // (targetClassLoader == null) still needs dedup because it defines classes into the
-        // shared app loader via LalExpressionPackageHolder.
-        if (targetClassLoader != null) {
-            return base;
-        }
-        if (USED_CLASS_NAMES.add(base)) {
-            return base;
-        }
-        for (int i = 2; ; i++) {
-            final String candidate = base + "_" + i;
-            if (USED_CLASS_NAMES.add(candidate)) {
-                return candidate;
-            }
-        }
     }
 
     /**
@@ -340,149 +306,22 @@ public final class LALClassGenerator {
      * {@code if (this.debug.isGateOn()) LALDebug.captureXxx(this.debug, ...)} call sites
      * that read the field directly.
      */
-    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
+    private void emitDebugHolderMembers(final CtClass ctClass) throws CannotCompileException {
         if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Injection off — fall back to the LalExpression.debugHolder() default
             // (null), no GateHolder field, no probe call sites.
             return;
         }
-        final String escapedContent = LALCodegenHelper.escapeJava(content);
+        final String escapedContent = DslJavaSourceText.toLiteral(content);
         // Per-rule capture binding — instance field, lowercase per Java
         // convention (it's a final but not a static-final constant).
-        ctClass.addField(javassist.CtField.make(
+        ctClass.addField(CtField.make(
             "public final " + LALCodegenHelper.GATE_HOLDER_FQCN + " debug = new "
                 + LALCodegenHelper.GATE_HOLDER_FQCN + "(\"" + escapedContent + "\");",
             ctClass));
         ctClass.addMethod(CtNewMethod.make(
             "public " + LALCodegenHelper.GATE_HOLDER_FQCN + " debugHolder() { return this.debug; }",
             ctClass));
-    }
-
-    private void writeClassFile(final CtClass ctClass) {
-        if (classOutputDir == null) {
-            return;
-        }
-        if (!classOutputDir.exists()) {
-            classOutputDir.mkdirs();
-        }
-        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".class");
-        try (DataOutputStream out = new DataOutputStream(new FileOutputStream(file))) {
-            ctClass.toBytecode(out);
-        } catch (Exception e) {
-            log.warn("Failed to write class file {}: {}", file, e.getMessage());
-        }
-    }
-
-    /**
-     * Adds a {@code LineNumberTable} attribute by scanning bytecode for
-     * store instructions to local variable slots &ge; {@code firstResultSlot}.
-     */
-    private void addLineNumberTable(final javassist.CtMethod method,
-                                    final int firstResultSlot) {
-        try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
-            if (code == null) {
-                return;
-            }
-
-            final List<int[]> entries = new ArrayList<>();
-            int line = 1;
-            boolean nextIsNewLine = true;
-
-            final javassist.bytecode.CodeIterator ci = code.iterator();
-            while (ci.hasNext()) {
-                final int pc = ci.next();
-                if (nextIsNewLine) {
-                    entries.add(new int[]{pc, line++});
-                    nextIsNewLine = false;
-                }
-                final int op = ci.byteAt(pc) & 0xFF;
-                int slot = -1;
-                if (op >= 59 && op <= 78) {
-                    slot = (op - 59) % 4;
-                } else if (op >= 54 && op <= 58) {
-                    slot = ci.byteAt(pc + 1) & 0xFF;
-                }
-                if (slot >= firstResultSlot) {
-                    nextIsNewLine = true;
-                }
-            }
-
-            if (entries.isEmpty()) {
-                return;
-            }
-
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
-            final byte[] info = new byte[2 + entries.size() * 4];
-            info[0] = (byte) (entries.size() >> 8);
-            info[1] = (byte) entries.size();
-            for (int i = 0; i < entries.size(); i++) {
-                final int off = 2 + i * 4;
-                info[off] = (byte) (entries.get(i)[0] >> 8);
-                info[off + 1] = (byte) entries.get(i)[0];
-                info[off + 2] = (byte) (entries.get(i)[1] >> 8);
-                info[off + 3] = (byte) entries.get(i)[1];
-            }
-            code.getAttributes().add(
-                new javassist.bytecode.AttributeInfo(cp, "LineNumberTable", info));
-        } catch (Exception e) {
-            log.warn("Failed to add LineNumberTable: {}", e.getMessage());
-        }
-    }
-
-    private static void setSourceFile(final CtClass ctClass, final String name) {
-        try {
-            final javassist.bytecode.ClassFile cf = ctClass.getClassFile();
-            final javassist.bytecode.AttributeInfo sf = cf.getAttribute("SourceFile");
-            if (sf != null) {
-                final javassist.bytecode.ConstPool cp = cf.getConstPool();
-                final int idx = cp.addUtf8Info(name);
-                sf.set(new byte[]{(byte) (idx >> 8), (byte) idx});
-            }
-        } catch (Exception e) {
-            // best-effort
-        }
-    }
-
-    /**
-     * Builds the SourceFile name for a generated class. When YAML source info
-     * is available, produces {@code "default(ruleName.java)"};
-     * otherwise falls back to {@code "ruleName.java"}.
-     */
-    private String formatSourceFileName(final String ruleName) {
-        final String classFile = ruleName + ".java";
-        if (yamlSource != null) {
-            return "(" + yamlSource + ")" + classFile;
-        }
-        return classFile;
-    }
-
-    private void addLocalVariableTable(final javassist.CtMethod method,
-                                       final String className,
-                                       final String[][] vars) {
-        try {
-            final javassist.bytecode.MethodInfo mi = method.getMethodInfo();
-            final javassist.bytecode.CodeAttribute code = mi.getCodeAttribute();
-            if (code == null) {
-                return;
-            }
-            final javassist.bytecode.ConstPool cp = mi.getConstPool();
-            final int len = code.getCodeLength();
-            final javassist.bytecode.LocalVariableAttribute lva =
-                new javassist.bytecode.LocalVariableAttribute(cp);
-            lva.addEntry(0, len,
-                cp.addUtf8Info("this"),
-                cp.addUtf8Info("L" + className.replace('.', '/') + ";"), 0);
-            for (int i = 0; i < vars.length; i++) {
-                lva.addEntry(0, len,
-                    cp.addUtf8Info(vars[i][0]),
-                    cp.addUtf8Info(vars[i][1]), i + 1);
-            }
-            code.getAttributes().add(lva);
-        } catch (Exception e) {
-            log.warn("Failed to add LocalVariableTable: {}", e.getMessage());
-        }
     }
 
     private static ParserType detectParserType(
@@ -565,14 +404,15 @@ public final class LALClassGenerator {
         emitDebugHolderMembers(ctClass);
 
         // Add private methods BEFORE execute so Javassist can resolve calls
+        final List<CtMethod> privateMethods = new ArrayList<>();
         for (final PrivateMethod pm : genCtx.privateMethods) {
-            final javassist.CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
+            final CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
             ctClass.addMethod(ctMethod);
-            addLocalVariableTable(ctMethod, className, pm.lvtVars);
-            addLineNumberTable(ctMethod, pm.lvtVars.length + 1); // after this + params
+            privateMethods.add(ctMethod);
+            DslGeneratedFileWriter.addLocalVariableTable(ctMethod, className, pm.lvtVars);
         }
 
-        final javassist.CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
+        final CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
         ctClass.addMethod(execMethod);
 
         // Build LVT for execute(): params + h + optional _p and proto vars
@@ -588,15 +428,35 @@ public final class LALClassGenerator {
             execLvt.addAll(genCtx.protoLvtVars);
         }
         execLvt.addAll(genCtx.localVarLvtVars);
-        addLocalVariableTable(execMethod, className,
+        DslGeneratedFileWriter.addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
-        addLineNumberTable(execMethod, 3); // slot 0=this, 1=filterSpec, 2=ctx
+        // One LineNumberTable entry per method, at its own signature line -- not a per-statement
+        // table. The per-statement scan marks boundaries at stores to a result slot, and LAL
+        // bodies are largely void invocations that store nothing there, so its numbers came out
+        // as statement ordinals (1, 2, 3...) matching no file. The signature line is searched for
+        // in the assembled source below, so it survives changes to the envelope.
 
-        setSourceFile(ctClass, formatSourceFileName(
-            classNameHint != null ? classNameHint : className));
+        // In production NO generated source file exists -- it is written only under
+        // SW_DYNAMIC_CLASS_ENGINE_DEBUG -- so naming it would name nothing. The rule file is what
+        // an operator can open, and the class name cannot substitute for it: sanitising maps '/',
+        // '-' and '.' all to '_', so the path is not recoverable from execution_basic_L110_x.
+        final DslSourceRef ref = sourceRef;
+        final String sourceText = buildSourceText(ctClass, genCtx, executeBody);
+        DslGeneratedFileWriter.setSourceFile(ctClass, ref.sourceFileOf(ctClass.getSimpleName()));
+        // One entry at the execute() signature, located in the assembled text so it cannot drift
+        // from the envelope -- which varies per rule, as each extractor adds a private method.
+        DslGeneratedFileWriter.attachSignatureLine(execMethod,
+            DslGeneratedFileWriter.lineOfMethod(sourceText, "execute"));
+        // execute() is mostly dispatch: a real LAL failure throws inside _extractor/_sink, so
+        // those frames are the ones worth locating. Names are unique per class, so the
+        // declaration lookup resolves unambiguously.
+        for (final CtMethod pmMethod : privateMethods) {
+            DslGeneratedFileWriter.attachSignatureLine(pmMethod,
+                DslGeneratedFileWriter.lineOfMethod(sourceText, pmMethod.getName()));
+        }
 
-        writeClassFile(ctClass);
-        writeSourceFile(ctClass, genCtx, executeBody);
+        DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
+        DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), sourceText);
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
@@ -604,29 +464,16 @@ public final class LALClassGenerator {
     }
 
     /**
-     * Mirror of {@link #writeClassFile}: when {@code classOutputDir} is set
-     * (debug build), dump the Javassist-input Java source of the generated
-     * class as a sibling {@code <ClassName>.java} file. The {@code SourceFile}
-     * attribute on the {@code .class} points at this name, so IDEA's
-     * source-attach renders it directly without ever running FernFlower —
-     * the user sees the EXACT code that Javassist compiled, not a decompiler
-     * approximation.
+     * Assembles the exact Java source handed to Javassist, and returns it rather than writing it:
+     * {@link DslGeneratedFileWriter#lineOfMethod} indexes this same text to find each method's
+     * signature line. The write happens once beside the {@code .class}, and only under
+     * {@code SW_DYNAMIC_CLASS_ENGINE_DEBUG}, so an IDE source-attach renders the exact code
+     * Javassist compiled instead of a decompiler's approximation.
      */
-    private void writeSourceFile(final CtClass ctClass,
-                                 final GenCtx genCtx,
-                                 final String executeBody) {
-        if (classOutputDir == null) {
-            return;
-        }
-        if (!classOutputDir.exists()) {
-            classOutputDir.mkdirs();
-        }
-        final File file = new File(classOutputDir, ctClass.getSimpleName() + ".java");
+    private String buildSourceText(final CtClass ctClass,
+                                   final GenCtx genCtx,
+                                   final String executeBody) {
         final StringBuilder sb = new StringBuilder();
-        sb.append("// Synthetic source — Javassist compile input for ")
-          .append(ctClass.getSimpleName()).append("\n")
-          .append("// Written when SW_DYNAMIC_CLASS_ENGINE_DEBUG is on; used by IDE\n")
-          .append("// source-attach to render the bytecode without FernFlower.\n\n");
         sb.append("package ").append(ctClass.getPackageName()).append(";\n\n");
         sb.append("public class ").append(ctClass.getSimpleName())
           .append(" implements ")
@@ -635,10 +482,10 @@ public final class LALClassGenerator {
         if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Same escapedContent the bytecode emits — the verbatim LAL DSL
             // for this rule, escaped for a Java string literal so the
-            // sidecar source compiles structurally identical to the .class.
+            // generated source compiles structurally identical to the .class.
             sb.append("    public final ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
               .append(" debug = new ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
-              .append("(\"").append(LALCodegenHelper.escapeJava(content))
+              .append("(\"").append(DslJavaSourceText.toLiteral(content))
               .append("\");\n\n");
             sb.append("    public ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
               .append(" debugHolder() { return this.debug; }\n\n");
@@ -648,11 +495,7 @@ public final class LALClassGenerator {
         }
         sb.append("    ").append(executeBody.replace("\n", "\n    ")).append("\n");
         sb.append("}\n");
-        try (java.io.FileWriter w = new java.io.FileWriter(file)) {
-            w.write(sb.toString());
-        } catch (Exception e) {
-            log.warn("Failed to write source file {}: {}", file, e.getMessage());
-        }
+        return sb.toString();
     }
 
     /**
@@ -662,26 +505,12 @@ public final class LALClassGenerator {
      * (startup path: class lands in the OAP app loader alongside
      * {@link LalExpressionPackageHolder}).
      *
-     * <p>{@link BytecodeClassDefiner} loaders (the runtime-rule {@code RuleClassLoader})
-     * receive the {@code CtClass.toBytecode()} bytes via their public {@code defineClass}
-     * — bypasses Javassist's deprecated {@code toClass(loader, ProtectionDomain)} reflection
-     * path so we don't need {@code --add-opens java.base/java.lang} on the OAP container.
-     * Same shape as {@code MALClassGenerator}; both DSLs share the contract.
+     * <p>Which of the two definition paths applies, and why the
+     * {@link BytecodeClassDefiner} one exists at all, is documented on
+     * {@link BytecodeClassDefiner#define}.
      */
-    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
-        if (targetClassLoader != null) {
-            if (targetClassLoader instanceof BytecodeClassDefiner) {
-                try {
-                    return ((BytecodeClassDefiner) targetClassLoader)
-                        .defineClass(ctClass.getName(), ctClass.toBytecode());
-                } catch (final IOException e) {
-                    throw new javassist.CannotCompileException(
-                        "failed to serialise " + ctClass.getName() + " bytes", e);
-                }
-            }
-            return ctClass.toClass(targetClassLoader, null);
-        }
-        return ctClass.toClass(LalExpressionPackageHolder.class);
+    private Class<?> defineClass(final CtClass ctClass) throws CannotCompileException {
+        return BytecodeClassDefiner.define(ctClass, targetClassLoader, LalExpressionPackageHolder.class);
     }
 
     private static boolean hasParsedAccess(
@@ -769,7 +598,7 @@ public final class LALClassGenerator {
             final LALScriptModel.TextParser tp = (LALScriptModel.TextParser) stmt;
             if (tp.getRegexpPattern() != null) {
                 sb.append("  filterSpec.textWithRegexp(ctx, \"")
-                  .append(LALCodegenHelper.escapeJava(tp.getRegexpPattern()))
+                  .append(DslJavaSourceText.toLiteral(tp.getRegexpPattern()))
                   .append("\", ").append(tp.isAbortOnFailure()).append(");\n");
             } else {
                 sb.append("  filterSpec.text(ctx);\n");

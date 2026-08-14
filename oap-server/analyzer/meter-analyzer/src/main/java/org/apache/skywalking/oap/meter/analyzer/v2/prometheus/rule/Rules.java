@@ -18,11 +18,10 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
@@ -45,6 +44,7 @@ import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+import java.util.Objects;
 
 /**
  * Rules is factory to instance {@link Rule} from a local file.
@@ -98,6 +98,7 @@ public class Rules {
         // Disk baseline: every file under `root` that matches the enabled-rules glob, keyed
         // by relative path without extension (the rule name).
         final Map<String, byte[]> diskBytes = new HashMap<>();
+        final Map<String, String> diskPaths = new HashMap<>();
         try (Stream<Path> stream = Files.walk(root)) {
             stream.filter(p -> {
                 File f = p.toFile();
@@ -115,6 +116,9 @@ public class Rules {
             }).forEach(p -> {
                 final String rel = root.relativize(p).toString();
                 final String ruleName = rel.substring(0, rel.lastIndexOf('.'));
+                // Keep the actual extension: both .yaml and .yml load, and synthesising .yaml for
+                // a .yml rule points the provenance at a file that does not exist.
+                diskPaths.put(ruleName, rel);
                 try {
                     diskBytes.put(ruleName, Files.readAllBytes(p));
                 } catch (IOException e) {
@@ -139,18 +143,25 @@ public class Rules {
             : RuleSetMerger.merge(path, diskBytes, manager);
 
         return merged.entrySet().stream()
-            .map(e -> parseRule(e.getKey(), e.getValue()))
-            .filter(java.util.Objects::nonNull)
+            .map(e -> parseRule(path, e.getKey(), diskPaths.get(e.getKey()), e.getValue()))
+            .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }
 
-    private static Rule parseRule(final String ruleName, final byte[] bytes) {
-        try (Reader r = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8)) {
+    private static Rule parseRule(final String rulesetDir, final String ruleName,
+                                  final String relPath, final byte[] bytes) {
+        // Decode once and bind from the String: RuleSourceLines re-composes the SAME text to read
+        // positional marks, which snakeyaml's bean binding discards.
+        final String text = new String(bytes, StandardCharsets.UTF_8);
+        try (Reader r = new StringReader(text)) {
             Rule rule = new Yaml().loadAs(r, Rule.class);
             if (rule == null) {
                 return null;
             }
             rule.setName(ruleName);
+            rule.setSourcePath(rulesetDir + "/"
+                + (relPath == null ? ruleName + ".yaml" : relPath));
+            RuleSourceLines.assign(rule, text);
             registerInlineLayers(ruleName, rule);
             return rule;
         } catch (IOException e) {

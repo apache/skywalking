@@ -17,24 +17,28 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
+import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalExpressionPackageHolder;
-import org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefiner;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.ExpressionMetadata;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalExpression;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter;
-import org.apache.skywalking.oap.server.core.WorkPath;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.LoaderClassPath;
 
 /**
  * Public API for compiling MAL expressions into {@link MalExpression} implementation classes.
@@ -73,16 +77,13 @@ public final class MALClassGenerator {
 
     public MALClassGenerator() {
         this(createClassPool(), null);
-        if (StringUtil.isNotEmpty(System.getenv("SW_DYNAMIC_CLASS_ENGINE_DEBUG"))) {
-            bytecodeHelper.setClassOutputDir(
-                new File(WorkPath.getPath().getParentFile(), "mal-rt"));
-        }
+        bytecodeHelper.setClassOutputDir(DslGeneratedFileWriter.resolveClassDumpDir("mal"));
     }
 
     private static ClassPool createClassPool() {
         final ClassPool pool = new ClassPool(true);
         pool.appendClassPath(
-            new javassist.LoaderClassPath(
+            new LoaderClassPath(
                 Thread.currentThread().getContextClassLoader()));
         return pool;
     }
@@ -123,6 +124,20 @@ public final class MALClassGenerator {
         bytecodeHelper.setClassNameHint(hint);
     }
 
+    /**
+     * @param ref the rule's coordinate
+     */
+    public void setSourceRef(final DslSourceRef ref) {
+        bytecodeHelper.setSourceRef(ref);
+    }
+
+    /**
+     * @param yamlSource the rule coordinate as {@code file:line}
+     * @deprecated pass a typed {@link DslSourceRef} to {@link #setSourceRef} instead; this parses
+     *     a string the caller already had structured. Kept for callers outside this repo.
+     */
+    @Deprecated
+    @SuppressWarnings("deprecation")
     public void setYamlSource(final String yamlSource) {
         bytecodeHelper.setYamlSource(yamlSource);
     }
@@ -195,19 +210,21 @@ public final class MALClassGenerator {
         final List<String> params = closure.getParams();
         final String paramName = params.isEmpty() ? "it" : params.get(0);
 
-        final javassist.CtMethod testMethod =
+        final CtMethod testMethod =
             CtNewMethod.make(filterBody, ctClass);
         ctClass.addMethod(testMethod);
-        bytecodeHelper.addLocalVariableTable(testMethod, className,
+        DslGeneratedFileWriter.addLocalVariableTable(testMethod, className,
             new String[][]{{paramName, "Ljava/util/Map;"}});
-        bytecodeHelper.addLineNumberTable(testMethod, 2);
-        MALBytecodeHelper.setSourceFile(ctClass,
-            bytecodeHelper.formatSourceFileName(
-                bytecodeHelper.getClassNameHint() != null
-                    ? bytecodeHelper.getClassNameHint() : "filter"));
+        // Searched, not counted: the envelope wrapMalFilterSource emits is free to change.
+        final String filterSource = wrapMalFilterSource(ctClass, filterBody);
+        bytecodeHelper.addLineNumberTable(testMethod, 2,
+            MalGeneratedSourceLines.statementLinesOf(filterBody),
+            DslGeneratedFileWriter.lineOfMethod(filterSource, "test"));
+        DslGeneratedFileWriter.setSourceFile(ctClass,
+            bytecodeHelper.sourceFileNameOf(ctClass));
 
         bytecodeHelper.writeClassFile(ctClass);
-        bytecodeHelper.writeSourceFile(ctClass, wrapMalFilterSource(ctClass, filterBody));
+        bytecodeHelper.writeSourceFile(ctClass, filterSource);
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
@@ -232,29 +249,12 @@ public final class MALClassGenerator {
      * (startup path: class lands in the OAP app loader alongside
      * {@link MalExpressionPackageHolder}).
      *
-     * <p>When {@code targetClassLoader} implements
-     * {@link org.apache.skywalking.oap.server.core.classloader.BytecodeClassDefiner
-     * BytecodeClassDefiner} (the runtime-rule {@code RuleClassLoader} does), we hand
-     * the loader the {@code CtClass.toBytecode()} bytes and let it invoke its public
-     * {@code defineClass} directly — no Javassist {@code toClass(loader,
-     * ProtectionDomain)} reflection, no {@code --add-opens java.base/java.lang}
-     * requirement on JDK 17+. Otherwise we fall back to the legacy 2-arg toClass for
-     * back-compat, but no shipped loader uses that path today.
+     * <p>Which of the two definition paths applies, and why the
+     * {@link BytecodeClassDefiner} one exists at all, is documented on
+     * {@link BytecodeClassDefiner#define}.
      */
-    private Class<?> defineClass(final CtClass ctClass) throws javassist.CannotCompileException {
-        if (targetClassLoader != null) {
-            if (targetClassLoader instanceof BytecodeClassDefiner) {
-                try {
-                    return ((BytecodeClassDefiner) targetClassLoader)
-                        .defineClass(ctClass.getName(), ctClass.toBytecode());
-                } catch (final IOException e) {
-                    throw new javassist.CannotCompileException(
-                        "failed to serialise " + ctClass.getName() + " bytes", e);
-                }
-            }
-            return ctClass.toClass(targetClassLoader, null);
-        }
-        return ctClass.toClass(MalExpressionPackageHolder.class);
+    private Class<?> defineClass(final CtClass ctClass) throws CannotCompileException {
+        return BytecodeClassDefiner.define(ctClass, targetClassLoader, MalExpressionPackageHolder.class);
     }
 
     /**
@@ -295,7 +295,7 @@ public final class MALClassGenerator {
         }
 
         for (int i = 0; i < closures.size(); i++) {
-            ctClass.addField(javassist.CtField.make(
+            ctClass.addField(CtField.make(
                 "public static final " + closureInterfaceTypes.get(i) + " "
                     + closureFieldNames.get(i) + ";", ctClass));
         }
@@ -339,25 +339,32 @@ public final class MALClassGenerator {
         }
 
         // 5. Add methods and bytecode attributes
-        final javassist.CtMethod runMethod =
+        final CtMethod runMethod =
             CtNewMethod.make(runBody, ctClass);
         ctClass.addMethod(runMethod);
         bytecodeHelper.addRunLocalVariableTable(
             runMethod, className, exprCodegen.getDeclaredVars());
-        bytecodeHelper.addLineNumberTable(runMethod, 1);
+        // Searched, not counted. The old arithmetic tracked the envelope's shape -- a line per
+        // closure field, two more under debug injection -- so every codegen change had to be
+        // mirrored in a constant, and the injection branch that varied it never runs in CI.
+        final String expressionSource = wrapMalExpressionSource(
+            ctClass, closureFieldNames, closureInterfaceTypes, runBody, metadataBody);
+        bytecodeHelper.addLineNumberTable(runMethod, 1,
+            MalGeneratedSourceLines.statementLinesOf(runBody),
+            DslGeneratedFileWriter.lineOfMethod(expressionSource, "run"));
 
-        final javassist.CtMethod metaMethod =
+        final CtMethod metaMethod =
             CtNewMethod.make(metadataBody, ctClass);
         ctClass.addMethod(metaMethod);
-        bytecodeHelper.addLocalVariableTable(metaMethod, className,
+        DslGeneratedFileWriter.addLocalVariableTable(metaMethod, className,
             new String[][]{
                 {"_samples", "Ljava/util/List;"},
                 {"_scopeLabels", "Ljava/util/Set;"},
                 {"_aggLabels", "Ljava/util/Set;"},
                 {"_pct", "[I"}
             });
-        MALBytecodeHelper.setSourceFile(ctClass,
-            bytecodeHelper.formatSourceFileName(metricName));
+        DslGeneratedFileWriter.setSourceFile(ctClass,
+            bytecodeHelper.sourceFileNameOf(ctClass));
 
         // 6. Load companions, then main class
         for (final CtClass companion : companionClasses) {
@@ -367,8 +374,7 @@ public final class MALClassGenerator {
         }
 
         bytecodeHelper.writeClassFile(ctClass);
-        bytecodeHelper.writeSourceFile(ctClass, wrapMalExpressionSource(
-            ctClass, closureFieldNames, closureInterfaceTypes, runBody, metadataBody));
+        bytecodeHelper.writeSourceFile(ctClass, expressionSource);
 
         final Class<?> clazz = defineClass(ctClass);
         ctClass.detach();
@@ -394,9 +400,9 @@ public final class MALClassGenerator {
             sb.append("    public static final ").append(closureInterfaceTypes.get(i))
               .append(' ').append(closureFieldNames.get(i)).append(";\n");
         }
-        if (org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
-            sb.append("    public final org.apache.skywalking.oap.server.core.dsldebug.GateHolder debug;\n");
-            sb.append("    public org.apache.skywalking.oap.server.core.dsldebug.GateHolder debugHolder() { return this.debug; }\n");
+        if (org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            sb.append("    public final org.apache.skywalking.oap.server.core.dsl.debug.GateHolder debug;\n");
+            sb.append("    public org.apache.skywalking.oap.server.core.dsl.debug.GateHolder debugHolder() { return this.debug; }\n");
         }
         sb.append("\n    ").append(runBody.replace("\n", "\n    ")).append("\n\n");
         sb.append("    ").append(metadataBody.replace("\n", "\n    ")).append("\n");
@@ -412,19 +418,19 @@ public final class MALClassGenerator {
      * call sites that read the field directly. The constructor arg is the
      * configured {@link #content}, escaped as a Java string literal.
      */
-    private void emitDebugHolderMembers(final CtClass ctClass) throws javassist.CannotCompileException {
-        if (!org.apache.skywalking.oap.server.core.dsldebug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
+    private void emitDebugHolderMembers(final CtClass ctClass) throws CannotCompileException {
+        if (!org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch.isInjectionEnabled()) {
             // Injection off — generated class inherits MalExpression.debugHolder()'s
             // default null return, no GateHolder field is emitted, and the captureXxx
             // call sites the helpers below would emit are also skipped. The compiled
             // bytecode is byte-identical to a build without SWIP-13.
             return;
         }
-        final String holderFqcn = "org.apache.skywalking.oap.server.core.dsldebug.GateHolder";
-        final String escapedContent = MALCodegenHelper.escapeJava(content);
+        final String holderFqcn = MALCodegenHelper.GATE_HOLDER_FQCN;
+        final String escapedContent = DslJavaSourceText.toLiteral(content);
         // Per-rule capture binding — instance field, lowercase per Java
         // convention (it's a final but not a static-final constant).
-        ctClass.addField(javassist.CtField.make(
+        ctClass.addField(CtField.make(
             "public final " + holderFqcn + " debug = new " + holderFqcn
                 + "(\"" + escapedContent + "\");",
             ctClass));
