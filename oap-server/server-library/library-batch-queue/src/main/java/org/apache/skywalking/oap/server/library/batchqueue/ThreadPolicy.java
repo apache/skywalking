@@ -19,25 +19,35 @@
 package org.apache.skywalking.oap.server.library.batchqueue;
 
 /**
- * Determines the number of threads for a BatchQueue's scheduler.
+ * Determines the number of threads for a BatchQueue's scheduler, and whether that queue's
+ * work is blocking-dominated.
  *
- * Three modes:
+ * Four modes:
  * - fixed(N): exactly N threads, regardless of hardware.
  * - cpuCores(multiplier): multiplier * Runtime.availableProcessors(), rounded.
  * - cpuCoresWithBase(base, multiplier): base + multiplier * Runtime.availableProcessors(), rounded.
+ * - ioBound(N): exactly N threads whose consumers spend most of their time blocked.
  *
  * Resolved value is always &gt;= 1 — every pool must have at least one thread.
  * fixed() requires count &gt;= 1 at construction. cpuCores() applies max(1, ...) at resolution.
+ *
+ * There is deliberately no CPU-proportional {@code ioBound} variant: sizing by core count is
+ * meaningless for work that blocks, and virtual threads must never carry CPU-bound work — they
+ * are not preemptive, so a CPU-only task holds its carrier to completion and starves every other
+ * virtual thread in the process.
  */
 public class ThreadPolicy {
     private final int fixedCount;
     private final int base;
     private final double cpuMultiplier;
+    private final boolean ioBound;
 
-    private ThreadPolicy(final int fixedCount, final int base, final double cpuMultiplier) {
+    private ThreadPolicy(final int fixedCount, final int base, final double cpuMultiplier,
+                         final boolean ioBound) {
         this.fixedCount = fixedCount;
         this.base = base;
         this.cpuMultiplier = cpuMultiplier;
+        this.ioBound = ioBound;
     }
 
     /**
@@ -51,7 +61,7 @@ public class ThreadPolicy {
         if (count < 1) {
             throw new IllegalArgumentException("Thread count must be >= 1, got: " + count);
         }
-        return new ThreadPolicy(count, 0, 0);
+        return new ThreadPolicy(count, 0, 0, false);
     }
 
     /**
@@ -66,7 +76,7 @@ public class ThreadPolicy {
         if (multiplier <= 0) {
             throw new IllegalArgumentException("CPU multiplier must be > 0, got: " + multiplier);
         }
-        return new ThreadPolicy(0, 0, multiplier);
+        return new ThreadPolicy(0, 0, multiplier, false);
     }
 
     /**
@@ -87,7 +97,30 @@ public class ThreadPolicy {
         if (multiplier <= 0) {
             throw new IllegalArgumentException("CPU multiplier must be > 0, got: " + multiplier);
         }
-        return new ThreadPolicy(0, base, multiplier);
+        return new ThreadPolicy(0, base, multiplier, false);
+    }
+
+    /**
+     * Exactly {@code count} threads for a queue whose consumers spend most of their time blocked —
+     * typically on I/O.
+     *
+     * Virtual threads are used when the runtime supports them (JDK 25+, see
+     * {@code VirtualThreads}); otherwise the queue falls back to {@code count} platform threads.
+     * The count is identical either way — only the thread substrate changes, so concurrency,
+     * batching, back-pressure and per-partition ordering are unaffected by the fallback.
+     *
+     * The count is mandatory and has no CPU-proportional form: it expresses how many concurrent
+     * blocking calls the downstream service tolerates, which does not follow core count.
+     *
+     * @param count the exact number of threads
+     * @return a ThreadPolicy with a fixed thread count, marked as blocking-dominated
+     * @throws IllegalArgumentException if count &lt; 1
+     */
+    public static ThreadPolicy ioBound(final int count) {
+        if (count < 1) {
+            throw new IllegalArgumentException("Thread count must be >= 1, got: " + count);
+        }
+        return new ThreadPolicy(count, 0, 0, true);
     }
 
     /**
@@ -102,6 +135,14 @@ public class ThreadPolicy {
         return Math.max(1, base + (int) Math.round(cpuMultiplier * Runtime.getRuntime().availableProcessors()));
     }
 
+    /**
+     * @return true when this queue's consumers are expected to block, making virtual threads
+     * appropriate where the runtime provides them
+     */
+    boolean isIoBound() {
+        return ioBound;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) {
@@ -113,7 +154,8 @@ public class ThreadPolicy {
         final ThreadPolicy that = (ThreadPolicy) o;
         return fixedCount == that.fixedCount
             && base == that.base
-            && Double.compare(that.cpuMultiplier, cpuMultiplier) == 0;
+            && Double.compare(that.cpuMultiplier, cpuMultiplier) == 0
+            && ioBound == that.ioBound;
     }
 
     @Override
@@ -122,13 +164,14 @@ public class ThreadPolicy {
         result = 31 * result + base;
         final long temp = Double.doubleToLongBits(cpuMultiplier);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + (ioBound ? 1 : 0);
         return result;
     }
 
     @Override
     public String toString() {
         if (fixedCount > 0) {
-            return "fixed(" + fixedCount + ")";
+            return ioBound ? "ioBound(" + fixedCount + ")" : "fixed(" + fixedCount + ")";
         }
         if (base > 0) {
             return "cpuCoresWithBase(" + base + ", " + cpuMultiplier + ")";
