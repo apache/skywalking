@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.library.batchqueue;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,6 +33,33 @@ public class ThreadPolicyTest {
         assertEquals(1, ThreadPolicy.fixed(1).resolve());
         assertEquals(4, ThreadPolicy.fixed(4).resolve());
         assertEquals(100, ThreadPolicy.fixed(100).resolve());
+    }
+
+    @Test
+    public void testIoBoundReturnsExactCount() {
+        assertEquals(1, ThreadPolicy.ioBound(1).resolve());
+        assertEquals(50, ThreadPolicy.ioBound(50).resolve());
+    }
+
+    @Test
+    public void testIoBoundRejectsZero() {
+        assertThrows(IllegalArgumentException.class, () -> ThreadPolicy.ioBound(0));
+    }
+
+    @Test
+    public void testOnlyIoBoundIsMarkedIoBound() {
+        assertTrue(ThreadPolicy.ioBound(4).isIoBound());
+        assertFalse(ThreadPolicy.fixed(4).isIoBound());
+        assertFalse(ThreadPolicy.cpuCores(1.0).isIoBound());
+        assertFalse(ThreadPolicy.cpuCoresWithBase(1, 0.25).isIoBound());
+    }
+
+    @Test
+    public void testIoBoundIsNotEqualToFixedWithSameCount() {
+        // Same resolved count, different substrate intent - they must not collapse.
+        assertEquals(ThreadPolicy.fixed(4).resolve(), ThreadPolicy.ioBound(4).resolve());
+        assertNotEquals(ThreadPolicy.fixed(4), ThreadPolicy.ioBound(4));
+        assertEquals("ioBound(4)", ThreadPolicy.ioBound(4).toString());
     }
 
     @Test
