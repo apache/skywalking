@@ -87,8 +87,8 @@ level:
       max: 1.0
       level: excellent
   boolean:
-    true: excellent
-    false: fail
+    "true": excellent
+    "false": fail
 
 tasks:
   - name: Faithfulness

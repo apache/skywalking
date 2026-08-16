@@ -74,7 +74,6 @@
                 <include>telegraf-rules/*</include>
                 <include>cilium-rules/*</include>
                 <include>ai-evaluation.yml</include>
-                <include>gen-ai-evaluation-rules/**</include>
                 <include>gen-ai-config.yml</include>
                 <include>layer-extensions.yml</include>
             </includes>

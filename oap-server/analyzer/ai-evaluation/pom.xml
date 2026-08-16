@@ -18,19 +18,26 @@
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <parent>
-        <artifactId>analyzer</artifactId>
-        <groupId>org.apache.skywalking</groupId>
-        <version>${revision}</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>agent-analyzer</artifactId>
-    <packaging>jar</packaging>
+    <parent>
+        <groupId>org.apache.skywalking</groupId>
+        <artifactId>analyzer</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <groupId>org.apache.skywalking</groupId>
+    <artifactId>ai-evaluation</artifactId>
+
+    <description>
+        AI evaluation module samples telemetry data from the OAP kernel, builds evaluation tasks for AI scenarios,
+        and calls a judge model to evaluate the observed AI behavior.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>configuration-api</artifactId>
+            <artifactId>library-module</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -45,14 +52,12 @@
         </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
-            <artifactId>gen-ai-analyzer</artifactId>
+            <artifactId>agent-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.skywalking</groupId>
-            <artifactId>server-testing</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
         </dependency>
     </dependencies>
 </project>

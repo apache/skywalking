@@ -16,17 +16,9 @@
  *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
+package org.apache.skywalking.oap.server.core.query.enumeration;
 
-import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory;
-import org.apache.skywalking.oap.server.library.module.Service;
-
-/**
- * Service of trace segment parser.
- */
-public interface ISegmentParserService extends Service {
-    void send(SegmentObject segment);
-
-    void addListenerFactory(AnalysisListenerFactory factory);
+public enum GenAITraceRefType {
+    SKYWALKING_NATIVE,
+    OTLP
 }

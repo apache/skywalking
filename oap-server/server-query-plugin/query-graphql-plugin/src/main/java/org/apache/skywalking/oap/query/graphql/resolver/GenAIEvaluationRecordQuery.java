@@ -28,8 +28,6 @@ import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
@@ -81,18 +79,6 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
         }
 
         Order queryOrder = isNull(condition.getQueryOrder()) ? Order.DES : condition.getQueryOrder();
-        if (CollectionUtils.isNotEmpty(condition.getTags())) {
-            condition.getTags().forEach(tag -> {
-                if (tag != null) {
-                    if (StringUtil.isNotEmpty(tag.getKey())) {
-                        tag.setKey(tag.getKey().trim());
-                    }
-                    if (StringUtil.isNotEmpty(tag.getValue())) {
-                        tag.setValue(tag.getValue().trim());
-                    }
-                }
-            });
-        }
         return getQueryService().queryGenAIEvaluationRecord(
                 condition.getServiceId(),
                 condition.getProviderId(),
@@ -108,8 +94,7 @@ public class GenAIEvaluationRecordQuery implements GraphQLQueryResolver {
                 condition.getRelatedTrace(),
                 condition.getPaging(),
                 queryOrder,
-                condition.getQueryDuration(),
-                condition.getTags()
+                condition.getQueryDuration()
         );
     }
 }

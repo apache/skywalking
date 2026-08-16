@@ -18,11 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.query.input;
 
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -46,6 +44,5 @@ public class GenAIEvaluationRecordQueryCondition {
     private TraceScopeCondition relatedTrace;
     private Duration queryDuration;
     private Pagination paging;
-    private List<Tag> tags;
     private Order queryOrder;
 }

@@ -59,6 +59,12 @@
             <artifactId>ios-analyzer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Optional AI evaluation module (disabled by default in application.yml). -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>ai-evaluation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- cluster module -->
         <dependency>
@@ -377,7 +383,6 @@
                         <exclude>telegraf-rules/</exclude>
                         <exclude>cilium-rules/</exclude>
                         <exclude>ai-evaluation.yml</exclude>
-                        <exclude>gen-ai-evaluation-rules/</exclude>
                         <exclude>gen-ai-config.yml</exclude>
                         <exclude>layer-extensions.yml</exclude>
                     </excludes>

@@ -23,6 +23,7 @@ import lombok.Setter;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory;
 
 /**
  * The open service to the receivers.
@@ -38,5 +39,10 @@ public class SegmentParserServiceImpl implements ISegmentParserService {
     public void send(SegmentObject segment) {
         final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
         traceAnalyzer.doAnalysis(segment);
+    }
+
+    @Override
+    public void addListenerFactory(final AnalysisListenerFactory factory) {
+        listenerManager.add(factory);
     }
 }

@@ -22,7 +22,6 @@ import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -33,6 +32,7 @@ import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.genai.GenAISemanticAttributes;
 
 /**
  * {@link SpanListener} that extracts GenAI metrics from Zipkin spans.
@@ -82,7 +82,7 @@ public class GenAISpanListener implements SpanListener {
             final BigDecimal calculatedCost = BigDecimal.valueOf(metrics.getTotalEstimatedCost())
                 .divide(new BigDecimal("1000000"), 10, RoundingMode.HALF_UP);
             additionalTags.put(
-                GenAITagKeys.ESTIMATED_COST,
+                GenAISemanticAttributes.ESTIMATED_COST,
                 calculatedCost.stripTrailingZeros().toPlainString());
         }
 

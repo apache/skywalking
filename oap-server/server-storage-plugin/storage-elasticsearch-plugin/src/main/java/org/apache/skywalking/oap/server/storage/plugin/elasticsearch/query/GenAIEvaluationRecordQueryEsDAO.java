@@ -19,8 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -29,7 +27,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Sort;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
@@ -39,7 +36,6 @@ import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
@@ -48,24 +44,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
 
 public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEvaluationRecordQueryDAO {
-    private static final Set<String> QUERYABLE_TAG_KEYS = Set.of(
-        GenAIEvaluationRecord.TRACE_ID,
-        GenAIEvaluationRecord.SERVICE_ID,
-        GenAIEvaluationRecord.PROVIDER_ID,
-        GenAIEvaluationRecord.MODEL_ID,
-        GenAIEvaluationRecord.OPERATION_NAME,
-        GenAIEvaluationRecord.EVAL_NUMBER_VALUE,
-        GenAIEvaluationRecord.SEGMENT_ID,
-        GenAIEvaluationRecord.SPAN_ID,
-        GenAIEvaluationRecord.SPAN_TYPE,
-        GenAIEvaluationRecord.TASK_NAME,
-        GenAIEvaluationRecord.VALUE_TYPE,
-        GenAIEvaluationRecord.EVAL_STRING_VALUE,
-        GenAIEvaluationRecord.EVALUATION_LEVEL,
-        GenAIEvaluationRecord.REASON,
-        GenAIEvaluationRecord.JUDGE_MODEL
-    );
-
     public GenAIEvaluationRecordQueryEsDAO(final ElasticSearchClient client) {
         super(client);
     }
@@ -82,8 +60,7 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
                                                              final Order queryOrder,
                                                              final int from,
                                                              final int limit,
-                                                             final Duration duration,
-                                                             final List<Tag> tags) throws IOException {
+                                                             final Duration duration) throws IOException {
         long startSecondTB = 0;
         long endSecondTB = 0;
         if (nonNull(duration)) {
@@ -138,20 +115,9 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
                 query.must(Query.term(GenAIEvaluationRecord.SEGMENT_ID, relatedTrace.getSegmentId()));
             }
             if (nonNull(relatedTrace.getSpanId())) {
-                query.must(Query.term(GenAIEvaluationRecord.SPAN_ID, relatedTrace.getSpanId()));
+                query.must(Query.term(GenAIEvaluationRecord.SPAN_INDEX, relatedTrace.getSpanId()));
             }
         }
-        if (CollectionUtils.isNotEmpty(tags)) {
-            for (final Tag tag : tags) {
-                if (isNotEmpty(tag.getKey()) && isNotEmpty(tag.getValue())) {
-                    if (!QUERYABLE_TAG_KEYS.contains(tag.getKey())) {
-                        return new GenAIEvaluationRecords();
-                    }
-                    query.must(Query.term(tag.getKey(), tag.getValue()));
-                }
-            }
-        }
-
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(
@@ -184,10 +150,12 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         record.setModelId((String) source.get(GenAIEvaluationRecord.MODEL_ID));
         record.setOperationName((String) source.get(GenAIEvaluationRecord.OPERATION_NAME));
         final Number numberValue = (Number) source.get(GenAIEvaluationRecord.EVAL_NUMBER_VALUE);
-        record.setEvaNumberValue(numberValue == null ? null : numberValue.longValue());
+        record.setEvalNumberValue(numberValue == null ? null : numberValue.longValue());
+        record.setRefType((String) source.get(GenAIEvaluationRecord.REF_TYPE));
         record.setSegmentId((String) source.get(GenAIEvaluationRecord.SEGMENT_ID));
-        record.setSpanId(((Number) source.get(GenAIEvaluationRecord.SPAN_ID)).intValue());
-        record.setSpanType((String) source.get(GenAIEvaluationRecord.SPAN_TYPE));
+        final Number spanIndex = (Number) source.get(GenAIEvaluationRecord.SPAN_INDEX);
+        record.setSpanIndex(spanIndex == null ? null : spanIndex.intValue());
+        record.setSpanId((String) source.get(GenAIEvaluationRecord.SPAN_ID));
         record.setTaskName((String) source.get(GenAIEvaluationRecord.TASK_NAME));
         record.setValueType((String) source.get(GenAIEvaluationRecord.VALUE_TYPE));
         record.setEvalStringValue((String) source.get(GenAIEvaluationRecord.EVAL_STRING_VALUE));
