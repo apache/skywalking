@@ -47,6 +47,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 public class AIEvaluationProvider extends ModuleProvider {
     private static final int MAX_SAMPLE_RATE = 1_000_000;
@@ -82,16 +86,28 @@ public class AIEvaluationProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         final int sampleRate = config.getSampleRate();
+        final int bufferSize = config.getBufferSize();
+        final int consumerThreads = config.getConsumerThreads();
         config = new AIEvaluationConfigLoader().load();
         config.setSampleRate(sampleRate);
+        config.setBufferSize(bufferSize);
+        config.setConsumerThreads(consumerThreads);
         validateConfig(config);
         if (config.getSampleRate() < 0 || config.getSampleRate() > MAX_SAMPLE_RATE) {
             throw new IllegalArgumentException(
                 "sampleRate: " + config.getSampleRate() + ", should be between 0 and " + MAX_SAMPLE_RATE);
         }
+        if (config.getBufferSize() <= 0) {
+            throw new IllegalArgumentException("bufferSize should be greater than 0");
+        }
+        if (config.getConsumerThreads() <= 0) {
+            throw new IllegalArgumentException("consumerThreads should be greater than 0");
+        }
         aiEvaluationService = new AIEvaluationService(
             new DefaultAIEvaluationSamplingPolicy(config.getSampleRate()),
-            createJudgeProvider()
+            createJudgeProvider(),
+            config.getBufferSize(),
+            config.getConsumerThreads()
         );
         registerServiceImplementation(IAIEvaluationService.class, aiEvaluationService);
     }
@@ -99,7 +115,12 @@ public class AIEvaluationProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         metricReporter = createMetricReporter();
-        aiEvaluationService.setStrategies(createStrategies());
+        final CounterMetrics incompleteSpanCounter = createDroppedCounter("incomplete_span");
+        aiEvaluationService.setDroppedCounters(
+            createDroppedCounter("pipeline_capacity"),
+            incompleteSpanCounter
+        );
+        aiEvaluationService.setStrategies(createStrategies(incompleteSpanCounter));
         getManager().find(AnalyzerModule.NAME)
                     .provider()
                     .getService(ISegmentParserService.class)
@@ -114,8 +135,21 @@ public class AIEvaluationProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             CoreModule.NAME,
-            AnalyzerModule.NAME
+            AnalyzerModule.NAME,
+            TelemetryModule.NAME
         };
+    }
+
+    private CounterMetrics createDroppedCounter(final String reason) {
+        final MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        return metricsCreator.createCounter(
+            "ai_evaluation_dropped_count",
+            "The number of AI evaluation tasks dropped before execution.",
+            new MetricsTag.Keys("reason"),
+            new MetricsTag.Values(reason)
+        );
     }
 
     private JudgeModelProvider createJudgeProvider() throws ModuleStartException {
@@ -127,7 +161,7 @@ public class AIEvaluationProvider extends ModuleProvider {
         throw new ModuleStartException("Unsupported AI evaluation judge provider: " + provider);
     }
 
-    private List<AIEvaluationStrategy> createStrategies() {
+    private List<AIEvaluationStrategy> createStrategies(final CounterMetrics incompleteSpanCounter) {
         final EvaluationTaskRegistry taskRegistry = new EvaluationTaskRegistry(config.getTasks());
         final EvaluationInputExtractor inputExtractor = new EvaluationInputExtractor();
         final NamingControl namingControl = getManager().find(CoreModule.NAME).provider().getService(NamingControl.class);
@@ -138,7 +172,8 @@ public class AIEvaluationProvider extends ModuleProvider {
             new EvaluationResultParser(),
             metricReporter,
             namingControl,
-            new EvaluationLevelResolver(config.getLevel())
+            new EvaluationLevelResolver(config.getLevel()),
+            incompleteSpanCounter
         ));
     }
 

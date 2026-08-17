@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.genai.GenAISemanticAttributes;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,8 +48,6 @@ import java.util.UUID;
 
 @Slf4j
 public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
-    private static final String CHAT_OPERATION = "chat";
-
     private final EvaluationTaskRegistry taskRegistry;
     private final EvaluationPlanner evaluationPlanner;
     private final EvaluationPromptBuilder promptBuilder;
@@ -56,6 +55,7 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
     private final AIEvaluationMetricReporter metricReporter;
     private final NamingControl namingControl;
     private final EvaluationLevelResolver levelResolver;
+    private final CounterMetrics incompleteSpanCounter;
 
     public SpanAIEvaluationStrategy(final EvaluationTaskRegistry taskRegistry,
                                     final EvaluationPlanner evaluationPlanner,
@@ -63,7 +63,8 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
                                     final EvaluationResultParser resultParser,
                                     final AIEvaluationMetricReporter metricReporter,
                                     final NamingControl namingControl,
-                                    final EvaluationLevelResolver levelResolver) {
+                                    final EvaluationLevelResolver levelResolver,
+                                    final CounterMetrics incompleteSpanCounter) {
         this.taskRegistry = taskRegistry;
         this.evaluationPlanner = evaluationPlanner;
         this.promptBuilder = promptBuilder;
@@ -71,16 +72,24 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
         this.metricReporter = metricReporter;
         this.namingControl = namingControl;
         this.levelResolver = levelResolver;
+        this.incompleteSpanCounter = incompleteSpanCounter;
     }
 
     @Override
     public boolean support(final AIEvaluationContext context) {
-        if (context == null || StringUtil.isEmpty(context.getTraceId()) || context.getTraceRefType() == null) {
+        if (context == null || taskRegistry.isEmpty()) {
             return false;
         }
-        return context.getTraceRefType() == GenAITraceRefType.SKYWALKING_NATIVE
-                ? StringUtil.isNotEmpty(context.getSegmentId()) && context.getSpanIndex() != null
-                : StringUtil.isNotEmpty(context.getSpanId());
+        if (context.getTags() == null) {
+            incompleteSpanCounter.inc();
+            return false;
+        }
+
+        if (!completeLLMCallSpan(context)) {
+            incompleteSpanCounter.inc();
+            return false;
+        }
+        return true;
     }
 
     @Override
@@ -94,14 +103,7 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
     @Override
     public void evaluate(final AIEvaluationContext context,
                          final JudgeModelProvider judgeModelProvider) throws IOException, InterruptedException {
-        if (taskRegistry.isEmpty()) {
-            log.debug("Skip GenAI span evaluation, no evaluation task configured, taskId: {}", taskId(context));
-            return;
-        }
-
-        if (validLLMCallSpan(context)) {
-            evaluateLLMCallSpan(context, judgeModelProvider);
-        }
+        evaluateLLMCallSpan(context, judgeModelProvider);
     }
 
     private void evaluateLLMCallSpan(final AIEvaluationContext context,
@@ -161,21 +163,27 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
         }
     }
 
-    private static boolean validLLMCallSpan(final AIEvaluationContext context) {
-        if (!CHAT_OPERATION.equalsIgnoreCase(operationName(context))) {
+    private static boolean completeLLMCallSpan(final AIEvaluationContext context) {
+        if (StringUtil.isBlank(context.getTraceId())
+            || context.getTraceRefType() == null
+            || StringUtil.isBlank(context.getServiceName())
+            || StringUtil.isBlank(context.getProviderName())
+            || StringUtil.isBlank(context.getModelName())) {
+            return false;
+        }
+
+        if (context.getTraceRefType() == GenAITraceRefType.SKYWALKING_NATIVE) {
+            if (StringUtil.isBlank(context.getSegmentId()) || context.getSpanIndex() == null) {
+                return false;
+            }
+        } else if (context.getTraceRefType() != GenAITraceRefType.OTLP
+            || StringUtil.isBlank(context.getSpanId())) {
             return false;
         }
 
         final String inputMessages = context.getTags().get(GenAISemanticAttributes.INPUT_MESSAGES);
         final String outputMessages = context.getTags().get(GenAISemanticAttributes.OUTPUT_MESSAGES);
-        if (StringUtil.isEmpty(inputMessages) || StringUtil.isEmpty(outputMessages)) {
-            log.warn(
-                    "Skip GenAI span evaluation, missing input or output messages,trace id :{}",
-                    context.getTraceId()
-            );
-            return false;
-        }
-        return true;
+        return StringUtil.isNotBlank(inputMessages) && StringUtil.isNotBlank(outputMessages);
     }
 
     private static String operationName(final AIEvaluationContext context) {

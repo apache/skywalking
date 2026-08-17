@@ -32,6 +32,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Setter
 public class AIEvaluationConfig extends ModuleConfig {
     private int sampleRate;
+    private int bufferSize = 100;
+    private int consumerThreads = 4;
     private Properties judge = new Properties();
     private String systemPrompt;
     private Double temperature;
