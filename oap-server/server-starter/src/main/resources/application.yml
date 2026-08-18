@@ -258,7 +258,7 @@ gen-ai-analyzer:
   default:
 
 ai-evaluation:
-  selector: ${SW_AI_EVALUATION:default}
+  selector: ${SW_AI_EVALUATION:-}
   default:
     sampleRate: ${SW_AI_EVALUATION_SAMPLE_RATE:1000000}
     bufferSize: ${SW_AI_EVALUATION_BUFFER_SIZE:100}
