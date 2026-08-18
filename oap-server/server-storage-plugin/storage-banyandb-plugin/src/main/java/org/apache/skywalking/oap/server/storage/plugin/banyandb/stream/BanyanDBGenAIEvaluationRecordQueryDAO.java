@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
@@ -37,10 +38,11 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * {@link org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord} is a gen-ai evaluation result
+ * Queries {@link GenAIEvaluationRecord} from BanyanDB.
  */
 public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO implements IGenAIEvaluationRecordQueryDAO {
     private static final Set<String> TAGS = ImmutableSet.of(
+            GenAIEvaluationRecord.UNIQUE_ID,
             GenAIEvaluationRecord.TRACE_ID,
             GenAIEvaluationRecord.SERVICE_ID,
             GenAIEvaluationRecord.PROVIDER_ID,
@@ -128,6 +130,7 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
 
         for (final RowEntity rowEntity : resp.getElements()) {
             GenAIEvaluationRecord evaluationRecord = new GenAIEvaluationRecord();
+            evaluationRecord.setUniqueId(rowEntity.getTagValue(GenAIEvaluationRecord.UNIQUE_ID));
             evaluationRecord.setTraceId(rowEntity.getTagValue(GenAIEvaluationRecord.TRACE_ID));
             evaluationRecord.setServiceId(rowEntity.getTagValue(GenAIEvaluationRecord.SERVICE_ID));
             evaluationRecord.setProviderId(rowEntity.getTagValue(GenAIEvaluationRecord.PROVIDER_ID));
@@ -141,7 +144,10 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
             evaluationRecord.setSpanIndex(spanIndex == null ? null : spanIndex.intValue());
             evaluationRecord.setSpanId(rowEntity.getTagValue(GenAIEvaluationRecord.SPAN_ID));
             evaluationRecord.setTaskName(rowEntity.getTagValue(GenAIEvaluationRecord.TASK_NAME));
-            evaluationRecord.setEvaluationTime(((Number) rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_TIME)).longValue());
+            final long evaluationTime =
+                ((Number) rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_TIME)).longValue();
+            evaluationRecord.setEvaluationTime(evaluationTime);
+            evaluationRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(evaluationTime));
             evaluationRecord.setValueType(rowEntity.getTagValue(GenAIEvaluationRecord.VALUE_TYPE));
             evaluationRecord.setEvalStringValue(rowEntity.getTagValue(GenAIEvaluationRecord.EVAL_STRING_VALUE));
             evaluationRecord.setEvaluationLevel(rowEntity.getTagValue(GenAIEvaluationRecord.EVALUATION_LEVEL));

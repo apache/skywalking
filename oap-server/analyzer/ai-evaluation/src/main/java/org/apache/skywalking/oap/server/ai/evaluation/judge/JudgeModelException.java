@@ -13,18 +13,41 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package org.apache.skywalking.oap.server.ai.evaluation.judge;
 
 import java.io.IOException;
 
-public interface JudgeModelProvider {
+import lombok.Getter;
 
-    JudgeModelResponse judge(JudgeModelRequest request) throws IOException, InterruptedException;
+@Getter
+public class JudgeModelException extends IOException {
+    private final Reason reason;
 
-    default String model() {
-        return "";
+    public JudgeModelException(final Reason reason, final String message) {
+        super(message);
+        this.reason = reason;
+    }
+
+    public JudgeModelException(final Reason reason, final String message, final Throwable cause) {
+        super(message, cause);
+        this.reason = reason;
+    }
+
+    public enum Reason {
+        REJECTED("rejected"),
+        TIMEOUT("timeout"),
+        INVALID_RESPONSE("invalid_response");
+
+        private final String label;
+
+        Reason(final String label) {
+            this.label = label;
+        }
+
+        public String label() {
+            return label;
+        }
     }
 }

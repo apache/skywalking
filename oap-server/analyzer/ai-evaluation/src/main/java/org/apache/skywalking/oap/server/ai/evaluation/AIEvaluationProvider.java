@@ -88,10 +88,12 @@ public class AIEvaluationProvider extends ModuleProvider {
         final int sampleRate = config.getSampleRate();
         final int bufferSize = config.getBufferSize();
         final int consumerThreads = config.getConsumerThreads();
+        final int maxContentLength = config.getMaxContentLength();
         config = new AIEvaluationConfigLoader().load();
         config.setSampleRate(sampleRate);
         config.setBufferSize(bufferSize);
         config.setConsumerThreads(consumerThreads);
+        config.setMaxContentLength(maxContentLength);
         validateConfig(config);
         if (config.getSampleRate() < 0 || config.getSampleRate() > MAX_SAMPLE_RATE) {
             throw new IllegalArgumentException(
@@ -102,6 +104,9 @@ public class AIEvaluationProvider extends ModuleProvider {
         }
         if (config.getConsumerThreads() <= 0) {
             throw new IllegalArgumentException("consumerThreads should be greater than 0");
+        }
+        if (config.getMaxContentLength() <= 0) {
+            throw new IllegalArgumentException("maxContentLength should be greater than 0");
         }
         aiEvaluationService = new AIEvaluationService(
             new DefaultAIEvaluationSamplingPolicy(config.getSampleRate()),
@@ -119,6 +124,11 @@ public class AIEvaluationProvider extends ModuleProvider {
         aiEvaluationService.setDroppedCounters(
             createDroppedCounter("pipeline_capacity"),
             incompleteSpanCounter
+        );
+        aiEvaluationService.setErrorCounters(
+            createErrorCounter("rejected"),
+            createErrorCounter("timeout"),
+            createErrorCounter("invalid_response")
         );
         aiEvaluationService.setStrategies(createStrategies(incompleteSpanCounter));
         getManager().find(AnalyzerModule.NAME)
@@ -152,6 +162,18 @@ public class AIEvaluationProvider extends ModuleProvider {
         );
     }
 
+    private CounterMetrics createErrorCounter(final String reason) {
+        final MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        return metricsCreator.createCounter(
+            "ai_evaluation_error_count",
+            "The number of AI evaluation failures.",
+            new MetricsTag.Keys("reason"),
+            new MetricsTag.Values(reason)
+        );
+    }
+
     private JudgeModelProvider createJudgeProvider() throws ModuleStartException {
         final Properties judge = config.getJudge();
         final String provider = getString(judge, "provider");
@@ -168,7 +190,7 @@ public class AIEvaluationProvider extends ModuleProvider {
         return Collections.singletonList(new SpanAIEvaluationStrategy(
             taskRegistry,
             new EvaluationPlanner(inputExtractor),
-            new EvaluationPromptBuilder(config.getSystemPrompt()),
+            new EvaluationPromptBuilder(config.getSystemPrompt(), config.getMaxContentLength()),
             new EvaluationResultParser(),
             metricReporter,
             namingControl,

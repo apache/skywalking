@@ -44,6 +44,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
@@ -111,15 +112,21 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             );
         }
 
-        Comparator<GenAIEvaluationRecord> comparator = GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)
-            ? comparing((GenAIEvaluationRecord record) -> record.getScoreValue() == null ? Double.NEGATIVE_INFINITY : record.getScoreValue())
-            : comparing(GenAIEvaluationRecord::getEvaluationTime);
-        if (Order.DES.equals(queryOrder)) {
-            comparator = comparator.reversed();
-        }
         return new GenAIEvaluationRecords(
-            records.stream().sorted(comparator).skip(from).limit(limit).collect(toList())
+            records.stream().sorted(comparator(sortBy, queryOrder)).skip(from).limit(limit).collect(toList())
         );
+    }
+
+    private static Comparator<GenAIEvaluationRecord> comparator(final GenAIEvaluationRecordSortBy sortBy,
+                                                                 final Order queryOrder) {
+        if (GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)) {
+            final Comparator<Long> scoreComparator = Order.DES.equals(queryOrder)
+                ? Comparator.reverseOrder() : Comparator.naturalOrder();
+            return comparing(GenAIEvaluationRecord::getScoreValue, Comparator.nullsLast(scoreComparator));
+        }
+        final Comparator<GenAIEvaluationRecord> evaluationTimeComparator =
+            comparing(GenAIEvaluationRecord::getEvaluationTime);
+        return Order.DES.equals(queryOrder) ? evaluationTimeComparator.reversed() : evaluationTimeComparator;
     }
 
     protected ArrayList<GenAIEvaluationRecord> parseResults(final ResultSet resultSet) throws SQLException {
@@ -244,9 +251,17 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                 parameters.add(relatedTrace.getSpanId());
             }
         }
-        sql.append(" order by ")
-           .append(storageColumn(GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy)
-               ? GenAIEvaluationRecord.EVAL_NUMBER_VALUE : GenAIEvaluationRecord.EVALUATION_TIME))
+        final boolean sortByScore = GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy);
+        final String sortColumn = storageColumn(
+            sortByScore ? GenAIEvaluationRecord.EVAL_NUMBER_VALUE : GenAIEvaluationRecord.EVALUATION_TIME
+        );
+        sql.append(" order by ");
+        if (sortByScore) {
+            sql.append("case when ")
+               .append(sortColumn)
+               .append(" is null then 1 else 0 end asc, ");
+        }
+        sql.append(sortColumn)
            .append(" ")
            .append(Order.DES.equals(queryOrder) ? "desc" : "asc");
         sql.append(" limit ").append(from + limit);
@@ -257,7 +272,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
     private String selectColumns() {
         return SELECTED_COLUMNS.stream()
                                  .map(this::selectColumn)
-                                 .collect(java.util.stream.Collectors.joining(", "));
+                                 .collect(joining(", "));
     }
 
     private String selectColumn(final String logicalColumn) {

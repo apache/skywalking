@@ -18,12 +18,15 @@
 
 package org.apache.skywalking.oap.server.ai.evaluation.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException.Reason;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.service.sample.AIEvaluationSamplingPolicy;
 import org.apache.skywalking.oap.server.ai.evaluation.service.strategy.AIEvaluationStrategy;
@@ -43,6 +46,9 @@ public class AIEvaluationService implements IAIEvaluationService {
     private volatile List<AIEvaluationStrategy> strategies;
     private volatile CounterMetrics capacityDroppedCounter;
     private volatile CounterMetrics incompleteSpanCounter;
+    private volatile CounterMetrics rejectedCounter;
+    private volatile CounterMetrics timeoutCounter;
+    private volatile CounterMetrics invalidResponseCounter;
     private final Set<String> pendingTaskIds = ConcurrentHashMap.newKeySet();
     private final AtomicInteger nextPartition = new AtomicInteger();
     private final BatchQueue<PendingEvaluation> evaluationQueue;
@@ -76,6 +82,14 @@ public class AIEvaluationService implements IAIEvaluationService {
                                    final CounterMetrics incompleteSpanCounter) {
         this.capacityDroppedCounter = capacityDroppedCounter;
         this.incompleteSpanCounter = incompleteSpanCounter;
+    }
+
+    public void setErrorCounters(final CounterMetrics rejectedCounter,
+                                 final CounterMetrics timeoutCounter,
+                                 final CounterMetrics invalidResponseCounter) {
+        this.rejectedCounter = rejectedCounter;
+        this.timeoutCounter = timeoutCounter;
+        this.invalidResponseCounter = invalidResponseCounter;
     }
 
     @Override
@@ -134,8 +148,29 @@ public class AIEvaluationService implements IAIEvaluationService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.error("GenAI evaluation interrupted, taskId: {}", taskId, e);
+        } catch (JudgeModelException e) {
+            increment(errorCounter(e.getReason()));
+            log.warn(
+                "GenAI evaluation failed, taskId: {}, reason: {}, message: {}",
+                taskId, e.getReason().label(), e.getMessage()
+            );
+        } catch (IOException e) {
+            increment(rejectedCounter);
+            log.error("GenAI evaluation request failed, taskId: {}", taskId, e);
         } catch (Exception e) {
             log.error("GenAI evaluation failed, taskId: {}", taskId, e);
+        }
+    }
+
+    private CounterMetrics errorCounter(final Reason reason) {
+        switch (reason) {
+            case TIMEOUT:
+                return timeoutCounter;
+            case INVALID_RESPONSE:
+                return invalidResponseCounter;
+            case REJECTED:
+            default:
+                return rejectedCounter;
         }
     }
 

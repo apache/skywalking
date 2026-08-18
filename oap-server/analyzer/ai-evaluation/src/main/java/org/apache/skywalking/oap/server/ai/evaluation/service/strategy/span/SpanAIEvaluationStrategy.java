@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.ai.evaluation.service.strategy.span;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException.Reason;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelResponse;
 import org.apache.skywalking.oap.server.ai.evaluation.level.EvaluationLevelResolver;
@@ -43,8 +45,6 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @Slf4j
 public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
@@ -112,13 +112,18 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
         final String judgeModel = judgeModelProvider.model();
         final List<EvaluationPlan> plans = evaluationPlanner.plan(context, taskRegistry.tasks());
         for (EvaluationPlan plan : plans) {
-            final Optional<JudgeModelResponse> response = judgeModelProvider.judge(promptBuilder.build(plan));
-            if (response.isEmpty()) {
-                continue;
+            final JudgeModelResponse judgeResponse = judgeModelProvider.judge(promptBuilder.build(plan));
+            final List<EvaluationResult> results;
+            try {
+                results = resultParser.parse(plan, judgeResponse.getContent());
+            } catch (RuntimeException e) {
+                throw new JudgeModelException(Reason.INVALID_RESPONSE, "Judge returned invalid evaluation JSON.", e);
             }
-
-            final JudgeModelResponse judgeResponse = response.get();
-            final List<EvaluationResult> results = resultParser.parse(plan, judgeResponse.getContent());
+            if (results.isEmpty()) {
+                throw new JudgeModelException(
+                    Reason.INVALID_RESPONSE, "Judge response contains no valid evaluation result."
+                );
+            }
             persistResults(context, results, judgeModel);
         }
     }
@@ -133,7 +138,7 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
                 continue;
             }
             final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
-            record.setUniqueId(UUID.randomUUID().toString().replace("-", ""));
+            record.setUniqueId(GenAIEvaluationRecord.toUniqueId(taskId(context), result.getName(), evaluationTime));
             record.setTraceId(context.getTraceId());
             record.setServiceName(namingControl.formatServiceName(context.getServiceName()));
             record.setProviderName(namingControl.formatServiceName(context.getProviderName()));

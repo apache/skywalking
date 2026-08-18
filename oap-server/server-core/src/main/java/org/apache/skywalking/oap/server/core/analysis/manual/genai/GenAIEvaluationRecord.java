@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.manual.genai;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -67,7 +69,7 @@ public class GenAIEvaluationRecord extends Record {
     public static final String SPAN_INDEX = "span_index";
     public static final String SPAN_ID = "span_id";
     public static final String TASK_NAME = "task_name";
-    public static final int TASK_NAME_MAX_LENGTH = 64;
+    public static final int TASK_NAME_MAX_LENGTH = 512;
     public static final String VALUE_TYPE = "value_type";
     public static final String EVAL_STRING_VALUE = "eval_string_value";
     public static final int EVAL_STRING_VALUE_MAX_LENGTH = 4096;
@@ -215,6 +217,19 @@ public class GenAIEvaluationRecord extends Record {
                 .movePointRight(6)
                 .setScale(0, RoundingMode.FLOOR)
                 .longValueExact();
+    }
+
+    /**
+     * Builds a stable storage identifier for one task evaluation of one span.
+     * The judge response is intentionally excluded so retries overwrite the same record.
+     */
+    public static String toUniqueId(final String traceReference,
+                                    final String taskName,
+                                    final long evaluationTime) {
+        final String identity = traceReference + "\u0000" + taskName + "\u0000" + evaluationTime;
+        return UUID.nameUUIDFromBytes(identity.getBytes(StandardCharsets.UTF_8))
+                .toString()
+                .replace("-", "");
     }
 
     public static String toEntityId(final String name) {

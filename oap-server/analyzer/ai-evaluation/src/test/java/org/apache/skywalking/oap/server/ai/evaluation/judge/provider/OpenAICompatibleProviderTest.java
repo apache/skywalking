@@ -17,16 +17,38 @@
 
 package org.apache.skywalking.oap.server.ai.evaluation.judge.provider;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 class OpenAICompatibleProviderTest {
+    private static final String SUCCESS_RESPONSE =
+        "{\"choices\":[{\"message\":{\"content\":\"valid evaluation\"}}]}";
+
+    private HttpServer server;
+
+    @AfterEach
+    void tearDown() {
+        if (server != null) {
+            server.stop(0);
+        }
+    }
 
     @Test
     void shouldRejectInvalidTemperatureOnStartup() {
@@ -62,6 +84,115 @@ class OpenAICompatibleProviderTest {
     }
 
     @Test
+    void shouldRejectExcessiveRetriesOnStartup() {
+        final Properties config = validConfig();
+        config.setProperty("max-retries", "6");
+        final ModuleStartException exception = assertThrows(
+            ModuleStartException.class,
+            () -> new OpenAICompatibleProvider(config)
+        );
+        assertTrue(exception.getMessage().contains("max-retries"));
+    }
+
+    @Test
+    void shouldParseRetryAfterSecondsAndCapTheDelay() throws Exception {
+        final Method method = OpenAICompatibleProvider.class.getDeclaredMethod("parseRetryAfter", String.class);
+        method.setAccessible(true);
+
+        assertEquals(0L, method.invoke(null, "0"));
+        assertEquals(5_000L, method.invoke(null, "3600"));
+        assertEquals(-1L, method.invoke(null, "invalid"));
+    }
+
+    @Test
+    void shouldClassifyMalformedJudgeResponse() throws Exception {
+        final Method method = OpenAICompatibleProvider.class.getDeclaredMethod(
+            "parseSuccessfulResponse", String.class
+        );
+        method.setAccessible(true);
+
+        final Exception exception = assertThrows(
+            Exception.class,
+            () -> method.invoke(null, "not-json")
+        );
+        final Throwable cause = exception.getCause() == null ? exception : exception.getCause();
+        assertTrue(cause instanceof JudgeModelException);
+        assertEquals(JudgeModelException.Reason.INVALID_RESPONSE, ((JudgeModelException) cause).getReason());
+    }
+
+    @Test
+    void shouldRetryRateLimitedRequest() throws Exception {
+        final AtomicInteger requests = new AtomicInteger();
+        startServer(exchange -> {
+            if (requests.incrementAndGet() == 1) {
+                exchange.getResponseHeaders().add("Retry-After", "0");
+                exchange.sendResponseHeaders(429, -1);
+                exchange.close();
+                return;
+            }
+            respond(exchange, 200, SUCCESS_RESPONSE);
+        });
+
+        final OpenAICompatibleProvider provider = providerForServer();
+
+        assertEquals("valid evaluation", provider.judge(request()).getContent());
+        assertEquals(2, requests.get());
+    }
+
+    @Test
+    void shouldNotRetryNonRetryableRejection() throws Exception {
+        final AtomicInteger requests = new AtomicInteger();
+        startServer(exchange -> {
+            requests.incrementAndGet();
+            exchange.sendResponseHeaders(401, -1);
+            exchange.close();
+        });
+
+        final JudgeModelException exception = assertThrows(
+            JudgeModelException.class,
+            () -> providerForServer().judge(request())
+        );
+
+        assertEquals(JudgeModelException.Reason.REJECTED, exception.getReason());
+        assertEquals(1, requests.get());
+    }
+
+    @Test
+    void shouldClassifyInvalidHttpResponseBody() throws Exception {
+        startServer(exchange -> respond(exchange, 200, "not-json"));
+
+        final JudgeModelException exception = assertThrows(
+            JudgeModelException.class,
+            () -> providerForServer().judge(request())
+        );
+
+        assertEquals(JudgeModelException.Reason.INVALID_RESPONSE, exception.getReason());
+    }
+
+    @Test
+    void shouldClassifyRequestTimeout() throws Exception {
+        startServer(exchange -> {
+            try {
+                Thread.sleep(1_500L);
+                respond(exchange, 200, SUCCESS_RESPONSE);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        final Properties config = serverConfig();
+        config.setProperty("request-timeout-seconds", "1");
+        config.setProperty("max-retries", "0");
+        final OpenAICompatibleProvider provider = new OpenAICompatibleProvider(config);
+
+        final JudgeModelException exception = assertThrows(
+            JudgeModelException.class,
+            () -> provider.judge(request())
+        );
+
+        assertEquals(JudgeModelException.Reason.TIMEOUT, exception.getReason());
+    }
+
+    @Test
     void shouldIncludeTemperatureAndMaxTokensInRequestBody() throws Exception {
         final Properties config = validConfig();
         config.setProperty("request-timeout-seconds", "45");
@@ -91,5 +222,33 @@ class OpenAICompatibleProviderTest {
         config.setProperty("model", "gpt-5.4-mini");
         config.setProperty("api-key", "test-key");
         return config;
+    }
+
+    private void startServer(final HttpHandler handler) throws IOException {
+        server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/", handler);
+        server.start();
+    }
+
+    private OpenAICompatibleProvider providerForServer() throws ModuleStartException {
+        return new OpenAICompatibleProvider(serverConfig());
+    }
+
+    private Properties serverConfig() {
+        final Properties config = validConfig();
+        config.setProperty("endpoint", "http://127.0.0.1:" + server.getAddress().getPort() + '/');
+        return config;
+    }
+
+    private static JudgeModelRequest request() {
+        return JudgeModelRequest.builder().systemPrompt("system").userPrompt("user").build();
+    }
+
+    private static void respond(final HttpExchange exchange, final int status, final String content)
+            throws IOException {
+        final byte[] body = content.getBytes(StandardCharsets.UTF_8);
+        exchange.sendResponseHeaders(status, body.length);
+        exchange.getResponseBody().write(body);
+        exchange.close();
     }
 }

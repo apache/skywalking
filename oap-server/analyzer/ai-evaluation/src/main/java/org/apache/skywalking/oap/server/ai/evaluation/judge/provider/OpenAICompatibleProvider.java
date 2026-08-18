@@ -18,21 +18,27 @@
 
 package org.apache.skywalking.oap.server.ai.evaluation.judge.provider;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.Properties;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException;
+import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelException.Reason;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelResponse;
@@ -43,6 +49,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public class OpenAICompatibleProvider implements JudgeModelProvider {
     private static final Gson GSON = new Gson();
     private static final long DEFAULT_REQUEST_TIMEOUT_SECONDS = 30L;
+    private static final int DEFAULT_MAX_RETRIES = 2;
+    private static final int MAX_CONFIGURED_RETRIES = 5;
+    private static final long DEFAULT_RETRY_DELAY_MILLIS = 200L;
+    private static final long MAX_RETRY_DELAY_MILLIS = 5_000L;
     private static final double MIN_TEMPERATURE = 0.0;
     private static final double MAX_TEMPERATURE = 1.0;
 
@@ -51,6 +61,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
     private final String apiKey;
     private final String model;
     private final Duration requestTimeout;
+    private final int maxRetries;
     private final Double temperature;
     private final Integer maxTokens;
 
@@ -65,12 +76,13 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         this.apiKey = getString(config, "api-key");
         this.model = getString(config, "model");
         this.requestTimeout = Duration.ofSeconds(getRequestTimeoutSeconds(config));
+        this.maxRetries = getMaxRetries(config);
         this.temperature = getDouble(config, "temperature");
         this.maxTokens = getInteger(config, "max_tokens");
     }
 
     @Override
-    public Optional<JudgeModelResponse> judge(final JudgeModelRequest request)
+    public JudgeModelResponse judge(final JudgeModelRequest request)
             throws IOException, InterruptedException {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
@@ -79,15 +91,36 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(buildRequestBody(request)))
                 .build();
-        final HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-        if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new IOException("OpenAI compatible judge API request failed, status: " + response.statusCode());
+        for (int retry = 0; ; retry++) {
+            final HttpResponse<String> response;
+            try {
+                response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            } catch (HttpTimeoutException e) {
+                if (retry >= maxRetries) {
+                    throw new JudgeModelException(Reason.TIMEOUT, "OpenAI compatible judge API request timed out.", e);
+                }
+                waitBeforeRetry(defaultRetryDelay(retry));
+                continue;
+            } catch (IOException e) {
+                throw new JudgeModelException(
+                    Reason.REJECTED,
+                    "OpenAI compatible judge API request failed before receiving a response.",
+                    e
+                );
+            }
+
+            if (response.statusCode() >= 200 && response.statusCode() < 300) {
+                return parseSuccessfulResponse(response.body());
+            }
+            if (isRetryable(response.statusCode()) && retry < maxRetries) {
+                waitBeforeRetry(retryDelay(response, retry));
+                continue;
+            }
+            throw new JudgeModelException(
+                Reason.REJECTED,
+                "OpenAI compatible judge API request rejected, status: " + response.statusCode()
+            );
         }
-        final JudgeModelResponse judgeResponse = parseResponse(response.body());
-        if (StringUtil.isBlank(judgeResponse.getContent())) {
-            throw new IOException("OpenAI compatible judge API response has no completion content.");
-        }
-        return Optional.of(judgeResponse);
     }
 
     @Override
@@ -106,6 +139,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
             throw new ModuleStartException("AI evaluation judge config [api-key] is required.");
         }
         validateRequestTimeoutSeconds(getString(config, "request-timeout-seconds"));
+        validateMaxRetries(getString(config, "max-retries"));
         validateTemperature(getString(config, "temperature"));
         validateMaxTokens(getString(config, "max_tokens"));
     }
@@ -136,6 +170,74 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         message.addProperty("role", role);
         message.addProperty("content", content);
         messages.add(message);
+    }
+
+    private static JudgeModelResponse parseSuccessfulResponse(final String body)
+            throws JudgeModelException {
+        final JudgeModelResponse judgeResponse;
+        try {
+            judgeResponse = parseResponse(body);
+        } catch (RuntimeException e) {
+            throw new JudgeModelException(
+                Reason.INVALID_RESPONSE,
+                "OpenAI compatible judge API returned a malformed response.",
+                e
+            );
+        }
+        if (StringUtil.isBlank(judgeResponse.getContent())) {
+            throw new JudgeModelException(
+                Reason.INVALID_RESPONSE,
+                "OpenAI compatible judge API response has no completion content."
+            );
+        }
+        return judgeResponse;
+    }
+
+    private static boolean isRetryable(final int statusCode) {
+        return statusCode == 429 || statusCode >= 500 && statusCode < 600;
+    }
+
+    private static long retryDelay(final HttpResponse<?> response, final int retry) {
+        final Optional<String> retryAfter = response.headers().firstValue("Retry-After");
+        if (retryAfter.isPresent()) {
+            final long parsed = parseRetryAfter(retryAfter.get());
+            if (parsed >= 0) {
+                return parsed;
+            }
+        }
+        return defaultRetryDelay(retry);
+    }
+
+    private static long parseRetryAfter(final String value) {
+        try {
+            final long seconds = Long.parseLong(value.trim());
+            if (seconds < 0) {
+                return -1;
+            }
+            if (seconds >= MAX_RETRY_DELAY_MILLIS / 1_000L) {
+                return MAX_RETRY_DELAY_MILLIS;
+            }
+            return seconds * 1_000L;
+        } catch (NumberFormatException ignored) {
+            try {
+                final Instant retryAt = ZonedDateTime.parse(
+                    value.trim(), DateTimeFormatter.RFC_1123_DATE_TIME).toInstant();
+                final long delay = Duration.between(Instant.now(), retryAt).toMillis();
+                return Math.min(Math.max(delay, 0L), MAX_RETRY_DELAY_MILLIS);
+            } catch (DateTimeParseException invalidDate) {
+                return -1;
+            }
+        }
+    }
+
+    private static long defaultRetryDelay(final int retry) {
+        return Math.min(DEFAULT_RETRY_DELAY_MILLIS << retry, MAX_RETRY_DELAY_MILLIS);
+    }
+
+    private static void waitBeforeRetry(final long delayMillis) throws InterruptedException {
+        if (delayMillis > 0) {
+            Thread.sleep(delayMillis);
+        }
     }
 
     private static JudgeModelResponse parseResponse(final String body) {
@@ -225,6 +327,18 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         }
     }
 
+    private static int getMaxRetries(final Properties properties) throws ModuleStartException {
+        final String value = getString(properties, "max-retries");
+        if (StringUtil.isBlank(value)) {
+            return DEFAULT_MAX_RETRIES;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new ModuleStartException("AI evaluation judge config [max-retries] must be an integer.", e);
+        }
+    }
+
     private static void validateRequestTimeoutSeconds(final String value) throws ModuleStartException {
         if (StringUtil.isBlank(value)) {
             return;
@@ -241,6 +355,24 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         if (parsed <= 0) {
             throw new ModuleStartException(
                     "AI evaluation judge config [request-timeout-seconds] must be greater than 0."
+            );
+        }
+    }
+
+    private static void validateMaxRetries(final String value) throws ModuleStartException {
+        if (StringUtil.isBlank(value)) {
+            return;
+        }
+        final int parsed;
+        try {
+            parsed = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new ModuleStartException("AI evaluation judge config [max-retries] must be an integer.", e);
+        }
+        if (parsed < 0 || parsed > MAX_CONFIGURED_RETRIES) {
+            throw new ModuleStartException(
+                "AI evaluation judge config [max-retries] must be between 0 and "
+                    + MAX_CONFIGURED_RETRIES + '.'
             );
         }
     }
