@@ -18,23 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.storage.query;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
-import org.apache.skywalking.oap.server.core.query.type.KeyValue;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
 
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
@@ -55,8 +49,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       Order queryOrder,
                                                       int from,
                                                       int limit,
-                                                      final Duration duration,
-                                                      final List<Tag> tags) throws IOException {
+                                                      final Duration duration) throws IOException {
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -70,13 +63,12 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                    .append(", QueryOrder: ").append(queryOrder)
                    .append(", From: ").append(from)
                    .append(", Limit: ").append(limit)
-                   .append(", Duration: ").append(duration)
-                   .append(", Tags: ").append(tags);
+                   .append(", Duration: ").append(duration);
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecord(
                 serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
-                relatedTrace, queryOrder, from, limit, duration, tags
+                relatedTrace, queryOrder, from, limit, duration
             );
         } finally {
             if (traceContext != null && span != null) {
@@ -100,22 +92,5 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       Order queryOrder,
                                                       int from,
                                                       int limit,
-                                                      final Duration duration,
-                                                      final List<Tag> tags) throws IOException;
-
-    /**
-     * Parse the raw tags with base64 representation of data binary
-     */
-    default void parserDataBinary(String dataBinaryBase64, List<KeyValue> tags) {
-        parserDataBinary(Base64.getDecoder().decode(dataBinaryBase64), tags);
-    }
-
-    default void parserDataBinary(byte[] dataBinary, List<KeyValue> tags) {
-        try {
-            LogTags logTags = LogTags.parseFrom(dataBinary);
-            logTags.getDataList().forEach(pair -> tags.add(new KeyValue(pair.getKey(), pair.getValue())));
-        } catch (InvalidProtocolBufferException e) {
-            throw new RuntimeException(e);
-        }
-    }
+                                                      final Duration duration) throws IOException;
 }

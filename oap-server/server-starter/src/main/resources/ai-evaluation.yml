@@ -22,6 +22,7 @@ judge:
   model: ${AI_EVALUATION_MODEL:gpt-5.5}
   api-key: ${AI_EVALUATION_API_KEY:}
   request-timeout-seconds: 30
+  max-retries: 2
   temperature: 0.2
   max_tokens: 100000
 
@@ -87,8 +88,8 @@ level:
       max: 1.0
       level: excellent
   boolean:
-    true: excellent
-    false: fail
+    "true": excellent
+    "false": fail
 
 tasks:
   - name: Faithfulness

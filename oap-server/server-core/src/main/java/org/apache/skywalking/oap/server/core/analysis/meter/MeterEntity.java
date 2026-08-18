@@ -120,7 +120,7 @@ public class MeterEntity {
     }
 
     private boolean normal() {
-        return layer == null || layer.isNormal();
+        return layer == null || layer == Layer.UNDEFINED || layer.isNormal();
     }
 
     public String sourceServiceInstanceId() {

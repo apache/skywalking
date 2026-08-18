@@ -18,9 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.query;
 
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -36,7 +33,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 import java.io.IOException;
-import java.util.List;
+
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 public class GenAIEvaluationRecordQueryService implements Service {
@@ -69,8 +66,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              TraceScopeCondition relatedTrace,
                                                              Pagination paging,
                                                              Order queryOrder,
-                                                             final Duration duration,
-                                                             final List<Tag> tags) throws IOException {
+                                                             final Duration duration) throws IOException {
         sortBy = sortBy == null ? GenAIEvaluationRecordSortBy.EVALUATION_TIME : sortBy;
         if (booleanValue != null) {
             valueType = GenAIEvaluationValueType.BOOLEAN;
@@ -89,13 +85,12 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 msg.append("RelatedTrace: ").append(relatedTrace).append(", ");
                 msg.append("Pagination: ").append(paging).append(", ");
                 msg.append("QueryOrder: ").append(queryOrder).append(", ");
-                msg.append("Duration: ").append(duration).append(", ");
-                msg.append("Tags: ").append(tags);
+                msg.append("Duration: ").append(duration);
                 span.setMsg(msg.toString());
             }
             return queryGenAIEvaluationRecordInternal(
-                serviceId, providerId, toStoredModelId(modelId), valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
-                relatedTrace, paging, queryOrder, duration, tags
+                serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
+                relatedTrace, paging, queryOrder, duration
             );
         } finally {
             if (traceContext != null) {
@@ -118,25 +113,13 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                                       TraceScopeCondition relatedTrace,
                                                                       Pagination paging,
                                                                       Order queryOrder,
-                                                                      final Duration duration,
-                                                                      final List<Tag> tags) throws IOException {
+                                                                      final Duration duration) throws IOException {
         PaginationUtils.Page page = PaginationUtils.INSTANCE.exchange(paging);
 
         return getGenAIEvaluationRecordQueryDAO().queryGenAIEvaluationRecordDebuggable(
                 serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
-                relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration, tags
+                relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration
         );
     }
 
-    private String toStoredModelId(final String modelInstanceId) {
-        if (modelInstanceId == null || modelInstanceId.isEmpty()) {
-            return modelInstanceId;
-        }
-        // The UI model picker supplies a ServiceInstanceID. Accept an already
-        // stored model ServiceID as well for non-UI API callers.
-        if (!modelInstanceId.contains("_")) {
-            return modelInstanceId;
-        }
-        return GenAIEvaluationRecord.toEntityId(IDManager.ServiceInstanceID.analysisId(modelInstanceId).getName());
-    }
 }

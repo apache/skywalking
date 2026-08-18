@@ -18,10 +18,14 @@
 
 package org.apache.skywalking.oap.server.analyzer.provider.meter.process;
 
+import java.util.Collection;
+import org.apache.skywalking.oap.meter.analyzer.v2.MetricConvert;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 public interface IMeterProcessService extends Service {
 
     MeterProcessor createProcessor();
+
+    Collection<MetricConvert> converts();
 
 }

@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.analysis.manual.genai;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,6 +32,8 @@ import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
+import org.apache.skywalking.oap.server.core.query.type.GenAITraceRef;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -58,16 +62,20 @@ public class GenAIEvaluationRecord extends Record {
     public static final String MODEL_ID = "model_id";
     public static final String SERVICE_ID = "service_id";
     public static final String OPERATION_NAME = "operation_name";
-    public static final String EVAL_NUMBER_VALUE = "evaNumberValue";
+    public static final String EVAL_NUMBER_VALUE = "eval_number_value";
     public static final long SCORE_SCALE = 1_000_000L;
+    public static final String REF_TYPE = "ref_type";
     public static final String SEGMENT_ID = "segment_id";
+    public static final String SPAN_INDEX = "span_index";
     public static final String SPAN_ID = "span_id";
-    public static final String SPAN_TYPE = "span_type";
     public static final String TASK_NAME = "task_name";
+    public static final int TASK_NAME_MAX_LENGTH = 512;
     public static final String VALUE_TYPE = "value_type";
-    public static final String EVAL_STRING_VALUE = "evalStringValue";
+    public static final String EVAL_STRING_VALUE = "eval_string_value";
+    public static final int EVAL_STRING_VALUE_MAX_LENGTH = 4096;
     public static final String EVALUATION_LEVEL = "evaluation_level";
     public static final String REASON = "reason";
+    public static final int REASON_MAX_LENGTH = 4096;
     public static final String JUDGE_MODEL = "judge_model";
     public static final String EVALUATION_TIME = "evaluation_time";
 
@@ -99,27 +107,32 @@ public class GenAIEvaluationRecord extends Record {
     @ElasticSearch.EnableDocValues
     @BanyanDB.EnableSort
     @Column(name = EVAL_NUMBER_VALUE)
-    private Long evaNumberValue;
+    private Long evalNumberValue;
 
-    @Column(name = SEGMENT_ID, length = 150, storageOnly = true)
+    @Getter(AccessLevel.NONE)
+    @Column(name = REF_TYPE, length = 32)
+    private String refType;
+
+    @Column(name = SEGMENT_ID, length = 150)
     private String segmentId;
 
-    @Column(name = SPAN_ID)
-    @BanyanDB.NoIndexing
-    private int spanId;
+    @Column(name = SPAN_INDEX)
+    private Integer spanIndex;
 
-    @Column(name = SPAN_TYPE, length = 64, storageOnly = true)
-    private String spanType;
+    @Column(name = SPAN_ID, length = 32, storageOnly = true)
+    @BanyanDB.NoIndexing
+    private String spanId;
 
     @ElasticSearch.EnableDocValues
-    @Column(name = TASK_NAME, length = 512)
+    @Column(name = TASK_NAME, length = TASK_NAME_MAX_LENGTH)
     private String taskName;
 
     @Getter(AccessLevel.NONE)
-    @Column(name = VALUE_TYPE, length = 64, storageOnly = true)
+    @Column(name = VALUE_TYPE, length = 64)
+    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
     private String valueType;
 
-    @Column(name = EVAL_STRING_VALUE, length = 4096, storageOnly = true)
+    @Column(name = EVAL_STRING_VALUE, length = EVAL_STRING_VALUE_MAX_LENGTH, storageOnly = true)
     private String evalStringValue;
 
     @ElasticSearch.EnableDocValues
@@ -127,7 +140,7 @@ public class GenAIEvaluationRecord extends Record {
     @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
     private String evaluationLevel;
 
-    @Column(name = REASON, length = 4096, storageOnly = true)
+    @Column(name = REASON, length = REASON_MAX_LENGTH, storageOnly = true)
     private String reason;
 
     @Column(name = JUDGE_MODEL, length = 64)
@@ -138,11 +151,40 @@ public class GenAIEvaluationRecord extends Record {
     private long evaluationTime;
 
     public Long getScoreValue() {
-        return evaNumberValue;
+        return getValueType() == GenAIEvaluationValueType.SCORE ? evalNumberValue : null;
     }
 
-    public String getValue() {
-        return evalStringValue;
+    public Boolean getBooleanValue() {
+        return getValueType() == GenAIEvaluationValueType.BOOLEAN && evalNumberValue != null
+            ? evalNumberValue != 0 : null;
+    }
+
+    public String getStringValue() {
+        final GenAIEvaluationValueType type = getValueType();
+        return type == GenAIEvaluationValueType.STRING || type == GenAIEvaluationValueType.JSON
+            ? evalStringValue : null;
+    }
+
+    public void setEvalStringValue(final String evalStringValue) {
+        this.evalStringValue = truncate(evalStringValue, EVAL_STRING_VALUE_MAX_LENGTH);
+    }
+
+    public void setReason(final String reason) {
+        this.reason = truncate(reason, REASON_MAX_LENGTH);
+    }
+
+    public void setTaskName(final String taskName) {
+        this.taskName = truncate(taskName, TASK_NAME_MAX_LENGTH);
+    }
+
+    public GenAITraceRef getTraceRef() {
+        GenAITraceRefType type;
+        try {
+            type = GenAITraceRefType.valueOf(refType);
+        } catch (IllegalArgumentException | NullPointerException e) {
+            type = segmentId == null ? GenAITraceRefType.OTLP : GenAITraceRefType.SKYWALKING_NATIVE;
+        }
+        return new GenAITraceRef(type, traceId, segmentId, spanIndex, spanId);
     }
 
     public GenAIEvaluationValueType getValueType() {
@@ -177,6 +219,19 @@ public class GenAIEvaluationRecord extends Record {
                 .longValueExact();
     }
 
+    /**
+     * Builds a stable storage identifier for one task evaluation of one span.
+     * The judge response is intentionally excluded so retries overwrite the same record.
+     */
+    public static String toUniqueId(final String traceReference,
+                                    final String taskName,
+                                    final long evaluationTime) {
+        final String identity = traceReference + "\u0000" + taskName + "\u0000" + evaluationTime;
+        return UUID.nameUUIDFromBytes(identity.getBytes(StandardCharsets.UTF_8))
+                .toString()
+                .replace("-", "");
+    }
+
     public static String toEntityId(final String name) {
         return IDManager.ServiceID.buildId(name, Layer.VIRTUAL_GENAI.isNormal());
     }
@@ -202,11 +257,15 @@ public class GenAIEvaluationRecord extends Record {
     }
 
     public String getModelName() {
-        return decodeName(modelId);
+        return modelId == null ? null : IDManager.ServiceInstanceID.analysisId(modelId).getName();
     }
 
     public void setModelName(final String modelName) {
-        this.modelId = toEntityId(modelName);
+        this.modelId = IDManager.ServiceInstanceID.buildId(providerId, modelName);
+    }
+
+    private static String truncate(final String value, final int maxLength) {
+        return value == null || value.length() <= maxLength ? value : value.substring(0, maxLength);
     }
 
     private static String decodeName(final String id) {
@@ -229,10 +288,12 @@ public class GenAIEvaluationRecord extends Record {
             record.setModelId((String) converter.get(MODEL_ID));
             record.setOperationName((String) converter.get(OPERATION_NAME));
             final Number numberValue = (Number) converter.get(EVAL_NUMBER_VALUE);
-            record.setEvaNumberValue(numberValue == null ? null : numberValue.longValue());
+            record.setEvalNumberValue(numberValue == null ? null : numberValue.longValue());
+            record.setRefType((String) converter.get(REF_TYPE));
             record.setSegmentId((String) converter.get(SEGMENT_ID));
-            record.setSpanId(((Number) converter.get(SPAN_ID)).intValue());
-            record.setSpanType((String) converter.get(SPAN_TYPE));
+            final Number spanIndex = (Number) converter.get(SPAN_INDEX);
+            record.setSpanIndex(spanIndex == null ? null : spanIndex.intValue());
+            record.setSpanId((String) converter.get(SPAN_ID));
             record.setTaskName((String) converter.get(TASK_NAME));
             record.setValueType((String) converter.get(VALUE_TYPE));
             record.setEvalStringValue((String) converter.get(EVAL_STRING_VALUE));
@@ -252,10 +313,11 @@ public class GenAIEvaluationRecord extends Record {
             converter.accept(PROVIDER_ID, storageData.getProviderId());
             converter.accept(MODEL_ID, storageData.getModelId());
             converter.accept(OPERATION_NAME, storageData.getOperationName());
-            converter.accept(EVAL_NUMBER_VALUE, storageData.getEvaNumberValue());
+            converter.accept(EVAL_NUMBER_VALUE, storageData.getEvalNumberValue());
+            converter.accept(REF_TYPE, storageData.refType);
             converter.accept(SEGMENT_ID, storageData.getSegmentId());
+            converter.accept(SPAN_INDEX, storageData.getSpanIndex());
             converter.accept(SPAN_ID, storageData.getSpanId());
-            converter.accept(SPAN_TYPE, storageData.getSpanType());
             converter.accept(TASK_NAME, storageData.getTaskName());
             converter.accept(VALUE_TYPE, storageData.valueType);
             converter.accept(EVAL_STRING_VALUE, storageData.getEvalStringValue());
