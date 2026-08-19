@@ -41,10 +41,10 @@ public final class GenAIContextResolver {
         final String providerName;
         if (StringUtil.isNotBlank(declaredProvider)) {
             providerName = declaredProvider;
-        } else if (modelMatch.hasMatchedProvider()) {
-            providerName = modelMatch.getProvider();
         } else if (StringUtil.isNotBlank(legacySystem)) {
             providerName = legacySystem;
+        } else if (modelMatch.hasMatchedProvider()) {
+            providerName = modelMatch.getProvider();
         } else {
             providerName = modelMatch.getProvider();
         }

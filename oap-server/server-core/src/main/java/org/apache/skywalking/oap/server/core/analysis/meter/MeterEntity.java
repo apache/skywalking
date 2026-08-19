@@ -112,13 +112,15 @@ public class MeterEntity {
     }
 
     public String sourceServiceId() {
-        return IDManager.ServiceID.buildId(sourceServiceName, true);
+        return IDManager.ServiceID.buildId(sourceServiceName, normal());
     }
 
     public String destServiceId() {
-        return IDManager.ServiceID.buildId(destServiceName, true);
+        return IDManager.ServiceID.buildId(destServiceName, normal());
     }
 
+    // MAL may create conjectured services on virtual layers, so nodes and relation endpoints
+    // must use the same normal flag when building their IDs.
     private boolean normal() {
         return layer == null || layer == Layer.UNDEFINED || layer.isNormal();
     }

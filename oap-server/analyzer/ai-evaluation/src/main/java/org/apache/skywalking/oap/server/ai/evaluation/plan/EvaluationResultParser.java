@@ -124,15 +124,24 @@ public class EvaluationResultParser {
     }
 
     private static void validateJson(final EvaluationTask task, final String value) {
+        final JsonElement element;
         try {
-            JsonParser.parseString(value);
-        } catch (Exception e) {
+            element = JsonParser.parseString(value);
+        } catch (RuntimeException e) {
             throw new IllegalArgumentException("Invalid JSON value of " + task.getName() + ": " + value, e);
+        }
+        if (!element.isJsonObject()) {
+            throw new IllegalArgumentException(
+                "JSON value of " + task.getName() + " must be an object: " + value
+            );
         }
     }
 
     private static String getAsString(final JsonObject object, final String memberName) {
         final JsonElement element = object.get(memberName);
-        return element == null || element.isJsonNull() ? "" : element.getAsString();
+        if (element == null || element.isJsonNull()) {
+            return "";
+        }
+        return element.isJsonPrimitive() ? element.getAsString() : element.toString();
     }
 }

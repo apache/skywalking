@@ -28,12 +28,16 @@ public interface OTLPSpanReader {
     /**
      * @return the trace id encoded as lowercase hex
      */
-    String traceId();
+    default String traceId() {
+        return "";
+    }
 
     /**
      * @return the span id encoded as lowercase hex
      */
-    String spanId();
+    default String spanId() {
+        return "";
+    }
 
     /**
      * @return the span name (e.g., "HTTP GET", "MXMetricPayload")

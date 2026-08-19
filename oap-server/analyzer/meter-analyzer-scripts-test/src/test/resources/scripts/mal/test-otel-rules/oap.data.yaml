@@ -117,6 +117,18 @@ input:
         gc: PS Scavenge
         level: ERROR
       value: 100.0
+  ai_evaluation_dropped_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+        reason: pipeline_capacity
+      value: 100.0
+  ai_evaluation_error_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+        reason: rejected
+      value: 100.0
   mesh_analysis_latency_count:
     - labels:
         service: test-service
@@ -851,6 +863,30 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
+        value: 50.0
+  meter_oap_instance_ai_evaluation_dropped_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          reason: pipeline_capacity
+        value: 50.0
+  meter_oap_instance_ai_evaluation_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          reason: rejected
         value: 50.0
   meter_oap_instance_mesh_count:
     entities:

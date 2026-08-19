@@ -23,8 +23,6 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 
-import java.math.BigInteger;
-
 /**
  * {@link OTLPSpanReader} implementation wrapping the real OTLP {@link Span} proto.
  */
@@ -92,10 +90,17 @@ public class OTLPSpanReaderImpl implements OTLPSpanReader {
         return "";
     }
 
-    private String idToHexString(ByteString id) {
-        if (id == null) {
+    private static String idToHexString(final ByteString id) {
+        if (id == null || id.isEmpty()) {
             return "";
         }
-        return new BigInteger(1, id.toByteArray()).toString();
+
+        final char[] hex = new char[id.size() * 2];
+        for (int i = 0; i < id.size(); i++) {
+            final int value = id.byteAt(i) & 0xff;
+            hex[i * 2] = Character.forDigit(value >>> 4, 16);
+            hex[i * 2 + 1] = Character.forDigit(value & 0x0f, 16);
+        }
+        return new String(hex);
     }
 }
