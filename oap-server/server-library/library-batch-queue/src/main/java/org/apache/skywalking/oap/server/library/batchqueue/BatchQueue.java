@@ -26,15 +26,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import java.util.concurrent.atomic.AtomicLongArray;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.library.util.VirtualThreads;
 
 /**
  * A partitioned, self-draining queue with type-based dispatch.
@@ -113,6 +119,42 @@ public class BatchQueue<T> {
 
     /** The thread pool that executes drain tasks. */
     private final ScheduledExecutorService scheduler;
+
+    /**
+     * Handle on the periodic rebalance task, so {@link #shutdown()} can stop it explicitly.
+     * A {@code ScheduledThreadPoolExecutor} cancels periodic tasks on {@code shutdown()} by
+     * default, but a virtual-thread-backed scheduler runs the task as one submission whose loop
+     * exits only on interrupt — and {@code shutdown()} does not interrupt. Without this handle
+     * {@code awaitTermination} could never succeed on that path.
+     */
+    private volatile ScheduledFuture<?> rebalanceFuture;
+
+    /**
+     * Guards {@link #shutdown()} so at most one caller ever runs the final drain. Without it two
+     * concurrent shutdowns — {@code shutdownAll()} racing {@code shutdown(name)}, since the former
+     * snapshots the registry before clearing it — could interleave inside the final-drain loop,
+     * each taking some partitions and dispatching, invoking the same consumer from two threads.
+     *
+     * <p>Defensive: the interleaving window is inside the per-partition loop and is too narrow to
+     * pin down in a deterministic test, so this guard is not covered by one.
+     */
+    private final AtomicBoolean shutdownStarted = new AtomicBoolean();
+
+    /** Released by the shutdown winner so losing callers do not return before it has finished. */
+    private final CountDownLatch shutdownComplete = new CountDownLatch(1);
+
+    /**
+     * Serialises the shutdown-time dispatch against in-flight drain dispatches.
+     *
+     * <p>Drain loops take the READ lock, so they still dispatch concurrently with one another —
+     * correct, because the partition selector routes a given type to one partition and therefore
+     * one task. {@link #shutdown()} takes the WRITE lock, so its final dispatch waits for every
+     * in-flight {@code consume()} to return instead of racing it. This is what makes the guarantee
+     * hold even when {@code awaitTermination} times out or is interrupted: waiting politely for
+     * orderly termination is bounded, but never invoking a consumer from two threads is not
+     * negotiable.
+     */
+    private final ReentrantReadWriteLock dispatchLock = new ReentrantReadWriteLock();
 
     /**
      * Cached partition selector from config. Only used when {@code partitions.length > 1};
@@ -329,12 +371,39 @@ public class BatchQueue<T> {
             partitions[i] = new ArrayBlockingQueue<>(config.getBufferSize());
         }
 
-        this.scheduler = Executors.newScheduledThreadPool(threadCount, r -> {
-            final Thread t = new Thread(r);
-            t.setName("BatchQueue-" + name + "-" + t.getId());
-            t.setDaemon(true);
-            return t;
-        });
+        // threadCount is reassigned by the partition clamp above; copy for the lambda.
+        final int poolSize = threadCount;
+        final Supplier<ScheduledExecutorService> platformScheduler = () -> {
+            final ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(poolSize, r -> {
+                final Thread t = new Thread(r);
+                t.setName("BatchQueue-" + name + "-" + t.getId());
+                t.setDaemon(true);
+                return t;
+            });
+            // Drop drain tasks still waiting out their idle backoff when shutdown() runs. The
+            // default keeps them queued, so a queue with a long maxIdleMs could not terminate
+            // until the delay elapsed. Dropping them is safe: a drain task that did run after
+            // `running` went false exits at the top of its loop without draining, and the final
+            // drain flushes the data regardless.
+            executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
+            return executor;
+        };
+        if (config.getThreads().isIoBound()) {
+            // Virtual threads when the runtime has them, otherwise poolSize platform threads.
+            // The count is the same either way, so only the substrate differs.
+            this.scheduler = VirtualThreads.createScheduledExecutor("BatchQueue-" + name, platformScheduler);
+            if (!VirtualThreads.isSupported()) {
+                log.info("BatchQueue[{}]: IO-bound policy requested but virtual threads are "
+                             + "unavailable, running {} platform threads instead", name, poolSize);
+            }
+            if (config.getBalancer() != null) {
+                log.warn("BatchQueue[{}]: IO-bound policy combined with drain rebalancing — "
+                             + "rebalancing targets skewed CPU-bound partitions, which is not the "
+                             + "blocking workload this policy is for", name);
+            }
+        } else {
+            this.scheduler = platformScheduler.get();
+        }
         this.taskCount = threadCount;
         this.assignedPartitions = buildAssignments(threadCount, partitionCount);
 
@@ -539,8 +608,9 @@ public class BatchQueue<T> {
         // Enable the flag — gates hot-path additions in produce() and drainLoop()
         this.rebalancingEnabled = true;
 
-        // Schedule periodic rebalancing on the queue's scheduler
-        scheduler.scheduleAtFixedRate(
+        // Schedule periodic rebalancing on the queue's scheduler. The handle is kept so
+        // shutdown() can cancel it — see the rebalanceFuture field.
+        this.rebalanceFuture = scheduler.scheduleAtFixedRate(
             this::rebalance, intervalMs, intervalMs, TimeUnit.MILLISECONDS
         );
 
@@ -608,28 +678,48 @@ public class BatchQueue<T> {
         final boolean checkOwnership = rebalancingEnabled;
         try {
             while (running) {
-                // Drain all assigned partitions into one batch
-                final List<T> combined = new ArrayList<>();
-                for (final int partitionIndex : myPartitions) {
-                    if (partitionIndex < currentPartitions.length) {
-                        // Skip partitions revoked by the rebalancer
-                        if (checkOwnership && partitionOwner.get(partitionIndex) != taskIndex) {
-                            continue;
-                        }
-                        currentPartitions[partitionIndex].drainTo(combined);
+                // The read lock spans the WHOLE cycle, not just dispatch. Holding it only around
+                // dispatch would leave three gaps against shutdown's exclusive final drain:
+                //   - dequeue outside it lets shutdown drain and dispatch a NEWER batch while this
+                //     task holds an older one, which would then be dispatched out of order, after
+                //     shutdown() has already returned;
+                //   - notifyIdle() outside it runs onIdle() concurrently with the final dispatch,
+                //     and implementations such as MetricsAggregateWorker flush the same worker
+                //     state from onIdle();
+                //   - the `running` test above can pass just as shutdown completes.
+                // There is no sleep in this body — backoff is applied by scheduleDrain after the
+                // loop exits — so the lock is held only for as long as the consumer runs.
+                dispatchLock.readLock().lock();
+                try {
+                    if (!running) {
+                        break;
                     }
-                }
 
-                if (combined.isEmpty()) {
-                    // Nothing to drain — increase backoff and notify idle
-                    consecutiveIdleCycles[taskIndex]++;
-                    notifyIdle(taskIndex, myPartitions);
-                    break;
-                }
+                    // Drain all assigned partitions into one batch
+                    final List<T> combined = new ArrayList<>();
+                    for (final int partitionIndex : myPartitions) {
+                        if (partitionIndex < currentPartitions.length) {
+                            // Skip partitions revoked by the rebalancer
+                            if (checkOwnership && partitionOwner.get(partitionIndex) != taskIndex) {
+                                continue;
+                            }
+                            currentPartitions[partitionIndex].drainTo(combined);
+                        }
+                    }
 
-                // Data found — reset backoff and dispatch
-                consecutiveIdleCycles[taskIndex] = 0;
-                dispatch(combined, taskIndex, myPartitions);
+                    if (combined.isEmpty()) {
+                        // Nothing to drain — increase backoff and notify idle
+                        consecutiveIdleCycles[taskIndex]++;
+                        notifyIdle(taskIndex, myPartitions);
+                        break;
+                    }
+
+                    // Data found — reset backoff and dispatch
+                    consecutiveIdleCycles[taskIndex] = 0;
+                    dispatch(combined, taskIndex, myPartitions);
+                } finally {
+                    dispatchLock.readLock().unlock();
+                }
             }
         } catch (final Throwable t) {
             log.error("BatchQueue[{}]: drain loop error", name, t);
@@ -913,22 +1003,109 @@ public class BatchQueue<T> {
     }
 
     /**
-     * Stop the queue: reject new produces, perform a final drain of all partitions,
-     * and shut down the scheduler.
+     * Stop the queue: reject new produces, stop the drain loops, wait for in-flight consumer
+     * invocations to finish, then perform a final drain of all partitions.
+     *
+     * <p>Step order is load-bearing. {@code running = false} stops the drain chains but is not
+     * read by the periodic rebalance task, so that is cancelled explicitly — and it must be
+     * cancelled before {@code awaitTermination}, which otherwise could never observe termination.
+     * The rebalance fence itself exits via {@code running}, not the interrupt, because
+     * {@code LockSupport.parkNanos} returns on interrupt without throwing.
+     *
+     * <p>Waiting before the final drain is what keeps consumers single-threaded: draining on the
+     * caller's thread while a drain loop is still inside {@code consume()} would invoke the same
+     * handler concurrently.
      */
     void shutdown() {
+        if (!shutdownStarted.compareAndSet(false, true)) {
+            // A losing caller must not report completion before the winner has finished draining,
+            // or shutdownAll() can return while a consumer is still running.
+            awaitShutdownComplete();
+            return;
+        }
+        try {
+            doShutdown();
+        } finally {
+            shutdownComplete.countDown();
+        }
+    }
+
+    /** Test hook: true once a caller has won the shutdown CAS. */
+    boolean isShutdownStarted() {
+        return shutdownStarted.get();
+    }
+
+    /**
+     * Await the winner's completion without a deadline. A bounded wait cannot be correct here: the
+     * winner may spend the whole of {@code shutdownTimeoutMs} in {@code awaitTermination} and then
+     * block on the write lock for as long as an in-flight consumer runs, so any fixed bound would
+     * let this caller return while the queue is still draining — the very thing the shared
+     * completion exists to prevent. Interruption is deferred and restored on the way out.
+     */
+    private void awaitShutdownComplete() {
+        boolean interrupted = false;
+        while (true) {
+            try {
+                shutdownComplete.await();
+                break;
+            } catch (final InterruptedException e) {
+                interrupted = true;
+            }
+        }
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private void doShutdown() {
         running = false;
-        // Final drain — flush any remaining data to consumers
-        final ArrayBlockingQueue<T>[] currentPartitions = this.partitions;
-        final List<T> combined = new ArrayList<>();
-        for (final ArrayBlockingQueue<T> partition : currentPartitions) {
-            partition.drainTo(combined);
+
+        final ScheduledFuture<?> currentRebalance = this.rebalanceFuture;
+        if (currentRebalance != null) {
+            currentRebalance.cancel(true);
         }
-        if (!combined.isEmpty()) {
-            // Shutdown dispatch — no idle notification needed
-            dispatch(combined, -1, null);
-        }
+
         scheduler.shutdown();
+        final long timeoutMs = config.getShutdownTimeoutMs();
+        boolean interrupted = false;
+        try {
+            if (timeoutMs > 0 && !scheduler.awaitTermination(timeoutMs, TimeUnit.MILLISECONDS)) {
+                log.warn("BatchQueue[{}]: drain loops did not finish within {}ms; the final drain "
+                             + "waits for the exclusive dispatch lock rather than racing them",
+                         name, timeoutMs);
+            }
+        } catch (final InterruptedException e) {
+            interrupted = true;
+            log.warn("BatchQueue[{}]: interrupted while waiting for drain loops; the final drain "
+                         + "waits for the exclusive dispatch lock rather than racing them", name);
+        }
+
+        // The write lock is what actually guarantees the consumer is never entered twice at once.
+        // awaitTermination above is only a courtesy wait for orderly exit — it may time out or be
+        // interrupted, and on either path a drain loop can still be inside consume(). Blocking here
+        // is bounded by that consumer's own work, and is preferable to interrupting it mid-batch.
+        dispatchLock.writeLock().lock();
+        try {
+            // Final drain — flush any remaining data to consumers. Deliberately ignores partition
+            // ownership so that partitions left UNOWNED by an interrupted rebalance are drained too.
+            final ArrayBlockingQueue<T>[] currentPartitions = this.partitions;
+            final List<T> combined = new ArrayList<>();
+            for (final ArrayBlockingQueue<T> partition : currentPartitions) {
+                partition.drainTo(combined);
+            }
+            if (!combined.isEmpty()) {
+                // Shutdown dispatch — no idle notification needed
+                dispatch(combined, -1, null);
+            }
+        } finally {
+            dispatchLock.writeLock().unlock();
+        }
+
+        // Restored only now: consumers must not be entered with the interrupt flag set, since
+        // none of them is written to tolerate interruption mid-batch.
+        if (interrupted) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     int getPartitionCount() {

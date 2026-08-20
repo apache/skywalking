@@ -61,6 +61,18 @@ public class BatchQueueConfig<T> {
     private long maxIdleMs = 50;
 
     /**
+     * How long {@code shutdown()} waits for in-flight consumer invocations to finish before
+     * performing the final drain. Per-queue because the bound is set by the consumer's work:
+     * a gRPC peer teardown runs on the cluster topology thread and cannot wait long, while a
+     * queue whose consumer makes a multi-second remote call needs far more.
+     *
+     * On expiry the queue logs and proceeds with the final drain rather than interrupting the
+     * consumer — no consumer is written to tolerate interruption mid-batch.
+     */
+    @Builder.Default
+    private long shutdownTimeoutMs = 500;
+
+    /**
      * Drain balancer for periodic rebalancing of partition-to-thread assignments.
      * Set via {@code .balancer(DrainBalancer, intervalMs)} on the builder.
      * When null (default), rebalancing is disabled.
@@ -88,6 +100,9 @@ public class BatchQueueConfig<T> {
         if (maxIdleMs < minIdleMs) {
             throw new IllegalArgumentException(
                 "maxIdleMs must be >= minIdleMs, got maxIdleMs=" + maxIdleMs + " minIdleMs=" + minIdleMs);
+        }
+        if (shutdownTimeoutMs < 0) {
+            throw new IllegalArgumentException("shutdownTimeoutMs must be >= 0, got: " + shutdownTimeoutMs);
         }
     }
 
