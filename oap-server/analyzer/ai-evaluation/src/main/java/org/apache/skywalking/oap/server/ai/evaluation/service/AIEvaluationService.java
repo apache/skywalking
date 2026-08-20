@@ -62,7 +62,7 @@ public class AIEvaluationService implements IAIEvaluationService {
         this.evaluationQueue = BatchQueueManager.create(
             "AI_EVALUATION",
             BatchQueueConfig.<PendingEvaluation>builder()
-                            .threads(ThreadPolicy.fixed(consumerThreads))
+                            .threads(ThreadPolicy.ioBound(consumerThreads))
                             .partitions(PartitionPolicy.fixed(consumerThreads))
                             .bufferSize(perPartitionBufferSize(bufferSize, consumerThreads))
                             .strategy(BufferStrategy.IF_POSSIBLE)

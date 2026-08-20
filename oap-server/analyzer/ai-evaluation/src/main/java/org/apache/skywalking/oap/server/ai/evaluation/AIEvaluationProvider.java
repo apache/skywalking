@@ -24,8 +24,6 @@ import java.util.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.GenAIEvaluationAnalysisListener;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.provider.OpenAICompatibleProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.level.EvaluationLevelResolver;
@@ -89,15 +87,7 @@ public class AIEvaluationProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        final int sampleRate = config.getSampleRate();
-        final int bufferSize = config.getBufferSize();
-        final int consumerThreads = config.getConsumerThreads();
-        final int maxContentLength = config.getMaxContentLength();
-        config = new AIEvaluationConfigLoader().load();
-        config.setSampleRate(sampleRate);
-        config.setBufferSize(bufferSize);
-        config.setConsumerThreads(consumerThreads);
-        config.setMaxContentLength(maxContentLength);
+        new AIEvaluationConfigLoader().load(config);
         if (config.getSampleRate() < 0 || config.getSampleRate() > MAX_SAMPLE_RATE) {
             throw new IllegalArgumentException(
                 "sampleRate: " + config.getSampleRate() + ", should be between 0 and " + MAX_SAMPLE_RATE);
@@ -145,10 +135,6 @@ public class AIEvaluationProvider extends ModuleProvider {
             createErrorCounter("invalid_response")
         );
         aiEvaluationService.setStrategies(createStrategies(incompleteSpanCounter));
-        getManager().find(AnalyzerModule.NAME)
-                    .provider()
-                    .getService(ISegmentParserService.class)
-                    .addListenerFactory(new GenAIEvaluationAnalysisListener.Factory(getManager()));
     }
 
     @Override

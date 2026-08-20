@@ -93,11 +93,13 @@ public class GenAIEvaluationRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = PROVIDER_ID, length = 150)
     @BanyanDB.SeriesID(index = 0)
+    @Setter(AccessLevel.PRIVATE)
     private String providerId;
 
     @ElasticSearch.EnableDocValues
     @Column(name = MODEL_ID, length = 150)
     @BanyanDB.SeriesID(index = 1)
+    @Setter(AccessLevel.PRIVATE)
     private String modelId;
 
     @ElasticSearch.EnableDocValues
@@ -240,6 +242,13 @@ public class GenAIEvaluationRecord extends Record {
         return IDManager.ServiceID.buildId(name, Layer.GENAI.isNormal());
     }
 
+    public static GenAIEvaluationRecord create(final String providerName, final String modelName) {
+        final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+        record.providerId = toEntityId(providerName);
+        record.modelId = IDManager.ServiceInstanceID.buildId(record.providerId, modelName);
+        return record;
+    }
+
     public String getServiceName() {
         return decodeName(serviceId);
     }
@@ -252,16 +261,8 @@ public class GenAIEvaluationRecord extends Record {
         return decodeName(providerId);
     }
 
-    public void setProviderName(final String providerName) {
-        this.providerId = toEntityId(providerName);
-    }
-
     public String getModelName() {
         return modelId == null ? null : IDManager.ServiceInstanceID.analysisId(modelId).getName();
-    }
-
-    public void setModelName(final String modelName) {
-        this.modelId = IDManager.ServiceInstanceID.buildId(providerId, modelName);
     }
 
     private static String truncate(final String value, final int maxLength) {

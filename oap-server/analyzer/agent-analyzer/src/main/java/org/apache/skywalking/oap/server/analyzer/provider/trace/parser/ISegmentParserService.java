@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
 
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
@@ -28,5 +27,4 @@ import org.apache.skywalking.oap.server.library.module.Service;
 public interface ISegmentParserService extends Service {
     void send(SegmentObject segment);
 
-    void addListenerFactory(AnalysisListenerFactory factory);
 }

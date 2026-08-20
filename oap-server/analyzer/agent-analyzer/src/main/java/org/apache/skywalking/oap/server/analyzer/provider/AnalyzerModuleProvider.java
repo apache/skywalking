@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.analyzer.provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.ServiceLoader;
 import lombok.Getter;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
@@ -36,6 +37,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGa
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserListenerManager;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserServiceImpl;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EndpointDepFromCrossThreadAnalysisListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.NetworkAddressAliasMappingListener;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
@@ -199,6 +201,8 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         }
         listenerManager.add(new SegmentAnalysisListener.Factory(getManager(), moduleConfig));
         listenerManager.add(new VirtualServiceAnalysisListener.Factory(getManager()));
+        ServiceLoader.load(AnalysisListenerFactory.class)
+                     .forEach(listenerManager::add);
 
         return listenerManager;
     }

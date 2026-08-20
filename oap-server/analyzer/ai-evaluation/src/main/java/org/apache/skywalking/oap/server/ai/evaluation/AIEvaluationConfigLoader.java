@@ -37,22 +37,21 @@ import org.yaml.snakeyaml.Yaml;
 public class AIEvaluationConfigLoader {
     private static final String CONFIG_FILE = "ai-evaluation.yml";
 
-    public AIEvaluationConfig load() throws ModuleStartException {
+    public void load(final AIEvaluationConfig config) throws ModuleStartException {
         try {
             final Reader reader = ResourceUtils.read(CONFIG_FILE);
             final Map<String, ?> loaded = new Yaml().loadAs(reader, Map.class);
-            if (loaded == null || loaded.isEmpty()) {
-                return new AIEvaluationConfig();
-            }
-            return buildConfig(loaded);
+            load(config, loaded);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Cannot find the AI evaluation configuration file ["
                 + CONFIG_FILE + "].", e);
         }
     }
 
-    private AIEvaluationConfig buildConfig(final Map<String, ?> loaded) {
-        final AIEvaluationConfig config = new AIEvaluationConfig();
+    void load(final AIEvaluationConfig config, final Map<String, ?> loaded) {
+        if (loaded == null || loaded.isEmpty()) {
+            return;
+        }
 
         final Object judge = loaded.get("judge");
         if (judge instanceof Map) {
@@ -71,11 +70,12 @@ public class AIEvaluationConfigLoader {
 
         final Object tasks = loaded.get("tasks");
         if (tasks instanceof List) {
+            final List<EvaluationTask> loadedTasks = new ArrayList<>();
             for (Map<String, ?> taskConfig : (List<Map<String, ?>>) tasks) {
-                config.getTasks().add(buildTask(taskConfig));
+                loadedTasks.add(buildTask(taskConfig));
             }
+            config.setTasks(loadedTasks);
         }
-        return config;
     }
 
     private EvaluationLevelConfig buildLevelConfig(final Map<String, ?> levelConfig) {
