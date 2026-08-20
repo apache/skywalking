@@ -476,6 +476,12 @@ mtls:
   id: 142
   languages: ebpf, mesh
   priority: 12
+spring-ldap:
+  id: 179
+  languages: Java
+LDAP:
+  id: 180
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -761,3 +767,4 @@ Component-Server-Mappings:
   Impala-jdbc-driver: Impala
   eventmesh-producer: EventMesh
   eventmesh-consumer: EventMesh
+  spring-ldap: LDAP
