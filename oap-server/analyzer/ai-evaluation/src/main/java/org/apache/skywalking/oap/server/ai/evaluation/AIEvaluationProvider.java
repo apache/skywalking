@@ -21,10 +21,9 @@ package org.apache.skywalking.oap.server.ai.evaluation;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.GenAIEvaluationAnalysisListener;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.provider.OpenAICompatibleProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.level.EvaluationLevelResolver;
@@ -35,6 +34,7 @@ import org.apache.skywalking.oap.server.ai.evaluation.plan.EvaluationResultParse
 import org.apache.skywalking.oap.server.ai.evaluation.service.AIEvaluationMetricReporter;
 import org.apache.skywalking.oap.server.ai.evaluation.service.AIEvaluationService;
 import org.apache.skywalking.oap.server.ai.evaluation.service.IAIEvaluationService;
+import org.apache.skywalking.oap.server.ai.evaluation.service.InactiveAIEvaluationService;
 import org.apache.skywalking.oap.server.ai.evaluation.service.sample.DefaultAIEvaluationSamplingPolicy;
 import org.apache.skywalking.oap.server.ai.evaluation.service.strategy.AIEvaluationStrategy;
 import org.apache.skywalking.oap.server.ai.evaluation.service.strategy.span.SpanAIEvaluationStrategy;
@@ -52,10 +52,12 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+@Slf4j
 public class AIEvaluationProvider extends ModuleProvider {
     private static final int MAX_SAMPLE_RATE = 1_000_000;
     private AIEvaluationConfig config = new AIEvaluationConfig();
     private AIEvaluationService aiEvaluationService;
+    private boolean active;
     private AIEvaluationMetricReporter metricReporter;
 
     @Override
@@ -85,16 +87,7 @@ public class AIEvaluationProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        final int sampleRate = config.getSampleRate();
-        final int bufferSize = config.getBufferSize();
-        final int consumerThreads = config.getConsumerThreads();
-        final int maxContentLength = config.getMaxContentLength();
-        config = new AIEvaluationConfigLoader().load();
-        config.setSampleRate(sampleRate);
-        config.setBufferSize(bufferSize);
-        config.setConsumerThreads(consumerThreads);
-        config.setMaxContentLength(maxContentLength);
-        validateConfig(config);
+        new AIEvaluationConfigLoader().load(config);
         if (config.getSampleRate() < 0 || config.getSampleRate() > MAX_SAMPLE_RATE) {
             throw new IllegalArgumentException(
                 "sampleRate: " + config.getSampleRate() + ", should be between 0 and " + MAX_SAMPLE_RATE);
@@ -108,17 +101,28 @@ public class AIEvaluationProvider extends ModuleProvider {
         if (config.getMaxContentLength() <= 0) {
             throw new IllegalArgumentException("maxContentLength should be greater than 0");
         }
-        aiEvaluationService = new AIEvaluationService(
-            new DefaultAIEvaluationSamplingPolicy(config.getSampleRate()),
-            createJudgeProvider(),
-            config.getBufferSize(),
-            config.getConsumerThreads()
-        );
-        registerServiceImplementation(IAIEvaluationService.class, aiEvaluationService);
+        if (!hasCompleteJudgeConfiguration(config)) {
+            log.warn("AI evaluation is inactive because judge configuration is incomplete.");
+            registerServiceImplementation(IAIEvaluationService.class, new InactiveAIEvaluationService());
+            active = false;
+        } else {
+            validateConfig(config);
+            aiEvaluationService = new AIEvaluationService(
+                new DefaultAIEvaluationSamplingPolicy(config.getSampleRate()),
+                createJudgeProvider(),
+                config.getBufferSize(),
+                config.getConsumerThreads()
+            );
+            registerServiceImplementation(IAIEvaluationService.class, aiEvaluationService);
+            active = true;
+        }
     }
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
+        if (!active) {
+            return;
+        }
         metricReporter = createMetricReporter();
         final CounterMetrics incompleteSpanCounter = createDroppedCounter("incomplete_span");
         aiEvaluationService.setDroppedCounters(
@@ -131,10 +135,6 @@ public class AIEvaluationProvider extends ModuleProvider {
             createErrorCounter("invalid_response")
         );
         aiEvaluationService.setStrategies(createStrategies(incompleteSpanCounter));
-        getManager().find(AnalyzerModule.NAME)
-                    .provider()
-                    .getService(ISegmentParserService.class)
-                    .addListenerFactory(new GenAIEvaluationAnalysisListener.Factory(getManager()));
     }
 
     @Override
@@ -219,6 +219,15 @@ public class AIEvaluationProvider extends ModuleProvider {
         if (StringUtil.isBlank(config.getSystemPrompt())) {
             throw new ModuleStartException("AI evaluation system-prompt is required.");
         }
+    }
+
+    private static boolean hasCompleteJudgeConfiguration(final AIEvaluationConfig config) {
+        final Properties judge = config.getJudge();
+        return !StringUtil.isBlank(getString(judge, "provider"))
+            && !StringUtil.isBlank(getString(judge, "endpoint"))
+            && !StringUtil.isBlank(getString(judge, "model"))
+            && !StringUtil.isBlank(getString(judge, "api-key"))
+            && !StringUtil.isBlank(config.getSystemPrompt());
     }
 
     private static String getString(final Properties properties, final String key) {

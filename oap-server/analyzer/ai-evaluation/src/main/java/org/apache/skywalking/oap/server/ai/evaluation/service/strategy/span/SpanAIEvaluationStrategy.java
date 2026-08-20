@@ -137,12 +137,13 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
                 log.warn("Skip GenAI evaluation result without value type, task: {}", result.getName());
                 continue;
             }
-            final GenAIEvaluationRecord record = new GenAIEvaluationRecord();
+            final GenAIEvaluationRecord record = GenAIEvaluationRecord.create(
+                namingControl.formatServiceName(context.getProviderName()),
+                namingControl.formatInstanceName(context.getModelName())
+            );
             record.setUniqueId(GenAIEvaluationRecord.toUniqueId(taskId(context), result.getName(), evaluationTime));
             record.setTraceId(context.getTraceId());
             record.setServiceName(namingControl.formatServiceName(context.getServiceName()));
-            record.setProviderName(namingControl.formatServiceName(context.getProviderName()));
-            record.setModelName(namingControl.formatInstanceName(context.getModelName()));
             record.setOperationName(operationName(context));
             record.setRefType(context.getTraceRefType().name());
             record.setSegmentId(context.getSegmentId());

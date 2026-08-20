@@ -13,18 +13,23 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
-package org.apache.skywalking.oap.server.analyzer.provider.trace.parser;
+package org.apache.skywalking.oap.server.ai.evaluation.service;
 
-import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
 
 /**
- * Service of trace segment parser.
+ * Keeps the optional AI evaluation service available without evaluating spans when it is unconfigured.
  */
-public interface ISegmentParserService extends Service {
-    void send(SegmentObject segment);
+public class InactiveAIEvaluationService implements IAIEvaluationService {
+    @Override
+    public boolean shouldSample(final String traceId) {
+        return false;
+    }
 
+    @Override
+    public void sample(final AIEvaluationContext context) {
+        // Intentionally inactive until a complete judge configuration is supplied.
+    }
 }

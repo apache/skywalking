@@ -33,12 +33,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class AIEvaluationConfig extends ModuleConfig {
     private int sampleRate;
     private int bufferSize = 100;
-    private int consumerThreads = 4;
+    private int consumerThreads = 8;
     private int maxContentLength = 16384;
     private Properties judge = new Properties();
     private String systemPrompt;
-    private Double temperature;
-    private Integer maxTokens;
     private List<EvaluationTask> tasks = new ArrayList<>();
     private EvaluationLevelConfig level = new EvaluationLevelConfig();
 }

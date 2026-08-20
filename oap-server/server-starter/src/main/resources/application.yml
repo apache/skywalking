@@ -262,7 +262,7 @@ ai-evaluation:
   default:
     sampleRate: ${SW_AI_EVALUATION_SAMPLE_RATE:1000000}
     bufferSize: ${SW_AI_EVALUATION_BUFFER_SIZE:100}
-    consumerThreads: ${SW_AI_EVALUATION_CONSUMER_THREADS:4}
+    consumerThreads: ${SW_AI_EVALUATION_CONSUMER_THREADS:8}
     # Maximum escaped characters included from each input/output message field.
     maxContentLength: ${SW_AI_EVALUATION_MAX_CONTENT_LENGTH:16384}
 

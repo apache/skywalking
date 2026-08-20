@@ -100,16 +100,11 @@ public class GenAIEvaluationAnalysisListener implements EntryAnalysisListener, E
     }
 
     public static class Factory implements AnalysisListenerFactory {
-        private final IAIEvaluationService evaluationService;
-
-        public Factory(final ModuleManager moduleManager) {
-            this.evaluationService = moduleManager.find(AIEvaluationModule.NAME)
-                                                  .provider()
-                                                  .getService(IAIEvaluationService.class);
-        }
-
         @Override
         public AnalysisListener create(final ModuleManager moduleManager, final AnalyzerModuleConfig config) {
+            final IAIEvaluationService evaluationService = moduleManager.find(AIEvaluationModule.NAME)
+                                                                        .provider()
+                                                                        .getService(IAIEvaluationService.class);
             return new GenAIEvaluationAnalysisListener(evaluationService);
         }
     }

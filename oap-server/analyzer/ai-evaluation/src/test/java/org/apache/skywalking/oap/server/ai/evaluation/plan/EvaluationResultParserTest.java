@@ -63,6 +63,30 @@ class EvaluationResultParserTest {
     }
 
     @Test
+    void shouldParseJsonObjectValue() {
+        final EvaluationPlan plan = plan(task("metadata", ValueType.JSON));
+        final String content = "{"
+            + "\"metadata\":{\"value\":{\"a\":1,\"nested\":{\"b\":true}},\"reason\":\"details\"}"
+            + "}";
+
+        final List<EvaluationResult> results = parser.parse(plan, content);
+
+        assertEquals(1, results.size());
+        assertEquals("{\"a\":1,\"nested\":{\"b\":true}}", results.get(0).getValue());
+        assertEquals("details", results.get(0).getReason());
+    }
+
+    @Test
+    void shouldRejectNonObjectJsonValue() {
+        final EvaluationPlan plan = plan(task("metadata", ValueType.JSON));
+        final String content = "{\"metadata\":{\"value\":\"plain-text\",\"reason\":\"invalid\"}}";
+
+        final List<EvaluationResult> results = parser.parse(plan, content);
+
+        assertEquals(0, results.size());
+    }
+
+    @Test
     void shouldRejectMalformedRootResponse() {
         final EvaluationPlan plan = plan(task("quality", ValueType.SCORE));
 

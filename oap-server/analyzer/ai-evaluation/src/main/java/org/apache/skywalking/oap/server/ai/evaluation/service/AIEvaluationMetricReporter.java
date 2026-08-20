@@ -66,7 +66,15 @@ public class AIEvaluationMetricReporter {
                 SAMPLE_SCORE_NAME,
                 SampleFamilyBuilder.newBuilder(sample).build()
         );
-        meterProcessService.converts().forEach(convert -> convert.toMeter(sampleFamilies));
+        meterProcessService.converts().forEach(convert -> {
+            try {
+                convert.toMeter(sampleFamilies);
+            } catch (Exception e) {
+                // A broken MAL converter must not prevent the evaluation record loop from
+                // persisting subsequent task results.
+                log.warn("Failed to report AI evaluation score through a meter converter.", e);
+            }
+        });
     }
 
     private static Map<String, String> labels(final AIEvaluationContext context,

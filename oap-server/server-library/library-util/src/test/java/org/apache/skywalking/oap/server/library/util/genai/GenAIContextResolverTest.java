@@ -56,13 +56,13 @@ public class GenAIContextResolverTest {
     }
 
     @Test
-    void shouldPreferModelMatchOverLegacySystem() {
+    void shouldPreferLegacySystemOverModelMatch() {
         final GenAIContextResolver.Result result = resolve(Map.of(
             GenAISemanticAttributes.SYSTEM_NAME, "az.ai.openai",
             GenAISemanticAttributes.RESPONSE_MODEL, "gpt-4o"
         ));
 
-        assertEquals("openai", result.getProviderName());
+        assertEquals("az.ai.openai", result.getProviderName());
     }
 
     @Test
