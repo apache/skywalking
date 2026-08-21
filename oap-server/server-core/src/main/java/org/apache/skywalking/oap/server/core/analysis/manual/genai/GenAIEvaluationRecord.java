@@ -72,7 +72,8 @@ public class GenAIEvaluationRecord extends Record {
     public static final int TASK_NAME_MAX_LENGTH = 512;
     public static final String VALUE_TYPE = "value_type";
     public static final String EVAL_STRING_VALUE = "eval_string_value";
-    public static final int EVAL_STRING_VALUE_MAX_LENGTH = 4096;
+    /** Maximum persisted evaluation result size, matching the long-text storage precedent. */
+    public static final int EVAL_STRING_VALUE_MAX_LENGTH = 50000;
     public static final String EVALUATION_LEVEL = "evaluation_level";
     public static final String REASON = "reason";
     public static final int REASON_MAX_LENGTH = 4096;
@@ -96,7 +97,7 @@ public class GenAIEvaluationRecord extends Record {
     private String providerId;
 
     @ElasticSearch.EnableDocValues
-    @Column(name = MODEL_ID, length = 150)
+    @Column(name = MODEL_ID, length = 250)
     @BanyanDB.SeriesID(index = 1)
     private String modelId;
 
@@ -119,8 +120,7 @@ public class GenAIEvaluationRecord extends Record {
     @Column(name = SPAN_INDEX)
     private Integer spanIndex;
 
-    @Column(name = SPAN_ID, length = 32, storageOnly = true)
-    @BanyanDB.NoIndexing
+    @Column(name = SPAN_ID, length = 32)
     private String spanId;
 
     @ElasticSearch.EnableDocValues
@@ -166,7 +166,7 @@ public class GenAIEvaluationRecord extends Record {
     }
 
     public void setEvalStringValue(final String evalStringValue) {
-        this.evalStringValue = truncate(evalStringValue, EVAL_STRING_VALUE_MAX_LENGTH);
+        this.evalStringValue = evalStringValue;
     }
 
     public void setReason(final String reason) {

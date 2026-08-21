@@ -25,9 +25,10 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -69,7 +70,7 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
     @Override
     public GenAIEvaluationRecords queryGenAIEvaluationRecord(String serviceId, String providerId, String modelId, GenAIEvaluationValueType valueType, Long minScore, Long maxScore, Boolean booleanValue, GenAIEvaluationRecordSortBy sortBy,
                                                              String taskName, String evaluationLevel, String judgeModel,
-                                                             TraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
+                                                             GenAITraceScopeCondition relatedTrace, Order queryOrder, int from, int limit,
                                                              Duration duration) throws IOException {
         final boolean isColdStage = duration != null && duration.isColdStage();
         final Conditions where = Conditions.create();
@@ -104,14 +105,20 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
         }
 
         if (Objects.nonNull(relatedTrace)) {
+            if (Objects.nonNull(relatedTrace.getType())) {
+                where.eq(GenAIEvaluationRecord.REF_TYPE, relatedTrace.getType().name());
+            }
             if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
                 where.eq(GenAIEvaluationRecord.TRACE_ID, relatedTrace.getTraceId());
             }
             if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
                 where.eq(GenAIEvaluationRecord.SEGMENT_ID, relatedTrace.getSegmentId());
             }
-            if (Objects.nonNull(relatedTrace.getSpanId())) {
-                where.eq(GenAIEvaluationRecord.SPAN_INDEX, (long) relatedTrace.getSpanId());
+            if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())
+                && StringUtil.isNotEmpty(relatedTrace.getSpanId())) {
+                where.eq(GenAIEvaluationRecord.SPAN_ID, relatedTrace.getSpanId());
+            } else if (Objects.nonNull(relatedTrace.getSpanIndex())) {
+                where.eq(GenAIEvaluationRecord.SPAN_INDEX, (long) relatedTrace.getSpanIndex());
             }
         }
 

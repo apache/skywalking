@@ -41,7 +41,7 @@ public class GenAIEvaluationRecordQueryCondition {
     private String taskName;
     private String evaluationLevel;
     private String judgeModel;
-    private TraceScopeCondition relatedTrace;
+    private GenAITraceScopeCondition relatedTrace;
     private Duration queryDuration;
     private Pagination paging;
     private Order queryOrder;

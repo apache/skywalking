@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRe
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
@@ -45,7 +45,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       String taskName,
                                                       String evaluationLevel,
                                                       String judgeModel,
-                                                      TraceScopeCondition relatedTrace,
+                                                      GenAITraceScopeCondition relatedTrace,
                                                       Order queryOrder,
                                                       int from,
                                                       int limit,
@@ -88,7 +88,7 @@ public interface IGenAIEvaluationRecordQueryDAO extends Service {
                                                       String taskName,
                                                       String evaluationLevel,
                                                       String judgeModel,
-                                                      TraceScopeCondition relatedTrace,
+                                                      GenAITraceScopeCondition relatedTrace,
                                                       Order queryOrder,
                                                       int from,
                                                       int limit,

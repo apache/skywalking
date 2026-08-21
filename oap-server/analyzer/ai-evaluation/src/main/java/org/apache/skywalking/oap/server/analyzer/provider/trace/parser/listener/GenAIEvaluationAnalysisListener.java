@@ -101,6 +101,11 @@ public class GenAIEvaluationAnalysisListener implements EntryAnalysisListener, E
 
     public static class Factory implements AnalysisListenerFactory {
         @Override
+        public String[] requiredModules() {
+            return new String[] {AIEvaluationModule.NAME};
+        }
+
+        @Override
         public AnalysisListener create(final ModuleManager moduleManager, final AnalyzerModuleConfig config) {
             final IAIEvaluationService evaluationService = moduleManager.find(AIEvaluationModule.NAME)
                                                                         .provider()
