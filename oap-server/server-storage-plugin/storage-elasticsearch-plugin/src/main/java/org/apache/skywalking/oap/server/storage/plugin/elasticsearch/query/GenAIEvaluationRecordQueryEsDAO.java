@@ -30,9 +30,10 @@ import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluati
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -56,7 +57,7 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
                                                              final Long minScore, final Long maxScore, final Boolean booleanValue,
                                                              final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
-                                                             final TraceScopeCondition relatedTrace,
+                                                             final GenAITraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
                                                              final int from,
                                                              final int limit,
@@ -108,14 +109,20 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
             query.must(Query.term(GenAIEvaluationRecord.JUDGE_MODEL, judgeModel));
         }
         if (nonNull(relatedTrace)) {
+            if (nonNull(relatedTrace.getType())) {
+                query.must(Query.term(GenAIEvaluationRecord.REF_TYPE, relatedTrace.getType().name()));
+            }
             if (isNotEmpty(relatedTrace.getTraceId())) {
                 query.must(Query.term(GenAIEvaluationRecord.TRACE_ID, relatedTrace.getTraceId()));
             }
             if (isNotEmpty(relatedTrace.getSegmentId())) {
                 query.must(Query.term(GenAIEvaluationRecord.SEGMENT_ID, relatedTrace.getSegmentId()));
             }
-            if (nonNull(relatedTrace.getSpanId())) {
-                query.must(Query.term(GenAIEvaluationRecord.SPAN_INDEX, relatedTrace.getSpanId()));
+            if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())
+                && isNotEmpty(relatedTrace.getSpanId())) {
+                query.must(Query.term(GenAIEvaluationRecord.SPAN_ID, relatedTrace.getSpanId()));
+            } else if (nonNull(relatedTrace.getSpanIndex())) {
+                query.must(Query.term(GenAIEvaluationRecord.SPAN_INDEX, relatedTrace.getSpanIndex()));
             }
         }
         final SearchBuilder search = Search.builder()

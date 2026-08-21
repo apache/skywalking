@@ -22,7 +22,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRe
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
@@ -63,15 +63,27 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              String taskName,
                                                              String evaluationLevel,
                                                              String judgeModel,
-                                                             TraceScopeCondition relatedTrace,
+                                                             GenAITraceScopeCondition relatedTrace,
                                                              Pagination paging,
                                                              Order queryOrder,
                                                              final Duration duration) throws IOException {
         sortBy = sortBy == null ? GenAIEvaluationRecordSortBy.EVALUATION_TIME : sortBy;
         if (booleanValue != null) {
+            if (minScore != null || maxScore != null) {
+                throw new IllegalArgumentException("booleanValue cannot be combined with score bounds");
+            }
+            if (valueType != null && valueType != GenAIEvaluationValueType.BOOLEAN) {
+                throw new IllegalArgumentException("booleanValue requires valueType BOOLEAN");
+            }
             valueType = GenAIEvaluationValueType.BOOLEAN;
         } else if (minScore != null || maxScore != null) {
+            if (valueType != null && valueType != GenAIEvaluationValueType.SCORE) {
+                throw new IllegalArgumentException("score bounds require valueType SCORE");
+            }
             valueType = GenAIEvaluationValueType.SCORE;
+        }
+        if (GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy) && valueType != GenAIEvaluationValueType.SCORE) {
+            throw new IllegalArgumentException("sortBy SCORE_VALUE requires valueType SCORE");
         }
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
@@ -110,7 +122,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                                       String taskName,
                                                                       String evaluationLevel,
                                                                       String judgeModel,
-                                                                      TraceScopeCondition relatedTrace,
+                                                                      GenAITraceScopeCondition relatedTrace,
                                                                       Pagination paging,
                                                                       Order queryOrder,
                                                                       final Duration duration) throws IOException {

@@ -28,9 +28,10 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
-import org.apache.skywalking.oap.server.core.query.input.TraceScopeCondition;
+import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
 import org.apache.skywalking.oap.server.core.query.type.GenAIEvaluationRecords;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.ModelColumn;
@@ -82,7 +83,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                                                              final Long minScore, final Long maxScore, final Boolean booleanValue,
                                                              final GenAIEvaluationRecordSortBy sortBy,
                                                              final String taskName, final String evaluationLevel, final String judgeModel,
-                                                             final TraceScopeCondition relatedTrace,
+                                                             final GenAITraceScopeCondition relatedTrace,
                                                              final Order queryOrder,
                                                              final int from,
                                                              final int limit,
@@ -169,7 +170,7 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                                         final String taskName,
                                         final String evaluationLevel,
                                         final String judgeModel,
-                                        final TraceScopeCondition relatedTrace,
+                                        final GenAITraceScopeCondition relatedTrace,
                                         final Order queryOrder,
                                         final int from,
                                         final int limit,
@@ -238,6 +239,10 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             parameters.add(judgeModel);
         }
         if (nonNull(relatedTrace)) {
+            if (nonNull(relatedTrace.getType())) {
+                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.REF_TYPE)).append(" = ?");
+                parameters.add(relatedTrace.getType().name());
+            }
             if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
                 sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.TRACE_ID)).append(" = ?");
                 parameters.add(relatedTrace.getTraceId());
@@ -246,9 +251,13 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
                 sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SEGMENT_ID)).append(" = ?");
                 parameters.add(relatedTrace.getSegmentId());
             }
-            if (nonNull(relatedTrace.getSpanId())) {
-                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_INDEX)).append(" = ?");
+            if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())
+                && StringUtil.isNotEmpty(relatedTrace.getSpanId())) {
+                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_ID)).append(" = ?");
                 parameters.add(relatedTrace.getSpanId());
+            } else if (nonNull(relatedTrace.getSpanIndex())) {
+                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_INDEX)).append(" = ?");
+                parameters.add(relatedTrace.getSpanIndex());
             }
         }
         final boolean sortByScore = GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy);
