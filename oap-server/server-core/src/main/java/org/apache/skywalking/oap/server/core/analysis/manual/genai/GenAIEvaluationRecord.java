@@ -93,13 +93,11 @@ public class GenAIEvaluationRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = PROVIDER_ID, length = 150)
     @BanyanDB.SeriesID(index = 0)
-    @Setter(AccessLevel.PRIVATE)
     private String providerId;
 
     @ElasticSearch.EnableDocValues
     @Column(name = MODEL_ID, length = 150)
     @BanyanDB.SeriesID(index = 1)
-    @Setter(AccessLevel.PRIVATE)
     private String modelId;
 
     @ElasticSearch.EnableDocValues

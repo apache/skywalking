@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.ai.evaluation;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,12 +39,14 @@ public class AIEvaluationConfigLoader {
     private static final String CONFIG_FILE = "ai-evaluation.yml";
 
     public void load(final AIEvaluationConfig config) throws ModuleStartException {
-        try {
-            final Reader reader = ResourceUtils.read(CONFIG_FILE);
+        try (Reader reader = ResourceUtils.read(CONFIG_FILE)) {
             final Map<String, ?> loaded = new Yaml().loadAs(reader, Map.class);
             load(config, loaded);
         } catch (FileNotFoundException e) {
             throw new ModuleStartException("Cannot find the AI evaluation configuration file ["
+                + CONFIG_FILE + "].", e);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to read the AI evaluation configuration file ["
                 + CONFIG_FILE + "].", e);
         }
     }
