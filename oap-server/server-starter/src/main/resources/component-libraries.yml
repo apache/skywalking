@@ -587,6 +587,12 @@ spring-ai-zhipu-ai:
 spring-ai:
   id: 178
   languages: Java
+spring-ldap:
+  id: 179
+  languages: Java
+LDAP:
+  id: 180
+  languages: Java
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only
@@ -944,3 +950,4 @@ Component-Server-Mappings:
   spring-ai-minimax: GenAI
   spring-ai-ollama: GenAI
   spring-ai-zhipu-ai: GenAI
+  spring-ldap: LDAP

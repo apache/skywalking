@@ -29,6 +29,10 @@ public class ComponentLibraryCatalogFileTest {
         Assertions.assertEquals(7, service.getServerIdBasedOnComponent(30));
         Assertions.assertEquals(21, service.getServerIdBasedOnComponent(21));
         Assertions.assertEquals("Redis", service.getServerNameBasedOnComponent(30));
+        Assertions.assertEquals(179, service.getComponentId("spring-ldap"));
+        Assertions.assertEquals(180, service.getComponentId("LDAP"));
+        Assertions.assertEquals(180, service.getServerIdBasedOnComponent(179));
+        Assertions.assertEquals("LDAP", service.getServerNameBasedOnComponent(179));
     }
 
     /**
