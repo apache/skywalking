@@ -67,6 +67,8 @@ services:
       SW_LOGGING_OUTPUT: CONSOLE
       SW_AGENT_NAME: e2e-spring-ai
       SW_AGENT_INSTANCE_NAME: spring-ai-examples
+      SW_PLUGIN_SPRINGAI_COLLECT_INPUT_MESSAGES: "true"
+      SW_PLUGIN_SPRINGAI_COLLECT_OUTPUT_MESSAGES: "true"
     healthcheck:
       test: [ "CMD", "sh", "-c", "nc -nz 127.0.0.1 8080" ]
       interval: 5s
