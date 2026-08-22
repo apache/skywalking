@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.ContinuousProfilingQuery
 import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingMutation;
 import org.apache.skywalking.oap.query.graphql.resolver.EBPFProcessProfilingQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.EventQuery;
+import org.apache.skywalking.oap.query.graphql.resolver.GenAIEvaluationRecordQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.HealthQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.HierarchyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
@@ -136,6 +137,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
                          new LogQuery(getManager()),
                          new LogTestQuery(getManager(), config)
                      )
+                     .file("query-protocol/gen-ai-evaluation-record.graphqls")
+                     .resolvers(new GenAIEvaluationRecordQuery(getManager()))
                      .file("query-protocol/profile.graphqls")
                      .resolvers(new ProfileQuery(getManager()), new ProfileMutation(getManager()))
                      .file("query-protocol/browser-log.graphqls")

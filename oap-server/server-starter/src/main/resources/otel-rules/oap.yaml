@@ -58,6 +58,10 @@ metricsRules:
     exp: trace_analysis_error_count.sum(['service', 'host_name', 'protocol']).increase('PT1M')
   - name: instance_spans_dropped_count
     exp: spans_dropped_count.sum(['service', 'host_name', 'protocol']).increase('PT1M')
+  - name: instance_ai_evaluation_dropped_count
+    exp: ai_evaluation_dropped_count.sum(['service', 'host_name', 'reason']).increase('PT1M')
+  - name: instance_ai_evaluation_error_count
+    exp: ai_evaluation_error_count.sum(['service', 'host_name', 'reason']).increase('PT1M')
   - name: instance_mesh_count
     exp: mesh_analysis_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: instance_mesh_latency_percentile

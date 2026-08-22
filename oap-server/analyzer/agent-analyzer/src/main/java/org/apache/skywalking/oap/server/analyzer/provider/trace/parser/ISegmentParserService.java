@@ -26,4 +26,5 @@ import org.apache.skywalking.oap.server.library.module.Service;
  */
 public interface ISegmentParserService extends Service {
     void send(SegmentObject segment);
+
 }

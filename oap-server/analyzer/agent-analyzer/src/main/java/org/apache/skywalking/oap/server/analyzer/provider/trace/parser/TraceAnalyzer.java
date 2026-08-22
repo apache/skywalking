@@ -118,7 +118,13 @@ public class TraceAnalyzer {
     private void createSpanListeners() {
         listenerManager.getSpanListenerFactories()
                        .forEach(
-                           spanListenerFactory -> analysisListeners.add(
-                               spanListenerFactory.create(moduleManager, config)));
+                           spanListenerFactory -> {
+                               for (final String moduleName : spanListenerFactory.requiredModules()) {
+                                   if (!moduleManager.has(moduleName)) {
+                                       return;
+                                   }
+                               }
+                               analysisListeners.add(spanListenerFactory.create(moduleManager, config));
+                           });
     }
 }

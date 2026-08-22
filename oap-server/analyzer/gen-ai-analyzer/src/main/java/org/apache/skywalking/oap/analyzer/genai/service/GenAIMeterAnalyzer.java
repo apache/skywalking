@@ -24,7 +24,6 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.analyzer.genai.config.GenAIConfig;
-import org.apache.skywalking.oap.analyzer.genai.config.GenAITagKeys;
 import org.apache.skywalking.oap.analyzer.genai.matcher.GenAIProviderPrefixMatcher;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -38,9 +37,12 @@ import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.library.util.genai.GenAIContextResolver;
+import org.apache.skywalking.oap.server.library.util.genai.GenAISemanticAttributes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +72,8 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
                         (v1, v2) -> v1
                 ));
 
-        String modelName = tags.get(GenAITagKeys.RESPONSE_MODEL);
+        final GenAIContextResolver.Result resolvedContext = GenAIContextResolver.resolve(tags);
+        String modelName = resolvedContext.getModelName();
 
         if (StringUtil.isBlank(modelName)) {
             if (log.isDebugEnabled()) {
@@ -78,18 +81,14 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
             }
             return null;
         }
-        String provider = tags.get(GenAITagKeys.PROVIDER_NAME);
+        String provider = resolvedContext.getProviderName();
 
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
 
-        if (StringUtil.isBlank(provider)) {
-            provider = matchResult.getProvider();
-        }
-
         GenAIConfig.Model modelConfig = matchResult.getModelConfig();
 
-        long inputTokens = parseSafeLong(tags.get(GenAITagKeys.INPUT_TOKENS));
-        long outputTokens = parseSafeLong(tags.get(GenAITagKeys.OUTPUT_TOKENS));
+        long inputTokens = parseSafeLong(tags.get(GenAISemanticAttributes.USAGE_INPUT_TOKENS));
+        long outputTokens = parseSafeLong(tags.get(GenAISemanticAttributes.USAGE_OUTPUT_TOKENS));
 
         double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
 
@@ -101,7 +100,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
 
-        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
         metrics.setTotalEstimatedCost(totalCost);
 
         long latency = span.getEndTime() - span.getStartTime();
@@ -115,28 +114,25 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
     @Override
     public GenAIMetrics extractMetricsFromZipkinSpan(ZipkinSpan zipkinSpan) {
         JsonObject tags = zipkinSpan.getTags();
-        JsonElement element = tags.get(GenAITagKeys.RESPONSE_MODEL);
+        JsonElement element = tags.get(GenAISemanticAttributes.RESPONSE_MODEL);
         if (element == null || StringUtil.isBlank(element.getAsString())) {
             return null;
         }
 
-        String modelName = element.getAsString();
-        String provider = getZipkinSpanTagValue(tags, GenAITagKeys.PROVIDER_NAME);
-
-        if (StringUtil.isBlank(provider)) {
-            // Support legacy tags for OTLP or Zipkin traces.
-            provider = getZipkinSpanTagValue(tags, GenAITagKeys.SYSTEM_NAME);
-        }
+        final Map<String, String> contextTags = new HashMap<>();
+        putTag(contextTags, tags, GenAISemanticAttributes.RESPONSE_MODEL);
+        putTag(contextTags, tags, GenAISemanticAttributes.PROVIDER_NAME);
+        putTag(contextTags, tags, GenAISemanticAttributes.SYSTEM_NAME);
+        final GenAIContextResolver.Result resolvedContext = GenAIContextResolver.resolve(contextTags);
+        String modelName = resolvedContext.getModelName();
+        String provider = resolvedContext.getProviderName();
 
         GenAIProviderPrefixMatcher.MatchResult matchResult = matcher.match(modelName);
-        if (StringUtil.isBlank(provider)) {
-            provider = matchResult.getProvider();
-        }
 
         GenAIConfig.Model modelConfig = matchResult.getModelConfig();
 
-        long inputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAITagKeys.INPUT_TOKENS));
-        long outputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAITagKeys.OUTPUT_TOKENS));
+        long inputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAISemanticAttributes.USAGE_INPUT_TOKENS));
+        long outputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAISemanticAttributes.USAGE_OUTPUT_TOKENS));
 
         double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
 
@@ -146,12 +142,22 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setModelName(modelName);
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
-        metrics.setTimeToFirstToken(parseSafeInt(getZipkinSpanTagValue(tags, GenAITagKeys.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(parseSafeInt(
+            getZipkinSpanTagValue(tags, GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
         metrics.setTotalEstimatedCost(totalCost);
         metrics.setLatency(zipkinSpan.getDuration() / 1000);
         metrics.setStatus(StringUtil.isBlank(getZipkinSpanTagValue(tags, "error")));
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(zipkinSpan.getTimestamp() / 1000));
         return metrics;
+    }
+
+    private void putTag(final Map<String, String> target,
+                        final JsonObject source,
+                        final String key) {
+        final String value = getZipkinSpanTagValue(source, key);
+        if (StringUtil.isNotBlank(value)) {
+            target.put(key, value);
+        }
     }
 
     @Override
