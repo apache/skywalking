@@ -88,8 +88,10 @@ public class MeasureWrite extends AbstractWrite<BanyandbMeasure.WriteRequest> {
         }
 
         builder.setDataPointSpec(datapointValueSpecBuilder);
+        long messageId = nextMessageId();
+        datapointValueBuilder.setVersion(messageId);
         builder.setDataPoint(datapointValueBuilder);
-        builder.setMessageId(System.nanoTime());
+        builder.setMessageId(messageId);
         return builder.build();
     }
 
@@ -122,8 +124,10 @@ public class MeasureWrite extends AbstractWrite<BanyandbMeasure.WriteRequest> {
             datapointValueBuilder.addFields(fieldEntry.getValue().serialize());
         }
 
+        long messageId = nextMessageId();
+        datapointValueBuilder.setVersion(messageId);
         builder.setDataPoint(datapointValueBuilder);
-        builder.setMessageId(System.nanoTime());
+        builder.setMessageId(messageId);
         return builder.build();
     }
 

@@ -19,10 +19,27 @@
 package org.apache.skywalking.library.banyandb.v1.client;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 import lombok.Getter;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 
 public abstract class AbstractWrite<P extends com.google.protobuf.GeneratedMessage> {
+    /**
+     * Generates monotonic message IDs for write requests.
+     * <p>
+     * The value is based on the Unix epoch (wall clock) so that message IDs are comparable across
+     * OAP hosts and process restarts, instead of {@link System#nanoTime()} which is only meaningful
+     * within a single JVM instance. An {@link AtomicLong} keeps the value strictly increasing even
+     * under concurrent writes or a temporary wall-clock rollback.
+     */
+    private static final AtomicLong MESSAGE_ID_GENERATOR =
+        new AtomicLong(System.currentTimeMillis() * 1_000_000L);
+
+    protected static long nextMessageId() {
+        return MESSAGE_ID_GENERATOR.updateAndGet(
+            previous -> Math.max(previous + 1, System.currentTimeMillis() * 1_000_000L));
+    }
+
     /**
      * Timestamp represents the time of the current data point, in milliseconds.
      * <p>
