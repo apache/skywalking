@@ -93,7 +93,7 @@ public class StreamWrite extends AbstractWrite<BanyandbStream.WriteRequest> {
         }
 
         builder.setElement(elemValBuilder);
-        builder.setMessageId(System.nanoTime());
+        builder.setMessageId(nextMessageId());
         return builder.build();
     }
 
@@ -125,7 +125,7 @@ public class StreamWrite extends AbstractWrite<BanyandbStream.WriteRequest> {
         }
 
         builder.setElement(elemValBuilder);
-        builder.setMessageId(System.nanoTime());
+        builder.setMessageId(nextMessageId());
         return builder.build();
     }
 
