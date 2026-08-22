@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
@@ -68,6 +69,7 @@ public class GenAIEvaluationRecordQueryService implements Service {
                                                              Order queryOrder,
                                                              final Duration duration) throws IOException {
         sortBy = sortBy == null ? GenAIEvaluationRecordSortBy.EVALUATION_TIME : sortBy;
+        validateRelatedTrace(relatedTrace);
         if (booleanValue != null) {
             if (minScore != null || maxScore != null) {
                 throw new IllegalArgumentException("booleanValue cannot be combined with score bounds");
@@ -132,6 +134,29 @@ public class GenAIEvaluationRecordQueryService implements Service {
                 serviceId, providerId, modelId, valueType, minScore, maxScore, booleanValue, sortBy, taskName, evaluationLevel, judgeModel,
                 relatedTrace, queryOrder, page.getFrom(), page.getLimit(), duration
         );
+    }
+
+    private static void validateRelatedTrace(final GenAITraceScopeCondition relatedTrace) {
+        if (relatedTrace == null) {
+            return;
+        }
+        if (relatedTrace.getType() == null) {
+            throw new IllegalArgumentException("relatedTrace.type is required");
+        }
+        final boolean hasSegmentId = relatedTrace.getSegmentId() != null && !relatedTrace.getSegmentId().isEmpty();
+        final boolean hasSpanId = relatedTrace.getSpanId() != null && !relatedTrace.getSpanId().isEmpty();
+        if (GenAITraceRefType.SKYWALKING_NATIVE.equals(relatedTrace.getType())) {
+            if (hasSpanId) {
+                throw new IllegalArgumentException("Native relatedTrace cannot contain spanId");
+            }
+            if (relatedTrace.getSpanIndex() != null && !hasSegmentId) {
+                throw new IllegalArgumentException("Native relatedTrace.spanIndex requires segmentId");
+            }
+        } else if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())) {
+            if (hasSegmentId || relatedTrace.getSpanIndex() != null) {
+                throw new IllegalArgumentException("OTLP relatedTrace cannot contain segmentId or spanIndex");
+            }
+        }
     }
 
 }
