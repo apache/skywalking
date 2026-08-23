@@ -143,6 +143,9 @@ public class GenAIEvaluationRecordQueryService implements Service {
         if (relatedTrace.getType() == null) {
             throw new IllegalArgumentException("relatedTrace.type is required");
         }
+        if (relatedTrace.getTraceId() == null || relatedTrace.getTraceId().trim().isEmpty()) {
+            throw new IllegalArgumentException("relatedTrace.traceId is required");
+        }
         final boolean hasSegmentId = relatedTrace.getSegmentId() != null && !relatedTrace.getSegmentId().isEmpty();
         final boolean hasSpanId = relatedTrace.getSpanId() != null && !relatedTrace.getSpanId().isEmpty();
         if (GenAITraceRefType.SKYWALKING_NATIVE.equals(relatedTrace.getType())) {

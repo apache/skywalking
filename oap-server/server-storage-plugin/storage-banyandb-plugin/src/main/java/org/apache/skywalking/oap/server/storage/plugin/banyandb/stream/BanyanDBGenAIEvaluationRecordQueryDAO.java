@@ -131,7 +131,13 @@ public class BanyanDBGenAIEvaluationRecordQueryDAO extends AbstractBanyanDBDAO i
         }
         where.limit(limit).offset(from);
 
-        StreamQueryResponse resp = queryDebuggable(isColdStage, GenAIEvaluationRecord.INDEX_NAME, TAGS, getTimestampRange(duration), where);
+        StreamQueryResponse resp = queryDebuggable(
+            isColdStage,
+            GenAIEvaluationRecord.INDEX_NAME,
+            TAGS,
+            duration == null && relatedTrace != null ? null : getTimestampRange(duration),
+            where
+        );
 
         GenAIEvaluationRecords genAIEvaluationRecords = new GenAIEvaluationRecords();
 
