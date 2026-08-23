@@ -76,9 +76,16 @@ cases:
   - query: |
       START=$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')
       END=$(date -u '+%Y-%m-%d %H%M')
+      RECORD_QUERY='query ($condition: GenAIEvaluationRecordQueryCondition!) { queryGenAIEvaluationRecord(condition: $condition) { genAIEvaluationRecordList { traceRef { type traceId segmentId spanIndex spanId } serviceName providerName modelName operationName taskName valueType scoreValue booleanValue stringValue evaluationLevel reason judgeModel evaluationTime } } }'
+      FIRST=$(curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+        -H 'Content-Type: application/json' \
+        -d '{"query":"'"$RECORD_QUERY"'","variables":{"condition":{"providerId":"b3BlbmFp.0","taskName":"Faithfulness","valueType":"SCORE","minScore":800000,"maxScore":800000,"queryDuration":{"start":"'"$START"'","end":"'"$END"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":1},"sortBy":"SCORE_VALUE","queryOrder":"DES"}}}')
+      TRACE_ID=$(printf '%s' "$FIRST" | yq -r '.data.queryGenAIEvaluationRecord.genAIEvaluationRecordList[0].traceRef.traceId')
+      SEGMENT_ID=$(printf '%s' "$FIRST" | yq -r '.data.queryGenAIEvaluationRecord.genAIEvaluationRecordList[0].traceRef.segmentId')
+      SPAN_INDEX=$(printf '%s' "$FIRST" | yq -r '.data.queryGenAIEvaluationRecord.genAIEvaluationRecordList[0].traceRef.spanIndex')
       curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
         -H 'Content-Type: application/json' \
-        -d '{"query":"query ($condition: GenAIEvaluationRecordQueryCondition!) { queryGenAIEvaluationRecord(condition: $condition) { genAIEvaluationRecordList { traceRef { type traceId segmentId spanIndex spanId } serviceName providerName modelName operationName taskName valueType scoreValue booleanValue stringValue evaluationLevel reason judgeModel evaluationTime } } }","variables":{"condition":{"providerId":"b3BlbmFp.0","taskName":"Faithfulness","valueType":"SCORE","minScore":800000,"maxScore":800000,"queryDuration":{"start":"'"$START"'","end":"'"$END"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":1},"sortBy":"SCORE_VALUE","queryOrder":"DES"}}}' \
+        -d '{"query":"'"$RECORD_QUERY"'","variables":{"condition":{"providerId":"b3BlbmFp.0","taskName":"Faithfulness","valueType":"SCORE","minScore":800000,"maxScore":800000,"relatedTrace":{"type":"SKYWALKING_NATIVE","traceId":"'"$TRACE_ID"'","segmentId":"'"$SEGMENT_ID"'","spanIndex":'"$SPAN_INDEX"'},"queryDuration":{"start":"'"$START"'","end":"'"$END"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":1},"sortBy":"SCORE_VALUE","queryOrder":"DES"}}}' \
         | yq -P '.data.queryGenAIEvaluationRecord.genAIEvaluationRecordList[0] | {"traceType": .traceRef.type, "hasTraceId": (.traceRef.traceId != null and .traceRef.traceId != ""), "hasSegmentId": (.traceRef.segmentId != null and .traceRef.segmentId != ""), "hasSpanIndex": (.traceRef.spanIndex != null), "hasSpanId": (.traceRef.spanId != null), "serviceName": .serviceName, "providerName": .providerName, "modelName": .modelName, "operationName": .operationName, "taskName": .taskName, "valueType": .valueType, "scoreValue": .scoreValue, "booleanValue": .booleanValue, "stringValue": .stringValue, "evaluationLevel": .evaluationLevel, "reason": .reason, "judgeModel": .judgeModel, "hasEvaluationTime": (.evaluationTime != null)}'
     expected: expected/evaluation-score-record.yml
 
