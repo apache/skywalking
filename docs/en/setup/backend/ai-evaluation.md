@@ -15,7 +15,18 @@ ai-evaluation:
 
 For the built-in provider, set `SW_AI_EVALUATION=default`. The judge configuration is read from `config/ai-evaluation.yml`. OAP remains inactive when the judge endpoint, model, API key, or system prompt is missing.
 
-The module sends span content to the configured judge endpoint. Review the endpoint's data handling and estimate model cost before enabling it in production.
+## Instrumentation prerequisites
+
+AI evaluation only processes GenAI spans containing non-empty `gen_ai.input.messages` and `gen_ai.output.messages` attributes. Spans missing either attribute are skipped as incomplete.
+
+For Spring AI instrumented by the SkyWalking Java agent, enable message collection explicitly:
+
+    SW_PLUGIN_SPRINGAI_COLLECT_INPUT_MESSAGES=true
+    SW_PLUGIN_SPRINGAI_COLLECT_OUTPUT_MESSAGES=true
+
+For OTLP and Zipkin ingestion, ensure the instrumentation exports the equivalent `gen_ai.input.messages` and `gen_ai.output.messages` attributes.
+
+These attributes may contain user prompts and model responses, and the module sends their content to the configured judge endpoint. Review the endpoint's data handling, privacy requirements, and estimated model cost before enabling collection in production.
 
 ## Basic configuration
 
