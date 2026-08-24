@@ -48,6 +48,7 @@ global:
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
+  secretsManagementFile: ${SW_STORAGE_BANYANDB_SECRETS_MANAGEMENT_FILE:""}
   # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".

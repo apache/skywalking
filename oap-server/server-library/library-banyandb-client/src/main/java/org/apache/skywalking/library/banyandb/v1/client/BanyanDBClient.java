@@ -79,7 +79,6 @@ import org.apache.skywalking.library.banyandb.v1.client.metadata.StreamMetadataR
 import org.apache.skywalking.library.banyandb.v1.client.metadata.TopNAggregationMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.TraceMetadataRegistry;
 import org.apache.skywalking.library.banyandb.v1.client.util.TimeUtils;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
@@ -157,6 +156,16 @@ public class BanyanDBClient implements Closeable {
      * A lock to control the race condition in establishing and disconnecting network connection.
      */
     private final ReentrantLock connectionEstablishLock;
+    /**
+     * Created up-front rather than in {@link #connect()} so that {@link #updateCredentials} works
+     * before the first connection and survives every channel swap {@code ChannelManager} performs.
+     */
+    private final AuthInterceptor authInterceptor;
+    /**
+     * The manager behind {@link #channel}, kept so {@link #rebuildChannel()} can reload the TLS material.
+     * Null until {@link #connect()} runs, and for the test-only channel injection.
+     */
+    private volatile ChannelManager channelManager;
 
     /**
      * Create a BanyanDB client instance with a default options.
@@ -181,6 +190,7 @@ public class BanyanDBClient implements Closeable {
         this.targets = tt;
         this.options = options;
         this.connectionEstablishLock = new ReentrantLock();
+        this.authInterceptor = new AuthInterceptor(options.getUsername(), options.getPassword());
     }
 
     /**
@@ -196,16 +206,12 @@ public class BanyanDBClient implements Closeable {
                 for (int i = 0; i < this.targets.length; i++) {
                         addresses[i] = URI.create("//" + this.targets[i]);
                 }
-                Channel rawChannel = ChannelManager.create(this.options.buildChannelManagerSettings(),
-                                                           new DefaultChannelFactory(addresses, this.options));
-                Channel interceptedChannel = rawChannel;
-                // register auth interceptor
-                String username = options.getUsername();
-                String password = options.getPassword();
-                if (StringUtil.isNotBlank(username) && StringUtil.isNotBlank(password)) {
-                    interceptedChannel = ClientInterceptors.intercept(rawChannel,
-                            new AuthInterceptor(username, password));
-                }
+                ChannelManager rawChannel = ChannelManager.create(this.options.buildChannelManagerSettings(),
+                                                                  new DefaultChannelFactory(addresses, this.options));
+                this.channelManager = rawChannel;
+                // The auth interceptor is always installed: it sends no credentials until both a
+                // username and a password are set, so they can be rotated in without a reconnect.
+                Channel interceptedChannel = ClientInterceptors.intercept(rawChannel, authInterceptor);
                 // Ensure this.channel is assigned only once.
                 this.channel = interceptedChannel;
                 streamServiceBlockingStub = StreamServiceGrpc.newBlockingStub(this.channel);
@@ -220,6 +226,36 @@ public class BanyanDBClient implements Closeable {
         } finally {
             connectionEstablishLock.unlock();
         }
+    }
+
+    /**
+     * Replace the basic-auth credentials used by subsequent RPCs. The credentials are read per call, so
+     * the change applies without reconnecting and without interrupting in-flight requests.
+     *
+     * @param username the new username; when either half is blank no credentials are sent at all
+     * @param password the new password; when either half is blank no credentials are sent at all
+     */
+    public void updateCredentials(String username, String password) {
+        authInterceptor.updateCredentials(username, password);
+    }
+
+    /**
+     * Rebuild the gRPC channel so that the TLS trust CA at {@code sslTrustCAPath} is read from disk again.
+     * Credentials do not need this — {@link AuthInterceptor} reads them per call — but the trust material is
+     * resolved when the channel is built, so a rotated CA is only picked up by a new channel.
+     *
+     * <p>Requests already running finish on the old channel. The replacement re-picks a target from the configured
+     * list, so the client may end up connected to a different server afterwards.
+     *
+     * @throws IOException if the replacement channel cannot be created; the current one keeps serving.
+     */
+    public void rebuildChannel() throws IOException {
+        final ChannelManager manager = this.channelManager;
+        if (manager == null) {
+            // Not connected yet; connect() will read the current CA when it builds the channel.
+            return;
+        }
+        manager.rebuild();
     }
 
     @VisibleForTesting

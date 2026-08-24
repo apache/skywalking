@@ -37,6 +37,7 @@ public class BanyanDBConfigDumpExtensionTest {
         config.getGlobal().setPassword("admin");
         config.getGlobal().setCompatibleServerApiVersions("0.10");
         config.getGlobal().setNamespace("sw");
+        config.getGlobal().setSecretsManagementFile("/etc/skywalking/bydb-secrets.properties");
 
         // A metrics-minute group carrying a warm lifecycle stage.
         MetricsMin metricsMin = config.getMetricsMin();
@@ -64,6 +65,9 @@ public class BanyanDBConfigDumpExtensionTest {
         assertEquals("admin", dump.get("storage.banyandb.global.user"));
         assertEquals("admin", dump.get("storage.banyandb.global.password"));
         assertEquals("0.10", dump.get("storage.banyandb.global.compatibleServerApiVersions"));
+        assertEquals(
+            "/etc/skywalking/bydb-secrets.properties",
+            dump.get("storage.banyandb.global.secretsManagementFile"));
         // Group + indexed lifecycle stage (enum -> name()).
         assertEquals("7", dump.get("storage.banyandb.metricsMinute.ttl"));
         assertEquals("true", dump.get("storage.banyandb.metricsMinute.enableWarmStage"));

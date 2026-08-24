@@ -49,7 +49,11 @@ global:
   user: ${SW_STORAGE_BANYANDB_USER:""}
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
+  # This file is watched: rotating it rebuilds the gRPC channel so the new CA is used, without restarting the OAP.
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
+  # Secrets management file in the properties format, including the user and password, which are managed by a 3rd party tool.
+  # When set, it overrides the user/password above, and a rotation of the file is applied without restarting the OAP.
+  secretsManagementFile: ${SW_STORAGE_BANYANDB_SECRETS_MANAGEMENT_FILE:""}
   # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".

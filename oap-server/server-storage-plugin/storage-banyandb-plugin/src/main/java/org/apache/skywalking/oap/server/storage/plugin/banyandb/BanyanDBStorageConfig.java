@@ -91,6 +91,11 @@ public class BanyanDBStorageConfig extends ModuleConfig {
          */
         private String sslTrustCAPath = "";
         /**
+         * Secrets management file in the properties format, holding the {@code user} and {@code password}
+         * entries. It is maintained by a 3rd party tool, and a rotation is applied without restarting OAP.
+         */
+        private String secretsManagementFile;
+        /**
          * Max size of {@link org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask} to be fetched in a
          * single request.
          */

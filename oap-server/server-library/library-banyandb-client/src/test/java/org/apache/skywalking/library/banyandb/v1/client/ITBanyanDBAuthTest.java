@@ -100,6 +100,27 @@ public class ITBanyanDBAuthTest extends BanyanDBClientTestCI {
         client.close();
     }
 
+    /**
+     * Rotation applies to the next RPC over the already-established channel: the client is connected once,
+     * with credentials the server rejects, and starts succeeding without any reconnect.
+     */
+    @Test
+    public void testCredentialRotationWithoutReconnect() throws IOException {
+        BanyanDBClient client = createClient("admin", "123456" + "wrong");
+        client.connect();
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            assertThrows(UnauthenticatedException.class, client::getAPIVersion);
+        });
+
+        client.updateCredentials("admin", "123456");
+
+        await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
+            client.getAPIVersion();
+            assertEquals(0, client.findGroups().size());
+        });
+        client.close();
+    }
+
     private BanyanDBClient createClient(String username, String password) {
         Options options = new Options();
         options.setUsername(username);

@@ -95,7 +95,26 @@ public class ChannelManager extends ManagedChannel {
             entry.reset();
             return;
         }
-        Entry replacedEntry = entryRef.getAndSet(new Entry(this.channelFactory.create()));
+        rebuild();
+    }
+
+    /**
+     * Replace the channel whatever its health, for when the material it was built from has changed rather than
+     * broken — currently the TLS trust CA, which {@link ChannelFactory#create()} re-reads on every call.
+     * {@link #refresh()} cannot serve that purpose: it returns early on a healthy channel, which is exactly the
+     * state a certificate rotation happens in.
+     *
+     * <p>The swap is graceful. {@code shutdown()} lets the calls already running on the old channel finish, while
+     * {@link LazyReferenceChannel} resolves {@link #entryRef} per call so every new call goes to the replacement.
+     * Creating the replacement first also means a failure leaves the current channel serving.
+     *
+     * <p>Note the replacement re-picks a target from the configured list, so the client may end up connected to a
+     * different server afterwards.
+     *
+     * @throws IOException if the replacement channel cannot be created.
+     */
+    public synchronized void rebuild() throws IOException {
+        final Entry replacedEntry = entryRef.getAndSet(new Entry(this.channelFactory.create()));
         replacedEntry.shutdown();
     }
 

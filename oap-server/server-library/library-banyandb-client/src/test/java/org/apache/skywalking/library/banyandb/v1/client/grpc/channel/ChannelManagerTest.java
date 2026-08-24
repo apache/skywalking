@@ -105,6 +105,53 @@ public class ChannelManagerTest {
                 .newCall(Mockito.<MethodDescriptor<String, Integer>>any(), Mockito.any(CallOptions.class));
     }
 
+    /**
+     * A trust CA rotation happens while the connection is healthy, which is precisely the case
+     * {@link ChannelManager#refresh()} declines to act on. {@link ChannelManager#rebuild()} exists to swap the
+     * channel anyway, so the factory re-reads the CA from disk.
+     */
+    @Test
+    public void rebuildShouldSwapHealthyChannelWhileRefreshDoesNot() throws IOException {
+        ManagedChannel underlyingChannel1 = mock(ManagedChannel.class);
+        ManagedChannel underlyingChannel2 = mock(ManagedChannel.class);
+
+        ScheduledExecutorService scheduledExecutorService = mock(ScheduledExecutorService.class);
+        Mockito.doReturn(null)
+                .when(scheduledExecutorService)
+                .schedule(
+                        Mockito.any(Runnable.class), Mockito.anyLong(), Mockito.eq(TimeUnit.MILLISECONDS));
+
+        ChannelManager manager =
+                new ChannelManager(
+                        ChannelManagerSettings.builder()
+                                .refreshInterval(30)
+                                .forceReconnectionThreshold(1).build(),
+                        new FakeChannelFactory(ImmutableList.of(underlyingChannel1, underlyingChannel2)),
+                        scheduledExecutorService);
+        Mockito.reset(underlyingChannel1);
+
+        // A healthy channel: nothing has flagged it for reconnection and it reports READY.
+        Mockito.doReturn(ConnectivityState.READY)
+                .when(underlyingChannel1)
+                .getState(Mockito.anyBoolean());
+
+        manager.refresh();
+
+        manager.newCall(FakeMethodDescriptor.<String, Integer>create(), CallOptions.DEFAULT);
+        Mockito.verify(underlyingChannel1, Mockito.atLeastOnce())
+                .newCall(Mockito.<MethodDescriptor<String, Integer>>any(), Mockito.any(CallOptions.class));
+        Mockito.verify(underlyingChannel2, Mockito.never())
+                .newCall(Mockito.<MethodDescriptor<String, Integer>>any(), Mockito.any(CallOptions.class));
+
+        manager.rebuild();
+
+        manager.newCall(FakeMethodDescriptor.<String, Integer>create(), CallOptions.DEFAULT);
+        Mockito.verify(underlyingChannel2, Mockito.only())
+                .newCall(Mockito.<MethodDescriptor<String, Integer>>any(), Mockito.any(CallOptions.class));
+        // Graceful: the displaced channel is shut down, letting its running calls finish.
+        Mockito.verify(underlyingChannel1).shutdown();
+    }
+
     @Test
     public void networkErrorStatusShouldTriggerReconnect() throws IOException {
         final IndexRuleRegistryServiceGrpc.IndexRuleRegistryServiceImplBase indexRuleServiceImpl =
