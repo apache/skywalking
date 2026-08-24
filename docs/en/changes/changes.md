@@ -368,6 +368,7 @@
 * Fix the PagerDuty alarm hook to default its Events API v2 endpoint to `https://events.pagerduty.com/v2/enqueue`.
 * Fix `HttpAlarmCallback` logging a successful alarm delivery as a failure. The shared HTTP hook helper treated only `200` and `204` as success, so any other 2xx — notably the `202 Accepted` returned by asynchronous intake APIs such as PagerDuty's Events API v2 — produced `send to ... failure. Response code: 202` at ERROR level on every delivered alarm. The alarm was still delivered; the log entry was wrong. The check now accepts the whole 2xx range, for all alarm hooks.
 * Make the PagerDuty Events API v2 endpoint configurable through a new optional `events-api-url` setting on each `pagerduty` hook, defaulting to the US service region endpoint. An account in PagerDuty's EU service region can now point the hook straight at `https://events.eu.pagerduty.com/v2/enqueue` rather than relying on PagerDuty forwarding the request — and the routing key and alarm payload from an EU-region account no longer transit the US region. 
+* Bump the default BanyanDB compatible server API version (`SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS`) from `0.10` to `0.11`.
 
 #### UI
 * Add Airflow layer dashboards and menu i18n under Workflow Scheduler in Horizon UI (SWIP-7).
