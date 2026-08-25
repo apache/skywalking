@@ -1,0 +1,78 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  banyandb:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    volumes:
+      - ./auth-config.yaml:/auth-config.yaml
+    entrypoint: /bin/sh -c
+    command: |
+      "chmod 600 /auth-config.yaml &&
+       /banyand standalone --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --auth-config-file=/auth-config.yaml"
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      # storage-cases.yaml queries the admin server on 17128 for the inspect endpoints.
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
+      SW_STORAGE: banyandb
+      # Boot credentials. The secrets file below does not exist when the OAP starts, so these are
+      # what it connects with; the test then creates the file, which is the rotation under test.
+      SW_STORAGE_BANYANDB_USER: admin
+      SW_STORAGE_BANYANDB_PASSWORD: admin
+      # Under /tmp so the test can write it from inside the container without depending on the
+      # config directory being writable.
+      SW_STORAGE_BANYANDB_SECRETS_MANAGEMENT_FILE: /tmp/bydb-secrets.properties
+    ports:
+      - 12800
+      - 17128
+    depends_on:
+      banyandb:
+        condition: service_healthy
+
+  provider:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      oap:
+        condition: service_healthy
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:

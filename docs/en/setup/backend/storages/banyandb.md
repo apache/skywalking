@@ -312,8 +312,20 @@ watched by the OAP server. Once it is changed manually or through a 3rd party to
 `user/password` in `bydb.yml` are overridden. The gRPC connection is not re-established, so rotating the credentials
 does not interrupt in-flight queries or writes.
 
-The user and password must either both be set or both be absent. A file that provides only one of them is rejected
-with an error log, and the credentials already in use are kept.
+Whatever the file contains is applied, including a file that carries only one of the two entries, or none. This is
+deliberate: a mistake in the file then shows up at the next request instead of being quietly refused, which would
+leave the previous credentials working and the mistake unnoticed until the OAP is next restarted.
+
+A username and a password are only ever sent together, so an incomplete file means requests go out with no
+credentials at all and BanyanDB answers them with `UNAUTHENTICATED` — it never authenticates as the named user with
+the wrong password. The OAP logs an error naming the file when it applies an incomplete pair:
+
+```text
+Applied incomplete credentials from /etc/skywalking/bydb-secrets.properties: requests are now sent without
+authentication, ...
+```
+
+Writing a complete pair back to the file restores service without a restart.
 
 Only the credentials are reloaded this way. For the TLS trust CA, see
 [Reloading The TLS Trust CA](#reloading-the-tls-trust-ca).

@@ -244,6 +244,10 @@ public class BanyanDBStorageProvider extends ModuleProvider {
      * tool rewrites it. Only the credentials come from this file; the TLS trust CA is watched separately by
      * {@link #rebuildChannelOnTrustCAChange()}, because it needs a channel rebuild rather than a field swap.
      *
+     * <p>Whatever the file contains is applied, including a half-populated or empty one. That is deliberate:
+     * a bad file then fails visibly at the next request rather than being quietly refused, which would leave
+     * the working credentials in place and the mistake undiscovered until the next restart.
+     *
      * <p>Called before {@link #client} is created so that the monitor's initial synchronous check has
      * already populated the config by the time the client reads it.
      */
@@ -261,12 +265,6 @@ public class BanyanDBStorageProvider extends ModuleProvider {
             secrets.load(new ByteArrayInputStream(secretsFileContent));
             final String user = secrets.getProperty("user", null);
             final String password = secrets.getProperty("password", null);
-            if (StringUtil.isNotBlank(user) != StringUtil.isNotBlank(password)) {
-                log.error(
-                    "Rejecting the credentials in {}: user and password must either both be set or both be absent. "
-                        + "Keeping the credentials currently in use.", secretsFile);
-                return;
-            }
             config.getGlobal().setUser(user);
             config.getGlobal().setPassword(password);
 
@@ -274,7 +272,16 @@ public class BanyanDBStorageProvider extends ModuleProvider {
                 // AuthInterceptor reads the credentials per RPC, so this applies to the next call without
                 // reconnecting. Before the client exists the config above is all that is needed.
                 client.client.updateCredentials(user, password);
-                log.info("Applied the BanyanDB credentials reloaded from {}, user={}", secretsFile, user);
+                if (StringUtil.isNotBlank(user) && StringUtil.isNotBlank(password)) {
+                    log.info("Applied the BanyanDB credentials reloaded from {}, user={}", secretsFile, user);
+                } else {
+                    // Whatever the file says is applied, so that a mistake in it surfaces instead of being
+                    // masked by credentials that silently keep working.
+                    log.error(
+                        "Applied incomplete credentials from {}: requests are now sent without authentication, "
+                            + "because a username and a password are only ever attached together. BanyanDB "
+                            + "answers them with UNAUTHENTICATED if it requires authentication.", secretsFile);
+                }
             }
         }, secretsFile).start();
     }

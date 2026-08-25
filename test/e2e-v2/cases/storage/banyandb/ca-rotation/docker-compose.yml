@@ -1,0 +1,84 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  banyandb:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    # Reuses the certificate set of the BanyanDB TLS case rather than committing a second copy of
+    # the same key material. Those certificates are generated with a 100-year validity.
+    volumes:
+      - ../tls/tls:/tls
+    command: standalone --tls=true --key-file=/tls/cert.key --cert-file=/tls/cert.crt --http-grpc-cert-file=/tls/ca.crt
+    networks:
+      - e2e
+
+  oap:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: oap
+    volumes:
+      - ../tls/tls:/tls-src:ro
+      # A self-signed CA unrelated to the server's certificate. Rotating the trust file to this and
+      # back is what gives the reload a behavioural signal rather than only a log line.
+      - ./wrong-ca.crt:/tls-src-wrong/wrong-ca.crt:ro
+    # The trust file must already exist when the OAP starts, or TLS is never enabled at all
+    # (DefaultChannelFactory only switches to TLS when the CA file is present). It must also be
+    # writable during the test without writing through a bind mount back into the repository. So it
+    # is seeded into /tmp from the read-only mount, and the normal entrypoint then takes over.
+    entrypoint:
+      - bash
+      - -c
+      - "cp /tls-src/cert.crt /tmp/bydb-ca.crt && exec bash docker-entrypoint.sh"
+    environment:
+      # storage-cases.yaml queries the admin server on 17128 for the inspect endpoints.
+      SW_ADMIN_SERVER: default
+      SW_INSPECT: default
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH: /tmp/bydb-ca.crt
+    ports:
+      - 12800
+      - 17128
+    depends_on:
+      banyandb:
+        condition: service_healthy
+
+  provider:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: provider
+    ports:
+      - 9090
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../../script/docker-compose/base-compose.yml
+      service: consumer
+    ports:
+      - 9092
+    depends_on:
+      oap:
+        condition: service_healthy
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:

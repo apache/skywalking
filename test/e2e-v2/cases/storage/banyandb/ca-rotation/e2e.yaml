@@ -1,0 +1,105 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Covers reloading the BanyanDB TLS trust CA in a running OAP. The trust material is resolved when
+# the gRPC channel is built, so the reload has to replace the channel.
+#
+# The rotation deliberately goes to a CA that does NOT validate the server and then back again, so
+# the reload is proven by behaviour rather than only by a log line: while the unrelated CA is in the
+# trust file the handshake fails PKIX validation, and it only recovers once material that validates
+# the server is rotated back in. A reload that silently did nothing would leave the connection
+# working throughout, and both assertions would fail.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+trigger:
+  action: http
+  interval: 5s
+  times: -1
+  url: http://${consumer_host}:${consumer_9092}/users
+  method: POST
+  body: '{"id":"123","name":"skywalking"}'
+  headers:
+    "Content-Type": "application/json"
+
+verify:
+  retry:
+    count: 20
+    interval: 10s
+  cases:
+    # A cheap read over the TLS connection the OAP established with the seeded trust file, so that a
+    # failure after the rotation is attributable to the rotation rather than to a stack that was
+    # never working.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
+      expected: ../../expected/service.yml
+
+    # Rotate the trust file to a CA unrelated to the server's certificate. The rebuilt channel then
+    # trusts the wrong anchor, so the handshake fails PKIX validation -- which is what shows the
+    # rotated material really reached the wire, and not merely that a log line was written.
+    #
+    # Each retry rewrites the same content, which the monitor compares and ignores, so only the
+    # first write is a change.
+    #
+    # The container is found by its compose service label rather than through `docker compose`,
+    # because the project name is chosen by the runner: "skywalking_e2e" locally, but $GITHUB_RUN_ID
+    # in CI. A `docker compose -f <file>` invocation here would default to the compose file's
+    # directory name instead and match nothing, in either environment.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        docker exec $oap bash -c 'cat /tls-src-wrong/wrong-ca.crt > /tmp/bydb-ca.crt'
+        docker logs $oap 2>&1 \
+          | grep -Fq "Rebuilt the BanyanDB channel to reload the TLS trust CA from /tmp/bydb-ca.crt" \
+          && docker logs $oap 2>&1 | grep -Fq "PKIX path building failed" \
+          && echo ca-rejected
+      expected: expected/ca-rejected.yml
+
+    # Rotate back to material that validates the server. A second rebuild has to be logged, which is
+    # counted rather than matched because the message is identical for every rotation.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        docker exec $oap bash -c 'cat /tls-src/cert.crt > /tmp/bydb-ca.crt'
+        [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 2 ] \
+          && echo ca-restored
+      expected: expected/ca-restored.yml
+
+    # Every storage assertion, over the channel that recovered. This is what proves the second
+    # rotation restored a working connection rather than just logging another rebuild.
+    - includes:
+        - ../../storage-cases.yaml
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/banyandb-ca-rotation
+    items:
+      - service: banyandb
+        paths:
+          - /tmp/trace/
+          - /tmp/stream/
+          - /tmp/measure/
+          - /tmp/property/
+          - /tmp/schema-property/
