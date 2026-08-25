@@ -39,4 +39,5 @@ public class SegmentParserServiceImpl implements ISegmentParserService {
         final TraceAnalyzer traceAnalyzer = new TraceAnalyzer(moduleManager, listenerManager, config);
         traceAnalyzer.doAnalysis(segment);
     }
+
 }

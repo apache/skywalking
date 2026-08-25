@@ -68,7 +68,7 @@ All accepted and proposed SWIPs can be found in [here](https://github.com/apache
 
 ## Known SWIPs
 
-Next SWIP Number: 16
+Next SWIP Number: 17
 
 ### Proposed SWIPs
 
@@ -78,6 +78,7 @@ Next SWIP Number: 16
 
 ### Accepted SWIPs
 
+- [SWIP-16 Support LLM-as-Judge on Top of GenAI Observability](SWIP-16.md)
 - [SWIP-12 Support WeChat & Alipay Mini Program Monitoring](SWIP-12.md)
 - [SWIP-11 Support iOS App Monitoring via OpenTelemetry](SWIP-11.md)
 - [SWIP-10 Support Envoy AI Gateway Observability](SWIP-10/SWIP.md)

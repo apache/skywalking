@@ -164,6 +164,8 @@ catalog:
             catalog:
               - name: "Virtual GenAI"
                 path: "/en/setup/service-agent/virtual-genai"
+              - name: "AI Evaluation"
+                path: "/en/setup/backend/ai-evaluation"
               - name: "Envoy AI Gateway"
                 path: "/en/setup/backend/backend-envoy-ai-gateway-monitoring"
           - name: "Self Observability"

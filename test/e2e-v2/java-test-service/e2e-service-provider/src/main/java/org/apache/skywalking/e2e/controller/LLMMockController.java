@@ -103,6 +103,37 @@ public class LLMMockController {
         writer.flush();
     }
 
+    @PostMapping(value = "/evaluation/v1/chat/completions", produces = "application/json")
+    public String evaluationCompletions() {
+        return "{" +
+                "\"id\":\"chatcmpl-evaluation-mock-001\"," +
+                "\"object\":\"chat.completion\"," +
+                "\"created\":1774540026," +
+                "\"model\":\"e2e-judge\", " +
+                "\"choices\":[{" +
+                "\"index\":0," +
+                "\"message\":{" +
+                "\"role\":\"assistant\", " +
+                "\"content\":\"{" +
+                "\\\"Faithfulness\\\":{" +
+                "\\\"value\\\":0.8," +
+                "\\\"reason\\\":\\\"The response is grounded.\\\"" +
+                "}," +
+                "\\\"TaskCompletion\\\":{" +
+                "\\\"value\\\":true," +
+                "\\\"reason\\\":\\\"The task was completed.\\\"" +
+                "}}\"" +
+                "}," +
+                "\"finish_reason\":\"stop\"" +
+                "}]," +
+                "\"usage\":{" +
+                "\"prompt_tokens\":10," +
+                "\"completion_tokens\":10," +
+                "\"total_tokens\":20" +
+                "}" +
+                "}";
+    }
+
     @PostMapping(value = "/otlp/v1/chat/completions", produces = "application/json")
     public Object otlpCompletions() {
         return "{" +

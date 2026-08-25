@@ -281,7 +281,7 @@ public class BanyanDBConverter {
 
     private static Serializable<BanyandbModel.TagValue> buildTag(Object value, final Class<?> clazz) {
         if (int.class.equals(clazz) || Integer.class.equals(clazz)) {
-            return TagAndValue.longTagValue(((Number) value).longValue());
+            return TagAndValue.longTagValue(value == null ? null : ((Number) value).longValue());
         } else if (Long.class.equals(clazz) || long.class.equals(clazz)) {
             return TagAndValue.longTagValue((Long) value);
         } else if (String.class.equals(clazz)) {

@@ -88,6 +88,10 @@ public class GenAIModelMatcher {
         public GenAIPricingConfig.Model getModelConfig() {
             return modelConfig;
         }
+
+        public boolean hasMatchedProvider() {
+            return !UNKNOWN.equals(provider);
+        }
     }
 
     public static GenAIModelMatcher build(GenAIPricingConfig config) {

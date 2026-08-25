@@ -23,6 +23,7 @@ import java.io.IOException;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
+import org.apache.skywalking.oap.server.core.query.GenAIEvaluationRecordQueryService;
 import org.apache.skywalking.oap.server.core.rule.ext.RuleSetMerger;
 import org.apache.skywalking.oap.server.core.analysis.DisableRegister;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -365,6 +366,9 @@ public class CoreModuleProvider extends ModuleProvider {
             ContinuousProfilingMutationService.class, new ContinuousProfilingMutationService(getManager()));
         this.registerServiceImplementation(
             ContinuousProfilingQueryService.class, new ContinuousProfilingQueryService(getManager()));
+
+        this.registerServiceImplementation(
+                GenAIEvaluationRecordQueryService.class, new GenAIEvaluationRecordQueryService(getManager()));
 
         this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 

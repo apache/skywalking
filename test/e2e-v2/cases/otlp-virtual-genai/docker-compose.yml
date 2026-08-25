@@ -21,6 +21,13 @@ services:
     environment:
       SW_QUERY_ZIPKIN: default
       SW_RECEIVER_ZIPKIN: default
+      SW_AI_EVALUATION: default
+      SW_AI_EVALUATION_SAMPLE_RATE: 1000000
+      AI_EVALUATION_ENDPOINT: http://provider:9090/llm/evaluation/v1/chat/completions
+      AI_EVALUATION_MODEL: e2e-judge
+      AI_EVALUATION_API_KEY: e2e-api-key
+    volumes:
+      - ../virtual-genai/ai-evaluation.yml:/skywalking/config/ai-evaluation.yml
     ports:
       - "12800:12800"
       - "11800:11800"
