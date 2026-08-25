@@ -40,6 +40,7 @@ import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfili
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingScheduleDAO;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IMetadataQueryDAO;
@@ -81,6 +82,7 @@ public class StorageModule extends ModuleDefine {
             IAlarmQueryDAO.class,
             IRecordsQueryDAO.class,
             ILogQueryDAO.class,
+            IGenAIEvaluationRecordQueryDAO.class,
             IProfileTaskQueryDAO.class,
             IProfileTaskLogQueryDAO.class,
             IProfileThreadSnapshotQueryDAO.class,

@@ -65,7 +65,7 @@ public class SpanListenerManager implements Service {
      * when all modules are fully started.
      *
      * <p>Listeners whose {@link SpanListener#requiredModules()} are not all loaded
-     * are skipped with an info log.
+     * are skipped and logged at debug level.
      */
     private void ensureInitialized() {
         if (initialized) {
@@ -81,7 +81,7 @@ public class SpanListenerManager implements Service {
                 boolean satisfied = true;
                 for (final String moduleName : required) {
                     if (!moduleManager.has(moduleName)) {
-                        log.info("SpanListener {} skipped: required module {} is not loaded",
+                        log.debug("SpanListener {} skipped: required module {} is not loaded",
                             listener.getClass().getName(), moduleName);
                         satisfied = false;
                         break;

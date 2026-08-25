@@ -26,5 +26,9 @@ import org.apache.skywalking.oap.server.analyzer.provider.AnalyzerModuleConfig;
  * have its own creation factory.
  */
 public interface AnalysisListenerFactory {
+    default String[] requiredModules() {
+        return new String[0];
+    }
+
     AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config);
 }
