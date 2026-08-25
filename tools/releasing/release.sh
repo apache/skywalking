@@ -123,7 +123,16 @@ prepare_next_version() {
     echo "Updating the menu.yml file..."
     local new_menu_file=$(mktemp)
     local major_version=$(echo ${RELEASE_VERSION} | cut -d. -f1)
-    yq '(.catalog[] | select(.name=="Changelog") | .catalog[] | select(.name=="'"${major_version}.x Releases"'") | .catalog) |= [{ "name": "'"${RELEASE_VERSION}"'", "path": "/en/changes/changes-'${RELEASE_VERSION}'" }] + .' docs/menu.yml > ${new_menu_file}
+    local release_section="${major_version}.x Releases"
+
+    # The first release of a major line has no "N.x Releases" section yet, and yq's `|=`
+    # on a selector that matches nothing is a silent no-op, so create the section first.
+    if [ "$(yq '[.catalog[] | select(.name=="Changelog") | .catalog[] | select(.name=="'"${release_section}"'")] | length' docs/menu.yml)" = "0" ]; then
+        echo "Creating the \"${release_section}\" section in menu.yml..."
+        yq -i '(.catalog[] | select(.name=="Changelog") | .catalog) |= [.[] | select(.name == "Current Version")] + [{ "name": "'"${release_section}"'", "catalog": [] }] + [.[] | select(.name != "Current Version")]' docs/menu.yml
+    fi
+
+    yq '(.catalog[] | select(.name=="Changelog") | .catalog[] | select(.name=="'"${release_section}"'") | .catalog) |= [{ "name": "'"${RELEASE_VERSION}"'", "path": "/en/changes/changes-'${RELEASE_VERSION}'" }] + .' docs/menu.yml > ${new_menu_file}
     mv ${new_menu_file} docs/menu.yml
     git add docs
     git commit -m "Update the menu.yml file"

@@ -490,6 +490,10 @@ catalog:
     catalog:
       - name: "Current Version"
         path: "/en/changes/changes"
+      - name: 11.x Releases
+        catalog:
+          - name: 11.0.0
+            path: /en/changes/changes-11.0.0
       - name: "10.x Releases"
         catalog:
           - name: 10.4.0

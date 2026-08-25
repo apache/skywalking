@@ -55,7 +55,7 @@ global:
   namespace: ${SW_NAMESPACE:"sw"}
   # The compatible server API versions of BanyanDB.
   # The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
-  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.10"}
+  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.11"}
 
 groups:
   # The group settings of record.
