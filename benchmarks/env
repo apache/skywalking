@@ -37,7 +37,7 @@ SW_UI_IMAGE_TAG="latest"
 # BanyanDB
 ##############################################################################
 SW_BANYANDB_IMAGE_REPO="ghcr.io/apache/skywalking-banyandb"
-SW_BANYANDB_IMAGE_TAG="208982aaa11092bc38018a9e1b24eda67e829312"
+SW_BANYANDB_IMAGE_TAG="3b83e18fb0481d02e44eaa5df137fcf7b000754b"
 
 ##############################################################################
 # SkyWalking Helm Chart
