@@ -61,7 +61,11 @@ global:
   user: ${SW_STORAGE_BANYANDB_USER:""}
   password: ${SW_STORAGE_BANYANDB_PASSWORD:""}
   # If the BanyanDB server is configured with TLS, configure the TLS cert file path and enable TLS connection.
+  # This file is watched: rotating it rebuilds the gRPC channel so the new CA is used, without restarting the OAP.
   sslTrustCAPath: ${SW_STORAGE_BANYANDB_SSL_TRUST_CA_PATH:""}
+  # Secrets management file in the properties format, including the user and password, which are managed by a 3rd party tool.
+  # When set, it overrides the user/password above, and a rotation of the file is applied without restarting the OAP.
+  secretsManagementFile: ${SW_STORAGE_BANYANDB_SECRETS_MANAGEMENT_FILE:""}
   # Cleanup TopN rules in BanyanDB server that are not configured in the bydb-topn.yml config.
   cleanupUnusedTopNRules: ${SW_STORAGE_BANYANDB_CLEANUP_UNUSED_TOPN_RULES:true}
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".
@@ -293,6 +297,94 @@ groups:
     replicas: ${SW_STORAGE_BANYANDB_PROPERTY_REPLICAS:0}
 
 ```
+
+### Secrets Management File Of BanyanDB Authentication
+The value of `secretsManagementFile` should point to the absolute path of the secrets management file.
+The file includes the user and password of the BanyanDB server in the properties format.
+```properties
+user=xxx
+password=yyy
+```
+
+The difference from setting `user` and `password` directly in `bydb.yml` is that the **Secrets Management File** is
+watched by the OAP server. Once it is changed manually or through a 3rd party tool, such as
+[Vault](https://github.com/hashicorp/vault), the new credentials are attached to the following requests, and the
+`user/password` in `bydb.yml` are overridden. The gRPC connection is not re-established, so rotating the credentials
+does not interrupt in-flight queries or writes.
+
+Whatever the file contains is applied, including a file that carries only one of the two entries, or none. This is
+deliberate: a mistake in the file then shows up at the next request instead of being quietly refused, which would
+leave the previous credentials working and the mistake unnoticed until the OAP is next restarted.
+
+A username and a password are only ever sent together, so an incomplete file is applied as no credentials at all:
+requests go out unauthenticated and BanyanDB answers them with `UNAUTHENTICATED`, and it never authenticates as the
+named user with the wrong password. Both halves are cleared together, so a file that is only briefly incomplete
+while a 3rd party tool rewrites it cannot stop the OAP from starting — it behaves the same whether it is read at
+boot or while the OAP is running. Note this also clears any `user`/`password` set in `bydb.yml`, since the file
+overrides them. The OAP logs an error naming the file when it applies an incomplete pair:
+
+```text
+Applied incomplete credentials from /etc/skywalking/bydb-secrets.properties: requests are now sent without
+authentication, ...
+```
+
+Writing a complete pair back to the file restores service without a restart.
+
+Only the credentials are reloaded this way. For the TLS trust CA, see
+[Reloading The TLS Trust CA](#reloading-the-tls-trust-ca).
+
+### Reloading The TLS Trust CA
+
+The file at `sslTrustCAPath` is watched by the OAP server, separately from `secretsManagementFile`. Overwriting it —
+manually, or through a tool such as [cert-manager](https://cert-manager.io) — rebuilds the gRPC channel so that the
+new CA is used. No restart is needed.
+
+The trust CA cannot be swapped in place the way the credentials can, because it is resolved when the channel is
+built rather than per request. Rebuilding the channel is therefore what a rotation costs, and it behaves as follows:
+
+- The change is detected within 10 seconds, and the replacement channel is created before the old one is released,
+  so a failure to build it leaves the current channel serving with the previous CA. That case is logged as an error.
+- Requests already in flight finish on the old channel; new requests go to the replacement. The replacement is
+  **not** verified before it is swapped in: a gRPC channel connects lazily, so the TLS handshake only happens on
+  the first request that uses it. A file that parses but does not validate the server therefore replaces a healthy
+  connection, and queries and writes start failing until material that does validate is written back. Rotating to
+  a CA the server's certificate chains to is interruption-free; rotating to the wrong one is not, and recovers
+  only on the next rotation.
+
+  To rotate with no interruption at all, write a PEM holding both the current and the new CA, confirm the OAP is
+  healthy, and only then let the server switch and drop the old CA at a later rotation. A certificate collection
+  in one PEM file is supported.
+- The replacement picks a target from `targets` again, so with more than one BanyanDB address configured the OAP may
+  end up connected to a different node after a rotation. This is harmless, but worth knowing when correlating a
+  rotation with a change of peer in the logs.
+
+A successful rotation is logged as:
+
+```text
+Rebuilt the BanyanDB channel to reload the TLS trust CA from /etc/skywalking/bydb-ca.crt
+```
+
+Two limitations to keep in mind:
+
+- The file is only watched when `sslTrustCAPath` is set at startup. Populating a path that was empty when the OAP
+  booted does not enable TLS at runtime; that still requires a restart.
+- TLS is enabled by the presence of the file, so a path that does not point to one would leave the connection on
+  plaintext. Rather than degrade silently, building the channel fails:
+
+  ```text
+  BanyanDB TLS trust CA path /etc/skywalking/bydb-ca.crt does not point to a file. Fix the path, or unset
+  sslTrustCAPath to connect without TLS.
+  ```
+
+  At startup that stops the OAP. If the file disappears while it is running, the rebuild fails the same way and
+  is logged, and the channel already in use keeps serving with the trust material it was built with.
+- Only the trust CA is configurable. There is no client-certificate (mutual TLS) option for BanyanDB, so there is
+  no client keystore to reload.
+
+Independently of this watch, the channel is also rebuilt in reaction to failures: a request that fails with a
+network-class gRPC status (`UNAVAILABLE`, `UNKNOWN`, `RESOURCE_EXHAUSTED`, `PERMISSION_DENIED`, `UNAUTHENTICATED`)
+flags the channel, and it is replaced within 30 seconds if it is still not `READY`. That is the client's failover
+path across `targets`, and it re-reads the CA as a side effect.
 
 ### Trace retention pipeline
 

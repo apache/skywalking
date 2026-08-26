@@ -97,6 +97,7 @@ public class BanyanDBConfigDumpExtension implements ConfigDumpExtension {
         dump.put(p + ".user", Strings.nullToEmpty(g.getUser()));
         dump.put(p + ".password", Strings.nullToEmpty(g.getPassword()));
         dump.put(p + ".sslTrustCAPath", Strings.nullToEmpty(g.getSslTrustCAPath()));
+        dump.put(p + ".secretsManagementFile", Strings.nullToEmpty(g.getSecretsManagementFile()));
     }
 
     private void flattenGroup(final String p, final GroupResource group, final Map<String, String> dump) {

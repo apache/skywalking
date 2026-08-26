@@ -368,6 +368,10 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/e2e.yaml
           - name: BanyanDB TLS
             config: test/e2e-v2/cases/storage/banyandb/tls/e2e.yaml
+          - name: BanyanDB Auth Rotation
+            config: test/e2e-v2/cases/storage/banyandb/auth-rotation/e2e.yaml
+          - name: BanyanDB CA Rotation
+            config: test/e2e-v2/cases/storage/banyandb/ca-rotation/e2e.yaml
           # Trace retention pipeline. Each pair is a controlled drop/keep experiment on one
           # schema: identical data and thresholds, differing only by a keepTagRules entry, so
           # a regression in either direction is attributable. They need the BanyanDB

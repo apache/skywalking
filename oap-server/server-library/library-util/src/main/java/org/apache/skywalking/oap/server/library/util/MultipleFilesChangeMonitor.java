@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -48,14 +49,24 @@ public class MultipleFilesChangeMonitor {
     private static ScheduledFuture<?> FILE_MONITOR_TASK_SCHEDULER;
     private static ReentrantLock SCHEDULER_CHANGE_LOCK = new ReentrantLock();
     /**
-     * The list contains all monitors.
+     * The list contains all monitors. Copy-on-write because {@link #scanChanges()} iterates it from the scheduler
+     * thread without holding {@link #SCHEDULER_CHANGE_LOCK}, while {@link #start()} and {@link #stop()} mutate it
+     * from whichever thread owns the monitor — and monitors are started well after the scheduler begins ticking
+     * (the per-server TLS contexts, for instance). A {@code ConcurrentModificationException} from the iterator
+     * would escape {@code scanChanges()} past the per-monitor catch, and an uncaught exception cancels a
+     * {@code scheduleAtFixedRate} task for good, silently ending all file monitoring in the JVM.
      */
-    private static List<MultipleFilesChangeMonitor> MONITOR_INSTANCES = new ArrayList<>();
+    private static final List<MultipleFilesChangeMonitor> MONITOR_INSTANCES = new CopyOnWriteArrayList<>();
+    private static final long NEVER_CHECKED = Long.MIN_VALUE;
 
     /**
-     * The timestamp when last time do status checked.
+     * When the last status check ran, read from {@link System#nanoTime()} rather than the wall clock: this is an
+     * elapsed-time throttle, and a backward wall-clock step (NTP correction, VM restore) would otherwise make the
+     * delta negative and suppress every watch until real time caught up. {@link #NEVER_CHECKED} marks the first
+     * run, because a nanoTime origin is arbitrary and may be negative. Volatile because {@link #start()} runs the
+     * first check on the caller's thread, while every later check runs on the shared scheduler thread.
      */
-    private long lastCheckTimestamp = 0;
+    private volatile long lastCheckNanos = NEVER_CHECKED;
     /**
      * The period of watching thread checking the file status. Unit is the second.
      */
@@ -92,10 +103,14 @@ public class MultipleFilesChangeMonitor {
      * Check file changed status, if so, send the notification.
      */
     private void checkAndNotify() {
-        if (System.currentTimeMillis() - lastCheckTimestamp < watchingPeriodInSec * 1000) {
+        final long now = System.nanoTime();
+        if (lastCheckNanos != NEVER_CHECKED && now - lastCheckNanos < TimeUnit.SECONDS.toNanos(watchingPeriodInSec)) {
             // Don't reach the period threshold, ignore this check.
             return;
         }
+        // Stamped before the files are read, so the period measures the gap between checks starting; a slow
+        // notification callback then delays the work it does itself, not every following check.
+        lastCheckNanos = now;
 
         boolean isChanged = false;
         for (final WatchedFile watchedFile : watchedFiles) {
@@ -122,7 +137,7 @@ public class MultipleFilesChangeMonitor {
             try {
                 group.checkAndNotify();
             } catch (Throwable t) {
-                log.error("Files change detection failure, gourp = ", t);
+                log.error("Files change detection failure, group = {}", group, t);
             }
         });
     }
