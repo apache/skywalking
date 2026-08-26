@@ -25,6 +25,7 @@ import io.grpc.netty.NettyChannelBuilder;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.util.internal.PlatformDependent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -33,6 +34,7 @@ import java.net.UnknownHostException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.banyandb.v1.client.Options;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,8 +48,17 @@ public class DefaultChannelFactory implements ChannelFactory {
                 .maxInboundMessageSize(options.getMaxInboundMessageSize())
                 .usePlaintext();
 
-        File caFile = new File(options.getSslTrustCAPath());
+        final String trustCAPath = options.getSslTrustCAPath();
+        File caFile = new File(trustCAPath);
         boolean isCAFileExist = caFile.exists() && caFile.isFile();
+        if (StringUtil.isNotBlank(trustCAPath) && !isCAFileExist) {
+            // Fail rather than quietly leaving the channel on the plaintext negotiation type set above: TLS is
+            // switched on by the presence of this file, so a mistyped or deleted path would otherwise be
+            // indistinguishable from TLS never having been configured.
+            throw new FileNotFoundException(
+                "BanyanDB TLS trust CA path " + trustCAPath + " does not point to a file. Fix the path, or "
+                    + "unset sslTrustCAPath to connect without TLS.");
+        }
         if (options.isForceTLS() || isCAFileExist) {
             SslContextBuilder builder = GrpcSslContexts.forClient();
 

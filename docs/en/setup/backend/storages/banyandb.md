@@ -357,6 +357,16 @@ Two limitations to keep in mind:
 
 - The file is only watched when `sslTrustCAPath` is set at startup. Populating a path that was empty when the OAP
   booted does not enable TLS at runtime; that still requires a restart.
+- TLS is enabled by the presence of the file, so a path that does not point to one would leave the connection on
+  plaintext. Rather than degrade silently, building the channel fails:
+
+  ```text
+  BanyanDB TLS trust CA path /etc/skywalking/bydb-ca.crt does not point to a file. Fix the path, or unset
+  sslTrustCAPath to connect without TLS.
+  ```
+
+  At startup that stops the OAP. If the file disappears while it is running, the rebuild fails the same way and
+  is logged, and the channel already in use keeps serving with the trust material it was built with.
 - Only the trust CA is configurable. There is no client-certificate (mutual TLS) option for BanyanDB, so there is
   no client keystore to reload.
 
