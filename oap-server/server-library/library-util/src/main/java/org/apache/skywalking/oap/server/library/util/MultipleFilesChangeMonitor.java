@@ -57,12 +57,16 @@ public class MultipleFilesChangeMonitor {
      * {@code scheduleAtFixedRate} task for good, silently ending all file monitoring in the JVM.
      */
     private static final List<MultipleFilesChangeMonitor> MONITOR_INSTANCES = new CopyOnWriteArrayList<>();
+    private static final long NEVER_CHECKED = Long.MIN_VALUE;
 
     /**
-     * The timestamp when last time do status checked. Volatile because {@link #start()} runs the first check on the
-     * caller's thread, while every later check runs on the shared scheduler thread.
+     * When the last status check ran, read from {@link System#nanoTime()} rather than the wall clock: this is an
+     * elapsed-time throttle, and a backward wall-clock step (NTP correction, VM restore) would otherwise make the
+     * delta negative and suppress every watch until real time caught up. {@link #NEVER_CHECKED} marks the first
+     * run, because a nanoTime origin is arbitrary and may be negative. Volatile because {@link #start()} runs the
+     * first check on the caller's thread, while every later check runs on the shared scheduler thread.
      */
-    private volatile long lastCheckTimestamp = 0;
+    private volatile long lastCheckNanos = NEVER_CHECKED;
     /**
      * The period of watching thread checking the file status. Unit is the second.
      */
@@ -99,14 +103,14 @@ public class MultipleFilesChangeMonitor {
      * Check file changed status, if so, send the notification.
      */
     private void checkAndNotify() {
-        final long now = System.currentTimeMillis();
-        if (now - lastCheckTimestamp < watchingPeriodInSec * 1000) {
+        final long now = System.nanoTime();
+        if (lastCheckNanos != NEVER_CHECKED && now - lastCheckNanos < TimeUnit.SECONDS.toNanos(watchingPeriodInSec)) {
             // Don't reach the period threshold, ignore this check.
             return;
         }
         // Stamped before the files are read, so the period measures the gap between checks starting; a slow
         // notification callback then delays the work it does itself, not every following check.
-        lastCheckTimestamp = now;
+        lastCheckNanos = now;
 
         boolean isChanged = false;
         for (final WatchedFile watchedFile : watchedFiles) {

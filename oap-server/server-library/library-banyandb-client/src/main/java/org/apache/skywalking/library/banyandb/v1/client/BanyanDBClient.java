@@ -160,7 +160,7 @@ public class BanyanDBClient implements Closeable {
      * Created up-front rather than in {@link #connect()} so that {@link #updateCredentials} works
      * before the first connection and survives every channel swap {@code ChannelManager} performs.
      */
-    private final AuthInterceptor authInterceptor;
+    private final AuthInterceptor authInterceptor = new AuthInterceptor(null, null);
     /**
      * The manager behind {@link #channel}, kept so {@link #rebuildChannel()} can reload the TLS material.
      * Null until {@link #connect()} runs, and for the test-only channel injection.
@@ -190,7 +190,6 @@ public class BanyanDBClient implements Closeable {
         this.targets = tt;
         this.options = options;
         this.connectionEstablishLock = new ReentrantLock();
-        this.authInterceptor = new AuthInterceptor(options.getUsername(), options.getPassword());
     }
 
     /**
@@ -209,6 +208,10 @@ public class BanyanDBClient implements Closeable {
                 ChannelManager rawChannel = ChannelManager.create(this.options.buildChannelManagerSettings(),
                                                                   new DefaultChannelFactory(addresses, this.options));
                 this.channelManager = rawChannel;
+                // Seeded here rather than in the constructor, so that mutating the supplied Options
+                // between construction and connect() still takes effect, as it does for every other option.
+                // A rotation that arrived first is not lost: updateCredentials writes Options too.
+                authInterceptor.updateCredentials(options.getUsername(), options.getPassword());
                 // The auth interceptor is always installed: it sends no credentials until both a
                 // username and a password are set, so they can be rotated in without a reconnect.
                 Channel interceptedChannel = ClientInterceptors.intercept(rawChannel, authInterceptor);
@@ -236,6 +239,10 @@ public class BanyanDBClient implements Closeable {
      * @param password the new password; when either half is blank no credentials are sent at all
      */
     public void updateCredentials(String username, String password) {
+        // Options is written too, so a rotation that lands before connect() is not overwritten when
+        // connect() seeds the interceptor from it.
+        options.setUsername(username);
+        options.setPassword(password);
         authInterceptor.updateCredentials(username, password);
     }
 
@@ -1277,19 +1284,32 @@ public class BanyanDBClient implements Closeable {
     @Override
     public void close() throws IOException {
         connectionEstablishLock.lock();
-        if (!(this.channel instanceof ManagedChannel)) {
-            return;
-        }
-        final ManagedChannel managedChannel = (ManagedChannel) this.channel;
         try {
-            if (isConnected) {
-                managedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-                isConnected = false;
+            if (!isConnected) {
+                return;
             }
-        } catch (InterruptedException interruptedException) {
-            Thread.currentThread().interrupt();
-            log.warn("fail to wait for channel termination, shutdown now!", interruptedException);
-            managedChannel.shutdownNow();
+            // The channel the stubs were built on is an interceptor wrapper rather than a ManagedChannel,
+            // so shutting it down has to go through the manager that owns the transport and the refresh
+            // scheduler. The raw channel is only used by the test-only connect(Channel) entry point.
+            final ManagedChannel managedChannel;
+            if (channelManager != null) {
+                managedChannel = channelManager;
+            } else if (this.channel instanceof ManagedChannel) {
+                managedChannel = (ManagedChannel) this.channel;
+            } else {
+                managedChannel = null;
+            }
+            if (managedChannel == null) {
+                isConnected = false;
+                return;
+            }
+            try {
+                managedChannel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException interruptedException) {
+                Thread.currentThread().interrupt();
+                log.warn("fail to wait for channel termination, shutdown now!", interruptedException);
+                managedChannel.shutdownNow();
+            }
             isConnected = false;
         } finally {
             connectionEstablishLock.unlock();

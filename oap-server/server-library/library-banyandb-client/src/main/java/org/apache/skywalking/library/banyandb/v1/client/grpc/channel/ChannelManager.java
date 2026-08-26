@@ -54,6 +54,11 @@ public class ChannelManager extends ManagedChannel {
     private final ScheduledExecutorService executor;
     @VisibleForTesting
     final AtomicReference<Entry> entryRef = new AtomicReference<>();
+    /**
+     * Set once {@link #shutdown()} or {@link #shutdownNow()} has run, so that a rebuild racing a shutdown
+     * cannot publish a live transport after the scheduler has been stopped.
+     */
+    private volatile boolean terminated = false;
 
     public static ChannelManager create(ChannelManagerSettings settings, ChannelFactory channelFactory)
             throws IOException {
@@ -114,12 +119,18 @@ public class ChannelManager extends ManagedChannel {
      * @throws IOException if the replacement channel cannot be created.
      */
     public synchronized void rebuild() throws IOException {
+        if (terminated) {
+            // The executor is already stopped; publishing a fresh transport here would leak it and break
+            // ManagedChannel's terminal-state contract.
+            return;
+        }
         final Entry replacedEntry = entryRef.getAndSet(new Entry(this.channelFactory.create()));
         replacedEntry.shutdown();
     }
 
     @Override
-    public ManagedChannel shutdown() {
+    public synchronized ManagedChannel shutdown() {
+        terminated = true;
         entryRef.get().channel.shutdown();
         if (executor != null) {
             // shutdownNow will cancel scheduled tasks
@@ -145,7 +156,8 @@ public class ChannelManager extends ManagedChannel {
     }
 
     @Override
-    public ManagedChannel shutdownNow() {
+    public synchronized ManagedChannel shutdownNow() {
+        terminated = true;
         entryRef.get().channel.shutdownNow();
         if (executor != null) {
             executor.shutdownNow();

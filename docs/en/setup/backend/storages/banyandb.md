@@ -316,9 +316,12 @@ Whatever the file contains is applied, including a file that carries only one of
 deliberate: a mistake in the file then shows up at the next request instead of being quietly refused, which would
 leave the previous credentials working and the mistake unnoticed until the OAP is next restarted.
 
-A username and a password are only ever sent together, so an incomplete file means requests go out with no
-credentials at all and BanyanDB answers them with `UNAUTHENTICATED` — it never authenticates as the named user with
-the wrong password. The OAP logs an error naming the file when it applies an incomplete pair:
+A username and a password are only ever sent together, so an incomplete file is applied as no credentials at all:
+requests go out unauthenticated and BanyanDB answers them with `UNAUTHENTICATED`, and it never authenticates as the
+named user with the wrong password. Both halves are cleared together, so a file that is only briefly incomplete
+while a 3rd party tool rewrites it cannot stop the OAP from starting — it behaves the same whether it is read at
+boot or while the OAP is running. Note this also clears any `user`/`password` set in `bydb.yml`, since the file
+overrides them. The OAP logs an error naming the file when it applies an incomplete pair:
 
 ```text
 Applied incomplete credentials from /etc/skywalking/bydb-secrets.properties: requests are now sent without
@@ -341,8 +344,16 @@ built rather than per request. Rebuilding the channel is therefore what a rotati
 
 - The change is detected within 10 seconds, and the replacement channel is created before the old one is released,
   so a failure to build it leaves the current channel serving with the previous CA. That case is logged as an error.
-- Requests already in flight finish on the old channel; new requests go to the replacement. Queries and writes are
-  not interrupted.
+- Requests already in flight finish on the old channel; new requests go to the replacement. The replacement is
+  **not** verified before it is swapped in: a gRPC channel connects lazily, so the TLS handshake only happens on
+  the first request that uses it. A file that parses but does not validate the server therefore replaces a healthy
+  connection, and queries and writes start failing until material that does validate is written back. Rotating to
+  a CA the server's certificate chains to is interruption-free; rotating to the wrong one is not, and recovers
+  only on the next rotation.
+
+  To rotate with no interruption at all, write a PEM holding both the current and the new CA, confirm the OAP is
+  healthy, and only then let the server switch and drop the old CA at a later rotation. A certificate collection
+  in one PEM file is supported.
 - The replacement picks a target from `targets` again, so with more than one BanyanDB address configured the OAP may
   end up connected to a different node after a rotation. This is harmless, but worth knowing when correlating a
   rotation with a change of peer in the logs.

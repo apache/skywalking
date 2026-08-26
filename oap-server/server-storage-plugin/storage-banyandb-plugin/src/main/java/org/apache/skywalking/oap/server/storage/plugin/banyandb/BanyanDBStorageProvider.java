@@ -19,7 +19,9 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -116,7 +118,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 @Slf4j
 public class BanyanDBStorageProvider extends ModuleProvider {
     private BanyanDBStorageConfig config;
-    private BanyanDBStorageClient client;
+    private volatile BanyanDBStorageClient client;
     private ModelInstaller modelInstaller;
 
     @Override
@@ -161,10 +163,14 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         }
         this.registerServiceImplementation(StorageBuilderFactory.class, new StorageBuilderFactory.Default());
 
-        loadAndWatchSecretsManagementFile();
-        rebuildChannelOnTrustCAChange();
+        loadSecretsManagementFile();
 
         this.client = new BanyanDBStorageClient(getManager(), config);
+        // Registered only now: a callback that ran while `client` was still null would apply the file to the
+        // config and return, and the monitor would have cached that content and never deliver it again --
+        // leaving the client on the credentials the constructor above snapshotted.
+        watchSecretsManagementFile();
+        rebuildChannelOnTrustCAChange();
         this.modelInstaller = new BanyanDBIndexInstaller(client, getManager(), this.config);
         // Expose the installer so the runtime-rule reconciler can call isExists() after a
         // hot-apply to verify that DDL landed as expected. Needed
@@ -250,44 +256,74 @@ public class BanyanDBStorageProvider extends ModuleProvider {
      *
      * <p>Whatever the file contains is applied, including a half-populated or empty one. That is deliberate:
      * a bad file then fails visibly at the next request rather than being quietly refused, which would leave
-     * the working credentials in place and the mistake undiscovered until the next restart.
+     * the working credentials in place and the mistake undiscovered until the next restart. A pair that is
+     * only half populated is applied as no credentials at all, so that the boot path and the reload path
+     * treat the same file the same way.
      *
      * <p>Called before {@link #client} is created so that the monitor's initial synchronous check has
      * already populated the config by the time the client reads it.
      */
-    private void loadAndWatchSecretsManagementFile() {
+    private void loadSecretsManagementFile() throws ModuleStartException {
         final String secretsFile = config.getGlobal().getSecretsManagementFile();
         if (StringUtil.isBlank(secretsFile)) {
             return;
         }
-        new MultipleFilesChangeMonitor(10, readableContents -> {
-            final byte[] secretsFileContent = readableContents.get(0);
-            if (secretsFileContent == null) {
-                return;
-            }
-            final Properties secrets = new Properties();
-            secrets.load(new ByteArrayInputStream(secretsFileContent));
-            final String user = secrets.getProperty("user", null);
-            final String password = secrets.getProperty("password", null);
-            config.getGlobal().setUser(user);
-            config.getGlobal().setPassword(password);
+        final File file = new File(secretsFile);
+        if (!file.exists() || !file.isFile()) {
+            // Absent at boot is legitimate: the credentials then come from bydb.yml, and the watcher picks
+            // the file up if a 3rd party tool creates it later.
+            return;
+        }
+        try {
+            applyCredentials(Files.readAllBytes(file.toPath()), secretsFile);
+        } catch (IOException e) {
+            throw new ModuleStartException("Failed to read the secrets management file " + secretsFile, e);
+        }
+    }
 
-            if (client != null) {
-                // AuthInterceptor reads the credentials per RPC, so this applies to the next call without
-                // reconnecting. Before the client exists the config above is all that is needed.
-                client.client.updateCredentials(user, password);
-                if (StringUtil.isNotBlank(user) && StringUtil.isNotBlank(password)) {
-                    log.info("Applied the BanyanDB credentials reloaded from {}, user={}", secretsFile, user);
-                } else {
-                    // Whatever the file says is applied, so that a mistake in it surfaces instead of being
-                    // masked by credentials that silently keep working.
-                    log.error(
-                        "Applied incomplete credentials from {}: requests are now sent without authentication, "
-                            + "because a username and a password are only ever attached together. BanyanDB "
-                            + "answers them with UNAUTHENTICATED if it requires authentication.", secretsFile);
-                }
+    private void watchSecretsManagementFile() {
+        final String secretsFile = config.getGlobal().getSecretsManagementFile();
+        if (StringUtil.isBlank(secretsFile)) {
+            return;
+        }
+        new MultipleFilesChangeMonitor(
+            10, readableContents -> applyCredentials(readableContents.get(0), secretsFile), secretsFile).start();
+    }
+
+    private void applyCredentials(final byte[] secretsFileContent, final String secretsFile) throws IOException {
+        if (secretsFileContent == null) {
+            return;
+        }
+        final Properties secrets = new Properties();
+        secrets.load(new ByteArrayInputStream(secretsFileContent));
+        String user = secrets.getProperty("user", null);
+        String password = secrets.getProperty("password", null);
+        final boolean complete = StringUtil.isNotBlank(user) && StringUtil.isNotBlank(password);
+        if (!complete) {
+            // Normalised to no credentials rather than left half-populated. This callback also runs
+            // before the client exists, and BanyanDBStorageClient refuses to be constructed from a
+            // half-populated pair, so leaving one half set would let a file that is only momentarily
+            // incomplete during a rotation stop the OAP from booting -- while the very same file, written
+            // once it is running, merely degrades to unauthenticated requests.
+            user = null;
+            password = null;
+            log.error(
+                "Applied incomplete credentials from {}: requests are sent without authentication, because "
+                    + "a username and a password are only ever attached together. BanyanDB answers them "
+                    + "with UNAUTHENTICATED if it requires authentication.", secretsFile);
+        }
+        config.getGlobal().setUser(user);
+        config.getGlobal().setPassword(password);
+
+        final BanyanDBStorageClient current = client;
+        if (current != null) {
+            // AuthInterceptor reads the credentials per RPC, so this applies to the next call without
+            // reconnecting. Before the client exists the config above is all that is needed.
+            current.client.updateCredentials(user, password);
+            if (complete) {
+                log.info("Applied the BanyanDB credentials reloaded from {}, user={}", secretsFile, user);
             }
-        }, secretsFile).start();
+        }
     }
 
     /**

@@ -19,11 +19,14 @@
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,6 +50,46 @@ public class BanyanDBSecretsConfigTest {
         assertEquals(
             "/etc/skywalking/bydb-secrets.properties",
             newLoader().loadConfig().getGlobal().getSecretsManagementFile());
+    }
+
+    /**
+     * The secrets watcher runs before the client is created and applies a half-populated file as no
+     * credentials at all. That is only safe while the client tolerates neither half being set, so the two
+     * halves of that contract are pinned here: a file that is momentarily incomplete during a rotation must
+     * not be able to stop the OAP from booting, but a genuinely half-configured bydb.yml still must.
+     */
+    @Test
+    public void shouldAcceptAConfigWithNeitherCredentialHalfSet() {
+        final BanyanDBStorageConfig config = newConnectableConfig();
+        config.getGlobal().setUser(null);
+        config.getGlobal().setPassword(null);
+
+        assertDoesNotThrow(() -> new BanyanDBStorageClient(mock(ModuleManager.class), config));
+    }
+
+    @Test
+    public void shouldRejectAConfigWithOnlyOneCredentialHalfSet() {
+        final BanyanDBStorageConfig withUserOnly = newConnectableConfig();
+        withUserOnly.getGlobal().setUser("admin");
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new BanyanDBStorageClient(mock(ModuleManager.class), withUserOnly));
+
+        final BanyanDBStorageConfig withPasswordOnly = newConnectableConfig();
+        withPasswordOnly.getGlobal().setPassword("admin");
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new BanyanDBStorageClient(mock(ModuleManager.class), withPasswordOnly));
+    }
+
+    /**
+     * compatibleServerApiVersions has no default and its getter splits the raw string, so a config built in
+     * code rather than loaded from bydb.yml has to set it before the client can be constructed.
+     */
+    private BanyanDBStorageConfig newConnectableConfig() {
+        final BanyanDBStorageConfig config = new BanyanDBStorageConfig();
+        config.getGlobal().setCompatibleServerApiVersions("0.10");
+        return config;
     }
 
     private BanyanDBConfigLoader newLoader() {

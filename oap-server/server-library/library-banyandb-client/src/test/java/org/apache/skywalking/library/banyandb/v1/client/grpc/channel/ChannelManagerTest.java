@@ -152,6 +152,39 @@ public class ChannelManagerTest {
         Mockito.verify(underlyingChannel1).shutdown();
     }
 
+    /**
+     * A CA rotation and a shutdown can race. Rebuilding after shutdown would publish a live transport while
+     * the refresh executor is already stopped, leaking it and breaking ManagedChannel's terminal-state
+     * contract, so a rebuild past that point has to be ignored.
+     */
+    @Test
+    public void rebuildShouldBeIgnoredAfterShutdown() throws IOException {
+        ManagedChannel underlyingChannel1 = mock(ManagedChannel.class);
+        ManagedChannel underlyingChannel2 = mock(ManagedChannel.class);
+
+        ScheduledExecutorService scheduledExecutorService = mock(ScheduledExecutorService.class);
+        Mockito.doReturn(null)
+                .when(scheduledExecutorService)
+                .schedule(
+                        Mockito.any(Runnable.class), Mockito.anyLong(), Mockito.eq(TimeUnit.MILLISECONDS));
+
+        ChannelManager manager =
+                new ChannelManager(
+                        ChannelManagerSettings.builder()
+                                .refreshInterval(30)
+                                .forceReconnectionThreshold(1).build(),
+                        new FakeChannelFactory(ImmutableList.of(underlyingChannel1, underlyingChannel2)),
+                        scheduledExecutorService);
+
+        manager.shutdown();
+        manager.rebuild();
+
+        // The second channel must never have been created, and calls still resolve to the first entry.
+        manager.newCall(FakeMethodDescriptor.<String, Integer>create(), CallOptions.DEFAULT);
+        Mockito.verify(underlyingChannel2, Mockito.never())
+                .newCall(Mockito.<MethodDescriptor<String, Integer>>any(), Mockito.any(CallOptions.class));
+    }
+
     @Test
     public void networkErrorStatusShouldTriggerReconnect() throws IOException {
         final IndexRuleRegistryServiceGrpc.IndexRuleRegistryServiceImplBase indexRuleServiceImpl =
