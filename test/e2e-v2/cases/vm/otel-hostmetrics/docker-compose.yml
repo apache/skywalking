@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_OTEL_RECEIVER: default
+      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm,process-hostmetrics-linux
+    volumes:
+      - ./otel-rules/vm.yaml:/skywalking/config/otel-rules/vm.yaml
+      - ./otel-rules/process-hostmetrics-linux.yaml:/skywalking/config/otel-rules/process-hostmetrics-linux.yaml
+    ports:
+      - 12800
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
+  vm-service:
+    hostname: vm-service
+    build:
+      context: .
+      dockerfile: Dockerfile.otelcol
+      args:
+        OTEL_COLLECTOR_CONTRIB_VERSION: ${OTEL_COLLECTOR_CONTRIB_VERSION}
+    networks:
+      - e2e
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+    depends_on:
+      oap:
+        condition: service_healthy
+
+networks:
+  e2e:

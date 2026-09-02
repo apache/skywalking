@@ -664,6 +664,9 @@ jobs:
             config: test/e2e-v2/cases/vm/zabbix/e2e.yaml
           - name: VM Prometheus
             config: test/e2e-v2/cases/vm/prometheus-node-exporter/e2e.yaml
+          - name: VM OpenTelemetry Hostmetrics
+            config: test/e2e-v2/cases/vm/otel-hostmetrics/e2e.yaml
+            env: OTEL_COLLECTOR_CONTRIB_VERSION=0.158.0
           - name: VM Telegraf
             config: test/e2e-v2/cases/vm/telegraf/e2e.yaml
           - name: So11y

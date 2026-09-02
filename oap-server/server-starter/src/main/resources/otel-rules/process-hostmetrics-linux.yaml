@@ -1,0 +1,81 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Process metrics are pre-aggregated by normalized process_name in the
+# Collector to bound PID cardinality. MAL performs the final SkyWalking
+# service-instance mapping and metric calculation.
+filter: "{ tags -> tags.job_name == 'hostmetrics-process-monitoring-linux' }"
+
+expSuffix: |-
+  service(['node_identifier_host_name'], '', Layer.OS_LINUX)
+    .instance(
+      ['node_identifier_host_name'],
+      '',
+      ['process_name'],
+      '',
+      Layer.OS_LINUX,
+      {
+        tags -> [
+          'process_name': tags.process_name,
+          'host': tags.node_identifier_host_name
+        ]
+      }
+    )
+
+metricPrefix: mp_process_linux
+
+metricsRules:
+  - name: num_procs
+    exp: "process_count.sum(['node_identifier_host_name','process_name'])"
+
+  - name: num_threads
+    exp: "process_threads.sum(['node_identifier_host_name','process_name'])"
+
+  - name: cpu_total_percent
+    exp: >
+      process_cpu_utilization
+        .tagNotEqual('state','wait')
+        .sum(['node_identifier_host_name','process_name'])
+      * 100
+
+  - name: cpu_user_percent
+    exp: >
+      process_cpu_utilization
+        .tagEqual('state','user')
+        .sum(['node_identifier_host_name','process_name'])
+      * 100
+
+  - name: cpu_system_percent
+    exp: >
+      process_cpu_utilization
+        .tagEqual('state','system')
+        .sum(['node_identifier_host_name','process_name'])
+      * 100
+
+  - name: memory_resident_bytes
+    exp: "process_memory_usage.sum(['node_identifier_host_name','process_name'])"
+
+  # OTel process.memory.utilization uses unit 1 (fraction), so expose % here.
+  - name: memory_resident_percent
+    exp: >
+      process_memory_utilization
+        .sum(['node_identifier_host_name','process_name'])
+      * 100
+
+  - name: open_handles
+    exp: "process_open_handles.sum(['node_identifier_host_name','process_name'])"
+
+  - name: oldest_process_uptime_seconds
+    exp: "process_uptime.max(['node_identifier_host_name','process_name'])"
