@@ -1,0 +1,137 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Trace tail sampling self-observability e2e: the meter_banyandb_trace_sampling_* rule file
+# (otel-rules/banyandb/banyandb-trace-sampling.yaml), which the parent case cannot cover because
+# its cluster runs no sampler plugins.
+#
+# Sampling metrics only exist while a sampler plugin chain is actually executing, so this case
+# needs the plugin-capable host, the sampler .so, trace data, and a filtering merge. The topology
+# and its tuning are taken from cases/storage/banyandb/pipeline-plugin/sw (the behavioural case
+# for the same feature); the addition here is the OTel collector that turns the data node's own
+# :2121 Prometheus endpoint into OAP meters, and assertions on the resulting metrics rather than
+# on which traces survived.
+#
+# It is a single `standalone` node, not the parent's 2-node cluster: the sampling rules are
+# service-scoped on `cluster` alone, so a second node adds startup cost and no coverage. That
+# also keeps the plugin host off the cluster discovery path, which matters because the distroless
+# `-plugins` image cannot run the bydbctl healthcheck peers wait on.
+services:
+  # Carrier init: the "-plugins-carrier" image ships the sampler .so at /plugins. Copy them into a
+  # shared volume and exit; banyandb waits for completion. Mirrors the initContainer + emptyDir
+  # delivery in test/plugin-sidecar (banyandb repo).
+  plugin-carrier:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins-carrier"
+    command: sh -c "cp /plugins/*.so /shared/ && ls -l /shared"
+    volumes:
+      - plugins:/shared
+    networks:
+      - e2e
+
+  # The plugin-capable (CGO / distroless-glibc) "-plugins" host, defined inline rather than via
+  # `extends` because base-compose's banyandb services use the "-testing" image (Alpine/musl,
+  # which cannot dlopen a Go plugin) and a bydbctl healthcheck this image has no binary for.
+  # No healthcheck and no published ports: the image has no shell, and infra-e2e's port-readiness
+  # probe execs /bin/sh inside the container. Nothing needs host access to the node here -- the
+  # collector scrapes :2121 over the compose network and every assertion goes through OAP -- so
+  # unlike the behavioural cases this needs no socat sidecar.
+  banyandb:
+    image: "ghcr.io/apache/skywalking-banyandb:${SW_BANYANDB_COMMIT}-plugins"
+    # max-merge-parts=2 + a short flush timeout make a filtering merge fire as soon as a second
+    # part lands, so the chain runs (and its metrics register) within the test's lifetime; the
+    # mocker writes 5 traces 30s apart, i.e. one part each.
+    command: standalone --measure-metadata-cache-wait-duration 1m --stream-metadata-cache-wait-duration 1m --trace-pipeline-native-plugin-enabled=true --trace-pipeline-trusted-plugin-dir=/plugins --trace-max-merge-parts=2 --trace-flush-timeout=500ms
+    volumes:
+      - plugins:/plugins
+    depends_on:
+      plugin-carrier:
+        condition: service_completed_successfully
+    networks:
+      - e2e
+
+  # Scrapes the node's own Prometheus endpoint and injects the `cluster` identity label the
+  # service-scoped sampling rules key on (see otel-collector-config.yaml).
+  otel-collector:
+    image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}
+    networks:
+      - e2e
+    command: [ "--config=/etc/otel-collector-config.yaml" ]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    expose:
+      - 55678
+    depends_on:
+      banyandb:
+        condition: service_started
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: banyandb
+      SW_STORAGE_BANYANDB_TARGETS: "banyandb:17912"
+      SW_STORAGE_BANYANDB_TRACE_PIPELINE_ENABLED: "true"
+      # One shard so every segment lands in the same shard: the in-merge filter runs per shard, and
+      # spreading a handful of segments over the default 2 shards can leave each with a single part,
+      # which never reaches max-merge-parts and so never merges.
+      SW_STORAGE_BANYANDB_TRACE_SHARD_NUM: "1"
+      # Make every mocked trace fail EVERY sure-keep rule, so the chain reports a full drop and the
+      # dropped/evaluated counters, the row counters and the drop-set all populate:
+      #   - the mocked trace envelope is 6000ms, so a 60s threshold never fires;
+      #   - every mocked trace carries an is_error span (ServiceBMock), so keepErrors must be off,
+      #     otherwise all 5 are kept and the drop-side families never register;
+      #   - healthySampleRate 0 removes the probabilistic keep, which would otherwise decide the
+      #     drop/keep split by hash(trace_id) and make the assertions flaky run to run;
+      #   - bydb.yml ships no keepTagRules.
+      # The keep side of the verdict (traces_retained) therefore cannot register in the same run --
+      # the mocker's 5 traces are identical apart from their IDs, so no sampler config splits them
+      # deterministically. cases/storage/banyandb/pipeline-plugin/sw-keep covers the keep path.
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_DURATION_THRESHOLD_MS: "60000"
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_KEEP_ERRORS: "false"
+      SW_STORAGE_BANYANDB_TRACE_SAMPLER_HEALTHY_SAMPLE_RATE: "0"
+      # Keeps freshly written traces out of the filter briefly; past it all parts are permanently
+      # cold (isMergeHot is evaluated against the data timestamp, which AgentDataMock computes once
+      # before its write loop) while the remaining writes keep supplying merge triggers.
+      SW_STORAGE_BANYANDB_TRACE_PIPELINE_MERGE_GRACE_SECONDS: "20"
+    ports:
+      - 12800
+    depends_on:
+      banyandb:
+        condition: service_started
+
+  # Sends a fixed set of trace segments straight to OAP's gRPC receiver; the jar is built by CI's
+  # `mvnw -f test/e2e-v2/java-test-service/pom.xml package` step before the e2e runs. The traces
+  # are only fuel for the sampler here -- nothing asserts their content. MINUS_DAYS=0 keeps them in
+  # the hot stage, where merges run.
+  trace-mocker:
+    image: "eclipse-temurin:17-jre"
+    volumes:
+      - ../../../java-test-service/trace-mocker/target/trace-mocker-2.0.0.jar:/trace-mocker-2.0.0.jar
+    command: [ "java", "-jar", "/trace-mocker-2.0.0.jar" ]
+    environment:
+      OAP_HOST: oap
+      MINUS_DAYS: 0
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+volumes:
+  plugins:
+
+networks:
+  e2e:

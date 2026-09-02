@@ -431,6 +431,7 @@ public class SampleFamily {
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
                       range,
+                      this.context.getMetricName(),
                       sample.getName(),
                       (lowerBoundValue, unused) -> sample.value - lowerBoundValue
                   ))
@@ -448,6 +449,7 @@ public class SampleFamily {
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
                       range,
+                      this.context.getMetricName(),
                       sample.getName(),
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;
@@ -466,6 +468,7 @@ public class SampleFamily {
             this.context,
             Arrays.stream(samples)
                   .map(sample -> sample.increase(
+                      this.context.getMetricName(),
                       sample.getName(),
                       (lowerBoundValue, lowerBoundTime) -> {
                           final long timeDiff = (sample.timestamp - lowerBoundTime) / 1000;

@@ -173,6 +173,13 @@ Watch these on the data node's own metrics endpoint:
 | `banyandb_trace_pipeline_sampler_load_failed{group,name,reason}` | a plugin was rejected — non-zero means the config is not doing what it says |
 | `banyandb_trace_pipeline_sampler_register_total{group,result}` | registration outcomes, including `rejected` |
 
+The whole sampling catalog is also collected by the OAP itself when the BanyanDB self-observability
+setup is in place — the same three above become `meter_banyandb_trace_sampling_active_samplers`,
+`_plugin_load_failures` and `_register_rate`, alongside the drop ratio, per-plugin `Decide` latency,
+the fail-open guard counters and the first-party samplers' own decision metrics. That is the better
+place to operate from, because it shows what the plugins *proposed* next to what storage *committed*.
+See [Trace tail sampling scope](dashboards-banyandb.md#trace-tail-sampling-scope--sampler-plugins-meter_banyandb_trace_sampling_).
+
 **Expect a CPU cost on merge.** BanyanDB can normally copy a single-block trace through a merge
 as raw bytes without decoding it. A sampler that projects any tag column — which every useful
 configuration does — disables that fast path, so blocks are decoded in full during merges that

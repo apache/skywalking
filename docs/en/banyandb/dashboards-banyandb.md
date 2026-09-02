@@ -84,8 +84,8 @@ and renders it on the `Layer: BANYANDB` dashboards in the Horizon UI:
 
 The metric source expressions mirror the upstream BanyanDB Grafana boards, so the SkyWalking dashboards
 stay in lockstep with the BanyanDB catalog. The rule files are
-`otel-rules/banyandb/banyandb-service.yaml`, `banyandb-instance.yaml`, `banyandb-endpoint.yaml` and
-`banyandb-instance-relation.yaml`.
+`otel-rules/banyandb/banyandb-service.yaml`, `banyandb-instance.yaml`, `banyandb-endpoint.yaml`,
+`banyandb-instance-relation.yaml` and `banyandb-trace-sampling.yaml`.
 
 The instance and endpoint catalogs are **category-separated**: the rule name carries a role prefix
 (instance scope) or a data-type prefix (endpoint scope) so that a human can read a metric name and know
@@ -306,6 +306,132 @@ Each edge kind carries the same four facets:
 > label-less per-instance gauges with no destination labels); they stay instance-scope as
 > `lifecycle_last_run` / `lifecycle_last_run_success` / `lifecycle_migration_cycles`. The migration
 > *traffic* (throughput / latency / error / bytes) above is already per-edge.
+
+### Trace tail sampling scope — sampler plugins (`meter_banyandb_trace_sampling_*`)
+
+BanyanDB 0.11+ can run an ordered chain of **sampler plugins** during trace merge and finalization,
+dropping whole traces after their fragments have already landed — tail sampling inside the storage
+tier. See [Trace Tail Sampling](tail-sampling.md) for how a trace is judged and how the chain is
+configured from `bydb.yml`.
+
+These rules live in their own file, `otel-rules/banyandb/banyandb-trace-sampling.yaml`, mirroring the
+upstream **[BanyanDB — Trace Sampling Plugins](https://github.com/apache/skywalking-banyandb/blob/main/docs/operation/grafana-fodc-trace-plugin.json)**
+board, which upstream also ships separately from its two core boards. The reason is the same in both
+places: the plugin chain is **optional**. On a cluster with no sampler configured none of the wire
+families are registered and **every metric in this section stays absent** — that is the healthy
+default, not a broken scrape.
+
+> **Service scope with `group` as a label.** Every family here is keyed on `group`, so the natural
+> scope would be Endpoint (see [Endpoint scope](#endpoint-scope--per-group-meter_banyandb_endpoint_)).
+> They are modeled at **Service** scope instead, with `group` kept as a metric *label*, because
+> sampling is presented as one cluster-wide page: a labeled metric renders every group as a series
+> and still gives cluster totals when the label is aggregated away, whereas an Endpoint-scope metric
+> cannot be rolled back up to the cluster — OAP does no cross-scope rollup. Each metric keeps exactly
+> the labels its upstream panel splits on, listed in the **Labels** column below.
+
+Two wire prefixes feed these rules, and the split is not cosmetic: plugin lifecycle, telemetry-host
+safety, finalization and the plugin-published business metrics are `banyandb_trace_pipeline_*`, while
+per-merge execution, batching and trace retention outcomes are `banyandb_trace_tst_pipeline_*` (the
+trace time-series table is where merge runs).
+
+**Pipeline status and reconciliation:**
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| Count | `trace_sampling_active_samplers` | `group` | Sampler plugins registered for the group. `0` means nothing is filtering |
+| percent | `trace_sampling_drop_ratio` | `group` | Committed drop ratio — dropped / evaluated traces |
+| c/m | `trace_sampling_plugin_load_failures` | `group`, `name`, `reason` | Plugin load failures. Reconciliation fails open, so the chain keeps running without the plugin |
+| c/m | `trace_sampling_register_rate` / `trace_sampling_update_rate` | `group`, `result` | Pipeline registrations / updates (`result` = `success` or `rejected`) |
+| c/m | `trace_sampling_remove_rate` | `group` | Explicit pipeline removals |
+
+**Plugin execution and batching** (`data` containers):
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| o/s | `trace_sampling_plugin_execution_rate` | `group`, `plugin_name`, `result` | `Decide` calls/s. `result` = `success`, `decide_error`, `length_mismatch`, `panic` or `late` |
+| ms | `trace_sampling_plugin_decide_latency_p99` | `group`, `plugin_name` | p99 `Decide` wall time, successful calls only |
+| ms | `trace_sampling_plugin_decide_latency` | `group`, `plugin_name` | Mean `Decide` wall time, successful calls only |
+| o/s | `trace_sampling_chain_batch_rate` | `group`, `result` | Chain batches/s. `result` = `success`, `timeout` or `circuit_open` |
+| ms | `trace_sampling_plugin_time_per_trace` | `group` | Whole-chain plugin time per evaluated trace — the sampling overhead |
+| Count | `trace_sampling_batch_size_p99` | `group` | p99 traces presented per successful chain batch |
+| c/m | `trace_sampling_link_bypasses` | `group`, `plugin_name`, `reason` | Individual links bypassed after `decide_error`, `length_mismatch` or `panic` |
+
+> `trace_sampling_plugin_time_per_trace` is deliberately **not** split by `plugin_name`. The upstream
+> panel divides a per-plugin numerator by a per-group denominator with PromQL's `on (group)
+> group_left`; MAL arithmetic inner-joins on exact label equality and has no `group_left` equivalent,
+> so the numerator collapses `plugin_name` and the metric reports the chain total. The per-plugin
+> split is `trace_sampling_plugin_decide_latency`.
+
+**Sampling outcomes** — the trace-level denominators:
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| traces/s | `trace_sampling_traces_evaluated` | `group` | Traces evaluated by a completed, batch-aligned chain. The denominator for every ratio here |
+| traces/s | `trace_sampling_traces_retained` | `group` | Traces retained by plugin verdict or by a safety fallback |
+| traces/s | `trace_sampling_traces_dropped` | `group` | Traces removed from core and secondary-index output |
+| traces/s | `trace_sampling_traces_immature` | `group` | Traces not yet eligible — their fragments are still inside the maturity boundary |
+| o/s | `trace_sampling_sidx_pruned` | `group` | Secondary-index entries pruned after a confirmed drop |
+
+**Fail-open and bounded-retention safety.** Every metric below *retains* data that a sampler proposed
+dropping, so a drop ratio under target is explained here before it is explained by plugin logic:
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| c/m | `trace_sampling_oversized_traces_bypassed` | `group` | Traces retained because their staged representation exceeded the per-trace budget |
+| c/m | `trace_sampling_ambiguous` | `group` | Traces whose fragment state could not produce an unambiguous drop decision |
+| c/m | `trace_sampling_plugin_errors` | `group`, `reason` | Chain-level errors that forced fail-open retention |
+| o/s | `trace_sampling_guard_bloom_probes` | `group` | Bloom-filter probes checking for trace fragments outside the selected parts |
+| c/m | `trace_sampling_guard_deferred` | `group` | Drops deferred because the fragment guard found a possible external fragment |
+| c/m | `trace_sampling_guard_budget_exhausted` | `group` | Fragment-guard checks that exhausted their work budget |
+| c/m | `trace_sampling_guard_publication_rejected` | `group` | Publications rejected after guard validation went stale |
+| c/m | `trace_sampling_guard_lossless_retry` | `group` | Rejected publications retried without dropping traces |
+| c/m | `trace_sampling_guard_bypassed` | `group` | Merges retained unsampled because the guard was unavailable or inapplicable |
+
+**Drop-set capacity and finalization.** The per-merge dropped-trace-ID set is memory-bounded; when it
+hits the ceiling the merge retains the rest, which is what makes a drop ratio plateau under load:
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| c/m | `trace_sampling_capped_merges` | `group`, `lane` | Merges whose drop-ID set reached its ceiling |
+| c/m | `trace_sampling_traces_retained_by_ceiling` | `group` | Proposed drops retained after the ceiling was reached |
+| Count | `trace_sampling_drop_set_entries_p99` | `group`, `lane` | p99 dropped trace IDs held per merge — read against the budget for headroom |
+| Bytes | `trace_sampling_drop_set_budget_bytes` | `group` | Resolved per-merge memory budget for confirmed dropped trace IDs |
+| Count | `trace_sampling_finalize_rounds` | `group` | Highest finalization round count across the group's cooled shards |
+| Status | `trace_sampling_finalize_terminal` | `group` | `1` when a cooled shard can run no further finalization round — no more tail sampling for that data |
+
+**First-party sampler decisions** (`sw-trace-sampler` / `zipkin-trace-sampler`):
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| o/s | `trace_sampling_sampler_decisions` | `group`, `plugin_name`, `verdict`, `rule` | Trace evaluations attributed to the first matching rule. `verdict` = `keep` or `drop` |
+| rows/s | `trace_sampling_sampler_rows` | `group`, `plugin_name` | Span / segment rows carried by evaluated traces |
+| rows/s | `trace_sampling_sampler_rows_dropped` | `group`, `plugin_name`, `rule` | Rows belonging to traces the sampler proposed dropping |
+| percent | `trace_sampling_sampler_dropped_row_ratio` | `group`, `plugin_name` | Proposed dropped-row ratio |
+| c/m | `trace_sampling_sampler_row_count_unavailable` | `group`, `plugin_name` | Evaluations whose metadata-only projection exposed no row count — these are missing from the row denominators |
+
+> These are **proposed**, not committed. A trace can be evaluated across several merge or finalization
+> rounds, and the safety guards above can retain a trace the plugin voted to drop — so always read
+> `trace_sampling_sampler_decisions{verdict=drop}` against `trace_sampling_traces_dropped`, and treat
+> `trace_sampling_sampler_dropped_row_ratio` as incomplete while
+> `trace_sampling_sampler_row_count_unavailable` is nonzero. `rule` is one of the fixed built-in values
+> (`duration`, `error`, `healthy_sample`, `healthy_rejected`, `no_keep_rule`, `decode_failure_*`) or a
+> positional `tag_00`–`tag_31` slot following `keepTagRules` order; tag keys and values are never
+> copied into the label, which is what keeps the label set bounded.
+
+> **Adding a rule that divides two counters?** `rate()` / `increase()` keep their lower bound per
+> (rule, wire family, label set). Two rules reducing one family to the same label set therefore no
+> longer share a window — but check anyway that the operands of a ratio are the reductions you think
+> they are, and verify the result against known inputs rather than trusting it by inspection.
+
+**Plugin telemetry host safety.** The host caps what a plugin may publish (100 label-value series per
+instrument) and rate-limits its logs. Nonzero here means a plugin's *own* telemetry is being
+truncated — its business metrics above are then incomplete, though the sampling itself is unaffected:
+
+| Unit | Metric | Labels | Description |
+| ---- | ------ | ------ | ----------- |
+| c/m | `trace_sampling_plugin_telemetry_series_rejected` | `group`, `plugin_name` | Series rejected by host safety bounds |
+| c/m | `trace_sampling_plugin_log_dropped` | `group`, `plugin_name` | Plugin log lines dropped by the host rate limiter |
+| c/m | `trace_sampling_plugin_telemetry_panic` | `group`, `plugin_name` | Panics recovered inside the plugin telemetry adapter |
 
 ## Customizations
 

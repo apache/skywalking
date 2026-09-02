@@ -46,14 +46,15 @@ public class Sample {
         return toBuilder().value(transform.apply(value)).build();
     }
 
-    Sample increase(String range, String metricName, Function2<Double, Long, Double> transform) {
-        Tuple2<Long, Double> i = CounterWindow.INSTANCE.increase(metricName, labels, value, Duration.parse(range).toMillis(), timestamp);
+    Sample increase(String range, String owner, String metricName, Function2<Double, Long, Double> transform) {
+        Tuple2<Long, Double> i = CounterWindow.INSTANCE.increase(
+            owner, metricName, labels, value, Duration.parse(range).toMillis(), timestamp);
         double nv = transform.apply(i._2, i._1);
         return newValue(ignored -> nv);
     }
 
-    Sample increase(String metricName, Function2<Double, Long, Double> transform) {
-        Tuple2<Long, Double> i = CounterWindow.INSTANCE.pop(metricName, labels, value, timestamp);
+    Sample increase(String owner, String metricName, Function2<Double, Long, Double> transform) {
+        Tuple2<Long, Double> i = CounterWindow.INSTANCE.pop(owner, metricName, labels, value, timestamp);
         double nv = transform.apply(i._2, i._1);
         return newValue(ignored -> nv);
     }

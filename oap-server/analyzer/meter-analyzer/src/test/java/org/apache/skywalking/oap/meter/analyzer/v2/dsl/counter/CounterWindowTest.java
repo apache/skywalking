@@ -47,7 +47,7 @@ public class CounterWindowTest {
     public void testPT15S() {
         double[] actuals = parameters().stream().mapToDouble(e -> {
             Tuple2<Long, Double> increase = CounterWindow.INSTANCE.increase(
-                "test", ImmutableMap.<String, String>builder().build(), e._2,
+                "test-rule", "test", ImmutableMap.<String, String>builder().build(), e._2,
                 Duration.parse("PT15S").getSeconds() * 1000, e._1
             );
             return e._2 - increase._2;
@@ -60,7 +60,7 @@ public class CounterWindowTest {
     public void testPT35S() {
         double[] actuals = parameters().stream().mapToDouble(e -> {
             Tuple2<Long, Double> increase = CounterWindow.INSTANCE.increase(
-                "test", ImmutableMap.<String, String>builder().build(), e._2,
+                "test-rule", "test", ImmutableMap.<String, String>builder().build(), e._2,
                 Duration.parse("PT35S").getSeconds() * 1000, e._1
             );
             return e._2 - increase._2;
@@ -73,7 +73,7 @@ public class CounterWindowTest {
     public void testPT1M() {
         double[] actuals = parameters().stream().mapToDouble(e -> {
             Tuple2<Long, Double> increase = CounterWindow.INSTANCE.increase(
-                "test", ImmutableMap.<String, String>builder().build(), e._2,
+                "test-rule", "test", ImmutableMap.<String, String>builder().build(), e._2,
                 Duration.parse("PT1M").getSeconds() * 1000, e._1
             );
             return e._2 - increase._2;
@@ -86,7 +86,7 @@ public class CounterWindowTest {
     public void testPT2M() {
         double[] actuals = parameters().stream().mapToDouble(e -> {
             Tuple2<Long, Double> increase = CounterWindow.INSTANCE.increase(
-                "test", ImmutableMap.<String, String>builder().build(), e._2,
+                "test-rule", "test", ImmutableMap.<String, String>builder().build(), e._2,
                 Duration.parse("PT2M").getSeconds() * 1000, e._1
             );
             return e._2 - increase._2;

@@ -203,7 +203,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 150.0
+        value: 125.0
   meter_rabbitmq_node_consumer_total:
     entities:
       - scope: SERVICE_INSTANCE

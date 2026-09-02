@@ -387,6 +387,12 @@ jobs:
             config: test/e2e-v2/cases/storage/banyandb/pipeline-plugin/zipkin-keep/e2e.yaml
           - name: BanyanDB monitoring
             config: test/e2e-v2/cases/banyandb/e2e.yaml
+          # The meter_banyandb_trace_sampling_* rules, which the case above cannot cover: its
+          # cluster runs no sampler plugins, so the wire families never register. Needs the
+          # BanyanDB "-plugins" host and "-plugins-carrier" images, published only for the
+          # SW_BANYANDB_COMMIT pinned in test/e2e-v2/script/env.
+          - name: BanyanDB trace sampling monitoring
+            config: test/e2e-v2/cases/banyandb/trace-sampling/e2e.yaml
           - name: Storage MySQL
             config: test/e2e-v2/cases/storage/mysql/e2e.yaml
           - name: Storage PostgreSQL
