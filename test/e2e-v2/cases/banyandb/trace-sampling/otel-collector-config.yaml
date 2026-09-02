@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Trace-sampling rule file only (banyandb-trace-sampling.yaml), whose entity is
+# service(['cluster']) -- so `cluster` is the only identity label the rules under test need.
+# The SWIP-15 instance/endpoint identity labels (container_name / node_role / node_type /
+# pod_name) are deliberately NOT injected here: this is a single `standalone` node, which runs
+# the liaison and data roles in one process and so has no single honest node_role value
+# (banyandb-database.proto has ROLE_META / ROLE_DATA / ROLE_LIAISON and no standalone member).
+# The parent case (../otel-collector-config.yaml) exercises those rules on a real 2-node cluster
+# where the values are real. `group` / `plugin_name` / `rule` / `verdict` / `lane` are not
+# injected either -- they are emitted by the pipeline metrics themselves.
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: "banyandb-monitoring"
+          scrape_interval: 5s
+          static_configs:
+            - targets: ["banyandb:2121"]
+              labels:
+                cluster: e2e-banyandb-sampling
+
+processors:
+  batch:
+
+exporters:
+  otlp:
+    endpoint: oap:11800
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics:
+      receivers:
+        - prometheus
+      processors:
+        - batch
+      exporters:
+        - otlp

@@ -28,6 +28,15 @@ import lombok.ToString;
 @ToString
 class ID {
 
+    /**
+     * The rule that is evaluating, i.e. the output metric name of the MAL rule
+     * ({@code RunningContext.metricName}). Without it, two rules that reduce the SAME wire family
+     * to the SAME label set share one window and difference against each other's values; with it
+     * but without {@link #name}, several families inside ONE rule collide instead. The window is
+     * per (rule, family, labels) because those two collisions are independent.
+     */
+    private final String owner;
+
     private final String name;
 
     private final ImmutableMap<String, String> labels;

@@ -1,0 +1,223 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# BanyanDB trace tail sampling (trace pipeline plugins), Service scope = one BanyanDB cluster.
+#
+# BanyanDB 0.11+ can run an ordered chain of sampler plugins during trace merge and
+# finalization, dropping whole traces after their fragments have landed -- tail sampling
+# inside the storage tier. The plugin chain is OPTIONAL: on a cluster with no sampler
+# configured none of the families below are registered and every metric here stays absent.
+# Source expressions mirror the upstream BanyanDB Grafana "Trace Sampling Plugins" board
+# (docs/operation/grafana-fodc-trace-plugin.json), which upstream ships as a SEPARATE
+# optional board for exactly that reason -- hence a separate rule file here rather than more
+# rules bolted onto banyandb-endpoint.yaml.
+#
+# SERVICE scope with `group` kept as a LABEL. Every family below is keyed on `group`, so the
+# natural SkyWalking scope would be Endpoint (a group is an Endpoint under the cluster
+# Service -- see banyandb-endpoint.yaml). It is modeled at Service scope instead because the
+# sampling dashboard is one cluster-wide page: `group` survives as a metric label rather than
+# becoming the entity, so a single page can render every group as a series and still show
+# cluster totals by aggregating the label away. Aggregating an Endpoint-scope metric back up
+# to the cluster is NOT possible -- OAP does no cross-scope rollup -- so the label is the only
+# modeling that serves a cluster page. Consequence to respect when adding rules: `group` (and
+# every other retained label) MUST stay in the .sum()/.max() group-by, and the entity key is
+# ['cluster'] alone.
+#
+# Label retention mirrors each upstream panel's `by (...)` clause -- `group` always, plus the
+# one discriminator that panel splits on (`plugin_name`, `result`, `verdict`, `rule`, `reason`,
+# `lane`, `name`). Keeping only those bounds the labeled-value cardinality: BanyanDB rejects a
+# sampler configured with more than 32 tag rules, so `rule` is capped at 40 fixed values and
+# never carries a tag key or value.
+#
+# Family-name traps (verified against the upstream metric catalog,
+# docs/operation/observability/metrics.md "Trace Plugin Metrics"):
+#   - TWO prefixes, not one. Plugin lifecycle / telemetry-host / finalization / plugin-defined
+#     business metrics are banyandb_trace_pipeline_*; per-merge execution, batching and trace
+#     retention outcomes are banyandb_trace_tst_pipeline_* (the _tst_ infix -- the trace
+#     time-series table is where merge runs). Dropping or adding _tst_ silently yields no data.
+#   - the three histograms reach MAL as THREE sample families each: the bare name (buckets,
+#     carrying `le`), plus _sum and _count synthesized by PrometheusMetricConverter. That is
+#     what makes the mean-latency and per-trace rules below expressible without PromQL's
+#     `group_left`, which MAL has no equivalent of.
+#   - banyandb_trace_pipeline_sampler_load_failed carries `name` (the plugin that failed to
+#     load), NOT `plugin_name` -- a plugin that never loaded has no chain identity.
+#   - execution_duration_seconds is SECONDS on the wire; .histogram() rescales seconds buckets
+#     to the meter system's millisecond buckets, so the p99 is in ms.
+#   - batch_traces and drop_set_entries are histograms of COUNTS, not durations. They must use
+#     .histogram('le', TimeUnit.MILLISECONDS) so the scale factor is 1 and the bucket bounds
+#     stay raw trace / entry counts; the default .histogram() would multiply them by 1000.
+filter: "{ tags -> tags.job_name == 'banyandb-monitoring' }"
+expSuffix: service(['cluster'], Layer.BANYANDB)
+metricPrefix: meter_banyandb
+metricsRules:
+  # ---- Pipeline status ----
+  # Registered sampler plugins per group. A per-node gauge replicated on every data node that
+  # holds a shard of the group, so .max() (NOT .sum(), which would multiply by node count).
+  - name: trace_sampling_active_samplers
+    exp: banyandb_trace_pipeline_sampler_active_count.max(['cluster', 'group'])
+  # Effective drop ratio (%) = dropped / evaluated. Both operands reduce to the identical
+  # ['cluster','group'] label set so MAL's inner join matches; safeDiv yields 0 while a group
+  # is idle. This is the COMMITTED ratio after BanyanDB's safety guards, which is why it can sit
+  # below what the samplers proposed -- compare against trace_sampling_sampler_decisions.
+  - name: trace_sampling_drop_ratio
+    exp: banyandb_trace_tst_pipeline_traces_dropped.sum(['cluster', 'group']).increase('PT1M').safeDiv(banyandb_trace_tst_pipeline_traces_evaluated.sum(['cluster', 'group']).increase('PT1M')) * 100
+  # Plugin load failures (c/m), split by the failing plugin and reason. Reconciliation fails
+  # open: a plugin that will not load leaves the chain running without it.
+  - name: trace_sampling_plugin_load_failures
+    exp: banyandb_trace_pipeline_sampler_load_failed.sum(['cluster', 'group', 'name', 'reason']).rate('PT1M') * 60
+  # Pipeline reconciliation (c/m). register/update carry result=success|rejected.
+  - name: trace_sampling_register_rate
+    exp: banyandb_trace_pipeline_sampler_register_total.sum(['cluster', 'group', 'result']).rate('PT1M') * 60
+  - name: trace_sampling_update_rate
+    exp: banyandb_trace_pipeline_sampler_update_total.sum(['cluster', 'group', 'result']).rate('PT1M') * 60
+  - name: trace_sampling_remove_rate
+    exp: banyandb_trace_pipeline_sampler_remove_total.sum(['cluster', 'group']).rate('PT1M') * 60
+
+  # ---- Plugin execution and batching ----
+  # Decide() calls/s per plugin, split by result (success|decide_error|length_mismatch|panic|late).
+  # `late` means the plugin returned after the host had already abandoned its worker.
+  - name: trace_sampling_plugin_execution_rate
+    exp: banyandb_trace_tst_pipeline_plugin_executions.sum(['cluster', 'group', 'plugin_name', 'result']).rate('PT1M')
+  # p99 Decide() wall time (ms) per plugin, successful calls only -- an errored or panicking
+  # call's duration says nothing about the plugin's cost. `le` stays in the group-by for
+  # .histogram(); seconds buckets are rescaled to ms.
+  - name: trace_sampling_plugin_decide_latency_p99
+    exp: banyandb_trace_tst_pipeline_plugin_execution_duration_seconds.tagEqual('result', 'success').sum(['le', 'cluster', 'group', 'plugin_name']).histogram().histogram_percentile([99])
+  # Mean Decide() wall time (ms) per plugin = rate(_sum) / rate(_count) over the same window.
+  # Both are counters, so a WINDOWED mean needs rate() on both operands; dividing the raw
+  # cumulative pair would give an all-time average instead.
+  - name: trace_sampling_plugin_decide_latency
+    exp: banyandb_trace_tst_pipeline_plugin_execution_duration_seconds_sum.tagEqual('result', 'success').sum(['cluster', 'group', 'plugin_name']).rate('PT1M').safeDiv(banyandb_trace_tst_pipeline_plugin_execution_duration_seconds_count.tagEqual('result', 'success').sum(['cluster', 'group', 'plugin_name']).rate('PT1M')) * 1000
+  # Chain batches/s, split by result (success|timeout|circuit_open). circuit_open means sampling
+  # is currently BYPASSED for the group.
+  - name: trace_sampling_chain_batch_rate
+    exp: banyandb_trace_tst_pipeline_plugin_batches.sum(['cluster', 'group', 'result']).rate('PT1M')
+  # Whole-chain plugin time per evaluated trace (ms) -- the sampling overhead per trace.
+  # DELIBERATELY NOT split by plugin_name: the upstream panel divides a per-plugin numerator by
+  # a per-group denominator with `on (group) group_left`, and MAL arithmetic inner-joins on exact
+  # label equality with no group_left equivalent. Collapsing plugin_name on the numerator makes
+  # both sides ['cluster','group'] and yields the chain total, which is the operational number
+  # anyway; the per-plugin split lives in trace_sampling_plugin_decide_latency.
+  - name: trace_sampling_plugin_time_per_trace
+    exp: banyandb_trace_tst_pipeline_plugin_execution_duration_seconds_sum.tagEqual('result', 'success').sum(['cluster', 'group']).rate('PT1M').safeDiv(banyandb_trace_tst_pipeline_traces_evaluated.sum(['cluster', 'group']).rate('PT1M')) * 1000
+  # p99 traces presented per successful chain batch (Count, unitless). TimeUnit.MILLISECONDS
+  # pins the bucket scale factor to 1 -- these buckets are trace counts, not durations.
+  - name: trace_sampling_batch_size_p99
+    exp: banyandb_trace_tst_pipeline_plugin_batch_traces.tagEqual('result', 'success').sum(['le', 'cluster', 'group']).histogram('le', TimeUnit.MILLISECONDS).histogram_percentile([99])
+
+  # ---- Sampling outcomes ----
+  # The trace-level denominators and verdict outcomes (traces/s). evaluated is the denominator
+  # for every ratio here; retained + dropped account for evaluated traces, while immature traces
+  # were never eligible (their fragments are still inside the maturity boundary).
+  - name: trace_sampling_traces_evaluated
+    exp: banyandb_trace_tst_pipeline_traces_evaluated.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_sampling_traces_retained
+    exp: banyandb_trace_tst_pipeline_traces_retained.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_sampling_traces_dropped
+    exp: banyandb_trace_tst_pipeline_traces_dropped.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_sampling_traces_immature
+    exp: banyandb_trace_tst_pipeline_traces_immature.sum(['cluster', 'group']).rate('PT1M')
+
+  # Fail-open and bounded-retention safety events (c/m). Every one of these RETAINS data that a
+  # sampler proposed dropping, so a drop ratio below target is explained here before it is
+  # explained by plugin logic. Read them alongside trace_sampling_drop_ratio.
+  - name: trace_sampling_oversized_traces_bypassed
+    exp: banyandb_trace_tst_pipeline_oversized_traces_bypassed.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_sampling_ambiguous
+    exp: banyandb_trace_tst_pipeline_ambiguous.sum(['cluster', 'group']).rate('PT1M') * 60
+  # Chain-level errors that forced fail-open retention, split by reason. Distinct from
+  # trace_sampling_link_bypasses, which counts the per-LINK causes inside a chain that can
+  # still report result=success overall.
+  - name: trace_sampling_plugin_errors
+    exp: banyandb_trace_tst_pipeline_plugin_errors.sum(['cluster', 'group', 'reason']).rate('PT1M') * 60
+  - name: trace_sampling_link_bypasses
+    exp: banyandb_trace_tst_pipeline_plugin_link_bypasses.sum(['cluster', 'group', 'plugin_name', 'reason']).rate('PT1M') * 60
+
+  # Fragment guard -- the check that a trace has no fragment outside the parts being merged.
+  # bloom_probes is its work rate (o/s); the rest are the outcomes that hold a drop back (c/m).
+  - name: trace_sampling_guard_bloom_probes
+    exp: banyandb_trace_tst_pipeline_guard_bloom_probes.sum(['cluster', 'group']).rate('PT1M')
+  - name: trace_sampling_guard_deferred
+    exp: banyandb_trace_tst_pipeline_guard_deferred.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_sampling_guard_budget_exhausted
+    exp: banyandb_trace_tst_pipeline_guard_budget_exhausted.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_sampling_guard_publication_rejected
+    exp: banyandb_trace_tst_pipeline_guard_publication_rejected.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_sampling_guard_lossless_retry
+    exp: banyandb_trace_tst_pipeline_guard_lossless_retry.sum(['cluster', 'group']).rate('PT1M') * 60
+  - name: trace_sampling_guard_bypassed
+    exp: banyandb_trace_tst_pipeline_guard_bypassed.sum(['cluster', 'group']).rate('PT1M') * 60
+  # Secondary-index entries pruned after a confirmed drop (o/s) -- the drop's index-side work.
+  - name: trace_sampling_sidx_pruned
+    exp: banyandb_trace_tst_pipeline_sidx_pruned.sum(['cluster', 'group']).rate('PT1M')
+
+  # ---- First-party sampler plugin decisions (sw-trace-sampler / zipkin-trace-sampler) ----
+  # These are plugin-published business metrics under the host's banyandb_trace_pipeline_plugin_
+  # prefix, so they report what the sampler PROPOSED, not what storage committed -- a trace can
+  # be evaluated across several merge or finalization rounds, and the guards above can retain a
+  # trace the plugin voted to drop. Always read them against trace_sampling_traces_dropped.
+  # `rule` is a fixed built-in value or a positional tag_00..tag_31 slot; tag keys and values
+  # are never copied into the label, which is what keeps this bounded.
+  - name: trace_sampling_sampler_decisions
+    exp: banyandb_trace_pipeline_plugin_trace_sampler_decisions_total.sum(['cluster', 'group', 'plugin_name', 'verdict', 'rule']).rate('PT1M')
+  - name: trace_sampling_sampler_rows
+    exp: banyandb_trace_pipeline_plugin_trace_sampler_rows_total.sum(['cluster', 'group', 'plugin_name']).rate('PT1M')
+  - name: trace_sampling_sampler_rows_dropped
+    exp: banyandb_trace_pipeline_plugin_trace_sampler_rows_dropped_total.sum(['cluster', 'group', 'plugin_name', 'rule']).rate('PT1M')
+  # Proposed dropped-row ratio (%). `rule` is collapsed on the numerator so both operands reduce
+  # to ['cluster','group','plugin_name'] and MAL's inner join matches; the per-rule breakdown is
+  # trace_sampling_sampler_rows_dropped. Incomplete while row_count_unavailable is nonzero --
+  # those traces are missing from the denominator.
+  # Dividing two independently-windowed counters is only sound because rate()/increase() keep
+  # their lower bound per (rule, family, labels): this denominator reduces to the same family and
+  # label set as trace_sampling_sampler_rows, and before the CounterWindow key carried the owning
+  # rule the two shared one window and this rule reported 34% where the truth was 28%.
+  - name: trace_sampling_sampler_dropped_row_ratio
+    exp: banyandb_trace_pipeline_plugin_trace_sampler_rows_dropped_total.sum(['cluster', 'group', 'plugin_name']).increase('PT1M').safeDiv(banyandb_trace_pipeline_plugin_trace_sampler_rows_total.sum(['cluster', 'group', 'plugin_name']).increase('PT1M')) * 100
+  - name: trace_sampling_sampler_row_count_unavailable
+    exp: banyandb_trace_pipeline_plugin_trace_sampler_row_count_unavailable_total.sum(['cluster', 'group', 'plugin_name']).rate('PT1M') * 60
+
+  # ---- Drop-set capacity and finalization ----
+  # The per-merge dropped-trace-ID set is memory-bounded. When it hits the ceiling the merge
+  # stops accepting drops and RETAINS the rest, so these three read together explain a drop
+  # ratio that plateaus under load.
+  - name: trace_sampling_capped_merges
+    exp: banyandb_trace_tst_pipeline_merges_ceiling_reached.sum(['cluster', 'group', 'lane']).rate('PT1M') * 60
+  - name: trace_sampling_traces_retained_by_ceiling
+    exp: banyandb_trace_tst_pipeline_traces_retained_by_ceiling.sum(['cluster', 'group']).rate('PT1M') * 60
+  # p99 dropped-IDs held per merge (Count, unitless -- TimeUnit.MILLISECONDS pins the scale to 1),
+  # read against the resolved byte budget to see the headroom before the ceiling bites.
+  - name: trace_sampling_drop_set_entries_p99
+    exp: banyandb_trace_tst_pipeline_drop_set_entries.sum(['le', 'cluster', 'group', 'lane']).histogram('le', TimeUnit.MILLISECONDS).histogram_percentile([99])
+  # Per-node gauges: .max() per group, same reason as trace_sampling_active_samplers.
+  - name: trace_sampling_drop_set_budget_bytes
+    exp: banyandb_trace_tst_pipeline_drop_set_budget_bytes.max(['cluster', 'group'])
+  # Finalization state. finalize_terminal is 1 when a cooled shard can run no further
+  # finalization round -- no more tail sampling will happen for that data.
+  - name: trace_sampling_finalize_rounds
+    exp: banyandb_trace_pipeline_finalize_rounds.max(['cluster', 'group'])
+  - name: trace_sampling_finalize_terminal
+    exp: banyandb_trace_pipeline_finalize_terminal.max(['cluster', 'group'])
+
+  # ---- Plugin telemetry host safety (c/m) ----
+  # The host caps what a HostAware plugin may publish (100 label-value series per instrument)
+  # and rate-limits its logs. Nonzero here means a plugin's own telemetry is being truncated,
+  # which makes the plugin's business metrics incomplete -- not the sampling itself.
+  - name: trace_sampling_plugin_telemetry_series_rejected
+    exp: banyandb_trace_pipeline_plugin_telemetry_series_rejected_total.sum(['cluster', 'group', 'plugin_name']).rate('PT1M') * 60
+  - name: trace_sampling_plugin_log_dropped
+    exp: banyandb_trace_pipeline_plugin_log_dropped_total.sum(['cluster', 'group', 'plugin_name']).rate('PT1M') * 60
+  - name: trace_sampling_plugin_telemetry_panic
+    exp: banyandb_trace_pipeline_plugin_telemetry_panic_total.sum(['cluster', 'group', 'plugin_name']).rate('PT1M') * 60

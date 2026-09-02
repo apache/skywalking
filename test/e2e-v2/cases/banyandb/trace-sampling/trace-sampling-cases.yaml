@@ -1,0 +1,102 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Trace tail sampling self-observability metrics, from
+# oap-server/server-starter/src/main/resources/otel-rules/banyandb/banyandb-trace-sampling.yaml.
+# Every rule is Service scope -- expSuffix is service(['cluster'], Layer.BANYANDB) -- so the
+# entity is the `cluster` label the collector injects (e2e-banyandb-sampling) and `group` stays a
+# metric label rather than becoming an Endpoint. That is why one query per rule covers every
+# storage group at once.
+#
+# The 17 rules asserted here are the ones a HEALTHY, fully-dropping sampler run can produce. The
+# other 24 in the file are absent by design, not broken, and are NOT asserted:
+#   - failure counters (plugin_load_failures, plugin_errors, ambiguous, sampler_row_count_
+#     unavailable, plugin_telemetry_* , plugin_log_dropped) -- Prometheus registers a labeled
+#     counter on first observation, so nothing is exposed until something actually fails;
+#   - the keep verdict (traces_retained) -- see the sampler config in docker-compose.yml: the
+#     mocker's traces are identical apart from their IDs, so no config splits them deterministically
+#     and this run drops all of them. cases/storage/banyandb/pipeline-plugin/sw-keep covers keeps;
+#   - lifecycle churn (update_rate, remove_rate) -- the pipeline config is pushed once and never
+#     changed mid-run;
+#   - FINALIZE-only metrics (finalize_rounds, finalize_terminal) -- segments are daily, so a
+#     segment cannot settle inside a test, and enabledEvents here is MERGE;
+#   - the guard / ceiling / bypass families (guard_*, oversized_traces_bypassed, link_bypasses,
+#     sidx_pruned, capped_merges, traces_retained_by_ceiling, traces_immature) -- these are
+#     back-pressure and fail-open paths that 5 traces in one shard never reach.
+# Asserting those would mean asserting an empty result, which passes just as well when the rule
+# is misspelled. dashboards-banyandb.md documents the full catalog.
+cases:
+  # ---- Sampler reconciliation: the chain is loaded and registered for the group ----
+  # active_samplers is the gate for reading anything else on the page: 0 means nothing is
+  # filtering. It returns two series here (sw_trace = 1, sw_zipkinTrace = 0, the group whose
+  # pipeline is left disabled), which is also the per-group label proof.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_active_samplers --service-name=e2e-banyandb-sampling
+    expected: expected/active-samplers.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_register_rate --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-result.yml
+
+  # ---- Plugin execution: the chain ran, and what it cost ----
+  # These come from the trace_tst_pipeline_plugin_* families, i.e. the telemetry host that wraps
+  # each plugin, so they prove the Decide() call actually executed rather than merely loaded.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_plugin_execution_rate --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin-result.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_plugin_decide_latency --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin.yml
+  # The percentile rules are the histogram path: OAP splits the OTLP histogram into buckets +
+  # _sum + _count, and histogram().histogram_percentile([99]) reassembles it. A `p` label appears
+  # on the result (p=99) that no other rule has, so these also cover that shape.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_plugin_decide_latency_p99 --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin-p.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_chain_batch_rate --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-result.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_batch_size_p99 --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-p.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_plugin_time_per_trace --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group.yml
+
+  # ---- Trace-level outcomes: what the chain decided ----
+  # evaluated is the denominator every other outcome is read against; dropped is the verdict this
+  # run is configured to produce. drop_ratio is their safeDiv -- the metric whose two increase()
+  # operands sharing one process-wide CounterWindow slot produced a wrong ratio before the window
+  # was keyed by owning rule as well as counter name.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_traces_evaluated --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_traces_dropped --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_drop_ratio --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group.yml
+
+  # ---- The first-party sw-trace-sampler's own metrics (row granularity) ----
+  # Emitted by the plugin itself through the telemetry host, not by the pipeline, so these prove
+  # the plugin's metric channel works, and they are keyed by the `rule` that decided
+  # (no_keep_rule here) and by `verdict` -- the labels the Sampler Decisions panel reads.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_sampler_decisions --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin-rule-verdict.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_sampler_rows --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_sampler_rows_dropped --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin-rule.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_sampler_dropped_row_ratio --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-plugin.yml
+
+  # ---- Drop-set capacity: the bounded retention structure the drops are recorded in ----
+  # budget_bytes is a per-node gauge reduced with .max() (not .sum(), which would multiply the
+  # budget by the node count); entries_p99 is a COUNT histogram, so its rule pins the unit with
+  # histogram('le', TimeUnit.MILLISECONDS) to keep the default seconds-to-ms rescale from
+  # multiplying entry counts by 1000.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_drop_set_budget_bytes --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_banyandb_trace_sampling_drop_set_entries_p99 --service-name=e2e-banyandb-sampling
+    expected: expected/labels-group-lane-p.yml

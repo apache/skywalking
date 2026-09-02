@@ -45,8 +45,8 @@ public class CounterWindow {
     private final Map<ID, Tuple2<Long, Double>> lastElementMap = new ConcurrentHashMap<>();
     private final Map<ID, Queue<Tuple2<Long, Double>>> windows = new ConcurrentHashMap<>();
 
-    public Tuple2<Long, Double> increase(String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
-        ID id = new ID(name, labels);
+    public Tuple2<Long, Double> increase(String owner, String name, ImmutableMap<String, String> labels, Double value, long windowSize, long now) {
+        ID id = new ID(owner, name, labels);
         Queue<Tuple2<Long, Double>> window = windows.computeIfAbsent(id, unused -> new PriorityQueue<>());
         synchronized (window) {
             window.offer(Tuple.of(now, value));
@@ -71,8 +71,8 @@ public class CounterWindow {
         }
     }
 
-    public Tuple2<Long, Double> pop(String name, ImmutableMap<String, String> labels, Double value, long now) {
-        ID id = new ID(name, labels);
+    public Tuple2<Long, Double> pop(String owner, String name, ImmutableMap<String, String> labels, Double value, long now) {
+        ID id = new ID(owner, name, labels);
 
         Tuple2<Long, Double> element = Tuple.of(now, value);
         Tuple2<Long, Double> result = lastElementMap.put(id, element);
