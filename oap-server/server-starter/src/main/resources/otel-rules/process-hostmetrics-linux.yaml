@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Process metrics are pre-aggregated by normalized process_name in the
-# Collector to bound PID cardinality. MAL performs the final SkyWalking
-# service-instance mapping and metric calculation.
+# The Collector normalizes process identity and pre-aggregates operating-system
+# processes with the same process_name before OTLP export. MAL maps the
+# resulting logical process metrics to the corresponding SkyWalking instance.
 filter: "{ tags -> tags.job_name == 'hostmetrics-process-monitoring-linux' }"
 
 expSuffix: |-
@@ -67,7 +67,10 @@ metricsRules:
   - name: memory_resident_bytes
     exp: "process_memory_usage.sum(['node_identifier_host_name','process_name'])"
 
-  # OTel process.memory.utilization uses unit 1 (fraction), so expose % here.
+  # process.memory.utilization is emitted as a [0,1] fraction. Multiply by
+  # 100 before SkyWalking fixed-point storage to preserve two decimal places
+  # of percentage precision (basis points). UI expressions must divide the
+  # stored metric by 100.
   - name: memory_resident_percent
     exp: >
       process_memory_utilization

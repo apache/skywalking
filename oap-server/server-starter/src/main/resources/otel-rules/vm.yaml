@@ -27,7 +27,6 @@
 # one source family or the other, each expression can safely add the equivalent
 # node-exporter and hostmetrics branches. The output metric is registered once.
 filter: "{ tags -> tags.job_name == 'vm-monitoring' }"
-expSuffix: service(['node_identifier_host_name'], Layer.OS_LINUX)
 metricPrefix: meter_vm
 
 metricsRules:
@@ -38,6 +37,7 @@ metricsRules:
   # CPU
   - name: cpu_total_percentage
     exp: >
+      (
       (node_cpu_seconds_total * 100)
         .tagNotEqual('mode','idle')
         .sum(['node_identifier_host_name'])
@@ -46,59 +46,71 @@ metricsRules:
       (system_cpu_utilization * 100)
         .tagNotEqual('mode','idle')
         .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: cpu_average_used
     exp: >
+      (
       (node_cpu_seconds_total * 100)
         .sum(['node_identifier_host_name','mode'])
         .rate('PT1M')
       +
       (system_cpu_utilization * 100)
         .sum(['node_identifier_host_name','mode'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: cpu_load1
-    exp: "(node_load1 * 100) + (system_cpu_load_average_1m * 100)"
+    exp: "((node_load1 * 100) + (system_cpu_load_average_1m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX).decorate({ me -> me.attr0 = me.layer.name()})"
 
   - name: cpu_load5
-    exp: "(node_load5 * 100) + (system_cpu_load_average_5m * 100)"
+    exp: "((node_load5 * 100) + (system_cpu_load_average_5m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX)"
 
   - name: cpu_load15
-    exp: "(node_load15 * 100) + (system_cpu_load_average_15m * 100)"
+    exp: "((node_load15 * 100) + (system_cpu_load_average_15m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX)"
 
   # Physical memory
   - name: memory_total
-    exp: "node_memory_MemTotal_bytes + system_memory_limit"
+    exp: "(node_memory_MemTotal_bytes + system_memory_limit).service(['node_identifier_host_name'], Layer.OS_LINUX)"
 
   - name: memory_available
-    exp: "node_memory_MemAvailable_bytes + system_linux_memory_available"
+    exp: "(node_memory_MemAvailable_bytes + system_linux_memory_available).service(['node_identifier_host_name'], Layer.OS_LINUX)"
 
   - name: memory_used
     exp: >
+      (
       (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
       +
       (system_memory_limit - system_linux_memory_available)
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: memory_buff_cache
     exp: >
+      (
       (node_memory_Buffers_bytes + node_memory_Cached_bytes)
       +
       (
         system_memory_usage.tagEqual('state','buffered').sum(['node_identifier_host_name'])
         +
         system_memory_usage.tagEqual('state','cached').sum(['node_identifier_host_name'])
+        -
+        system_memory_usage.tagEqual('state','slab_reclaimable').sum(['node_identifier_host_name'])
       )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # Swap
   - name: memory_swap_free
     exp: >
+      (
       node_memory_SwapFree_bytes
       +
       system_paging_usage
         .tagEqual('state','free')
         .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: memory_swap_total
     exp: >
+      (
       node_memory_SwapTotal_bytes
       +
       (
@@ -106,9 +118,11 @@ metricsRules:
         +
         system_paging_usage.tagEqual('state','free').sum(['node_identifier_host_name'])
       )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: memory_swap_percentage
     exp: >
+      (
       (
         100 - ((node_memory_SwapFree_bytes * 100) / node_memory_SwapTotal_bytes)
       )
@@ -125,10 +139,12 @@ metricsRules:
           system_paging_usage.tagEqual('state','free').sum(['node_identifier_host_name'])
         )
       )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # Filesystem. hostmetrics free+reserved+used is the full capacity.
   - name: filesystem_percentage
     exp: >
+      (
       (
         100 - (
           (node_filesystem_avail_bytes * 100)
@@ -156,10 +172,12 @@ metricsRules:
           )
         )
       )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # Disk throughput
   - name: disk_read
     exp: >
+      (
       node_disk_read_bytes_total
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
@@ -168,9 +186,11 @@ metricsRules:
         .tagEqual('direction','read')
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: disk_written
     exp: >
+      (
       node_disk_written_bytes_total
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
@@ -179,10 +199,12 @@ metricsRules:
         .tagEqual('direction','write')
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # Network throughput
   - name: network_receive
     exp: >
+      (
       node_network_receive_bytes_total
         .sum(['node_identifier_host_name'])
         .irate()
@@ -191,9 +213,11 @@ metricsRules:
         .tagEqual('direction','receive')
         .sum(['node_identifier_host_name'])
         .irate()
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: network_transmit
     exp: >
+      (
       node_network_transmit_bytes_total
         .sum(['node_identifier_host_name'])
         .irate()
@@ -202,26 +226,38 @@ metricsRules:
         .tagEqual('direction','transmit')
         .sum(['node_identifier_host_name'])
         .irate()
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # TCP connection metrics with true hostmetrics equivalents.
   # Collector normalizes system.network.connections state values to lowercase.
   - name: tcp_curr_estab
     exp: >
+      (
       node_netstat_Tcp_CurrEstab
       +
-      system_network_connections
-        .tagEqual('protocol','tcp')
-        .tagEqual('state','established')
-        .sum(['node_identifier_host_name'])
+      (
+        system_network_connections
+          .tagEqual('protocol','tcp')
+          .tagEqual('state','established')
+          .sum(['node_identifier_host_name'])
+        +
+        system_network_connections
+          .tagEqual('protocol','tcp')
+          .tagEqual('state','close_wait')
+          .sum(['node_identifier_host_name'])
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: tcp_tw
     exp: >
+      (
       node_sockstat_TCP_tw
       +
       system_network_connections
         .tagEqual('protocol','tcp')
         .tagEqual('state','time_wait')
         .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # ---------------------------------------------------------------------------
   # Existing node-exporter-only canonical metrics.
@@ -229,26 +265,27 @@ metricsRules:
   # exporter only rather than being populated with a misleading approximation.
   # ---------------------------------------------------------------------------
   - name: tcp_alloc
-    exp: node_sockstat_TCP_alloc
+    exp: (node_sockstat_TCP_alloc).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: sockets_used
-    exp: node_sockstat_sockets_used
+    exp: (node_sockstat_sockets_used).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: udp_inuse
-    exp: node_sockstat_UDP_inuse
+    exp: (node_sockstat_UDP_inuse).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: filefd_allocated
-    exp: node_filefd_allocated
+    exp: (node_filefd_allocated).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   # ---------------------------------------------------------------------------
   # New hostmetrics-only capabilities. New names are used whenever semantics
   # do not exactly match an existing node-exporter target metric.
   # ---------------------------------------------------------------------------
   - name: cpu_cores_num
-    exp: system_cpu_logical_count.sum(['node_identifier_host_name'])
+    exp: (system_cpu_logical_count.sum(['node_identifier_host_name'])).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
   - name: cpu_norm_percentage
     exp: >
+      (
       (
         (system_cpu_utilization * 100)
           .tagNotEqual('mode','idle')
@@ -256,3 +293,4 @@ metricsRules:
       )
       /
       system_cpu_logical_count.sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)

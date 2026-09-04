@@ -12,7 +12,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 services:
   oap:
     extends:
@@ -20,20 +19,17 @@ services:
       service: oap
     environment:
       SW_OTEL_RECEIVER: default
-      SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES: vm,process-hostmetrics-linux
     volumes:
       - ./otel-rules/vm.yaml:/skywalking/config/otel-rules/vm.yaml
       - ./otel-rules/process-hostmetrics-linux.yaml:/skywalking/config/otel-rules/process-hostmetrics-linux.yaml
     ports:
       - 12800
-
   banyandb:
     extends:
       file: ../../../script/docker-compose/base-compose.yml
       service: banyandb
     ports:
       - 17912
-
   vm-service:
     hostname: vm-service
     build:
@@ -45,9 +41,44 @@ services:
       - e2e
     volumes:
       - ./otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml
+      - ./fixtures:/fixtures:ro
     depends_on:
       oap:
         condition: service_healthy
-
+  windows-fixture-replay:
+    image: curlimages/curl:8.10.1
+    depends_on:
+      - vm-service
+    volumes:
+      - ./fixtures:/fixtures:ro
+    networks:
+      - e2e
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          TS="$$(date +%s)000000000"
+          echo "Replaying Windows OTLP fixtures timestamp=$${TS}"
+          sed "s/1788474000000000000/$${TS}/g" \
+            /fixtures/windows-host.json \
+            | curl -sS \
+                -o /dev/null \
+                -w "windows-host HTTP %{http_code}\n" \
+                -X POST \
+                -H 'Content-Type: application/json' \
+                --data-binary @- \
+                http://vm-service:4318/v1/metrics || true
+          sed "s/1788474000000000000/$${TS}/g" \
+            /fixtures/windows-process.json \
+            | curl -sS \
+                -o /dev/null \
+                -w "windows-process HTTP %{http_code}\n" \
+                -X POST \
+                -H 'Content-Type: application/json' \
+                --data-binary @- \
+                http://vm-service:4318/v1/metrics || true
+          sleep 10
+        done
 networks:
   e2e:

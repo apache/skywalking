@@ -64,3 +64,19 @@ verify:
 
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=mp_process_linux_oldest_process_uptime_seconds --service-name=vm-service --instance-name=sleep
       expected: ../expected/metrics-has-value.yml
+
+    # Raw post-processor Collector contract. This distinguishes true
+    # Collector-side aggregation from a value that only becomes 3 in MAL.
+    - query: bash test/e2e-v2/cases/vm/otel-hostmetrics/assert-collector-output.sh
+      expected: expected/collector-contract.yml
+
+    # Synthetic native-Windows OTLP fixtures are normalized by Collector 0.158
+    # and then consumed by the production Windows MAL rules.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_cpu_cores_num --service-name=win-fixture
+      expected: ../expected/metrics-has-value.yml
+
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=mp_process_windows_num_procs --service-name=win-fixture --instance-name=svchost.exe
+      expected: ../expected/metrics-has-value.yml
+
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=mp_process_windows_open_handles --service-name=win-fixture --instance-name=svchost.exe
+      expected: ../expected/metrics-has-value.yml

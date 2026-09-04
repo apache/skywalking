@@ -24,6 +24,13 @@
 
 receivers:
 
+  otlp/windows-fixture-replay:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Synthetic OTLP JSON fixtures exercise the Windows normalization contract
+  # on the Linux E2E runner; no Windows host is required.
   # ---------------------------------------------------------------------------
   # Host metrics
   # ---------------------------------------------------------------------------
@@ -146,6 +153,138 @@ receivers:
 
 
 processors:
+  groupbyattrs/process-linux:
+    keys: []
+
+  transform/process-aggregate-linux:
+    error_mode: propagate
+    metric_statements:
+      # hostmetrics/process generates each PID as a separate ResourceMetrics
+      # and assigns a slightly different timestamp to each process.
+      #
+      # groupbyattrs compacts ResourceMetrics with the same normalized
+      # process identity into common Metric objects. Align timestamps before
+      # aggregating their datapoints.
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+
+      - context: metric
+        statements:
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.count"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.threads"
+
+          # CPU keeps state because MAL needs user/system/wait separately.
+          - aggregate_on_attributes(
+              "sum",
+              ["state"]
+            ) where metric.name == "process.cpu.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.usage"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.virtual"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.open_handles"
+
+          # Logical process uptime is the oldest member of the group.
+          - aggregate_on_attributes(
+              "max",
+              []
+            ) where metric.name == "process.uptime"
+  # ---------------------------------------------------------------------------
+  # Windows OTLP fixture normalization. These processors intentionally mirror
+  # the deployable Windows reference configuration.
+  # ---------------------------------------------------------------------------
+  transform/host-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "windows-monitoring")
+      - context: datapoint
+        statements:
+          - set(datapoint.attributes["mode"], datapoint.attributes["state"])
+            where metric.name == "system.cpu.time" and datapoint.attributes["state"] != nil
+          - delete_key(datapoint.attributes, "state")
+            where metric.name == "system.cpu.time"
+
+  transform/process-identity-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "hostmetrics-process-monitoring-windows")
+          - set(resource.attributes["process_name"], ConvertCase(resource.attributes["process.executable.name"], "lower"))
+            where resource.attributes["process.executable.name"] != nil
+          - delete_key(resource.attributes, "process.executable.name")
+
+  filter/process-without-name-windows:
+    error_mode: ignore
+    metric_conditions:
+      - resource.attributes["process_name"] == nil
+      - resource.attributes["process_name"] == ""
+
+  transform/process-prepare-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: metric
+        statements:
+          - set(metric.name, "process.open_handles")
+            where metric.name == "process.handles"
+          - copy_metric(
+              name="process.count",
+              description="One sample per operating-system process",
+              unit="{process}"
+            ) where metric.name == "process.threads"
+      - context: datapoint
+        statements:
+          - set(value_int, 1) where metric.name == "process.count"
+
+  groupbyattrs/process-windows:
+    keys: []
+
+  transform/process-aggregate-windows:
+    error_mode: propagate
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+      - context: metric
+        statements:
+          - aggregate_on_attributes("sum", []) where metric.name == "process.count"
+          - aggregate_on_attributes("sum", []) where metric.name == "process.threads"
+          - aggregate_on_attributes("sum", []) where metric.name == "process.open_handles"
 
   # ---------------------------------------------------------------------------
   # Detect host.name.
@@ -206,6 +345,16 @@ processors:
               datapoint.attributes["mode"],
               datapoint.attributes["state"]
             ) where metric.name == "system.cpu.utilization" and datapoint.attributes["state"] != nil
+
+          - set(
+              datapoint.attributes["mode"],
+              "irq"
+            ) where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "interrupt"
+
+          - set(
+              datapoint.attributes["mode"],
+              "iowait"
+            ) where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "wait"
 
           - delete_key(
               datapoint.attributes,
@@ -292,19 +441,18 @@ processors:
 
 
   # ---------------------------------------------------------------------------
-  # Prepare process metrics for aggregation.
+  # Prepare individual process metrics for Collector-side aggregation.
   #
   # Linux FD:
   #   process.open_file_descriptors -> process.open_handles
   #
   # Process count:
-  #   create one process.count sample for each process by copying the
-  #   process.threads metric. Later aggregate_on_attributes("count", [])
-  #   counts those samples.
+  #   create one process.count=1 sample per operating-system process. The
+  #   following groupbyattrs and transform processors aggregate these samples
+  #   by normalized process identity before OTLP export.
   # ---------------------------------------------------------------------------
   transform/process-prepare-linux:
     error_mode: ignore
-
     metric_statements:
 
       - context: metric
@@ -317,9 +465,16 @@ processors:
 
           - copy_metric(
               name="process.count",
-              description="Number of processes in the normalized process group"
+              description="One sample per operating-system process",
+              unit="{process}"
             ) where metric.name == "process.threads"
 
+      - context: datapoint
+        statements:
+          - set(
+              value_int,
+              1
+            ) where metric.name == "process.count"
 
   # ---------------------------------------------------------------------------
   # Batch host telemetry.
@@ -327,95 +482,6 @@ processors:
   batch/host-linux:
     timeout: 2s
     send_batch_size: 8192
-
-
-  # ---------------------------------------------------------------------------
-  # Batch individual process telemetry before grouping.
-  # ---------------------------------------------------------------------------
-  batch/process-linux:
-    timeout: 2s
-    send_batch_size: 8192
-
-
-  # ---------------------------------------------------------------------------
-  # Collapse ResourceMetrics belonging to the same normalized process group.
-  #
-  # process_name remains a resource attribute and therefore remains the
-  # process group identity.
-  #
-  # PID is not present.
-  # ---------------------------------------------------------------------------
-  groupbyattrs/process-linux:
-    keys: []
-
-
-  # ---------------------------------------------------------------------------
-  # Aggregate all PIDs belonging to the same process_name.
-  #
-  # For the E2E workload:
-  #
-  #   sleep PID A
-  #   sleep PID B
-  #   sleep PID C
-  #
-  # becomes one logical process group:
-  #
-  #   process_name = sleep
-  #
-  # with:
-  #
-  #   process.count = 3
-  #
-  # ---------------------------------------------------------------------------
-  transform/process-aggregate-linux:
-    error_mode: ignore
-
-    metric_statements:
-
-      - context: metric
-        statements:
-
-          # Number of actual processes in this normalized group.
-          - aggregate_on_attributes(
-              "count",
-              []
-            ) where metric.name == "process.count"
-
-          # Total threads across the group.
-          - aggregate_on_attributes(
-              "sum",
-              []
-            ) where metric.name == "process.threads"
-
-          # Preserve CPU state while aggregating all processes.
-          - aggregate_on_attributes(
-              "sum",
-              ["state"]
-            ) where metric.name == "process.cpu.utilization"
-
-          # Total resident memory.
-          - aggregate_on_attributes(
-              "sum",
-              []
-            ) where metric.name == "process.memory.usage"
-
-          # Aggregate process memory utilization.
-          - aggregate_on_attributes(
-              "sum",
-              []
-            ) where metric.name == "process.memory.utilization"
-
-          # Total open file descriptors.
-          - aggregate_on_attributes(
-              "sum",
-              []
-            ) where metric.name == "process.open_handles"
-
-          # Oldest process in the group.
-          - aggregate_on_attributes(
-              "max",
-              []
-            ) where metric.name == "process.uptime"
 
 
   # ---------------------------------------------------------------------------
@@ -427,6 +493,26 @@ processors:
 
 
 exporters:
+
+  # Detailed post-processor Collector output is asserted by
+  # assert-collector-output.sh before relying on OAP/MAL results.
+  debug/process-linux-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/process-linux-raw.log
+
+  debug/windows-host-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/windows-host-raw.log
+
+  debug/windows-process-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/windows-process-raw.log
 
   # ---------------------------------------------------------------------------
   # OAP service defined in docker-compose.yml.
@@ -465,19 +551,44 @@ service:
     # Process telemetry -> process-hostmetrics-linux.yaml
     # -------------------------------------------------------------------------
     metrics/processes-linux:
-
       receivers:
         - hostmetrics/processes
-
       processors:
         - resource_detection/system
         - transform/process-identity-linux
         - filter/process-without-name-linux
         - transform/process-prepare-linux
-        - batch/process-linux
         - groupbyattrs/process-linux
         - transform/process-aggregate-linux
         - batch/export
-
       exporters:
         - otlp
+        - debug/process-linux-raw
+
+    # -------------------------------------------------------------------------
+    # Synthetic Windows host OTLP fixture -> windows.yaml
+    # -------------------------------------------------------------------------
+    metrics/windows-host-fixture:
+      receivers:
+        - otlp/windows-fixture-replay
+      processors:
+        - transform/host-windows
+      exporters:
+        - otlp
+        - debug/windows-host-raw
+
+    # -------------------------------------------------------------------------
+    # Synthetic Windows process OTLP fixture -> process-hostmetrics-windows.yaml
+    # -------------------------------------------------------------------------
+    metrics/windows-process-fixture:
+      receivers:
+        - otlp/windows-fixture-replay
+      processors:
+        - transform/process-identity-windows
+        - filter/process-without-name-windows
+        - transform/process-prepare-windows
+        - groupbyattrs/process-windows
+        - transform/process-aggregate-windows
+      exporters:
+        - otlp
+        - debug/windows-process-raw

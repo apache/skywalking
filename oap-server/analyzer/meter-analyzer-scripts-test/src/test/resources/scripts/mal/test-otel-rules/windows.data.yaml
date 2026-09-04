@@ -20,6 +20,59 @@ input:
         node_identifier_host_name: test-host
         mode: user
       value: 100.0
+  # Native OpenTelemetry hostmetrics contract after Collector normalization.
+  # Values are fixed for deterministic MAL assertions.
+  system_cpu_logical_count:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 4.0
+  system_cpu_time:
+    - labels:
+        node_identifier_host_name: test-host
+        mode: user
+      value: 20.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: idle
+      value: 80.0
+  system_cpu_load_average_1m:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 1.25
+  system_cpu_load_average_5m:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 0.75
+  system_cpu_load_average_15m:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 0.5
+  system_filesystem_usage:
+    - labels:
+        node_identifier_host_name: test-host
+        mountpoint: "C:"
+        state: free
+      value: 60.0
+    - labels:
+        node_identifier_host_name: test-host
+        mountpoint: "C:"
+        state: used
+      value: 40.0
+  system_filehandles_allocated:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 123.0
+  system_paging_usage:
+    - labels:
+        node_identifier_host_name: test-host
+        device: 'C:\\pagefile.sys'
+        state: used
+      value: 30.0
+    - labels:
+        node_identifier_host_name: test-host
+        device: 'C:\\pagefile.sys'
+        state: free
+      value: 70.0
   windows_cs_physical_memory_bytes:
     - labels:
       value: 100.0
@@ -57,7 +110,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 2500.0
+        value: 3000.0
   meter_win_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -67,7 +120,7 @@ expected:
       - labels:
           node_identifier_host_name: test-host
           mode: user
-        value: 2500.0
+        value: 3000.0
   meter_win_memory_total:
     entities:
       - scope: SERVICE
@@ -146,3 +199,95 @@ expected:
       - labels:
           node_identifier_host_name: test-host
         value: 0.0
+
+  meter_win_cpu_cores_num:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 4.0
+  meter_win_cpu_norm_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 125.0
+  meter_win_cpu_load1:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 125.0
+  meter_win_cpu_load5:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 75.0
+  meter_win_cpu_load15:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 50.0
+  meter_win_filesystem_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+          mountpoint: "C:"
+        value: 40.0
+  meter_win_filehandles_allocated:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 123.0
+  meter_win_memory_pagefile_free:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 70.0
+  meter_win_memory_pagefile_total:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 100.0
+  meter_win_memory_pagefile_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_WINDOWS
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 30.0
