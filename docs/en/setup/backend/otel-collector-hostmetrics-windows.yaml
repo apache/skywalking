@@ -1,0 +1,284 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Reference configuration for OpenTelemetry Collector Contrib 0.158.0.
+# Native Windows host + process monitoring for SkyWalking OAP.
+#
+# Environment variables:
+#   SW_OAP_GRPC_ADDRESS       OAP OTLP/gRPC endpoint (default 127.0.0.1:11800)
+#   SW_PROCESS_NAME_REGEX     process executable-name regexp (default .*)
+#
+# system.cpu.time uses OTel's "state" attribute; this config normalizes it to
+# the existing SkyWalking/windows_exporter "mode" contract. process.handles is
+# normalized to process.open_handles for the process MAL rule.
+#
+# The Collector also normalizes process identity and pre-aggregates
+# operating-system processes with the same normalized process_name before
+# OTLP export.
+
+receivers:
+  hostmetrics/system:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.logical.count:
+            enabled: true
+      memory:
+        metrics:
+          system.memory.limit:
+            enabled: true
+      disk: {}
+      network: {}
+      filesystem: {}
+      paging: {}
+      load: {}
+
+  # Windows Performance Counters needed to preserve the existing windows.yaml
+  # virtual-memory and system-handle semantics.
+  windowsperfcounters/skywalking:
+    collection_interval: 30s
+    metrics:
+      system.virtual.memory.commit_limit:
+        description: Windows virtual memory commit limit
+        unit: By
+        gauge: {}
+      system.virtual.memory.committed:
+        description: Windows committed virtual memory bytes
+        unit: By
+        gauge: {}
+      system.filehandles.allocated:
+        description: Current number of system handles
+        unit: "{count}"
+        gauge: {}
+    perfcounters:
+      - object: Memory
+        counters:
+          - name: Commit Limit
+            metric: system.virtual.memory.commit_limit
+          - name: Committed Bytes
+            metric: system.virtual.memory.committed
+      - object: System
+        counters:
+          - name: Handle Count
+            metric: system.filehandles.allocated
+
+  hostmetrics/processes:
+    collection_interval: 30s
+    scrapers:
+      process:
+        include:
+          match_type: regexp
+          names:
+            - "${env:SW_PROCESS_NAME_REGEX:-.*}"
+        mute_process_all_errors: true
+        metrics:
+          process.cpu.time:
+            enabled: false
+          process.cpu.utilization:
+            enabled: true
+          process.memory.usage:
+            enabled: true
+          process.memory.virtual:
+            enabled: false
+          process.memory.utilization:
+            enabled: true
+          process.threads:
+            enabled: true
+          process.uptime:
+            enabled: true
+          process.handles:
+            enabled: true
+          process.open_file_descriptors:
+            enabled: false
+          process.context_switches:
+            enabled: false
+          process.paging.faults:
+            enabled: false
+          process.signals_pending:
+            enabled: false
+          process.disk.io:
+            enabled: false
+          process.disk.operations:
+            enabled: false
+        resource_attributes:
+          process.executable.name:
+            enabled: true
+          process.executable.path:
+            enabled: false
+          process.command:
+            enabled: false
+          process.command_line:
+            enabled: false
+          process.owner:
+            enabled: false
+          process.pid:
+            enabled: false
+          process.parent_pid:
+            enabled: false
+
+processors:
+  resource_detection/system:
+    detectors: [system]
+    override: true
+    system:
+      hostname_sources: [os]
+
+  transform/host-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "windows-monitoring")
+      - context: datapoint
+        statements:
+          - set(datapoint.attributes["mode"], datapoint.attributes["state"])
+            where metric.name == "system.cpu.time" and datapoint.attributes["state"] != nil
+          - delete_key(datapoint.attributes, "state")
+            where metric.name == "system.cpu.time"
+
+  transform/process-identity-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "hostmetrics-process-monitoring-windows")
+          - set(resource.attributes["process_name"], ConvertCase(resource.attributes["process.executable.name"], "lower"))
+            where resource.attributes["process.executable.name"] != nil
+          - delete_key(resource.attributes, "process.executable.name")
+
+  filter/process-without-name-windows:
+    error_mode: ignore
+    metric_conditions:
+      - resource.attributes["process_name"] == nil
+      - resource.attributes["process_name"] == ""
+
+  transform/process-prepare-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: metric
+        statements:
+          - set(metric.name, "process.open_handles")
+            where metric.name == "process.handles"
+          - copy_metric(
+              name="process.count",
+              description="One sample per operating-system process",
+              unit="{process}"
+            ) where metric.name == "process.threads"
+      - context: datapoint
+        statements:
+          - set(value_int, 1) where metric.name == "process.count"
+
+  # hostmetrics/process emits each operating-system process as a separate
+  # ResourceMetrics. After process identity normalization, compact equivalent
+  # resources so datapoints for the same logical process share Metric objects.
+  groupbyattrs/process-windows:
+    keys: []
+
+  transform/process-aggregate-windows:
+    error_mode: propagate
+    metric_statements:
+      # The process scraper assigns slightly different timestamps while
+      # iterating over processes. Align them to the 30-second collection
+      # window before aggregating datapoints.
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+
+      - context: metric
+        statements:
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.count"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.threads"
+
+          # Preserve CPU state because MAL consumes user/system separately.
+          - aggregate_on_attributes(
+              "sum",
+              ["state"]
+            ) where metric.name == "process.cpu.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.usage"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.virtual"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.open_handles"
+
+          # Logical process uptime represents the oldest process in the group.
+          - aggregate_on_attributes(
+              "max",
+              []
+            ) where metric.name == "process.uptime"
+
+  batch/host-windows:
+    timeout: 2s
+    send_batch_size: 8192
+
+  batch/export:
+    timeout: 2s
+    send_batch_size: 8192
+
+exporters:
+  otlp:
+    endpoint: "${env:SW_OAP_GRPC_ADDRESS:-127.0.0.1:11800}"
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics/host-windows:
+      receivers: [hostmetrics/system, windowsperfcounters/skywalking]
+      processors:
+        - resource_detection/system
+        - transform/host-windows
+        - batch/host-windows
+      exporters: [otlp]
+    metrics/processes-windows:
+      receivers: [hostmetrics/processes]
+      processors:
+        - resource_detection/system
+        - transform/process-identity-windows
+        - filter/process-without-name-windows
+        - transform/process-prepare-windows
+        - groupbyattrs/process-windows
+        - transform/process-aggregate-windows
+        - batch/export
+      exporters: [otlp]

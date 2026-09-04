@@ -20,6 +20,21 @@ input:
         node_identifier_host_name: test-host
         mode: user
       value: 100.0
+  # Native OpenTelemetry hostmetrics shape captured from otelcol-contrib 0.158.0.
+  # Values are fixed for deterministic MAL assertions.
+  system_cpu_logical_count:
+    - labels:
+        node_identifier_host_name: test-host
+      value: 4.0
+  system_cpu_utilization:
+    - labels:
+        node_identifier_host_name: test-host
+        mode: user
+      value: 0.2
+    - labels:
+        node_identifier_host_name: test-host
+        mode: idle
+      value: 0.8
   node_load1:
     - labels:
       value: 100.0
@@ -100,7 +115,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 2500.0
+        value: 2520.0
   meter_vm_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -110,11 +125,12 @@ expected:
       - labels:
           node_identifier_host_name: test-host
           mode: user
-        value: 2500.0
+        value: 2520.0
   meter_vm_cpu_load1:
     entities:
       - scope: SERVICE
         layer: OS_LINUX
+        attr0: OS_LINUX
     samples:
       - labels:
         value: 10000.0
@@ -269,3 +285,22 @@ expected:
     samples:
       - labels:
         value: 100.0
+
+  meter_vm_cpu_cores_num:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 4.0
+  meter_vm_cpu_norm_percentage:
+    entities:
+      - scope: SERVICE
+        service: test-host
+        layer: OS_LINUX
+    samples:
+      - labels:
+          node_identifier_host_name: test-host
+        value: 5.0

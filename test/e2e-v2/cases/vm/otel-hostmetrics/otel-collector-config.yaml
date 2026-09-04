@@ -1,0 +1,594 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License. You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+#
+# E2E configuration for OpenTelemetry-native Linux host/process monitoring.
+#
+# Differences from the production/reference configuration:
+#   - collection_interval is 5s instead of 30s
+#   - process allowlist contains only "^sleep$"
+#   - OTLP endpoint is the Docker Compose service "oap:11800"
+#
+
+receivers:
+
+  otlp/windows-fixture-replay:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+  # Synthetic OTLP JSON fixtures exercise the Windows normalization contract
+  # on the Linux E2E runner; no Windows host is required.
+  # ---------------------------------------------------------------------------
+  # Host metrics
+  # ---------------------------------------------------------------------------
+  hostmetrics/system:
+    collection_interval: 5s
+
+    scrapers:
+
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+
+          system.cpu.logical.count:
+            enabled: true
+
+      memory:
+        metrics:
+          system.linux.memory.available:
+            enabled: true
+
+          system.memory.limit:
+            enabled: true
+
+      disk: {}
+
+      network: {}
+
+      filesystem: {}
+
+      paging: {}
+
+      load: {}
+
+
+  # ---------------------------------------------------------------------------
+  # Process metrics
+  #
+  # The E2E workload starts exactly three "sleep" processes.
+  # Only those processes are collected.
+  # ---------------------------------------------------------------------------
+  hostmetrics/processes:
+    collection_interval: 5s
+
+    scrapers:
+
+      process:
+
+        include:
+          match_type: regexp
+          names:
+            - "^sleep$"
+
+        mute_process_all_errors: true
+
+        metrics:
+
+          process.cpu.time:
+            enabled: false
+
+          process.cpu.utilization:
+            enabled: true
+
+          process.memory.usage:
+            enabled: true
+
+          process.memory.virtual:
+            enabled: false
+
+          process.memory.utilization:
+            enabled: true
+
+          process.threads:
+            enabled: true
+
+          process.uptime:
+            enabled: true
+
+          process.open_file_descriptors:
+            enabled: true
+
+          process.context_switches:
+            enabled: false
+
+          process.paging.faults:
+            enabled: false
+
+          process.signals_pending:
+            enabled: false
+
+          process.disk.io:
+            enabled: false
+
+          process.disk.operations:
+            enabled: false
+
+        resource_attributes:
+
+          # This is the only process identity attribute required.
+          process.executable.name:
+            enabled: true
+
+          process.executable.path:
+            enabled: false
+
+          process.command:
+            enabled: false
+
+          process.command_line:
+            enabled: false
+
+          process.owner:
+            enabled: false
+
+          process.pid:
+            enabled: false
+
+          process.parent_pid:
+            enabled: false
+
+
+processors:
+  groupbyattrs/process-linux:
+    keys: []
+
+  transform/process-aggregate-linux:
+    error_mode: propagate
+    metric_statements:
+      # hostmetrics/process generates each PID as a separate ResourceMetrics
+      # and assigns a slightly different timestamp to each process.
+      #
+      # groupbyattrs compacts ResourceMetrics with the same normalized
+      # process identity into common Metric objects. Align timestamps before
+      # aggregating their datapoints.
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+
+      - context: metric
+        statements:
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.count"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.threads"
+
+          # CPU keeps state because MAL needs user/system/wait separately.
+          - aggregate_on_attributes(
+              "sum",
+              ["state"]
+            ) where metric.name == "process.cpu.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.usage"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.virtual"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.open_handles"
+
+          # Logical process uptime is the oldest member of the group.
+          - aggregate_on_attributes(
+              "max",
+              []
+            ) where metric.name == "process.uptime"
+  # ---------------------------------------------------------------------------
+  # Windows OTLP fixture normalization. These processors intentionally mirror
+  # the deployable Windows reference configuration.
+  # ---------------------------------------------------------------------------
+  transform/host-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "windows-monitoring")
+      - context: datapoint
+        statements:
+          - set(datapoint.attributes["mode"], datapoint.attributes["state"])
+            where metric.name == "system.cpu.time" and datapoint.attributes["state"] != nil
+          - delete_key(datapoint.attributes, "state")
+            where metric.name == "system.cpu.time"
+
+  transform/process-identity-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "hostmetrics-process-monitoring-windows")
+          - set(resource.attributes["process_name"], ConvertCase(resource.attributes["process.executable.name"], "lower"))
+            where resource.attributes["process.executable.name"] != nil
+          - delete_key(resource.attributes, "process.executable.name")
+
+  filter/process-without-name-windows:
+    error_mode: ignore
+    metric_conditions:
+      - resource.attributes["process_name"] == nil
+      - resource.attributes["process_name"] == ""
+
+  transform/process-prepare-windows:
+    error_mode: ignore
+    metric_statements:
+      - context: metric
+        statements:
+          - set(metric.name, "process.open_handles")
+            where metric.name == "process.handles"
+          - copy_metric(
+              name="process.count",
+              description="One sample per operating-system process",
+              unit="{process}"
+            ) where metric.name == "process.threads"
+      - context: datapoint
+        statements:
+          - set(value_int, 1) where metric.name == "process.count"
+
+  groupbyattrs/process-windows:
+    keys: []
+
+  transform/process-aggregate-windows:
+    error_mode: propagate
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+      - context: metric
+        statements:
+          - aggregate_on_attributes("sum", []) where metric.name == "process.count"
+          - aggregate_on_attributes("sum", []) where metric.name == "process.threads"
+          - aggregate_on_attributes("sum", []) where metric.name == "process.open_handles"
+
+  # ---------------------------------------------------------------------------
+  # Detect host.name.
+  #
+  # Because docker-compose.yml sets:
+  #
+  #   hostname: vm-service
+  #
+  # this should produce:
+  #
+  #   host.name = vm-service
+  #
+  # ---------------------------------------------------------------------------
+  resource_detection/system:
+    detectors:
+      - system
+
+    override: true
+
+    system:
+      hostname_sources:
+        - os
+
+
+  # ---------------------------------------------------------------------------
+  # Host identity / routing
+  #
+  # Makes hostmetrics use the same canonical SkyWalking VM model as the
+  # existing node-exporter integration:
+  #
+  #   node_identifier_host_name = host.name
+  #   job_name                  = vm-monitoring
+  #
+  # CPU state is renamed to "mode" to preserve the canonical vm.yaml shape.
+  # ---------------------------------------------------------------------------
+  transform/host-linux:
+    error_mode: ignore
+
+    metric_statements:
+
+      - context: resource
+        statements:
+
+          - set(
+              resource.attributes["node_identifier_host_name"],
+              resource.attributes["host.name"]
+            ) where resource.attributes["host.name"] != nil
+
+          - set(
+              resource.attributes["job_name"],
+              "vm-monitoring"
+            )
+
+      - context: datapoint
+        statements:
+
+          - set(
+              datapoint.attributes["mode"],
+              datapoint.attributes["state"]
+            ) where metric.name == "system.cpu.utilization" and datapoint.attributes["state"] != nil
+
+          - set(
+              datapoint.attributes["mode"],
+              "irq"
+            ) where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "interrupt"
+
+          - set(
+              datapoint.attributes["mode"],
+              "iowait"
+            ) where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "wait"
+
+          - delete_key(
+              datapoint.attributes,
+              "state"
+            ) where metric.name == "system.cpu.utilization"
+
+          - set(
+              datapoint.attributes["protocol"],
+              ConvertCase(datapoint.attributes["protocol"], "lower")
+            ) where metric.name == "system.network.connections" and datapoint.attributes["protocol"] != nil
+
+          - set(
+              datapoint.attributes["state"],
+              ConvertCase(datapoint.attributes["state"], "lower")
+            ) where metric.name == "system.network.connections" and datapoint.attributes["state"] != nil
+
+
+  # ---------------------------------------------------------------------------
+  # Process identity
+  #
+  # Converts:
+  #
+  #   process.executable.name = sleep
+  #
+  # into:
+  #
+  #   node_identifier_host_name = vm-service
+  #   job_name                  = hostmetrics-process-monitoring-linux
+  #   process_name              = sleep
+  #
+  # PID is deliberately NOT part of the identity.
+  # ---------------------------------------------------------------------------
+  transform/process-identity-linux:
+    error_mode: ignore
+
+    metric_statements:
+
+      - context: resource
+        statements:
+
+          - set(
+              resource.attributes["node_identifier_host_name"],
+              resource.attributes["host.name"]
+            ) where resource.attributes["host.name"] != nil
+
+          - set(
+              resource.attributes["job_name"],
+              "hostmetrics-process-monitoring-linux"
+            )
+
+          - set(
+              resource.attributes["process_name"],
+              ConvertCase(
+                resource.attributes["process.executable.name"],
+                "lower"
+              )
+            ) where resource.attributes["process.executable.name"] != nil
+
+          # Generic Python normalization retained from the reference config.
+          - replace_pattern(
+              resource.attributes["process_name"],
+              "^python[0-9.]*$",
+              "python"
+            ) where resource.attributes["process_name"] != nil
+
+          # process_name is now the canonical process identity.
+          - delete_key(
+              resource.attributes,
+              "process.executable.name"
+            )
+
+
+  # ---------------------------------------------------------------------------
+  # Do not send process telemetry without a normalized process name.
+  # ---------------------------------------------------------------------------
+  filter/process-without-name-linux:
+    error_mode: ignore
+
+    metric_conditions:
+
+      - resource.attributes["process_name"] == nil
+
+      - resource.attributes["process_name"] == ""
+
+
+  # ---------------------------------------------------------------------------
+  # Prepare individual process metrics for Collector-side aggregation.
+  #
+  # Linux FD:
+  #   process.open_file_descriptors -> process.open_handles
+  #
+  # Process count:
+  #   create one process.count=1 sample per operating-system process. The
+  #   following groupbyattrs and transform processors aggregate these samples
+  #   by normalized process identity before OTLP export.
+  # ---------------------------------------------------------------------------
+  transform/process-prepare-linux:
+    error_mode: ignore
+    metric_statements:
+
+      - context: metric
+        statements:
+
+          - set(
+              metric.name,
+              "process.open_handles"
+            ) where metric.name == "process.open_file_descriptors"
+
+          - copy_metric(
+              name="process.count",
+              description="One sample per operating-system process",
+              unit="{process}"
+            ) where metric.name == "process.threads"
+
+      - context: datapoint
+        statements:
+          - set(
+              value_int,
+              1
+            ) where metric.name == "process.count"
+
+  # ---------------------------------------------------------------------------
+  # Batch host telemetry.
+  # ---------------------------------------------------------------------------
+  batch/host-linux:
+    timeout: 2s
+    send_batch_size: 8192
+
+
+  # ---------------------------------------------------------------------------
+  # Final batching before OTLP export.
+  # ---------------------------------------------------------------------------
+  batch/export:
+    timeout: 2s
+    send_batch_size: 8192
+
+
+exporters:
+
+  # Detailed post-processor Collector output is asserted by
+  # assert-collector-output.sh before relying on OAP/MAL results.
+  debug/process-linux-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/process-linux-raw.log
+
+  debug/windows-host-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/windows-host-raw.log
+
+  debug/windows-process-raw:
+    verbosity: detailed
+    use_internal_logger: false
+    output_paths:
+      - /tmp/windows-process-raw.log
+
+  # ---------------------------------------------------------------------------
+  # OAP service defined in docker-compose.yml.
+  #
+  # No authentication is required inside this isolated E2E network.
+  # ---------------------------------------------------------------------------
+  otlp:
+    endpoint: oap:11800
+
+    tls:
+      insecure: true
+
+
+service:
+
+  pipelines:
+
+    # -------------------------------------------------------------------------
+    # Host telemetry -> vm.yaml
+    # -------------------------------------------------------------------------
+    metrics/host-linux:
+
+      receivers:
+        - hostmetrics/system
+
+      processors:
+        - resource_detection/system
+        - transform/host-linux
+        - batch/host-linux
+
+      exporters:
+        - otlp
+
+
+    # -------------------------------------------------------------------------
+    # Process telemetry -> process-hostmetrics-linux.yaml
+    # -------------------------------------------------------------------------
+    metrics/processes-linux:
+      receivers:
+        - hostmetrics/processes
+      processors:
+        - resource_detection/system
+        - transform/process-identity-linux
+        - filter/process-without-name-linux
+        - transform/process-prepare-linux
+        - groupbyattrs/process-linux
+        - transform/process-aggregate-linux
+        - batch/export
+      exporters:
+        - otlp
+        - debug/process-linux-raw
+
+    # -------------------------------------------------------------------------
+    # Synthetic Windows host OTLP fixture -> windows.yaml
+    # -------------------------------------------------------------------------
+    metrics/windows-host-fixture:
+      receivers:
+        - otlp/windows-fixture-replay
+      processors:
+        - transform/host-windows
+      exporters:
+        - otlp
+        - debug/windows-host-raw
+
+    # -------------------------------------------------------------------------
+    # Synthetic Windows process OTLP fixture -> process-hostmetrics-windows.yaml
+    # -------------------------------------------------------------------------
+    metrics/windows-process-fixture:
+      receivers:
+        - otlp/windows-fixture-replay
+      processors:
+        - transform/process-identity-windows
+        - filter/process-without-name-windows
+        - transform/process-prepare-windows
+        - groupbyattrs/process-windows
+        - transform/process-aggregate-windows
+      exporters:
+        - otlp
+        - debug/windows-process-raw

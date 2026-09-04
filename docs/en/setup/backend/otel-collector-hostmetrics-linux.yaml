@@ -1,0 +1,261 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+# 
+# http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Environment variables:
+#   SW_OAP_GRPC_ADDRESS       OAP OTLP/gRPC endpoint (default 127.0.0.1:11800)
+#   SW_PROCESS_NAME_REGEX     process executable-name regexp (default .*)
+#
+# The Collector normalizes process identity and pre-aggregates
+# operating-system processes with the same normalized process_name before
+# OTLP export.
+
+receivers:
+  hostmetrics/system:
+    collection_interval: 30s
+    scrapers:
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+          system.cpu.logical.count:
+            enabled: true
+      memory:
+        metrics:
+          system.linux.memory.available:
+            enabled: true
+          system.memory.limit:
+            enabled: true
+      disk: {}
+      network: {}
+      filesystem: {}
+      paging: {}
+      load: {}
+
+  hostmetrics/processes:
+    collection_interval: 30s
+    scrapers:
+      process:
+        include:
+          match_type: regexp
+          names:
+            - "${env:SW_PROCESS_NAME_REGEX:-.*}"
+        mute_process_all_errors: true
+        metrics:
+          process.cpu.time:
+            enabled: false
+          process.cpu.utilization:
+            enabled: true
+          process.memory.usage:
+            enabled: true
+          process.memory.virtual:
+            enabled: false
+          process.memory.utilization:
+            enabled: true
+          process.threads:
+            enabled: true
+          process.uptime:
+            enabled: true
+          process.open_file_descriptors:
+            enabled: true
+          process.context_switches:
+            enabled: false
+          process.paging.faults:
+            enabled: false
+          process.signals_pending:
+            enabled: false
+          process.disk.io:
+            enabled: false
+          process.disk.operations:
+            enabled: false
+        resource_attributes:
+          process.executable.name:
+            enabled: true
+          process.executable.path:
+            enabled: false
+          process.command:
+            enabled: false
+          process.command_line:
+           enabled: false
+          process.owner:
+            enabled: false
+          process.pid:
+            enabled: false
+          process.parent_pid:
+            enabled: false
+
+processors:
+  resource_detection/system:
+    detectors: [system]
+    override: true
+    system:
+      hostname_sources: [os]
+
+  transform/host-linux:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "vm-monitoring")
+      - context: datapoint
+        statements:
+          - set(datapoint.attributes["mode"], datapoint.attributes["state"])
+            where metric.name == "system.cpu.utilization" and datapoint.attributes["state"] != nil
+          - set(datapoint.attributes["mode"], "irq")
+            where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "interrupt"
+          - set(datapoint.attributes["mode"], "iowait")
+            where metric.name == "system.cpu.utilization" and datapoint.attributes["mode"] == "wait"
+          - delete_key(datapoint.attributes, "state")
+            where metric.name == "system.cpu.utilization"
+          - set(datapoint.attributes["protocol"], ConvertCase(datapoint.attributes["protocol"], "lower"))
+            where metric.name == "system.network.connections" and datapoint.attributes["protocol"] != nil
+          - set(datapoint.attributes["state"], ConvertCase(datapoint.attributes["state"], "lower"))
+            where metric.name == "system.network.connections" and datapoint.attributes["state"] != nil
+
+  transform/process-identity-linux:
+    error_mode: ignore
+    metric_statements:
+      - context: resource
+        statements:
+          - set(resource.attributes["node_identifier_host_name"], resource.attributes["host.name"])
+            where resource.attributes["host.name"] != nil
+          - set(resource.attributes["job_name"], "hostmetrics-process-monitoring-linux")
+          - set(resource.attributes["process_name"], ConvertCase(resource.attributes["process.executable.name"], "lower"))
+            where resource.attributes["process.executable.name"] != nil
+          - replace_pattern(resource.attributes["process_name"], "^python[0-9.]*$", "python")
+            where resource.attributes["process_name"] != nil
+          - delete_key(resource.attributes, "process.executable.name")
+
+  filter/process-without-name-linux:
+    error_mode: ignore
+    metric_conditions:
+      - resource.attributes["process_name"] == nil
+      - resource.attributes["process_name"] == ""
+
+  transform/process-prepare-linux:
+    error_mode: ignore
+    metric_statements:
+      - context: metric
+        statements:
+          - set(metric.name, "process.open_handles")
+            where metric.name == "process.open_file_descriptors"
+          - copy_metric(
+              name="process.count",
+              description="One sample per operating-system process",
+              unit="{process}"
+            ) where metric.name == "process.threads"
+      - context: datapoint
+        statements:
+          - set(value_int, 1) where metric.name == "process.count"
+
+  # hostmetrics/process emits each operating-system process as a separate
+  # ResourceMetrics. After process identity normalization, compact equivalent
+  # resources so datapoints for the same logical process share Metric objects.
+  groupbyattrs/process-linux:
+    keys: []
+
+  transform/process-aggregate-linux:
+    error_mode: propagate
+    metric_statements:
+      # The process scraper assigns slightly different timestamps while
+      # iterating over PIDs. Align them to the 30-second collection window
+      # before aggregating datapoints.
+      - context: datapoint
+        statements:
+          - set(
+              time,
+              TruncateTime(time, Duration("30s"))
+            ) where IsMatch(metric.name, "^process\\.")
+
+      - context: metric
+        statements:
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.count"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.threads"
+
+          # Preserve CPU state because MAL consumes user/system/wait
+          # separately.
+          - aggregate_on_attributes(
+              "sum",
+              ["state"]
+            ) where metric.name == "process.cpu.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.usage"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.virtual"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.memory.utilization"
+
+          - aggregate_on_attributes(
+              "sum",
+              []
+            ) where metric.name == "process.open_handles"
+
+          # Logical process uptime represents the oldest process in the group.
+          - aggregate_on_attributes(
+              "max",
+              []
+            ) where metric.name == "process.uptime"
+
+  batch/host-linux:
+    timeout: 2s
+    send_batch_size: 8192
+
+  batch/export:
+    timeout: 2s
+    send_batch_size: 8192
+
+exporters:
+  otlp:
+    endpoint: "${env:SW_OAP_GRPC_ADDRESS:-127.0.0.1:11800}"
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    metrics/host-linux:
+      receivers: [hostmetrics/system]
+      processors:
+        - resource_detection/system
+        - transform/host-linux
+        - batch/host-linux
+      exporters: [otlp]
+    metrics/processes-linux:
+      receivers: [hostmetrics/processes]
+      processors:
+        - resource_detection/system
+        - transform/process-identity-linux
+        - filter/process-without-name-linux
+        - transform/process-prepare-linux
+        - groupbyattrs/process-linux
+        - transform/process-aggregate-linux
+        - batch/export
+      exporters: [otlp]
