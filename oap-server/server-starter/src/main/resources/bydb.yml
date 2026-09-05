@@ -228,6 +228,28 @@ groups:
       ttl: ${SW_STORAGE_BANYANDB_LOG_COLD_TTL_DAYS:30}
       replicas: ${SW_STORAGE_BANYANDB_LOG_COLD_REPLICAS:0}
       nodeSelector: ${SW_STORAGE_BANYANDB_LOG_COLD_NODE_SELECTOR:"type=cold"}
+  # The "recordsAIAgent" group holds AI agent conversation files landed by the AI Sessionizer: Session Data (.sd)
+  # and Session Flow (.sf) rows of up to 2 MiB each. It mirrors the log group's keys, hot, warm and cold, but has its
+  # own retention because conversations are kept for weeks and a round whose files have expired is a broken chain.
+  recordsAIAgent:
+    shardNum: ${SW_STORAGE_BANYANDB_AI_AGENT_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_AI_AGENT_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_AI_AGENT_TTL_DAYS:30}
+    replicas: ${SW_STORAGE_BANYANDB_AI_AGENT_REPLICAS:0}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_AI_AGENT_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_AI_AGENT_ENABLE_COLD_STAGE:false}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_AI_AGENT_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_AI_AGENT_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_AI_AGENT_WARM_TTL_DAYS:60}
+      replicas: ${SW_STORAGE_BANYANDB_AI_AGENT_WARM_REPLICAS:0}
+      nodeSelector: ${SW_STORAGE_BANYANDB_AI_AGENT_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_AI_AGENT_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_AI_AGENT_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_AI_AGENT_COLD_TTL_DAYS:180}
+      replicas: ${SW_STORAGE_BANYANDB_AI_AGENT_COLD_REPLICAS:0}
+      nodeSelector: ${SW_STORAGE_BANYANDB_AI_AGENT_COLD_NODE_SELECTOR:"type=cold"}
   recordsBrowserErrorLog:
     shardNum: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_BROWSER_ERROR_LOG_SI_DAYS:1}

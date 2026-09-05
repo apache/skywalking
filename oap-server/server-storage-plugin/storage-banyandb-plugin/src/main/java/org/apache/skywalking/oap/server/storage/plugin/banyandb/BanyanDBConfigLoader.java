@@ -121,6 +121,13 @@ public class BanyanDBConfigLoader {
                     (Map<String, Object>) rawGroups.get(BanyanDB.TraceGroup.ZIPKIN_TRACE.getName()), config.getZipkinTrace());
             }
 
+            Properties aiAgent = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_AI_AGENT.getName());
+            copyProperties(
+                    config.getRecordsAIAgent(), aiAgent,
+                    moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            copyStages(aiAgent, config.getRecordsAIAgent());
+
             Properties browserErrorLog = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG.getName());
             copyProperties(
                 config.getRecordsBrowserErrorLog(), browserErrorLog,

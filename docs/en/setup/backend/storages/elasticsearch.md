@@ -188,6 +188,8 @@ And also you can [specify the settings for each index individually.](#specify-se
 | sw_segment-`${day-format}`           | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
 | sw_browser_error_log-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
 | sw_zipkin_span-`${day-format}`       | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_ai_agent_session_data-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
+| sw_ai_agent_session_flow-`${day-format}` | indexShardsNumber * superDatasetIndexShardsFactor | superDatasetIndexReplicasNumber  |
 | sw_records-all-`${day-format}`       | indexShardsNumber | indexReplicasNumber  |
 
 #### Advanced Configurations For Elasticsearch Index

@@ -1,0 +1,46 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The verify cases of every storage's ai-agent e2e. The reads go through swctl's ai-agent commands, so the
+# CLI pinned in script/env is proven against this OAP too; the paths are from the repository root, the
+# expected files beside this file.
+cases:
+  # the sender's service and instance, under the AI_AGENT layer
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer AI_AGENT
+    expected: expected/service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql instance list --service-name="e2e-ai-agent"
+    expected: expected/instance.yml
+  # the list page: one row per conversation, from the newest round's attributes
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh list http://${oap_host}:${oap_12800}
+    expected: expected/conversations.yml
+  # query filters: limit, sender instance, a time window that holds only the first conversation
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh list-limit http://${oap_host}:${oap_12800}
+    expected: expected/conversations-limit.yml
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh list-instance http://${oap_host}:${oap_12800}
+    expected: expected/conversations-instance.yml
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh list-window http://${oap_host}:${oap_12800}
+    expected: expected/conversations-window.yml
+  # every conversation's asz.view document equals the one the Sessionizer serves for the same files
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh views http://${oap_host}:${oap_12800} http://${aszview_host}:${aszview_8787}
+    expected: expected/views.yml
+  # the raw files of a conversation are the files the document names, digest for digest
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh raw-files http://${oap_host}:${oap_12800}
+    expected: expected/raw-files.yml
+  # a file whose digest does not match its body is never stored
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh reject http://${oap_host}:${oap_12800}
+    expected: expected/reject.yml
+  # one session landed, parsed and pushed in three stages folds to one verified document over three rounds
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh multi-round http://${oap_host}:${oap_12800}
+    expected: expected/multi-round.yml

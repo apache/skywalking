@@ -246,7 +246,7 @@ agent-analyzer:
 log-analyzer:
   selector: ${SW_LOG_ANALYZER:default}
   default:
-    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,envoy-ai-gateway,miniprogram,default}
+    lalFiles: ${SW_LOG_LAL_FILES:envoy-als,mesh-dp,mysql-slowsql,pgsql-slowsql,redis-slowsql,k8s-service,nginx,envoy-ai-gateway,miniprogram,ai-agent,default}
     malFiles: ${SW_LOG_MAL_FILES:"nginx,miniprogram-wechat,miniprogram-alipay"}
 
 event-analyzer:
@@ -265,6 +265,19 @@ ai-evaluation:
     consumerThreads: ${SW_AI_EVALUATION_CONSUMER_THREADS:8}
     # Maximum escaped characters included from each input/output message field.
     maxContentLength: ${SW_AI_EVALUATION_MAX_CONTENT_LENGTH:16384}
+
+# AI agent conversations landed by the AI Sessionizer (Session Data and Session Flow files over OTLP logs under the
+# AI_AGENT layer).
+ai-agent-conversation:
+  selector: ${SW_AI_AGENT_CONVERSATION:default}
+  default:
+    # How many Session Data files one storage read fetches; keeps a single BanyanDB response under its inbound cap.
+    fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
+    roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
+    # How many rebuilt conversation views stay in memory, keyed by the head round's digest. A large view is ~20 MB.
+    # The most rounds one list query reads before folding to one row per conversation.
+    maxListLimit: ${SW_AI_AGENT_CONVERSATION_MAX_LIST_LIMIT:10000}
+    viewRequestTimeout: ${SW_AI_AGENT_CONVERSATION_VIEW_REQUEST_TIMEOUT:120}
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}

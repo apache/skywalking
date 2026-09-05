@@ -1,0 +1,195 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AI agent conversations, end to end with the AI Sessionizer (asz), in one storage root:
+#   fixture.yaml, three sessions      build -> parse -> push, once
+#   three-rounds.yaml, one session    build through the first checkpoint -> parse -> push,
+#                                     then through the second, then to the end: three rounds over
+#                                     files cut at each stage, and the final document must cover it all
+#   asz view                          the Sessionizer's own asz.view documents, the reference the OAP's must equal
+# The asz image is distroless and has no shell; the one-shot steps chain through
+# service_completed_successfully. `scenario build` keeps what a person appends to its asz.yaml, so the receiver
+# is appended once and every later build, parse and push reads the one file.
+x-asz: &asz
+  image: ghcr.io/apache/skywalking-ai-sessionizer:${SW_AI_SESSIONIZER_COMMIT}
+  volumes:
+    - aszdata:/asz/data
+    - ../fixture.yaml:/asz/fixture.yaml:ro
+    - ../three-rounds.yaml:/asz/three-rounds.yaml:ro
+  networks:
+    - e2e
+
+services:
+  es:
+    image: elastic/elasticsearch:${ES_VERSION}
+    expose:
+      - 9200
+    networks:
+      - e2e
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NODES: es:9200
+    ports:
+      - 12800
+    depends_on:
+      es:
+        condition: service_healthy
+    networks:
+      - e2e
+
+  # The asz image runs as a non-root user; a fresh named volume is root-owned.
+  asz-volume:
+    image: busybox:1.36
+    command: ["sh", "-c", "chown -R 65532:65532 /asz/data"]
+    volumes:
+      - aszdata:/asz/data
+    networks:
+      - e2e
+
+  # ---- fixture.yaml: three sessions, one stage
+  asz-build:
+    <<: *asz
+    command: ["scenario", "build", "/asz/fixture.yaml", "--format", "sd", "--out", "/asz/data", "--repeat", "3"]
+    depends_on:
+      asz-volume:
+        condition: service_completed_successfully
+
+  # The receiver and this sender's identity, appended to the asz.yaml `build` wrote.
+  asz-config:
+    image: busybox:1.36
+    command:
+      - sh
+      - -c
+      - "printf 'export:\\n  otlp:\\n    endpoint: http://oap:12800\\n    service_name: e2e-ai-agent\\n    instance_id: e2e-sender\\n' >> /asz/data/asz.yaml"
+    volumes:
+      - aszdata:/asz/data
+    depends_on:
+      asz-build:
+        condition: service_completed_successfully
+    networks:
+      - e2e
+
+  asz-parse:
+    <<: *asz
+    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      asz-config:
+        condition: service_completed_successfully
+
+  asz-push:
+    <<: *asz
+    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      asz-parse:
+        condition: service_completed_successfully
+      oap:
+        condition: service_healthy
+
+  # ---- three-rounds.yaml: one session in three stages, each landed, parsed and pushed before the next
+  mr-build-1:
+    <<: *asz
+    command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "first"]
+    depends_on:
+      asz-push:
+        condition: service_completed_successfully
+  mr-parse-1:
+    <<: *asz
+    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-build-1:
+        condition: service_completed_successfully
+  mr-push-1:
+    <<: *asz
+    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-parse-1:
+        condition: service_completed_successfully
+
+  mr-build-2:
+    <<: *asz
+    command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "second"]
+    depends_on:
+      mr-push-1:
+        condition: service_completed_successfully
+  mr-parse-2:
+    <<: *asz
+    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-build-2:
+        condition: service_completed_successfully
+  mr-push-2:
+    <<: *asz
+    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-parse-2:
+        condition: service_completed_successfully
+
+  mr-build-3:
+    <<: *asz
+    command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data"]
+    depends_on:
+      mr-push-2:
+        condition: service_completed_successfully
+  mr-parse-3:
+    <<: *asz
+    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-build-3:
+        condition: service_completed_successfully
+  mr-push-3:
+    <<: *asz
+    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mr-parse-3:
+        condition: service_completed_successfully
+
+  # The Sessionizer's own view of the same storage root, at /api/c/{id}/view, for the comparison.
+  asz:
+    <<: *asz
+    command: ["view", "-config", "/asz/data/asz.yaml", "0.0.0.0:8787"]
+    depends_on:
+      mr-parse-3:
+        condition: service_completed_successfully
+
+  # The e2e runner probes a published port from inside its container with /bin/sh, which the distroless asz image
+  # does not have, so the port is published by a forwarder that has one.
+  aszview:
+    image: alpine/socat:1.8.0.0
+    command: ["TCP-LISTEN:8787,fork,reuseaddr", "TCP:asz:8787"]
+    ports:
+      - 8787
+    depends_on:
+      - asz
+    networks:
+      - e2e
+
+volumes:
+  aszdata:
+
+networks:
+  e2e:

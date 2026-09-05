@@ -312,6 +312,11 @@ public @interface BanyanDB {
         RECORDS("records"),
         RECORDS_LOG("recordsLog"),
         RECORDS_BROWSER_ERROR_LOG("recordsBrowserErrorLog"),
+        /**
+         * AI agent conversation files: Session Data and Session Flow rows of up to 2 MiB each, kept for weeks,
+         * so they carry their own retention and shard settings apart from the log group.
+         */
+        RECORDS_AI_AGENT("recordsAIAgent"),
         NONE("none");
         @Getter
         private final String name;

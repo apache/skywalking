@@ -1,0 +1,40 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# One session, landed, parsed and pushed in three stages, so three rounds come out over files cut at each stage
+# and the final document must cover the whole session as if it had been parsed at once.
+#   stage 1, through "first":   the main stream only
+#   stage 2, through "second":  one sub-agent, reported back to main
+#   stage 3, to the end:        two more sub-agents, then main wraps up on its own
+title: three rounds
+steps:
+  - input: start the work
+  - call: {text: Starting, tool: {name: Bash, input: {command: make build}, result: built}}
+  - call: {text: Build done.}
+    checkpoint: first
+  - input: now check it
+  - call:
+      agent: {name: checker, prompt: check the build, steps: [{call: {text: checks pass}}], notify: true}
+  - call: {text: Checks done.}
+    checkpoint: second
+  - input: review and document it
+  - call:
+      agent: {name: reviewer, prompt: review the change, steps: [{call: {text: looks good}}], notify: true}
+  - call:
+      agent: {name: writer, prompt: write the release note, steps: [{call: {text: note written}}], notify: true}
+  - call: {text: Review and note are in, tool: {name: Bash, input: {command: git status}, result: clean}}
+  - input: one more thing
+  - call: {text: All done.}

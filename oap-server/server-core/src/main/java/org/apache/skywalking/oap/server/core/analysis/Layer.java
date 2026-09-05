@@ -301,6 +301,12 @@ public final class Layer {
     /** Apache Airflow workflow orchestration (native OpenTelemetry metrics via OTel Collector). */
     public static final Layer AIRFLOW = register("AIRFLOW", 50, true);
 
+    /**
+     * Conversations of long-lived AI agents, landed by the AI Sessionizer as Session Data and Session Flow files
+     * over OTLP logs. The service is the agent runtime; the instance is the sender.
+     */
+    public static final Layer AI_AGENT = register("AI_AGENT", 51, true);
+
     private final String name;
     private final int value;
     /**

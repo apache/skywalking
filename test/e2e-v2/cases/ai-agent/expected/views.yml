@@ -1,0 +1,32 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+conversations: 4
+equal: 4
+yaml_equal: 4
+h2_equal: 4
+gzip_equal: 4
+format: asz.view
+version: "1.0"
+json_type: "application/vnd.skywalking.asz.view+json; version=1.0; charset=utf-8"
+yaml_type: "application/vnd.skywalking.asz.view+yaml; version=1.0; charset=utf-8"
+encoding: gzip
+missing_type: "application/problem+json; charset=utf-8"
+missing:
+  status: 404
+  title: Not Found
+  detail: no round of conversation no-such-conversation is stored for this service
+noservice: 400
+cli_missing: 1
