@@ -1,0 +1,55 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+- conversation: 00000001-0000-4000-8000-000000000001
+  instance: e2e-sender
+  title: build and check
+  round: 1
+  talks: 3
+  steps: 21
+  streams: 2
+  segments: 1
+  unresolved: 0
+  timed: true
+- conversation: 00000001-0000-4000-8000-000000000002
+  instance: e2e-sender
+  title: build and check
+  round: 1
+  talks: 3
+  steps: 21
+  streams: 2
+  segments: 1
+  unresolved: 0
+  timed: true
+- conversation: 00000001-0000-4000-8000-000000000003
+  instance: e2e-sender
+  title: build and check
+  round: 1
+  talks: 3
+  steps: 21
+  streams: 2
+  segments: 1
+  unresolved: 0
+  timed: true
+- conversation: bd16edc4-0b6b-4020-8405-3ce58724f2bc
+  instance: e2e-sender
+  title: three rounds
+  round: 3
+  talks: 7
+  steps: 37
+  streams: 4
+  segments: 1
+  unresolved: 0
+  timed: true

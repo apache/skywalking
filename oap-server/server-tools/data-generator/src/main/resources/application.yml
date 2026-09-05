@@ -184,6 +184,15 @@ event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}
   default:
 
+# The GraphQL query module requires the AI agent conversation module.
+ai-agent-conversation:
+  selector: ${SW_AI_AGENT_CONVERSATION:default}
+  default:
+    fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
+    roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
+    maxListLimit: ${SW_AI_AGENT_CONVERSATION_MAX_LIST_LIMIT:10000}
+    viewRequestTimeout: ${SW_AI_AGENT_CONVERSATION_VIEW_REQUEST_TIMEOUT:120}
+
 query:
   selector: ${SW_QUERY:graphql}
   graphql:

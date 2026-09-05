@@ -488,6 +488,15 @@ jobs:
             env: ES_VERSION=8.18.8
           - name: Log BanyanDB
             config: test/e2e-v2/cases/log/banyandb/e2e.yaml
+          - name: AI Agent Conversations BanyanDB
+            config: test/e2e-v2/cases/ai-agent/banyandb/e2e.yaml
+          - name: AI Agent Conversations ES 8.18.8
+            config: test/e2e-v2/cases/ai-agent/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: AI Agent Conversations MySQL
+            config: test/e2e-v2/cases/ai-agent/mysql/e2e.yaml
+          - name: AI Agent Conversations Postgres
+            config: test/e2e-v2/cases/ai-agent/postgres/e2e.yaml
 
           - name: Log FluentBit ES 8.18.8
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml

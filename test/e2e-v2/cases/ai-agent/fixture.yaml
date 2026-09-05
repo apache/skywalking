@@ -1,0 +1,54 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# The fixture session of the format pages: a person's input, an injection,
+# a call in three fragments with a tool, a second tool, a child agent that is
+# reported back, a final answer, a client-made error, and a context reset.
+session: 00000001-0000-4000-8000-000000000001
+project: -Users-dev-01-full-conversation
+title: build and check
+interval: 1s
+steps:
+  - input: run the build
+  - inject: {type: skill_listing, text: "skills: 1"}
+    after: 100ms
+  - call:
+      thinking: unavailable
+      text: Building now.
+      tool:
+        id: tool-run-make-build
+        name: Bash
+        input: {command: make build, description: build the project}
+        result: {text: build succeeded, after: 800ms}
+      usage: {in: 2, out: 50, cache_read: 900, cache_write: 100}
+    after: 900ms
+  - call:
+      tool: {id: srvtool-websearch, name: WebSearch, input: {query: go build cache}, result: search results}
+      usage: {out: 10}
+  - call:
+      agent:
+        name: checker
+        prompt: check the tests
+        after: 1s
+        steps:
+          - call: {text: Tests pass., usage: {out: 42}}
+        notify: true
+      usage: {out: 20}
+    checkpoint: delegated
+  - call: {text: Build passed and tests are green., usage: {out: 30}}
+  - error: "API Error: Connection lost mid-response."
+  - reset: {summary: "Summary: the build was run and checked."}

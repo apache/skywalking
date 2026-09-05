@@ -1,0 +1,3 @@
+# The Sessionizer wrote these files byte for byte, and the tests check their digests: no line-ending conversion
+# on any platform, or a Windows checkout turns every LF into CRLF and every digest fails.
+* -text

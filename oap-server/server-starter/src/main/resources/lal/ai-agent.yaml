@@ -1,0 +1,53 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AI agent conversations landed by the AI Sessionizer (apache/skywalking-ai-sessionizer).
+#
+# Every OTLP log record under the AI_AGENT layer is one file: a Session Data (.sd) file of one session, or one
+# Session Flow (.sf) round of a conversation. The body is the file verbatim. The extractor takes only what a query
+# filters on, the list page shows, or verification needs; everything else about a file stays on its own first
+# line. The output builder verifies the digest and the line count, then stores the file in the table its format
+# names. One rule, one builder: the branch on the format lives in the builder.
+rules:
+  - name: ai-agent-conversation
+    layer: AI_AGENT
+    outputType: ConversationFile
+    dsl: |
+      filter {
+        extractor {
+          format      tag("asz.format") as String
+          digest      tag("asz.file.digest") as String
+          lines       tag("asz.lines") as Long
+          throughTime tag("asz.through_time") as String
+          if (tag("asz.format") == "sd") {
+            session tag("asz.session") as String
+            seq     tag("asz.seq") as Long
+          }
+          if (tag("asz.format") == "sf") {
+            conversation       tag("asz.conversation") as String
+            round              tag("asz.round") as Long
+            sessionFromTime    tag("asz.session.from_time") as String
+            sessionThroughTime tag("asz.session.through_time") as String
+            title              tag("asz.conversation.title") as String
+            talks              tag("asz.conversation.talks") as Long
+            steps              tag("asz.conversation.steps") as Long
+            streams            tag("asz.conversation.streams") as Long
+            segments           tag("asz.conversation.segments") as Long
+            unresolved         tag("asz.conversation.unresolved") as Long
+          }
+        }
+        sink {
+        }
+      }
