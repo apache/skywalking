@@ -65,6 +65,12 @@
             <artifactId>ai-evaluation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- AI agent conversations landed by the AI Sessionizer. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>ai-agent-conversation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- cluster module -->
         <dependency>

@@ -28,6 +28,12 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 
 @Slf4j
 public class MySQLTableInstaller extends JDBCTableInstaller {
+    /**
+     * The most raw bytes a MEDIUMTEXT column holds once a byte array is stored as Base64, four characters for
+     * every three bytes: 16,777,215 characters, rounded down to whole groups.
+     */
+    private static final int MEDIUMTEXT_RAW_BYTES = 16_777_215 / 4 * 3;
+
     public MySQLTableInstaller(Client client, ModuleManager moduleManager) {
         super(client, moduleManager);
     }
@@ -60,6 +66,10 @@ public class MySQLTableInstaller extends JDBCTableInstaller {
             } else {
                 return storageName + " VARCHAR(" + column.getLength() + ")";
             }
+        } else if (byte[].class.equals(type)) {
+            // the length of a byte array column is the most raw bytes it must hold; MEDIUMTEXT holds fewer than
+            // its character count once they are Base64
+            return storageName + (column.getLength() > MEDIUMTEXT_RAW_BYTES ? " LONGTEXT" : " MEDIUMTEXT");
         }
         return super.getColumnDefinition(column);
     }

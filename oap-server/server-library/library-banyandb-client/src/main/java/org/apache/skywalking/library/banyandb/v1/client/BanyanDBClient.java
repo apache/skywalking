@@ -415,7 +415,8 @@ public class BanyanDBClient implements Closeable {
 
     @SafeVarargs
     private BanyandbBydbql.QueryResponse queryBydbQL(
-        String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
+        int maxInboundMessageSize, String bydbql, Serializable<BanyandbModel.TagValue>... params)
+        throws BanyanDBException {
         checkState(this.bydbQLServiceBlockingStub != null, "bydbql service is null");
         final List<BanyandbModel.TagValue> tagValues = new ArrayList<>(params.length);
         for (final Serializable<BanyandbModel.TagValue> param : params) {
@@ -425,10 +426,13 @@ public class BanyanDBClient implements Closeable {
                 .setQuery(bydbql)
                 .addAllParams(tagValues)
                 .build();
-        return HandleExceptionsWith.callAndTranslateApiException(() ->
-                this.bydbQLServiceBlockingStub
-                        .withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS)
-                        .query(request));
+        BydbQLServiceGrpc.BydbQLServiceBlockingStub stub =
+            this.bydbQLServiceBlockingStub.withDeadlineAfter(this.getOptions().getDeadline(), TimeUnit.SECONDS);
+        if (maxInboundMessageSize > 0) {
+            stub = stub.withMaxInboundMessageSize(maxInboundMessageSize);
+        }
+        final BydbQLServiceGrpc.BydbQLServiceBlockingStub bound = stub;
+        return HandleExceptionsWith.callAndTranslateApiException(() -> bound.query(request));
     }
 
     /**
@@ -442,7 +446,7 @@ public class BanyanDBClient implements Closeable {
     @SafeVarargs
     public final MeasureQueryResponse queryMeasure(
             String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
-        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(0, bydbql, params);
         if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.MEASURE_RESULT) {
             throw new IllegalStateException("expected measure_result but got " + resp.getResultCase());
         }
@@ -460,7 +464,25 @@ public class BanyanDBClient implements Closeable {
     @SafeVarargs
     public final StreamQueryResponse queryStream(
             String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
-        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        return queryStream(0, bydbql, params);
+    }
+
+    /**
+     * Query a stream with a BydbQL statement, with a cap on the response of this call alone. The cap is a call
+     * option on the shared channel, not a channel option: the next call sees the channel's default again.
+     *
+     * @param maxInboundMessageSize the most bytes the response may carry, in place of the channel's default,
+     *                              {@link Options#getMaxInboundMessageSize()}; 0 keeps the default
+     * @param bydbql                a BydbQL query whose FROM clause targets a STREAM
+     * @param params                values bound to the {@code ?} placeholders, in order of appearance
+     * @return the stream query response
+     * @throws BanyanDBException if the query fails or the server returns a non-stream result
+     */
+    @SafeVarargs
+    public final StreamQueryResponse queryStream(
+            int maxInboundMessageSize, String bydbql, Serializable<BanyandbModel.TagValue>... params)
+        throws BanyanDBException {
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(maxInboundMessageSize, bydbql, params);
         if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.STREAM_RESULT) {
             throw new IllegalStateException("expected stream_result but got " + resp.getResultCase());
         }
@@ -478,7 +500,7 @@ public class BanyanDBClient implements Closeable {
     @SafeVarargs
     public final TraceQueryResponse queryTrace(
             String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
-        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(0, bydbql, params);
         if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.TRACE_RESULT) {
             throw new IllegalStateException("expected trace_result but got " + resp.getResultCase());
         }
@@ -496,7 +518,7 @@ public class BanyanDBClient implements Closeable {
     @SafeVarargs
     public final TopNQueryResponse queryTopN(
             String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
-        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(0, bydbql, params);
         if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.TOPN_RESULT) {
             throw new IllegalStateException("expected topn_result but got " + resp.getResultCase());
         }
@@ -515,7 +537,7 @@ public class BanyanDBClient implements Closeable {
     @SafeVarargs
     public final BanyandbProperty.QueryResponse queryProperty(
             String bydbql, Serializable<BanyandbModel.TagValue>... params) throws BanyanDBException {
-        final BanyandbBydbql.QueryResponse resp = queryBydbQL(bydbql, params);
+        final BanyandbBydbql.QueryResponse resp = queryBydbQL(0, bydbql, params);
         if (resp.getResultCase() != BanyandbBydbql.QueryResponse.ResultCase.PROPERTY_RESULT) {
             throw new IllegalStateException("expected property_result but got " + resp.getResultCase());
         }

@@ -176,7 +176,7 @@ kubectl label namespace default istio-injection=enabled
 
 #### Install SWCK
 
-SWCK provides convenience for users to deploy and upgrade SkyWalking related components based on Kubernetes. The automatic scale function of Satellite also mainly relies on SWCK. For more information, you could refer to the [official documentation](https://github.com/apache/skywalking-swck/blob/master/docs/operator.md#guides-of-operator-deployment).
+SWCK provides convenience for users to deploy and upgrade SkyWalking related components based on Kubernetes. The automatic scale function of Satellite also mainly relies on SWCK. For more information, you could refer to the [official documentation](https://github.com/apache/skywalking-swck/blob/master/docs/en/setup/operator.md#operator-deployment).
 
 ```shell
 # Install cert-manager
@@ -184,7 +184,7 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3
 
 # Deploy SWCK
 mkdir -p skywalking-swck && cd skywalking-swck
-wget https://dlcdn.apache.org/skywalking/swck/0.6.1/skywalking-swck-0.6.1-bin.tgz
+wget https://archive.apache.org/dist/skywalking/swck/0.6.1/skywalking-swck-0.6.1-bin.tgz
 tar -zxvf skywalking-swck-0.6.1-bin.tgz
 cd config
 kubectl apply -f operator-bundle.yaml

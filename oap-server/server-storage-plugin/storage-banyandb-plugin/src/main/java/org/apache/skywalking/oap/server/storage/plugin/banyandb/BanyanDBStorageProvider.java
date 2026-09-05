@@ -61,6 +61,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IAIAgentConversationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -82,6 +83,7 @@ import org.apache.skywalking.oap.server.library.util.MultipleFilesChangeMonitor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBEBPFProfilingScheduleQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBEventQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBAIAgentConversationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetadataQueryDAO;
@@ -192,6 +194,8 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(ILogQueryDAO.class, new BanyanDBLogQueryDAO(client));
         this.registerServiceImplementation(
             IGenAIEvaluationRecordQueryDAO.class, new BanyanDBGenAIEvaluationRecordQueryDAO(client));
+        this.registerServiceImplementation(
+            IAIAgentConversationQueryDAO.class, new BanyanDBAIAgentConversationQueryDAO(client));
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class, new BanyanDBProfileTaskQueryDAO(client,
                                                                         this.config.getGlobal().getProfileTaskQueryMaxSize()

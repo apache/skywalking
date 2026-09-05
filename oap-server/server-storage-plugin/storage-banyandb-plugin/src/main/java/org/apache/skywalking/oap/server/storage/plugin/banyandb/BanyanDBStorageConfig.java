@@ -44,6 +44,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private RecordsZipkinTrace recordsZipkinTrace = new RecordsZipkinTrace();
     private RecordsLog recordsLog = new RecordsLog();
     private RecordsBrowserErrorLog recordsBrowserErrorLog = new RecordsBrowserErrorLog();
+    private RecordsAIAgent recordsAIAgent = new RecordsAIAgent();
 
     private MetricsMin metricsMin = new MetricsMin();
     private MetricsHour metricsHour = new MetricsHour();
@@ -253,6 +254,15 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     @Getter
     @Setter
     public static class RecordsBrowserErrorLog extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    /**
+     * The group of AI agent conversation files (Session Data and Session Flow), configured like the log group but
+     * kept apart from it: elements are files of up to 2 MiB and conversations are wanted for weeks.
+     */
+    @Getter
+    @Setter
+    public static class RecordsAIAgent extends BanyanDBStorageConfig.GroupResource {
     }
 
     // The group settings of metrics.

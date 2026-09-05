@@ -1,0 +1,3 @@
+{"h":1,"schema":"sd/1","seq":3,"at":"2026-01-01T00:00:00Z","kind":"agent_meta","adapter":"mock/0.2.0","dialect":"mock/1","src":"-Users-dev-01-full-conversation/00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e.meta","session":"00000001-0000-4000-8000-000000000001","stream":"a0a10ef0666c4dc7e"}
+{"ord":1,"off":0,"sha":"c0b42d2ebfe2","bytes":253,"child":"a0a10ef0666c4dc7e","label":"checker","from":"runtime","parts":[{"k":"data","data":{"agentType":"general-purpose","description":"checker","spawnDepth":1,"toolUseId":"s5-tool"},"state":"available","bytes":92}]}
+{"t":"end","records":1,"digest":"99ccbf85b7b267aa8ec0a052a969e9a43d4d51cdaf7a762beb52517eb001929a"}

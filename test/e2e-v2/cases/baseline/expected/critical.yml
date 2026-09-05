@@ -16,6 +16,7 @@
 msgs:
   {{- contains .msgs }}
   - starttime: {{ gt .starttime 0 }}
+    recoverytime: null
     scope: Service
     id: ZTJlLXRlc3QtZGVzdC1zZXJ2aWNl.1
     name: e2e-test-dest-service

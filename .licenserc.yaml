@@ -25,6 +25,7 @@ header:
     - '.github/ISSUE_TEMPLATE'
     - '.github/PULL_REQUEST_TEMPLATE'
     - '**/.gitignore'
+    - '**/.gitattributes'
     - '.gitmodules'
     - '.lift'
     - '.mvn'
@@ -48,6 +49,8 @@ header:
     - '**/*.pem'
     - '**/*.key'
     - '**/*.txt'
+    # AI Sessionizer data files and its rendered asz.view document, used as test fixtures as-is
+    - 'oap-server/analyzer/ai-agent-conversation/src/test/resources/fixtures/**'
     - 'LICENSE'
     - 'NOTICE'
     - '**/src/main/fbs/istio/**'
