@@ -55,6 +55,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IAggregationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IAlarmQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IBrowserLogQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IAIAgentConversationQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecordQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IHierarchyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ILogQueryDAO;
@@ -94,6 +95,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFP
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.EBPFProfilingTaskEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.ESEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.HierarchyQueryEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AIAgentConversationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.GenAIEvaluationRecordQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.JFRDataQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.PprofDataQueryEsDAO;
@@ -245,6 +247,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         this.registerServiceImplementation(ILogQueryDAO.class, new LogQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
             IGenAIEvaluationRecordQueryDAO.class, new GenAIEvaluationRecordQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(
+            IAIAgentConversationQueryDAO.class, new AIAgentConversationQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
             IProfileTaskQueryDAO.class, new ProfileTaskQueryEsDAO(elasticSearchClient, config
                 .getProfileTaskQueryMaxSize()));

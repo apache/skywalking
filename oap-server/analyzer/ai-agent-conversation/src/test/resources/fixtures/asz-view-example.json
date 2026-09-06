@@ -1,0 +1,1043 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "00000001-0000-4000-8000-000000000001",
+  "sessions": [
+    "00000001-0000-4000-8000-000000000001"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "3ad0dcd4cd53fa06c502a2649b8788bfbe0a382bbc72d7f1f0fe68d9a18e96e2"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "build and check",
+    "state": "verified",
+    "problems": [],
+    "talks": 3,
+    "steps": 21,
+    "streams": 2,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "from": 1767225600000,
+    "to": 1767225611100,
+    "kinds": {
+      "agent.call": 1,
+      "agent.launch_ack": 1,
+      "agent.output": 1,
+      "context.injection": 1,
+      "epoch": 3,
+      "epoch.boundary": 1,
+      "epoch.summary": 1,
+      "llm.call": 6,
+      "message.assistant": 3,
+      "message.external": 1,
+      "message.synthetic": 1,
+      "run": 4,
+      "runtime.notification": 1,
+      "segment": 1,
+      "session": 1,
+      "stream": 2,
+      "talk": 3,
+      "thinking": 1,
+      "tool": 2
+    },
+    "relation_types": {
+      "ends_with": 1,
+      "follows": 1,
+      "in_segment": 3,
+      "reports": 1,
+      "starts": 1,
+      "summarizes": 1
+    },
+    "quality": {
+      "exact_unique": 7,
+      "strong_inference": 1
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "3ad0dcd4cd53fa06c502a2649b8788bfbe0a382bbc72d7f1f0fe68d9a18e96e2",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 3,
+      "input_digest": "6872d48ef5d3e736d0bd9f5bc03844653fb304b4b98b9ef6a27342478d950c1b",
+      "from_time": 1767225600000,
+      "through_time": 1767225611100,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "00000001-0000-4000-8000-000000000001/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 18,
+      "bytes": 5868,
+      "digest": "944ed3d1209c76afb98f0622eb9239f95adb79fd0d0262d634c2f20bc041b1f7",
+      "from_time": 1767225600000,
+      "through_time": 1767225611100
+    },
+    {
+      "file": "00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/transcript-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 2,
+      "round": null,
+      "stream": "a0a10ef0666c4dc7e",
+      "run": null,
+      "lines": 4,
+      "bytes": 995,
+      "digest": "39b8a446c3a87d2b8da5210bba7f66ee2fd04caccea1fa0a4efdc3345b7ff7ca",
+      "from_time": 1767225606100,
+      "through_time": 1767225607100
+    },
+    {
+      "file": "00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/meta-20260101T000000.000000000Z-000003.sd",
+      "format": "sd",
+      "kind": "agent_meta",
+      "seq": 3,
+      "round": null,
+      "stream": "a0a10ef0666c4dc7e",
+      "run": null,
+      "lines": 3,
+      "bytes": 676,
+      "digest": "de085eda31cdf99231fb212cb8fefbbcf95bd4f88c007c70446ecc652db3b005",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-3ad0dcd4cd53.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 45,
+      "bytes": 10468,
+      "digest": "4f33cf8e85afcf104c823ea12be797059b4d3d10abbbb2ceb5916c2bd7e81d73",
+      "from_time": 1767225600000,
+      "through_time": 1767225611100
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 16,
+      "steps": 16,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    },
+    {
+      "id": "stream/a0a10ef0666c4dc7e",
+      "name": "a0a10ef0666c4dc7e",
+      "role": "child",
+      "label": "checker",
+      "parent": "main",
+      "records": 3,
+      "steps": 3,
+      "talk": "talk/a0a10ef0666c4dc7e",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/s5-tool",
+          "stream": "main",
+          "talk": "talk/main/s1-cycle",
+          "quality": "exact_unique"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_2",
+      "state": "open",
+      "committable": false,
+      "talks": 3,
+      "from": 1767225600000,
+      "to": 1767225610700
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 2
+      },
+      "attrs": {
+        "loops": 2,
+        "runs": 2,
+        "trigger": "external"
+      },
+      "label": "run the build",
+      "reply": "Build passed and tests are green.",
+      "runs": 2,
+      "steps": 16,
+      "tools": 3,
+      "from": 1767225600000,
+      "to": 1767225610100,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 2
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/1/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "run the build",
+              "state": "available",
+              "bytes": 13,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "inject/1/3",
+              "kind": "context.injection",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600100,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "text": "skills: 1",
+              "state": "available",
+              "bytes": 9,
+              "flags": [
+                "injected"
+              ]
+            },
+            {
+              "id": "call/s3-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 4
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 4
+                },
+                {
+                  "seq": 1,
+                  "row": 5
+                },
+                {
+                  "seq": 1,
+                  "row": 6
+                }
+              ],
+              "attrs": {
+                "fragments": 3,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 6,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 50,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "think/1/4:0",
+                  "kind": "thinking",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225601000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 4,
+                    "block": 0
+                  },
+                  "state": "unavailable",
+                  "dropped": [
+                    {
+                      "what": "reasoning signature",
+                      "bytes": 3,
+                      "why": "a provider verifies it; a reader cannot read it"
+                    }
+                  ]
+                },
+                {
+                  "id": "msg/1/5:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225601100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 5,
+                    "block": 0
+                  },
+                  "text": "Building now.",
+                  "state": "available",
+                  "bytes": 13
+                },
+                {
+                  "id": "tool/tool-run-make-build",
+                  "kind": "tool",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225601200,
+                  "ref": {
+                    "seq": 1,
+                    "row": 6,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 6,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 7,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Bash",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"command\":\"make build\",\"description\":\"build the project\"}",
+                  "state": "available",
+                  "bytes": 58,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Bash",
+                  "result": "build succeeded",
+                  "result_state": "available",
+                  "result_bytes": 15,
+                  "request_to_result_ms": 800,
+                  "request_to_result_join": "exact_unique"
+                }
+              ]
+            },
+            {
+              "id": "call/s4-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225603000,
+              "ref": {
+                "seq": 1,
+                "row": 8
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 8
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 8,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 10,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "tool/srvtool-websearch",
+                  "kind": "tool",
+                  "parent": "call/s4-call",
+                  "stream": "main",
+                  "at": 1767225603000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 8,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 8,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 9,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "WebSearch",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"query\":\"go build cache\"}",
+                  "state": "available",
+                  "bytes": 26,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "WebSearch",
+                  "result": "search results",
+                  "result_state": "available",
+                  "result_bytes": 14,
+                  "request_to_result_ms": 1000,
+                  "request_to_result_join": "exact_unique"
+                }
+              ]
+            },
+            {
+              "id": "call/s5-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225605000,
+              "ref": {
+                "seq": 1,
+                "row": 10
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 10
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 10,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 20,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "tool/s5-tool",
+                  "kind": "agent.call",
+                  "parent": "call/s5-call",
+                  "stream": "main",
+                  "at": 1767225605000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 10,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 10,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 11,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Agent",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"description\":\"checker\",\"prompt\":\"check the tests\"}",
+                  "state": "available",
+                  "bytes": 52,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Agent",
+                  "result": "launched",
+                  "result_state": "available",
+                  "result_bytes": 8,
+                  "request_to_result_ms": 100,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "starts",
+                      "other": "stream/a0a10ef0666c4dc7e",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ack/1/11",
+              "kind": "agent.launch_ack",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225605100,
+              "ref": {
+                "seq": 1,
+                "row": 11
+              },
+              "text": "launched",
+              "state": "available",
+              "bytes": 8,
+              "flags": [
+                "launch_ack"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "run/talk_main_s1-cycle/s5-cycle-notification",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225608100,
+          "ref": {
+            "seq": 1,
+            "row": 12
+          },
+          "attrs": {
+            "trigger": "notification"
+          },
+          "children": [
+            {
+              "id": "notify/1/12",
+              "kind": "runtime.notification",
+              "parent": "run/talk_main_s1-cycle/s5-cycle-notification",
+              "stream": "main",
+              "at": 1767225608100,
+              "ref": {
+                "seq": 1,
+                "row": 12
+              },
+              "text": "\u003ctask-notification\u003e\n\u003ctask-id\u003ea0a10ef0666c4dc7e\u003c/task-id\u003e\n\u003ctool-use-id\u003es5-tool\u003c/tool-use-id\u003e\n\u003cstatus\u003ecompleted\u003c/status\u003e\n\u003c/task-notification\u003e",
+              "state": "available",
+              "bytes": 139,
+              "edges": [
+                {
+                  "type": "reports",
+                  "other": "stream/a0a10ef0666c4dc7e",
+                  "dir": "out",
+                  "quality": "exact_unique",
+                  "via": "task id on the notification"
+                }
+              ]
+            },
+            {
+              "id": "call/s6-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s5-cycle-notification",
+              "stream": "main",
+              "at": 1767225609100,
+              "ref": {
+                "seq": 1,
+                "row": 13
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 13
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 13,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 30,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/13:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s6-call",
+                  "stream": "main",
+                  "at": 1767225609100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 13,
+                    "block": 0
+                  },
+                  "text": "Build passed and tests are green.",
+                  "state": "available",
+                  "bytes": 33,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s7-synthetic-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s5-cycle-notification",
+              "stream": "main",
+              "at": 1767225610100,
+              "ref": {
+                "seq": 1,
+                "row": 14
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 14
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "stop_reason": "unavailable",
+                "usage": "unavailable",
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "children": [
+                {
+                  "id": "msg/1/14:0",
+                  "kind": "message.synthetic",
+                  "parent": "call/s7-synthetic-call",
+                  "stream": "main",
+                  "at": 1767225610100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 14,
+                    "block": 0
+                  },
+                  "text": "API Error: Connection lost mid-response.",
+                  "state": "available",
+                  "bytes": 40,
+                  "flags": [
+                    "synthetic"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/main/s8-cycle-compact",
+      "kind": "talk",
+      "parent": "epoch/main/s8-boundary",
+      "stream": "main",
+      "at": 1767225610700,
+      "ref": {
+        "seq": 1,
+        "row": 16
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "external"
+      },
+      "runs": 1,
+      "from": 1767225610700,
+      "to": 1767225610700,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s8-cycle-compact/s8-cycle-compact",
+          "kind": "run",
+          "parent": "talk/main/s8-cycle-compact",
+          "stream": "main",
+          "at": 1767225610700,
+          "ref": {
+            "seq": 1,
+            "row": 16
+          },
+          "attrs": {
+            "trigger": "external"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/a0a10ef0666c4dc7e",
+      "kind": "talk",
+      "parent": "epoch/a0a10ef0666c4dc7e/0",
+      "stream": "a0a10ef0666c4dc7e",
+      "at": 1767225606100,
+      "ref": {
+        "seq": 2,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "reply": "Tests pass.",
+      "runs": 1,
+      "steps": 3,
+      "from": 1767225606100,
+      "to": 1767225607100,
+      "child": true,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_a0a10ef0666c4dc7e/a0a10ef0666c4dc7e-cycle",
+          "kind": "run",
+          "parent": "talk/a0a10ef0666c4dc7e",
+          "stream": "a0a10ef0666c4dc7e",
+          "at": 1767225606100,
+          "ref": {
+            "seq": 2,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "call/checker-s1-call",
+              "kind": "llm.call",
+              "parent": "run/talk_a0a10ef0666c4dc7e/a0a10ef0666c4dc7e-cycle",
+              "stream": "a0a10ef0666c4dc7e",
+              "at": 1767225607100,
+              "ref": {
+                "seq": 2,
+                "row": 2
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 2
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 2,
+                  "seq": 2
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 42,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/2/2:0",
+                  "kind": "message.assistant",
+                  "parent": "call/checker-s1-call",
+                  "stream": "a0a10ef0666c4dc7e",
+                  "at": 1767225607100,
+                  "ref": {
+                    "seq": 2,
+                    "row": 2,
+                    "block": 0
+                  },
+                  "text": "Tests pass.",
+                  "state": "available",
+                  "bytes": 11,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "output/a0a10ef0666c4dc7e",
+              "kind": "agent.output",
+              "parent": "run/talk_a0a10ef0666c4dc7e/a0a10ef0666c4dc7e-cycle",
+              "stream": "a0a10ef0666c4dc7e",
+              "at": 1767225607100,
+              "ref": {
+                "seq": 2,
+                "row": 2
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 2
+                }
+              ],
+              "attrs": {
+                "returned_value": "unavailable"
+              },
+              "text": "Tests pass.",
+              "state": "available",
+              "bytes": 11,
+              "flags": [
+                "finished"
+              ],
+              "edges": [
+                {
+                  "type": "ends_with",
+                  "other": "stream/a0a10ef0666c4dc7e",
+                  "dir": "in",
+                  "quality": "exact_unique",
+                  "via": "the last response in the child stream, and what it returned"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    }
+  ],
+  "loose": [
+    {
+      "id": "boundary/1/15",
+      "kind": "epoch.boundary",
+      "parent": "epoch/main/s8-boundary",
+      "stream": "main",
+      "at": 1767225611100,
+      "ref": {
+        "seq": 1,
+        "row": 15
+      },
+      "text": "{\"compactMetadata\":{\"preservedMessages\":{\"allUuids\":[\"s7-synthetic\"]},\"trigger\":\"auto\"},\"logicalParentUuid\":\"s7-synthetic\",\"subtype\":\"compact_boundary\",\"type\":\"system\"}",
+      "state": "available",
+      "bytes": 168,
+      "flags": [
+        "context_reset"
+      ],
+      "edges": [
+        {
+          "type": "summarizes",
+          "other": "summary/1/16",
+          "dir": "in",
+          "quality": "exact_unique",
+          "via": "containment parent"
+        }
+      ]
+    },
+    {
+      "id": "summary/1/16",
+      "kind": "epoch.summary",
+      "parent": "epoch/main/s8-boundary",
+      "stream": "main",
+      "at": 1767225610700,
+      "ref": {
+        "seq": 1,
+        "row": 16
+      },
+      "text": "Summary: the build was run and checked.",
+      "state": "available",
+      "bytes": 39,
+      "flags": [
+        "reset_summary"
+      ],
+      "edges": [
+        {
+          "type": "summarizes",
+          "other": "boundary/1/15",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "containment parent"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "rel/ends_with/stream_a0a10ef0666c4dc7e/output_a0a10ef0666c4dc7e",
+      "type": "ends_with",
+      "from": "stream/a0a10ef0666c4dc7e",
+      "to": "output/a0a10ef0666c4dc7e",
+      "quality": "exact_unique",
+      "via": "the last response in the child stream, and what it returned",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/follows/epoch_main_s8-boundary/epoch_main_0",
+      "type": "follows",
+      "from": "epoch/main/s8-boundary",
+      "to": "epoch/main/0",
+      "quality": "exact_unique",
+      "via": "explicit context reset",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 15
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_a0a10ef0666c4dc7e/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/a0a10ef0666c4dc7e",
+      "to": "segment/at_1_2",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s8-cycle-compact/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s8-cycle-compact",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 16
+        }
+      ]
+    },
+    {
+      "id": "rel/reports/notify_1_12/stream_a0a10ef0666c4dc7e",
+      "type": "reports",
+      "from": "notify/1/12",
+      "to": "stream/a0a10ef0666c4dc7e",
+      "quality": "exact_unique",
+      "via": "task id on the notification",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 12
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_s5-tool/stream_a0a10ef0666c4dc7e",
+      "type": "starts",
+      "from": "tool/s5-tool",
+      "to": "stream/a0a10ef0666c4dc7e",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 11
+        }
+      ]
+    },
+    {
+      "id": "rel/summarizes/summary_1_16/boundary_1_15",
+      "type": "summarizes",
+      "from": "summary/1/16",
+      "to": "boundary/1/15",
+      "quality": "exact_unique",
+      "via": "containment parent",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 16
+        }
+      ]
+    }
+  ],
+  "unresolved": []
+}

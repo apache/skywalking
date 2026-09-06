@@ -865,6 +865,15 @@ public enum MetadataRegistry {
                             model.getDownsampling(),
                             config.getRecordsBrowserErrorLog()
                         );
+                    case RECORDS_AI_AGENT:
+                        return new SchemaMetadata(
+                            namespace,
+                            BanyanDB.StreamGroup.RECORDS_AI_AGENT.getName(),
+                            model.getName(),
+                            Kind.STREAM,
+                            model.getDownsampling(),
+                            config.getRecordsAIAgent()
+                        );
                     case RECORDS:
                         return new SchemaMetadata(
                             namespace,

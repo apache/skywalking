@@ -16,6 +16,7 @@
 msgs:
   {{- contains .msgs }}
   - starttime: {{ gt .starttime 0 }}
+    recoverytime: null
     scope: Service
     id: ZTJlLXNlcnZpY2UtcHJvdmlkZXI=.1
     name: e2e-service-provider
