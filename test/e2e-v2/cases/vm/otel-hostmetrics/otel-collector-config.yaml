@@ -43,6 +43,7 @@ receivers:
         metrics:
           system.cpu.utilization:
             enabled: true
+            aggregation_strategy: sum
 
           system.cpu.logical.count:
             enabled: true

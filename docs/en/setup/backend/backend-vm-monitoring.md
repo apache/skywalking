@@ -62,7 +62,6 @@ Likewise, `meter_vm_tcp_alloc`, `meter_vm_sockets_used`, and `meter_vm_udp_inuse
 | Sockets Used | count | `meter_vm_sockets_used` | Kernel sockets currently in use | Yes | No | Yes |
 | UDP In Use | count | `meter_vm_udp_inuse` | UDP sockets currently in use | Yes | No | Yes |
 | Filefd Allocated | count | `meter_vm_filefd_allocated` | Host-level allocated file descriptors from Linux `/proc/sys/fs/file-nr` | Yes | No | — |
-| Network Connections | count | `meter_vm_network_connections` | TCP connections grouped by protocol and state | — | Yes | — |
 
 ## Customizing
 You can customize your own metrics/expression/dashboard panel.

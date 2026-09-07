@@ -15,11 +15,6 @@
 
 script: oap-server/server-starter/src/main/resources/otel-rules/vm.yaml
 input:
-  node_cpu_seconds_total:
-    - labels:
-        node_identifier_host_name: test-host
-        mode: user
-      value: 100.0
   # Native OpenTelemetry hostmetrics shape captured from otelcol-contrib 0.158.0.
   # Values are fixed for deterministic MAL assertions.
   system_cpu_logical_count:
@@ -30,11 +25,11 @@ input:
     - labels:
         node_identifier_host_name: test-host
         mode: user
-      value: 0.2
+      value: 4.0
     - labels:
         node_identifier_host_name: test-host
         mode: idle
-      value: 0.8
+      value: 0.0
   node_load1:
     - labels:
       value: 100.0
@@ -115,7 +110,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 2520.0
+        value: 400.0
   meter_vm_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -124,8 +119,12 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
+          mode: idle
+        value: 0.0
+      - labels:
+          node_identifier_host_name: test-host
           mode: user
-        value: 2520.0
+        value: 400.0
   meter_vm_cpu_load1:
     entities:
       - scope: SERVICE
@@ -303,4 +302,4 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 5.0
+        value: 100.0
