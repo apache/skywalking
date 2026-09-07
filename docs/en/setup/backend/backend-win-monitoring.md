@@ -45,7 +45,7 @@ The `OTel hostmetrics` column below refers to the complete OpenTelemetry Collect
 | Pagefile Usage | % | `meter_win_memory_pagefile_percentage` | Percentage of Windows pagefile in use | — | Yes |
 | Pagefile | MB | `meter_win_memory_pagefile_free`<br />`meter_win_memory_pagefile_total` | Windows pagefile Free / Total | — | Yes |
 
-`*` The OpenTelemetry path obtains these values through the `windowsperfcounters` receiver included in `otel-collector-hostmetrics-windows.yaml`: `Memory\\Commit Limit`, `Memory\\Committed Bytes`, and `System\\Handle Count`. They are transported and processed through the same OpenTelemetry Collector pipeline but are not native `hostmetrics` scraper metrics.
+`*` The OpenTelemetry path obtains these values through the `windowsperfcounters` receiver included in `otel-collector-hostmetrics-windows.yaml`: `Memory\\Commit Limit`, `Memory\\Committed Bytes`, and `Process(_Total)\\Handle Count`. They are transported and processed through the same OpenTelemetry Collector pipeline but are not native `hostmetrics` scraper metrics.
 
 ## Customizing
 You can customize your own metrics/expression/dashboard panel.
