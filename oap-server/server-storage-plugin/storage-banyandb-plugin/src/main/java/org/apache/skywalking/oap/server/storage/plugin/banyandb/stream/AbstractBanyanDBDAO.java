@@ -79,6 +79,29 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
                                                   Set<String> tags,
                                                   TimestampRange timestampRange,
                                                   Conditions where) throws IOException {
+        return queryDebuggable(isColdStage, streamModelName, tags, timestampRange, where, 0);
+    }
+
+    /**
+     * {@link #queryDebuggable(boolean, String, Set, TimestampRange, Conditions)} with a cap on the response of
+     * this query alone, for a read whose rows carry bodies of megabytes.
+     *
+     * @param isColdStage      whether to target the cold lifecycle stage
+     * @param streamModelName  the record/stream model name to resolve the schema
+     * @param tags             tag columns to project
+     * @param timestampRange   the time range bound to {@code TIME BETWEEN ? AND ?}
+     * @param where            the fluent condition builder holding the clause tail and its params
+     * @param maxResponseBytes the most bytes the response may carry, in place of the client's default; 0 keeps
+     *                         the default
+     * @return the stream query response
+     * @throws IOException if the query fails
+     */
+    protected StreamQueryResponse queryDebuggable(boolean isColdStage,
+                                                  String streamModelName,
+                                                  Set<String> tags,
+                                                  TimestampRange timestampRange,
+                                                  Conditions where,
+                                                  int maxResponseBytes) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(streamModelName);
         if (schema == null) {
             throw new IllegalArgumentException("schema is not registered");
@@ -101,7 +124,7 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             ql.append(where.buildQl(debug));
             final List<Serializable<BanyandbModel.TagValue>> params = timeBoundedParams(timestampRange, where.params());
             final StreamQueryResponse response =
-                getClient().queryStream(ql.toString(), params.toArray(new Serializable[0]));
+                getClient().queryStream(maxResponseBytes, ql.toString(), params.toArray(new Serializable[0]));
             if (span != null) {
                 final StringBuilder msg = new StringBuilder("BydbQL: ").append(ql)
                     .append("\n Params: ").append(bindings(params));

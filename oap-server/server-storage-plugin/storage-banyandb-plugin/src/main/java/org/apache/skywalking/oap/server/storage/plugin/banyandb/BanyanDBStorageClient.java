@@ -242,8 +242,24 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
 
     @SafeVarargs
     public final StreamQueryResponse queryStream(String bydbql, Serializable<BanyandbModel.TagValue>... params) throws IOException {
+        return queryStream(0, bydbql, params);
+    }
+
+    /**
+     * Query a stream with a BydbQL statement, with a cap on the response of this call alone.
+     *
+     * @param maxResponseBytes the most bytes the response may carry, in place of the client's default; 0 keeps
+     *                         the default
+     * @param bydbql           a BydbQL query whose FROM clause targets a STREAM
+     * @param params           values bound to the {@code ?} placeholders, in order of appearance
+     * @return the stream query response
+     * @throws IOException if the query fails
+     */
+    @SafeVarargs
+    public final StreamQueryResponse queryStream(int maxResponseBytes, String bydbql,
+                                                 Serializable<BanyandbModel.TagValue>... params) throws IOException {
         try {
-            StreamQueryResponse response = this.client.queryStream(bydbql, params);
+            StreamQueryResponse response = this.client.queryStream(maxResponseBytes, bydbql, params);
             this.healthChecker.health();
             return response;
         } catch (BanyanDBException ex) {

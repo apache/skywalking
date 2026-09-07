@@ -184,6 +184,19 @@ event-analyzer:
   selector: ${SW_EVENT_ANALYZER:default}
   default:
 
+# The GraphQL query module requires the AI agent conversation module.
+ai-agent-conversation:
+  selector: ${SW_AI_AGENT_CONVERSATION:default}
+  default:
+    fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
+    roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
+    maxListLimit: ${SW_AI_AGENT_CONVERSATION_MAX_LIST_LIMIT:10000}
+    viewRequestTimeout: ${SW_AI_AGENT_CONVERSATION_VIEW_REQUEST_TIMEOUT:120}
+    # The largest file stored, in bytes; a larger one is rejected at ingest. Under BanyanDB's 16 MiB gRPC message limit.
+    maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
+    # The most bytes one window read may answer with, applied to that read alone where the storage caps a response per call.
+    maxResponseBytes: ${SW_AI_AGENT_CONVERSATION_MAX_RESPONSE_BYTES:104857600}
+
 query:
   selector: ${SW_QUERY:graphql}
   graphql:
