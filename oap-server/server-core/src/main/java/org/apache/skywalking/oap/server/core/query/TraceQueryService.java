@@ -186,9 +186,6 @@ public class TraceQueryService implements Service {
     }
 
     public TraceList queryTraces(final TraceQueryCondition condition) throws IOException {
-        if (condition.getQueryDuration() == null) {
-            throw new IllegalArgumentException("queryDuration is required.");
-        }
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
