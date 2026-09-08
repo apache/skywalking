@@ -169,7 +169,7 @@ extend type Query {
     queryBasicTraces(condition: TraceQueryCondition, debug: Boolean): TraceBrief
     queryBasicTracesByName(condition: TraceQueryConditionByName, debug: Boolean): TraceBrief
     # Read the specific trace ID with given trace ID
-    # duration is optional, and only for BanyanDB. If not provided, means search in the last 1 day.
+    # duration is optional, and only for BanyanDB. If not provided, means search in everything the hot/warm stages retain.
     queryTrace(traceId: ID!, duration: Duration, debug: Boolean): Trace
     # Read the list of searchable keys
     queryTraceTagAutocompleteKeys(duration: Duration!):[String!]

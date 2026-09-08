@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.annotation.Nullable;
 import lombok.Getter;
 import org.apache.skywalking.apm.network.common.v3.KeyIntValuePair;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
@@ -97,22 +98,25 @@ public class ZipkinQueryService {
         return getZipkinQueryDAO().getSpanNames(serviceName);
     }
 
-    public List<Span> getTraceById(String traceId) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    public List<Span> getTraceById(String traceId, @Nullable Duration duration) throws IOException {
         IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
         List<Span> trace;
         if (supportTraceV2) {
             List<SpanWrapper> wrappedTrace = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTraceV2(
-                Span.normalizeTraceId(traceId.trim()), null);
+                Span.normalizeTraceId(traceId.trim()), duration);
             TraceV2 traceV2 = buildTraceV2(wrappedTrace);
             trace = traceV2.getSpans();
             appendEventsDebuggable(trace, traceV2.getEvents());
         } else {
-            trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), null);
+            trace = getZipkinQueryDAO().getTraceDebuggable(Span.normalizeTraceId(traceId.trim()), duration);
             if (CollectionUtils.isEmpty(trace)) {
                 return trace;
             }
             List<SpanAttachedEventRecord> eventRecords = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(
-                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(Span.normalizeTraceId(traceId.trim())), null);
+                SpanAttachedEventTraceType.ZIPKIN, Arrays.asList(Span.normalizeTraceId(traceId.trim())), duration);
             List<SpanAttachedEvent> events = new ArrayList<>(eventRecords.size());
             for (SpanAttachedEventRecord eventRecord : eventRecords) {
                 events.add(SpanAttachedEvent.parseFrom(eventRecord.getDataBinary()));
@@ -135,37 +139,40 @@ public class ZipkinQueryService {
             }
         } else {
             traces = zipkinQueryDAO.getTracesDebuggable(queryRequest, duration);
-            appendEventsToTracesDebuggable(traces);
+            appendEventsToTracesDebuggable(traces, duration);
         }
         return traces;
     }
 
-    public List<List<Span>> getTracesByIds(Set<String> normalizeTraceIds) throws IOException {
+    /**
+     * @param duration nullable unless for BanyanDB query from cold stage
+     */
+    public List<List<Span>> getTracesByIds(Set<String> normalizeTraceIds, @Nullable Duration duration) throws IOException {
         IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
         List<List<Span>> traces;
         if (supportTraceV2) {
             traces = new ArrayList<>();
-            List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(normalizeTraceIds, null);
+            List<List<SpanWrapper>> wrappedTraces = ((IZipkinQueryV2DAO) zipkinQueryDAO).getTracesV2(normalizeTraceIds, duration);
             for (List<SpanWrapper> wrappedTrace : wrappedTraces) {
                 TraceV2 traceV2 =  buildTraceV2(wrappedTrace);
                 traces.add(traceV2.getSpans());
                 appendEventsDebuggable(traceV2.getSpans(), traceV2.events);
             }
         } else {
-            traces = getZipkinQueryDAO().getTraces(normalizeTraceIds, null);
-            appendEventsToTraces(traces);
+            traces = getZipkinQueryDAO().getTraces(normalizeTraceIds, duration);
+            appendEventsToTraces(traces, duration);
         }
         return traces;
     }
 
-    private void appendEventsToTracesDebuggable(List<List<Span>> traces) throws IOException {
+    private void appendEventsToTracesDebuggable(List<List<Span>> traces, @Nullable Duration duration) throws IOException {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan debuggingSpan = null;
         try {
             if (traceContext != null) {
                 debuggingSpan = traceContext.createSpan("Query: appendEventsToTraces");
             }
-            appendEventsToTraces(traces);
+            appendEventsToTraces(traces, duration);
         } finally {
             if (traceContext != null && debuggingSpan != null) {
                 traceContext.stopSpan(debuggingSpan);
@@ -174,7 +181,7 @@ public class ZipkinQueryService {
         }
     }
 
-    private void appendEventsToTraces(List<List<Span>> traces) throws IOException {
+    private void appendEventsToTraces(List<List<Span>> traces, @Nullable Duration duration) throws IOException {
         final Map<String, List<Span>> traceIdWithSpans = traces.stream().filter(CollectionUtils::isNotEmpty)
                                                                .collect(Collectors.toMap(s -> s.get(0).traceId(), Function.identity(), (s1, s2) -> s1));
         if (CollectionUtils.isEmpty(traceIdWithSpans)) {
@@ -182,7 +189,7 @@ public class ZipkinQueryService {
         }
 
         final List<SpanAttachedEventRecord> records = getSpanAttachedEventQueryDAO().queryZKSpanAttachedEventsDebuggable(SpanAttachedEventTraceType.ZIPKIN,
-                                                                                                                         new ArrayList<>(traceIdWithSpans.keySet()), null);
+                                                                                                                         new ArrayList<>(traceIdWithSpans.keySet()), duration);
         List<SpanAttachedEvent> events = new ArrayList<>(records.size());
         for (SpanAttachedEventRecord record : records) {
             events.add(SpanAttachedEvent.parseFrom(record.getDataBinary()));

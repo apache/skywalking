@@ -68,6 +68,28 @@ query-zipkin:
     uiDefaultLookback: ${SW_QUERY_ZIPKIN_UI_DEFAULT_LOOKBACK:900000}
 ```
 
+### Query traces from the BanyanDB cold stage
+When the BanyanDB `zipkinTrace` group has the cold [lifecycle stage](../../banyandb/stages.md) enabled, the
+trace-fetching endpoints accept the following optional query parameters in addition to the standard Zipkin ones.
+They are SkyWalking extensions of the Zipkin API: a request without them behaves exactly as before, so existing
+Zipkin clients, including the Lens UI, keep working unchanged.
+
+| Endpoint                 | Extra parameters               | Description                                                                                                                                                                                                                        |
+|--------------------------|--------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `/api/v2/traces`         | `coldStage`                    | `true` queries the cold stage instead of the hot/warm stages, within the standard `endTs`/`lookback` time range. Default `false`.                                                                                                   |
+| `/api/v2/trace/{traceId}` | `coldStage`, `endTs`, `lookback` | The standard Zipkin API has no time range for these lookups, so without any of the three parameters BanyanDB searches everything its hot/warm stages retain. Passing any of them bounds the query to `[endTs - lookback, endTs]`, `endTs` defaulting to now and `lookback` to the `lookback` setting above (both in milliseconds), and `coldStage=true` targets the cold stage. |
+| `/api/v2/traceMany`      | `coldStage`, `endTs`, `lookback` | Same as `/api/v2/trace/{traceId}`.                                                                                                                                                                                                 |
+
+- `coldStage` is only meaningful for BanyanDB, the other storages ignore it, the same as the `coldStage` flag of
+the GraphQL `Duration` input.
+- Cold data is older than the hot (and warm) TTL by definition, so always send an `endTs`/`lookback` pair that
+covers the time the trace happened. The defaults, now and one day back, normally point at hot data.
+
+For example, fetch a trace that happened 2 to 4 days ago from the cold stage:
+```shell
+curl "http://127.0.0.1:9412/zipkin/api/v2/trace/fcb10b060c6b2492?coldStage=true&endTs=$(($(date +%s)*1000-172800000))&lookback=172800000"
+```
+
 ## Lens UI
 Lens UI is Zipkin's native browser UI. The OAP distribution does not bundle
 it; deploy a standalone Zipkin Lens container against the OAP Zipkin

@@ -207,7 +207,12 @@ public class BanyanDBTraceQueryDAO extends AbstractBanyanDBDAO implements ITrace
             }
             traces.add(trace);
         }
-        return new TracesQueryResult(traces, new RetrievedTimeRange(timestampRange.getBegin(), timestampRange.getEnd()));
+        // No queryDuration means the query was bound to the largest range (see getTimestampRange), i.e. everything
+        // the hot/warm stages retain up to now.
+        final RetrievedTimeRange retrievedTimeRange = timestampRange == null
+            ? new RetrievedTimeRange(0, System.currentTimeMillis())
+            : new RetrievedTimeRange(timestampRange.getBegin(), timestampRange.getEnd());
+        return new TracesQueryResult(traces, retrievedTimeRange);
     }
 
     /**

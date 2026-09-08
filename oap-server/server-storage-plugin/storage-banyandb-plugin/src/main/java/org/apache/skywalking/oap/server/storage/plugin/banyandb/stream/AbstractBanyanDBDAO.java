@@ -190,8 +190,9 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
             }
             final List<Serializable<BanyandbModel.TagValue>> params = new ArrayList<>();
             params.add(Value.longTagValue((long) number));
-            params.add(Value.timestampTagValue(timestampRange.getBegin()));
-            params.add(Value.timestampTagValue(timestampRange.getEnd()));
+            final TimestampRange range = timestampRange == null ? LARGEST_TIME_RANGE : timestampRange;
+            params.add(Value.timestampTagValue(range.getBegin()));
+            params.add(Value.timestampTagValue(range.getEnd()));
             params.addAll(where.params());
             final StringBuilder ql = new StringBuilder("SHOW TOP ? FROM MEASURE ")
                 .append(topNRuleName).append(" IN ").append(schema.getMetadata().getGroup());
@@ -490,23 +491,21 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
         span.getChildren().forEach(child -> addDBSpan2DebuggingTrace(child, traceContext, debuggingSpan));
     }
 
+    /**
+     * @return the range of the given duration, or null when there is none. A null range is bound as
+     * {@link #LARGEST_TIME_RANGE} by the query methods, so the query covers everything the group's hot/warm stages
+     * still retain (the by-id lookups of the trace, Zipkin and TraceQL APIs carry no time range).
+     */
+    @Nullable
     protected TimestampRange getTimestampRange(@Nullable Duration duration) {
-        long startTimeMillis = 0;
-        long endTimeMillis = 0;
-        if (duration != null) {
-            startTimeMillis = duration.getStartTimestamp();
-            endTimeMillis = duration.getEndTimestamp();
+        if (duration == null) {
+            return null;
         }
-        TimestampRange tsRange = null;
-
+        final long startTimeMillis = duration.getStartTimestamp();
+        final long endTimeMillis = duration.getEndTimestamp();
         if (startTimeMillis > 0 && endTimeMillis > 0) {
-            tsRange = new TimestampRange(startTimeMillis, endTimeMillis);
-        } else {
-            // default to last 24 hours
-            Instant now = Instant.now();
-            tsRange = new  TimestampRange(now.minusMillis(86400000).toEpochMilli(), now.toEpochMilli());
+            return new TimestampRange(startTimeMillis, endTimeMillis);
         }
-
-        return tsRange;
+        return null;
     }
 }
