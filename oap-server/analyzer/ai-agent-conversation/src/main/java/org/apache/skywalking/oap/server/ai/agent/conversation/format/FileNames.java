@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * <pre>
  * &lt;session&gt;/streams/&lt;stream&gt;/transcript-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/streams/&lt;stream&gt;/meta-&lt;stamp&gt;-&lt;seq&gt;.sd
+ * &lt;session&gt;/streams/&lt;stream&gt;/changes-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/journal-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/manifest-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/script-&lt;stamp&gt;-&lt;seq&gt;.sd
@@ -63,6 +64,11 @@ public final class FileNames {
                 break;
             case "agent_meta":
                 prefix = "meta";
+                dir = "streams/" + header.getStream();
+                break;
+            case "changes":
+                // the plugin's workspace change records, beside the transcript of the stream the tool ran under
+                prefix = "changes";
                 dir = "streams/" + header.getStream();
                 break;
             case "journal":

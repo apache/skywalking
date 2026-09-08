@@ -43,6 +43,16 @@
   segments: 1
   unresolved: 0
   timed: true
+- conversation: 3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3
+  instance: e2e-sender
+  title: workspace changes beside the steps
+  round: 1
+  talks: 2
+  steps: 19
+  streams: 2
+  segments: 1
+  unresolved: 0
+  timed: true
 - conversation: bd16edc4-0b6b-4020-8405-3ce58724f2bc
   instance: e2e-sender
   title: three rounds

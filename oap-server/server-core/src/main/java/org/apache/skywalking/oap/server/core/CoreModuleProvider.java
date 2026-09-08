@@ -489,14 +489,8 @@ public class CoreModuleProvider extends ModuleProvider {
         // queries see a stable layer set.
         Layer.seal();
 
-        try {
-            if (!RunningMode.isInitMode()) {
-                grpcServer.start();
-                httpServer.start();
-                remoteClientManager.start();
-            }
-        } catch (ServerException e) {
-            throw new ModuleStartException(e.getMessage(), e);
+        if (!RunningMode.isInitMode()) {
+            remoteClientManager.start();
         }
         PersistenceTimer.INSTANCE.start(getManager(), moduleConfig);
 
@@ -514,6 +508,23 @@ public class CoreModuleProvider extends ModuleProvider {
         hierarchyService.startAutoMatchingServiceHierarchy();
 
         watermarkWatcher.start(getManager().find(TelemetryModule.NAME).provider().getService(MetricsCollector.class));
+    }
+
+    /**
+     * The receiver ports open last: every module has finished its boot-time work in
+     * {@link #notifyAfterCompleted()} by now, so the first request meets a fully booted OAP.
+     */
+    @Override
+    public void notifyBootCompleted() throws ModuleStartException {
+        if (RunningMode.isInitMode()) {
+            return;
+        }
+        try {
+            grpcServer.start();
+            httpServer.start();
+        } catch (ServerException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override

@@ -14,14 +14,22 @@
 # limitations under the License.
 
 # AI agent conversations, end to end with the AI Sessionizer (asz), in one storage root:
-#   fixture.yaml, three sessions      build -> parse -> push, once
-#   three-rounds.yaml, one session    build through the first checkpoint -> parse -> push,
-#                                     then through the second, then to the end: three rounds over
-#                                     files cut at each stage, and the final document must cover it all
+#   fixture.yaml, three sessions      build -> collect, once
+#   workspace-changes.yaml, one       build -> collect, once, after the fixture's pass: a session whose every
+#   session                           tool call changed files, in the same root
+#   three-rounds.yaml, one session    build through the first checkpoint -> collect, then through the second,
+#                                     then to the end: three rounds over files cut at each stage, and the final
+#                                     document must cover it all
+#   lost-file.yaml, one session       build -> collect over a copy of asz.yaml that names no receiver, twice, then
+#                                     delete a landed file, then push: the round that bound the file is sent, the
+#                                     file is not
+#   asz collect                       one pass of the pipeline: parse what is landed, derive the runtime's token
+#                                     metric from it, and send the files, the rounds and the metrics to the
+#                                     receiver asz.yaml names; a scenario root has no source to land from
 #   asz view                          the Sessionizer's own asz.view documents, the reference the OAP's must equal
 # The asz image is distroless and has no shell; the one-shot steps chain through
 # service_completed_successfully. `scenario build` keeps what a person appends to its asz.yaml, so the receiver
-# is appended once and every later build, parse and push reads the one file.
+# is appended once and every later pass reads the one file.
 x-asz: &asz
   image: ghcr.io/apache/skywalking-ai-sessionizer:${SW_AI_SESSIONIZER_COMMIT}
   volumes:
@@ -29,6 +37,7 @@ x-asz: &asz
     - ../fixture.yaml:/asz/fixture.yaml:ro
     - ../three-rounds.yaml:/asz/three-rounds.yaml:ro
     - ../lost-file.yaml:/asz/lost-file.yaml:ro
+    - ../workspace-changes.yaml:/asz/workspace-changes.yaml:ro
   networks:
     - e2e
 
@@ -71,14 +80,14 @@ services:
     depends_on:
       asz-volume:
         condition: service_completed_successfully
-
-  # The receiver and this sender's identity, appended to the asz.yaml `build` wrote.
+  # The receiver and this sender's identity, appended to the asz.yaml `build` wrote. The copy taken first names no
+  # receiver: a pass over it parses and derives but sends nothing, which the lost-file stage needs.
   asz-config:
     image: busybox:1.36
     command:
       - sh
       - -c
-      - "printf 'export:\\n  otlp:\\n    protocol: grpc\\n    endpoint: oap:11800\\n    service_name: e2e-ai-agent\\n    instance_id: e2e-sender\\n' >> /asz/data/asz.yaml"
+      - "cp /asz/data/asz.yaml /asz/data/asz-local.yaml && printf 'export:\\n  otlp:\\n    protocol: grpc\\n    endpoint: oap:11800\\n    service_name: e2e-ai-agent\\n    instance_id: e2e-sender\\n' >> /asz/data/asz.yaml"
     volumes:
       - aszdata:/asz/data
     depends_on:
@@ -86,93 +95,80 @@ services:
         condition: service_completed_successfully
     networks:
       - e2e
-
-  asz-parse:
+  asz-collect:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
     depends_on:
       asz-config:
         condition: service_completed_successfully
-
-  asz-push:
-    <<: *asz
-    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
-    depends_on:
-      asz-parse:
-        condition: service_completed_successfully
       oap:
         condition: service_healthy
-
-  # ---- three-rounds.yaml: one session in three stages, each landed, parsed and pushed before the next
+  # ---- workspace-changes.yaml: every producer of a change record, one session in the same root. A scenario's
+  # clock starts when it is built and runs ahead of the wall clock, so this one waits for the fixture's pass, which
+  # waited for the OAP to be healthy: built any sooner, it would begin inside the first conversation's window.
+  wc-build:
+    <<: *asz
+    command: ["scenario", "build", "/asz/workspace-changes.yaml", "--format", "sd", "--out", "/asz/data"]
+    depends_on:
+      asz-collect:
+        condition: service_completed_successfully
+  wc-collect:
+    <<: *asz
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      wc-build:
+        condition: service_completed_successfully
+  # ---- three-rounds.yaml: one session in three stages, each parsed and sent before the next is built
   mr-build-1:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "first"]
     depends_on:
-      asz-push:
+      wc-collect:
         condition: service_completed_successfully
-  mr-parse-1:
+  mr-collect-1:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
     depends_on:
       mr-build-1:
         condition: service_completed_successfully
-  mr-push-1:
-    <<: *asz
-    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
-    depends_on:
-      mr-parse-1:
-        condition: service_completed_successfully
-
   mr-build-2:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "second"]
     depends_on:
-      mr-push-1:
+      mr-collect-1:
         condition: service_completed_successfully
-  mr-parse-2:
+  mr-collect-2:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
     depends_on:
       mr-build-2:
         condition: service_completed_successfully
-  mr-push-2:
-    <<: *asz
-    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
-    depends_on:
-      mr-parse-2:
-        condition: service_completed_successfully
-
   mr-build-3:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data"]
     depends_on:
-      mr-push-2:
+      mr-collect-2:
         condition: service_completed_successfully
-  mr-parse-3:
+  mr-collect-3:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
     depends_on:
       mr-build-3:
         condition: service_completed_successfully
-  mr-push-3:
-    <<: *asz
-    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
-    depends_on:
-      mr-parse-3:
-        condition: service_completed_successfully
-
-  # A landed file lost after a round bound to it: the helper's transcript, seq 2 of its session, deleted after the
-  # second parse as a person would. The structure survives in the rounds, the document names the one file, and the
-  # OAP's document must equal the Sessionizer's for it. The ids are derived from the scenario, so they are fixed.
+  # ---- lost-file.yaml: a landed file lost after a round bound to it: the helper's transcript, seq 2 of its session,
+  # deleted after the second parse as a person would. The structure survives in the rounds, the document names the
+  # one file, and the OAP's document must equal the Sessionizer's for it. The ids are derived from the scenario, so
+  # they are fixed. A pass over asz.yaml would send the file with the round it parsed, so the two passes here run
+  # over the copy that names no receiver, and one push after the deletion sends what is left.
   lf-build-1:
     <<: *asz
     command: ["scenario", "build", "/asz/lost-file.yaml", "--format", "sd", "--out", "/asz/data", "--through", "helped"]
     depends_on:
-      mr-push-3:
+      mr-collect-3:
         condition: service_completed_successfully
-  lf-parse-1:
+  lf-collect-1:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz-local.yaml"]
     depends_on:
       lf-build-1:
         condition: service_completed_successfully
@@ -180,11 +176,11 @@ services:
     <<: *asz
     command: ["scenario", "build", "/asz/lost-file.yaml", "--format", "sd", "--out", "/asz/data"]
     depends_on:
-      lf-parse-1:
+      lf-collect-1:
         condition: service_completed_successfully
-  lf-parse-2:
+  lf-collect-2:
     <<: *asz
-    command: ["parse", "-config", "/asz/data/asz.yaml"]
+    command: ["collect", "-once", "-config", "/asz/data/asz-local.yaml"]
     depends_on:
       lf-build-2:
         condition: service_completed_successfully
@@ -196,16 +192,15 @@ services:
     networks:
       - e2e
     depends_on:
-      lf-parse-2:
+      lf-collect-2:
         condition: service_completed_successfully
   lf-push:
     <<: *asz
-    command: ["push", "-once", "-config", "/asz/data/asz.yaml"]
+    command: ["push", "-config", "/asz/data/asz.yaml"]
     depends_on:
       lf-lose:
         condition: service_completed_successfully
 
-  # The Sessionizer's own view of the same storage root, at /api/c/{id}/view, for the comparison.
   asz:
     <<: *asz
     command: ["view", "-config", "/asz/data/asz.yaml", "0.0.0.0:8787"]

@@ -42,6 +42,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ConversationFileBuilderTest {
@@ -109,13 +110,13 @@ public class ConversationFileBuilderTest {
 
     @Test
     public void aFileWithoutARecordTimeIsStampedWithTheRecordsTime() throws Exception {
-        final byte[] body = Fixtures.bytes(Fixtures.DATA_FILES[2]);
+        final byte[] body = Fixtures.bytes(Fixtures.DATA_FILES[3]);
         final Capturing b = new Capturing();
         b.setFormat("sd");
         b.setDigest(Digests.sha256Hex(body));
         b.setLines(3L);
         b.setSession(Fixtures.SESSION);
-        b.setSeq(3L);
+        b.setSeq(4L);
         b.init(metadata(), input(body, "meta"), null);
         b.complete(null);
         assertEquals(SENT_AT, ((AIAgentSessionDataRecord) b.dispatched.get(0)).getTimestamp());
@@ -149,6 +150,63 @@ public class ConversationFileBuilderTest {
         assertEquals(Times.millis("2026-01-01T00:00:00Z"), row.getSessionFromTime());
         assertEquals(Times.millis("2026-01-01T00:00:11.1Z"), row.getTimestamp());
         assertArrayEquals(body, row.getBody());
+    }
+
+    @Test
+    public void aRoundsHeaderCountsLandOnTheRow() throws Exception {
+        final byte[] body = Fixtures.bytes(Fixtures.ROUND_FILE);
+        final Capturing b = round(body);
+        b.setChanges(3L);
+        b.setLinesAdded(12L);
+        b.setLinesRemoved(4L);
+        b.setLlmCalls(6L);
+        b.setSubagents(1L);
+        b.setBashRuns(2L);
+        b.init(metadata(), input(body, "_conversations/x/rounds/r000001-3ad0dcd4cd53.sf"), null);
+        b.complete(null);
+
+        final AIAgentSessionFlowRecord row = (AIAgentSessionFlowRecord) b.dispatched.get(0);
+        assertEquals(3L, row.getChanges());
+        assertEquals(12L, row.getLinesAdded());
+        assertEquals(4L, row.getLinesRemoved());
+        assertEquals(6L, row.getLlmCalls());
+        assertEquals(1L, row.getSubagents());
+        assertEquals(2L, row.getBashRuns());
+    }
+
+    @Test
+    public void aRoundWithoutTheCountsStoresThemAsAbsentNotZero() throws Exception {
+        final byte[] body = Fixtures.bytes(Fixtures.ROUND_FILE);
+        final Capturing b = round(body);
+        b.init(metadata(), input(body, "_conversations/x/rounds/r000001-3ad0dcd4cd53.sf"), null);
+        b.complete(null);
+
+        final AIAgentSessionFlowRecord row = (AIAgentSessionFlowRecord) b.dispatched.get(0);
+        assertNull(row.getChanges());
+        assertNull(row.getLinesAdded());
+        assertNull(row.getLinesRemoved());
+        assertNull(row.getLlmCalls());
+        assertNull(row.getSubagents());
+        assertNull(row.getBashRuns());
+    }
+
+    /** A builder fed the verified fixture round with the list attributes a Sessionizer sends for it. */
+    private static Capturing round(final byte[] body) {
+        final Capturing b = new Capturing();
+        b.setFormat("sf");
+        b.setDigest(Digests.sha256Hex(body));
+        b.setLines(45L);
+        b.setConversation(Fixtures.SESSION);
+        b.setRound(1L);
+        b.setSessionFromTime("2026-01-01T00:00:00Z");
+        b.setSessionThroughTime("2026-01-01T00:00:11.1Z");
+        b.setTitle("build and check");
+        b.setTalks(3L);
+        b.setSteps(21L);
+        b.setStreams(3L);
+        b.setSegments(1L);
+        b.setUnresolved(2L);
+        return b;
     }
 
     @Test

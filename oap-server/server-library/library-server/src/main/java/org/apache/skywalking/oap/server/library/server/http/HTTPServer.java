@@ -249,6 +249,7 @@ public class HTTPServer implements Server {
     @Override
     public void start() {
         sb.build().start().join();
+        log.info("HTTP server started, host {} listening on {}", config.getHost(), config.getPort());
     }
 
     /**

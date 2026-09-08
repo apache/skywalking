@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.library.module;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -40,6 +43,23 @@ public class ModuleManagerTest {
                                                                  .provider()
                                                                  .getService(BaseModuleA.ServiceABusiness1.class);
         Assertions.assertTrue(serviceABusiness1 != null);
+    }
+
+    @Test
+    public void bootCompletedFollowsEveryModuleCompleted() throws ServiceNotProvidedException, ModuleNotFoundException, ProviderNotFoundException, DuplicateProviderException, ModuleConfigException, ModuleStartException {
+        BootPhaseLog.EVENTS.clear();
+        ApplicationConfiguration configuration = new ApplicationConfiguration();
+        configuration.addModule("BaseA").addProviderConfiguration("P-A", new Properties());
+        configuration.addModule("BaseB").addProviderConfiguration("P-B", new Properties());
+
+        new ModuleManager("Test").init(configuration);
+
+        // Every module's after-completed hook runs before any boot-completed hook: the ports a
+        // provider opens in the latter cannot take a request while another module is still booting.
+        final List<String> events = new ArrayList<>(BootPhaseLog.EVENTS);
+        Assertions.assertEquals(4, events.size(), events.toString());
+        Assertions.assertTrue(events.subList(0, 2).containsAll(Arrays.asList("P-A:afterCompleted", "P-B:afterCompleted")), events.toString());
+        Assertions.assertTrue(events.subList(2, 4).containsAll(Arrays.asList("P-A:bootCompleted", "P-B:bootCompleted")), events.toString());
     }
 
     @Test

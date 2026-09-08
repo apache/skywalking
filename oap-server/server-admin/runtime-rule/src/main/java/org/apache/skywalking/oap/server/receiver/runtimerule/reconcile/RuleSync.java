@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.rule.ext.StaticRuleRegistry;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
@@ -57,9 +58,11 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
  *       DSLRuntimeUnregister} via the per-DSL drivers). Honours the per-tick
  *       {@link StorageManipulationOpt} and the marker-debt promotion (peer that was
  *       withoutSchemaChange is now main → re-fire under withSchemaChange).</li>
- *   <li><b>Gone-keys cleanup</b> — anything in the snapshot that's not in the DB and not
- *       static-shadowed gets {@link DSLRuntimeUnregister}'d. Snapshot removal is deferred
- *       past unregister so a transient teardown failure doesn't lose the retry.</li>
+ *   <li><b>Gone-keys cleanup</b> — an operator override in the snapshot whose DB row is gone
+ *       gets {@link DSLRuntimeUnregister}'d and falls over to its bundled twin. An entry that
+ *       runs its bundled file as shipped never had a row and is left alone. Snapshot removal
+ *       is deferred past unregister so a transient teardown failure doesn't lose the
+ *       retry.</li>
  *   <li><b>Static rehydrate</b> — {@link StaticRuleLoader#loadIfMissing} brings any
  *       {@code /delete}d static rule back online from disk content.</li>
  * </ol>
@@ -207,13 +210,15 @@ public final class RuleSync {
             if (seenKeys.contains(existing)) {
                 continue;
             }
-            // Skip boot-seeded bundled-only entries — DSLRuntimeState is null when the
-            // entry was created by the StaticRuleLoader and the operator hasn't touched it
-            // (no /addOrUpdate, no /inactivate). For those entries the DB never carried a
-            // row, so its absence is not a "removed" signal. Operator-touched entries
-            // (state != null) get teared down + bundled fall-over reload below.
+            // An entry the DB never carried a row for is not a "removed" signal. That is every
+            // entry still running its bundled file: StaticRuleLoader#loadAll seeds them at boot
+            // with the bundled content and a RUNNING state, and a bundled fall-over leaves them
+            // with the bundled content and no state. Tearing one down to reload the same file
+            // would only open a window, one persistence round long while the unregister drains,
+            // in which the receiver holds no converter for it and drops every sample of its
+            // metrics. Only an operator override whose row is gone is torn down below.
             final AppliedRuleScript script = rules.get(existing);
-            if (script != null && script.getState() == null) {
+            if (script != null && (script.getState() == null || runsBundledContent(script))) {
                 continue;
             }
             removedKeys.add(existing);
@@ -266,6 +271,21 @@ public final class RuleSync {
                 perFile.unlock();
             }
         }
+    }
+
+    /**
+     * @param script an entry without a DB row this tick, with a non-null state
+     * @return whether the entry runs the bundled file as shipped, so there is nothing to fall over to
+     */
+    private static boolean runsBundledContent(final AppliedRuleScript script) {
+        if (script.getContent() == null
+            || script.getState().getLocalState() != DSLRuntimeState.LocalState.RUNNING) {
+            return false;
+        }
+        return StaticRuleRegistry.active()
+                                 .find(script.getCatalog(), script.getName())
+                                 .map(script.getContent()::equals)
+                                 .orElse(false);
     }
 
     /** Functional handle for per-file apply — supplied by DSLManager. */

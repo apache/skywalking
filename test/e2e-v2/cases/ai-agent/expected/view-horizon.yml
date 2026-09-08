@@ -1,0 +1,33 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+status: 200
+media_type: "application/vnd.skywalking.asz.view+json; version=1.0; charset=utf-8"
+encoding: gzip
+format: asz.view
+version: "1.0"
+state: verified
+rounds: 1
+segments: 1
+streams: 2
+talks: 2
+steps: 19
+unresolved: 0
+changes: 3
+spanned: true
+records: 3
+files_changed: 3
+lines_added: 3
+lines_removed: 3

@@ -1,0 +1,1199 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3",
+  "sessions": [
+    "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "02d62370b20302d3f7b9ca0538cc267e3333a6dd50a9f4d30aa5c05f602008d2"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "workspace changes beside the steps",
+    "state": "verified",
+    "problems": [],
+    "talks": 2,
+    "steps": 19,
+    "streams": 2,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 3,
+    "from": 1767225600000,
+    "to": 1767225609400,
+    "kinds": {
+      "agent.call": 1,
+      "agent.launch_ack": 1,
+      "agent.output": 1,
+      "epoch": 2,
+      "llm.call": 6,
+      "message.assistant": 5,
+      "message.external": 1,
+      "run": 3,
+      "runtime.notification": 1,
+      "segment": 1,
+      "session": 1,
+      "stream": 2,
+      "talk": 2,
+      "tool": 3
+    },
+    "relation_types": {
+      "ends_with": 1,
+      "in_segment": 2,
+      "reports": 1,
+      "starts": 1
+    },
+    "quality": {
+      "exact_unique": 4,
+      "strong_inference": 1
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "02d62370b20302d3f7b9ca0538cc267e3333a6dd50a9f4d30aa5c05f602008d2",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 5,
+      "input_digest": "6e7297edbce400df039f66ba90034de86eef0a2293b0baa964be19fb969c5514",
+      "from_time": 1767225600000,
+      "through_time": 1767225609400,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 14,
+      "bytes": 5566,
+      "digest": "a3a8e96debe9f8c5398c6236052716b559aff59f22c4ffc6d99484529c7227ab",
+      "from_time": 1767225600000,
+      "through_time": 1767225609400
+    },
+    {
+      "file": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/main/changes-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "changes",
+      "seq": 2,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 3,
+      "bytes": 2034,
+      "digest": "def121178eb59d8c7496e643e0f9044e3d496f759ef473d1a854b118a7313a40",
+      "from_time": 1767225601600,
+      "through_time": 1767225601600
+    },
+    {
+      "file": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/a16c61ba3c4753923/transcript-20260101T000000.000000000Z-000003.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 3,
+      "round": null,
+      "stream": "a16c61ba3c4753923",
+      "run": null,
+      "lines": 7,
+      "bytes": 2051,
+      "digest": "423a9738186796d2fdf6e6cb4a116a454479361d3820446b63535bb57d3f2d34",
+      "from_time": 1767225605000,
+      "through_time": 1767225607400
+    },
+    {
+      "file": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/a16c61ba3c4753923/changes-20260101T000000.000000000Z-000004.sd",
+      "format": "sd",
+      "kind": "changes",
+      "seq": 4,
+      "round": null,
+      "stream": "a16c61ba3c4753923",
+      "run": null,
+      "lines": 3,
+      "bytes": 1597,
+      "digest": "0efef2a756848481b85ac4450bed3c9432f2d8de98398b2eae8ffac52548962a",
+      "from_time": 1767225606400,
+      "through_time": 1767225606400
+    },
+    {
+      "file": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/a16c61ba3c4753923/meta-20260101T000000.000000000Z-000005.sd",
+      "format": "sd",
+      "kind": "agent_meta",
+      "seq": 5,
+      "round": null,
+      "stream": "a16c61ba3c4753923",
+      "run": null,
+      "lines": 3,
+      "bytes": 662,
+      "digest": "7e430e402adabc5f885031e03ef7a106e9cb14bc0e583e64786217f25faf4ce0",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/rounds/r000001-02d62370b203.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 37,
+      "bytes": 9035,
+      "digest": "7aff5cb3c40667426aa1911d552fb05b5a3777428a5680275a8f055a5f659332",
+      "from_time": 1767225600000,
+      "through_time": 1767225609400
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 12,
+      "steps": 13,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    },
+    {
+      "id": "stream/a16c61ba3c4753923",
+      "name": "a16c61ba3c4753923",
+      "role": "child",
+      "label": "tidier",
+      "parent": "main",
+      "records": 6,
+      "steps": 6,
+      "talk": "talk/a16c61ba3c4753923",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/s4-tool",
+          "stream": "main",
+          "talk": "talk/main/s1-cycle",
+          "quality": "exact_unique"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_2",
+      "state": "open",
+      "committable": false,
+      "talks": 2,
+      "from": 1767225600000,
+      "to": 1767225609400
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 2
+      },
+      "attrs": {
+        "loops": 2,
+        "runs": 2,
+        "trigger": "external"
+      },
+      "label": "raise the timeout and add a configuration file",
+      "reply": "Done.",
+      "runs": 2,
+      "steps": 13,
+      "tools": 3,
+      "from": 1767225600000,
+      "to": 1767225609400,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 2
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/1/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "raise the timeout and add a configuration file",
+              "state": "available",
+              "bytes": 46,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s2-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 3
+                },
+                {
+                  "seq": 1,
+                  "row": 4
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 4,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/3:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s2-call",
+                  "stream": "main",
+                  "at": 1767225601000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "text": "Changing both.",
+                  "state": "available",
+                  "bytes": 14
+                },
+                {
+                  "id": "tool/s2-tool",
+                  "kind": "tool",
+                  "parent": "call/s2-call",
+                  "stream": "main",
+                  "at": 1767225601100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 4,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 4,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 5,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Bash",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"command\":\"sed -i 's/= 10/= 30/' server.go \\u0026\\u0026 printf 'timeout: 30\\\\n' \\u003e config.yaml\"}",
+                  "state": "available",
+                  "bytes": 101,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Bash",
+                  "result": "{\"stderr\":\"\",\"stdout\":\"\"}",
+                  "result_state": "available",
+                  "request_to_result_ms": 500,
+                  "request_to_result_join": "exact_unique",
+                  "changes": [
+                    "s2-tool"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s3-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225602600,
+              "ref": {
+                "seq": 1,
+                "row": 6
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 6
+                },
+                {
+                  "seq": 1,
+                  "row": 7
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 7,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/6:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225602600,
+                  "ref": {
+                    "seq": 1,
+                    "row": 6,
+                    "block": 0
+                  },
+                  "text": "Naming the unit.",
+                  "state": "available",
+                  "bytes": 16
+                },
+                {
+                  "id": "tool/s3-tool",
+                  "kind": "tool",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225602700,
+                  "ref": {
+                    "seq": 1,
+                    "row": 7,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 7,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 8,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Edit",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"file_path\":\"/Users/dev/scenario/server.go\",\"new_string\":\"var timeoutSeconds = 30\",\"old_string\":\"var timeout = 30\"}",
+                  "state": "available",
+                  "bytes": 116,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Edit",
+                  "result": "The file has been updated.",
+                  "result_state": "available",
+                  "result_bytes": 26,
+                  "request_to_result_ms": 200,
+                  "request_to_result_join": "exact_unique",
+                  "changes": [
+                    "s3-tool"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s4-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225603900,
+              "ref": {
+                "seq": 1,
+                "row": 9
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 9
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 9,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "tool/s4-tool",
+                  "kind": "agent.call",
+                  "parent": "call/s4-call",
+                  "stream": "main",
+                  "at": 1767225603900,
+                  "ref": {
+                    "seq": 1,
+                    "row": 9,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 9,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 10,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Agent",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"description\":\"tidier\",\"prompt\":\"remove the stale notes\"}",
+                  "state": "available",
+                  "bytes": 58,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Agent",
+                  "result": "launched",
+                  "result_state": "available",
+                  "result_bytes": 8,
+                  "request_to_result_ms": 100,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "starts",
+                      "other": "stream/a16c61ba3c4753923",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ack/1/10",
+              "kind": "agent.launch_ack",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225604000,
+              "ref": {
+                "seq": 1,
+                "row": 10
+              },
+              "text": "launched",
+              "state": "available",
+              "bytes": 8,
+              "flags": [
+                "launch_ack"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "run/talk_main_s1-cycle/s4-cycle-notification",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225608400,
+          "ref": {
+            "seq": 1,
+            "row": 11
+          },
+          "attrs": {
+            "trigger": "notification"
+          },
+          "children": [
+            {
+              "id": "notify/1/11",
+              "kind": "runtime.notification",
+              "parent": "run/talk_main_s1-cycle/s4-cycle-notification",
+              "stream": "main",
+              "at": 1767225608400,
+              "ref": {
+                "seq": 1,
+                "row": 11
+              },
+              "text": "\u003ctask-notification\u003e\n\u003ctask-id\u003ea16c61ba3c4753923\u003c/task-id\u003e\n\u003ctool-use-id\u003es4-tool\u003c/tool-use-id\u003e\n\u003cstatus\u003ecompleted\u003c/status\u003e\n\u003c/task-notification\u003e",
+              "state": "available",
+              "bytes": 139,
+              "edges": [
+                {
+                  "type": "reports",
+                  "other": "stream/a16c61ba3c4753923",
+                  "dir": "out",
+                  "quality": "exact_unique",
+                  "via": "task id on the notification"
+                }
+              ]
+            },
+            {
+              "id": "call/s5-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s4-cycle-notification",
+              "stream": "main",
+              "at": 1767225609400,
+              "ref": {
+                "seq": 1,
+                "row": 12
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 12
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 12,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/12:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s5-call",
+                  "stream": "main",
+                  "at": 1767225609400,
+                  "ref": {
+                    "seq": 1,
+                    "row": 12,
+                    "block": 0
+                  },
+                  "text": "Done.",
+                  "state": "available",
+                  "bytes": 5,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/a16c61ba3c4753923",
+      "kind": "talk",
+      "parent": "epoch/a16c61ba3c4753923/0",
+      "stream": "a16c61ba3c4753923",
+      "at": 1767225605000,
+      "ref": {
+        "seq": 3,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "reply": "Removed.",
+      "runs": 1,
+      "steps": 6,
+      "tools": 1,
+      "from": 1767225605000,
+      "to": 1767225607400,
+      "child": true,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_a16c61ba3c4753923/a16c61ba3c4753923-cycle",
+          "kind": "run",
+          "parent": "talk/a16c61ba3c4753923",
+          "stream": "a16c61ba3c4753923",
+          "at": 1767225605000,
+          "ref": {
+            "seq": 3,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "call/tidier-s1-call",
+              "kind": "llm.call",
+              "parent": "run/talk_a16c61ba3c4753923/a16c61ba3c4753923-cycle",
+              "stream": "a16c61ba3c4753923",
+              "at": 1767225606000,
+              "ref": {
+                "seq": 3,
+                "row": 2
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 2
+                },
+                {
+                  "seq": 3,
+                  "row": 3
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 3,
+                  "seq": 3
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/3/2:0",
+                  "kind": "message.assistant",
+                  "parent": "call/tidier-s1-call",
+                  "stream": "a16c61ba3c4753923",
+                  "at": 1767225606000,
+                  "ref": {
+                    "seq": 3,
+                    "row": 2,
+                    "block": 0
+                  },
+                  "text": "Removing them.",
+                  "state": "available",
+                  "bytes": 14
+                },
+                {
+                  "id": "tool/tidier-s1-tool",
+                  "kind": "tool",
+                  "parent": "call/tidier-s1-call",
+                  "stream": "a16c61ba3c4753923",
+                  "at": 1767225606100,
+                  "ref": {
+                    "seq": 3,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 3,
+                      "row": 3,
+                      "block": 0
+                    },
+                    {
+                      "seq": 3,
+                      "row": 4,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Bash",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"command\":\"rm notes.txt\"}",
+                  "state": "available",
+                  "bytes": 26,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Bash",
+                  "result": "{\"stderr\":\"\",\"stdout\":\"\"}",
+                  "result_state": "available",
+                  "request_to_result_ms": 300,
+                  "request_to_result_join": "exact_unique",
+                  "changes": [
+                    "tidier-s1-tool"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/tidier-s2-call",
+              "kind": "llm.call",
+              "parent": "run/talk_a16c61ba3c4753923/a16c61ba3c4753923-cycle",
+              "stream": "a16c61ba3c4753923",
+              "at": 1767225607400,
+              "ref": {
+                "seq": 3,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 5,
+                  "seq": 3
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/3/5:0",
+                  "kind": "message.assistant",
+                  "parent": "call/tidier-s2-call",
+                  "stream": "a16c61ba3c4753923",
+                  "at": 1767225607400,
+                  "ref": {
+                    "seq": 3,
+                    "row": 5,
+                    "block": 0
+                  },
+                  "text": "Removed.",
+                  "state": "available",
+                  "bytes": 8,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "output/a16c61ba3c4753923",
+              "kind": "agent.output",
+              "parent": "run/talk_a16c61ba3c4753923/a16c61ba3c4753923-cycle",
+              "stream": "a16c61ba3c4753923",
+              "at": 1767225607400,
+              "ref": {
+                "seq": 3,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "returned_value": "unavailable"
+              },
+              "text": "Removed.",
+              "state": "available",
+              "bytes": 8,
+              "flags": [
+                "finished"
+              ],
+              "edges": [
+                {
+                  "type": "ends_with",
+                  "other": "stream/a16c61ba3c4753923",
+                  "dir": "in",
+                  "quality": "exact_unique",
+                  "via": "the last response in the child stream, and what it returned"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/ends_with/stream_a16c61ba3c4753923/output_a16c61ba3c4753923",
+      "type": "ends_with",
+      "from": "stream/a16c61ba3c4753923",
+      "to": "output/a16c61ba3c4753923",
+      "quality": "exact_unique",
+      "via": "the last response in the child stream, and what it returned",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 5
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_a16c61ba3c4753923/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/a16c61ba3c4753923",
+      "to": "segment/at_1_2",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/reports/notify_1_11/stream_a16c61ba3c4753923",
+      "type": "reports",
+      "from": "notify/1/11",
+      "to": "stream/a16c61ba3c4753923",
+      "quality": "exact_unique",
+      "via": "task id on the notification",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 11
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_s4-tool/stream_a16c61ba3c4753923",
+      "type": "starts",
+      "from": "tool/s4-tool",
+      "to": "stream/a16c61ba3c4753923",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 10
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": [
+    {
+      "step": "tool/s2-tool",
+      "ref": {
+        "seq": 2,
+        "row": 1,
+        "block": 0
+      },
+      "schema": "changes/1",
+      "id": "s2-tool",
+      "captured_by": "asz-plugin",
+      "session": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3",
+      "stream": "main",
+      "tool": "s2-tool",
+      "tool_name": "Bash",
+      "time": "2026-01-01T00:00:01.600Z",
+      "basis": "tool_window",
+      "root": {
+        "path": "/Users/dev/scenario"
+      },
+      "policy": {
+        "exclusions": "standard-v1",
+        "read_only": "readonly-v1"
+      },
+      "window": {
+        "before": {
+          "from": "2026-01-01T00:00:00.600Z",
+          "to": "2026-01-01T00:00:00.600Z"
+        },
+        "after": {
+          "from": "2026-01-01T00:00:01.600Z",
+          "to": "2026-01-01T00:00:01.600Z"
+        }
+      },
+      "outcome": {
+        "state": "returned",
+        "exit_code": 0
+      },
+      "coverage": "complete",
+      "changed_files": 2,
+      "changes": [
+        {
+          "path": "server.go",
+          "operation": "modify",
+          "before": {
+            "present": true,
+            "bytes": 31,
+            "sha256": "3189e1da38c06459ea27645112a044b0852adfe54f7cb30918c12974b46e4906"
+          },
+          "after": {
+            "present": true,
+            "bytes": 31,
+            "sha256": "ec2dae1adf80381d4d3e6e1f4048c3b4a0c3b667ae8e77fff58c7250f2b3ce00"
+          },
+          "diff": "available",
+          "attribution": "only_this_window",
+          "windows": [
+            "s2-tool"
+          ],
+          "additions": 1,
+          "deletions": 1,
+          "hunks": [
+            {
+              "old_start": 1,
+              "old_lines": 3,
+              "new_start": 1,
+              "new_lines": 3,
+              "lines": [
+                " package main",
+                " ",
+                "-var timeout = 10",
+                "+var timeout = 30"
+              ]
+            }
+          ]
+        },
+        {
+          "path": "config.yaml",
+          "operation": "create",
+          "before": {
+            "present": false,
+            "bytes": null
+          },
+          "after": {
+            "present": true,
+            "bytes": 12,
+            "sha256": "6e4206a968e12622b1c42b272ee6faa88501e8522f3391be751753ff7d03e008"
+          },
+          "diff": "available",
+          "attribution": "only_this_window",
+          "windows": [
+            "s2-tool"
+          ],
+          "additions": 1,
+          "deletions": 0,
+          "hunks": [
+            {
+              "old_start": 0,
+              "old_lines": 0,
+              "new_start": 1,
+              "new_lines": 1,
+              "lines": [
+                "+timeout: 30"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "tool/s3-tool",
+      "ref": {
+        "seq": 1,
+        "row": 8,
+        "block": 1
+      },
+      "schema": "changes/1",
+      "id": "s3-tool",
+      "captured_by": "claude-code",
+      "session": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3",
+      "stream": "main",
+      "tool": "s3-tool",
+      "time": "2026-01-01T00:00:02.900Z",
+      "basis": "runtime_reported",
+      "root": {
+        "path": "/Users/dev/scenario"
+      },
+      "changed_files": 1,
+      "changes": [
+        {
+          "path": "server.go",
+          "operation": "modify",
+          "before": {
+            "present": true,
+            "bytes": 31,
+            "sha256": "ec2dae1adf80381d4d3e6e1f4048c3b4a0c3b667ae8e77fff58c7250f2b3ce00"
+          },
+          "after": {
+            "present": true,
+            "bytes": 38,
+            "sha256": "e09685d08cfce37f21707e337394d2397df80966b2949fe9de14b8f8791817c5"
+          },
+          "diff": "available",
+          "additions": 1,
+          "deletions": 1,
+          "hunks": [
+            {
+              "old_start": 1,
+              "old_lines": 3,
+              "new_start": 1,
+              "new_lines": 3,
+              "lines": [
+                " package main",
+                " ",
+                "-var timeout = 30",
+                "+var timeoutSeconds = 30"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "step": "tool/tidier-s1-tool",
+      "ref": {
+        "seq": 4,
+        "row": 1,
+        "block": 0
+      },
+      "schema": "changes/1",
+      "id": "tidier-s1-tool",
+      "captured_by": "asz-plugin",
+      "session": "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3",
+      "stream": "a16c61ba3c4753923",
+      "tool": "tidier-s1-tool",
+      "tool_name": "Bash",
+      "time": "2026-01-01T00:00:06.400Z",
+      "basis": "tool_window",
+      "root": {
+        "path": "/Users/dev/scenario"
+      },
+      "policy": {
+        "exclusions": "standard-v1",
+        "read_only": "readonly-v1"
+      },
+      "window": {
+        "before": {
+          "from": "2026-01-01T00:00:05.400Z",
+          "to": "2026-01-01T00:00:05.400Z"
+        },
+        "after": {
+          "from": "2026-01-01T00:00:06.400Z",
+          "to": "2026-01-01T00:00:06.400Z"
+        }
+      },
+      "outcome": {
+        "state": "returned",
+        "exit_code": 0
+      },
+      "coverage": "complete",
+      "changed_files": 1,
+      "changes": [
+        {
+          "path": "notes.txt",
+          "operation": "delete",
+          "before": {
+            "present": true,
+            "bytes": 10,
+            "sha256": "54d048ab0699bcf1fff66455775c49a538241b098d9aad8b9ae35eba96528201"
+          },
+          "after": {
+            "present": false,
+            "bytes": null
+          },
+          "diff": "available",
+          "attribution": "only_this_window",
+          "windows": [
+            "tidier-s1-tool"
+          ],
+          "additions": 0,
+          "deletions": 1,
+          "hunks": [
+            {
+              "old_start": 1,
+              "old_lines": 1,
+              "new_start": 0,
+              "new_lines": 0,
+              "lines": [
+                "-old notes"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -52,7 +52,7 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @SuperDataset
 @ScopeDeclaration(id = DefaultScopeDefine.AI_AGENT_SESSION_FLOW, name = "AIAgentSessionFlow")
 @Stream(name = AIAgentSessionFlowRecord.INDEX_NAME, scopeId = DefaultScopeDefine.AI_AGENT_SESSION_FLOW,
-    builder = AIAgentSessionFlowRecord.Builder.class, processor = RecordStreamProcessor.class)
+    builder = AIAgentSessionFlowRecord.Builder.class, processor = RecordStreamProcessor.class, allowBootReshape = true)
 @BanyanDB.TimestampColumn(AIAgentSessionFlowRecord.TIMESTAMP)
 @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_AI_AGENT)
 public class AIAgentSessionFlowRecord extends Record {
@@ -69,6 +69,12 @@ public class AIAgentSessionFlowRecord extends Record {
     public static final String STREAMS = "streams";
     public static final String SEGMENTS = "segments";
     public static final String UNRESOLVED = "unresolved";
+    public static final String CHANGES = "changes";
+    public static final String LINES_ADDED = "lines_added";
+    public static final String LINES_REMOVED = "lines_removed";
+    public static final String LLM_CALLS = "llm_calls";
+    public static final String SUBAGENTS = "subagents";
+    public static final String BASH_RUNS = "bash_runs";
     public static final String DIGEST = "digest";
     /** The name of the id fragment that hashes the owner; not a column. */
     public static final String OWNER = "owner";
@@ -103,6 +109,21 @@ public class AIAgentSessionFlowRecord extends Record {
     private long segments;
     @Column(name = UNRESOLVED, storageOnly = true)
     private long unresolved;
+    /** Distinct change records the Sessionizer had captured as of this round, one per tool call a producer watched for file changes; null when the round did not say. The stream opts into the boot reshape so a deployment that predates this column gains it. */
+    @Column(name = CHANGES, storageOnly = true)
+    private Long changes;
+    /** What those records' diffs add and remove; null when the round did not say. */
+    @Column(name = LINES_ADDED, storageOnly = true)
+    private Long linesAdded;
+    @Column(name = LINES_REMOVED, storageOnly = true)
+    private Long linesRemoved;
+    /** Provider calls, child agents started, and shell commands run through the runtime's Bash tool; null when the round did not say. */
+    @Column(name = LLM_CALLS, storageOnly = true)
+    private Long llmCalls;
+    @Column(name = SUBAGENTS, storageOnly = true)
+    private Long subagents;
+    @Column(name = BASH_RUNS, storageOnly = true)
+    private Long bashRuns;
     @Column(name = DIGEST, length = 64, storageOnly = true)
     private String digest;
     @ElasticSearch.EnableDocValues
@@ -127,6 +148,10 @@ public class AIAgentSessionFlowRecord extends Record {
     }
 
     public static class Builder implements StorageBuilder<AIAgentSessionFlowRecord> {
+        private static Long nullableLong(final Object value) {
+            return value == null ? null : ((Number) value).longValue();
+        }
+
         @Override
         public AIAgentSessionFlowRecord storage2Entity(final Convert2Entity converter) {
             final AIAgentSessionFlowRecord record = new AIAgentSessionFlowRecord();
@@ -141,6 +166,12 @@ public class AIAgentSessionFlowRecord extends Record {
             record.setStreams(((Number) converter.get(STREAMS)).longValue());
             record.setSegments(((Number) converter.get(SEGMENTS)).longValue());
             record.setUnresolved(((Number) converter.get(UNRESOLVED)).longValue());
+            record.setChanges(nullableLong(converter.get(CHANGES)));
+            record.setLinesAdded(nullableLong(converter.get(LINES_ADDED)));
+            record.setLinesRemoved(nullableLong(converter.get(LINES_REMOVED)));
+            record.setLlmCalls(nullableLong(converter.get(LLM_CALLS)));
+            record.setSubagents(nullableLong(converter.get(SUBAGENTS)));
+            record.setBashRuns(nullableLong(converter.get(BASH_RUNS)));
             record.setDigest((String) converter.get(DIGEST));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
             record.setBody(converter.getBytes(BODY));
@@ -161,6 +192,12 @@ public class AIAgentSessionFlowRecord extends Record {
             converter.accept(STREAMS, record.getStreams());
             converter.accept(SEGMENTS, record.getSegments());
             converter.accept(UNRESOLVED, record.getUnresolved());
+            converter.accept(CHANGES, record.getChanges());
+            converter.accept(LINES_ADDED, record.getLinesAdded());
+            converter.accept(LINES_REMOVED, record.getLinesRemoved());
+            converter.accept(LLM_CALLS, record.getLlmCalls());
+            converter.accept(SUBAGENTS, record.getSubagents());
+            converter.accept(BASH_RUNS, record.getBashRuns());
             converter.accept(DIGEST, record.getDigest());
             converter.accept(TIMESTAMP, record.getTimestamp());
             converter.accept(BODY, record.getBody());

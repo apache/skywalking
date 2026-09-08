@@ -37,6 +37,14 @@ cases:
   # every conversation's asz.view document equals the one the Sessionizer serves for the same files
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh views http://${oap_host}:${oap_12800} http://${aszview_host}:${aszview_8787}
     expected: expected/views.yml
+  # The two reads Horizon's conversation page makes, before the later cases push extra rounds.
+  # The list as Horizon's conversation page queries it, every field its columns read: the head round's counts,
+  # changes with the lines they add and remove, model calls, subagents and Bash runs, what every scenario declares
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh list-horizon http://${oap_host}:${oap_12800}
+    expected: expected/list-horizon.yml
+  # the document as Horizon's conversation page fetches it, and what its header and changes panel read from it
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh view-horizon http://${oap_host}:${oap_12800}
+    expected: expected/view-horizon.yml
   # the raw files of a conversation are the files the document names, digest for digest
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh raw-files http://${oap_host}:${oap_12800}
     expected: expected/raw-files.yml
@@ -55,3 +63,11 @@ cases:
   # a file over maxFileBytes is rejected at ingest and never stored; one under it is
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh size http://${oap_host}:${oap_12800}
     expected: expected/size.yml
+  # the workspace-changes conversation: the plugin's changes files landed beside the transcripts, every change record
+  # joins its step, and the export names the files
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh changes http://${oap_host}:${oap_12800}
+    expected: expected/changes.yml
+  # the runtime's token metric the Sessionizer derived, summed per minute over every session and sender, and over the
+  # run equal to what the scenarios declare; the service and the sender both
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh metrics http://${oap_host}:${oap_12800}
+    expected: expected/metrics.yml
