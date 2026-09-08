@@ -99,7 +99,9 @@ public class ZipkinQueryService {
     }
 
     /**
-     * @param duration nullable unless for BanyanDB query from cold stage
+     * @param duration optional time range of the lookup. Null keeps the storage default, which for BanyanDB is
+     *                 everything the hot/warm stages retain; a non-null one bounds the lookup, and its
+     *                 {@code coldStage} flag targets the BanyanDB cold stage instead.
      */
     public List<Span> getTraceById(String traceId, @Nullable Duration duration) throws IOException {
         IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
@@ -145,7 +147,9 @@ public class ZipkinQueryService {
     }
 
     /**
-     * @param duration nullable unless for BanyanDB query from cold stage
+     * @param duration optional time range of the lookup. Null keeps the storage default, which for BanyanDB is
+     *                 everything the hot/warm stages retain; a non-null one bounds the lookup, and its
+     *                 {@code coldStage} flag targets the BanyanDB cold stage instead.
      */
     public List<List<Span>> getTracesByIds(Set<String> normalizeTraceIds, @Nullable Duration duration) throws IOException {
         IZipkinQueryDAO zipkinQueryDAO = getZipkinQueryDAO();
