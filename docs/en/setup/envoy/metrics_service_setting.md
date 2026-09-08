@@ -6,15 +6,15 @@ SkyWalking has a built-in receiver that implements this protocol, so you can con
 As an APM system, SkyWalking not only receives and stores the metrics emitted by Envoy but also analyzes the topology of services and service instances.
 
 **Attention:** There are two versions of the Envoy metrics service protocol currently:
-[v2](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) and
-[v3](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v3/config/metrics/v3/metrics_service.proto). SkyWalking (8.3.0+) supports both of them.
+[v2](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/envoy/api/v2/core/grpc_service.proto) and
+[v3](https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/metrics/v3/metrics_service.proto). SkyWalking (8.3.0+) supports both of them.
 
 ## Configure Envoy to send metrics to SkyWalking without Istio
 
 Envoy can be used with/without Istio. This section explains how you can configure the standalone Envoy to send metrics to SkyWalking.
 
 To let Envoy send metrics to SkyWalking, we need to feed Envoy with a configuration that contains `stats_sinks`, which in turn includes `envoy.metrics_service`.
-This `envoy.metrics_service` should be configured as a [`config.grpc_service`](https://www.envoyproxy.io/docs/envoy/v1.18.2/api-v2/api/v2/core/grpc_service.proto#envoy-api-msg-core-grpcservice) entry.
+This `envoy.metrics_service` should be configured as a [`config.grpc_service`](https://github.com/envoyproxy/envoy/blob/v1.18.2/api/envoy/api/v2/core/grpc_service.proto) entry.
 
 The noteworthy parts of the config are shown below:
 
@@ -107,7 +107,7 @@ istioctl manifest install -y \
 
 # Metrics data
 
-Some Envoy statistics are [listed here](https://www.envoyproxy.io/docs/envoy/v1.17.0/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). Sample data that contain identifiers can be found [here](identify.json), while the metrics can be found [here](metrics.json).
+Some Envoy statistics are [listed here](https://www.envoyproxy.io/docs/envoy/latest/configuration/upstream/cluster_manager/cluster_stats#config-cluster-manager-cluster-stats). Sample data that contain identifiers can be found [here](identify.json), while the metrics can be found [here](metrics.json).
 
 # Network Monitoring
 
