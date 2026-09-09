@@ -173,8 +173,11 @@ public abstract class AbstractBulkWriteProcessor<REQ extends com.google.protobuf
                         request = entity.buildOnlyValues();
                     }
                 } catch (Throwable bt) {
-                    log.error("building the entity fails: {}", entity.toString(), bt);
-                    h.getFuture().completeExceptionally(bt);
+                    // Abort the unsent requests without leaving their futures pending. Requests already
+                    // completed keep their results, so callers can finish waiting for the whole batch.
+                    data.forEach(item -> item.getFuture().completeExceptionally(bt));
+                    // Rendering the entity may invoke the same serializer that failed to build it.
+                    log.error("building the entity fails: {}", entity.getEntityMetadata(), bt);
                     break;
                 }
                 writeRequestStreamObserver.onNext(request);
