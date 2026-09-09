@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -151,18 +152,34 @@ public class TableHelper {
             return Collections.singletonList(rawTableName);
         }
 
-        final var timestampStart = TimeBucket.getTimestamp(timeBucketStart);
-        final var timestampEnd = TimeBucket.getTimestamp(timeBucketEnd);
-        final var timeBuckets = LongStream.builder();
-        for (var timestamp = timestampStart; timestamp <= timestampEnd; timestamp += TimeUnit.DAYS.toMillis(1)) {
-            timeBuckets.add(TimeBucket.getTimeBucket(timestamp, DownSampling.Day));
-        }
-
-        return timeBuckets
-            .build()
-            .distinct()
-            .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
+        return dayTimeBucketsBetween(TimeBucket.getTimestamp(timeBucketStart), TimeBucket.getTimestamp(timeBucketEnd))
+            .stream()
+            .map(timeBucket -> getTable(rawTableName, timeBucket))
             .collect(toList());
+    }
+
+    /**
+     * The day buckets a time range touches, first day to last. The range is walked by calendar days from the start
+     * of its first day, not by 24-hour steps from its first instant: a range shorter than a day that crosses
+     * midnight, the last thirty minutes read a few minutes after it, would otherwise never reach its second day.
+     *
+     * @param timestampStart the range's first instant, in milliseconds
+     * @param timestampEnd   the range's last instant, in milliseconds
+     * @return the day buckets in order, empty when the range ends before it starts
+     */
+    static List<Long> dayTimeBucketsBetween(final long timestampStart, final long timestampEnd) {
+        final Calendar day = Calendar.getInstance();
+        day.setTimeInMillis(timestampStart);
+        day.set(Calendar.HOUR_OF_DAY, 0);
+        day.set(Calendar.MINUTE, 0);
+        day.set(Calendar.SECOND, 0);
+        day.set(Calendar.MILLISECOND, 0);
+        final List<Long> buckets = new ArrayList<>();
+        while (day.getTimeInMillis() <= timestampEnd) {
+            buckets.add(TimeBucket.getTimeBucket(day.getTimeInMillis(), DownSampling.Day));
+            day.add(Calendar.DAY_OF_MONTH, 1);
+        }
+        return buckets;
     }
 
     public List<String> getTablesWithinTTL(String modelName) {
@@ -215,15 +232,9 @@ public class TableHelper {
      * the foreign-metric inspect probe across the node's known function tables.
      */
     public List<String> getExistingDayTables(String rawTableName, long timeBucketStart, long timeBucketEnd) {
-        final var timestampStart = TimeBucket.getTimestamp(timeBucketStart);
-        final var timestampEnd = TimeBucket.getTimestamp(timeBucketEnd);
-        final var timeBuckets = LongStream.builder();
-        for (var timestamp = timestampStart; timestamp <= timestampEnd; timestamp += TimeUnit.DAYS.toMillis(1)) {
-            timeBuckets.add(TimeBucket.getTimeBucket(timestamp, DownSampling.Day));
-        }
-        return timeBuckets.build()
-            .distinct()
-            .mapToObj(timeBucket -> getTable(rawTableName, timeBucket))
+        return dayTimeBucketsBetween(TimeBucket.getTimestamp(timeBucketStart), TimeBucket.getTimestamp(timeBucketEnd))
+            .stream()
+            .map(timeBucket -> getTable(rawTableName, timeBucket))
             .filter(table -> {
                 try {
                     return tableExistence.get(table);
