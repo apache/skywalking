@@ -262,8 +262,9 @@ debuggingTrace:
   | endTs             | The end timestamp of the trace    | No, default, current timestamp |
   | lookback          | The lookback of the trace query   | No, default: 86400000          |
   | limit             | The limit of the trace query      | No, default: 10                |
+  | coldStage         | Only for BanyanDB, the flag to query from cold stage, default is false. | No |
 
-  All parameters are the same as the Zipkin API `/api/v2/traces`.
+  All parameters are the same as the Zipkin API `/api/v2/traces` as served by OAP, `coldStage` being the SkyWalking extension.
 
 - Example
 
@@ -284,13 +285,16 @@ debuggingTrace:
 - URL: HTTP GET `http://{admin-server host}:{admin-server port}/debugging/query/zipkin/api/v2/trace?{parameters}`
 - Parameters
 
-  | Field             | Description         | Required           |
-  |-------------------|---------------------|--------------------|
-  | traceId           | The ID of the trace | Yes                |
+  | Field             | Description                                                                                                        | Required                                        |
+  |-------------------|--------------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+  | traceId           | The ID of the trace                                                                                                | Yes                                             |
+  | endTs             | The end timestamp of the query time range, in milliseconds. Without `endTs`, `lookback` and `coldStage`, BanyanDB searches everything its hot/warm stages retain. | No, default, current timestamp |
+  | lookback          | The lookback of the query time range, in milliseconds                                                              | No, default: 86400000                           |
+  | coldStage         | Only for BanyanDB, the flag to query from cold stage, default is false.                                             | No                                              |
 
 - Example
 ```shell
-curl -X GET 'http://127.0.0.1:17128/debugging/query/zipkin/api/v2/trace?traceId=fcb10b060c6b2492`
+curl -X GET 'http://127.0.0.1:17128/debugging/query/zipkin/api/v2/trace?traceId=fcb10b060c6b2492'
 ```
 
 Response will include query result and the debuggingTrace information, the debuggingTrace information is the same as the MQE query tracing:

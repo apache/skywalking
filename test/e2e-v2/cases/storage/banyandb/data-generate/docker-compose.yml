@@ -36,6 +36,8 @@ services:
       SW_STORAGE: banyandb
       SW_STORAGE_BANYANDB_RECORDS_TTL_DAYS: 5
       SW_STORAGE_BANYANDB_TRACE_TTL_DAYS: 5
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_TTL_DAYS: 5
+      SW_RECEIVER_ZIPKIN: default
     ports:
       - 12800
     depends_on:
@@ -50,6 +52,40 @@ services:
     environment:
       OAP_HOST: oap
       MINUS_DAYS: 3
+    networks:
+      - e2e
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  # Posts two Zipkin v2 traces to OAP's Zipkin HTTP receiver, stamped MINUS_DAYS in the past like the
+  # trace-mocker's native segments, so they end up in the same data set the stages case mounts on its
+  # cold node. The trace IDs are fixed so the stages case can look them up by id.
+  zipkin-mocker:
+    image: curlimages/curl:8.11.1
+    entrypoint: ["/bin/sh", "-c"]
+    environment:
+      MINUS_DAYS: 3
+    command:
+      - |
+        # Probe the Zipkin receiver itself with an empty batch: depends_on waits for OAP's
+        # health check (gRPC 11800), which can pass before the 9411 HTTP receiver binds.
+        until curl -sf -o /dev/null -X POST http://oap:9411/api/v2/spans \
+          -H 'Content-Type: application/json' -d '[]'; do sleep 2; done
+        ts=$$(( ($$(date +%s) - $$MINUS_DAYS * 86400) * 1000000 ))
+        post() {
+          curl -s -o /dev/null -w "zipkin-mocker: posted $$1, HTTP %{http_code}\n" -X POST http://oap:9411/api/v2/spans \
+            -H 'Content-Type: application/json' -d "$$2"
+        }
+        post "trace 0e2ec01d0000000000000000000000a1" "[
+          {\"traceId\":\"0e2ec01d0000000000000000000000a1\",\"id\":\"0e2ec01d000000a1\",\"kind\":\"SERVER\",\"name\":\"get /mock\",\"timestamp\":$$ts,\"duration\":5000,\"localEndpoint\":{\"serviceName\":\"zipkin-mock-frontend\"},\"tags\":{\"http.method\":\"GET\",\"http.status_code\":\"200\"}},
+          {\"traceId\":\"0e2ec01d0000000000000000000000a1\",\"parentId\":\"0e2ec01d000000a1\",\"id\":\"0e2ec01d000000b1\",\"kind\":\"SERVER\",\"name\":\"get /api\",\"timestamp\":$$((ts + 1000)),\"duration\":2000,\"localEndpoint\":{\"serviceName\":\"zipkin-mock-backend\"},\"tags\":{\"http.method\":\"GET\"}}
+        ]"
+        post "trace 0e2ec01d0000000000000000000000a2" "[
+          {\"traceId\":\"0e2ec01d0000000000000000000000a2\",\"id\":\"0e2ec01d000000a2\",\"kind\":\"SERVER\",\"name\":\"get /mock\",\"timestamp\":$$ts,\"duration\":5000,\"localEndpoint\":{\"serviceName\":\"zipkin-mock-frontend\"},\"tags\":{\"http.method\":\"GET\",\"http.status_code\":\"200\"}}
+        ]"
+        echo "zipkin-mocker done"
+        sleep infinity
     networks:
       - e2e
     depends_on:

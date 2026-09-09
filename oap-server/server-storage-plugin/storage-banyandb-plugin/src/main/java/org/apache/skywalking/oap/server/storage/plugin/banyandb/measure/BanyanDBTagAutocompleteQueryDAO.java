@@ -40,6 +40,12 @@ import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
+/**
+ * {@link Duration#isColdStage()} is deliberately ignored here. {@link TagAutocompleteData} is an index-mode
+ * measure, so it lives in the stage-less {@code metadata} group, and BanyanDB rejects a query that names a stage
+ * on a group without stages ("no stage found"). The UI's cold-stage mode stamps the flag on every duration,
+ * including the autocomplete ones, so honouring it would break tag suggestions whenever that mode is on.
+ */
 public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO implements ITagAutoCompleteQueryDAO {
     private static final Set<String> TAGS_KEY = ImmutableSet.of(TagAutocompleteData.TAG_TYPE,
             TagAutocompleteData.TAG_KEY);
@@ -53,7 +59,6 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
-        final boolean isColdStage = duration != null && duration.isColdStage();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
@@ -69,7 +74,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
         if (startTB > 0 && endTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                                           TAGS_KEY, Collections.emptySet(),
                                           range,
                                           Conditions.create()
@@ -90,7 +95,6 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, Duration duration) throws IOException {
-        final boolean isColdStage = duration != null && duration.isColdStage();
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
@@ -106,7 +110,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
         if (startTB > 0 && endTB > 0) {
             range = new TimestampRange(TimeBucket.getTimestamp(startTB), TimeBucket.getTimestamp(endTB));
         }
-        MeasureQueryResponse resp = queryDebuggable(isColdStage, schema,
+        MeasureQueryResponse resp = queryDebuggable(false, schema,
                                           TAGS_KV, Collections.emptySet(),
                                           range,
                                           Conditions.create()

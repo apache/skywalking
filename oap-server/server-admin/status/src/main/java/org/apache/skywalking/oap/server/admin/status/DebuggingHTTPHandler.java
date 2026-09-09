@@ -265,7 +265,8 @@ public class DebuggingHTTPHandler {
                                     @Param("maxDuration") Optional<Long> maxDuration,
                                     @Param("endTs") Optional<Long> endTs,
                                     @Param("lookback") Optional<Long> lookback,
-                                    @Default("10") @Param("limit") int limit) {
+                                    @Default("10") @Param("limit") int limit,
+                                    @Param("coldStage") Optional<Boolean> coldStage) {
         final String condition = "serviceName: " + serviceName.orElse(null) +
             ", remoteServiceName: " + remoteServiceName.orElse(null) +
             ", spanName: " + spanName.orElse(null) +
@@ -274,13 +275,14 @@ public class DebuggingHTTPHandler {
             ", maxDuration: " + maxDuration.orElse(null) +
             ", endTs: " + endTs.orElse(null) +
             ", lookback: " + lookback.orElse(null) +
-            ", limit: " + limit;
+            ", limit: " + limit +
+            ", coldStage: " + coldStage.orElse(null);
         DebuggingTraceContext traceContext = new DebuggingTraceContext(condition, true, false);
         DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
         try {
             AggregatedHttpResponse response = zipkinQueryHandler.getTraces(
                 serviceName, remoteServiceName, spanName, annotationQuery, minDuration, maxDuration, endTs, lookback,
-                limit
+                limit, coldStage
             );
             List<List<Span>> traces = new ArrayList<>();
             if (response.status().code() == 200) {
@@ -298,13 +300,23 @@ public class DebuggingHTTPHandler {
         }
     }
 
+    /**
+     * Only BanyanDB can query the trace in the cold stage.
+     */
     @SneakyThrows
     @Get("/debugging/query/zipkin/api/v2/trace")
-    public String getZipkinTraceById(@Param("traceId") String traceId) {
-        DebuggingTraceContext traceContext = new DebuggingTraceContext("traceId: " + traceId, true, false);
+    public String getZipkinTraceById(@Param("traceId") String traceId,
+                                     @Param("coldStage") Optional<Boolean> coldStage,
+                                     @Param("endTs") Optional<Long> endTs,
+                                     @Param("lookback") Optional<Long> lookback) {
+        final String condition = "traceId: " + traceId +
+            ", coldStage: " + coldStage.orElse(null) +
+            ", endTs: " + endTs.orElse(null) +
+            ", lookback: " + lookback.orElse(null);
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(condition, true, false);
         DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
         try {
-            AggregatedHttpResponse response = zipkinQueryHandler.getTraceById(traceId);
+            AggregatedHttpResponse response = zipkinQueryHandler.getTraceById(traceId, coldStage, endTs, lookback);
             List<Span> trace = new ArrayList<>();
             if (response.status().code() == 200) {
                 trace = new Gson().fromJson(
