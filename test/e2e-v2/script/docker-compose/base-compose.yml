@@ -132,6 +132,24 @@ services:
       timeout: 60s
       retries: 120
 
+  # The OpenAI-compatible stand-in every GenAI case talks to: the chat completions the
+  # instrumented applications call, and the judge completions OAP's AI evaluation calls.
+  # Deliberately runs without the agent -- it is test infrastructure, not a subject.
+  mock-llm-server:
+    image: "eclipse-temurin:8u322-b06-jre-focal"
+    volumes:
+      - ./../../java-test-service/e2e-mock-llm-server/target/e2e-mock-llm-server-2.0.0.jar:/mock-llm-server.jar
+    command: [ "java", "-jar", "/mock-llm-server.jar" ]
+    networks:
+      - e2e
+    expose:
+      - 9090
+    healthcheck:
+      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9090"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
   consumer:
     image: "ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java${SW_AGENT_JDK_VERSION}"
     volumes:

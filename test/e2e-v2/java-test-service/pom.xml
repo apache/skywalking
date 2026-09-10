@@ -34,6 +34,7 @@
         <module>e2e-protocol</module>
         <module>opentelemetry-proto</module>
         <module>e2e-mock-baseline-server</module>
+        <module>e2e-mock-llm-server</module>
         <module>trace-mocker</module>
     </modules>
 
@@ -178,6 +179,21 @@
     </build>
 
     <profiles>
+        <!--
+          Spring AI requires Java 17 and Spring Boot 4, while this reactor targets Java 8 and is
+          compiled by JDK 11 on the e2e-test-java-versions leg of .github/workflows/skywalking.yaml.
+          Gating the module keeps that leg green; every job that actually runs a GenAI case pins JDK 17.
+        -->
+        <profile>
+            <id>jdk-17</id>
+            <activation>
+                <jdk>[17,)</jdk>
+            </activation>
+            <modules>
+                <module>e2e-spring-ai-service</module>
+            </modules>
+        </profile>
+
         <profile>
             <id>jdk-25</id>
             <activation>

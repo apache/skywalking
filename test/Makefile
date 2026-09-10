@@ -25,6 +25,8 @@ BASE_IMAGE ?= eclipse-temurin:$(JRE)
 
 E2E_SERVICE_PROVIDER_NAME = e2e-service-provider
 E2E_SERVICE_CONSUMER_NAME = e2e-service-consumer
+E2E_MOCK_LLM_SERVER_NAME = e2e-mock-llm-server
+E2E_SPRING_AI_SERVICE_NAME = e2e-spring-ai-service
 TRACE_MOCKER_NAME = trace-mocker
 
 .PHONY: init
@@ -35,13 +37,17 @@ init:
 build.e2e-service:
 	cd $(SW_ROOT) && ./mvnw --batch-mode -f $(CONTEXT)/pom.xml clean package
 
-DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer docker.trace-mocker
+DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer docker.e2e-mock-llm-server docker.e2e-spring-ai-service docker.trace-mocker
 
 .PHONY: docker docker.e2e-service
 docker: init build.e2e-service docker.e2e-service
 
 %.e2e-service-provider: NAME = $(E2E_SERVICE_PROVIDER_NAME)
 %.e2e-service-consumer: NAME = $(E2E_SERVICE_CONSUMER_NAME)
+%.e2e-mock-llm-server: NAME = $(E2E_MOCK_LLM_SERVER_NAME)
+%.e2e-spring-ai-service: NAME = $(E2E_SPRING_AI_SERVICE_NAME)
+# Spring AI requires Java 17; the shared BASE_IMAGE above is a Java 8 JRE.
+%.e2e-spring-ai-service: BASE_IMAGE = eclipse-temurin:17-jre
 %.trace-mocker: NAME = $(TRACE_MOCKER_NAME)
 
 docker.%: PLATFORMS =
@@ -50,6 +56,12 @@ push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
 
 push.docker.e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
+	$(DOCKER_RULE)
+
+push.docker.e2e-mock-llm-server docker.e2e-mock-llm-server: $(CONTEXT)/Dockerfile
+	$(DOCKER_RULE)
+
+push.docker.e2e-spring-ai-service docker.e2e-spring-ai-service: $(CONTEXT)/Dockerfile
 	$(DOCKER_RULE)
 
 push.docker.trace-mocker docker.trace-mocker: $(CONTEXT)/Dockerfile
