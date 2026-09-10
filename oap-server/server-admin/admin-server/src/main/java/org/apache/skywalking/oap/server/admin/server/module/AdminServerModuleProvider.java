@@ -210,6 +210,16 @@ public class AdminServerModuleProvider extends ModuleProvider {
         if (RunningMode.isInitMode()) {
             return;
         }
+        if (peerChannelManager != null) {
+            peerChannelManager.start();
+        }
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ModuleStartException {
+        if (RunningMode.isInitMode()) {
+            return;
+        }
         try {
             if (grpcServer != null) {
                 grpcServer.start();
@@ -220,9 +230,6 @@ public class AdminServerModuleProvider extends ModuleProvider {
             }
         } catch (final ServerException e) {
             throw new ModuleStartException("admin-server: failed to start gRPC server", e);
-        }
-        if (peerChannelManager != null) {
-            peerChannelManager.start();
         }
         if (httpServer != null) {
             httpServer.start();

@@ -90,6 +90,10 @@ public class ZipkinQueryProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+    }
+
+    @Override
+    public void notifyBootCompleted() {
         if (!RunningMode.isInitMode()) {
             httpServer.start();
         }

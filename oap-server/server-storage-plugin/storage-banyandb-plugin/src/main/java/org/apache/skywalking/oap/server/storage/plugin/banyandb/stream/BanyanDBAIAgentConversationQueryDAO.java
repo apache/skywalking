@@ -56,6 +56,12 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         AIAgentSessionFlowRecord.STREAMS,
         AIAgentSessionFlowRecord.SEGMENTS,
         AIAgentSessionFlowRecord.UNRESOLVED,
+        AIAgentSessionFlowRecord.CHANGES,
+        AIAgentSessionFlowRecord.LINES_ADDED,
+        AIAgentSessionFlowRecord.LINES_REMOVED,
+        AIAgentSessionFlowRecord.LLM_CALLS,
+        AIAgentSessionFlowRecord.SUBAGENTS,
+        AIAgentSessionFlowRecord.BASH_RUNS,
         AIAgentSessionFlowRecord.DIGEST,
         AIAgentSessionFlowRecord.TIMESTAMP
     );
@@ -170,6 +176,12 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
             record.setStreams(longOf(row.getTagValue(AIAgentSessionFlowRecord.STREAMS)));
             record.setSegments(longOf(row.getTagValue(AIAgentSessionFlowRecord.SEGMENTS)));
             record.setUnresolved(longOf(row.getTagValue(AIAgentSessionFlowRecord.UNRESOLVED)));
+            record.setChanges(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.CHANGES)));
+            record.setLinesAdded(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.LINES_ADDED)));
+            record.setLinesRemoved(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.LINES_REMOVED)));
+            record.setLlmCalls(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.LLM_CALLS)));
+            record.setSubagents(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.SUBAGENTS)));
+            record.setBashRuns(nullableLongOf(row.getTagValue(AIAgentSessionFlowRecord.BASH_RUNS)));
             record.setDigest(row.getTagValue(AIAgentSessionFlowRecord.DIGEST));
             final long timestamp = longOf(row.getTagValue(AIAgentSessionFlowRecord.TIMESTAMP));
             record.setTimestamp(timestamp);
@@ -223,6 +235,11 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
 
     private static long longOf(final Object value) {
         return value == null ? 0L : ((Number) value).longValue();
+    }
+
+    /** A count the round may not have carried: null stays null rather than becoming zero. */
+    private static Long nullableLongOf(final Object value) {
+        return value == null ? null : ((Number) value).longValue();
     }
 
     private static TimestampRange everythingRetained() {

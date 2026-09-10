@@ -47,6 +47,11 @@ it takes precedence and the `service.name` fallback is skipped.
 **Note:** The `net.host.name` and `host.name` mappings are legacy. New integrations should use
 the natural dot-to-underscore conversion (e.g., `host.name` → `host_name` in MAL rules).
 
+**Points of one request are analysed a minute at a time**, oldest minute first. A MAL rule folds every sample of
+an entity into one value at the first sample's time, which is right for a scrape, whose samples share one time, and
+would be wrong for a request that carries a series of minutes, as a delta exporter that batches or a sender replaying
+history does: such a request lands as one value per minute, each minute with every point of its own.
+
 | Description                             | Configuration File                                  | Data Source                                                                                                            |
 |-----------------------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | Metrics of Istio Control Plane          | otel-rules/istio-controlplane.yaml                  | Istio Control Plane -> OpenTelemetry Collector -- OTLP exporter --> SkyWalking OAP Server                              |
@@ -86,3 +91,5 @@ the natural dot-to-underscore conversion (e.g., `host.name` → `host_name` in M
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-service.yaml           | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-instance.yaml          | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-endpoint.yaml          | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
+| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-service.yaml            | Claude Code's OpenTelemetry exporter, or the AI Sessionizer deriving the token metric from the landed transcripts -- OTLP --> SkyWalking OAP Server |
+| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-instance.yaml           | Claude Code's OpenTelemetry exporter, or the AI Sessionizer deriving the token metric from the landed transcripts -- OTLP --> SkyWalking OAP Server |

@@ -99,6 +99,10 @@ public class AWSFirehoseReceiverModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ServiceNotProvidedException, ModuleStartException {
         if (!RunningMode.isInitMode()) {
             httpServer.start();
         }

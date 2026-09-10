@@ -213,7 +213,6 @@ public class GRPCServer implements Server {
             sslContext = DynamicSslContext.forServer(privateKeyFile, certChainFile, trustedCAsFile);
             nettyServerBuilder.sslContext(sslContext);
         }
-        log.info(SERVER_START_MARKER, "Server started, host {} listening on {}", host, port);
     }
 
     static class CustomRejectedExecutionHandler implements RejectedExecutionHandler {
@@ -229,6 +228,7 @@ public class GRPCServer implements Server {
             Optional.ofNullable(sslContext).ifPresent(DynamicSslContext::start);
             server = nettyServerBuilder.build();
             server.start();
+            log.info(SERVER_START_MARKER, "Server started, host {} listening on {}", host, port);
         } catch (IOException e) {
             throw new GRPCServerException(e.getMessage(), e);
         }

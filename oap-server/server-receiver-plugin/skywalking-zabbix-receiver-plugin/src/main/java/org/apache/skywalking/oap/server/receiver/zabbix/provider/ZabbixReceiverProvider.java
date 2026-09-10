@@ -38,6 +38,7 @@ public class ZabbixReceiverProvider extends ModuleProvider {
     private ZabbixModuleConfig moduleConfig;
     private List<ZabbixConfig> configs;
     private ZabbixMetrics zabbixMetrics;
+    private ZabbixServer zabbixServer;
 
     public ZabbixReceiverProvider() {
         this.moduleConfig = new ZabbixModuleConfig();
@@ -80,18 +81,24 @@ public class ZabbixReceiverProvider extends ModuleProvider {
             // Init metrics
             zabbixMetrics = new ZabbixMetrics(configs, getManager().find(CoreModule.NAME).provider().getService(MeterSystem.class));
 
-            // Bind receiver server
-            ZabbixServer zabbixServer = new ZabbixServer(moduleConfig, zabbixMetrics);
-            try {
-                zabbixServer.start();
-            } catch (Exception e) {
-                throw new ModuleStartException(e.getMessage(), e);
-            }
+            zabbixServer = new ZabbixServer(moduleConfig, zabbixMetrics);
         }
     }
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ServiceNotProvidedException, ModuleStartException {
+        if (zabbixServer == null) {
+            return;
+        }
+        try {
+            zabbixServer.start();
+        } catch (Exception e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
     }
 
     @Override

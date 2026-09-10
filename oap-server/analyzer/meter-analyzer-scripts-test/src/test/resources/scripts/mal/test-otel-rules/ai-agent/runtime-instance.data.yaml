@@ -1,0 +1,592 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Three sessions from two senders on two models, so each rule's sum over what it does not keep is visible:
+# session.id always, the sender at service level, the model and the source where the rule does not keep them.
+script: oap-server/server-starter/src/main/resources/otel-rules/ai-agent/runtime-instance.yaml
+input:
+  claude_code_token_usage:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'input'
+      value: 2.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'output'
+      value: 50.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'cacheRead'
+      value: 900.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'cacheCreation'
+      value: 100.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        model: 'claude-sonnet-5'
+        query_source: 'subagent'
+        type: 'input'
+      value: 10.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        model: 'claude-sonnet-5'
+        query_source: 'subagent'
+        type: 'output'
+      value: 20.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        model: 'claude-sonnet-5'
+        query_source: 'subagent'
+        type: 'cacheRead'
+      value: 300.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        model: 'claude-sonnet-5'
+        query_source: 'subagent'
+        type: 'cacheCreation'
+      value: 0.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's3'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'input'
+      value: 4.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's3'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'output'
+      value: 30.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's3'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'cacheRead'
+      value: 600.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's3'
+        model: 'claude-opus-5'
+        query_source: 'main'
+        type: 'cacheCreation'
+      value: 50.0
+  claude_code_cost_usage:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        model: 'claude-opus-5'
+        query_source: 'main'
+      value: 0.1340525
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        model: 'claude-sonnet-5'
+        query_source: 'main'
+      value: 0.000954
+  claude_code_active_time_total:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        type: 'cli'
+      value: 2.456
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        type: 'user'
+      value: 12.5
+  claude_code_session_count:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        start_type: 'fresh'
+      value: 1.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        start_type: 'resume'
+      value: 1.0
+  claude_code_lines_of_code_count:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        type: 'added'
+        model: 'claude-opus-5'
+      value: 10.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        type: 'added'
+        model: 'claude-sonnet-5'
+      value: 5.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        type: 'removed'
+        model: 'claude-opus-5'
+      value: 3.0
+  claude_code_commit_count:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+      value: 1.0
+  claude_code_pull_request_count:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+      value: 1.0
+  claude_code_code_edit_tool_decision:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        decision: 'accept'
+        tool_name: 'Edit'
+        language: 'Go'
+      value: 2.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        decision: 'reject'
+        tool_name: 'Write'
+        language: 'YAML'
+      value: 1.0
+expected:
+  meter_ai_agent_instance_tokens:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 330.0
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1736.0
+  meter_ai_agent_instance_tokens_by_type:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 0.0
+      - labels:
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 150.0
+      - labels:
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 300.0
+      - labels:
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1500.0
+      - labels:
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 10.0
+      - labels:
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 6.0
+      - labels:
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 20.0
+      - labels:
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 80.0
+  meter_ai_agent_instance_tokens_by_model:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          model: 'claude-opus-5'
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 150.0
+      - labels:
+          model: 'claude-opus-5'
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1500.0
+      - labels:
+          model: 'claude-opus-5'
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 6.0
+      - labels:
+          model: 'claude-opus-5'
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 80.0
+      - labels:
+          model: 'claude-sonnet-5'
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 0.0
+      - labels:
+          model: 'claude-sonnet-5'
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 300.0
+      - labels:
+          model: 'claude-sonnet-5'
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 10.0
+      - labels:
+          model: 'claude-sonnet-5'
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 20.0
+  meter_ai_agent_instance_tokens_by_source:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          query_source: 'main'
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 150.0
+      - labels:
+          query_source: 'main'
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1500.0
+      - labels:
+          query_source: 'main'
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 6.0
+      - labels:
+          query_source: 'main'
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 80.0
+      - labels:
+          query_source: 'subagent'
+          type: 'cacheCreation'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 0.0
+      - labels:
+          query_source: 'subagent'
+          type: 'cacheRead'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 300.0
+      - labels:
+          query_source: 'subagent'
+          type: 'input'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 10.0
+      - labels:
+          query_source: 'subagent'
+          type: 'output'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 20.0
+  meter_ai_agent_instance_cache_read_share:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 96.774194
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 90.57971
+  meter_ai_agent_instance_cost_by_model:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          model: 'claude-opus-5'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 134052.5
+      - labels:
+          model: 'claude-sonnet-5'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 954.0
+  meter_ai_agent_instance_active_time:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          type: 'cli'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 2456.0
+      - labels:
+          type: 'user'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 12500.0
+  meter_ai_agent_instance_sessions:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 1.0
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1.0
+  meter_ai_agent_instance_lines_of_code:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          type: 'added'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 5.0
+      - labels:
+          type: 'added'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 10.0
+      - labels:
+          type: 'removed'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 3.0
+  meter_ai_agent_instance_commits:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1.0
+  meter_ai_agent_instance_pull_requests:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 1.0
+  meter_ai_agent_instance_edit_decisions:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev2@host'
+        layer: AI_AGENT
+      - scope: SERVICE_INSTANCE
+        service: 'Claude Code'
+        instance: 'dev@host'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          decision: 'accept'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev@host'
+        value: 2.0
+      - labels:
+          decision: 'reject'
+          service_name: 'Claude Code'
+          service_instance_id: 'dev2@host'
+        value: 1.0

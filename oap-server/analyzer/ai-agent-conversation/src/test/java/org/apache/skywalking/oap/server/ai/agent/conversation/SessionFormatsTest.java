@@ -39,7 +39,7 @@ public class SessionFormatsTest {
     @Test
     public void dataFilesDecodeAndTheirDigestsAreTheSessionizersDigests() throws Exception {
         final Map<Long, SessionDataFile> files = Fixtures.dataFiles();
-        assertEquals(3, files.size());
+        assertEquals(4, files.size());
         final SessionDataFile main = files.get(1L);
         assertEquals("sd/1", main.getHeader().getSchema());
         assertEquals("transcript", main.getHeader().getKind());
@@ -47,11 +47,12 @@ public class SessionFormatsTest {
         assertEquals(16, main.getRecords().size());
         assertEquals(16, main.getDeclaredRecords());
         assertEquals(18, main.getLines());
-        assertEquals(5868, main.getBytes());
+        assertEquals(6076, main.getBytes());
         // the digests asz conversation -json printed for the same files
-        assertEquals("944ed3d1209c76afb98f0622eb9239f95adb79fd0d0262d634c2f20bc041b1f7", main.getFileDigest());
-        assertEquals("39b8a446c3a87d2b8da5210bba7f66ee2fd04caccea1fa0a4efdc3345b7ff7ca", files.get(2L).getFileDigest());
-        assertEquals("de085eda31cdf99231fb212cb8fefbbcf95bd4f88c007c70446ecc652db3b005", files.get(3L).getFileDigest());
+        assertEquals("42d5e0b19a8bbaae8d09eb8055548c20a8feac5cd2f342fa572a5bb3104e5632", main.getFileDigest());
+        assertEquals("b7fc207afdc51b9c48e42af8524ea7a68e5e5f3b4c76b7d37dd765e2fe8145c5", files.get(2L).getFileDigest());
+        assertEquals("fa5e9bb561d0bc6168382498e805829b2820141b57117db50f4894d474c3e486", files.get(3L).getFileDigest());
+        assertEquals("62f019483e4d0c0d4d0f5f296bec63fbfae663479a2a78d83b45481bd8df7185", files.get(4L).getFileDigest());
         // row 2 is the person's input
         assertEquals("run the build", main.record(2).text());
         assertEquals(1767225600000L, main.record(2).getTime());
@@ -60,8 +61,15 @@ public class SessionFormatsTest {
         // the file's record time range, as the example's files[0]
         assertEquals(1767225600000L, main.getFromTime());
         assertEquals(1767225611100L, main.getThroughTime());
+        // the plugin's changes file is an ordinary landed file: its one record is timed, and it took the seq between
+        // the transcript files that landed around it
+        assertEquals("changes", files.get(2L).getHeader().getKind());
+        assertEquals("main", files.get(2L).getHeader().getStream());
+        assertEquals(1, files.get(2L).getRecords().size());
+        assertEquals(1767225602000L, files.get(2L).getFromTime());
+        assertEquals(1767225602000L, files.get(2L).getThroughTime());
         // a meta file carries no timed record
-        assertEquals(0L, files.get(3L).getFromTime());
+        assertEquals(0L, files.get(4L).getFromTime());
     }
 
     @Test
@@ -81,10 +89,11 @@ public class SessionFormatsTest {
         assertEquals(1, r.getHeader().getRound());
         assertEquals(Fixtures.SESSION, r.getHeader().getConversation());
         assertEquals(1, r.getHeader().getFromSeq());
-        assertEquals(3, r.getHeader().getThroughSeq());
+        // the plugin's changes file landed between the transcripts, so the round's window covers it too
+        assertEquals(4, r.getHeader().getThroughSeq());
         assertEquals(45, r.getLines());
         assertEquals(43, r.getNodes().size() + r.getRelations().size() + r.getUnresolved().size());
-        assertEquals("3ad0dcd4cd53fa06c502a2649b8788bfbe0a382bbc72d7f1f0fe68d9a18e96e2", r.getCommitDigest());
+        assertEquals("231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd", r.getCommitDigest());
         assertEquals(Times.millis("2026-01-01T00:00:00Z"), Times.millis(r.getHeader().getSessionFromTime()));
     }
 
@@ -95,7 +104,7 @@ public class SessionFormatsTest {
         for (final SessionDataFile f : files.values()) {
             added.add(f.getFileDigest());
         }
-        assertEquals("6872d48ef5d3e736d0bd9f5bc03844653fb304b4b98b9ef6a27342478d950c1b", Digests.chainInputDigest("", added));
+        assertEquals("f49b55a09ff0a37d36f3d3b62c7584dd03caecb5f0f3ffe32fba96d8849df0a8", Digests.chainInputDigest("", added));
         assertEquals(Fixtures.round().getHeader().getInputDigest(), Digests.chainInputDigest("", added));
     }
 
@@ -112,10 +121,12 @@ public class SessionFormatsTest {
         final Map<Long, SessionDataFile> files = Fixtures.dataFiles();
         assertEquals(Fixtures.SESSION + "/streams/main/" + Fixtures.DATA_FILES[0],
                      FileNames.dataFile(files.get(1L).getHeader()));
-        assertEquals(Fixtures.SESSION + "/streams/" + Fixtures.CHILD_STREAM + "/" + Fixtures.DATA_FILES[1],
+        assertEquals(Fixtures.SESSION + "/streams/main/" + Fixtures.DATA_FILES[1],
                      FileNames.dataFile(files.get(2L).getHeader()));
         assertEquals(Fixtures.SESSION + "/streams/" + Fixtures.CHILD_STREAM + "/" + Fixtures.DATA_FILES[2],
                      FileNames.dataFile(files.get(3L).getHeader()));
+        assertEquals(Fixtures.SESSION + "/streams/" + Fixtures.CHILD_STREAM + "/" + Fixtures.DATA_FILES[3],
+                     FileNames.dataFile(files.get(4L).getHeader()));
         final SessionFlowRound r = Fixtures.round();
         assertEquals("_conversations/" + Fixtures.SESSION + "/rounds/" + Fixtures.ROUND_FILE,
                      FileNames.roundFile(r.getHeader().getConversation(), 1, r.getCommitDigest()));
@@ -125,6 +136,10 @@ public class SessionFormatsTest {
         assertTrue(data.isDataFile());
         assertEquals(Fixtures.SESSION, data.getSession());
         assertEquals(1, data.getSeq());
+        final FileNames.Parsed changes = FileNames.parse(Fixtures.SESSION + "/streams/main/" + Fixtures.DATA_FILES[1]);
+        assertNotNull(changes);
+        assertTrue(changes.isDataFile());
+        assertEquals(2, changes.getSeq());
         final FileNames.Parsed round = FileNames.parse("_conversations/" + Fixtures.SESSION + "/rounds/" + Fixtures.ROUND_FILE);
         assertNotNull(round);
         assertFalse(round.isDataFile());

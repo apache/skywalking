@@ -129,6 +129,10 @@ public class EBPFReceiverProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ServiceNotProvidedException, ModuleStartException {
         try {
             if (Objects.nonNull(grpcServer) && !RunningMode.isInitMode()) {
                 grpcServer.start();

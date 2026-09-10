@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.skywalking.oap.server.ai.agent.conversation.fold.ConversationFold;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
@@ -106,8 +107,12 @@ public class ConversationViewBuilderTest {
         assertEquals(Collections.singletonList("round 1: landed file seq 2 is missing"), summary.get("problems"));
         final List<Map<String, Object>> rounds = (List<Map<String, Object>>) incomplete.get("rounds");
         assertEquals(Boolean.FALSE, rounds.get(0).get("verified"));
-        // the rest of the document still holds what could be folded
+        // the rest of the document still holds what could be folded; seq 2 is the plugin's changes file, and the
+        // one record it carried is gone with it, so the build's step names no change
         assertEquals(3, ((List<?>) incomplete.get("talks")).size());
+        assertEquals(0, summary.get("changes"));
+        assertEquals(Collections.emptyList(), incomplete.get("workspace_changes"));
+        assertNull(node(incomplete, "tool/tool-run-make-build").get("changes"));
 
         final String tampered = new String(Fixtures.bytes(Fixtures.ROUND_FILE), StandardCharsets.UTF_8)
             .replace("\"trigger\":\"external\"", "\"trigger\":\"exterior\"");
@@ -146,7 +151,7 @@ public class ConversationViewBuilderTest {
         final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
         assertEquals("incomplete", summary.get("state"));
         assertEquals(
-            Arrays.asList("rounds 2-4 are missing before round 5", "round 5: landed files seq 4-6 are missing"),
+            Arrays.asList("rounds 2-4 are missing before round 5", "round 5: landed files seq 5-6 are missing"),
             summary.get("problems"));
         assertEquals(5L, ((Map<String, Object>) doc.get("head")).get("round"));
         final List<Map<String, Object>> listed = (List<Map<String, Object>>) doc.get("rounds");
@@ -157,6 +162,108 @@ public class ConversationViewBuilderTest {
     }
 
     private static final String UNKNOWN_DIGEST = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
+
+    /**
+     * The Sessionizer's workspace-changes scenario exercises every producer of a change record: a shell command the
+     * plugin observed on the main stream, with two files; an <code>Edit</code> whose patch the runtime recorded on
+     * its own result; and a shell command inside a subagent. The document equals the Sessionizer's, and the join
+     * is by tool-use id: three entries, four files across them, one captured by the runtime and two by the plugin,
+     * every entry joined to a step, and each step naming its record.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void workspaceChangesJoinTheirStepsAsTheSessionizerJoinsThem() throws Exception {
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.WORKSPACE_CHANGES_DIR + Fixtures.WORKSPACE_CHANGES_ROUND_FILE),
+            Fixtures.workspaceChangesDataFiles(), Collections.emptyList());
+        final JsonElement expected = JsonParser.parseString(new String(
+            Fixtures.bytes(Fixtures.WORKSPACE_CHANGES_DIR + Fixtures.VIEW_EXAMPLE_JSON), StandardCharsets.UTF_8));
+        final JsonElement actual = GSON.toJsonTree(doc);
+        assertEquals(expected, actual);
+        assertEquals(GSON.toJson(expected), GSON.toJson(actual));
+
+        final List<Map<String, Object>> changes = (List<Map<String, Object>>) doc.get("workspace_changes");
+        assertEquals(3, changes.size());
+        assertEquals(3, ((Map<String, Object>) doc.get("summary")).get("changes"));
+        int files = 0;
+        final Map<String, Integer> capturedBy = new TreeMap<>();
+        for (final Map<String, Object> c : changes) {
+            assertTrue(((String) c.get("step")).startsWith("tool/"), c.get("id") + " is joined to a step");
+            files += ((List<?>) c.get("changes")).size();
+            capturedBy.merge((String) c.get("captured_by"), 1, Integer::sum);
+        }
+        assertEquals(4, files);
+        assertEquals(Map.of("asz-plugin", 2, "claude-code", 1), capturedBy);
+        // the runtime's patch is read from the Edit's result record, the data part beside the raw result
+        final Map<String, Object> edit = changes.get(1);
+        assertEquals("claude-code", edit.get("captured_by"));
+        assertEquals("runtime_reported", edit.get("basis"));
+        assertEquals(Map.of("seq", 1L, "row", 8L, "block", 1), edit.get("ref"));
+        // and each step names its record, after its tool keys
+        final Map<String, Object> step = node(doc, "tool/s3-tool");
+        assertEquals(Collections.singletonList("s3-tool"), step.get("changes"));
+        final List<String> keys = new ArrayList<>(step.keySet());
+        assertEquals(keys.indexOf("request_to_result_join") + 1, keys.indexOf("changes"));
+        assertEquals(Collections.singletonList("s2-tool"), node(doc, "tool/s2-tool").get("changes"));
+        assertEquals(Collections.singletonList("tidier-s1-tool"), node(doc, "tool/tidier-s1-tool").get("changes"));
+    }
+
+    /**
+     * The plugin's files did not land, and the runtime's own patch is still shown: it travels in the transcript, on
+     * the result record the tool step reads. The two absent files are the chain's problems, and the plugin's two
+     * records are gone with them.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void theRuntimesOwnPatchIsShownWithoutThePluginsFiles() throws Exception {
+        final Map<Long, SessionDataFile> files = Fixtures.workspaceChangesDataFiles();
+        files.remove(2L);
+        files.remove(4L);
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.WORKSPACE_CHANGES_DIR + Fixtures.WORKSPACE_CHANGES_ROUND_FILE), files, Collections.emptyList());
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals("incomplete", summary.get("state"));
+        assertEquals(
+            Arrays.asList("round 1: landed file seq 2 is missing", "round 1: landed file seq 4 is missing"),
+            summary.get("problems"));
+        assertEquals(1, summary.get("changes"));
+        final List<Map<String, Object>> changes = (List<Map<String, Object>>) doc.get("workspace_changes");
+        assertEquals(1, changes.size());
+        assertEquals("claude-code", changes.get(0).get("captured_by"));
+        assertEquals("tool/s3-tool", changes.get(0).get("step"));
+        assertEquals(Collections.singletonList("s3-tool"), node(doc, "tool/s3-tool").get("changes"));
+        assertNull(node(doc, "tool/s2-tool").get("changes"));
+        assertNull(node(doc, "tool/tidier-s1-tool").get("changes"));
+    }
+
+    /**
+     * @return the node of that id under <code>talks</code> or <code>loose</code>
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> node(final Map<String, Object> doc, final String id) {
+        final List<Map<String, Object>> roots = new ArrayList<>((List<Map<String, Object>>) doc.get("talks"));
+        roots.addAll((List<Map<String, Object>>) doc.get("loose"));
+        final Map<String, Object> found = find(roots, id);
+        assertNotNull(found, "no node " + id);
+        return found;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> find(final List<Map<String, Object>> nodes, final String id) {
+        for (final Map<String, Object> n : nodes) {
+            if (id.equals(n.get("id"))) {
+                return n;
+            }
+            final List<Map<String, Object>> children = (List<Map<String, Object>>) n.get("children");
+            if (children != null) {
+                final Map<String, Object> found = find(children, id);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * A round after a gap that another parser produced is refused, as in order it would be, and the head stays

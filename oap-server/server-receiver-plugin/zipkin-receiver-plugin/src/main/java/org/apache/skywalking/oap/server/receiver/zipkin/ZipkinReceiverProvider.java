@@ -108,12 +108,15 @@ public class ZipkinReceiverProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
-        if (config.isEnableHttpCollector() && !RunningMode.isInitMode()) {
-            httpServer.start();
-        }
-
         if (config.isEnableKafkaCollector() && !RunningMode.isInitMode()) {
             kafkaHandler.start();
+        }
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ModuleStartException {
+        if (config.isEnableHttpCollector() && !RunningMode.isInitMode()) {
+            httpServer.start();
         }
     }
 

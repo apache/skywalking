@@ -32,6 +32,10 @@
 #   verify.sh lost-file     OAP            a landed file deleted after a round bound to it: named once, the rest folds
 #   verify.sh gap           OAP            a round pushed past a gap: the fold resumes at it and names what is absent once
 #   verify.sh size          OAP            a file over maxFileBytes is never stored; one under it is
+#   verify.sh changes       OAP            the workspace-changes conversation: the plugin's changes files landed beside
+#                                          the transcripts, every change record joins its step, the export names the files
+#   verify.sh metrics       OAP            the runtime's token metric the Sessionizer derived, summed over every session
+#                                          and sender per minute, and over the run equal to what the scenarios declare
 set -euo pipefail
 
 MODE=$1
@@ -44,6 +48,8 @@ FIRST="00000001-0000-4000-8000-000000000001"
 THREE_ROUNDS="bd16edc4-0b6b-4020-8405-3ce58724f2bc"
 # lost-file.yaml likewise; its helper's transcript, seq 2, is deleted before the push.
 LOST="c9d9b18b-be85-4906-850d-40a1cd240171"
+# workspace-changes.yaml likewise: every producer of a change record in one session.
+WC="3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3"
 
 # swctl against this OAP, JSON out.
 sw() {
@@ -274,6 +280,66 @@ case "$MODE" in
     rm -rf "$dir"
     sleep 8
     printf 'under_stored: %s\nover_stored: %s\n' "$(stored 96)" "$(stored 97)"
+    ;;
+  changes)
+    # Every producer of a change record in one session: the plugin's records in a changes file beside each stream's
+    # transcript, one for a shell command on the main stream and one inside a subagent, and the runtime's own patch
+    # on the Edit's result record. The document lists them in time order, joined to their steps by tool-use id, each
+    # step names its records, and the export lists the changes files like any landed file. The document equals the
+    # Sessionizer's, which the views case checks; this case says in words what it holds.
+    view "$WC" --yaml | yq -P '{
+      "state": .summary.state, "changes": .summary.changes, "files": (.files | length),
+      "changes_files": [.files[] | select(.kind == "changes") | {"seq": .seq, "stream": .stream, "lines": .lines, "timed": (.from_time != null)}],
+      "entries": [.workspace_changes[] | {"step": .step, "ref": .ref, "captured_by": .captured_by, "basis": .basis, "tool_name": .tool_name, "changed_files": .changed_files,
+                  "files": [.changes[] | {"path": .path, "operation": .operation, "additions": .additions, "deletions": .deletions, "hunks": (.hunks | length)}]}],
+      "steps": ([.. | select(tag == "!!map" and has("kind") and has("changes")) | {"id": .id, "changes": .changes}] | sort_by(.id))
+    }'
+    # the file names carry the build's stamp, which differs on every run; the stream and the seq are what matter
+    sw ai-agent files --service-name "$SERVICE" --conversation "$WC" \
+      | yq -p=json -P '{"exported_changes_files": (.files | map(.id) | map(select(test("/changes-"))) | map(sub("changes-[^/]*-0", "changes-*-0")) | sort)}'
+    ;;
+  list-horizon)
+    # The list exactly as Horizon's conversation page queries it: the same condition, the service and the sender,
+    # and every field its columns read, the counts a round's header carries among them. swctl has no flag for the
+    # counts, so this goes straight over GraphQL. Every scenario declares its calls, so every value is known.
+    curl -sf -X POST -H 'Content-Type: application/json' "$OAP/graphql" --data @- <<GQL | yq -p=json -P '.data.listConversations.conversations | sort_by(.conversation) | map({"conversation": .conversation, "instance": .serviceInstanceName, "instanceIdSet": (.serviceInstanceId != ""), "title": .title, "round": .round, "talks": .talks, "steps": .steps, "streams": .streams, "segments": .segments, "unresolved": .unresolved, "changes": .changes, "linesAdded": .linesAdded, "linesRemoved": .linesRemoved, "llmCalls": .llmCalls, "subagents": .subagents, "bashRuns": .bashRuns, "timed": (.from > 0 and .to >= .from)})'
+{"query":"query(\$c: ConversationListCondition!, \$d: Duration!) { listConversations(condition: \$c, duration: \$d) { conversations { conversation serviceInstanceId serviceInstanceName title round talks steps streams segments unresolved changes linesAdded linesRemoved llmCalls subagents bashRuns from to } } }","variables":{"c":{"service":{"serviceName":"$SERVICE"},"instance":{"serviceName":"$SERVICE","instanceName":"$INSTANCE"}},"d":{"start":"$wide_start","end":"$wide_end","step":"MINUTE"}}}
+GQL
+    ;;
+  view-horizon)
+    # The document exactly as Horizon's conversation page fetches it: the route with the service and the sender,
+    # the asz.view JSON media type, and the browser's gzip; then what the page's header and its changes panel read.
+    url="$OAP/ai-agent/conversations/$WC/v1/view?service=$SERVICE&instance=$INSTANCE"
+    head=$(curl -s -o /dev/null -D - -H 'Accept: application/vnd.skywalking.asz.view+json' -H 'Accept-Encoding: gzip' "$url" | tr -d '\r')
+    status=$(echo "$head" | awk 'NR == 1 {print $2}')
+    media=$(echo "$head" | awk -F': ' 'tolower($1) == "content-type" {print $2}')
+    encoding=$(echo "$head" | awk -F': ' 'tolower($1) == "content-encoding" {print $2}')
+    printf 'status: %s\nmedia_type: "%s"\nencoding: %s\n' "$status" "$media" "$encoding"
+    curl -s --compressed -H 'Accept: application/vnd.skywalking.asz.view+json' "$url" | yq -p=json -P '{
+      "format": .format, "version": .version,
+      "state": .summary.state, "rounds": .summary.rounds, "segments": .summary.segments, "streams": .summary.streams,
+      "talks": .summary.talks, "steps": .summary.steps, "unresolved": .summary.unresolved, "changes": .summary.changes,
+      "spanned": (.summary.to > .summary.from),
+      "records": (.workspace_changes | length),
+      "files_changed": ([.workspace_changes[].changes[].path] | unique | length),
+      "lines_added": ([.workspace_changes[].changes[].additions] | .[] as $n ireduce (0; . + $n)),
+      "lines_removed": ([.workspace_changes[].changes[].deletions] | .[] as $n ireduce (0; . + $n))
+    }'
+    ;;
+  metrics)
+    # The runtime's token metric: one delta point per minute per series, sent by the Sessionizer beside the files,
+    # kept by the receiver as the point's value at the point's time, and summed by the rules over every session and
+    # sender of a minute. Over the run the totals are what the scenarios declare, every call once: the three fixture
+    # sessions, the three-round session, the lost-file session and the workspace-changes session, all on one model.
+    m() { sw metrics exec --expression="$1" --service-name "$SERVICE" --start "$wide_start" --end "$wide_end" "${@:2}"; }
+    total() { m "$@" | yq -p=json -o=json '.results[0].values[0].value | tonumber'; }
+    by() { m "$1" | yq -p=json -o=json '[.results[] | {"labels": (.metric.labels | map({"key": .key, "value": .value}) | sort_by(.key)), "value": (.values[0].value | tonumber)}] | sort_by(.labels | map(.value) | join("/"))'; }
+    share=$(total 'avg(meter_ai_agent_cache_read_share)')
+    printf '{"tokens": %s, "instance_tokens": %s, "by_type": %s, "by_model": %s, "by_source": %s, "cache_read_share_in_range": %s}' \
+      "$(total 'sum(meter_ai_agent_tokens)')" "$(total 'sum(meter_ai_agent_instance_tokens)' --instance-name "$INSTANCE")" \
+      "$(by 'sum(meter_ai_agent_tokens_by_type)')" "$(by 'sum(meter_ai_agent_tokens_by_model)')" "$(by 'sum(meter_ai_agent_tokens_by_source)')" \
+      "$(awk -v s="$share" 'BEGIN { print (s > 0 && s <= 100) ? "true" : "false" }')" \
+      | yq -p=json -P
     ;;
   *)
     echo "unknown mode $MODE" >&2; exit 2

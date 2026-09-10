@@ -251,6 +251,10 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
     }
 
     @Override
+    public void notifyBootCompleted() {
+    }
+
+    @Override
     public String[] requiredModules() {
         return new String[]{
                 TelemetryModule.NAME

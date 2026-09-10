@@ -5,7 +5,7 @@ sessions:
     - 00000001-0000-4000-8000-000000000001
 head:
     round: 1
-    digest: 3ad0dcd4cd53fa06c502a2649b8788bfbe0a382bbc72d7f1f0fe68d9a18e96e2
+    digest: 231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd
 parser: v1
 policy: v1+idle=10m0s
 summary:
@@ -18,6 +18,7 @@ summary:
     segments: 1
     rounds: 1
     unresolved: 0
+    changes: 1
     from: 1767225600000
     to: 1767225611100
     kinds:
@@ -52,11 +53,11 @@ summary:
         strong_inference: 1
 rounds:
     - round: 1
-      digest: 3ad0dcd4cd53fa06c502a2649b8788bfbe0a382bbc72d7f1f0fe68d9a18e96e2
+      digest: 231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd
       previous: null
       from_seq: 1
-      through_seq: 3
-      input_digest: 6872d48ef5d3e736d0bd9f5bc03844653fb304b4b98b9ef6a27342478d950c1b
+      through_seq: 4
+      input_digest: f49b55a09ff0a37d36f3d3b62c7584dd03caecb5f0f3ffe32fba96d8849df0a8
       from_time: 1767225600000
       through_time: 1767225611100
       verified: true
@@ -69,35 +70,47 @@ files:
       stream: main
       run: null
       lines: 18
-      bytes: 5868
-      digest: 944ed3d1209c76afb98f0622eb9239f95adb79fd0d0262d634c2f20bc041b1f7
+      bytes: 6076
+      digest: 42d5e0b19a8bbaae8d09eb8055548c20a8feac5cd2f342fa572a5bb3104e5632
       from_time: 1767225600000
       through_time: 1767225611100
-    - file: 00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/transcript-20260101T000000.000000000Z-000002.sd
+    - file: 00000001-0000-4000-8000-000000000001/streams/main/changes-20260101T000000.000000000Z-000002.sd
+      format: sd
+      kind: changes
+      seq: 2
+      round: null
+      stream: main
+      run: null
+      lines: 3
+      bytes: 1759
+      digest: b7fc207afdc51b9c48e42af8524ea7a68e5e5f3b4c76b7d37dd765e2fe8145c5
+      from_time: 1767225602000
+      through_time: 1767225602000
+    - file: 00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/transcript-20260101T000000.000000000Z-000003.sd
       format: sd
       kind: transcript
-      seq: 2
+      seq: 3
       round: null
       stream: a0a10ef0666c4dc7e
       run: null
       lines: 4
-      bytes: 995
-      digest: 39b8a446c3a87d2b8da5210bba7f66ee2fd04caccea1fa0a4efdc3345b7ff7ca
+      bytes: 1019
+      digest: fa5e9bb561d0bc6168382498e805829b2820141b57117db50f4894d474c3e486
       from_time: 1767225606100
       through_time: 1767225607100
-    - file: 00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/meta-20260101T000000.000000000Z-000003.sd
+    - file: 00000001-0000-4000-8000-000000000001/streams/a0a10ef0666c4dc7e/meta-20260101T000000.000000000Z-000004.sd
       format: sd
       kind: agent_meta
-      seq: 3
+      seq: 4
       round: null
       stream: a0a10ef0666c4dc7e
       run: null
       lines: 3
       bytes: 676
-      digest: de085eda31cdf99231fb212cb8fefbbcf95bd4f88c007c70446ecc652db3b005
+      digest: 62f019483e4d0c0d4d0f5f296bec63fbfae663479a2a78d83b45481bd8df7185
       from_time: null
       through_time: null
-    - file: _conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-3ad0dcd4cd53.sf
+    - file: _conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-231f2c85948d.sf
       format: sf
       kind: round
       seq: null
@@ -106,7 +119,7 @@ files:
       run: null
       lines: 45
       bytes: 10468
-      digest: 4f33cf8e85afcf104c823ea12be797059b4d3d10abbbb2ceb5916c2bd7e81d73
+      digest: 08eb0f1dce87e0caa81d21855d5056cf327a8fb84b4c5b09e8084fe2690f16e8
       from_time: 1767225600000
       through_time: 1767225611100
 streams:
@@ -275,9 +288,9 @@ talks:
                     result: available
                     result_join: exact_unique
                     timing: unavailable
-                  text: '{"command":"make build","description":"build the project"}'
+                  text: '{"command":"go generate ./... \u0026\u0026 make build","description":"generate and build"}'
                   state: available
-                  bytes: 58
+                  bytes: 90
                   flags:
                     - finished
                   name: Bash
@@ -286,6 +299,8 @@ talks:
                   result_bytes: 15
                   request_to_result_ms: 800
                   request_to_result_join: exact_unique
+                  changes:
+                    - tool-run-make-build
             - id: call/s4-call
               kind: llm.call
               parent: run/talk_main_s1-cycle/s1-cycle
@@ -564,7 +579,7 @@ talks:
       stream: a0a10ef0666c4dc7e
       at: 1767225606100
       ref:
-        seq: 2
+        seq: 3
         row: 1
       attrs:
         loops: 1
@@ -584,7 +599,7 @@ talks:
           stream: a0a10ef0666c4dc7e
           at: 1767225606100
           ref:
-            seq: 2
+            seq: 3
             row: 1
           attrs:
             trigger: external
@@ -595,17 +610,17 @@ talks:
               stream: a0a10ef0666c4dc7e
               at: 1767225607100
               ref:
-                seq: 2
+                seq: 3
                 row: 2
               refs:
-                - seq: 2
+                - seq: 3
                   row: 2
               attrs:
                 fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 2
-                    seq: 2
+                    seq: 3
                 usage_from: last_fragment_in_line_order
               usage:
                 in: 2
@@ -613,13 +628,13 @@ talks:
                 cache_read: 900
                 cache_write: 100
               children:
-                - id: msg/2/2:0
+                - id: msg/3/2:0
                   kind: message.assistant
                   parent: call/checker-s1-call
                   stream: a0a10ef0666c4dc7e
                   at: 1767225607100
                   ref:
-                    seq: 2
+                    seq: 3
                     row: 2
                     block: 0
                   text: Tests pass.
@@ -633,10 +648,10 @@ talks:
               stream: a0a10ef0666c4dc7e
               at: 1767225607100
               ref:
-                seq: 2
+                seq: 3
                 row: 2
               refs:
-                - seq: 2
+                - seq: 3
                   row: 2
               attrs:
                 returned_value: unavailable
@@ -704,7 +719,7 @@ relations:
       quality: exact_unique
       via: the last response in the child stream, and what it returned
       evidence:
-        - seq: 2
+        - seq: 3
           row: 2
     - id: rel/follows/epoch_main_s8-boundary/epoch_main_0
       type: follows
@@ -722,7 +737,7 @@ relations:
       quality: strong_inference
       via: inside the window of the talk that delegated it
       evidence:
-        - seq: 2
+        - seq: 3
           row: 1
     - id: rel/in_segment/talk_main_s1-cycle/segment_at_1_2
       type: in_segment
@@ -770,4 +785,63 @@ relations:
         - seq: 1
           row: 16
 unresolved: []
+workspace_changes:
+    - step: tool/tool-run-make-build
+      ref:
+        seq: 2
+        row: 1
+        block: 0
+      schema: changes/1
+      id: tool-run-make-build
+      captured_by: asz-plugin
+      session: 00000001-0000-4000-8000-000000000001
+      stream: main
+      tool: tool-run-make-build
+      tool_name: Bash
+      time: "2026-01-01T00:00:02.000Z"
+      basis: tool_window
+      root:
+        path: /Users/dev/01-full-conversation
+      policy:
+        exclusions: standard-v1
+        read_only: readonly-v1
+      window:
+        before:
+            from: "2026-01-01T00:00:01.000Z"
+            to: "2026-01-01T00:00:01.000Z"
+        after:
+            from: "2026-01-01T00:00:02.000Z"
+            to: "2026-01-01T00:00:02.000Z"
+      outcome:
+        state: returned
+        exit_code: 0
+      coverage: complete
+      changed_files: 1
+      changes:
+        - path: internal/version.go
+          operation: modify
+          before:
+            present: true
+            bytes: 42
+            sha256: 60983ea9a3d54fcd33d2841f18fc4489963ac29635c83a52b1eeae44434b18ae
+          after:
+            present: true
+            bytes: 42
+            sha256: 3b02df441c26263ba099ef682e824498ff1ca99ea9699c0880f61495b0ec891d
+          diff: available
+          attribution: only_this_window
+          windows:
+            - tool-run-make-build
+          additions: 1
+          deletions: 1
+          hunks:
+            - old_start: 1
+              old_lines: 3
+              new_start: 1
+              new_lines: 3
+              lines:
+                - ' package internal'
+                - ' '
+                - -const Version = "0.2.0"
+                - +const Version = "0.3.0"
 
