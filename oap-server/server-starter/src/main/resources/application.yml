@@ -270,6 +270,9 @@ ai-evaluation:
 # AI_AGENT layer).
 ai-agent-conversation:
   selector: ${SW_AI_AGENT_CONVERSATION:default}
+  # Turns the feature off: neither record model is created in the storage, no query is answered and no
+  # conversation view route is registered. The GraphQL query module requires this module, so `-` can't remove it.
+  none:
   default:
     # How many Session Data files one storage read fetches; keeps a single BanyanDB response under its inbound cap.
     fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}

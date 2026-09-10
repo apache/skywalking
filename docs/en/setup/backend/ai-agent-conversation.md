@@ -131,6 +131,7 @@ The conversation page of the UI makes one call, this route, and nothing else.
 ```yaml
 ai-agent-conversation:
   selector: ${SW_AI_AGENT_CONVERSATION:default}
+  none:
   default:
     fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
     roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
@@ -149,7 +150,16 @@ ai-agent-conversation:
 | `maxFileBytes`   | the largest file stored, in bytes; a larger one is rejected at ingest and counted under the reason `size`. 15 MiB by default, under BanyanDB's 16 MiB gRPC message limit. The Sessionizer cuts files and rounds at 2 MiB; only a round from before that cut is larger. |
 | `maxResponseBytes` | the most bytes one window read may answer with, applied to that read alone on a storage that caps a response per call. The BanyanDB client holds every other read to 50 MB; this module's two window reads carry it as a call option on the same connection, so nothing else changes. 100 MiB by default, above sixteen files at the 2 MiB cut with room for files landed whole. For a root of larger files, raise it or lower the windows, so that the window times `maxFileBytes` stays under it; a read over the limit fails as a storage error. |
 
-The GraphQL query module requires this module, so it cannot be disabled while the GraphQL query module is active.
+### Turning the feature off
+
+The GraphQL query module requires this module, so the `-` selector cannot remove it; `SW_AI_AGENT_CONVERSATION=none`
+selects the `none` provider instead, which answers `listConversations` and `getConversationRawFiles` with an empty
+result and an `errorReason` saying the module is disabled, and registers no conversation view route, so a `GET` on it
+is a 404.
+
+It also disables the two record models, so nothing of the feature reaches the storage: neither table is created, nor
+the BanyanDB `recordsAIAgent` group, whose only members they are. A file the bundled LAL rule still verifies is
+dropped for want of a record worker; drop `ai-agent` from `SW_LOG_LAL_FILES` as well to skip that work.
 
 ## Limits on the path
 
