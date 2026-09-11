@@ -29,14 +29,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.ai.agent.conversation.fold.ConversationFold;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.ChangesRecord;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
@@ -70,6 +73,8 @@ public final class ConversationViewBuilder {
     private final List<String> problems;
     /** Every timed record's moment in nanoseconds, the precision the Sessionizer computes intervals with. */
     private final Map<Ref, Long> at = new HashMap<>();
+    /** Each step's workspace change ids, in the order the document lists the records; filled by {@link #workspaceChanges}. */
+    private final Map<String, List<String>> changesByStep = new HashMap<>();
 
     /**
      * @param fold     the fold of the rounds, in order
@@ -101,6 +106,8 @@ public final class ConversationViewBuilder {
     public Map<String, Object> build() {
         final Overview o = overview();
         final Chain chain = chain();
+        // before the nodes are rendered: each step lists the ids of its records
+        final List<Map<String, Object>> workspaceChanges = workspaceChanges();
 
         final Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("format", ViewYaml.FORMAT);
@@ -124,6 +131,7 @@ public final class ConversationViewBuilder {
         summary.put("segments", o.segments.size());
         summary.put("rounds", chain.rounds.size());
         summary.put("unresolved", fold.openUnresolved().size());
+        summary.put("changes", workspaceChanges.size());
         final SessionFlowRound.Node sessionNode = fold.node(sessionNodeId());
         summary.put("from", sessionNode == null ? 0L : Times.millis(sessionNode.attr("from_time")));
         summary.put("to", sessionNode == null ? 0L : Times.millis(sessionNode.attr("through_time")));
@@ -141,6 +149,7 @@ public final class ConversationViewBuilder {
         doc.put("loose", loose());
         doc.put("relations", relations());
         doc.put("unresolved", unresolved());
+        doc.put("workspace_changes", workspaceChanges);
         return doc;
     }
 
@@ -891,6 +900,10 @@ public final class ConversationViewBuilder {
                 out.put(key, tool.get(key));
             }
         }
+        final List<String> changes = changesByStep.get(n.getId());
+        if (changes != null && !changes.isEmpty()) {
+            out.put("changes", new ArrayList<>(changes));
+        }
         if (depth < MAX_DEPTH) {
             final List<Map<String, Object>> children = new ArrayList<>();
             for (final SessionFlowRound.Node k : fold.children(n.getId())) {
@@ -972,12 +985,7 @@ public final class ConversationViewBuilder {
 
     private static void fill(final Map<String, Object> content, final Map<String, Object> tool,
                              final SessionDataFile.Record rec, @Nullable final Integer block) {
-        SessionDataFile.Part p = null;
-        if (block != null && block < rec.getParts().size()) {
-            p = rec.getParts().get(block);
-        } else if (rec.getParts().size() == 1) {
-            p = rec.getParts().get(0);
-        }
+        final SessionDataFile.Part p = partAt(rec, block);
         if (p == null) {
             final String text = clip(readable(rec));
             if (!text.isEmpty()) {
@@ -1156,6 +1164,134 @@ public final class ConversationViewBuilder {
             out.add(m);
         }
         return out;
+    }
+
+    // ---------------------------------------------------------------- workspace changes
+
+    /**
+     * Every workspace change record the session's files carry, each joined to its step. Two places hold them: a
+     * result record of an editing tool carries the runtime's own patch as a data part beside the raw result, and
+     * a <code>changes</code> file the plugin's adapter landed holds one record per line. The join is the tool-use
+     * id, which the record names and the step's call part carries; nothing is matched by time. Fills
+     * {@link #changesByStep} on the way, which {@link #step} reads, so this runs before the nodes are rendered.
+     *
+     * @return the entries in the order the document lists them: by time, the runtime's record before the plugin's
+     * for one call, then by id
+     */
+    private List<Map<String, Object>> workspaceChanges() {
+        // which step carries which tool-use id, from the call part each tool step points at
+        final Map<String, String> stepOf = new HashMap<>();
+        for (final SessionFlowRound.Node n : fold.getNodes().values()) {
+            if (!"tool".equals(n.getKind()) && !"agent.call".equals(n.getKind()) || n.getRef() == null) {
+                continue;
+            }
+            final SessionDataFile.Record rec = record(n.getRef());
+            final SessionDataFile.Part p = rec == null ? null : partAt(rec, n.getRef().getBlock());
+            if (p != null && "call".equals(p.getKind()) && StringUtil.isNotEmpty(p.getId())) {
+                stepOf.put(p.getId(), n.getId());
+            }
+        }
+        final List<WorkspaceChange> entries = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        // the runtime's own patches, on the result records the tool steps read
+        for (final SessionFlowRound.Node n : fold.getNodes().values()) {
+            if (!"tool".equals(n.getKind()) || n.getRefs().size() < 2) {
+                continue;
+            }
+            for (int i = 1; i < n.getRefs().size(); i++) {
+                final Ref ref = n.getRefs().get(i);
+                collectChanges(record(ref), ref.getSeq(), ref.getRow(), stepOf, seen, entries);
+            }
+        }
+        // the plugin's records, from the files its adapter landed, in seq order
+        final List<Long> seqs = new ArrayList<>(files.keySet());
+        Collections.sort(seqs);
+        for (final Long seq : seqs) {
+            final SessionDataFile f = files.get(seq);
+            if (!"changes".equals(f.getHeader().getKind())) {
+                continue;
+            }
+            for (final SessionDataFile.Record rec : f.getRecords()) {
+                collectChanges(rec, seq, rec.getRow(), stepOf, seen, entries);
+            }
+        }
+        entries.sort((a, b) -> {
+            final int byTime = a.record.getTime().compareTo(b.record.getTime());
+            if (byTime != 0) {
+                return byTime;
+            }
+            if (!a.record.getCapturedBy().equals(b.record.getCapturedBy())) {
+                // the runtime's record is listed first, and a viewer showing one prefers it
+                if (ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(a.record.getCapturedBy())) {
+                    return -1;
+                }
+                return ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(b.record.getCapturedBy()) ? 1 : 0;
+            }
+            return a.record.getId().compareTo(b.record.getId());
+        });
+        final List<Map<String, Object>> out = new ArrayList<>(entries.size());
+        for (final WorkspaceChange e : entries) {
+            final Map<String, Object> m = new LinkedHashMap<>();
+            m.put("step", e.step);
+            m.put("ref", e.ref.toMap());
+            m.putAll(e.record.fields());
+            out.add(m);
+            if (!e.step.isEmpty()) {
+                changesByStep.computeIfAbsent(e.step, k -> new ArrayList<>()).add(e.record.getId());
+            }
+        }
+        return out;
+    }
+
+    private static void collectChanges(@Nullable final SessionDataFile.Record rec, final long seq, final long row,
+                                       final Map<String, String> stepOf, final Set<String> seen,
+                                       final List<WorkspaceChange> entries) {
+        if (rec == null) {
+            return;
+        }
+        final List<SessionDataFile.Part> parts = rec.getParts();
+        for (int b = 0; b < parts.size(); b++) {
+            final SessionDataFile.Part p = parts.get(b);
+            if (!"data".equals(p.getKind())) {
+                continue;
+            }
+            final ChangesRecord r = ChangesRecord.decode(p.data());
+            if (r == null) {
+                continue;
+            }
+            // the id is the tool-use id, so two producers observing one call share it; who captured the record
+            // tells them apart, and a line landed twice by an interrupted pass is the same on both counts
+            if (!seen.add(r.getCapturedBy() + "|" + r.getId())) {
+                continue;
+            }
+            entries.add(new WorkspaceChange(nullToEmpty(stepOf.get(r.getTool())), new Ref(seq, row, b), r));
+        }
+    }
+
+    /** One change record with the step it joins to, or none, and the record it was read from. */
+    private static final class WorkspaceChange {
+        final String step;
+        final Ref ref;
+        final ChangesRecord record;
+
+        WorkspaceChange(final String step, final Ref ref, final ChangesRecord record) {
+            this.step = step;
+            this.ref = ref;
+            this.record = record;
+        }
+    }
+
+    /**
+     * @param rec   a record
+     * @param block the part a reference names, or null
+     * @return the part named, or the only part when none is named, or null
+     */
+    @Nullable
+    private static SessionDataFile.Part partAt(final SessionDataFile.Record rec, @Nullable final Integer block) {
+        if (block != null && block < rec.getParts().size()) {
+            return rec.getParts().get(block);
+        }
+        return rec.getParts().size() == 1 ? rec.getParts().get(0) : null;
     }
 
     // ---------------------------------------------------------------- records and times

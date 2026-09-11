@@ -63,6 +63,12 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
         AIAgentSessionFlowRecord.STREAMS,
         AIAgentSessionFlowRecord.SEGMENTS,
         AIAgentSessionFlowRecord.UNRESOLVED,
+        AIAgentSessionFlowRecord.CHANGES,
+        AIAgentSessionFlowRecord.LINES_ADDED,
+        AIAgentSessionFlowRecord.LINES_REMOVED,
+        AIAgentSessionFlowRecord.LLM_CALLS,
+        AIAgentSessionFlowRecord.SUBAGENTS,
+        AIAgentSessionFlowRecord.BASH_RUNS,
         AIAgentSessionFlowRecord.DIGEST,
         AIAgentSessionFlowRecord.TIMESTAMP
     };
@@ -194,6 +200,12 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
             record.setStreams(longOf(source.get(AIAgentSessionFlowRecord.STREAMS)));
             record.setSegments(longOf(source.get(AIAgentSessionFlowRecord.SEGMENTS)));
             record.setUnresolved(longOf(source.get(AIAgentSessionFlowRecord.UNRESOLVED)));
+            record.setChanges(nullableLongOf(source.get(AIAgentSessionFlowRecord.CHANGES)));
+            record.setLinesAdded(nullableLongOf(source.get(AIAgentSessionFlowRecord.LINES_ADDED)));
+            record.setLinesRemoved(nullableLongOf(source.get(AIAgentSessionFlowRecord.LINES_REMOVED)));
+            record.setLlmCalls(nullableLongOf(source.get(AIAgentSessionFlowRecord.LLM_CALLS)));
+            record.setSubagents(nullableLongOf(source.get(AIAgentSessionFlowRecord.SUBAGENTS)));
+            record.setBashRuns(nullableLongOf(source.get(AIAgentSessionFlowRecord.BASH_RUNS)));
             record.setDigest((String) source.get(AIAgentSessionFlowRecord.DIGEST));
             final long timestamp = longOf(source.get(AIAgentSessionFlowRecord.TIMESTAMP));
             record.setTimestamp(timestamp);
@@ -262,6 +274,11 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
 
     private static long longOf(final Object value) {
         return value == null ? 0L : ((Number) value).longValue();
+    }
+
+    /** A count the round may not have carried: null stays null rather than becoming zero. */
+    private static Long nullableLongOf(final Object value) {
+        return value == null ? null : ((Number) value).longValue();
     }
 
     /**

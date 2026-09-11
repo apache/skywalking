@@ -62,6 +62,12 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
         AIAgentSessionFlowRecord.STREAMS,
         AIAgentSessionFlowRecord.SEGMENTS,
         AIAgentSessionFlowRecord.UNRESOLVED,
+        AIAgentSessionFlowRecord.CHANGES,
+        AIAgentSessionFlowRecord.LINES_ADDED,
+        AIAgentSessionFlowRecord.LINES_REMOVED,
+        AIAgentSessionFlowRecord.LLM_CALLS,
+        AIAgentSessionFlowRecord.SUBAGENTS,
+        AIAgentSessionFlowRecord.BASH_RUNS,
         AIAgentSessionFlowRecord.DIGEST,
         AIAgentSessionFlowRecord.TIMESTAMP
     );
@@ -279,6 +285,12 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
             record.setStreams(resultSet.getLong(AIAgentSessionFlowRecord.STREAMS));
             record.setSegments(resultSet.getLong(AIAgentSessionFlowRecord.SEGMENTS));
             record.setUnresolved(resultSet.getLong(AIAgentSessionFlowRecord.UNRESOLVED));
+            record.setChanges(nullableLongOf(resultSet, AIAgentSessionFlowRecord.CHANGES));
+            record.setLinesAdded(nullableLongOf(resultSet, AIAgentSessionFlowRecord.LINES_ADDED));
+            record.setLinesRemoved(nullableLongOf(resultSet, AIAgentSessionFlowRecord.LINES_REMOVED));
+            record.setLlmCalls(nullableLongOf(resultSet, AIAgentSessionFlowRecord.LLM_CALLS));
+            record.setSubagents(nullableLongOf(resultSet, AIAgentSessionFlowRecord.SUBAGENTS));
+            record.setBashRuns(nullableLongOf(resultSet, AIAgentSessionFlowRecord.BASH_RUNS));
             record.setDigest(resultSet.getString(AIAgentSessionFlowRecord.DIGEST));
             final long timestamp = resultSet.getLong(AIAgentSessionFlowRecord.TIMESTAMP);
             record.setTimestamp(timestamp);
@@ -312,6 +324,12 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
     /**
      * A <code>byte[]</code> column is written as base64 text, the way the segment body is.
      */
+    /** A count the round may not have carried: a NULL column stays null rather than becoming zero. */
+    private static Long nullableLongOf(final ResultSet resultSet, final String column) throws SQLException {
+        final Object value = resultSet.getObject(column);
+        return value == null ? null : ((Number) value).longValue();
+    }
+
     private static byte[] bytesOf(final String value) {
         return StringUtil.isEmpty(value) ? null : Base64.getDecoder().decode(value);
     }

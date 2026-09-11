@@ -61,6 +61,12 @@ public class ModuleAProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() {
+        BootPhaseLog.record("P-A:afterCompleted");
+    }
+
+    @Override
+    public void notifyBootCompleted() {
+        BootPhaseLog.record("P-A:bootCompleted");
     }
 
     @Override

@@ -94,6 +94,14 @@ public abstract class ModuleProvider implements ModuleServiceHolder {
     public abstract void notifyAfterCompleted() throws ServiceNotProvidedException, ModuleStartException;
 
     /**
+     * This callback executes once every module's {@link #notifyAfterCompleted()} has returned, which is when the
+     * boot is complete. The core opens its gRPC and HTTP ports here, so a request cannot arrive while a module is
+     * still doing its boot-time work in {@link #notifyAfterCompleted()}.
+     */
+    public void notifyBootCompleted() throws ServiceNotProvidedException, ModuleStartException {
+    }
+
+    /**
      * @return moduleDefine names which does this moduleDefine require?
      */
     public abstract String[] requiredModules();

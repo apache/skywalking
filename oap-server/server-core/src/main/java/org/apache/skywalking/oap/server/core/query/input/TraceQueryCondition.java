@@ -27,6 +27,10 @@ import org.apache.skywalking.oap.server.core.query.type.Pagination;
 import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
 import org.apache.skywalking.oap.server.core.query.type.TraceState;
 
+/**
+ * The condition must contain either {@code queryDuration} or {@code traceId}. The resolvers enforce it, see the
+ * GraphQL input of the same name.
+ */
 @Getter
 @Setter
 @ToString

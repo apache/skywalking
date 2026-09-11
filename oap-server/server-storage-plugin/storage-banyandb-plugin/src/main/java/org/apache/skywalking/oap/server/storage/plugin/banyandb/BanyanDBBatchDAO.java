@@ -94,6 +94,19 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * The persistence timer has queued its round's measures: send them now. Left to the bulk's own schedule they
+     * wait up to flushInterval, longer than the timer's own wait for their acknowledgement, and the round would
+     * end before the session cache is filled. Streams and traces are not written by the timer and keep their
+     * schedule. The flush returns when BanyanDB has answered.
+     */
+    @Override
+    public void endOfFlush() {
+        if (measureBulkWriteProcessor != null) {
+            measureBulkWriteProcessor.flush();
+        }
+    }
+
     private StreamBulkWriteProcessor getStreamBulkWriteProcessor() {
         if (streamBulkWriteProcessor == null) {
             synchronized (STREAM_SYNCHRONIZER) {

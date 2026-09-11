@@ -62,7 +62,7 @@ public interface IZipkinQueryDAO extends DAO {
         try {
             if (traceContext != null) {
                 span = traceContext.createSpan("Query Dao: getTrace");
-                span.setMsg("Condition: TraceId: " + traceId);
+                span.setMsg("Condition: TraceId: " + traceId + ", Duration: " + duration);
             }
             return getTrace(traceId, duration);
         } finally {

@@ -25,6 +25,8 @@ BASE_IMAGE ?= eclipse-temurin:$(JRE)
 
 E2E_SERVICE_PROVIDER_NAME = e2e-service-provider
 E2E_SERVICE_CONSUMER_NAME = e2e-service-consumer
+E2E_MOCK_LLM_SERVER_NAME = e2e-mock-llm-server
+E2E_SPRING_AI_SERVICE_NAME = e2e-spring-ai-service
 TRACE_MOCKER_NAME = trace-mocker
 
 .PHONY: init
@@ -35,13 +37,35 @@ init:
 build.e2e-service:
 	cd $(SW_ROOT) && ./mvnw --batch-mode -f $(CONTEXT)/pom.xml clean package
 
-DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer docker.trace-mocker
+DOCKER_TARGETS:=docker.e2e-service-provider docker.e2e-service-consumer docker.e2e-mock-llm-server docker.e2e-spring-ai-service docker.trace-mocker
+
+# e2e-spring-ai-service is a Spring Boot 4 / Spring AI module, so the e2e reactor only builds it
+# under its jdk-17 profile (<jdk>[17,)</jdk> in java-test-service/pom.xml). On an older JDK the
+# module is skipped, and DOCKER_RULE then either fails on the missing jar or -- worse -- packages
+# one left over from an earlier JDK 17 build, since `clean` never reaches a module outside the
+# reactor. Refuse up front rather than let that reach a case: compose bind-mounts the jar by path,
+# so a missing one makes Docker create a DIRECTORY in its place and the container dies with
+# "Invalid or corrupt jarfile", which names neither the module nor the JDK.
+# Scoped to the goals that need the module, so the other images stay buildable by name.
+JAVA_MAJOR := $(shell $(if $(JAVA_HOME),$(JAVA_HOME)/bin/java,java) -version 2>&1 \
+                | head -1 | cut -d'"' -f2 | sed -E 's/^1\.//' | cut -d'.' -f1)
+SPRING_AI_GOALS := docker docker.e2e-service docker.push-e2e-service \
+                   docker.e2e-spring-ai-service push.docker.e2e-spring-ai-service
+ifneq ($(filter $(SPRING_AI_GOALS),$(MAKECMDGOALS)),)
+ifneq ($(shell test "$(JAVA_MAJOR)" -ge 17 2>/dev/null && echo yes),yes)
+$(error e2e-spring-ai-service requires JDK 17+ for Spring AI / Spring Boot 4; found $(if $(JAVA_MAJOR),Java $(JAVA_MAJOR),no java on PATH). Set JAVA_HOME to a 17+ JDK, or build the other images by name, e.g. make docker.e2e-service-provider)
+endif
+endif
 
 .PHONY: docker docker.e2e-service
 docker: init build.e2e-service docker.e2e-service
 
 %.e2e-service-provider: NAME = $(E2E_SERVICE_PROVIDER_NAME)
 %.e2e-service-consumer: NAME = $(E2E_SERVICE_CONSUMER_NAME)
+%.e2e-mock-llm-server: NAME = $(E2E_MOCK_LLM_SERVER_NAME)
+%.e2e-spring-ai-service: NAME = $(E2E_SPRING_AI_SERVICE_NAME)
+# Spring AI requires Java 17; the shared BASE_IMAGE above is a Java 8 JRE.
+%.e2e-spring-ai-service: BASE_IMAGE = eclipse-temurin:17-jre
 %.trace-mocker: NAME = $(TRACE_MOCKER_NAME)
 
 docker.%: PLATFORMS =
@@ -50,6 +74,12 @@ push.%: PLATFORMS = --platform linux/amd64,linux/arm64
 push.%: LOAD_OR_PUSH = --push
 
 push.docker.e2e-service-% docker.e2e-service-%: $(CONTEXT)/Dockerfile
+	$(DOCKER_RULE)
+
+push.docker.e2e-mock-llm-server docker.e2e-mock-llm-server: $(CONTEXT)/Dockerfile
+	$(DOCKER_RULE)
+
+push.docker.e2e-spring-ai-service docker.e2e-spring-ai-service: $(CONTEXT)/Dockerfile
 	$(DOCKER_RULE)
 
 push.docker.trace-mocker docker.trace-mocker: $(CONTEXT)/Dockerfile

@@ -127,6 +127,12 @@ public class ConversationQueryService implements IConversationQueryService {
         row.setStreams((int) r.getStreams());
         row.setSegments((int) r.getSegments());
         row.setUnresolved((int) r.getUnresolved());
+        row.setChanges(r.getChanges() == null ? null : r.getChanges().intValue());
+        row.setLinesAdded(r.getLinesAdded() == null ? null : r.getLinesAdded().intValue());
+        row.setLinesRemoved(r.getLinesRemoved() == null ? null : r.getLinesRemoved().intValue());
+        row.setLlmCalls(r.getLlmCalls() == null ? null : r.getLlmCalls().intValue());
+        row.setSubagents(r.getSubagents() == null ? null : r.getSubagents().intValue());
+        row.setBashRuns(r.getBashRuns() == null ? null : r.getBashRuns().intValue());
         row.setFrom(r.getSessionFromTime());
         row.setTo(r.getTimestamp());
         return row;

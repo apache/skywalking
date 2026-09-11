@@ -171,6 +171,10 @@ public class SharingServerModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ModuleStartException {
+    }
+
+    @Override
+    public void notifyBootCompleted() throws ModuleStartException {
         try {
             if (Objects.nonNull(grpcServer) && !RunningMode.isInitMode()) {
                 grpcServer.start();

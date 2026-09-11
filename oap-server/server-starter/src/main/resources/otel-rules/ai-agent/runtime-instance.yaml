@@ -1,0 +1,74 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AI agent runtimes, instance level: the same metrics as runtime-service.yaml per sender, which is per machine
+# that pushes, named by its service.instance.id, `user@host` from the AI Sessionizer by default.
+
+filter: "{ tags -> tags.service_layer == 'AI_AGENT' }"
+expSuffix: instance(['service_name'], ['service_instance_id'], Layer.AI_AGENT)
+metricPrefix: meter_ai_agent_instance
+
+metricsRules:
+  # ===================== claude_code.token.usage: sent by the exporter and derived by the Sessionizer alike
+
+  # Tokens per minute, every type
+  - name: tokens
+    exp: claude_code_token_usage.sum(['service_name', 'service_instance_id']).downsampling(SUM)
+
+  # By type: input, output, cacheRead, cacheCreation
+  - name: tokens_by_type
+    exp: claude_code_token_usage.sum(['type', 'service_name', 'service_instance_id']).downsampling(SUM)
+
+  # By the model the call ran on
+  - name: tokens_by_model
+    exp: claude_code_token_usage.sum(['model', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
+
+  # By where the call was made: main or subagent, and from the exporter also auxiliary
+  - name: tokens_by_source
+    exp: claude_code_token_usage.sum(['query_source', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
+
+  # How much of what the model read came from cache, in percent: cacheRead over every type but output
+  - name: cache_read_share
+    exp: claude_code_token_usage.tagEqual('type', 'cacheRead').sum(['service_name', 'service_instance_id']).safeDiv(claude_code_token_usage.tagNotEqual('type', 'output').sum(['service_name', 'service_instance_id'])) * 100
+
+  # ===================== the exporter's other metrics; absent when the Sessionizer derived the points
+
+  # Cost in micro-dollars (USD * 1,000,000), by model
+  - name: cost_by_model
+    exp: claude_code_cost_usage.sum(['model', 'service_name', 'service_instance_id']).downsampling(SUM) * 1000000
+
+  # Active time in milliseconds, by type: user for keyboard interaction, cli for tool execution and responses
+  - name: active_time
+    exp: claude_code_active_time_total.sum(['type', 'service_name', 'service_instance_id']).downsampling(SUM) * 1000
+
+  # Sessions started
+  - name: sessions
+    exp: claude_code_session_count.sum(['service_name', 'service_instance_id']).downsampling(SUM)
+
+  # Lines of code changed, by type: added, removed
+  - name: lines_of_code
+    exp: claude_code_lines_of_code_count.sum(['type', 'service_name', 'service_instance_id']).downsampling(SUM)
+
+  # Commits made
+  - name: commits
+    exp: claude_code_commit_count.sum(['service_name', 'service_instance_id']).downsampling(SUM)
+
+  # Pull requests opened
+  - name: pull_requests
+    exp: claude_code_pull_request_count.sum(['service_name', 'service_instance_id']).downsampling(SUM)
+
+  # Permission decisions on the editing tools, by decision: accept, reject
+  - name: edit_decisions
+    exp: claude_code_code_edit_tool_decision.sum(['decision', 'service_name', 'service_instance_id']).downsampling(SUM)

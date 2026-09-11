@@ -35,6 +35,15 @@ public class ConversationRow {
     private int streams;
     private int segments;
     private int unresolved;
+    // Distinct change records the Sessionizer had captured as of the head round, one per tool call a producer watched; null when the round did not carry the count.
+    private Integer changes;
+    // What those records' diffs add and remove; null when the round did not carry them.
+    private Integer linesAdded;
+    private Integer linesRemoved;
+    // Provider calls, child agents started, and shell commands run through the runtime's Bash tool; null when the round did not carry them.
+    private Integer llmCalls;
+    private Integer subagents;
+    private Integer bashRuns;
     private long from;
     private long to;
 }

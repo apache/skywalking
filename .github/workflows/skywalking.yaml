@@ -818,6 +818,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # The virtual-genai case builds e2e-spring-ai-service, which needs Java 17. Without this
+      # the job silently rides whatever JDK the runner image defaults to.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
       - name: Cache maven repository
         uses: actions/cache@v4
         with:

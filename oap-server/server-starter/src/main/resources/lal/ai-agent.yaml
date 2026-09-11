@@ -51,6 +51,24 @@ rules:
               segments   tag("asz.conversation.segments") as Long
               unresolved tag("asz.conversation.unresolved") as Long
             }
+            if (tag("asz.conversation.changes") != "") {
+              changes tag("asz.conversation.changes") as Long
+            }
+            if (tag("asz.conversation.lines_added") != "") {
+              linesAdded tag("asz.conversation.lines_added") as Long
+            }
+            if (tag("asz.conversation.lines_removed") != "") {
+              linesRemoved tag("asz.conversation.lines_removed") as Long
+            }
+            if (tag("asz.conversation.llm_calls") != "") {
+              llmCalls tag("asz.conversation.llm_calls") as Long
+            }
+            if (tag("asz.conversation.subagents") != "") {
+              subagents tag("asz.conversation.subagents") as Long
+            }
+            if (tag("asz.conversation.bash_runs") != "") {
+              bashRuns tag("asz.conversation.bash_runs") as Long
+            }
           }
         }
         sink {

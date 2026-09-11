@@ -124,6 +124,26 @@ public class ConversationFileBuilder implements LALOutputBuilder {
     @Getter
     @Setter
     private long unresolved;
+    // -1 when the round did not carry the count: older Sessionizers wrote the other counts without it. A primitive,
+    // because the LAL extractor binds a field through a primitive setter.
+    @Getter
+    @Setter
+    private long changes = -1;
+    @Getter
+    @Setter
+    private long linesAdded = -1;
+    @Getter
+    @Setter
+    private long linesRemoved = -1;
+    @Getter
+    @Setter
+    private long llmCalls = -1;
+    @Getter
+    @Setter
+    private long subagents = -1;
+    @Getter
+    @Setter
+    private long bashRuns = -1;
 
     // from the handler, through init
     private String serviceName;
@@ -287,6 +307,12 @@ public class ConversationFileBuilder implements LALOutputBuilder {
         record.setStreams(streams);
         record.setSegments(segments);
         record.setUnresolved(unresolved);
+        record.setChanges(changes < 0 ? null : changes);
+        record.setLinesAdded(linesAdded < 0 ? null : linesAdded);
+        record.setLinesRemoved(linesRemoved < 0 ? null : linesRemoved);
+        record.setLlmCalls(llmCalls < 0 ? null : llmCalls);
+        record.setSubagents(subagents < 0 ? null : subagents);
+        record.setBashRuns(bashRuns < 0 ? null : bashRuns);
         record.setDigest(digest);
         // The conversation's last activity as of this round is the row's time, so the newest row is the head.
         final long through = Times.millis(sessionThroughTime);

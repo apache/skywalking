@@ -22,6 +22,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -119,7 +120,9 @@ public enum PersistenceTimer {
         workers.addAll(TopNStreamProcessor.getInstance().getPersistentWorkers());
         workers.addAll(MetricsStreamProcessor.getInstance().getPersistentWorkers());
 
-        final CompletableFuture<Void> future =
+        // The flush of every worker that had something to write, completed when the storage has answered.
+        final List<CompletableFuture<Void>> flushes = new CopyOnWriteArrayList<>();
+        final CompletableFuture<Void> submitted =
             CompletableFuture.allOf(workers.stream().map(worker -> {
                 return CompletableFuture.runAsync(() -> {
                     List<PrepareRequest> innerPrepareRequests;
@@ -143,13 +146,22 @@ public enum PersistenceTimer {
 
                     // Execution stage
                     HistogramMetrics.Timer executeLatencyTimer = executeLatency.createTimer();
-                    batchDAO.flush(innerPrepareRequests)
-                            .whenComplete(($1, $2) -> executeLatencyTimer.close());
+                    flushes.add(batchDAO.flush(innerPrepareRequests)
+                                        .whenComplete(($1, $2) -> executeLatencyTimer.close()));
                 }, prepareExecutorService);
             }).toArray(CompletableFuture[]::new));
 
+        // A round is over when the storage has answered for every request of it, not when the requests are
+        // queued. The next round is scheduled from the end of this one, and the persistence session cache is
+        // filled by the storage's callback on the answer: a round that ended at queueing let the next one find
+        // a metric absent from the cache, take its minute for a new one and write it with only its own points
+        // over the write still in flight. endOfFlush tells a storage that queues into a bulk to send the round
+        // now, so the wait is one round trip and not the bulk's own interval; it runs even when a worker's
+        // prepare stage failed, so what the other workers queued still goes out.
+        final CompletableFuture<Void> future = submitted
+            .whenComplete((unused, throwable) -> batchDAO.endOfFlush())
+            .thenCompose(unused -> CompletableFuture.allOf(flushes.stream().toArray(CompletableFuture[]::new)));
         future.whenComplete((unused, throwable) -> {
-            batchDAO.endOfFlush();
             allTimer.close();
             if (log.isDebugEnabled()) {
                 log.debug(

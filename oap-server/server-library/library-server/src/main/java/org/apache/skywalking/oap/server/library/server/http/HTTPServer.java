@@ -169,6 +169,12 @@ public class HTTPServer implements Server {
             })
             .decorator(DecodingService.newDecorator())
             .decorator(LoggingService.newDecorator());
+        // http1MaxHeaderSize above only caps HTTP/1 headers; HTTP/2 negotiates its own
+        // SETTINGS_MAX_HEADER_LIST_SIZE, which Armeria requires to be positive (0 is
+        // the "unlimited" opt-out on the HTTP/1 side).
+        if (config.getMaxRequestHeaderSize() > 0) {
+            sb.http2MaxHeaderListSize(config.getMaxRequestHeaderSize());
+        }
         if (config.isEnableTLS()) {
             sb.https(new InetSocketAddress(
                     config.getHost(),
@@ -243,6 +249,7 @@ public class HTTPServer implements Server {
     @Override
     public void start() {
         sb.build().start().join();
+        log.info("HTTP server started, host {} listening on {}", config.getHost(), config.getPort());
     }
 
     /**

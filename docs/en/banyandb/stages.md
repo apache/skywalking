@@ -79,5 +79,9 @@ sequenceDiagram
 - According to the lifecycle stages configuration, OAP will query the data from the `hot and warm` stage by default if the `warm` stage is enabled.
 Otherwise, OAP will query the data from the `hot` stage only.
 - If the `cold` stage is enabled, for better query performance, you should specify the stage in the query and OAP will limit the query time range.
+- For the GraphQL API, set `coldStage: true` in the `Duration` input of the query. For Zipkin traces, the Zipkin HTTP query API accepts
+an extra `coldStage=true` parameter, see [Query traces from the BanyanDB cold stage](../setup/backend/zipkin-trace.md#query-traces-from-the-banyandb-cold-stage).
+- The `metadata` group (service/instance/endpoint lists, tag autocomplete, and the other index-mode metrics) has no stages. Those queries always read the
+`metadata` group and ignore the `coldStage` flag, see [Progressive TTL](ttl.md) for its retention.
 
 

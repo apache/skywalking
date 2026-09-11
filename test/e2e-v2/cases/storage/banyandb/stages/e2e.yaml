@@ -68,6 +68,18 @@ verify:
       expected: ../../expected/cold/topN-OP-service.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="top_n(endpoint_resp_time,3,des)" --start="-96h" --end="-48h" --cold=true --step=DAY
       expected: ../../expected/cold/topN-OP-endpoint.yml
+    ## Zipkin traces seeded MINUS_DAYS=3 ago by the data-generate zipkin-mocker. The Zipkin HTTP API takes the
+    ## time range as endTs/lookback in millis, so [-96h, -48h] is endTs = now - 48h, lookback = 48h.
+    # Not visible through the default hot/warm query...
+    - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&endTs=$(($(date +%s)*1000-172800000))&lookback=172800000"
+      expected: ../../expected/cold/zipkin-traces-empty.yml
+    # ...but found in the cold stage by search, by id and by ids.
+    - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/traces?serviceName=zipkin-mock-frontend&coldStage=true&endTs=$(($(date +%s)*1000-172800000))&lookback=172800000"
+      expected: ../../expected/cold/zipkin-traces.yml
+    - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/trace/0e2ec01d0000000000000000000000a1?coldStage=true&endTs=$(($(date +%s)*1000-172800000))&lookback=172800000"
+      expected: ../../expected/cold/zipkin-trace.yml
+    - query: curl "http://${oap_host}:${oap_9412}/zipkin/api/v2/traceMany?traceIds=0e2ec01d0000000000000000000000a1,0e2ec01d0000000000000000000000a2&coldStage=true&endTs=$(($(date +%s)*1000-172800000))&lookback=172800000"
+      expected: ../../expected/cold/zipkin-trace-many.yml
 cleanup:
   on: always
   collect:

@@ -29,20 +29,37 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlow
 
 /**
  * The Sessionizer's fixture scenario <code>tests/scenarios/fixture.yaml</code>, built with
- * <code>asz scenario build --format sd --at 2026-01-01T00:00:00Z</code> and parsed: three Session Data files and one
- * round, byte for byte as the Sessionizer wrote them, so every digest is real, and the <code>asz.view</code>
- * document <code>asz conversation -json</code> printed for them, which is the document the OAP must equal.
+ * <code>asz scenario build --format sd --at 2026-01-01T00:00:00Z</code> and parsed: four Session Data files, one of
+ * them the change record the plugin wrote for the build, and one round, byte for byte as the Sessionizer wrote
+ * them, so every digest is real, and the <code>asz.view</code> document <code>asz conversation -json</code> printed
+ * for them, which is the document the OAP must equal.
+ *
+ * <p>Under <code>workspace-changes/</code>, the same for <code>tests/scenarios/workspace-changes.yaml</code>, which
+ * exercises every producer of a change record: a shell command the plugin observed on the main stream, an
+ * <code>Edit</code> whose patch the runtime recorded on its own result, and a shell command inside a subagent.
  */
 public final class Fixtures {
     public static final String SESSION = "00000001-0000-4000-8000-000000000001";
     public static final String[] DATA_FILES = {
         "transcript-20260101T000000.000000000Z-000001.sd",
-        "transcript-20260101T000000.000000000Z-000002.sd",
-        "meta-20260101T000000.000000000Z-000003.sd",
+        "changes-20260101T000000.000000000Z-000002.sd",
+        "transcript-20260101T000000.000000000Z-000003.sd",
+        "meta-20260101T000000.000000000Z-000004.sd",
     };
     public static final String CHILD_STREAM = "a0a10ef0666c4dc7e";
-    public static final String ROUND_FILE = "r000001-3ad0dcd4cd53.sf";
+    public static final String ROUND_FILE = "r000001-231f2c85948d.sf";
     public static final String VIEW_EXAMPLE_JSON = "asz-view-example.json";
+
+    public static final String WORKSPACE_CHANGES_DIR = "workspace-changes/";
+    public static final String WORKSPACE_CHANGES_SESSION = "3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3";
+    public static final String[] WORKSPACE_CHANGES_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "changes-20260101T000000.000000000Z-000002.sd",
+        "transcript-20260101T000000.000000000Z-000003.sd",
+        "changes-20260101T000000.000000000Z-000004.sd",
+        "meta-20260101T000000.000000000Z-000005.sd",
+    };
+    public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-02d62370b203.sf";
 
     private Fixtures() {
     }
@@ -57,9 +74,17 @@ public final class Fixtures {
     }
 
     public static Map<Long, SessionDataFile> dataFiles() throws IOException {
+        return dataFiles("", DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> workspaceChangesDataFiles() throws IOException {
+        return dataFiles(WORKSPACE_CHANGES_DIR, WORKSPACE_CHANGES_DATA_FILES);
+    }
+
+    private static Map<Long, SessionDataFile> dataFiles(final String dir, final String[] names) throws IOException {
         final Map<Long, SessionDataFile> out = new TreeMap<>();
-        for (final String name : DATA_FILES) {
-            final SessionDataFile f = SessionDataFile.parse(bytes(name));
+        for (final String name : names) {
+            final SessionDataFile f = SessionDataFile.parse(bytes(dir + name));
             out.put(f.getHeader().getSeq(), f);
         }
         return out;

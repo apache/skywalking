@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext;
 import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceList;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync;
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
@@ -48,7 +49,14 @@ public class TraceQueryV2 implements GraphQLQueryResolver {
         return queryService;
     }
 
+    /**
+     * The condition must contain either {@code queryDuration} or {@code traceId}: a trace ID lookup is the only query
+     * allowed to run without a time range (BanyanDB then searches everything its hot/warm stages retain).
+     */
     public CompletableFuture<TraceList> queryTraces(final TraceQueryCondition condition, boolean debug) throws IOException {
+        if (condition.getQueryDuration() == null && StringUtil.isBlank(condition.getTraceId())) {
+            throw new IllegalArgumentException("The condition must contain either queryDuration or traceId.");
+        }
         return queryAsync(() -> {
             DebuggingTraceContext traceContext = new DebuggingTraceContext(
                 "TraceQueryCondition: " + condition, debug, false);

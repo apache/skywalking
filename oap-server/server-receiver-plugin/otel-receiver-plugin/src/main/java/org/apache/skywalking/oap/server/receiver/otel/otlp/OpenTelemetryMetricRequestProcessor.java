@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.PrometheusMetricCo
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rules;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -53,11 +54,13 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -157,16 +160,25 @@ public class OpenTelemetryMetricRequestProcessor implements Service, MalConverte
                     }
                 }
 
-                ImmutableMap<String, SampleFamily> sampleFamilies = PrometheusMetricConverter.convertPromMetricToSampleFamily(
-                    request.getScopeMetricsList().stream()
-                           .flatMap(scopeMetrics -> scopeMetrics
-                               .getMetricsList().stream()
-                               .flatMap(metric -> adaptMetrics(nodeLabels, metric))
-                               .map(Function1.liftTry(Function.identity()))
-                               .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OTEL metric to prometheus metric"))
-                           )
-                );
-                converters.values().forEach(convert -> convert.toMeter(sampleFamilies));
+                // A request is analysed a minute at a time, oldest minute first. A MAL rule folds every sample of
+                // an entity into one value stamped with the first sample's time, which is right for a scrape, whose
+                // samples share one time, and wrong for a request that carries a series of minutes: a delta
+                // exporter that batches, or a sender replaying history, such as the AI Sessionizer's token metric.
+                final Map<Long, List<Metric>> byMinute = new TreeMap<>();
+                request.getScopeMetricsList().stream()
+                       .flatMap(scopeMetrics -> scopeMetrics.getMetricsList().stream())
+                       .flatMap(metric -> adaptMetrics(nodeLabels, metric))
+                       .forEach(metric -> byMinute
+                           .computeIfAbsent(TimeBucket.getMinuteTimeBucket(metric.getTimestamp()), k -> new ArrayList<>())
+                           .add(metric));
+                for (final List<Metric> minute : byMinute.values()) {
+                    final ImmutableMap<String, SampleFamily> sampleFamilies = PrometheusMetricConverter.convertPromMetricToSampleFamily(
+                        minute.stream()
+                              .map(Function1.liftTry(Function.identity()))
+                              .flatMap(tryIt -> MetricConvert.log(tryIt, "Convert OTEL metric to prometheus metric"))
+                    );
+                    converters.values().forEach(convert -> convert.toMeter(sampleFamilies));
+                }
             });
         }
     }

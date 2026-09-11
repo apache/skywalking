@@ -270,6 +270,9 @@ ai-evaluation:
 # AI_AGENT layer).
 ai-agent-conversation:
   selector: ${SW_AI_AGENT_CONVERSATION:default}
+  # Turns the feature off: neither record model is created in the storage, no query is answered and no
+  # conversation view route is registered. The GraphQL query module requires this module, so `-` can't remove it.
+  none:
   default:
     # How many Session Data files one storage read fetches; keeps a single BanyanDB response under its inbound cap.
     fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
@@ -429,7 +432,7 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-traces,otlp-metrics,otlp-logs"}
-    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,nginx/*,k8s/*,istio-controlplane,vm,process-hostmetrics-linux,mysql/*,postgresql/*,oap,aws-eks/*,windows,process-hostmetrics-windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*"}
+    enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,nginx/*,k8s/*,istio-controlplane,vm,process-hostmetrics-linux,mysql/*,postgresql/*,oap,aws-eks/*,windows,process-hostmetrics-windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*,ai-agent/*"}
 
 receiver-zipkin:
   selector: ${SW_RECEIVER_ZIPKIN:-}

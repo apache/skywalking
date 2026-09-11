@@ -81,10 +81,15 @@ services:
       SW_STORAGE_BANYANDB_RECORDS_ENABLE_COLD_STAGE: "true"
       SW_STORAGE_BANYANDB_TRACE_ENABLE_WARM_STAGE: "true"
       SW_STORAGE_BANYANDB_TRACE_ENABLE_COLD_STAGE: "true"
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_ENABLE_WARM_STAGE: "true"
+      SW_STORAGE_BANYANDB_ZIPKIN_TRACE_ENABLE_COLD_STAGE: "true"
+      SW_RECEIVER_ZIPKIN: default
+      SW_QUERY_ZIPKIN: default
     ports:
       - 12800:12800
       - 11800:11800
       - 17128:17128
+      - 9412:9412
     depends_on:
       liaison:
         condition: service_healthy
