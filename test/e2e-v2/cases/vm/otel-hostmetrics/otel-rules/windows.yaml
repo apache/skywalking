@@ -163,21 +163,12 @@ metricsRules:
 
   - name: cpu_norm_percentage
     exp: >
-      (
-        (
-          (system_cpu_time * 100)
-            .tagEqual('mode','user')
-            .sum(['node_identifier_host_name'])
-            .rate('PT1M')
-          +
-          (system_cpu_time * 100)
-            .tagEqual('mode','system')
-            .sum(['node_identifier_host_name'])
-            .rate('PT1M')
-        )
-        /
-        system_cpu_logical_count.sum(['node_identifier_host_name'])
-      )
+      (system_cpu_time * 100)
+        .tagMatch('mode','^(user|system)$')
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      /
+      system_cpu_logical_count.sum(['node_identifier_host_name'])
 
   - name: cpu_load1
     exp: system_cpu_load_average_1m.sum(['node_identifier_host_name']) * 100

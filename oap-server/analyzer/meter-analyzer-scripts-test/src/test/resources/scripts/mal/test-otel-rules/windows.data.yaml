@@ -33,8 +33,16 @@ input:
       value: 20.0
     - labels:
         node_identifier_host_name: test-host
+        mode: system
+      value: 12.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: interrupt
+      value: 8.0
+    - labels:
+        node_identifier_host_name: test-host
         mode: idle
-      value: 80.0
+      value: 60.0
   system_cpu_load_average_1m:
     - labels:
         node_identifier_host_name: test-host
@@ -110,7 +118,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 3000.0
+        value: 3500.0
   meter_win_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -217,7 +225,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 125.0
+        value: 200.0
   meter_win_cpu_load1:
     entities:
       - scope: SERVICE
@@ -291,20 +299,3 @@ expected:
       - labels:
           node_identifier_host_name: test-host
         value: 30.0
-  system_cpu_time:
-    - labels:
-        node_identifier_host_name: test-host
-        mode: user
-      value: 20.0
-    - labels:
-        node_identifier_host_name: test-host
-        mode: system
-      value: 12.0
-    - labels:
-        node_identifier_host_name: test-host
-        mode: interrupt
-      value: 8.0
-    - labels:
-        node_identifier_host_name: test-host
-        mode: idle
-      value: 60.0
