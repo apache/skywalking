@@ -1,6 +1,7 @@
 ## 11.1.0
 
 #### Project
+* Replace the GenAI e2e cases' Spring AI application with an in-repo `e2e-spring-ai-service` module pinned to the released Spring AI 2.0.1, and move the mock LLM endpoints out of `e2e-service-provider` into a dedicated `e2e-mock-llm-server` module that all three GenAI cases share. The Spring AI application was previously built at test time by cloning `spring-projects/spring-ai-examples` and running Maven inside the image build, which resolved `spring-ai:2.0.0-SNAPSHOT`: a line that has since been abandoned, whose surviving builds all predate the 2.0.0 GA by a day and whose older builds have been pruned, so the fixture was pinned to nothing released and could no longer be rebuilt from the same bytes. Both modules are built by the existing e2e reactor and published to `ghcr.io/apache/skywalking` alongside the other e2e service images; `e2e-spring-ai-service` needs Java 17 and Spring Boot 4, so it is gated behind a new `jdk-17` profile in the e2e reactor and the jobs that build it now pin JDK 17 explicitly.
 
 #### OAP Server
 * Add customizable LLM-as-judge support for AI evaluation, with OpenAI-compatible endpoint / model / API key configuration, and persist the evaluation result as queryable `GenAIEvaluationRecord` rows for later inspection.

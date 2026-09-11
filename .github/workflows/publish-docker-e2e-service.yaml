@@ -43,6 +43,12 @@ jobs:
         with:
           submodules: true
           persist-credentials: false
+      # e2e-spring-ai-service is a Spring Boot 4 / Spring AI module gated behind the reactor's
+      # jdk-17 profile; without an explicit JDK this job rides the runner image default.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
       - name: Cache local Maven repository
         uses: actions/cache@v4
         with:

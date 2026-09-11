@@ -23,7 +23,7 @@ services:
       SW_RECEIVER_ZIPKIN: default
       SW_AI_EVALUATION: default
       SW_AI_EVALUATION_SAMPLE_RATE: 1000000
-      AI_EVALUATION_ENDPOINT: http://provider:9090/llm/evaluation/v1/chat/completions
+      AI_EVALUATION_ENDPOINT: http://mock-llm-server:9090/llm/evaluation/v1/chat/completions
       AI_EVALUATION_MODEL: e2e-judge
       AI_EVALUATION_API_KEY: e2e-api-key
     volumes:
@@ -41,15 +41,12 @@ services:
     ports:
       - 17912
 
-  provider:
+  mock-llm-server:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: provider
+      service: mock-llm-server
     ports:
       - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
 
   provider-py:
     build:
@@ -60,7 +57,7 @@ services:
     ports:
       - "9091:9091"
     environment:
-      OPENAI_BASE_URL: http://provider:9090/llm/otlp/v1
+      OPENAI_BASE_URL: http://mock-llm-server:9090/llm/otlp/v1
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxx
       OTEL_TRACES_EXPORTER: otlp
       OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
@@ -68,7 +65,7 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-      provider:
+      mock-llm-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:9091/"]

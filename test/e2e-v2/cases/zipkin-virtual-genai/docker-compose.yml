@@ -35,15 +35,12 @@ services:
     ports:
       - 17912
 
-  provider:
+  mock-llm-server:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: provider
+      service: mock-llm-server
     ports:
       - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
 
   provider-py:
     build:
@@ -54,7 +51,7 @@ services:
     ports:
       - "9091:9091"
     environment:
-      OPENAI_BASE_URL: http://provider:9090/llm/otlp/v1
+      OPENAI_BASE_URL: http://mock-llm-server:9090/llm/otlp/v1
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxx
       OTEL_TRACES_EXPORTER: zipkin_json
       OTEL_EXPORTER_ZIPKIN_ENDPOINT: http://oap:9411/api/v2/spans
@@ -62,7 +59,7 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-      provider:
+      mock-llm-server:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:9091/"]

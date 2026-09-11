@@ -26,7 +26,7 @@ services:
     environment:
       SW_AI_EVALUATION: default
       SW_AI_EVALUATION_SAMPLE_RATE: 1000000
-      AI_EVALUATION_ENDPOINT: http://provider:9090/llm/evaluation/v1/chat/completions
+      AI_EVALUATION_ENDPOINT: http://mock-llm-server:9090/llm/evaluation/v1/chat/completions
       AI_EVALUATION_MODEL: e2e-judge
       AI_EVALUATION_API_KEY: e2e-api-key
     networks:
@@ -39,34 +39,31 @@ services:
     ports:
       - 17912
 
-  provider:
+  mock-llm-server:
     extends:
       file: ../../script/docker-compose/base-compose.yml
-      service: provider
+      service: mock-llm-server
     ports:
       - 9090
-    depends_on:
-      oap:
-        condition: service_healthy
 
-  spring-ai-examples:
-    build:
-      context: .
-      dockerfile: Dockerfile.provider
-      args:
-        - SW_AGENT_JDK_VERSION=17
-        - SW_AGENT_JAVA_COMMIT=${SW_AGENT_JAVA_COMMIT}
+  # Spring AI needs Java 17, so this pins the agent image's java17 tag rather than the
+  # SW_AGENT_JDK_VERSION the rest of the suite runs at.
+  spring-ai-service:
+    image: "ghcr.io/apache/skywalking-java/skywalking-java:${SW_AGENT_JAVA_COMMIT}-java17"
+    volumes:
+      - ../../java-test-service/e2e-spring-ai-service/target/e2e-spring-ai-service-2.0.0.jar:/services/app.jar
+    command: [ "java", "-jar", "/services/app.jar" ]
     ports:
       - "9260:8080"
     networks:
       - e2e
     environment:
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-      SPRING_AI_OPENAI_BASE_URL: http://provider:9090/llm/v1
+      SPRING_AI_OPENAI_BASE_URL: http://mock-llm-server:9090/llm/v1
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
       SW_LOGGING_OUTPUT: CONSOLE
       SW_AGENT_NAME: e2e-spring-ai
-      SW_AGENT_INSTANCE_NAME: spring-ai-examples
+      SW_AGENT_INSTANCE_NAME: spring-ai-service
       SW_PLUGIN_SPRINGAI_COLLECT_INPUT_MESSAGES: "true"
       SW_PLUGIN_SPRINGAI_COLLECT_OUTPUT_MESSAGES: "true"
     healthcheck:
@@ -77,7 +74,7 @@ services:
     depends_on:
       oap:
         condition: service_healthy
-      provider:
+      mock-llm-server:
         condition: service_healthy
 
 networks:
