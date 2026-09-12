@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd"
+    "digest": "befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -61,11 +61,11 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd",
+      "digest": "befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d",
       "previous": null,
       "from_seq": 1,
       "through_seq": 4,
-      "input_digest": "f49b55a09ff0a37d36f3d3b62c7584dd03caecb5f0f3ffe32fba96d8849df0a8",
+      "input_digest": "ede3d4ca2b72ada8850407ebd46585d9306fd9448a767d170465b7847d833b9f",
       "from_time": 1767225600000,
       "through_time": 1767225611100,
       "verified": true
@@ -81,8 +81,8 @@
       "stream": "main",
       "run": null,
       "lines": 18,
-      "bytes": 6076,
-      "digest": "42d5e0b19a8bbaae8d09eb8055548c20a8feac5cd2f342fa572a5bb3104e5632",
+      "bytes": 5976,
+      "digest": "667c3a32480190268901b2cf83f19087bed9bf44416dd900d0eb16cbab800580",
       "from_time": 1767225600000,
       "through_time": 1767225611100
     },
@@ -129,7 +129,7 @@
       "through_time": null
     },
     {
-      "file": "_conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-231f2c85948d.sf",
+      "file": "_conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-befb6026a577.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -137,8 +137,8 @@
       "stream": null,
       "run": null,
       "lines": 45,
-      "bytes": 10468,
-      "digest": "08eb0f1dce87e0caa81d21855d5056cf327a8fb84b4c5b09e8084fe2690f16e8",
+      "bytes": 10556,
+      "digest": "3fde4586b26d5f4ac6725b0680648df44ba9d3dc03206aa1c4442d839a9621c6",
       "from_time": 1767225600000,
       "through_time": 1767225611100
     }
@@ -363,9 +363,9 @@
                     "result_join": "exact_unique",
                     "timing": "unavailable"
                   },
-                  "text": "{\"command\":\"go generate ./... \\u0026\\u0026 make build\",\"description\":\"generate and build\"}",
+                  "text": "{\"command\":\"go generate ./... \u0026\u0026 make build\",\"description\":\"generate and build\"}",
                   "state": "available",
-                  "bytes": 90,
+                  "bytes": 80,
                   "flags": [
                     "finished"
                   ],
