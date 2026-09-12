@@ -5,7 +5,7 @@ sessions:
     - 3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3
 head:
     round: 1
-    digest: 02d62370b20302d3f7b9ca0538cc267e3333a6dd50a9f4d30aa5c05f602008d2
+    digest: 475193a5f44b74117ee7f527bb8e5f29277ef6686dfb8d0e9a07d2e69f34c0ee
 parser: v1
 policy: v1+idle=10m0s
 summary:
@@ -46,11 +46,11 @@ summary:
         strong_inference: 1
 rounds:
     - round: 1
-      digest: 02d62370b20302d3f7b9ca0538cc267e3333a6dd50a9f4d30aa5c05f602008d2
+      digest: 475193a5f44b74117ee7f527bb8e5f29277ef6686dfb8d0e9a07d2e69f34c0ee
       previous: null
       from_seq: 1
       through_seq: 5
-      input_digest: 6e7297edbce400df039f66ba90034de86eef0a2293b0baa964be19fb969c5514
+      input_digest: 1b2cfd7d2a04f4131f249a4d76622cdc0cf3dc251a15f77bce7ecf9537c771c5
       from_time: 1767225600000
       through_time: 1767225609400
       verified: true
@@ -63,8 +63,8 @@ files:
       stream: main
       run: null
       lines: 14
-      bytes: 5566
-      digest: a3a8e96debe9f8c5398c6236052716b559aff59f22c4ffc6d99484529c7227ab
+      bytes: 5470
+      digest: 52ed2a09cafa93b7c061767a987b184d9d4405385566ca5869109fedf4b28397
       from_time: 1767225600000
       through_time: 1767225609400
     - file: 3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/streams/main/changes-20260101T000000.000000000Z-000002.sd
@@ -115,7 +115,7 @@ files:
       digest: 7e430e402adabc5f885031e03ef7a106e9cb14bc0e583e64786217f25faf4ce0
       from_time: null
       through_time: null
-    - file: _conversations/3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/rounds/r000001-02d62370b203.sf
+    - file: _conversations/3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/rounds/r000001-475193a5f44b.sf
       format: sf
       kind: round
       seq: null
@@ -123,8 +123,8 @@ files:
       stream: null
       run: null
       lines: 37
-      bytes: 9035
-      digest: 7aff5cb3c40667426aa1911d552fb05b5a3777428a5680275a8f055a5f659332
+      bytes: 9123
+      digest: f1485e853a379a1cf8e7fcee2f327f2ed67192c39352ebfa61e5f31ec028f535
       from_time: 1767225600000
       through_time: 1767225609400
 streams:
@@ -264,9 +264,9 @@ talks:
                     result: available
                     result_join: exact_unique
                     timing: unavailable
-                  text: '{"command":"sed -i ''s/= 10/= 30/'' server.go \u0026\u0026 printf ''timeout: 30\\n'' \u003e config.yaml"}'
+                  text: '{"command":"sed -i ''s/= 10/= 30/'' server.go && printf ''timeout: 30\\n'' > config.yaml"}'
                   state: available
-                  bytes: 101
+                  bytes: 86
                   flags:
                     - finished
                   name: Bash
