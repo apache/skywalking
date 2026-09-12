@@ -47,9 +47,9 @@ public class SessionFormatsTest {
         assertEquals(16, main.getRecords().size());
         assertEquals(16, main.getDeclaredRecords());
         assertEquals(18, main.getLines());
-        assertEquals(6076, main.getBytes());
+        assertEquals(5976, main.getBytes());
         // the digests asz conversation -json printed for the same files
-        assertEquals("42d5e0b19a8bbaae8d09eb8055548c20a8feac5cd2f342fa572a5bb3104e5632", main.getFileDigest());
+        assertEquals("667c3a32480190268901b2cf83f19087bed9bf44416dd900d0eb16cbab800580", main.getFileDigest());
         assertEquals("b7fc207afdc51b9c48e42af8524ea7a68e5e5f3b4c76b7d37dd765e2fe8145c5", files.get(2L).getFileDigest());
         assertEquals("fa5e9bb561d0bc6168382498e805829b2820141b57117db50f4894d474c3e486", files.get(3L).getFileDigest());
         assertEquals("62f019483e4d0c0d4d0f5f296bec63fbfae663479a2a78d83b45481bd8df7185", files.get(4L).getFileDigest());
@@ -93,7 +93,7 @@ public class SessionFormatsTest {
         assertEquals(4, r.getHeader().getThroughSeq());
         assertEquals(45, r.getLines());
         assertEquals(43, r.getNodes().size() + r.getRelations().size() + r.getUnresolved().size());
-        assertEquals("231f2c85948d937902e75907c2b2f4b537c369a73e4847a6329b7a7a449b33bd", r.getCommitDigest());
+        assertEquals("befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d", r.getCommitDigest());
         assertEquals(Times.millis("2026-01-01T00:00:00Z"), Times.millis(r.getHeader().getSessionFromTime()));
     }
 
@@ -104,7 +104,7 @@ public class SessionFormatsTest {
         for (final SessionDataFile f : files.values()) {
             added.add(f.getFileDigest());
         }
-        assertEquals("f49b55a09ff0a37d36f3d3b62c7584dd03caecb5f0f3ffe32fba96d8849df0a8", Digests.chainInputDigest("", added));
+        assertEquals("ede3d4ca2b72ada8850407ebd46585d9306fd9448a767d170465b7847d833b9f", Digests.chainInputDigest("", added));
         assertEquals(Fixtures.round().getHeader().getInputDigest(), Digests.chainInputDigest("", added));
     }
 

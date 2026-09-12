@@ -47,7 +47,7 @@ public final class Fixtures {
         "meta-20260101T000000.000000000Z-000004.sd",
     };
     public static final String CHILD_STREAM = "a0a10ef0666c4dc7e";
-    public static final String ROUND_FILE = "r000001-231f2c85948d.sf";
+    public static final String ROUND_FILE = "r000001-befb6026a577.sf";
     public static final String VIEW_EXAMPLE_JSON = "asz-view-example.json";
 
     public static final String WORKSPACE_CHANGES_DIR = "workspace-changes/";
@@ -59,7 +59,7 @@ public final class Fixtures {
         "changes-20260101T000000.000000000Z-000004.sd",
         "meta-20260101T000000.000000000Z-000005.sd",
     };
-    public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-02d62370b203.sf";
+    public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-475193a5f44b.sf";
 
     private Fixtures() {
     }
