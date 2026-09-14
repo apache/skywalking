@@ -85,14 +85,16 @@ HTTP route on the same server, because its document is as large as the conversat
   most `limit` (default 1000), then folded to one row per conversation. An optional `conversation` narrows the read to
   one conversation by id, and an optional `title` keeps only the rows whose title contains the text,
   case-insensitively — matched after folding, on the newest round's title, so it never widens the rounds read.
+  On BanyanDB, `duration.coldStage: true` selects the cold stage; otherwise the query uses the default hot/warm stages.
 - `getConversationRawFiles(condition, files)` lists every landed file and round of a conversation with its id,
   digest and size; selecting `body` returns the files verbatim, which is the export path. The optional `files`
-  argument narrows the read to named files.
+  argument narrows the read to named files. On BanyanDB, `condition.coldStage: true` selects the cold stage,
+  defaulting to the hot/warm stages when omitted or false.
 
 ### The conversation view route
 
 ```
-GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}[&instance={instanceName}]
+GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}[&instance={instanceName}][&coldStage=true]
 ```
 
 It answers with the whole conversation, once, as one `asz.view` version 1.0 document, the document the
@@ -115,6 +117,7 @@ and nothing is cached.
 |---|---|
 | `service` / `serviceId` | the service by name, or by id; one of them is required |
 | `instance` | optional, the sender's instance name from the list row; with it, every storage read is a full series lookup |
+| `coldStage` | optional, false by default. On BanyanDB, true selects only the cold stage; otherwise the read uses the default hot/warm stages. The UI passes its selected stage when opening a conversation. Other storages ignore it. |
 | `Accept` | `application/vnd.skywalking.asz.view+yaml`, or any type naming `yaml`, for YAML; anything else, JSON, as `asz conversation -json` prints it |
 | `Content-Type` | names the document and its version, the HTTP way: `application/vnd.skywalking.asz.view+json; version=1.0` or `application/vnd.skywalking.asz.view+yaml; version=1.0`. The document's own first two keys, `format` and `version`, say the same |
 | `Accept-Encoding` | the body is compressed when the client allows; a document is repetitive text and shrinks several times over |
@@ -205,9 +208,10 @@ dropped for want of a record worker; drop `ai-agent` from `SW_LOG_LAL_FILES` as 
   with up to `maxResponseBytes`, 100 MiB by default, as a call option on the shared client in place of its 50 MB
   default, which every other read keeps; the window times `maxFileBytes` must stay under it. Elasticsearch answers
   at most 10,000 hits to one search.
-- A read that is not bound to a duration, the view and the export, covers every retained stage: on BanyanDB the
-  default stages and, when the group keeps one, the cold stage. A conversation the list found in cold storage
-  is served, and one that spans stages is served whole.
+- The view and the export read over the retention window of the caller's selected stages. On BanyanDB, the
+  default is hot/warm; cold is queried only when the caller explicitly sets `coldStage: true`. Every round and
+  file read uses that same selection. A conversation spanning stages can therefore report missing rounds or
+  files that are outside the selected stages.
 - When the caller names no sender, the view and the export read across every sender of the service and keep one
   copy of a file or round two senders both pushed, so a Sessionizer renamed between pushes still yields the
   whole conversation.

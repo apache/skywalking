@@ -27,4 +27,5 @@ public class ConversationCondition {
     private ServiceCondition service;
     private String conversation;
     private InstanceCondition instance;
+    private boolean coldStage;
 }
