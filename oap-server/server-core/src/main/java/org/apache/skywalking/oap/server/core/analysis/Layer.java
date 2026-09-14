@@ -284,8 +284,8 @@ public final class Layer {
     public static final Layer VIRTUAL_GENAI = register("VIRTUAL_GENAI", 45, false);
 
     /**
-     * Envoy AI Gateway is an AI/LLM traffic gateway built on Envoy Proxy,
-     * providing observability for GenAI API traffic.
+     * Agent Router, formerly Envoy AI Gateway, is an AI/LLM traffic gateway built on Envoy Proxy,
+     * providing observability for GenAI API traffic. The layer name predates the rename and is kept.
      */
     public static final Layer ENVOY_AI_GATEWAY = register("ENVOY_AI_GATEWAY", 46, true);
 

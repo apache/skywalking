@@ -29,6 +29,7 @@
 
 #### Documentation
 * Document the BanyanDB trace tail sampling metrics in the BanyanDB self-observability dashboard catalog, and point the "Operating it" section of the trace tail sampling guide at them — the OAP-collected metrics show what the sampler plugins *proposed* next to what storage *committed*, which the data node's raw metrics endpoint alone does not.
+* Rename Envoy AI Gateway to Agent Router in the monitoring docs, following the project's move to the Agentic AI Foundation. Only the prose changes: the `ENVOY_AI_GATEWAY` layer, the `job_name=envoy-ai-gateway` routing tag, the `envoy-ai-gateway` rule files and the `meter_envoy_ai_gw_` metric names are kept, as Agent Router itself kept its deployed names and the telemetry it emits.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.1.0)
