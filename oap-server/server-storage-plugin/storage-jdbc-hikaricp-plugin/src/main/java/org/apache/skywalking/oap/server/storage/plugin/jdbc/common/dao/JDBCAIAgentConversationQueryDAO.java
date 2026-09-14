@@ -142,7 +142,7 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
     @Override
     @SneakyThrows
     public long queryHeadRound(final String serviceId, @Nullable final String serviceInstanceId,
-                               final String conversation) {
+                               final String conversation, final boolean coldStage) {
         long head = 0;
         for (final String table : tableHelper.getTablesWithinTTL(AIAgentSessionFlowRecord.INDEX_NAME)) {
             final StringBuilder sql = new StringBuilder("select ");
@@ -179,7 +179,8 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
                                                               final String conversation,
                                                               final long fromRound,
                                                               final long throughRound,
-                                                              final int maxResponseBytes) {
+                                                              final int maxResponseBytes,
+                                                              final boolean coldStage) {
         final List<String> columns = new ArrayList<>(ROUND_COLUMNS);
         columns.add(AIAgentSessionFlowRecord.BODY);
         final List<AIAgentSessionFlowRecord> rounds = new ArrayList<>();
@@ -225,7 +226,8 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
                                                      final long toTimestamp,
                                                      final long fromSeq,
                                                      final long throughSeq,
-                                                     final int maxResponseBytes) {
+                                                     final int maxResponseBytes,
+                                                     final boolean coldStage) {
         final List<String> tables = tableHelper.getTablesForRead(
             AIAgentSessionDataRecord.INDEX_NAME,
             TimeBucket.getTimeBucket(fromTimestamp, DownSampling.Day),

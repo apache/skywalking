@@ -53,8 +53,8 @@ public class NoneAIAgentConversationProviderTest {
                           .getConversations()
                           .isEmpty());
         assertNotNull(service.listConversations("1", null, null, null, new Duration(), null).getErrorReason());
-        assertNull(service.buildConversationView("1", null, "c"));
-        assertTrue(service.getConversationRawFiles("1", null, "c", Collections.emptyList(), true)
+        assertNull(service.buildConversationView("1", null, "c", false));
+        assertTrue(service.getConversationRawFiles("1", null, "c", Collections.emptyList(), true, false)
                           .getFiles()
                           .isEmpty());
     }

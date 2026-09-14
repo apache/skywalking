@@ -62,6 +62,8 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -77,6 +79,7 @@ public class ConversationViewHandlerTest {
     private static final String SERVICE_ID = IDManager.ServiceID.buildId(SERVICE, true);
     private static final Map<String, Object> DOC = fixtureDocument();
     private static final AtomicReference<String> LAST_INSTANCE_ID = new AtomicReference<>();
+    private static final AtomicReference<Boolean> LAST_COLD_STAGE = new AtomicReference<>();
 
     private static final IConversationQueryService STUB = new IConversationQueryService() {
         @Override
@@ -90,8 +93,10 @@ public class ConversationViewHandlerTest {
         @Nullable
         public Map<String, Object> buildConversationView(final String serviceId,
                                                          @Nullable final String serviceInstanceId,
-                                                         final String conversation) throws IOException {
+                                                         final String conversation,
+                                                         final boolean coldStage) throws IOException {
             LAST_INSTANCE_ID.set(serviceInstanceId);
+            LAST_COLD_STAGE.set(coldStage);
             if ("broken".equals(conversation)) {
                 throw new IOException("storage is down");
             }
@@ -103,7 +108,8 @@ public class ConversationViewHandlerTest {
                                                             @Nullable final String serviceInstanceId,
                                                             final String conversation,
                                                             @Nullable final List<String> files,
-                                                            final boolean includeBody) {
+                                                            final boolean includeBody,
+                                                            final boolean coldStage) {
             throw new UnsupportedOperationException();
         }
     };
@@ -236,6 +242,14 @@ public class ConversationViewHandlerTest {
     public void theInstanceParameterNamesTheSender() {
         get(path(Fixtures.SESSION) + "&instance=sender-1");
         assertEquals(IDManager.ServiceInstanceID.buildId(SERVICE_ID, "sender-1"), LAST_INSTANCE_ID.get());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"'', false", "&coldStage=false, false", "&coldStage=true, true"})
+    public void coldStageRequiresAnExplicitRequest(final String parameter, final boolean expectedColdStage) {
+        LAST_COLD_STAGE.set(null);
+        assertEquals(200, get(path(Fixtures.SESSION) + parameter).status().code());
+        assertEquals(expectedColdStage, LAST_COLD_STAGE.get());
     }
 
     @Test

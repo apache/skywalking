@@ -33,15 +33,14 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IAIAgentConversationQueryDAO;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 
 /**
  * Both reads are series lookups: the rounds by <code>(service, instance)</code> with <code>conversation</code> as an
  * indexed tag, the files by <code>(service, instance, session)</code> with a range on the indexed <code>seq</code>.
  * A missing instance is a partial series match, the way the log query works by service alone.
  *
- * <p>A read that is not bound to a duration covers every retained stage: the default stages and, when the group
- * has one, the cold stage, in two queries merged here. The list page alone follows its duration's stage.
+ * <p>Each read targets either the default stages or the explicitly selected cold stage. A duration-free round
+ * query uses the default stages.
  */
 public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO implements IAIAgentConversationQueryDAO {
     private static final Set<String> ROUND_TAGS = ImmutableSet.of(
@@ -105,14 +104,10 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         }
         where.orderByDesc().limit(limit);
         final Set<String> tags = includeBody ? ROUND_TAGS_WITH_BODY : ROUND_TAGS;
-        final List<? extends RowEntity> rows;
-        if (duration == null) {
-            rows = everyStage(AIAgentSessionFlowRecord.INDEX_NAME, tags, everythingRetained(), where, 0);
-        } else {
-            rows = queryDebuggable(
-                duration.isColdStage(), AIAgentSessionFlowRecord.INDEX_NAME, tags, getTimestampRange(duration), where
-            ).getElements();
-        }
+        final List<? extends RowEntity> rows = queryDebuggable(
+            duration != null && duration.isColdStage(), AIAgentSessionFlowRecord.INDEX_NAME, tags,
+            duration == null ? everythingRetained() : getTimestampRange(duration), where
+        ).getElements();
         final List<AIAgentSessionFlowRecord> rounds = rounds(rows, includeBody);
         rounds.sort((a, b) -> Long.compare(b.getTimestamp(), a.getTimestamp()));
         return rounds.size() > limit ? new ArrayList<>(rounds.subList(0, limit)) : rounds;
@@ -120,7 +115,7 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
 
     @Override
     public long queryHeadRound(final String serviceId, @Nullable final String serviceInstanceId,
-                               final String conversation) throws IOException {
+                               final String conversation, final boolean coldStage) throws IOException {
         final Conditions where = Conditions.create();
         where.eq(AIAgentSessionFlowRecord.SERVICE_ID, serviceId);
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
@@ -129,9 +124,9 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         where.eq(AIAgentSessionFlowRecord.CONVERSATION, conversation);
         where.orderByDesc(AIAgentSessionFlowRecord.ROUND).limit(1);
         long head = 0;
-        for (final RowEntity row : everyStage(
-            AIAgentSessionFlowRecord.INDEX_NAME, ImmutableSet.of(AIAgentSessionFlowRecord.ROUND), everythingRetained(),
-            where, 0)) {
+        for (final RowEntity row : queryDebuggable(
+            coldStage, AIAgentSessionFlowRecord.INDEX_NAME, ImmutableSet.of(AIAgentSessionFlowRecord.ROUND),
+            everythingRetained(), where).getElements()) {
             head = Math.max(head, longOf(row.getTagValue(AIAgentSessionFlowRecord.ROUND)));
         }
         return head;
@@ -143,7 +138,8 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
                                                               final String conversation,
                                                               final long fromRound,
                                                               final long throughRound,
-                                                              final int maxResponseBytes) throws IOException {
+                                                              final int maxResponseBytes,
+                                                              final boolean coldStage) throws IOException {
         final Conditions where = Conditions.create();
         where.eq(AIAgentSessionFlowRecord.SERVICE_ID, serviceId);
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
@@ -155,8 +151,8 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         // every row of the window, up to the client's result window: a round two senders both pushed is there twice
         where.orderByAsc();
         final List<AIAgentSessionFlowRecord> rounds = rounds(
-            everyStage(AIAgentSessionFlowRecord.INDEX_NAME, ROUND_TAGS_WITH_BODY, everythingRetained(), where,
-                       maxResponseBytes), true);
+            queryDebuggable(coldStage, AIAgentSessionFlowRecord.INDEX_NAME, ROUND_TAGS_WITH_BODY, everythingRetained(),
+                            where, maxResponseBytes).getElements(), true);
         rounds.sort((a, b) -> Long.compare(a.getRound(), b.getRound()));
         return rounds;
     }
@@ -202,7 +198,8 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
                                                      final long toTimestamp,
                                                      final long fromSeq,
                                                      final long throughSeq,
-                                                     final int maxResponseBytes) throws IOException {
+                                                     final int maxResponseBytes,
+                                                     final boolean coldStage) throws IOException {
         final Conditions where = Conditions.create();
         where.eq(AIAgentSessionDataRecord.SERVICE_ID, serviceId);
         if (StringUtil.isNotEmpty(serviceInstanceId)) {
@@ -212,9 +209,9 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         where.gte(AIAgentSessionDataRecord.SEQ, fromSeq);
         where.lte(AIAgentSessionDataRecord.SEQ, throughSeq);
         where.orderByAsc();
-        final List<? extends RowEntity> rows = everyStage(
-            AIAgentSessionDataRecord.INDEX_NAME, FILE_TAGS,
-            new TimestampRange(Math.max(0, fromTimestamp - 1), toTimestamp + 1), where, maxResponseBytes);
+        final List<? extends RowEntity> rows = queryDebuggable(
+            coldStage, AIAgentSessionDataRecord.INDEX_NAME, FILE_TAGS,
+            new TimestampRange(Math.max(0, fromTimestamp - 1), toTimestamp + 1), where, maxResponseBytes).getElements();
         final List<AIAgentSessionDataRecord> files = new ArrayList<>(rows.size());
         for (final RowEntity row : rows) {
             final AIAgentSessionDataRecord record = new AIAgentSessionDataRecord();
@@ -244,20 +241,5 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
 
     private static TimestampRange everythingRetained() {
         return new TimestampRange(0, System.currentTimeMillis() + CLOCK_SKEW_MILLIS);
-    }
-
-    /**
-     * The rows of the default stages and, when the group keeps one, of the cold stage: a conversation can span
-     * the two, and its list row may come from either.
-     */
-    private List<? extends RowEntity> everyStage(final String model, final Set<String> tags, final TimestampRange range,
-                                       final Conditions where, final int maxResponseBytes) throws IOException {
-        final List<RowEntity> rows = new ArrayList<>(
-            queryDebuggable(false, model, tags, range, where, maxResponseBytes).getElements());
-        final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findRecordMetadata(model);
-        if (schema != null && schema.getMetadata().getResource().isEnableColdStage()) {
-            rows.addAll(queryDebuggable(true, model, tags, range, where, maxResponseBytes).getElements());
-        }
-        return rows;
     }
 }
