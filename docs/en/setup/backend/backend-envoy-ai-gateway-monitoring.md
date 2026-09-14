@@ -1,23 +1,35 @@
-# Envoy AI Gateway Monitoring
+# Agent Router (formerly Envoy AI Gateway) Monitoring
 
-## Envoy AI Gateway observability via OTLP
+## Agent Router observability via OTLP
 
-[Envoy AI Gateway](https://aigateway.envoyproxy.io/) is a gateway/proxy for AI/LLM API traffic
-(OpenAI, Anthropic, AWS Bedrock, Azure OpenAI, Google Gemini, etc.) built on top of Envoy Proxy.
+[Agent Router](https://theagentrouter.ai/), formerly Envoy AI Gateway, is a gateway/proxy for AI/LLM API traffic
+(OpenAI, Anthropic, AWS Bedrock, Azure OpenAI, Google Gemini, etc.) built on top of Envoy Proxy and Envoy Gateway.
 It natively emits GenAI metrics following
 [OpenTelemetry GenAI Semantic Conventions](https://opentelemetry.io/docs/specs/semconv/gen-ai/),
 and also emits MCP (Model Context Protocol) metrics and access logs via OTLP.
 
 SkyWalking receives OTLP metrics and logs directly on its gRPC port (11800) — no OpenTelemetry
-Collector is needed between the AI Gateway and SkyWalking OAP.
+Collector is needed between Agent Router and SkyWalking OAP.
+
+### Names kept from Envoy AI Gateway
+
+This integration was built while the project was named Envoy AI Gateway. The rename changed only the product name:
+Agent Router kept the names you deploy (the `aigateway.envoyproxy.io` API group, the `aigw` CLI) and emits the same
+telemetry. SkyWalking keeps its names unchanged in the same way, so existing gateway deployments, stored data,
+dashboards and alarm rules keep working:
+
+- the layer `ENVOY_AI_GATEWAY`
+- the routing tag `job_name=envoy-ai-gateway`
+- the rule files `otel-rules/envoy-ai-gateway/*` and `lal/envoy-ai-gateway.yaml`
+- the metric names prefixed with `meter_envoy_ai_gw_`
 
 ### Prerequisites
-- [Envoy AI Gateway](https://aigateway.envoyproxy.io/) deployed. See the
-  [Envoy AI Gateway getting started](https://aigateway.envoyproxy.io/docs/getting-started/) for installation.
+- [Agent Router](https://theagentrouter.ai/) deployed. See the
+  [Agent Router getting started](https://theagentrouter.ai/docs/getting-started/) for installation.
 
 ### Data flow
-1. Envoy AI Gateway processes LLM API requests and MCP requests, recording GenAI metrics and MCP metrics.
-2. The AI Gateway pushes metrics and access logs via OTLP gRPC to SkyWalking OAP.
+1. Agent Router processes LLM API requests and MCP requests, recording GenAI metrics and MCP metrics.
+2. Agent Router pushes metrics and access logs via OTLP gRPC to SkyWalking OAP.
 3. SkyWalking OAP parses metrics with [MAL](../../concepts-and-designs/mal.md) rules and access logs
    with [LAL](../../concepts-and-designs/lal.md) rules.
 
@@ -26,7 +38,7 @@ Collector is needed between the AI Gateway and SkyWalking OAP.
 The MAL rules (`envoy-ai-gateway/*`) and LAL rules (`envoy-ai-gateway`) are enabled by default
 in SkyWalking OAP. No OAP-side configuration is needed.
 
-Configure the AI Gateway to push OTLP to SkyWalking by setting these environment variables:
+Configure Agent Router to push OTLP to SkyWalking by setting these environment variables:
 
 | Env Var                       | Value                                               | Purpose                      |
 |-------------------------------|-----------------------------------------------------|------------------------------|
@@ -38,9 +50,9 @@ Configure the AI Gateway to push OTLP to SkyWalking by setting these environment
 | `OTEL_RESOURCE_ATTRIBUTES`    | See below                                           | Routing + instance + layer   |
 
 **Required resource attributes** (in `OTEL_RESOURCE_ATTRIBUTES`):
-- `job_name=envoy-ai-gateway` — Fixed routing tag for MAL/LAL rules. Same for all AI Gateway deployments.
+- `job_name=envoy-ai-gateway` — Fixed routing tag for MAL/LAL rules. Same for all Agent Router deployments.
 - `service.instance.id=<instance-id>` — Instance identity. In Kubernetes, use the pod name via Downward API.
-- `service.layer=ENVOY_AI_GATEWAY` — Routes access logs to the AI Gateway LAL rules.
+- `service.layer=ENVOY_AI_GATEWAY` — Routes access logs to the Agent Router LAL rules.
 
 **Example:**
 ```bash
@@ -54,7 +66,7 @@ OTEL_RESOURCE_ATTRIBUTES=job_name=envoy-ai-gateway,service.instance.id=pod-abc12
 
 ### Supported Metrics
 
-SkyWalking observes the AI Gateway as a `LAYER: ENVOY_AI_GATEWAY` service. Each gateway deployment
+SkyWalking observes Agent Router as a `LAYER: ENVOY_AI_GATEWAY` service. Each gateway deployment
 is a service, each pod is an instance. Metrics include per-provider and per-model breakdowns.
 
 #### Service Metrics
@@ -96,7 +108,7 @@ including per-provider and per-model breakdowns.
 
 ### MCP Metrics
 
-When the AI Gateway is configured with MCP (Model Context Protocol) routes, SkyWalking collects
+When Agent Router is configured with MCP (Model Context Protocol) routes, SkyWalking collects
 MCP-specific metrics. These appear in the **MCP** tab on the service and instance dashboards.
 
 #### MCP Service Metrics
