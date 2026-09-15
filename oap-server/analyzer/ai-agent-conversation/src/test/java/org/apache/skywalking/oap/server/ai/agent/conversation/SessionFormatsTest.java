@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -131,20 +130,10 @@ public class SessionFormatsTest {
         assertEquals("_conversations/" + Fixtures.SESSION + "/rounds/" + Fixtures.ROUND_FILE,
                      FileNames.roundFile(r.getHeader().getConversation(), 1, r.getCommitDigest()));
 
-        final FileNames.Parsed data = FileNames.parse(Fixtures.SESSION + "/streams/main/" + Fixtures.DATA_FILES[0]);
-        assertNotNull(data);
-        assertTrue(data.isDataFile());
-        assertEquals(Fixtures.SESSION, data.getSession());
-        assertEquals(1, data.getSeq());
-        final FileNames.Parsed changes = FileNames.parse(Fixtures.SESSION + "/streams/main/" + Fixtures.DATA_FILES[1]);
-        assertNotNull(changes);
-        assertTrue(changes.isDataFile());
-        assertEquals(2, changes.getSeq());
-        final FileNames.Parsed round = FileNames.parse("_conversations/" + Fixtures.SESSION + "/rounds/" + Fixtures.ROUND_FILE);
-        assertNotNull(round);
-        assertFalse(round.isDataFile());
-        assertEquals(1, round.getRound());
-        assertNull(FileNames.parse("not/a/file"));
+        // the provider bodies of a session share one directory, beside its streams
+        final Map<Long, SessionDataFile> provider = Fixtures.providerBodiesDataFiles();
+        assertEquals(Fixtures.PROVIDER_BODIES_SESSION + "/provider_body/" + Fixtures.PROVIDER_BODIES_DATA_FILES[3],
+                     FileNames.dataFile(provider.get(4L).getHeader()));
     }
 
     @Test

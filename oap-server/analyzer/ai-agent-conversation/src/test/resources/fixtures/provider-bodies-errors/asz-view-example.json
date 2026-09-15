@@ -1,0 +1,396 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "f41b7a16-49fa-44ea-8ef6-bb39db57ab1d",
+  "sessions": [
+    "f41b7a16-49fa-44ea-8ef6-bb39db57ab1d"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "0a33a0c2d269a8b66804075c0eb46e0546187e9a9f45d8eca10486bbcb040699"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "an error between two calls",
+    "state": "verified",
+    "problems": [],
+    "talks": 1,
+    "steps": 7,
+    "streams": 1,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 0,
+    "provider_bodies": 4,
+    "captured_prompts": 2,
+    "from": 1767225600000,
+    "to": 1767225603000,
+    "kinds": {
+      "epoch": 1,
+      "llm.call": 3,
+      "message.assistant": 2,
+      "message.external": 1,
+      "message.synthetic": 1,
+      "run": 1,
+      "segment": 1,
+      "session": 1,
+      "stream": 1,
+      "talk": 1
+    },
+    "relation_types": {
+      "in_segment": 1
+    },
+    "quality": {
+      "exact_unique": 1
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "0a33a0c2d269a8b66804075c0eb46e0546187e9a9f45d8eca10486bbcb040699",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 2,
+      "input_digest": "950a569a9d180b4b09b44f954d6cbfe8e1a85a717f285edd7f4f437440bb2778",
+      "from_time": 1767225600000,
+      "through_time": 1767225603000,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "f41b7a16-49fa-44ea-8ef6-bb39db57ab1d/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 7,
+      "bytes": 1896,
+      "digest": "90d0142cc915362f13328f96cc51b818ef116e7f977b9ef2e3e9165f7c999efa",
+      "from_time": 1767225600000,
+      "through_time": 1767225603000
+    },
+    {
+      "file": "f41b7a16-49fa-44ea-8ef6-bb39db57ab1d/provider_body/provider_body-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "provider_body",
+      "seq": 2,
+      "round": null,
+      "stream": null,
+      "run": null,
+      "lines": 6,
+      "bytes": 12454,
+      "digest": "bb4e2514f2da98c009ce6fcf716c82b091582929800c98c76de6ec18b0434ec4",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/f41b7a16-49fa-44ea-8ef6-bb39db57ab1d/rounds/r000001-0a33a0c2d269.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 16,
+      "bytes": 3840,
+      "digest": "078b6f3f50c11dbbc522d8246fd12c561276a95e66ce7102eb9bead4ce26ae23",
+      "from_time": 1767225600000,
+      "through_time": 1767225603000
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 5,
+      "steps": 7,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_2",
+      "state": "open",
+      "committable": false,
+      "talks": 1,
+      "from": 1767225600000,
+      "to": 1767225603000
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 2
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "external"
+      },
+      "label": "summarise the file",
+      "reply": "It is a configuration file.",
+      "runs": 1,
+      "steps": 7,
+      "from": 1767225600000,
+      "to": 1767225603000,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 2
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/1/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "summarise the file",
+              "state": "available",
+              "bytes": 18,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s2-call-f7d240c7da38",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 3
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 3,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 1
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 2
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/3:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s2-call-f7d240c7da38",
+                  "stream": "main",
+                  "at": 1767225601000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "text": "Reading it.",
+                  "state": "available",
+                  "bytes": 11,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s3-synthetic-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225602000,
+              "ref": {
+                "seq": 1,
+                "row": 4
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 4
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "stop_reason": "unavailable",
+                "usage": "unavailable",
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "children": [
+                {
+                  "id": "msg/1/4:0",
+                  "kind": "message.synthetic",
+                  "parent": "call/s3-synthetic-call",
+                  "stream": "main",
+                  "at": 1767225602000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 4,
+                    "block": 0
+                  },
+                  "text": "API Error: 529 overloaded",
+                  "state": "available",
+                  "bytes": 25,
+                  "flags": [
+                    "synthetic"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s4-call-f7d240c7da38",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225603000,
+              "ref": {
+                "seq": 1,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 5,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 3
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 4
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/5:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s4-call-f7d240c7da38",
+                  "stream": "main",
+                  "at": 1767225603000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 5,
+                    "block": 0
+                  },
+                  "text": "It is a configuration file.",
+                  "state": "available",
+                  "bytes": 27,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": []
+}

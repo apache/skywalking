@@ -19,17 +19,17 @@
 package org.apache.skywalking.oap.server.ai.agent.conversation.query;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
+import java.util.function.BooleanSupplier;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFiles;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * The two GraphQL operations of <code>ai-agent-conversation.graphqls</code> and the document behind the
- * conversation view route.
+ * The GraphQL list of <code>ai-agent-conversation.graphqls</code>, and what the two HTTP routes serve: the
+ * conversation's <code>asz.view</code> document, and its chosen stored files.
  */
 public interface IConversationQueryService extends Service {
     /**
@@ -52,29 +52,43 @@ public interface IConversationQueryService extends Service {
      * The whole conversation, once, as one <code>asz.view</code> document, built on every call.
      *
      * @param serviceId         the service
-     * @param serviceInstanceId the sender, or null
+     * @param serviceInstanceId the sender
      * @param conversation      the conversation
      * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
-     * @return the document as ordered maps, or null when the service stores no round of the conversation
+     * @return the document as ordered maps, or null when the sender stores no round of the conversation
      * @throws IOException on a storage failure
      */
     @Nullable
     Map<String, Object> buildConversationView(String serviceId, @Nullable String serviceInstanceId,
-                                              String conversation, boolean coldStage) throws IOException;
+                                              String conversation, boolean coldStage, BooleanSupplier alive) throws IOException;
 
     /**
-     * Every landed file and round of a conversation as stored, or only the named ones.
+     * The chosen Session Data files of a conversation's session, as stored, handed to the sink one by one as they
+     * are read, one storage window at a time. A file is chosen by its landed seq, which the Sessionizer assigns once
+     * per file in a session. The files come in seq order, which is the order a reader of provider bodies must add
+     * them in. A seq no stored file answers is left out.
      *
      * @param serviceId         the service
-     * @param serviceInstanceId the sender, or null
-     * @param conversation      the conversation
-     * @param files             only these file ids, or null for every file
-     * @param includeBody       whether the caller selected the body field
+     * @param serviceInstanceId the sender
+     * @param conversation      the conversation, whose rounds give the time range the files are read over
+     * @param session           the session the seqs belong to
+     * @param seqs              the landed seqs
      * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
-     * @return the files
-     * @throws IOException on a storage failure
+     * @param sink              takes each file as it is read
+     * @return false when the sender stores no round of the conversation, before the sink is called
+     * @throws IOException on a storage failure, or when the sink fails
      */
-    ConversationRawFiles getConversationRawFiles(String serviceId, @Nullable String serviceInstanceId,
-                                                 String conversation, @Nullable List<String> files,
-                                                 boolean includeBody, boolean coldStage) throws IOException;
+    boolean readConversationFiles(String serviceId, String serviceInstanceId, String conversation, String session,
+                                  Collection<Long> seqs, boolean coldStage, BooleanSupplier alive, FileSink sink) throws IOException;
+
+    /**
+     * Takes the stored files of {@link #readConversationFiles} as they are read.
+     */
+    interface FileSink {
+        /**
+         * @param file one stored file
+         * @throws IOException when the file cannot be passed on, such as when the client went away
+         */
+        void accept(ConversationFile file) throws IOException;
+    }
 }
