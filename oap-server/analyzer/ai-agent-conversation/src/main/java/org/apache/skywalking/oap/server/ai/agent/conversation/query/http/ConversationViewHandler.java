@@ -28,6 +28,7 @@ import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.common.util.TimeoutMode;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.annotation.Decorator;
+import com.linecorp.armeria.server.annotation.Default;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Header;
 import com.linecorp.armeria.server.annotation.Param;
@@ -55,7 +56,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * the client allows, and given its own request timeout in place of the server's default.
  *
  * <p>Query parameters: <code>service</code>, the service name, or <code>serviceId</code>; optionally
- * <code>instance</code>, the sender's instance name. What the body is, the HTTP layer says: the media type
+ * <code>instance</code>, the sender's instance name, and <code>coldStage</code>, false by default, to query
+ * BanyanDB's cold stage. What the body is, the HTTP layer says: the media type
  * names the document format and its version, <code>application/vnd.skywalking.asz.view+json; version=1.0</code>, or the
  * <code>+yaml</code> twin when <code>Accept</code> asks for YAML. The document's own first two keys repeat it.
  *
@@ -91,6 +93,7 @@ public class ConversationViewHandler {
                              @Param("service") @Nullable final String serviceName,
                              @Param("serviceId") @Nullable final String serviceIdParam,
                              @Param("instance") @Nullable final String instanceName,
+                             @Param("coldStage") @Default("false") final boolean coldStage,
                              @Header("Accept") @Nullable final String accept) {
         final String serviceId;
         if (StringUtil.isNotEmpty(serviceIdParam)) {
@@ -106,15 +109,15 @@ public class ConversationViewHandler {
 
         ctx.setRequestTimeout(TimeoutMode.SET_FROM_NOW, timeout);
         final HttpResponseWriter res = HttpResponse.streaming();
-        ctx.blockingTaskExecutor().execute(() -> stream(res, serviceId, instanceId, conversation, yaml));
+        ctx.blockingTaskExecutor().execute(() -> stream(res, serviceId, instanceId, conversation, yaml, coldStage));
         return res;
     }
 
     private void stream(final HttpResponseWriter res, final String serviceId, @Nullable final String instanceId,
-                        final String conversation, final boolean yaml) {
+                        final String conversation, final boolean yaml, final boolean coldStage) {
         final Map<String, Object> doc;
         try {
-            doc = service.buildConversationView(serviceId, instanceId, conversation);
+            doc = service.buildConversationView(serviceId, instanceId, conversation, coldStage);
         } catch (final Exception e) {
             // a storage client can surface a checked failure it never declared; whatever it is, the response
             // must say so, or the caller waits for the request timeout

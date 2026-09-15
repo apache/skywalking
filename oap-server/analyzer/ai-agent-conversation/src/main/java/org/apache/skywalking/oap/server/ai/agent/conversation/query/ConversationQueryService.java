@@ -56,8 +56,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * The read side. A conversation is read in two storage passes and never a read per file: its rounds by
  * <code>conversation</code> over the whole retention window, then, for each session the head round names, the
  * files by series id over the range the head round carries, in seq windows that keep one storage response under
- * the BanyanDB client's inbound cap. The fold, the chain check and the view are built once per head digest and
- * cached.
+ * the BanyanDB client's inbound cap. The fold, the chain check and the view are built on every call, using
+ * only the storage stages the caller selected.
  */
 @Slf4j
 public class ConversationQueryService implements IConversationQueryService {
@@ -153,13 +153,11 @@ public class ConversationQueryService implements IConversationQueryService {
     @Nullable
     public Map<String, Object> buildConversationView(final String serviceId,
                                                      @Nullable final String serviceInstanceId,
-                                                     final String conversation) throws IOException {
-        final List<AIAgentSessionFlowRecord> heads =
-            dao().queryRoundsDebuggable(serviceId, serviceInstanceId, conversation, null, 1, false);
-        if (heads.isEmpty()) {
+                                                     final String conversation, final boolean coldStage) throws IOException {
+        final Chain chain = readChain(serviceId, serviceInstanceId, conversation, coldStage);
+        if (chain.roundInputs.isEmpty()) {
             return null;
         }
-        final Chain chain = readChain(serviceId, serviceInstanceId, conversation);
         return new ConversationViewBuilder(chain.fold, chain.roundInputs, chain.files, chain.problems).build();
     }
 
@@ -168,7 +166,7 @@ public class ConversationQueryService implements IConversationQueryService {
                                                         @Nullable final String serviceInstanceId,
                                                         final String conversation,
                                                         @Nullable final List<String> files,
-                                                        final boolean includeBody) throws IOException {
+                                                        final boolean includeBody, final boolean coldStage) throws IOException {
         final Set<FileNames.Parsed> wanted = new LinkedHashSet<>();
         if (files != null) {
             for (final String id : files) {
@@ -178,7 +176,7 @@ public class ConversationQueryService implements IConversationQueryService {
                 }
             }
         }
-        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation);
+        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation, coldStage);
         final ConversationRawFiles out = new ConversationRawFiles();
         if (rounds.isEmpty()) {
             out.setErrorReason("no round of conversation " + conversation + " is stored for this service");
@@ -227,7 +225,7 @@ public class ConversationQueryService implements IConversationQueryService {
                 : seqs.stream().mapToLong(Long::longValue).max().orElse(0);
             final long fromSeq = all ? 1 : seqs.stream().mapToLong(Long::longValue).min().orElse(1);
             final Set<Long> seen = new HashSet<>();
-            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, fromSeq, throughSeq)) {
+            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, fromSeq, throughSeq, coldStage)) {
                 if (!all && !seqs.contains(f.getSeq()) || !seen.add(f.getSeq())) {
                     continue;
                 }
@@ -301,8 +299,8 @@ public class ConversationQueryService implements IConversationQueryService {
      * senders or by a redelivery, is kept once, the first copy.
      */
     private List<AIAgentSessionFlowRecord> readRounds(final String serviceId, @Nullable final String instance,
-                                                      final String conversation) throws IOException {
-        final long headRound = dao().queryHeadRoundDebuggable(serviceId, instance, conversation);
+                                                      final String conversation, final boolean coldStage) throws IOException {
+        final long headRound = dao().queryHeadRoundDebuggable(serviceId, instance, conversation, coldStage);
         if (headRound == 0) {
             return new ArrayList<>();
         }
@@ -311,7 +309,7 @@ public class ConversationQueryService implements IConversationQueryService {
         for (long start = 1; start <= headRound; start += window) {
             final long end = Math.min(headRound, start + window - 1);
             for (final AIAgentSessionFlowRecord r : dao().queryRoundsByNumberDebuggable(
-                serviceId, instance, conversation, start, end, config.getMaxResponseBytes())) {
+                serviceId, instance, conversation, start, end, config.getMaxResponseBytes(), coldStage)) {
                 byRound.putIfAbsent(r.getRound(), r);
             }
         }
@@ -325,9 +323,9 @@ public class ConversationQueryService implements IConversationQueryService {
      * Every stored round is listed, readable or not.
      */
     private Chain readChain(final String serviceId, @Nullable final String serviceInstanceId,
-                            final String conversation) throws IOException {
+                            final String conversation, final boolean coldStage) throws IOException {
         final Chain chain = new Chain();
-        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation);
+        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation, coldStage);
         final String instance = StringUtil.isNotEmpty(serviceInstanceId) ? serviceInstanceId : null;
         long throughSeq = 0;
         AIAgentSessionFlowRecord headRow = null;
@@ -375,7 +373,7 @@ public class ConversationQueryService implements IConversationQueryService {
             sessions.add(id.startsWith("session/") ? id.substring("session/".length()) : id);
         }
         for (final String session : sessions) {
-            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, 1, throughSeq)) {
+            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, 1, throughSeq, coldStage)) {
                 if (chain.files.containsKey(f.getSeq())) {
                     // the same file under two senders; the chain check judges the copy that was kept
                     continue;
@@ -399,13 +397,14 @@ public class ConversationQueryService implements IConversationQueryService {
 
     private List<AIAgentSessionDataRecord> readFiles(final String serviceId, @Nullable final String instance,
                                                      final String session, final long from, final long to,
-                                                     final long fromSeq, final long throughSeq) throws IOException {
+                                                     final long fromSeq, final long throughSeq,
+                                                     final boolean coldStage) throws IOException {
         final List<AIAgentSessionDataRecord> out = new ArrayList<>();
         final int window = config.getFileReadWindow();
         for (long start = fromSeq; start <= throughSeq; start += window) {
             final long end = Math.min(throughSeq, start + window - 1);
             out.addAll(dao().queryFilesDebuggable(
-                serviceId, instance, session, from, to, start, end, config.getMaxResponseBytes()));
+                serviceId, instance, session, from, to, start, end, config.getMaxResponseBytes(), coldStage));
         }
         return out;
     }

@@ -60,16 +60,17 @@ public interface IAIAgentConversationQueryDAO extends Service {
 
     default long queryHeadRoundDebuggable(String serviceId,
                                           @Nullable String serviceInstanceId,
-                                          String conversation) throws IOException {
+                                          String conversation,
+                                          boolean coldStage) throws IOException {
         final DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {
                 span = traceContext.createSpan("Query Dao: queryHeadRound");
                 span.setMsg("ServiceId: " + serviceId + ", ServiceInstanceId: " + serviceInstanceId
-                                + ", Conversation: " + conversation);
+                                + ", Conversation: " + conversation + ", ColdStage: " + coldStage);
             }
-            return queryHeadRound(serviceId, serviceInstanceId, conversation);
+            return queryHeadRound(serviceId, serviceInstanceId, conversation, coldStage);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -82,16 +83,19 @@ public interface IAIAgentConversationQueryDAO extends Service {
                                                                          String conversation,
                                                                          long fromRound,
                                                                          long throughRound,
-                                                                         int maxResponseBytes) throws IOException {
+                                                                         int maxResponseBytes,
+                                                                         boolean coldStage) throws IOException {
         final DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
             if (traceContext != null) {
                 span = traceContext.createSpan("Query Dao: queryRoundsByNumber");
                 span.setMsg("ServiceId: " + serviceId + ", ServiceInstanceId: " + serviceInstanceId
-                                + ", Conversation: " + conversation + ", Round: " + fromRound + ".." + throughRound);
+                                + ", Conversation: " + conversation + ", Round: " + fromRound + ".." + throughRound
+                                + ", ColdStage: " + coldStage);
             }
-            return queryRoundsByNumber(serviceId, serviceInstanceId, conversation, fromRound, throughRound, maxResponseBytes);
+            return queryRoundsByNumber(
+                serviceId, serviceInstanceId, conversation, fromRound, throughRound, maxResponseBytes, coldStage);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -106,7 +110,8 @@ public interface IAIAgentConversationQueryDAO extends Service {
                                                                 long toTimestamp,
                                                                 long fromSeq,
                                                                 long throughSeq,
-                                                                int maxResponseBytes) throws IOException {
+                                                                int maxResponseBytes,
+                                                                boolean coldStage) throws IOException {
         final DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -114,10 +119,11 @@ public interface IAIAgentConversationQueryDAO extends Service {
                 span = traceContext.createSpan("Query Dao: queryFiles");
                 span.setMsg("ServiceId: " + serviceId + ", ServiceInstanceId: " + serviceInstanceId
                                 + ", Session: " + session + ", From: " + fromTimestamp + ", To: " + toTimestamp
-                                + ", Seq: " + fromSeq + ".." + throughSeq);
+                                + ", Seq: " + fromSeq + ".." + throughSeq + ", ColdStage: " + coldStage);
             }
             return queryFiles(
-                serviceId, serviceInstanceId, session, fromTimestamp, toTimestamp, fromSeq, throughSeq, maxResponseBytes);
+                serviceId, serviceInstanceId, session, fromTimestamp, toTimestamp, fromSeq, throughSeq,
+                maxResponseBytes, coldStage);
         } finally {
             if (traceContext != null && span != null) {
                 traceContext.stopSpan(span);
@@ -131,7 +137,8 @@ public interface IAIAgentConversationQueryDAO extends Service {
      * @param serviceId         the service
      * @param serviceInstanceId the sender, or null for every sender of the service
      * @param conversation      one conversation, or null for every conversation
-     * @param duration          the time window, or null for the whole retention window
+     * @param duration          the time window and stage selection, or null for the whole retention window in
+     *                          the default stages; cold storage is queried only when explicitly selected
      * @param limit             at most this many rows
      * @param includeBody       whether to read the body column; the list page does not
      * @return the rounds, newest first
@@ -145,21 +152,24 @@ public interface IAIAgentConversationQueryDAO extends Service {
                                                boolean includeBody) throws IOException;
 
     /**
-     * The highest round number stored for a conversation, over every retained stage, or 0 when none is. That is
+     * The highest round number stored for a conversation in the selected stages, or 0 when none is. That is
      * the chain's head; it is not the newest row by time, because the Sessionizer can write a later round that
      * carries no later activity, and it is read directly rather than off a page of rows.
      *
      * @param serviceId         the service
      * @param serviceInstanceId the sender, or null for every sender of the service
      * @param conversation      the conversation
+     * @param coldStage         true to query only cold storage, false for the default stages; ignored by storage
+     *                          implementations without stage selection
      * @return the highest round number, or 0
      * @throws IOException on a storage failure
      */
-    long queryHeadRound(String serviceId, @Nullable String serviceInstanceId, String conversation) throws IOException;
+    long queryHeadRound(String serviceId, @Nullable String serviceInstanceId, String conversation,
+                        boolean coldStage) throws IOException;
 
     /**
-     * The rounds of one conversation whose numbers lie in a window, bodies included, in round order, over every
-     * retained stage. A round is up to 2 MiB, so the caller reads a long chain window by window.
+     * The rounds of one conversation whose numbers lie in a window, bodies included, in round order, in the
+     * selected stages. A round is up to 2 MiB, so the caller reads a long chain window by window.
      *
      * @param serviceId         the service
      * @param serviceInstanceId the sender, or null for every sender of the service
@@ -168,12 +178,15 @@ public interface IAIAgentConversationQueryDAO extends Service {
      * @param throughRound      the last round number of the window
      * @param maxResponseBytes  the most bytes one storage response may carry; a storage that caps a response per
      *                          call applies it to this read, another ignores it
+     * @param coldStage         true to query only cold storage, false for the default stages; ignored by storage
+     *                          implementations without stage selection
      * @return the rounds of the window, in round order
      * @throws IOException on a storage failure
      */
     List<AIAgentSessionFlowRecord> queryRoundsByNumber(String serviceId, @Nullable String serviceInstanceId,
                                                        String conversation, long fromRound,
-                                                       long throughRound, int maxResponseBytes) throws IOException;
+                                                       long throughRound, int maxResponseBytes,
+                                                       boolean coldStage) throws IOException;
 
     /**
      * The files of one session whose seq is within the window and whose timestamp is within the range, with
@@ -188,6 +201,8 @@ public interface IAIAgentConversationQueryDAO extends Service {
      * @param throughSeq        inclusive last seq
      * @param maxResponseBytes  the most bytes one storage response may carry; a storage that caps a response per
      *                          call applies it to this read, another ignores it
+     * @param coldStage         true to query only cold storage, false for the default stages; ignored by storage
+     *                          implementations without stage selection
      * @return the files, seq ascending
      * @throws IOException on a storage failure
      */
@@ -198,5 +213,6 @@ public interface IAIAgentConversationQueryDAO extends Service {
                                               long toTimestamp,
                                               long fromSeq,
                                               long throughSeq,
-                                              int maxResponseBytes) throws IOException;
+                                              int maxResponseBytes,
+                                              boolean coldStage) throws IOException;
 }

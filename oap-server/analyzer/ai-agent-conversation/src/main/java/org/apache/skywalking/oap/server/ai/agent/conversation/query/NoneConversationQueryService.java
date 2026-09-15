@@ -50,7 +50,7 @@ public class NoneConversationQueryService implements IConversationQueryService {
     @Override
     public Map<String, Object> buildConversationView(final String serviceId,
                                                      @Nullable final String serviceInstanceId,
-                                                     final String conversation) {
+                                                     final String conversation, final boolean coldStage) {
         return null;
     }
 
@@ -59,7 +59,7 @@ public class NoneConversationQueryService implements IConversationQueryService {
                                                         @Nullable final String serviceInstanceId,
                                                         final String conversation,
                                                         @Nullable final List<String> files,
-                                                        final boolean includeBody) {
+                                                        final boolean includeBody, final boolean coldStage) {
         final ConversationRawFiles rawFiles = new ConversationRawFiles();
         rawFiles.setErrorReason(DISABLED);
         return rawFiles;

@@ -124,7 +124,7 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
 
     @Override
     public long queryHeadRound(final String serviceId, @Nullable final String serviceInstanceId,
-                               final String conversation) throws IOException {
+                               final String conversation, final boolean coldStage) throws IOException {
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(AIAgentSessionFlowRecord.INDEX_NAME)) {
             query.must(Query.term(
@@ -158,7 +158,8 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
                                                               final String conversation,
                                                               final long fromRound,
                                                               final long throughRound,
-                                                              final int maxResponseBytes) throws IOException {
+                                                              final int maxResponseBytes,
+                                                              final boolean coldStage) throws IOException {
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(AIAgentSessionFlowRecord.INDEX_NAME)) {
             query.must(Query.term(
@@ -226,7 +227,8 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
                                                      final long toTimestamp,
                                                      final long fromSeq,
                                                      final long throughSeq,
-                                                     final int maxResponseBytes) throws IOException {
+                                                     final int maxResponseBytes,
+                                                     final boolean coldStage) throws IOException {
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(AIAgentSessionDataRecord.INDEX_NAME)) {
             query.must(Query.term(

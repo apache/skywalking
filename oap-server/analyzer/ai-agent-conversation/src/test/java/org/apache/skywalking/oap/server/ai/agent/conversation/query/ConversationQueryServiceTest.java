@@ -39,8 +39,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,6 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -110,17 +115,17 @@ public class ConversationQueryServiceTest {
         final String conversation = first.getHeader().getConversation();
         final byte[] second = Fixtures.emptyRound(first, 2, first.getCommitDigest(), 4, 4, first.getHeader().getParser());
         final IAIAgentConversationQueryDAO dao = mock(IAIAgentConversationQueryDAO.class);
-        when(dao.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(conversation))).thenReturn(2L);
-        when(dao.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(conversation), anyLong(), anyLong(), anyInt()))
+        when(dao.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(conversation), eq(false))).thenReturn(2L);
+        when(dao.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(conversation), anyLong(), anyLong(), anyInt(), eq(false)))
             .thenReturn(Arrays.asList(
                 storedRound(conversation, 1, Fixtures.bytes(Fixtures.ROUND_FILE)), storedRound(conversation, 2, second)));
-        when(dao.queryFilesDebuggable(anyString(), any(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(), anyInt()))
+        when(dao.queryFilesDebuggable(anyString(), any(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(), anyInt(), eq(false)))
             .thenReturn(storedFiles());
         final AIAgentConversationConfig config = new AIAgentConversationConfig();
         config.setMaxListLimit(1);
 
         final ConversationRawFiles out = service(dao, config)
-            .getConversationRawFiles(SERVICE, null, conversation, null, false);
+            .getConversationRawFiles(SERVICE, null, conversation, null, false, false);
 
         assertNull(out.getErrorReason());
         final List<Long> rounds = new ArrayList<>();
@@ -145,26 +150,81 @@ public class ConversationQueryServiceTest {
         final byte[] truncated = "{\"t\":\"header\",\"schema\":\"sf/1\"".getBytes(StandardCharsets.UTF_8);
         final AIAgentSessionFlowRecord broken = storedRound(conversation, 2, truncated);
         final IAIAgentConversationQueryDAO dao = mock(IAIAgentConversationQueryDAO.class);
-        when(dao.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(conversation))).thenReturn(2L);
-        when(dao.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(conversation), anyLong(), anyLong(), anyInt()))
+        when(dao.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(conversation), eq(false))).thenReturn(2L);
+        when(dao.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(conversation), anyLong(), anyLong(), anyInt(), eq(false)))
             .thenReturn(Arrays.asList(storedRound(conversation, 1, Fixtures.bytes(Fixtures.ROUND_FILE)), broken));
-        when(dao.queryFilesDebuggable(anyString(), any(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(), anyInt()))
+        when(dao.queryFilesDebuggable(anyString(), any(), anyString(), anyLong(), anyLong(), anyLong(), anyLong(), anyInt(), eq(false)))
             .thenReturn(storedFiles());
         final ConversationQueryService service = service(dao, new AIAgentConversationConfig());
 
         final String firstId = FileNames.roundFile(conversation, 1, first.getCommitDigest());
         final ConversationRawFiles selected = service.getConversationRawFiles(
-            SERVICE, null, conversation, Collections.singletonList(firstId), true);
+            SERVICE, null, conversation, Collections.singletonList(firstId), true, false);
         assertNull(selected.getErrorReason());
         assertEquals(1, selected.getFiles().size());
         assertEquals(firstId, selected.getFiles().get(0).getId());
         assertEquals(new String(Fixtures.bytes(Fixtures.ROUND_FILE), StandardCharsets.UTF_8), selected.getFiles().get(0).getBody());
 
-        final ConversationRawFiles all = service.getConversationRawFiles(SERVICE, null, conversation, null, false);
+        final ConversationRawFiles all = service.getConversationRawFiles(SERVICE, null, conversation, null, false, false);
         assertNull(all.getErrorReason());
         assertEquals(Fixtures.DATA_FILES.length + 2, all.getFiles().size());
         final ConversationRawFile last = all.getFiles().get(all.getFiles().size() - 1);
         assertEquals(2, last.getRound());
         assertTrue(last.getId().endsWith(broken.getDigest().substring(0, 12) + ".sf"), last.getId());
+    }
+
+    @ParameterizedTest
+    @CsvSource({"false, false", "false, true", "true, false", "true, true"})
+    public void everyViewAndExportWindowUsesTheRequestedStage(final boolean export, final boolean coldStage) throws Exception {
+        final SessionFlowRound first = Fixtures.round();
+        final String conversation = first.getHeader().getConversation();
+        final byte[] second = Fixtures.emptyRound(first, 2, first.getCommitDigest(), 4, 4, first.getHeader().getParser());
+        final List<AIAgentSessionDataRecord> files = storedFiles();
+        final IAIAgentConversationQueryDAO dao = mock(IAIAgentConversationQueryDAO.class);
+        final AIAgentConversationConfig config = new AIAgentConversationConfig();
+        config.setRoundReadWindow(1);
+        config.setFileReadWindow(2);
+        when(dao.queryHeadRoundDebuggable(SERVICE, null, conversation, coldStage)).thenReturn(2L);
+        when(dao.queryRoundsByNumberDebuggable(SERVICE, null, conversation, 1, 1, config.getMaxResponseBytes(), coldStage))
+            .thenReturn(Collections.singletonList(storedRound(conversation, 1, Fixtures.bytes(Fixtures.ROUND_FILE))));
+        when(dao.queryRoundsByNumberDebuggable(SERVICE, null, conversation, 2, 2, config.getMaxResponseBytes(), coldStage))
+            .thenReturn(Collections.singletonList(storedRound(conversation, 2, second)));
+        when(dao.queryFilesDebuggable(eq(SERVICE), any(), eq(Fixtures.SESSION), anyLong(), anyLong(),
+                                     eq(1L), eq(2L), eq(config.getMaxResponseBytes()), eq(coldStage)))
+            .thenReturn(files.subList(0, 2));
+        when(dao.queryFilesDebuggable(eq(SERVICE), any(), eq(Fixtures.SESSION), anyLong(), anyLong(),
+                                     eq(3L), eq(4L), eq(config.getMaxResponseBytes()), eq(coldStage)))
+            .thenReturn(files.subList(2, 4));
+        final ConversationQueryService service = service(dao, config);
+
+        if (export) {
+            final ConversationRawFiles result = service.getConversationRawFiles(
+                SERVICE, null, conversation, null, false, coldStage);
+            assertNull(result.getErrorReason());
+            assertEquals(files.size() + 2, result.getFiles().size());
+        } else {
+            assertNotNull(service.buildConversationView(SERVICE, null, conversation, coldStage));
+        }
+
+        verify(dao).queryHeadRoundDebuggable(SERVICE, null, conversation, coldStage);
+        verify(dao).queryRoundsByNumberDebuggable(SERVICE, null, conversation, 1, 1, config.getMaxResponseBytes(), coldStage);
+        verify(dao).queryRoundsByNumberDebuggable(SERVICE, null, conversation, 2, 2, config.getMaxResponseBytes(), coldStage);
+        verify(dao).queryFilesDebuggable(eq(SERVICE), any(), eq(Fixtures.SESSION), anyLong(), anyLong(),
+                                        eq(1L), eq(2L), eq(config.getMaxResponseBytes()), eq(coldStage));
+        verify(dao).queryFilesDebuggable(eq(SERVICE), any(), eq(Fixtures.SESSION), anyLong(), anyLong(),
+                                        eq(3L), eq(4L), eq(config.getMaxResponseBytes()), eq(coldStage));
+        verifyNoMoreInteractions(dao);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    public void aMissingConversationDoesNotFallBackToAnotherStage(final boolean coldStage) throws Exception {
+        final IAIAgentConversationQueryDAO dao = mock(IAIAgentConversationQueryDAO.class);
+
+        assertNull(service(dao, new AIAgentConversationConfig()).buildConversationView(
+            SERVICE, null, Fixtures.SESSION, coldStage));
+
+        verify(dao).queryHeadRoundDebuggable(SERVICE, null, Fixtures.SESSION, coldStage);
+        verifyNoMoreInteractions(dao);
     }
 }

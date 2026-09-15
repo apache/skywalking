@@ -54,12 +54,13 @@ public interface IConversationQueryService extends Service {
      * @param serviceId         the service
      * @param serviceInstanceId the sender, or null
      * @param conversation      the conversation
+     * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
      * @return the document as ordered maps, or null when the service stores no round of the conversation
      * @throws IOException on a storage failure
      */
     @Nullable
     Map<String, Object> buildConversationView(String serviceId, @Nullable String serviceInstanceId,
-                                              String conversation) throws IOException;
+                                              String conversation, boolean coldStage) throws IOException;
 
     /**
      * Every landed file and round of a conversation as stored, or only the named ones.
@@ -69,10 +70,11 @@ public interface IConversationQueryService extends Service {
      * @param conversation      the conversation
      * @param files             only these file ids, or null for every file
      * @param includeBody       whether the caller selected the body field
+     * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
      * @return the files
      * @throws IOException on a storage failure
      */
     ConversationRawFiles getConversationRawFiles(String serviceId, @Nullable String serviceInstanceId,
                                                  String conversation, @Nullable List<String> files,
-                                                 boolean includeBody) throws IOException;
+                                                 boolean includeBody, boolean coldStage) throws IOException;
 }

@@ -106,7 +106,8 @@ public class AIAgentConversationQuery implements GraphQLQueryResolver {
                     instanceId(condition.getInstance()),
                     condition.getConversation(),
                     files,
-                    includeBody
+                    includeBody,
+                    condition.isColdStage()
                 );
                 if (debug) {
                     raw.setDebuggingTrace(traceContext.getExecTrace());

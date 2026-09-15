@@ -41,7 +41,7 @@ in the resource attributes, the fallback is skipped.
 | `net.host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
 | `host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
 
-When `job_name` is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` (e.g., by Envoy AI Gateway),
+When `job_name` is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` (e.g., `job_name=envoy-ai-gateway` for [Agent Router](backend-envoy-ai-gateway-monitoring.md)),
 it takes precedence and the `service.name` fallback is skipped.
 
 **Note:** The `net.host.name` and `host.name` mappings are legacy. New integrations should use
