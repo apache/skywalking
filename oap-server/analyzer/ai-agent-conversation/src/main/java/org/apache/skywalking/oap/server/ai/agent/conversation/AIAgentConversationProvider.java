@@ -24,6 +24,7 @@ import java.util.Collections;
 import org.apache.skywalking.oap.server.ai.agent.conversation.ingest.ConversationFileBuilder;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.ConversationQueryService;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
+import org.apache.skywalking.oap.server.ai.agent.conversation.query.http.ConversationFilesHandler;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.http.ConversationViewHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -68,20 +69,17 @@ public class AIAgentConversationProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
-        if (config.getFileReadWindow() <= 0) {
-            throw new ModuleStartException("fileReadWindow should be greater than 0");
-        }
-        if (config.getRoundReadWindow() <= 0) {
-            throw new ModuleStartException("roundReadWindow should be greater than 0");
-        }
-        if (config.getMaxListLimit() <= 0) {
-            throw new ModuleStartException("maxListLimit should be greater than 0");
-        }
-        if (config.getViewRequestTimeout() <= 0) {
-            throw new ModuleStartException("viewRequestTimeout should be greater than 0");
+        if (config.getReadWindow() <= 0) {
+            throw new ModuleStartException("readWindow should be greater than 0");
         }
         if (config.getMaxFileBytes() <= 0) {
             throw new ModuleStartException("maxFileBytes should be greater than 0");
+        }
+        if (config.getConversationListMaxLimit() <= 0) {
+            throw new ModuleStartException("conversationListMaxLimit should be greater than 0");
+        }
+        if (config.getViewRequestTimeout() <= 0) {
+            throw new ModuleStartException("viewRequestTimeout should be greater than 0");
         }
         if (config.getMaxResponseBytes() <= 0) {
             throw new ModuleStartException("maxResponseBytes should be greater than 0");
@@ -92,12 +90,12 @@ public class AIAgentConversationProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        getManager().find(CoreModule.NAME)
-                    .provider()
-                    .getService(HTTPHandlerRegister.class)
-                    .addHandler(
-                        new ConversationViewHandler(queryService, Duration.ofSeconds(config.getViewRequestTimeout())),
-                        Collections.singletonList(HttpMethod.GET));
+        final HTTPHandlerRegister http = getManager().find(CoreModule.NAME)
+                                                     .provider()
+                                                     .getService(HTTPHandlerRegister.class);
+        final Duration timeout = Duration.ofSeconds(config.getViewRequestTimeout());
+        http.addHandler(new ConversationViewHandler(queryService, timeout), Collections.singletonList(HttpMethod.GET));
+        http.addHandler(new ConversationFilesHandler(queryService, timeout), Collections.singletonList(HttpMethod.GET));
         final MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
                                                           .provider()
                                                           .getService(MetricsCreator.class);

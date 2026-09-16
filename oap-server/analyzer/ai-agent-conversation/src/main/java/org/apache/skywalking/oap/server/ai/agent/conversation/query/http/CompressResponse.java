@@ -27,12 +27,12 @@ import com.linecorp.armeria.server.encoding.EncodingService;
 import java.util.function.Function;
 
 /**
- * Compresses a JSON or YAML response when the client's <code>Accept-Encoding</code> allows it, chunk by chunk,
- * so a streamed document stays streamed. A document is repetitive text and shrinks several times over.
+ * Compresses a document or a files response when the client's <code>Accept-Encoding</code> allows it, chunk by
+ * chunk, so a streamed response stays streamed. Both are repetitive text and shrink several times over.
  */
 public final class CompressResponse implements DecoratingHttpServiceFunction {
     private static final Function<? super HttpService, EncodingService> ENCODING = EncodingService.builder()
-        .encodableContentTypes(ConversationViewHandler.JSON, ConversationViewHandler.YAML)
+        .encodableContentTypes(ConversationViewHandler.JSON, ConversationViewHandler.YAML, ConversationFilesHandler.FILES)
         .newDecorator();
 
     @Override

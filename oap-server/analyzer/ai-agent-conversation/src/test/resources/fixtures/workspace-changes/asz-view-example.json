@@ -22,6 +22,8 @@
     "rounds": 1,
     "unresolved": 0,
     "changes": 3,
+    "provider_bodies": 0,
+    "captured_prompts": 0,
     "from": 1767225600000,
     "to": 1767225609400,
     "kinds": {

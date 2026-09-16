@@ -75,8 +75,8 @@ service or sender makes another.
 
 ## Query
 
-The list and the export are GraphQL queries in `ai-agent-conversation.graphqls`; the conversation itself is an
-HTTP route on the same server, because its document is as large as the conversation.
+The list is a GraphQL query in `ai-agent-conversation.graphqls`. The conversation itself and its stored files are
+HTTP routes on the same server, because a document is as large as the conversation, and the files larger still.
 
 - `listConversations(condition, duration)` lists one row per conversation of a service, optionally of one sender, from
   the newest round's attributes: its title, talks, steps, streams, segments and unresolved references, and the counts
@@ -86,15 +86,11 @@ HTTP route on the same server, because its document is as large as the conversat
   one conversation by id, and an optional `title` keeps only the rows whose title contains the text,
   case-insensitively — matched after folding, on the newest round's title, so it never widens the rounds read.
   On BanyanDB, `duration.coldStage: true` selects the cold stage; otherwise the query uses the default hot/warm stages.
-- `getConversationRawFiles(condition, files)` lists every landed file and round of a conversation with its id,
-  digest and size; selecting `body` returns the files verbatim, which is the export path. The optional `files`
-  argument narrows the read to named files. On BanyanDB, `condition.coldStage: true` selects the cold stage,
-  defaulting to the hot/warm stages when omitted or false.
 
 ### The conversation view route
 
 ```
-GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}[&instance={instanceName}][&coldStage=true]
+GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}&instance={instanceName}[&coldStage=true]
 ```
 
 It answers with the whole conversation, once, as one `asz.view` version 1.0 document, the document the
@@ -115,13 +111,13 @@ and nothing is cached.
 
 | Parameter or header | Meaning |
 |---|---|
-| `service` / `serviceId` | the service by name, or by id; one of them is required |
-| `instance` | optional, the sender's instance name from the list row; with it, every storage read is a full series lookup |
+| `service` | required, the service name |
+| `instance` | required, the sender's instance name, as the list row names it, so every storage read is a full series lookup. Ingest stores an empty instance as `unknown`, so every row names one. A conversation whose sender was renamed partway has rounds and files under two instances; the route reads the named one, and the document names what it did not find under `summary.problems` |
 | `coldStage` | optional, false by default. On BanyanDB, true selects only the cold stage; otherwise the read uses the default hot/warm stages. The UI passes its selected stage when opening a conversation. Other storages ignore it. |
 | `Accept` | `application/vnd.skywalking.asz.view+yaml`, or any type naming `yaml`, for YAML; anything else, JSON, as `asz conversation -json` prints it |
 | `Content-Type` | names the document and its version, the HTTP way: `application/vnd.skywalking.asz.view+json; version=1.0` or `application/vnd.skywalking.asz.view+yaml; version=1.0`. The document's own first two keys, `format` and `version`, say the same |
 | `Accept-Encoding` | the body is compressed when the client allows; a document is repetitive text and shrinks several times over |
-| status | 200 with the document; 400 when no service is named; 404 when the service stores no round of the conversation; 500 on a storage failure. An error is `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)): `{"type": "about:blank", "title": "Not Found", "status": 404, "detail": "..."}` |
+| status | 200 with the document; 400 when the service or the instance is not named, or when `coldStage` is neither true nor false; 404 when the sender stores no round of the conversation; 500 on a storage failure. An error is `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)): `{"type": "about:blank", "title": "Not Found", "status": 404, "detail": "..."}` |
 
 The route is on the core HTTP server beside `/graphql`, so it has the same host, port, context path and TLS
 settings, and serves HTTP/1.1 and HTTP/2 alike. The body is streamed: it is written to the response as it is
@@ -129,7 +125,57 @@ rendered, never held whole in memory, and a slow client holds back the render. T
 timeout, `viewRequestTimeout`, in place of the server's default of ten seconds, because the floor for a large
 conversation is seconds of storage reads plus seconds of fold and render.
 
-The conversation page of the UI makes one call, this route, and nothing else.
+The conversation page of the UI opens a conversation with this route. What a step only points at, such as the provider
+bodies of an `llm.call`, it loads through the files route when a reader opens it.
+
+### The conversation files route
+
+```
+GET /ai-agent/conversations/{conversation}/v1/files?service={serviceName}&instance={instanceName}&session={session}&seq={seq}[&seq={seq}...][&coldStage=true]
+```
+
+It answers with chosen Session Data files of a conversation's session, streamed, so a page loads what a step points at,
+such as the provider bodies of an `llm.call`, only when a reader opens it. A file is chosen by its session and its
+landed seq: the Sessionizer assigns a seq once per file within a session, one counter for every stream and kind, and
+the storage reads a file by exactly those two. The document's `files[]` gives every file's `seq` and its name, whose
+first segment is its session. There is no read of every file: a reader chooses each one. The route reads the named
+session under the named sender, so the session is the caller's to choose, within what that sender stores.
+
+| Parameter or header | Meaning |
+|---|---|
+| `service`, `instance`, `coldStage` | as for the view route |
+| `session` | required, the session the files belong to |
+| `seq` | required, one to 32 times, a file's landed seq. The Sessionizer cuts a file at 2 MiB, so a response holds about 64 MiB at most; a reader wanting more asks again |
+| `Accept` | chooses the format. There is one, which any `Accept` gets: `application/vnd.skywalking.asz.files+ndjson` |
+| `Accept-Encoding` | the body is compressed with gzip when the client allows. The route compresses it itself, a chunk at a time, so nothing compressed accumulates in memory |
+| status | 200 with the files, none when no seq is stored; 400 when the service, the instance or the session is not named, when no seq is, when more than 32 are, when one is not a positive whole number, or when `coldStage` is neither true nor false; 404 when the sender stores no round of the conversation; 500 on a storage failure before the first file. A failure after the first file ends the response early. |
+
+For each stored file, the body holds a naming line, then the file:
+
+```
+{"file":"<session>/provider_body/provider_body-<stamp>-000004.sd","seq":4,"lines":16,"bytes":27874,"digest":"..."}
+{"h":1,"schema":"sd/1","seq":4,"kind":"provider_body",...}
+...
+{"t":"end","records":14,"digest":"..."}
+```
+
+The naming line carries the file's name as the document lists it, its `seq`, its own newline count `lines`, its size
+`bytes`, and the sha256 of its bytes `digest`. It also carries `copies` where the read saw that seq more than
+once, which happens when the same seq was stored with different bytes - two roots of one session pushed by one sender,
+after a repack. The file served is the first, and `copies` says the others are there, so a reader can say so rather
+than show one copy as the whole truth; the field is absent when there is one. It counts what the read returned rather
+than what the storage holds, since a storage caps what one query answers with, so read it as "more than one". Exactly `bytes` bytes follow: the file,
+byte for byte. A non-empty file
+that does not end with a newline is followed by one, which is not part of it, so the next naming line starts a line; an
+empty file is followed by nothing. A file the Sessionizer wrote ends with a newline, so a reader may equally take
+`lines` lines. Nothing in a file is escaped. The files come in seq order, which is the order a reader must add provider
+bodies in, because a body refers to pieces and bodies that landed before it. A seq no stored file answers is left out
+rather than failing the request. A line can be as large as the largest file, so a reader must not assume short lines.
+
+The files are read one storage window at a time and each window is written before the next is read, so a response is
+never held whole. The files are read over the time range of the conversation's newest intact round, from its session's
+first activity to its last or the round's own stored time, whichever is later, even when the view cannot fold that
+round; up to the head round's own time when no round is intact. A file stamped outside that range is left out.
 
 ## Workspace changes
 
@@ -164,6 +210,38 @@ it. The record and the entry are defined by the Sessionizer under
 the plugin under
 [The Claude Code plugin](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/setup/claude-code-plugin/).
 
+## Provider bodies
+
+The Sessionizer can also land the request and response bodies an agent runtime exchanged with its model provider.
+A request carries what no transcript records: the system prompt, the tool definitions and the reminders the runtime
+inserted. Every call sends its whole message list again, so the Sessionizer cuts each body into what the session
+did not hold yet and a manifest that rebuilds it byte for byte, from its own pieces and from pieces and bodies that
+landed before it.
+
+- **A `provider_body` file**, a Session Data file of kind `provider_body`, one directory for the session,
+  `<session>/provider_body/provider_body-<stamp>-<seq>.sd`, one record per body. It lands, is verified and is stored
+  like any other Session Data file, and a round's window covers it. Nothing about it is decoded at ingest, and a body
+  is never rebuilt by the OAP.
+
+In the `asz.view` document:
+
+- an `llm.call` step lists its bodies under `provider_bodies`, its request and then its response, each as its `role`
+  and the `ref` of the landed record, never the body itself;
+- `summary.provider_bodies` counts the session's bodies, and `summary.captured_prompts` the calls whose request is
+  listed.
+
+A response joins to the call whose message id it carries. A request joins to the call of a stream whose previous
+call's response carries the request id the request names, and whose prompt is the prompt the request names, when
+exactly one request and one call carry those two ids. A synthetic call takes part in no join, and no request joins in
+a stream whose landed transcript lines have a gap. Nothing is matched by position or by time. A body refers to earlier
+records of the same session, sometimes in an earlier file, so a reader that wants a body takes the `provider_body`
+entries of `files[]` with a seq up to the one its `ref` names, reads them through the files route by session and seq,
+and rebuilds the body as the Sessionizer describes. A session folds to
+the same nodes with and without its `provider_body` files. The record, the manifest and the join are defined by the
+Sessionizer under
+[Session Data](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/session-data/) and
+[The asz.view document](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/asz-view/).
+
 ## Configuration
 
 ```yaml
@@ -171,29 +249,26 @@ ai-agent-conversation:
   selector: ${SW_AI_AGENT_CONVERSATION:default}
   none:
   default:
-    fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
-    roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
-    maxListLimit: ${SW_AI_AGENT_CONVERSATION_MAX_LIST_LIMIT:10000}
+    conversationListMaxLimit: ${SW_AI_AGENT_CONVERSATION_LIST_MAX_LIMIT:10000}
     viewRequestTimeout: ${SW_AI_AGENT_CONVERSATION_VIEW_REQUEST_TIMEOUT:120}
-    maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
+    readWindow: ${SW_AI_AGENT_CONVERSATION_READ_WINDOW:16}
     maxResponseBytes: ${SW_AI_AGENT_CONVERSATION_MAX_RESPONSE_BYTES:104857600}
+    maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
 ```
 
 | Key              | Meaning                                                                                                                                     |
 |------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `fileReadWindow` | how many Session Data files one storage query fetches, a batch size and not a limit: the view and the raw-file export read every file of the conversation, this many per query. Files are cut at 2 MiB, so a window is a few tens of megabytes; the window times `maxFileBytes` is the most one query can answer with. |
-| `roundReadWindow` | how many Session Flow rounds one storage query fetches, the same way: the head round is fixed first, then the chain is read from round 1 to the head, this many per query. A round is cut at 2 MiB by the Sessionizer, and the same bound applies. |
-| `maxListLimit`   | the most rounds one list query reads before folding, and the ceiling of the query's `limit` argument.                                       |
+| `conversationListMaxLimit` | the most rounds one list query reads before folding, and the ceiling of the query's `limit` argument. It counts rounds, not conversations, so a busy conversation spends the budget of the quiet ones and a quiet one can fall off the list. |
 | `viewRequestTimeout` | how long one conversation view request may take, in seconds. |
-| `maxFileBytes`   | the largest file stored, in bytes; a larger one is rejected at ingest and counted under the reason `size`. 15 MiB by default, under BanyanDB's 16 MiB gRPC message limit. The Sessionizer cuts files and rounds at 2 MiB; only a round from before that cut is larger. |
-| `maxResponseBytes` | the most bytes one window read may answer with, applied to that read alone on a storage that caps a response per call. The BanyanDB client holds every other read to 50 MB; this module's two window reads carry it as a call option on the same connection, so nothing else changes. 100 MiB by default, above sixteen files at the 2 MiB cut with room for files landed whole. For a root of larger files, raise it or lower the windows, so that the window times `maxFileBytes` stays under it; a read over the limit fails as a storage error. |
+| `readWindow` | how many Session Data files, or Session Flow rounds, one storage query fetches. A batch size and not a limit: a view reads every round of the chain and every file of the conversation, and the files route the named ones, this many per query, so a conversation of 865 rounds is 55 queries at 16. Raising it trades bytes in one response for round trips, which are most of the wait before a view's first byte; it must stay within `maxResponseBytes`. Both are cut at 2 MiB by the Sessionizer, so a window is a few tens of megabytes. |
+| `maxResponseBytes` | the most bytes one storage query may answer with. **BanyanDB alone accepts it**, carried as a call option on the shared client in place of the 50 MB it holds every other read to, so nothing else's read changes; Elasticsearch and JDBC ignore it and bound a read by hits and by rows. 100 MiB by default, above sixteen files at the 2 MiB cut with room for files landed whole. For a root whose files land whole, raise it or lower `readWindow`; a read over the limit fails as a storage error. |
+| `maxFileBytes` | the largest file stored, in bytes; a larger one is rejected at ingest and counted under the reason `size`. 15 MiB by default, under BanyanDB's 16 MiB gRPC message limit. The Sessionizer cuts files at 2 MiB, so only a record landed whole comes near it; a test lowers this to prove the rejection without pushing a file that size. |
 
 ### Turning the feature off
 
 The GraphQL query module requires this module, so the `-` selector cannot remove it; `SW_AI_AGENT_CONVERSATION=none`
-selects the `none` provider instead, which answers `listConversations` and `getConversationRawFiles` with an empty
-result and an `errorReason` saying the module is disabled, and registers no conversation view route, so a `GET` on it
-is a 404.
+selects the `none` provider instead, which answers `listConversations` with an empty result and an `errorReason` saying
+the module is disabled, and registers no conversation route, so a `GET` on the view or the files route is a 404.
 
 It also disables the two record models, so nothing of the feature reaches the storage: neither table is created, nor
 the BanyanDB `recordsAIAgent` group, whose only members they are. A file the bundled LAL rule still verifies is
@@ -203,18 +278,19 @@ dropped for want of a record worker; drop `ai-agent` from `SW_LOG_LAL_FILES` as 
 
 - The OAP's OTLP/HTTP endpoint accepts requests of up to 10 MiB, the HTTP server's default. The Sessionizer's
   request budget defaults to 8 MiB for that reason; a single file is cut at 2 MiB, so it always fits.
-- The files of a conversation are read in windows of `fileReadWindow` files, and its rounds in windows of
-  `roundReadWindow` rounds, per storage query, inside one view request. On BanyanDB each of those queries may answer
+- The files of a conversation, and its rounds, are read in windows of `readWindow` per storage query, inside one
+  view request. On BanyanDB each of those queries may answer
   with up to `maxResponseBytes`, 100 MiB by default, as a call option on the shared client in place of its 50 MB
-  default, which every other read keeps; the window times `maxFileBytes` must stay under it. Elasticsearch answers
+  default, which every other read keeps. Elasticsearch answers
   at most 10,000 hits to one search.
-- The view and the export read over the retention window of the caller's selected stages. On BanyanDB, the
+- The view and the files route read over the retention window of the caller's selected stages. On BanyanDB, the
   default is hot/warm; cold is queried only when the caller explicitly sets `coldStage: true`. Every round and
   file read uses that same selection. A conversation spanning stages can therefore report missing rounds or
   files that are outside the selected stages.
-- When the caller names no sender, the view and the export read across every sender of the service and keep one
-  copy of a file or round two senders both pushed, so a Sessionizer renamed between pushes still yields the
-  whole conversation.
+- Both routes read one sender, the one the caller names, so every read is a full series lookup. A Sessionizer whose
+  instance was renamed between pushes leaves a conversation's rounds and files under two instances; reading the
+  newer instance, the document names what it did not find under `summary.problems`. A file or round the one sender
+  pushed twice is kept once.
 - The `asz.view` document grows with the conversation. A session of 136 MB of landed files renders to a 70 MB
   document in about five seconds after about six seconds of storage reads, which is why the view is a streamed
   route with its own timeout and not a GraphQL query.

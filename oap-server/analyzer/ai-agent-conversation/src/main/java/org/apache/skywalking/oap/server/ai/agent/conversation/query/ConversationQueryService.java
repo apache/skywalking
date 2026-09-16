@@ -19,16 +19,21 @@
 package org.apache.skywalking.oap.server.ai.agent.conversation.query;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.agent.conversation.AIAgentConversationConfig;
@@ -37,10 +42,7 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationFileFormat;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFile;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFiles;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRow;
 import org.apache.skywalking.oap.server.ai.agent.conversation.view.ConversationViewBuilder;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -87,7 +89,7 @@ public class ConversationQueryService implements IConversationQueryService {
                                               final Duration duration,
                                               @Nullable final Integer limit) throws IOException {
         final int rounds = Math.min(
-            limit == null || limit <= 0 ? DEFAULT_LIST_LIMIT : limit, config.getMaxListLimit());
+            limit == null || limit <= 0 ? DEFAULT_LIST_LIMIT : limit, config.getConversationListMaxLimit());
         final List<AIAgentSessionFlowRecord> newestFirst = dao().queryRoundsDebuggable(
             serviceId, serviceInstanceId, StringUtil.isEmpty(conversation) ? null : conversation.trim(),
             duration, rounds, false);
@@ -153,8 +155,9 @@ public class ConversationQueryService implements IConversationQueryService {
     @Nullable
     public Map<String, Object> buildConversationView(final String serviceId,
                                                      @Nullable final String serviceInstanceId,
-                                                     final String conversation, final boolean coldStage) throws IOException {
-        final Chain chain = readChain(serviceId, serviceInstanceId, conversation, coldStage);
+                                                     final String conversation, final boolean coldStage,
+                                                     final BooleanSupplier alive) throws IOException {
+        final Chain chain = readChain(serviceId, serviceInstanceId, conversation, coldStage, alive);
         if (chain.roundInputs.isEmpty()) {
             return null;
         }
@@ -162,121 +165,174 @@ public class ConversationQueryService implements IConversationQueryService {
     }
 
     @Override
-    public ConversationRawFiles getConversationRawFiles(final String serviceId,
-                                                        @Nullable final String serviceInstanceId,
-                                                        final String conversation,
-                                                        @Nullable final List<String> files,
-                                                        final boolean includeBody, final boolean coldStage) throws IOException {
-        final Set<FileNames.Parsed> wanted = new LinkedHashSet<>();
-        if (files != null) {
-            for (final String id : files) {
-                final FileNames.Parsed p = FileNames.parse(id);
-                if (p != null) {
-                    wanted.add(p);
+    public boolean readConversationFiles(final String serviceId, final String serviceInstanceId,
+                                         final String conversation, final String session,
+                                         final Collection<Long> seqs, final boolean coldStage,
+                                         final BooleanSupplier alive, final FileSink sink) throws IOException {
+        final long headRound = dao().queryHeadRoundDebuggable(serviceId, serviceInstanceId, conversation, coldStage);
+        if (headRound == 0) {
+            return false;
+        }
+        if (seqs.isEmpty()) {
+            return true;
+        }
+        final long[] range = fileRange(serviceId, serviceInstanceId, conversation, headRound, alive, coldStage);
+        final int window = config.getReadWindow();
+        for (final long[] run : runs(new TreeSet<>(seqs))) {
+            long last = -1;
+            for (final long[] w : windows(run[0], run[1], window)) {
+                if (!alive.getAsBoolean()) {
+                    throw new IOException("the caller of session " + session + " is gone");
                 }
-            }
-        }
-        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation, coldStage);
-        final ConversationRawFiles out = new ConversationRawFiles();
-        if (rounds.isEmpty()) {
-            out.setErrorReason("no round of conversation " + conversation + " is stored for this service");
-            return out;
-        }
-        final AIAgentSessionFlowRecord headRow = rounds.get(rounds.size() - 1);
-        // the newest round that reads names the session and the range; one that does not read is still exported
-        // below, as stored, and must not block the export of what does
-        SessionFlowRound.Header head = null;
-        for (int i = rounds.size() - 1; i >= 0 && head == null; i--) {
-            try {
-                head = SessionFlowRound.parse(rounds.get(i).getBody()).getHeader();
-            } catch (final RuntimeException e) {
-                log.debug("round {} of conversation {} does not read: {}", rounds.get(i).getRound(), conversation,
-                          e.getMessage());
-            }
-        }
-        // the caller's sender, or every sender of the service: a Sessionizer renamed between pushes leaves a
-        // conversation's files under two instances, and a read must see both
-        final String instance = StringUtil.isNotEmpty(serviceInstanceId) ? serviceInstanceId : null;
-        final long from = head == null ? 0 : Times.millis(head.getSessionFromTime());
-        final long to = rangeEnd(head == null ? null : head.getSessionThroughTime(), headRow.getTimestamp());
-
-        // Session Data files first, then the rounds, each list in its own order.
-        final Set<String> sessions = new LinkedHashSet<>();
-        if (head != null && StringUtil.isNotEmpty(head.getSession())) {
-            sessions.add(head.getSession());
-        }
-        for (final FileNames.Parsed p : wanted) {
-            if (p.isDataFile()) {
-                sessions.add(p.getSession());
-            }
-        }
-        for (final String session : sessions) {
-            final Set<Long> seqs = new HashSet<>();
-            boolean all = files == null;
-            for (final FileNames.Parsed p : wanted) {
-                if (p.isDataFile() && session.equals(p.getSession())) {
-                    seqs.add(p.getSeq());
-                }
-            }
-            if (files != null && seqs.isEmpty()) {
-                continue;
-            }
-            final long throughSeq = all ? (head == null ? 0 : head.getThroughSeq())
-                : seqs.stream().mapToLong(Long::longValue).max().orElse(0);
-            final long fromSeq = all ? 1 : seqs.stream().mapToLong(Long::longValue).min().orElse(1);
-            final Set<Long> seen = new HashSet<>();
-            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, fromSeq, throughSeq, coldStage)) {
-                if (!all && !seqs.contains(f.getSeq()) || !seen.add(f.getSeq())) {
-                    continue;
-                }
-                final SessionDataFile parsed = SessionDataFile.parse(f.getBody());
-                final ConversationRawFile raw = new ConversationRawFile();
-                raw.setId(FileNames.dataFile(parsed.getHeader()));
-                raw.setFormat(ConversationFileFormat.SD);
-                raw.setSession(session);
-                raw.setSeq((int) f.getSeq());
-                raw.setDigest(f.getDigest());
-                raw.setBytes(f.getBody().length);
-                raw.setTimestamp(f.getTimestamp());
-                if (includeBody) {
-                    raw.setBody(new String(f.getBody(), StandardCharsets.UTF_8));
-                }
-                out.getFiles().add(raw);
-            }
-        }
-        for (final AIAgentSessionFlowRecord r : rounds) {
-            if (files != null) {
-                boolean named = false;
-                for (final FileNames.Parsed p : wanted) {
-                    if (!p.isDataFile() && p.getRound() == r.getRound()) {
-                        named = true;
-                        break;
+                // one window read, sorted and handed on before the next is read, so no more than one window of
+                // bodies is held
+                final List<AIAgentSessionDataRecord> read = new ArrayList<>(dao().queryFilesDebuggable(
+                    serviceId, serviceInstanceId, session, range[0], range[1], w[0], w[1],
+                    config.getMaxResponseBytes(), coldStage));
+                read.sort(Comparator.comparingLong(AIAgentSessionDataRecord::getSeq));
+                // A sequence normally has one file. It has more where the same sequence was stored with
+                // different bytes, and then the first is served and the count says the others are there:
+                // a reader that showed one copy as the whole truth would be wrong without knowing it.
+                final Map<Long, Integer> copies = new HashMap<>();
+                for (final AIAgentSessionDataRecord f : read) {
+                    if (f.getSeq() >= w[0] && f.getSeq() <= w[1]) {
+                        copies.merge(f.getSeq(), 1, Integer::sum);
                     }
                 }
-                if (!named) {
-                    continue;
+                for (final AIAgentSessionDataRecord f : read) {
+                    if (f.getSeq() < w[0] || f.getSeq() > w[1] || f.getSeq() == last) {
+                        continue;
+                    }
+                    last = f.getSeq();
+                    sink.accept(new ConversationFile(
+                        dataFileId(f.getBody(), session, f.getSeq()), f.getSeq(), f.getDigest(), f.getBody(),
+                        copies.getOrDefault(f.getSeq(), 1)));
                 }
             }
-            String commit;
-            try {
-                commit = SessionFlowRound.parse(r.getBody()).getCommitDigest();
-            } catch (final RuntimeException e) {
-                // a round that does not read has no commit digest to be named by; the digest of its file names it
-                commit = r.getDigest();
+        }
+        return true;
+    }
+
+    /**
+     * The time range the conversation's files are stamped in: the newest intact round's, from its session's first
+     * activity to its last or its own row's time, whichever is later, read one round at a time down from the head, so
+     * only the rounds above it are read. The view takes its range from the last round it folds, which is this round
+     * unless the fold refused it. A conversation with no intact round is read over everything up to the head row's own
+     * time, and so is one whose head round and the fifteen below it are all unreadable.
+     *
+     * @return the first and the last millisecond
+     */
+    private long[] fileRange(final String serviceId, final String serviceInstanceId, final String conversation,
+                             final long headRound, final BooleanSupplier alive, final boolean coldStage)
+        throws IOException {
+        long headRowTimestamp = 0;
+        // One round at a time, down from the head, which answers in a single read for every conversation
+        // whose head round is intact - and that is all of them until one is damaged. A window would read
+        // sixteen round bodies to find one, and a round is cut at 2 MiB, so the read a healthy conversation
+        // pays would grow by that much for nothing.
+        //
+        // The walk stops after ROUNDS_SEARCHED rounds. Its purpose is to find any round that carries the
+        // session's time range; if that many consecutive rounds from the head are unreadable, the chain is
+        // damaged far past what one more read would fix, and the head row's own time is the answer. Walking
+        // to round 1 instead cost one storage read per round - a hundred thousand of them on a long chain,
+        // for one request, and they all ran on after the caller had gone.
+        final long floor = Math.max(1, headRound - ROUNDS_SEARCHED + 1);
+        for (long round = headRound; round >= floor; round--) {
+            if (!alive.getAsBoolean()) {
+                throw new IOException("the caller of conversation " + conversation + " is gone");
             }
-            final ConversationRawFile raw = new ConversationRawFile();
-            raw.setId(FileNames.roundFile(conversation, r.getRound(), commit));
-            raw.setFormat(ConversationFileFormat.SF);
-            raw.setRound((int) r.getRound());
-            raw.setDigest(r.getDigest());
-            raw.setBytes(r.getBody().length);
-            raw.setTimestamp(r.getTimestamp());
-            if (includeBody) {
-                raw.setBody(new String(r.getBody(), StandardCharsets.UTF_8));
+            for (final AIAgentSessionFlowRecord r : dao().queryRoundsByNumberDebuggable(
+                serviceId, serviceInstanceId, conversation, round, round, config.getMaxResponseBytes(), coldStage)) {
+                if (r.getRound() != round) {
+                    continue;
+                }
+                if (headRowTimestamp == 0) {
+                    // the head row's own time bounds the range only when no round is intact
+                    headRowTimestamp = r.getTimestamp();
+                }
+                final SessionFlowRound parsed;
+                try {
+                    parsed = SessionFlowRound.parse(r.getBody());
+                } catch (final RuntimeException e) {
+                    continue;
+                }
+                if (parsed.isIntact()) {
+                    final SessionFlowRound.Header h = parsed.getHeader();
+                    // the intact round's own row, as the view takes its range from the last round it folds
+                    return new long[] {
+                        Times.millis(h.getSessionFromTime()), rangeEnd(h.getSessionThroughTime(), r.getTimestamp())};
+                }
             }
-            out.getFiles().add(raw);
+        }
+        return new long[] {0, headRowTimestamp};
+    }
+
+    /**
+     * How many rounds down from the head a file read looks for one that carries the session's time range.
+     * One is enough unless the head is damaged; past this many the chain is broken, not merely dented.
+     */
+    private static final int ROUNDS_SEARCHED = 16;
+
+    /**
+     * @return the file's name from its own header line, or one built from its session and seq when the header does
+     * not read
+     */
+    private static String dataFileId(final byte[] body, final String session, final long seq) {
+        try {
+            return FileNames.dataFile(SessionDataFile.header(body));
+        } catch (final RuntimeException e) {
+            return session + "/unknown-" + String.format(Locale.ROOT, "%06d", seq) + ".sd";
+        }
+    }
+
+    /**
+     * @param numbers ascending numbers
+     * @return each run of consecutive numbers as its first and last
+     */
+    static List<long[]> runs(final Iterable<Long> numbers) {
+        final List<long[]> out = new ArrayList<>();
+        long[] run = null;
+        for (final long n : numbers) {
+            if (run != null && run[1] != Long.MAX_VALUE && n == run[1] + 1) {
+                run[1] = n;
+                continue;
+            }
+            run = new long[] {n, n};
+            out.add(run);
         }
         return out;
+    }
+
+    /**
+     * @return the windows of at most <code>size</code> numbers that cover first through last, one at a time as they
+     * are iterated, so no bound overflows and no list of them is built, even for a window a round claims up to the
+     * largest number
+     */
+    static Iterable<long[]> windows(final long first, final long last, final int size) {
+        return () -> new Iterator<long[]>() {
+            private long start = first;
+            private boolean done = first > last;
+
+            @Override
+            public boolean hasNext() {
+                return !done;
+            }
+
+            @Override
+            public long[] next() {
+                if (done) {
+                    throw new NoSuchElementException();
+                }
+                final long end = last - start < size - 1L ? last : start + size - 1L;
+                final long[] w = {start, end};
+                if (end >= last) {
+                    done = true;
+                } else {
+                    start = end + 1;
+                }
+                return w;
+            }
+        };
     }
 
     // ---------------------------------------------------------------- the two-pass read
@@ -299,14 +355,18 @@ public class ConversationQueryService implements IConversationQueryService {
      * senders or by a redelivery, is kept once, the first copy.
      */
     private List<AIAgentSessionFlowRecord> readRounds(final String serviceId, @Nullable final String instance,
-                                                      final String conversation, final boolean coldStage) throws IOException {
+                                                      final String conversation, final boolean coldStage,
+                                                      final BooleanSupplier alive) throws IOException {
         final long headRound = dao().queryHeadRoundDebuggable(serviceId, instance, conversation, coldStage);
         if (headRound == 0) {
             return new ArrayList<>();
         }
         final Map<Long, AIAgentSessionFlowRecord> byRound = new TreeMap<>();
-        final int window = config.getRoundReadWindow();
+        final int window = config.getReadWindow();
         for (long start = 1; start <= headRound; start += window) {
+            if (!alive.getAsBoolean()) {
+                throw new IOException("the caller of conversation " + conversation + " is gone");
+            }
             final long end = Math.min(headRound, start + window - 1);
             for (final AIAgentSessionFlowRecord r : dao().queryRoundsByNumberDebuggable(
                 serviceId, instance, conversation, start, end, config.getMaxResponseBytes(), coldStage)) {
@@ -323,10 +383,10 @@ public class ConversationQueryService implements IConversationQueryService {
      * Every stored round is listed, readable or not.
      */
     private Chain readChain(final String serviceId, @Nullable final String serviceInstanceId,
-                            final String conversation, final boolean coldStage) throws IOException {
+                            final String conversation, final boolean coldStage, final BooleanSupplier alive)
+        throws IOException {
         final Chain chain = new Chain();
-        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation, coldStage);
-        final String instance = StringUtil.isNotEmpty(serviceInstanceId) ? serviceInstanceId : null;
+        final List<AIAgentSessionFlowRecord> rounds = readRounds(serviceId, serviceInstanceId, conversation, coldStage, alive);
         long throughSeq = 0;
         AIAgentSessionFlowRecord headRow = null;
         for (final AIAgentSessionFlowRecord r : rounds) {
@@ -373,7 +433,7 @@ public class ConversationQueryService implements IConversationQueryService {
             sessions.add(id.startsWith("session/") ? id.substring("session/".length()) : id);
         }
         for (final String session : sessions) {
-            for (final AIAgentSessionDataRecord f : readFiles(serviceId, instance, session, from, to, 1, throughSeq, coldStage)) {
+            for (final AIAgentSessionDataRecord f : readFiles(serviceId, serviceInstanceId, session, from, to, 1, throughSeq, coldStage, alive)) {
                 if (chain.files.containsKey(f.getSeq())) {
                     // the same file under two senders; the chain check judges the copy that was kept
                     continue;
@@ -398,13 +458,18 @@ public class ConversationQueryService implements IConversationQueryService {
     private List<AIAgentSessionDataRecord> readFiles(final String serviceId, @Nullable final String instance,
                                                      final String session, final long from, final long to,
                                                      final long fromSeq, final long throughSeq,
-                                                     final boolean coldStage) throws IOException {
+                                                     final boolean coldStage, final BooleanSupplier alive)
+        throws IOException {
         final List<AIAgentSessionDataRecord> out = new ArrayList<>();
-        final int window = config.getFileReadWindow();
-        for (long start = fromSeq; start <= throughSeq; start += window) {
-            final long end = Math.min(throughSeq, start + window - 1);
+        if (fromSeq > throughSeq) {
+            return out;
+        }
+        for (final long[] w : windows(fromSeq, throughSeq, config.getReadWindow())) {
+            if (!alive.getAsBoolean()) {
+                throw new IOException("the caller of session " + session + " is gone");
+            }
             out.addAll(dao().queryFilesDebuggable(
-                serviceId, instance, session, from, to, start, end, config.getMaxResponseBytes(), coldStage));
+                serviceId, instance, session, from, to, w[0], w[1], config.getMaxResponseBytes(), coldStage));
         }
         return out;
     }

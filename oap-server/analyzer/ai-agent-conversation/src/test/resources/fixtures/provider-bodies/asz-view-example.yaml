@@ -1,0 +1,957 @@
+format: asz.view
+version: "1.0"
+conversation: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d
+sessions:
+    - 6b7a6063-8714-4f6b-87cd-6c2da3a5094d
+head:
+    round: 1
+    digest: ff8eaba03b03ab64a73e06df2a5dff6177ef6038e328e8de792aa28af7ba6920
+parser: v1
+policy: v1+idle=10m0s
+summary:
+    title: provider bodies beside the calls
+    state: verified
+    problems: []
+    talks: 5
+    steps: 23
+    streams: 2
+    segments: 1
+    rounds: 1
+    unresolved: 0
+    changes: 0
+    provider_bodies: 14
+    captured_prompts: 7
+    from: 1767225600000
+    to: 1767225608400
+    kinds:
+        agent.call: 1
+        agent.launch_ack: 1
+        agent.output: 1
+        epoch: 3
+        epoch.boundary: 1
+        epoch.summary: 1
+        llm.call: 7
+        message.assistant: 6
+        message.external: 3
+        run: 5
+        segment: 1
+        session: 1
+        stream: 2
+        talk: 5
+        tool: 2
+    relation_types:
+        ends_with: 1
+        follows: 1
+        in_segment: 5
+        starts: 1
+        summarizes: 1
+    quality:
+        exact_unique: 8
+        strong_inference: 1
+rounds:
+    - round: 1
+      digest: ff8eaba03b03ab64a73e06df2a5dff6177ef6038e328e8de792aa28af7ba6920
+      previous: null
+      from_seq: 1
+      through_seq: 4
+      input_digest: bb774e3f497f8618d3e944070b5d074c0ab6589f0c089db4c2371a99dc4528e3
+      from_time: 1767225600000
+      through_time: 1767225608400
+      verified: true
+files:
+    - file: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d/streams/main/transcript-20260101T000000.000000000Z-000001.sd
+      format: sd
+      kind: transcript
+      seq: 1
+      round: null
+      stream: main
+      run: null
+      lines: 16
+      bytes: 5242
+      digest: 293e8d9afbcf0746496e84ad5ce6edc5e7ba5a41c49c015e2294566c337b6a9b
+      from_time: 1767225600000
+      through_time: 1767225608400
+    - file: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d/streams/a02ba01b82410e9e3/transcript-20260101T000000.000000000Z-000002.sd
+      format: sd
+      kind: transcript
+      seq: 2
+      round: null
+      stream: a02ba01b82410e9e3
+      run: null
+      lines: 7
+      bytes: 2220
+      digest: b86dbc3bb6b8aaaaa5beaaa4b2226a63ba442fdc0dafa3d0ffe5fd10d941445d
+      from_time: 1767225605400
+      through_time: 1767225607800
+    - file: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d/streams/a02ba01b82410e9e3/meta-20260101T000000.000000000Z-000003.sd
+      format: sd
+      kind: agent_meta
+      seq: 3
+      round: null
+      stream: a02ba01b82410e9e3
+      run: null
+      lines: 3
+      bytes: 666
+      digest: ad1b164dea912697af058c40edcb855838ace434a26a675c3feae499056a66e0
+      from_time: null
+      through_time: null
+    - file: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d/provider_body/provider_body-20260101T000000.000000000Z-000004.sd
+      format: sd
+      kind: provider_body
+      seq: 4
+      round: null
+      stream: null
+      run: null
+      lines: 16
+      bytes: 27874
+      digest: a8cfc9e0f6e06ab3ce944fd1db40468d6502e7e1d7549c01292f9326a83fd331
+      from_time: null
+      through_time: null
+    - file: _conversations/6b7a6063-8714-4f6b-87cd-6c2da3a5094d/rounds/r000001-ff8eaba03b03.sf
+      format: sf
+      kind: round
+      seq: null
+      round: 1
+      stream: null
+      run: null
+      lines: 51
+      bytes: 12009
+      digest: 2a0088c80cdf2abd2d9ff4517ccba7ec070035f904019d25f1c24eeec8346f10
+      from_time: 1767225600000
+      through_time: 1767225608400
+streams:
+    - id: stream/main
+      name: main
+      role: main
+      label: ""
+      parent: ""
+      records: 14
+      steps: 15
+      talk: talk/main/s1-cycle
+      named_by: ""
+      opened_by: []
+    - id: stream/a02ba01b82410e9e3
+      name: a02ba01b82410e9e3
+      role: child
+      label: searcher
+      parent: main
+      records: 6
+      steps: 6
+      talk: talk/a02ba01b82410e9e3
+      named_by: ""
+      opened_by:
+        - step: tool/s5-tool
+          stream: main
+          talk: talk/main/s4-cycle
+          quality: exact_unique
+segments:
+    - id: segment/at_1_2
+      state: open
+      committable: false
+      talks: 5
+      from: 1767225600000
+      to: 1767225608400
+talks:
+    - id: talk/main/s1-cycle
+      kind: talk
+      parent: epoch/main/0
+      stream: main
+      at: 1767225600000
+      ref:
+        seq: 1
+        row: 2
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: external
+      label: read the configuration and summarise it
+      reply: The timeout is 30 seconds, with 3 retries.
+      runs: 1
+      steps: 6
+      tools: 1
+      from: 1767225600000
+      to: 1767225602300
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_main_s1-cycle/s1-cycle
+          kind: run
+          parent: talk/main/s1-cycle
+          stream: main
+          at: 1767225600000
+          ref:
+            seq: 1
+            row: 2
+          attrs:
+            trigger: external
+          children:
+            - id: input/1/2
+              kind: message.external
+              parent: run/talk_main_s1-cycle/s1-cycle
+              stream: main
+              at: 1767225600000
+              ref:
+                seq: 1
+                row: 2
+              text: read the configuration and summarise it
+              state: available
+              bytes: 39
+              flags:
+                - external_input
+            - id: call/s2-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_main_s1-cycle/s1-cycle
+              stream: main
+              at: 1767225601000
+              ref:
+                seq: 1
+                row: 3
+              refs:
+                - seq: 1
+                  row: 3
+                - seq: 1
+                  row: 4
+              attrs:
+                fragments: 2
+                usage: observed_replayable
+                usage_at:
+                    row: 4
+                    seq: 1
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 1
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 2
+              children:
+                - id: msg/1/3:0
+                  kind: message.assistant
+                  parent: call/s2-call-fdae022ac306
+                  stream: main
+                  at: 1767225601000
+                  ref:
+                    seq: 1
+                    row: 3
+                    block: 0
+                  text: Reading it.
+                  state: available
+                  bytes: 11
+                - id: tool/s2-tool
+                  kind: tool
+                  parent: call/s2-call-fdae022ac306
+                  stream: main
+                  at: 1767225601100
+                  ref:
+                    seq: 1
+                    row: 4
+                    block: 0
+                  refs:
+                    - seq: 1
+                      row: 4
+                      block: 0
+                    - seq: 1
+                      row: 5
+                      block: 0
+                  attrs:
+                    name: Read
+                    result: available
+                    result_join: exact_unique
+                    timing: unavailable
+                  text: '{"file_path":"/Users/dev/scenario/config.yaml"}'
+                  state: available
+                  bytes: 47
+                  flags:
+                    - finished
+                  name: Read
+                  result: |
+                    timeout: 30
+                    retries: 3
+                  result_state: available
+                  result_bytes: 23
+                  request_to_result_ms: 200
+                  request_to_result_join: exact_unique
+            - id: call/s3-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_main_s1-cycle/s1-cycle
+              stream: main
+              at: 1767225602300
+              ref:
+                seq: 1
+                row: 6
+              refs:
+                - seq: 1
+                  row: 6
+              attrs:
+                fragments: 1
+                usage: observed_replayable
+                usage_at:
+                    row: 6
+                    seq: 1
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 3
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 4
+              children:
+                - id: msg/1/6:0
+                  kind: message.assistant
+                  parent: call/s3-call-fdae022ac306
+                  stream: main
+                  at: 1767225602300
+                  ref:
+                    seq: 1
+                    row: 6
+                    block: 0
+                  text: The timeout is 30 seconds, with 3 retries.
+                  state: available
+                  bytes: 42
+                  flags:
+                    - finished
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: exact_unique
+          via: activity window
+    - id: talk/main/s4-cycle
+      kind: talk
+      parent: epoch/main/0
+      stream: main
+      at: 1767225603300
+      ref:
+        seq: 1
+        row: 7
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: external
+      label: find where the timeout is used
+      reply: The searcher found it in server.go.
+      runs: 1
+      steps: 6
+      tools: 1
+      from: 1767225603300
+      to: 1767225605400
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_main_s4-cycle/s4-cycle
+          kind: run
+          parent: talk/main/s4-cycle
+          stream: main
+          at: 1767225603300
+          ref:
+            seq: 1
+            row: 7
+          attrs:
+            trigger: external
+          children:
+            - id: input/1/7
+              kind: message.external
+              parent: run/talk_main_s4-cycle/s4-cycle
+              stream: main
+              at: 1767225603300
+              ref:
+                seq: 1
+                row: 7
+              text: find where the timeout is used
+              state: available
+              bytes: 30
+              flags:
+                - external_input
+            - id: call/s5-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_main_s4-cycle/s4-cycle
+              stream: main
+              at: 1767225604300
+              ref:
+                seq: 1
+                row: 8
+              refs:
+                - seq: 1
+                  row: 8
+              attrs:
+                fragments: 1
+                usage: observed_replayable
+                usage_at:
+                    row: 8
+                    seq: 1
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 5
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 6
+              children:
+                - id: tool/s5-tool
+                  kind: agent.call
+                  parent: call/s5-call-fdae022ac306
+                  stream: main
+                  at: 1767225604300
+                  ref:
+                    seq: 1
+                    row: 8
+                    block: 0
+                  refs:
+                    - seq: 1
+                      row: 8
+                      block: 0
+                    - seq: 1
+                      row: 9
+                      block: 0
+                  attrs:
+                    name: Agent
+                    result: available
+                    result_join: exact_unique
+                    timing: unavailable
+                  text: '{"description":"searcher","prompt":"find every use of the timeout"}'
+                  state: available
+                  bytes: 67
+                  flags:
+                    - finished
+                  name: Agent
+                  result: launched
+                  result_state: available
+                  result_bytes: 8
+                  request_to_result_ms: 100
+                  request_to_result_join: exact_unique
+                  edges:
+                    - type: starts
+                      other: stream/a02ba01b82410e9e3
+                      dir: out
+                      quality: exact_unique
+                      via: parent tool result
+            - id: ack/1/9
+              kind: agent.launch_ack
+              parent: run/talk_main_s4-cycle/s4-cycle
+              stream: main
+              at: 1767225604400
+              ref:
+                seq: 1
+                row: 9
+              text: launched
+              state: available
+              bytes: 8
+              flags:
+                - launch_ack
+            - id: call/s6-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_main_s4-cycle/s4-cycle
+              stream: main
+              at: 1767225605400
+              ref:
+                seq: 1
+                row: 10
+              refs:
+                - seq: 1
+                  row: 10
+              attrs:
+                fragments: 1
+                usage: observed_replayable
+                usage_at:
+                    row: 10
+                    seq: 1
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 7
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 8
+              children:
+                - id: msg/1/10:0
+                  kind: message.assistant
+                  parent: call/s6-call-fdae022ac306
+                  stream: main
+                  at: 1767225605400
+                  ref:
+                    seq: 1
+                    row: 10
+                    block: 0
+                  text: The searcher found it in server.go.
+                  state: available
+                  bytes: 35
+                  flags:
+                    - finished
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: exact_unique
+          via: activity window
+    - id: talk/main/s7-cycle-compact
+      kind: talk
+      parent: epoch/main/s7-boundary
+      stream: main
+      at: 1767225606000
+      ref:
+        seq: 1
+        row: 12
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: external
+      runs: 1
+      from: 1767225606000
+      to: 1767225606000
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_main_s7-cycle-compact/s7-cycle-compact
+          kind: run
+          parent: talk/main/s7-cycle-compact
+          stream: main
+          at: 1767225606000
+          ref:
+            seq: 1
+            row: 12
+          attrs:
+            trigger: external
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: exact_unique
+          via: activity window
+    - id: talk/main/s8-cycle
+      kind: talk
+      parent: epoch/main/s7-boundary
+      stream: main
+      at: 1767225607400
+      ref:
+        seq: 1
+        row: 13
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: external
+      label: and the retries?
+      reply: There are 3 retries.
+      runs: 1
+      steps: 3
+      from: 1767225607400
+      to: 1767225608400
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_main_s8-cycle/s8-cycle
+          kind: run
+          parent: talk/main/s8-cycle
+          stream: main
+          at: 1767225607400
+          ref:
+            seq: 1
+            row: 13
+          attrs:
+            trigger: external
+          children:
+            - id: input/1/13
+              kind: message.external
+              parent: run/talk_main_s8-cycle/s8-cycle
+              stream: main
+              at: 1767225607400
+              ref:
+                seq: 1
+                row: 13
+              text: and the retries?
+              state: available
+              bytes: 16
+              flags:
+                - external_input
+            - id: call/s9-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_main_s8-cycle/s8-cycle
+              stream: main
+              at: 1767225608400
+              ref:
+                seq: 1
+                row: 14
+              refs:
+                - seq: 1
+                  row: 14
+              attrs:
+                fragments: 1
+                usage: observed_replayable
+                usage_at:
+                    row: 14
+                    seq: 1
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 13
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 14
+              children:
+                - id: msg/1/14:0
+                  kind: message.assistant
+                  parent: call/s9-call-fdae022ac306
+                  stream: main
+                  at: 1767225608400
+                  ref:
+                    seq: 1
+                    row: 14
+                    block: 0
+                  text: There are 3 retries.
+                  state: available
+                  bytes: 20
+                  flags:
+                    - finished
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: exact_unique
+          via: activity window
+    - id: talk/a02ba01b82410e9e3
+      kind: talk
+      parent: epoch/a02ba01b82410e9e3/0
+      stream: a02ba01b82410e9e3
+      at: 1767225605400
+      ref:
+        seq: 2
+        row: 1
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: unknown
+      reply: It is used in server.go.
+      runs: 1
+      steps: 6
+      tools: 1
+      from: 1767225605400
+      to: 1767225607800
+      child: true
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_a02ba01b82410e9e3/a02ba01b82410e9e3-cycle
+          kind: run
+          parent: talk/a02ba01b82410e9e3
+          stream: a02ba01b82410e9e3
+          at: 1767225605400
+          ref:
+            seq: 2
+            row: 1
+          attrs:
+            trigger: external
+          children:
+            - id: call/searcher-s1-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_a02ba01b82410e9e3/a02ba01b82410e9e3-cycle
+              stream: a02ba01b82410e9e3
+              at: 1767225606400
+              ref:
+                seq: 2
+                row: 2
+              refs:
+                - seq: 2
+                  row: 2
+                - seq: 2
+                  row: 3
+              attrs:
+                fragments: 2
+                usage: observed_replayable
+                usage_at:
+                    row: 3
+                    seq: 2
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 9
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 10
+              children:
+                - id: msg/2/2:0
+                  kind: message.assistant
+                  parent: call/searcher-s1-call-fdae022ac306
+                  stream: a02ba01b82410e9e3
+                  at: 1767225606400
+                  ref:
+                    seq: 2
+                    row: 2
+                    block: 0
+                  text: Searching.
+                  state: available
+                  bytes: 10
+                - id: tool/searcher-s1-tool
+                  kind: tool
+                  parent: call/searcher-s1-call-fdae022ac306
+                  stream: a02ba01b82410e9e3
+                  at: 1767225606500
+                  ref:
+                    seq: 2
+                    row: 3
+                    block: 0
+                  refs:
+                    - seq: 2
+                      row: 3
+                      block: 0
+                    - seq: 2
+                      row: 4
+                      block: 0
+                  attrs:
+                    name: Bash
+                    result: available
+                    result_join: exact_unique
+                    timing: unavailable
+                  text: '{"command":"grep -rn timeout ."}'
+                  state: available
+                  bytes: 32
+                  flags:
+                    - finished
+                  name: Bash
+                  result: 'server.go:3: var timeout = 30'
+                  result_state: available
+                  result_bytes: 29
+                  request_to_result_ms: 300
+                  request_to_result_join: exact_unique
+            - id: call/searcher-s2-call-fdae022ac306
+              kind: llm.call
+              parent: run/talk_a02ba01b82410e9e3/a02ba01b82410e9e3-cycle
+              stream: a02ba01b82410e9e3
+              at: 1767225607800
+              ref:
+                seq: 2
+                row: 5
+              refs:
+                - seq: 2
+                  row: 5
+              attrs:
+                fragments: 1
+                usage: observed_replayable
+                usage_at:
+                    row: 5
+                    seq: 2
+                usage_from: last_fragment_in_line_order
+              usage:
+                in: 2
+                out: 40
+                cache_read: 900
+                cache_write: 100
+              provider_bodies:
+                - role: request
+                  ref:
+                    seq: 4
+                    row: 11
+                - role: response
+                  ref:
+                    seq: 4
+                    row: 12
+              children:
+                - id: msg/2/5:0
+                  kind: message.assistant
+                  parent: call/searcher-s2-call-fdae022ac306
+                  stream: a02ba01b82410e9e3
+                  at: 1767225607800
+                  ref:
+                    seq: 2
+                    row: 5
+                    block: 0
+                  text: It is used in server.go.
+                  state: available
+                  bytes: 24
+                  flags:
+                    - finished
+            - id: output/a02ba01b82410e9e3
+              kind: agent.output
+              parent: run/talk_a02ba01b82410e9e3/a02ba01b82410e9e3-cycle
+              stream: a02ba01b82410e9e3
+              at: 1767225607800
+              ref:
+                seq: 2
+                row: 5
+              refs:
+                - seq: 2
+                  row: 5
+              attrs:
+                returned_value: unavailable
+              text: It is used in server.go.
+              state: available
+              bytes: 24
+              flags:
+                - finished
+              edges:
+                - type: ends_with
+                  other: stream/a02ba01b82410e9e3
+                  dir: in
+                  quality: exact_unique
+                  via: the last response in the child stream, and what it returned
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: strong_inference
+          via: inside the window of the talk that delegated it
+loose:
+    - id: boundary/1/11
+      kind: epoch.boundary
+      parent: epoch/main/s7-boundary
+      stream: main
+      at: 1767225606400
+      ref:
+        seq: 1
+        row: 11
+      text: '{"compactMetadata":{"preservedMessages":{"allUuids":["s6-call-f1"]},"trigger":"auto"},"logicalParentUuid":"s6-call-f1","subtype":"compact_boundary","type":"system"}'
+      state: available
+      bytes: 164
+      flags:
+        - context_reset
+      edges:
+        - type: summarizes
+          other: summary/1/12
+          dir: in
+          quality: exact_unique
+          via: containment parent
+    - id: summary/1/12
+      kind: epoch.summary
+      parent: epoch/main/s7-boundary
+      stream: main
+      at: 1767225606000
+      ref:
+        seq: 1
+        row: 12
+      text: The configuration sets a 30 second timeout, used in server.go.
+      state: available
+      bytes: 62
+      flags:
+        - reset_summary
+      edges:
+        - type: summarizes
+          other: boundary/1/11
+          dir: out
+          quality: exact_unique
+          via: containment parent
+relations:
+    - id: rel/ends_with/stream_a02ba01b82410e9e3/output_a02ba01b82410e9e3
+      type: ends_with
+      from: stream/a02ba01b82410e9e3
+      to: output/a02ba01b82410e9e3
+      quality: exact_unique
+      via: the last response in the child stream, and what it returned
+      evidence:
+        - seq: 2
+          row: 5
+    - id: rel/follows/epoch_main_s7-boundary/epoch_main_0
+      type: follows
+      from: epoch/main/s7-boundary
+      to: epoch/main/0
+      quality: exact_unique
+      via: explicit context reset
+      evidence:
+        - seq: 1
+          row: 11
+    - id: rel/in_segment/talk_a02ba01b82410e9e3/segment_at_1_2
+      type: in_segment
+      from: talk/a02ba01b82410e9e3
+      to: segment/at_1_2
+      quality: strong_inference
+      via: inside the window of the talk that delegated it
+      evidence:
+        - seq: 2
+          row: 1
+    - id: rel/in_segment/talk_main_s1-cycle/segment_at_1_2
+      type: in_segment
+      from: talk/main/s1-cycle
+      to: segment/at_1_2
+      quality: exact_unique
+      via: activity window
+      evidence:
+        - seq: 1
+          row: 2
+    - id: rel/in_segment/talk_main_s4-cycle/segment_at_1_2
+      type: in_segment
+      from: talk/main/s4-cycle
+      to: segment/at_1_2
+      quality: exact_unique
+      via: activity window
+      evidence:
+        - seq: 1
+          row: 7
+    - id: rel/in_segment/talk_main_s7-cycle-compact/segment_at_1_2
+      type: in_segment
+      from: talk/main/s7-cycle-compact
+      to: segment/at_1_2
+      quality: exact_unique
+      via: activity window
+      evidence:
+        - seq: 1
+          row: 12
+    - id: rel/in_segment/talk_main_s8-cycle/segment_at_1_2
+      type: in_segment
+      from: talk/main/s8-cycle
+      to: segment/at_1_2
+      quality: exact_unique
+      via: activity window
+      evidence:
+        - seq: 1
+          row: 13
+    - id: rel/starts/tool_s5-tool/stream_a02ba01b82410e9e3
+      type: starts
+      from: tool/s5-tool
+      to: stream/a02ba01b82410e9e3
+      quality: exact_unique
+      via: parent tool result
+      evidence:
+        - seq: 1
+          row: 9
+    - id: rel/summarizes/summary_1_12/boundary_1_11
+      type: summarizes
+      from: summary/1/12
+      to: boundary/1/11
+      quality: exact_unique
+      via: containment parent
+      evidence:
+        - seq: 1
+          row: 12
+unresolved: []
+workspace_changes: []
+

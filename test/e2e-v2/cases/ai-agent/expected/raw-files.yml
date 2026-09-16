@@ -13,6 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-files: 4
+files: 3
 match: true
 export_match: true

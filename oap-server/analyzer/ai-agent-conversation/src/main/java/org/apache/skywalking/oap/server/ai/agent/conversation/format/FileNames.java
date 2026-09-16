@@ -19,17 +19,11 @@
 package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nullable;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
  * A landed file's name follows the storage-root layout from its header line, so the name is never stored and is
- * derived on read, and a name given to a query is parsed back into what it encodes: a session and a seq, or a
- * round.
+ * derived on read. A query chooses a file by what the storage holds, its session and its seq, not by its name.
  *
  * <pre>
  * &lt;session&gt;/streams/&lt;stream&gt;/transcript-&lt;stamp&gt;-&lt;seq&gt;.sd
@@ -38,15 +32,11 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * &lt;session&gt;/runs/&lt;run&gt;/journal-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/manifest-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/script-&lt;stamp&gt;-&lt;seq&gt;.sd
+ * &lt;session&gt;/provider_body/provider_body-&lt;stamp&gt;-&lt;seq&gt;.sd
  * _conversations/&lt;conversation&gt;/rounds/r&lt;round&gt;-&lt;digest12&gt;.sf
  * </pre>
  */
 public final class FileNames {
-    private static final Pattern DATA_FILE =
-        Pattern.compile("^(?<session>[^/]+)/(streams|runs)/[^/]+/[a-z]+-[^/-]+-(?<seq>\\d{6,})\\.sd$");
-    private static final Pattern ROUND_FILE =
-        Pattern.compile("^_conversations/(?<conversation>[^/]+)/rounds/r(?<round>\\d{6,})-[0-9a-f]+\\.sf$");
-
     private FileNames() {
     }
 
@@ -83,6 +73,12 @@ public final class FileNames {
                 prefix = "script";
                 dir = "runs/" + header.getBatch();
                 break;
+            case "provider_body":
+                // the bodies a runtime exchanged with its model provider, one directory for the session: a body is
+                // evidence beside a call of any stream, and a later body refers to earlier ones of every stream
+                prefix = "provider_body";
+                dir = "provider_body";
+                break;
             default:
                 prefix = header.getKind() == null ? "file" : header.getKind();
                 dir = StringUtil.isNotEmpty(header.getStream())
@@ -105,38 +101,5 @@ public final class FileNames {
         final String digest12 = commitDigest == null ? "" : commitDigest.substring(0, Math.min(12, commitDigest.length()));
         return "_conversations/" + conversation + "/rounds/r" + String.format(Locale.ROOT, "%06d", round)
             + "-" + digest12 + ".sf";
-    }
-
-    /**
-     * @param id a file id as returned by the raw-files query
-     * @return what the id names, or null when it is not a landed file or round name
-     */
-    @Nullable
-    public static Parsed parse(final String id) {
-        if (StringUtil.isEmpty(id)) {
-            return null;
-        }
-        final Matcher data = DATA_FILE.matcher(id);
-        if (data.matches()) {
-            return new Parsed(data.group("session"), Long.parseLong(data.group("seq")), null, -1);
-        }
-        final Matcher round = ROUND_FILE.matcher(id);
-        if (round.matches()) {
-            return new Parsed(null, -1, round.group("conversation"), Long.parseLong(round.group("round")));
-        }
-        return null;
-    }
-
-    @Getter
-    @RequiredArgsConstructor
-    public static final class Parsed {
-        private final String session;
-        private final long seq;
-        private final String conversation;
-        private final long round;
-
-        public boolean isDataFile() {
-            return session != null;
-        }
     }
 }

@@ -19,15 +19,11 @@
 package org.apache.skywalking.oap.query.graphql.resolver;
 
 import graphql.kickstart.tools.GraphQLQueryResolver;
-import graphql.schema.DataFetchingEnvironment;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apache.skywalking.oap.server.ai.agent.conversation.AIAgentConversationModule;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.input.ConversationCondition;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.input.ConversationListCondition;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFiles;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.InstanceCondition;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
@@ -38,8 +34,9 @@ import static org.apache.skywalking.oap.query.graphql.AsyncQueryUtils.queryAsync
 import static org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTraceContext.TRACE_CONTEXT;
 
 /**
- * Resolvers of <code>ai-agent-conversation.graphqls</code>. The conversation view is not a GraphQL query; it is
- * the module's own HTTP route on the same server, see <code>ConversationViewHandler</code>.
+ * Resolvers of <code>ai-agent-conversation.graphqls</code>. The conversation view and its files are not GraphQL
+ * queries; they are the module's own HTTP routes on the same server, see <code>ConversationViewHandler</code> and
+ * <code>ConversationFilesHandler</code>.
  */
 public class AIAgentConversationQuery implements GraphQLQueryResolver {
     private final ModuleManager moduleManager;
@@ -79,40 +76,6 @@ public class AIAgentConversationQuery implements GraphQLQueryResolver {
                     list.setDebuggingTrace(traceContext.getExecTrace());
                 }
                 return list;
-            } finally {
-                traceContext.stopSpan(span);
-                traceContext.stopTrace();
-                TRACE_CONTEXT.remove();
-            }
-        });
-    }
-
-    public CompletableFuture<ConversationRawFiles> getConversationRawFiles(final ConversationCondition condition,
-                                                                           final List<String> files,
-                                                                           final boolean debug,
-                                                                           final DataFetchingEnvironment env) {
-        // The body is read from storage only when the client selected it; selecting it on every file is the
-        // export path.
-        final boolean includeBody = env != null && env.getSelectionSet() != null
-            && env.getSelectionSet().contains("files/body");
-        return queryAsync(() -> {
-            final DebuggingTraceContext traceContext = new DebuggingTraceContext(
-                "ConversationCondition: " + condition + ", Files: " + files, debug, false);
-            TRACE_CONTEXT.set(traceContext);
-            final DebuggingSpan span = traceContext.createSpan("Query AI agent conversation raw files");
-            try {
-                final ConversationRawFiles raw = getQueryService().getConversationRawFiles(
-                    condition.getService().getServiceId(),
-                    instanceId(condition.getInstance()),
-                    condition.getConversation(),
-                    files,
-                    includeBody,
-                    condition.isColdStage()
-                );
-                if (debug) {
-                    raw.setDebuggingTrace(traceContext.getExecTrace());
-                }
-                return raw;
             } finally {
                 traceContext.stopSpan(span);
                 traceContext.stopTrace();

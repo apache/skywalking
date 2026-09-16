@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-conversations: 6
-equal: 6
-yaml_equal: 6
-h2_equal: 6
-gzip_equal: 6
+conversations: 7
+equal: 7
+yaml_equal: 7
+h2_equal: 7
+gzip_equal: 7
 format: asz.view
 version: "1.0"
 json_type: "application/vnd.skywalking.asz.view+json; version=1.0; charset=utf-8"
@@ -27,6 +27,7 @@ missing_type: "application/problem+json; charset=utf-8"
 missing:
   status: 404
   title: Not Found
-  detail: no round of conversation no-such-conversation is stored for this service
+  detail: no round of conversation no-such-conversation is stored for this sender
 noservice: 400
+noinstance: 400
 cli_missing: 1

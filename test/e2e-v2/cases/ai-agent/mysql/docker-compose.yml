@@ -17,6 +17,8 @@
 #   fixture.yaml, three sessions      build -> collect, once
 #   workspace-changes.yaml, one       build -> collect, once, after the fixture's pass: a session whose every
 #   session                           tool call changed files, in the same root
+#   provider-bodies.yaml, one         build -> collect, once, after the workspace-changes pass: a session whose
+#   session                           calls' request and response bodies landed as provider_body records
 #   three-rounds.yaml, one session    build through the first checkpoint -> collect, then through the second,
 #                                     then to the end: three rounds over files cut at each stage, and the final
 #                                     document must cover it all
@@ -38,6 +40,7 @@ x-asz: &asz
     - ../three-rounds.yaml:/asz/three-rounds.yaml:ro
     - ../lost-file.yaml:/asz/lost-file.yaml:ro
     - ../workspace-changes.yaml:/asz/workspace-changes.yaml:ro
+    - ../provider-bodies.yaml:/asz/provider-bodies.yaml:ro
   networks:
     - e2e
 
@@ -129,12 +132,26 @@ services:
     depends_on:
       wc-build:
         condition: service_completed_successfully
+  # ---- provider-bodies.yaml: the request and response bodies of every call, one session in the same root. The build
+  # lands them as provider_body records beside the transcripts, and the pass sends them like any landed file.
+  pb-build:
+    <<: *asz
+    command: ["scenario", "build", "/asz/provider-bodies.yaml", "--format", "sd", "--out", "/asz/data"]
+    depends_on:
+      wc-collect:
+        condition: service_completed_successfully
+  pb-collect:
+    <<: *asz
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      pb-build:
+        condition: service_completed_successfully
   # ---- three-rounds.yaml: one session in three stages, each parsed and sent before the next is built
   mr-build-1:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "first"]
     depends_on:
-      wc-collect:
+      pb-collect:
         condition: service_completed_successfully
   mr-collect-1:
     <<: *asz

@@ -46,13 +46,19 @@ public final class SessionDataFile {
     private final int bytes;
     /** sha256 of the whole file, the digest on the wire and the one a round's input digest chains. */
     private final String fileDigest;
+    /**
+     * Whether the records end at a line that does not decode, before the closing line. The Sessionizer's raw reader
+     * still returns that line, and a reader that needs every line, such as the gap check, must know it is there.
+     */
+    private final boolean stoppedEarly;
     /** The earliest and the latest record time in the file, in milliseconds; 0 when no record carries a time. */
     private final long fromTime;
     private final long throughTime;
 
     private SessionDataFile(final Header header, final List<Record> records, final int declaredRecords,
                             final String declaredDigest, final int lines, final int bytes,
-                            final String fileDigest, final long fromTime, final long throughTime) {
+                            final String fileDigest, final boolean stoppedEarly, final long fromTime,
+                            final long throughTime) {
         this.header = header;
         this.records = records;
         this.declaredRecords = declaredRecords;
@@ -60,6 +66,7 @@ public final class SessionDataFile {
         this.lines = lines;
         this.bytes = bytes;
         this.fileDigest = fileDigest;
+        this.stoppedEarly = stoppedEarly;
         this.fromTime = fromTime;
         this.throughTime = throughTime;
     }
@@ -89,17 +96,20 @@ public final class SessionDataFile {
         String declaredDigest = null;
         long from = 0;
         long through = 0;
+        boolean stoppedEarly = false;
         // as the Sessionizer's reader: a header it would refuse yields no records, and an empty or undecodable
         // line ends the records there, so a later row is never read and the rows stay contiguous
         for (int i = 1; header.isValid() && i < lineCount; i++) {
             final String line = rawLines[i];
             if (line.isEmpty()) {
+                stoppedEarly = true;
                 break;
             }
             final JsonObject json;
             try {
                 json = JsonParser.parseString(line).getAsJsonObject();
             } catch (final RuntimeException e) {
+                stoppedEarly = true;
                 break;
             }
             if (i == lineCount - 1 && "end".equals(string(json, "t"))) {
@@ -108,6 +118,13 @@ public final class SessionDataFile {
                 break;
             }
             final Record record = new Record(i, line, json);
+            if (!record.decodes()) {
+                // The Sessionizer decodes a whole typed record and stops the file where one does not: a
+                // record whose `off` is a string, say. Reading past it here would report bodies its own
+                // reader never sees.
+                stoppedEarly = true;
+                break;
+            }
             records.add(record);
             final long time = record.getTime();
             if (time != 0) {
@@ -121,7 +138,24 @@ public final class SessionDataFile {
         }
         return new SessionDataFile(
             header, Collections.unmodifiableList(records), declaredRecords, declaredDigest,
-            Digests.countLines(body), body.length, Digests.sha256Hex(body), from, through);
+            Digests.countLines(body), body.length, Digests.sha256Hex(body), stoppedEarly, from, through);
+    }
+
+    /**
+     * @param body the file bytes as stored
+     * @return the header line alone, without reading the records: what the file is and where it belongs
+     * @throws IllegalArgumentException when the first line is not a Session Data header
+     */
+    public static Header header(final byte[] body) {
+        int end = 0;
+        while (end < body.length && body[end] != '\n') {
+            end++;
+        }
+        final JsonObject json = JsonParser.parseString(new String(body, 0, end, StandardCharsets.UTF_8)).getAsJsonObject();
+        if (!json.has("h")) {
+            throw new IllegalArgumentException("the first line is not a Session Data header");
+        }
+        return new Header(json);
     }
 
     /**
@@ -203,9 +237,16 @@ public final class SessionDataFile {
         /** The same moment in nanoseconds, the precision the Sessionizer computes intervals with. */
         private final long timeNanos;
         private final List<Part> parts;
+        /**
+         * The digits after the line's leading <code>{"ord":</code>, as the Sessionizer reads an ord without decoding
+         * the line; empty when none follow, and null when the line does not start so.
+         */
+        @Nullable
+        private final String leadingOrd;
 
         Record(final int row, final String line, final JsonObject json) {
             this.row = row;
+            this.leadingOrd = leadingOrd(line);
             this.json = json;
             this.id = string(json, "id");
             this.timeNanos = Times.nanos(string(json, "time"));
@@ -221,6 +262,19 @@ public final class SessionDataFile {
                 }
             }
             this.parts = Collections.unmodifiableList(list);
+        }
+
+        @Nullable
+        private static String leadingOrd(final String line) {
+            final String prefix = "{\"ord\":";
+            if (!line.startsWith(prefix)) {
+                return null;
+            }
+            int i = prefix.length();
+            while (i < line.length() && line.charAt(i) >= '0' && line.charAt(i) <= '9') {
+                i++;
+            }
+            return line.substring(prefix.length(), i);
         }
 
         /**
@@ -280,10 +334,90 @@ public final class SessionDataFile {
             }
             final List<String> out = new ArrayList<>();
             for (final JsonElement x : e.getAsJsonArray()) {
-                out.add(x.getAsString());
+                // a null element decodes to the empty string, as it does into a Go []string
+                out.add(x.isJsonNull() ? "" : x.getAsString());
             }
             return out;
         }
+
+        /**
+         * @return whether the Sessionizer's own reader decodes this record. Its fields are typed, so a value
+         * of another type fails the whole record there, and the file's records end with it. Only the types
+         * are checked here; what the values mean is the reader's business.
+         */
+        boolean decodes() {
+            for (final String key : STRING_FIELDS) {
+                final JsonElement v = json.get(key);
+                if (v != null && !v.isJsonNull() && !(v.isJsonPrimitive() && v.getAsJsonPrimitive().isString())) {
+                    return false;
+                }
+            }
+            for (final String key : UNSIGNED_FIELDS) {
+                if (!wholeNumber(json.get(key), true)) {
+                    return false;
+                }
+            }
+            if (!wholeNumber(json.get("bytes"), false)) {
+                return false;
+            }
+            for (final String key : ARRAY_FIELDS) {
+                final JsonElement v = json.get(key);
+                if (v != null && !v.isJsonNull() && !v.isJsonArray()) {
+                    return false;
+                }
+            }
+            final JsonElement flags = json.get("flags");
+            if (flags != null && flags.isJsonArray()) {
+                for (final JsonElement x : flags.getAsJsonArray()) {
+                    if (!x.isJsonNull() && !(x.isJsonPrimitive() && x.getAsJsonPrimitive().isString())) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /**
+         * @param unsigned whether the Go type is an unsigned 64-bit integer rather than a signed one
+         * @return whether the value is absent, null, or a number Go decodes into that type: no fraction, no
+         * exponent, no sign where the type has none, and within its range. A JSON number this reader would
+         * round is one the Sessionizer refuses outright.
+         *
+         * <p>The record's own fields are checked, and the shape of the lists it carries; what is inside
+         * `parts`, `dropped` and `usage` is not. That is on purpose: Go ignores a field it does not declare,
+         * so a check that guessed at those types would refuse records the Sessionizer reads, and refusing
+         * one hides it and every record behind it in the file. Reading a record the Sessionizer would refuse
+         * is the safer way to be wrong.
+         */
+        private static boolean wholeNumber(@Nullable final JsonElement v, final boolean unsigned) {
+            if (v == null || v.isJsonNull()) {
+                return true;
+            }
+            if (!v.isJsonPrimitive() || !v.getAsJsonPrimitive().isNumber()) {
+                return false;
+            }
+            final String text = v.getAsString();
+            if (text.indexOf('.') >= 0 || text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
+                return false;
+            }
+            if (unsigned && text.startsWith("-")) {
+                return false;
+            }
+            try {
+                final java.math.BigInteger n = new java.math.BigInteger(text);
+                return unsigned ? n.bitLength() <= 64 : n.bitLength() < 64;
+            } catch (final NumberFormatException e) {
+                return false;
+            }
+        }
+
+        private static final String[] STRING_FIELDS = {
+            "sha", "id", "parent", "call", "run", "continues", "tool", "child", "batch", "label",
+            "started_by", "from", "time", "trigger", "model"
+        };
+        private static final String[] UNSIGNED_FIELDS = {"ord", "off"};
+
+        private static final String[] ARRAY_FIELDS = {"flags", "parts", "dropped"};
     }
 
     /**

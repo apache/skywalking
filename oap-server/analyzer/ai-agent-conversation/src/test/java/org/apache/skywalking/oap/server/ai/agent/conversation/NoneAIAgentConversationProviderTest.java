@@ -27,8 +27,9 @@ import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class NoneAIAgentConversationProviderTest {
@@ -53,9 +54,9 @@ public class NoneAIAgentConversationProviderTest {
                           .getConversations()
                           .isEmpty());
         assertNotNull(service.listConversations("1", null, null, null, new Duration(), null).getErrorReason());
-        assertNull(service.buildConversationView("1", null, "c", false));
-        assertTrue(service.getConversationRawFiles("1", null, "c", Collections.emptyList(), true, false)
-                          .getFiles()
-                          .isEmpty());
+        assertNull(service.buildConversationView("1", null, "c", false, () -> true));
+        assertFalse(service.readConversationFiles("1", "i", "c", "s", Collections.singletonList(1L), false, () -> true, file -> {
+            throw new AssertionError("no file is served");
+        }));
     }
 }
