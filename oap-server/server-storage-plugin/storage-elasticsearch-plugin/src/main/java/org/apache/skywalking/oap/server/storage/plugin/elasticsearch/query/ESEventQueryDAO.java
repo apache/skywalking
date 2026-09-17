@@ -121,7 +121,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         }
 
         if (!isNullOrEmpty(condition.getLayer())) {
-            query.must(Query.term(Event.LAYER, condition.getLayer()));
+            query.must(Query.term(Event.LAYER, Layer.nameOf(condition.getLayer()).value()));
         }
     }
 
