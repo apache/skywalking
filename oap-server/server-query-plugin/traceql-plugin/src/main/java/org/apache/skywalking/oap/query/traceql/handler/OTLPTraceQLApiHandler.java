@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.OTLPTraceQueryService;
@@ -82,12 +83,14 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
     private static final int DEFAULT_LIMIT = 20;
 
     private final OTLPTraceQueryService queryService;
+    private final NamingControl namingControl;
     private final TagAutoCompleteQueryService tagAutoCompleteQueryService;
     private final TraceQLConfig config;
     private final Set<String> allowedTags;
 
     public OTLPTraceQLApiHandler(final ModuleManager moduleManager, final TraceQLConfig config) {
         this.queryService = new OTLPTraceQueryService(moduleManager);
+        this.namingControl = moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class);
         this.tagAutoCompleteQueryService = moduleManager.find(CoreModule.NAME)
                                                         .provider()
                                                         .getService(TagAutoCompleteQueryService.class);
@@ -158,10 +161,10 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                     applyTraceQL(parseTagsParameter(tags.get()), condition);
                 }
             }
-            if (condition.getMinDurationNanos() == 0 && minDuration.isPresent()) {
+            if (condition.getMinDurationNanos() == null && minDuration.isPresent()) {
                 condition.setMinDurationNanos(parseDuration(minDuration.get()) * 1000L);
             }
-            if (condition.getMaxDurationNanos() == 0 && maxDuration.isPresent()) {
+            if (condition.getMaxDurationNanos() == null && maxDuration.isPresent()) {
                 condition.setMaxDurationNanos(parseDuration(maxDuration.get()) * 1000L);
             }
 
@@ -171,7 +174,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                 traces.add(OTLPTraceAssembler.decode(trace));
             }
             final SearchResponse response = OTLPTraceAssembler.toSearchResponse(
-                traces, allowedTags, new OTLPSpanMatcher(condition), spansPerSpanSet(spss));
+                traces, allowedTags, new OTLPSpanMatcher(condition, namingControl), spansPerSpanSet(spss));
             return successResponse(response);
         } catch (IllegalExpressionException | IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
@@ -212,7 +215,8 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
             condition.getTags().add(new Tag(HTTP_STATUS_CODE, params.getHttpStatusCode()));
         }
         for (final Map.Entry<String, String> tag : params.getTags().entrySet()) {
-            switch (tag.getKey()) {
+            // the column-backed keys are matched without their scope, every other key keeps it for the tag index
+            switch (unscoped(tag.getKey())) {
                 case OTEL_SCOPE_NAME:
                     condition.setScopeName(tag.getValue());
                     break;
@@ -226,6 +230,16 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                     condition.getTags().add(new Tag(tag.getKey(), tag.getValue()));
             }
         }
+    }
+
+    private static String unscoped(final String key) {
+        if (key.startsWith(SPAN_PREFIX)) {
+            return key.substring(SPAN_PREFIX.length());
+        }
+        if (key.startsWith(SCOPE_RESOURCE + ".")) {
+            return key.substring(SCOPE_RESOURCE.length() + 1);
+        }
+        return key;
     }
 
     private static int statusCode(final String status) {
@@ -305,7 +319,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         for (final List<SpanWrapper> trace : queryService.queryTraces(condition)) {
             traces.add(OTLPTraceAssembler.decode(trace));
         }
-        return new Sample(traces, new OTLPSpanMatcher(condition));
+        return new Sample(traces, new OTLPSpanMatcher(condition, namingControl));
     }
 
     private static final class Sample {

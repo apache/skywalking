@@ -80,7 +80,7 @@ public class TraceQLQueryParserTest {
         assertFalse(result.hasError(), "Parse should succeed");
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
-        assertEquals(100000L, params.getMinDuration()); // 100ms = 100000 microseconds
+        assertEquals(100001L, params.getMinDuration()); // > 100ms: at least 100000 + 1 microseconds
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TraceQLQueryParserTest {
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
         assertEquals("myservice", params.getServiceName());
-        assertEquals(1000000L, params.getMinDuration()); // 1s = 1000000 microseconds
+        assertEquals(1000001L, params.getMinDuration()); // > 1s: at least 1000000 + 1 microseconds
         assertEquals("200", params.getHttpStatusCode());
     }
 
@@ -108,13 +108,36 @@ public class TraceQLQueryParserTest {
 
     @Test
     public void testScopedHttpAttributes() {
-        // Test that span.http.method is stored as http.method (scope prefix removed)
+        // the scope is kept, the datasources without scopes read the flattened view
         String query = "{span.http.method=\"POST\"}";
         TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
         assertFalse(result.hasError(), "Parse should succeed");
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
-        assertEquals("POST", params.getTags().get("http.method"));
+        assertEquals("POST", params.getTags().get("span.http.method"));
+        assertEquals("POST", params.flatTags().get("http.method"));
+    }
+
+    @Test
+    public void testResourceAndSpanScopesStayApart() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{resource.env=\"prod\" && span.env=\"dev\" && .region=\"eu\"}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        TraceQLQueryParams params = result.getParams();
+        assertEquals("prod", params.getTags().get("resource.env"));
+        assertEquals("dev", params.getTags().get("span.env"));
+        assertEquals("eu", params.getTags().get("region"));
+        assertEquals(3, params.getTags().size());
+        // flattened, the two scopes collapse onto one key: the last one written wins, which is why the OTLP
+        // datasource reads the scoped map instead
+        assertEquals("eu", params.flatTags().get("region"));
+    }
+
+    @Test
+    public void testIntrinsicScopedAttributeIsASyntaxError() {
+        // `intrinsic` is a scope token of the tag-name endpoints only; as an attribute prefix it never parses
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{intrinsic.name=\"GET /\"}");
+        assertTrue(result.hasError());
+        assertTrue(result.getErrorInfo().startsWith("Invalid TraceQL"), result.getErrorInfo());
     }
 
     @Test
@@ -154,14 +177,14 @@ public class TraceQLQueryParserTest {
         assertEquals("HTTP GET", params.getSpanName());
 
         // Check duration (both min and max should be set)
-        assertEquals(100000L, params.getMinDuration()); // 100ms in microseconds
-        assertEquals(10000L, params.getMaxDuration()); // 10ms in microseconds
+        assertEquals(100001L, params.getMinDuration()); // > 100ms
+        assertEquals(9999L, params.getMaxDuration()); // < 10ms
 
         // Check status
         assertEquals("ok", params.getStatus());
 
-        // Check http.method tag
-        assertEquals("GET", params.getTags().get("http.method"));
+        // Check http.method tag, scope kept
+        assertEquals("GET", params.getTags().get("span.http.method"));
     }
 
     @Test
@@ -170,7 +193,7 @@ public class TraceQLQueryParserTest {
         assertFalse(result.hasError(), "Parse should succeed: " + result.getErrorInfo());
         TraceQLQueryParams params = result.getParams();
         assertEquals("server", params.getKind());
-        assertEquals(100_000L, params.getMinDuration());
+        assertEquals(100_001L, params.getMinDuration());
         assertEquals("GET /", params.getSpanName());
     }
 

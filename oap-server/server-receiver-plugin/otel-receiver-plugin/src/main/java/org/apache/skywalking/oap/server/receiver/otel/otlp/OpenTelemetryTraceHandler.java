@@ -77,6 +77,7 @@ import java.util.concurrent.TimeUnit;
 public class OpenTelemetryTraceHandler
     extends TraceServiceGrpc.TraceServiceImplBase
     implements Handler {
+    public static final String TYPE = "otlp-traces";
     private static final String NO_SERVICE_NAME_MESSAGE =
         "resource carries none of service.name, faas.name, k8s.deployment.name, process.executable.name";
 
@@ -112,7 +113,7 @@ public class OpenTelemetryTraceHandler
 
     @Override
     public String type() {
-        return "otlp-traces";
+        return TYPE;
     }
 
     @Override
@@ -132,12 +133,6 @@ public class OpenTelemetryTraceHandler
         if (config.isOtlpTraceStorageNative()) {
             // Built here, once, so the rate limiter is shared by every export; a lazy build raced on the first two.
             otlpSpanForward = new OTLPSpanForward(config, manager);
-        } else if (!manager.has(ZipkinReceiverModule.NAME)) {
-            // The Zipkin lookup stays lazy so native mode does not require the module, so check it here instead of
-            // failing on the first export.
-            throw new ModuleStartException(
-                "otlp-traces stores spans through receiver-zipkin (otlpTraceStorage: zipkin), but that module is not"
-                    + " enabled: enable receiver-zipkin and query-zipkin, or use the default otlpTraceStorage: otlp");
         }
     }
 

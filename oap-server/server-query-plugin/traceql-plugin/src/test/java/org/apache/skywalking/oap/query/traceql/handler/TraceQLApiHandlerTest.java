@@ -125,10 +125,11 @@ class TraceQLApiHandlerTest {
             "service.name=frontend  span.http.method=GET name=\"GET /\" resource.host.name=web-1 error=true");
         assertEquals("frontend", params.getServiceName());
         assertEquals("GET /", params.getSpanName());
-        assertEquals("GET", params.getTags().get("http.method"));
-        assertEquals("web-1", params.getTags().get("host.name"));
+        assertEquals("GET", params.getTags().get("span.http.method"));
+        assertEquals("web-1", params.getTags().get("resource.host.name"));
         assertEquals("true", params.getTags().get("error"));
         assertEquals(3, params.getTags().size());
+        assertEquals("GET", params.flatTags().get("http.method"));
 
         assertThrows(IllegalArgumentException.class, () -> TraceQLApiHandler.parseTagsParameter("http.method"));
         assertThrows(IllegalArgumentException.class, () -> TraceQLApiHandler.parseTagsParameter("=GET"));

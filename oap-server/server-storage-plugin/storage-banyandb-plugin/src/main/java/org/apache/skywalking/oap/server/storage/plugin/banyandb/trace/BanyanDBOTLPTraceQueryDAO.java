@@ -159,18 +159,31 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
         if (condition.getStatusCode() != null) {
             where.eq(OTLPSpanRecord.STATUS_CODE, condition.getStatusCode().longValue());
         }
-        if (condition.getMinDurationNanos() > 0) {
+        if (condition.getMinDurationNanos() != null) {
             where.gte(OTLPSpanRecord.DURATION, condition.getMinDurationNanos());
         }
-        if (condition.getMaxDurationNanos() > 0) {
+        if (condition.getMaxDurationNanos() != null) {
             where.lte(OTLPSpanRecord.DURATION, condition.getMaxDurationNanos());
         }
         if (CollectionUtils.isNotEmpty(condition.getTags())) {
-            final List<String> tagConditions = new ArrayList<>(condition.getTags().size());
+            // Scoped keys must all be present (HAVING); an unscoped key is either of its two forms, an OR of two
+            // HAVING groups, since the one-form-of-each semantics is exactly what TraceQL defines for `.key`.
+            final List<String> scoped = new ArrayList<>(condition.getTags().size());
             for (final Tag tag : condition.getTags()) {
-                tagConditions.add(tag.getKey() + "=" + tag.getValue());
+                final List<String> forms = OTLPSpanRecord.indexedTags(tag.getKey(), tag.getValue());
+                if (forms.size() == 1) {
+                    scoped.add(forms.get(0));
+                } else {
+                    final List<Conditions> either = new ArrayList<>(forms.size());
+                    for (final String form : forms) {
+                        either.add(Conditions.group().having(OTLPSpanRecord.TAGS, List.of(form)));
+                    }
+                    where.or(either);
+                }
             }
-            where.having(OTLPSpanRecord.TAGS, tagConditions);
+            if (!scoped.isEmpty()) {
+                where.having(OTLPSpanRecord.TAGS, scoped);
+            }
         }
         if (condition.getQueryOrder() == QueryOrder.BY_DURATION) {
             where.orderByDesc(OTLPSpanRecord.DURATION);

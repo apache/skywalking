@@ -19,6 +19,8 @@ package org.apache.skywalking.oap.query.traceql.converter;
 
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.junit.jupiter.api.Test;
 
@@ -68,6 +70,19 @@ class SkyWalkingSpanMatcherTest {
         assertTrue(new SkyWalkingSpanMatcher(params).matches(span()));
         params.setMinDuration(251_000L);
         assertFalse(new SkyWalkingSpanMatcher(params).matches(span()));
+    }
+
+    @Test
+    void shouldCompareTheEndpointNameTheStorageIndexed() {
+        // endpoint names cut to 4 characters: the segment's endpoint id carries "GET:", the span the raw "GET:/api"
+        final NamingControl namingControl = new NamingControl(70, 70, 4, new EndpointNameGrouping());
+        final TraceQLQueryParams params = new TraceQLQueryParams();
+        params.setSpanName("GET:");
+        assertTrue(new SkyWalkingSpanMatcher(params, namingControl).matches(span()));
+        assertFalse(new SkyWalkingSpanMatcher(params).matches(span()));
+
+        params.setSpanName("GET:/api");
+        assertFalse(new SkyWalkingSpanMatcher(params, namingControl).matches(span()));
     }
 
     @Test

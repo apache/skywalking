@@ -586,11 +586,8 @@ public abstract class TraceQLApiHandler {
                 params.setServiceName(value);
             } else if (SPAN_NAME.equals(key) || NAME.equals(key)) {
                 params.setSpanName(value);
-            } else if (key.startsWith(SPAN_PREFIX)) {
-                params.getTags().put(key.substring(SPAN_PREFIX.length()), value);
-            } else if (key.startsWith(SCOPE_RESOURCE + ".")) {
-                params.getTags().put(key.substring(SCOPE_RESOURCE.length() + 1), value);
             } else {
+                // kept as written, scope included, the way the TraceQL visitor stores attributes
                 params.getTags().put(key, value);
             }
         }

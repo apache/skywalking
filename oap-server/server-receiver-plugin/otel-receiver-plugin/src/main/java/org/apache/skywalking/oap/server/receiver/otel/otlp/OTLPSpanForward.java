@@ -139,8 +139,9 @@ public class OTLPSpanForward {
         source.setTimeBucket(TimeBucket.getRecordTimeBucket(startTimeMillis));
 
         final List<String> tags = new ArrayList<>(resource.getAttributesCount() + stored.getAttributesCount());
-        indexAttributes(resource.getAttributesList(), tags, minuteTimeBucket);
-        final String peerService = indexAttributes(stored.getAttributesList(), tags, minuteTimeBucket);
+        indexAttributes(resource.getAttributesList(), OTLPSpanRecord.RESOURCE_TAG_PREFIX, tags, minuteTimeBucket);
+        final String peerService = indexAttributes(
+            stored.getAttributesList(), OTLPSpanRecord.SPAN_TAG_PREFIX, tags, minuteTimeBucket);
         source.setTags(tags);
         if (StringUtil.isNotEmpty(peerService)) {
             source.setPeerService(getNamingControl().formatServiceName(peerService));
@@ -220,19 +221,24 @@ public class OTLPSpanForward {
     }
 
     /**
-     * Append every attribute as {@code key=value} to the search index, skipping entries longer than
-     * {@link Tag#TAG_LENGTH}, and publish the configured keys to tag autocomplete.
+     * Append every attribute as {@code <scope>.key=value} to the search index, skipping entries longer than
+     * {@link Tag#TAG_LENGTH}, and publish the configured keys to tag autocomplete, which stays scope-less: it only
+     * feeds the value dropdowns.
      *
+     * @param scopePrefix {@link OTLPSpanRecord#RESOURCE_TAG_PREFIX} or {@link OTLPSpanRecord#SPAN_TAG_PREFIX}
      * @return the {@code peer.service} value, or null when the attributes carry none
      */
-    private String indexAttributes(final List<KeyValue> attributes, final List<String> tags, final long minuteTimeBucket) {
+    private String indexAttributes(final List<KeyValue> attributes,
+                                   final String scopePrefix,
+                                   final List<String> tags,
+                                   final long minuteTimeBucket) {
         String peerService = null;
         for (final KeyValue attribute : attributes) {
             final String value = OTLPValues.render(attribute.getValue());
             if (PEER_SERVICE.equals(attribute.getKey())) {
                 peerService = value;
             }
-            final String tag = attribute.getKey() + "=" + value;
+            final String tag = scopePrefix + attribute.getKey() + "=" + value;
             if (tag.length() > Tag.TAG_LENGTH) {
                 if (log.isDebugEnabled()) {
                     log.debug("Span attribute {} length > {}, not indexed", tag, Tag.TAG_LENGTH);

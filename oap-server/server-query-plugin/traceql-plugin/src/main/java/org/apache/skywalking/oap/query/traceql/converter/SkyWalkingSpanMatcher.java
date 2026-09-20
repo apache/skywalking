@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.query.type.Span;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -40,12 +41,25 @@ import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.
  */
 public final class SkyWalkingSpanMatcher {
     private final TraceQLQueryParams params;
+    private final NamingControl namingControl;
     private final Set<String> tags = new HashSet<>();
 
+    /**
+     * Compares the raw operation names; for tests. Production code passes the {@link NamingControl}.
+     */
     public SkyWalkingSpanMatcher(final TraceQLQueryParams params) {
+        this(params, null);
+    }
+
+    /**
+     * @param namingControl the rules the trace analyzer applied to the endpoint name the storage matched, while the
+     *                      span keeps the raw operation name; null compares the raw names
+     */
+    public SkyWalkingSpanMatcher(final TraceQLQueryParams params, final NamingControl namingControl) {
         this.params = params;
+        this.namingControl = namingControl;
         if (params.getTags() != null) {
-            for (final Map.Entry<String, String> tag : params.getTags().entrySet()) {
+            for (final Map.Entry<String, String> tag : params.flatTags().entrySet()) {
                 tags.add(tag.getKey() + "=" + tag.getValue());
             }
         }
@@ -57,7 +71,7 @@ public final class SkyWalkingSpanMatcher {
     public boolean matches(final Span span) {
         if (differs(params.getServiceName(), span.getServiceCode())
             || differs(params.getServiceInstance(), span.getServiceInstanceName())
-            || differs(params.getSpanName(), span.getEndpointName())) {
+            || differs(params.getSpanName(), endpointName(span))) {
             return false;
         }
         final long durationMillis = span.getEndTime() - span.getStartTime();
@@ -86,6 +100,11 @@ public final class SkyWalkingSpanMatcher {
     /**
      * A TraceQL value of {@code *} matches anything, as the handler treats it when building the condition.
      */
+    private String endpointName(final Span span) {
+        return namingControl == null
+            ? span.getEndpointName() : namingControl.formatEndpointName(span.getServiceCode(), span.getEndpointName());
+    }
+
     private static boolean differs(final String expected, final String actual) {
         return StringUtil.isNotBlank(expected) && !ALL.equals(expected) && !expected.equals(actual);
     }

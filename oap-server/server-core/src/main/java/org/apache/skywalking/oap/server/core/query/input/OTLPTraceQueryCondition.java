@@ -32,8 +32,9 @@ import org.apache.skywalking.oap.server.core.query.type.QueryOrder;
  * storage retains, any other search needs a time range.
  *
  * <p>The scalar fields are equality conditions on the record's index columns; {@link #tags} are equality
- * conditions on the {@code key=value} attribute index. Durations are nanoseconds, the unit of the
- * {@code duration} column.
+ * conditions on the attribute index, where a key carrying its {@code resource.} or {@code span.} scope matches that
+ * scope only and a bare key matches either, see {@code OTLPSpanRecord#indexedTags}. Durations are nanoseconds, the
+ * unit of the {@code duration} column.
  */
 @Getter
 @Setter
@@ -53,13 +54,13 @@ public class OTLPTraceQueryCondition {
      */
     private Integer statusCode;
     /**
-     * Inclusive lower bound in nanoseconds; 0 means unbounded.
+     * Inclusive lower bound in nanoseconds, null for none. Zero is a real bound, so {@code duration <= 0} can be asked.
      */
-    private long minDurationNanos;
+    private Long minDurationNanos;
     /**
-     * Inclusive upper bound in nanoseconds; 0 means unbounded.
+     * Inclusive upper bound in nanoseconds, null for none.
      */
-    private long maxDurationNanos;
+    private Long maxDurationNanos;
     private List<Tag> tags = new ArrayList<>();
     private String traceId;
     private Duration queryDuration;

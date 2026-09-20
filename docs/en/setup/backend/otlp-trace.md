@@ -96,8 +96,11 @@ anonymous span.
 Every span is stored as a single-span `ResourceSpans` message, so the query returns the exact resource,
 instrumentation scope, attributes, events, links and status the SDK sent. A few columns are extracted
 for search: service name and instance (`service.instance.id`), instrumentation scope name, span name,
-kind, status code, `peer.service`, start time and duration. All resource and span attributes are indexed
-as `key=value` tags for TraceQL equality filters.
+kind, status code, `peer.service`, start time and duration. The service, span and peer names go through the core
+module's naming rules first, the length limits and the endpoint grouping rules SkyWalking applies to its own
+services and endpoints, so a TraceQL `name` matches the grouped name while the stored span keeps the original. Every resource attribute is indexed as a
+`resource.<key>=<value>` tag and every span attribute as a `span.<key>=<value>` tag, so a scoped TraceQL attribute
+matches its own scope only and an unscoped `.<key>` matches either.
 
 The BanyanDB storage keeps the spans in the `otlpTrace` group, see [BanyanDB TTL](../../banyandb/ttl.md)
 for its default retention and [BanyanDB storage](./storages/banyandb.md) for the group settings.

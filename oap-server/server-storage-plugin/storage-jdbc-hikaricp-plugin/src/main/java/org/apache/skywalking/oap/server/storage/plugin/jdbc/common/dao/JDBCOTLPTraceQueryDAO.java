@@ -24,11 +24,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -56,6 +58,11 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 @RequiredArgsConstructor
 public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
     private static final int NAME_QUERY_MAX_SIZE = Integer.MAX_VALUE;
+
+    /**
+     * The alias of the aggregate a search ranks traces by, {@code min(start_time)} or {@code max(duration)}.
+     */
+    private static final String RANK_COLUMN = "rank_value";
 
     private final JDBCClient jdbcClient;
     private final TableHelper tableHelper;
@@ -119,40 +126,58 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
     @Override
     @SneakyThrows
     public List<SpanWrapper> queryTraceById(final String traceId, @Nullable final Duration duration) {
-        final List<String> tables = tableHelper.getTablesWithinTTL(OTLPSpanRecord.INDEX_NAME);
+        final List<String> tables = tablesFor(duration);
+        final boolean bounded = duration != null && duration.getStartTimestamp() > 0 && duration.getEndTimestamp() > 0;
         final List<SpanWrapper> trace = new ArrayList<>();
         for (final String table : tables) {
-            final String sql = "select * from " + table
-                + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? and " + OTLPSpanRecord.TRACE_ID + " = ?"
-                + " order by " + OTLPSpanRecord.START_TIME + " desc";
-            jdbcClient.executeQuery(sql, resultSet -> {
+            final StringBuilder sql = new StringBuilder("select * from ").append(table)
+                .append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? and ")
+                .append(OTLPSpanRecord.TRACE_ID).append(" = ?");
+            final List<Object> parameters = new ArrayList<>(List.of(OTLPSpanRecord.INDEX_NAME, traceId));
+            if (bounded) {
+                sql.append(" and ").append(OTLPSpanRecord.START_TIME).append(" >= ?")
+                   .append(" and ").append(OTLPSpanRecord.START_TIME).append(" <= ?");
+                parameters.add(duration.getStartTimestamp());
+                parameters.add(duration.getEndTimestamp());
+            }
+            sql.append(" order by ").append(OTLPSpanRecord.START_TIME).append(" desc");
+            jdbcClient.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
                     trace.add(buildSpanWrapper(resultSet));
                 }
                 return null;
-            }, OTLPSpanRecord.INDEX_NAME, traceId);
+            }, parameters.toArray(new Object[0]));
         }
         return trace;
+    }
+
+    /**
+     * The day tables a time range covers, every table within the TTL without one.
+     */
+    private List<String> tablesFor(@Nullable final Duration duration) {
+        return duration == null
+            ? tableHelper.getTablesWithinTTL(OTLPSpanRecord.INDEX_NAME)
+            : tableHelper.getTablesForRead(
+                OTLPSpanRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket());
     }
 
     @Override
     @SneakyThrows
     public List<List<SpanWrapper>> queryTraces(final OTLPTraceQueryCondition condition) {
         final Duration duration = condition.getQueryDuration();
-        final List<String> tables = duration == null
-            ? tableHelper.getTablesWithinTTL(OTLPSpanRecord.INDEX_NAME)
-            : tableHelper.getTablesForRead(
-                OTLPSpanRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket());
+        final List<String> tables = tablesFor(duration);
         final boolean byDuration = condition.getQueryOrder() == QueryOrder.BY_DURATION;
         final String orderColumn = byDuration
             ? "max(" + OTLPSpanRecord.DURATION + ")" : "min(" + OTLPSpanRecord.START_TIME + ")";
-        final Set<String> traceIds = new LinkedHashSet<>();
+        // Every day table answers its own top `limit`; a trace that crosses midnight is in two of them, so the
+        // candidates are merged on the rank value and ranked once more before the limit applies to the whole range.
+        final Map<String, Long> rankByTraceId = new HashMap<>();
         for (final String table : tables) {
             final StringBuilder sql = new StringBuilder();
             final List<Object> parameters = new ArrayList<>();
             final List<Tag> tags = condition.getTags() == null ? Collections.emptyList() : condition.getTags();
             sql.append("select ").append(table).append(".").append(OTLPSpanRecord.TRACE_ID).append(", ")
-               .append(orderColumn).append(" from ").append(table);
+               .append(orderColumn).append(" as ").append(RANK_COLUMN).append(" from ").append(table);
             final long timeBucket = TableHelper.getTimeBucket(table);
             final String tagTable = TableHelper.getTable(OTLPSpanRecord.ADDITIONAL_TAG_TABLE, timeBucket);
             for (int i = 0; i < tags.size(); i++) {
@@ -182,28 +207,42 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
                 sql.append(" and ").append(OTLPSpanRecord.STATUS_CODE).append(" = ?");
                 parameters.add(condition.getStatusCode());
             }
-            if (condition.getMinDurationNanos() > 0) {
+            if (condition.getMinDurationNanos() != null) {
                 sql.append(" and ").append(OTLPSpanRecord.DURATION).append(" >= ?");
                 parameters.add(condition.getMinDurationNanos());
             }
-            if (condition.getMaxDurationNanos() > 0) {
+            if (condition.getMaxDurationNanos() != null) {
                 sql.append(" and ").append(OTLPSpanRecord.DURATION).append(" <= ?");
                 parameters.add(condition.getMaxDurationNanos());
             }
             for (int i = 0; i < tags.size(); i++) {
-                sql.append(" and ").append(tagTable).append(i).append(".").append(OTLPSpanRecord.TAGS).append(" = ?");
-                parameters.add(tags.get(i).getKey() + "=" + tags.get(i).getValue());
+                // one form for a scoped key, either of the two for an unscoped one
+                final List<String> forms = OTLPSpanRecord.indexedTags(tags.get(i).getKey(), tags.get(i).getValue());
+                sql.append(" and ").append(tagTable).append(i).append(".").append(OTLPSpanRecord.TAGS);
+                if (forms.size() == 1) {
+                    sql.append(" = ?");
+                } else {
+                    sql.append(" in (").append(String.join(",", Collections.nCopies(forms.size(), "?"))).append(")");
+                }
+                parameters.addAll(forms);
             }
             sql.append(" group by ").append(table).append(".").append(OTLPSpanRecord.TRACE_ID);
             sql.append(" order by ").append(orderColumn).append(" desc");
             sql.append(" limit ").append(condition.getLimit());
             jdbcClient.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
-                    traceIds.add(resultSet.getString(OTLPSpanRecord.TRACE_ID));
+                    rankByTraceId.merge(
+                        resultSet.getString(OTLPSpanRecord.TRACE_ID), resultSet.getLong(RANK_COLUMN),
+                        byDuration ? Math::max : Math::min);
                 }
                 return null;
             }, parameters.toArray(new Object[0]));
         }
+        final Set<String> traceIds = rankByTraceId.entrySet().stream()
+                                                  .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                                                  .limit(condition.getLimit())
+                                                  .map(Map.Entry::getKey)
+                                                  .collect(Collectors.toCollection(LinkedHashSet::new));
         return fetchTraces(traceIds);
     }
 

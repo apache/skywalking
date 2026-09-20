@@ -87,6 +87,12 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
     public static final String START_TIME = "start_time";
     public static final String DURATION = "duration";
     public static final String TAGS = "tags";
+    /**
+     * The prefixes of the {@link #tags} entries, so a resource attribute and a span attribute with the same key stay
+     * apart in the index, the way TraceQL's {@code resource.} and {@code span.} scopes tell them apart.
+     */
+    public static final String RESOURCE_TAG_PREFIX = "resource.";
+    public static final String SPAN_TAG_PREFIX = "span.";
     public static final String DATA_BINARY = "data_binary";
     /**
      * Resource attribute keys {@link #SERVICE_NAME} is resolved from, first present wins. The receiver fills the
@@ -102,6 +108,18 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
      * The span attribute {@link #PEER_SERVICE} is copied from, per the OpenTelemetry semantic conventions.
      */
     public static final String PEER_SERVICE_ATTRIBUTE = "peer.service";
+
+    /**
+     * The {@link #TAGS} entries a TraceQL attribute condition matches: the one scoped form when the key carries its
+     * scope ({@code resource.env}, {@code span.env}), both forms for an unscoped key, which TraceQL defines as
+     * either scope. Every storage and the in-memory matcher go through this, so they agree.
+     */
+    public static List<String> indexedTags(final String key, final String value) {
+        if (key.startsWith(RESOURCE_TAG_PREFIX) || key.startsWith(SPAN_TAG_PREFIX)) {
+            return List.of(key + "=" + value);
+        }
+        return List.of(RESOURCE_TAG_PREFIX + key + "=" + value, SPAN_TAG_PREFIX + key + "=" + value);
+    }
 
     /**
      * 32 lowercase hex characters.
@@ -179,8 +197,9 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
     @Column(name = DURATION)
     private long duration;
     /**
-     * {@code key=value} of every resource and span attribute, the equality-search index. The typed values stay
-     * in {@link #dataBinary}.
+     * {@code resource.key=value} of every resource attribute and {@code span.key=value} of every span attribute, the
+     * equality-search index; {@link #indexedTags} gives the forms a query matches. The typed values stay in
+     * {@link #dataBinary}.
      */
     @Setter
     @Getter

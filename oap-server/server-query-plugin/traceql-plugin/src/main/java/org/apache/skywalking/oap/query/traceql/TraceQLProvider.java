@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.query.traceql.handler.OTLPTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.SkyWalkingTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.ZipkinTraceQLApiHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -124,7 +125,9 @@ public class TraceQLProvider extends ModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-            CoreModule.NAME
+            CoreModule.NAME,
+            // The /otlp handler constructs OTLPTraceQueryService, which finds the storage DAO through the module manager.
+            StorageModule.NAME
         };
     }
 }

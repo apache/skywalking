@@ -192,16 +192,15 @@ class OTLPTraceAssemblerTest {
     }
 
     @Test
-    void shouldFallBackToEverySpanWhenNoSpanMatchesInMemory() {
+    void shouldLeaveOutATraceNoneOfWhoseSpansMatch() {
         final Span root = span(ROOT_SPAN_ID, ByteString.EMPTY, "GET /", 1L, 2L).build();
         final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
-        condition.setSpanName("a name NamingControl reformatted");
+        condition.setSpanName("a name no span of the trace carries");
 
         final SearchResponse response = OTLPTraceAssembler.toSearchResponse(Collections.singletonList(
             Collections.singletonList(stored(FRONTEND, HTTP_SCOPE, root))), Set.of(), new OTLPSpanMatcher(condition), 3);
 
-        assertEquals(1, response.getTraces().get(0).getSpanSets().get(0).getSpans().size());
-        assertEquals(1, response.getTraces().get(0).getSpanSets().get(0).getMatched());
+        assertTrue(response.getTraces().isEmpty());
     }
 
     @Test

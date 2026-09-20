@@ -126,8 +126,22 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
 
     @Override
     public List<SpanWrapper> queryTraceById(final String traceId, @Nullable final Duration duration) {
-        final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPSpanRecord.INDEX_NAME);
+        final String physicalIndex = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPSpanRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(OTLPSpanRecord.TRACE_ID, traceId));
+        final String index;
+        if (duration != null && duration.getStartTimestamp() > 0 && duration.getEndTimestamp() > 0) {
+            query.must(Query.range(OTLPSpanRecord.START_TIME)
+                            .gte(duration.getStartTimestamp())
+                            .lte(duration.getEndTimestamp()));
+            // One comma-separated index expression: the scroller takes a single index name.
+            index = String.join(",", new TimeRangeIndexNameGenerator(
+                physicalIndex,
+                TimeBucket.getRecordTimeBucket(duration.getStartTimestamp()),
+                TimeBucket.getRecordTimeBucket(duration.getEndTimestamp())
+            ).get());
+        } else {
+            index = physicalIndex;
+        }
         final SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
         final SearchParams params = new SearchParams();
         RoutingUtils.addRoutingValueToSearchParam(params, traceId);
@@ -175,15 +189,19 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
         if (condition.getStatusCode() != null) {
             query.must(Query.term(OTLPSpanRecord.STATUS_CODE, condition.getStatusCode()));
         }
-        if (condition.getMinDurationNanos() > 0) {
+        if (condition.getMinDurationNanos() != null) {
             query.must(Query.range(OTLPSpanRecord.DURATION).gte(condition.getMinDurationNanos()));
         }
-        if (condition.getMaxDurationNanos() > 0) {
+        if (condition.getMaxDurationNanos() != null) {
             query.must(Query.range(OTLPSpanRecord.DURATION).lte(condition.getMaxDurationNanos()));
         }
         if (CollectionUtils.isNotEmpty(condition.getTags())) {
             for (final Tag tag : condition.getTags()) {
-                query.must(Query.term(OTLPSpanRecord.TAGS, tag.getKey() + "=" + tag.getValue()));
+                // one form for a scoped key, either of the two for an unscoped one
+                final List<String> forms = OTLPSpanRecord.indexedTags(tag.getKey(), tag.getValue());
+                query.must(forms.size() == 1
+                               ? Query.term(OTLPSpanRecord.TAGS, forms.get(0))
+                               : Query.terms(OTLPSpanRecord.TAGS, forms));
             }
         }
 

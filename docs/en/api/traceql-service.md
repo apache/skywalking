@@ -21,7 +21,8 @@ The expression supported by TraceQL is composed of the following parts (expressi
 - [x] **Attribute Filtering**: Filter by span attributes (scoped and unscoped)
   - [x] `.service.name` - Service name (unscoped)
   - [x] `resource.service.name` - Service name (scoped)
-  - [x] `span.<tags>` - Any span tags with scope (e.g., `span.http.method`, `span.http.status_code`, etc.)
+  - [x] `span.<key>`, `resource.<key>` - Attribute equality in that scope (e.g., `span.http.method`, `span.http.status_code`). The `/otlp` datasource matches the scope; the Zipkin and SkyWalking tag indexes have no scopes, so there the key matches in any scope
+  - [x] `.<key>` - Unscoped attribute, either scope
 - [x] **Intrinsic Fields**: Built-in trace fields, plain or with Tempo's `span:` prefix (`span:kind`)
   - [x] `duration` - Span duration with comparison operators (supports units: us/µs, ms, s, m, h. Default unit: microseconds. Minimum: microseconds, Maximum: hours)
   - [x] `name` - Span name
@@ -29,7 +30,7 @@ The expression supported by TraceQL is composed of the following parts (expressi
   - [x] `kind` - Span kind: `unspecified`, `internal`, `server`, `client`, `producer`, `consumer`; OTLP datasource only
 - [x] **Comparison Operators**: 
   - [x] `=` - Equals
-  - [x] `>` - Greater than (for duration)
+  - [x] `>` - Greater than (for duration); evaluated at microsecond precision, the smallest unit accepted, so `duration > 100ms` selects spans of at least 100.001 ms
   - [x] `>=` - Greater than or equal (for duration)
   - [x] `<` - Less than (for duration)
   - [x] `<=` - Less than or equal (for duration)
@@ -834,8 +835,10 @@ reads the BanyanDB cold stage instead of the hot and warm stages and needs `star
 | `span.peer.service`               | `peer_service`                                                                               |
 | `span.service.instance.id`        | `service_instance`                                                                           |
 | `span.http.status_code`           | The `http.status_code` attribute, as an ordinary tag condition                               |
-| `span.<key>`                      | The `<key>=<value>` tag index, every resource and span attribute of the span is indexed      |
-| `name`, `span:name`               | `name`                                                                                       |
+| `resource.<key>`                  | The `resource.<key>=<value>` entry of the tag index, every resource attribute is indexed      |
+| `span.<key>`                      | The `span.<key>=<value>` entry of the tag index, every span attribute is indexed             |
+| `.<key>`                          | Either entry, as TraceQL defines an unscoped attribute                                        |
+| `name`, `span:name`               | `name`, the span name after the core module's endpoint naming rules (grouping and length limit), as SkyWalking endpoint names are stored |
 | `kind`, `span:kind`               | `kind`. Accepted values: `unspecified`, `internal`, `server`, `client`, `producer`, `consumer` |
 | `status`, `span:status`           | `status_code`. Accepted values: `error`, `ok`, `unset`                                        |
 | `duration`, `span:duration`       | `duration`, in nanoseconds; TraceQL durations such as `100ms` are converted                  |
@@ -845,7 +848,9 @@ and are rejected with 400 rather than ignored.
 
 ### Search Results
 As on every datasource, a span set holds only the spans that matched, capped at `spss`, and `serviceStats` counts the
-spans and errors per service. The listed attributes are `service.name`, `span.kind` and the keys configured by
+spans and errors per service. Every returned trace has at least one matching span: when the storage matched a trace
+but no single span of it satisfies every condition of the query, the trace is left out rather than listed with spans
+the query excluded. The listed attributes are `service.name`, `span.kind` and the keys configured by
 `otlpTracesListResultTags`, each with its OTLP type.
 
 ### Tag Names and Values
@@ -865,7 +870,9 @@ when the newest traces happen to have none.
 ### Trace by ID
 `/api/v2/traces/{traceId}` takes the 32-character lowercase hex trace id, the `traceID` returned by `/api/search`,
 and returns `application/protobuf` or `application/json` according to the `Accept` header. Trace, span and parent
-span ids are hex in the JSON form.
+span ids are hex in the JSON form. `start` and `end` are optional; when given, Elasticsearch and the JDBC storages
+read only the spans that started in that range, and BanyanDB the day segments the range touches, since its trace
+model resolves a trace id per segment. Pass the search window with Grafana's time shift rather than a narrow one.
 
 ## Configuration
 

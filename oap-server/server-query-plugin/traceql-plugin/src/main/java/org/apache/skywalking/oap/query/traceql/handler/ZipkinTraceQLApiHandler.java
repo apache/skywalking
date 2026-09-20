@@ -223,7 +223,7 @@ public class ZipkinTraceQLApiHandler extends TraceQLApiHandler {
         }
         Map<String, String> annotationQuery = new HashMap<>();
         if (CollectionUtils.isNotEmpty(traceQLParams.getTags())) {
-            annotationQuery.putAll(traceQLParams.getTags());
+            annotationQuery.putAll(traceQLParams.flatTags());
         }
         if (StringUtil.isNotBlank(traceQLParams.getHttpStatusCode())) {
             annotationQuery.put(HTTP_STATUS_CODE, traceQLParams.getHttpStatusCode());

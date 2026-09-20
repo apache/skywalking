@@ -124,11 +124,13 @@ class OTLPSpanForwardTest {
         assertEquals("payment", stored.getPeerService());
         assertEquals(START_NANOS / 1_000_000L, stored.getStartTime());
         assertEquals(2_000_000L, stored.getDuration());
+        // resource attributes under `resource.`, span attributes under `span.`, so the scopes stay apart
         assertTrue(stored.getTags().containsAll(Arrays.asList(
-            "service.name=checkout", "service.instance.id=checkout-1", "http.request.method=GET",
-            "peer.service=payment", "http.response.status_code=200", "gen_ai.injected=yes"
+            "resource.service.name=checkout", "resource.service.instance.id=checkout-1", "span.http.request.method=GET",
+            "span.peer.service=payment", "span.http.response.status_code=200", "span.gen_ai.injected=yes"
         )));
-        assertFalse(stored.getTags().stream().anyMatch(tag -> tag.startsWith("db.statement=")));
+        assertFalse(stored.getTags().stream().anyMatch(tag -> tag.contains("db.statement=")));
+        assertFalse(stored.getTags().stream().anyMatch(tag -> tag.startsWith("service.name=")));
 
         final ResourceSpans dataBinary = ResourceSpans.parseFrom(stored.getDataBinary());
         assertEquals(resource, dataBinary.getResource());

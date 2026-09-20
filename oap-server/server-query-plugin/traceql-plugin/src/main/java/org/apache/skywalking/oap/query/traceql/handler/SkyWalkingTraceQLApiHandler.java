@@ -45,6 +45,7 @@ import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParams;
 import org.apache.skywalking.oap.query.traceql.rt.TraceQLQueryParser;
 import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -78,6 +79,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
     private final MetadataQueryService metadataQueryService;
     private final TraceQLConfig traceQLConfig;
     private final Set<String> allowedTags;
+    private final NamingControl namingControl;
     private static final long START_OF_2020_SEC = new DateTime(2020, 1, 1, 0, 0, 0, DateTimeZone.UTC).getMillis() / 1000;
 
     public SkyWalkingTraceQLApiHandler(ModuleManager moduleManager, TraceQLConfig config) {
@@ -91,6 +93,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         this.metadataQueryService = moduleManager.find(CoreModule.NAME)
                                                  .provider()
                                                  .getService(MetadataQueryService.class);
+        this.namingControl = moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class);
         this.traceQLConfig = config;
         final String swTagsConfig = config.getSkywalkingTracesListResultTags();
         final Set<String> allowedTagsInit;
@@ -195,7 +198,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
 
         // Convert TraceList to SearchResponse
         SearchResponse response = SkyWalkingOTLPConverter.convertTraceListToSearchResponse(
-            traceList, allowedTags, new SkyWalkingSpanMatcher(queryParams), spansPerSpanSet(spss));
+            traceList, allowedTags, new SkyWalkingSpanMatcher(queryParams, namingControl), spansPerSpanSet(spss));
 
         return successResponse(response);
     }
@@ -265,7 +268,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         // The visitor keeps span.http.status_code apart; the agents record it as an ordinary tag
         List<Tag> tagList = new ArrayList<>();
         if (queryParams.getTags() != null) {
-            for (Map.Entry<String, String> entry : queryParams.getTags().entrySet()) {
+            for (Map.Entry<String, String> entry : queryParams.flatTags().entrySet()) {
                 Tag tag = new Tag();
                 tag.setKey(entry.getKey());
                 tag.setValue(entry.getValue());
@@ -295,7 +298,7 @@ public class SkyWalkingTraceQLApiHandler extends TraceQLApiHandler {
         pagination.setPageSize(TAG_FILTER_SAMPLE_TRACES);
         condition.setPaging(pagination);
         condition.setQueryOrder(QueryOrder.BY_START_TIME);
-        return new Sample(traceQueryService.queryTraces(condition), new SkyWalkingSpanMatcher(params));
+        return new Sample(traceQueryService.queryTraces(condition), new SkyWalkingSpanMatcher(params, namingControl));
     }
 
     private static final class Sample {

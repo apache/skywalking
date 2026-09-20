@@ -50,8 +50,10 @@ public interface IOTLPTraceQueryDAO extends DAO {
     List<String> getPeerServiceNames(String serviceName, @Nullable Duration duration) throws IOException;
 
     /**
-     * @param duration nullable: BanyanDB then searches everything the hot and warm stages retain; a non-null one
-     *                 bounds the lookup, and its {@code coldStage} flag targets the BanyanDB cold stage instead.
+     * @param duration nullable: the lookup then searches everything the storage retains; a non-null one bounds it to
+     *                 the spans that started in the range on Elasticsearch and JDBC, and to the day segments the
+     *                 range touches on BanyanDB, whose trace model resolves a trace id per segment. Its
+     *                 {@code coldStage} flag targets the BanyanDB cold stage instead of the hot and warm stages.
      */
     List<SpanWrapper> queryTraceById(String traceId, @Nullable Duration duration) throws IOException;
 

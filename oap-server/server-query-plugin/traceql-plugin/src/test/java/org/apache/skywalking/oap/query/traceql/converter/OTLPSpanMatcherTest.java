@@ -25,6 +25,8 @@ import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
 import java.util.Collections;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.input.OTLPTraceQueryCondition;
 import org.junit.jupiter.api.Test;
 
@@ -79,9 +81,50 @@ class OTLPSpanMatcherTest {
 
         condition.setMinDurationNanos(2_000_001L);
         assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN));
-        condition.setMinDurationNanos(0L);
+        condition.setMinDurationNanos(null);
         condition.setKind(Span.SpanKind.SPAN_KIND_SERVER.getNumber());
         assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN));
+    }
+
+    @Test
+    void shouldCompareTheNamesTheReceiverIndexed() {
+        // service names cut to 5 characters, span names to 4: the receiver indexed "check", "Char" and "payme"
+        final NamingControl namingControl = new NamingControl(5, 5, 4, new EndpointNameGrouping());
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+        condition.setServiceName("check");
+        condition.setSpanName("Char");
+        condition.setPeerService("payme");
+        assertTrue(new OTLPSpanMatcher(condition, namingControl).matches(RESOURCE, SCOPE, SPAN));
+        assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN));
+
+        condition.setServiceName("checkout-deploy");
+        assertFalse(new OTLPSpanMatcher(condition, namingControl).matches(RESOURCE, SCOPE, SPAN));
+    }
+
+    @Test
+    void shouldKeepResourceAndSpanScopesApart() {
+        // the same key on both: `env` is prod on the resource and dev on the span
+        final Resource resource = RESOURCE.toBuilder().addAttributes(string("env", "prod")).build();
+        final Span span = SPAN.toBuilder().addAttributes(string("env", "dev")).build();
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+
+        condition.setTags(Collections.singletonList(new Tag("span.env", "prod")));
+        assertFalse(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+        condition.setTags(Collections.singletonList(new Tag("resource.env", "dev")));
+        assertFalse(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+
+        condition.setTags(Collections.singletonList(new Tag("resource.env", "prod")));
+        assertTrue(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+        condition.setTags(Collections.singletonList(new Tag("span.env", "dev")));
+        assertTrue(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+
+        // unscoped: either scope, as TraceQL defines `.env`
+        condition.setTags(Collections.singletonList(new Tag("env", "prod")));
+        assertTrue(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+        condition.setTags(Collections.singletonList(new Tag("env", "dev")));
+        assertTrue(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
+        condition.setTags(Collections.singletonList(new Tag("env", "stage")));
+        assertFalse(new OTLPSpanMatcher(condition).matches(resource, SCOPE, span));
     }
 
     @Test

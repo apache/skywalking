@@ -383,7 +383,10 @@ public class SkyWalkingOTLPConverter {
                 if (trace.getSpans().isEmpty()) {
                     continue;
                 }
-                traces.add(convertSWTraceToSearchTrace(trace, allowedTags, matcher, spansPerSpanSet));
+                final SearchResponse.Trace searchTrace = convertSWTraceToSearchTrace(trace, allowedTags, matcher, spansPerSpanSet);
+                if (searchTrace != null) {
+                    traces.add(searchTrace);
+                }
             }
         }
 
@@ -440,9 +443,10 @@ public class SkyWalkingOTLPConverter {
         if (matcher != null) {
             matched = swTrace.getSpans().stream().filter(matcher::matches).collect(Collectors.toList());
             if (matched.isEmpty()) {
-                // The storage matched this trace on the same condition, so the two evaluations disagree; list every
-                // span rather than an empty set, which Tempo never returns.
-                matched = swTrace.getSpans();
+                // The storage matched the segment on conditions it evaluates per segment, tags and duration among
+                // them, while TraceQL asks for one span meeting all of them; leaving the trace out is the strict
+                // answer, listing spans the query excluded is the failure #14093 describes.
+                return null;
             }
         }
         List<org.apache.skywalking.oap.server.core.query.type.Span> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet

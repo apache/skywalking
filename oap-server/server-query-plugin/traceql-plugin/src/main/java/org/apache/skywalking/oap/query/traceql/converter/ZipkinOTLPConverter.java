@@ -374,7 +374,9 @@ public class ZipkinOTLPConverter {
             }
 
             SearchResponse.Trace trace = convertZipkinTraceToSearchTrace(zipkinTrace, allowedTags, matcher, spansPerSpanSet);
-            response.getTraces().add(trace);
+            if (trace != null) {
+                response.getTraces().add(trace);
+            }
         }
 
         return response;
@@ -442,9 +444,10 @@ public class ZipkinOTLPConverter {
         if (matcher != null) {
             matched = zipkinTrace.stream().filter(matcher::matches).collect(Collectors.toList());
             if (matched.isEmpty()) {
-                // The storage matched this trace on the same request, so the two evaluations disagree; list every
-                // span rather than an empty set, which Tempo never returns.
-                matched = zipkinTrace;
+                // Zipkin's annotationQuery is satisfied by tags spread over several spans of the trace, while TraceQL
+                // asks for one span carrying all of them; leaving the trace out is the strict answer, listing spans
+                // the query excluded is the failure #14093 describes.
+                return null;
             }
         }
         List<zipkin2.Span> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet

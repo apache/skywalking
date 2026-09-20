@@ -267,11 +267,19 @@ public final class OTLPTraceAssembler {
             if (spans.isEmpty()) {
                 continue;
             }
-            response.getTraces().add(toSearchTrace(spans, allowedTags, matcher, spansPerSpanSet));
+            final SearchResponse.Trace searchTrace = toSearchTrace(spans, allowedTags, matcher, spansPerSpanSet);
+            if (searchTrace != null) {
+                response.getTraces().add(searchTrace);
+            }
         }
         return response;
     }
 
+    /**
+     * @return null when the matcher accepts none of the spans. The storage matched the trace on the same conditions,
+     * so the two evaluations disagree; the trace is left out rather than listed with spans the query excluded, the
+     * failure #14093 describes.
+     */
     private static SearchResponse.Trace toSearchTrace(final List<StoredSpan> spans,
                                                       final Set<String> allowedTags,
                                                       final OTLPSpanMatcher matcher,
@@ -306,10 +314,7 @@ public final class OTLPTraceAssembler {
                            .filter(s -> matcher.matches(s.resource, s.scope, s.span))
                            .collect(Collectors.toList());
             if (matched.isEmpty()) {
-                // The storage matched this trace on the same conditions, so the two evaluations disagree, which
-                // can happen when NamingControl reformatted a stored name. List every span rather than an empty
-                // set, which Tempo never returns.
-                matched = spans;
+                return null;
             }
         }
         final List<StoredSpan> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet

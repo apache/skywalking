@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.Const;
  * TraceQL query visitor to extract query parameters.
  */
 public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseResult> {
+
     private static final List<String> STATUS_VALUES = Arrays.asList("error", "ok", "unset");
     private static final List<String> KIND_VALUES = Arrays.asList(
         "unspecified", "internal", "server", "client", "producer", "consumer");
@@ -79,10 +80,9 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
                 params.setHttpStatusCode(value);
                 break;
             default:
-                // Store other attributes
-                // Remove scope prefix if present (e.g., span.http.method -> http.method)
-                String tagKey = removeScopePrefix(attribute);
-                params.getTags().put(tagKey, value);
+                // Kept as written: `resource.env`, `span.env` or the unscoped `env`, which the OTLP datasource
+                // matches in its own scope; the Zipkin and SkyWalking datasources read them flattened.
+                params.getTags().put(attribute, value);
                 break;
         }
 
@@ -114,9 +114,18 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
                     "Unsupported operator " + operator + " on duration: use >, >=, < or <=");
             }
             try {
-                long durationMicros = parseDuration(value);
-                if (">".equals(operator) || ">=".equals(operator)) {
+                final long durationMicros = parseDuration(value);
+                // The bounds are inclusive and the microsecond is the smallest unit TraceQL accepts here, so a strict
+                // comparison moves the bound by one microsecond instead of being silently treated as inclusive.
+                if (">".equals(operator)) {
+                    params.setMinDuration(durationMicros + 1);
+                } else if (">=".equals(operator)) {
                     params.setMinDuration(durationMicros);
+                } else if ("<".equals(operator)) {
+                    if (durationMicros == 0) {
+                        throw new IllegalArgumentException("duration < 0 matches no span");
+                    }
+                    params.setMaxDuration(durationMicros - 1);
                 } else {
                     params.setMaxDuration(durationMicros);
                 }
@@ -262,30 +271,4 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
         }
     }
 
-    /**
-     * Remove scope prefix from attribute name.
-     * Examples:
-     *   span.http.method -> http.method
-     *   resource.service.name -> service.name
-     *   http.method -> http.method (unchanged)
-     *
-     * @param attribute Attribute name with or without scope prefix
-     * @return Attribute name without scope prefix
-     */
-    private String removeScopePrefix(String attribute) {
-        if (attribute == null) {
-            return null;
-        }
-
-        // Known scopes: span, resource, event, link, intrinsic
-        String[] knownScopes = {"span.", "resource.", "event.", "link.", "intrinsic."};
-
-        for (String scope : knownScopes) {
-            if (attribute.startsWith(scope)) {
-                return attribute.substring(scope.length());
-            }
-        }
-
-        return attribute;
-    }
 }
