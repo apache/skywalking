@@ -198,7 +198,7 @@
   "receiver-otel.default.otlpTraceMaxSpansPerSecond": "0",
   "receiver-otel.default.otlpTraceSampleRate": "10000",
   "receiver-otel.default.otlpTraceSearchableTags": "http.request.method,http.response.status_code,url.path,rpc.method,rpc.grpc.status_code,db.system.name,db.namespace,messaging.system,messaging.destination.name,peer.service",
-  "receiver-otel.default.otlpTraceStorage": "zipkin",
+  "receiver-otel.default.otlpTraceStorage": "otlp",
   "receiver-otel.provider": "default",
   "receiver-pprof.default.memoryParserEnabled": "true",
   "receiver-pprof.default.pprofMaxSize": "31457280",

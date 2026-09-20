@@ -5,8 +5,8 @@ The handler stores them in one of two ways, selected by `receiver-otel.default.o
 
 | `otlpTraceStorage` | What is stored                                                                                                   | Query API                                                                                  |
 |--------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| `zipkin` (default) | Spans converted to Zipkin v2 and handed to the Zipkin receiver. Follows the [Zipkin Exporter](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) conversion rules. | [Zipkin query API](./zipkin-trace.md#zipkin-query), Lens UI, and the TraceQL `/zipkin` datasource. |
-| `otlp`             | The span exactly as it arrived, with its resource and instrumentation scope, in the `otlp_span` record.          | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
+| `otlp` (default)   | The span exactly as it arrived, with its resource and instrumentation scope, in the `otlp_span` record.          | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
+| `zipkin`           | Spans converted to Zipkin v2 and handed to the Zipkin receiver, the only mode of earlier releases. Follows the [Zipkin Exporter](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) conversion rules. | [Zipkin query API](./zipkin-trace.md#zipkin-query), Lens UI, and the TraceQL `/zipkin` datasource. |
 
 Span listeners such as the GenAI analyzer and AI evaluation run in both modes. In `otlp` mode they read the
 OTLP span directly instead of its Zipkin conversion.
@@ -79,7 +79,7 @@ The Zipkin receiver and query modules are not needed in this mode.
 
 | Setting                      | Environment variable                 | Meaning                                                                                                                                                                              |
 |------------------------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `otlpTraceStorage`           | `SW_OTEL_TRACE_STORAGE`              | `otlp` stores the native span. `zipkin` is the default. Any other value fails the boot.                                                                                             |
+| `otlpTraceStorage`           | `SW_OTEL_TRACE_STORAGE`              | `otlp`, the default, stores the native span. `zipkin` converts to Zipkin v2 as earlier releases did. Any other value fails the boot.                                               |
 | `otlpTraceSearchableTags`    | `SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS`  | Attribute keys offered by tag autocomplete (`/api/v2/search/tags`). Every resource and span attribute is indexed for equality search regardless of this list.                        |
 | `otlpTraceSampleRate`        | `SW_OTEL_TRACE_SAMPLE_RATE`          | Head sampling by trace id, precision 1/10000. `10000` keeps every trace.                                                                                                              |
 | `otlpTraceMaxSpansPerSecond` | `SW_OTEL_TRACE_MAX_SPANS_PER_SECOND` | Spans per second accepted before the receiver drops the rest. `0` means no limit. Dropped spans are counted in the `otel_spans_dropped` self-observability metric.                    |

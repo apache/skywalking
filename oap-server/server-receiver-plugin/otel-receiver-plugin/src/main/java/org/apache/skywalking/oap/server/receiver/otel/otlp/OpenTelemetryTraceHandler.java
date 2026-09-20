@@ -69,9 +69,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The {@code otlp-traces} handler. Every span goes through the phase-one {@code SpanListener}s, then either is
- * converted to a Zipkin span and handed to the Zipkin receiver, or, with {@code otlpTraceStorage: otlp}, is
- * stored natively by {@link OTLPSpanForward}. One handler, two backends: two trace handlers would both register
- * {@code TraceServiceGrpc} on the shared gRPC server.
+ * stored natively by {@link OTLPSpanForward} ({@code otlpTraceStorage: otlp}, the default) or, with
+ * {@code otlpTraceStorage: zipkin}, converted to a Zipkin span and handed to the Zipkin receiver. One handler, two
+ * backends: two trace handlers would both register {@code TraceServiceGrpc} on the shared gRPC server.
  */
 @Slf4j
 public class OpenTelemetryTraceHandler
@@ -137,7 +137,7 @@ public class OpenTelemetryTraceHandler
             // failing on the first export.
             throw new ModuleStartException(
                 "otlp-traces stores spans through receiver-zipkin (otlpTraceStorage: zipkin), but that module is not"
-                    + " enabled: enable receiver-zipkin and query-zipkin, or set otlpTraceStorage: otlp");
+                    + " enabled: enable receiver-zipkin and query-zipkin, or use the default otlpTraceStorage: otlp");
         }
     }
 

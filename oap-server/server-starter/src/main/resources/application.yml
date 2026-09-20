@@ -434,9 +434,9 @@ receiver-otel:
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-traces,otlp-metrics,otlp-logs"}
     # Where the `otlp-traces` handler stores spans.
-    #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (the previous behavior; needs receiver-zipkin and query-zipkin)
     #   otlp:   store the native OTLP span in `otlp_span`, served by the TraceQL `/otlp` datasource
-    otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:zipkin}
+    #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (needs receiver-zipkin and query-zipkin)
+    otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:otlp}
     # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags). Every resource and span
     # attribute is indexed for equality search regardless of this list; same meaning as receiver-zipkin.searchableTracesTags.
     otlpTraceSearchableTags: ${SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS:http.request.method,http.response.status_code,url.path,rpc.method,rpc.grpc.status_code,db.system.name,db.namespace,messaging.system,messaging.destination.name,peer.service}

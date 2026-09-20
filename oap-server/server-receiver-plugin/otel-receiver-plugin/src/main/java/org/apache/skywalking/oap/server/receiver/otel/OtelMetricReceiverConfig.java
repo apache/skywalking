@@ -49,12 +49,12 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
     private String enabledOtelMetricsRules;
 
     /**
-     * Where the {@code otlp-traces} handler stores spans, {@link #OTLP_TRACE_STORAGE_ZIPKIN} or
-     * {@link #OTLP_TRACE_STORAGE_OTLP}.
+     * Where the {@code otlp-traces} handler stores spans, {@link #OTLP_TRACE_STORAGE_OTLP} (the default) or
+     * {@link #OTLP_TRACE_STORAGE_ZIPKIN}.
      */
     @Getter
     @Setter
-    private String otlpTraceStorage = OTLP_TRACE_STORAGE_ZIPKIN;
+    private String otlpTraceStorage = OTLP_TRACE_STORAGE_OTLP;
 
     /**
      * Native mode only. Attribute keys offered by tag autocomplete. Every attribute is indexed for equality

@@ -26,7 +26,7 @@ In the data source config panel, choose the `Loki` and set the url to the OAP se
 In the data source config panel, choose the `Tempo` and set the url to the full OAP trace API address, including the context path. The default port is `3200`, for example `http://<oap-host>:3200/skywalking` for SkyWalking native trace, `http://<oap-host>:3200/zipkin` for Zipkin trace, or `http://<oap-host>:3200/otlp` for natively stored OTLP trace.
 The SkyWalking native trace API context path is `/skywalking`, the Zipkin trace API context path is `/zipkin`, and the OTLP trace API context path is `/otlp`.
 You can customize them via `SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING`, `SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN` and `SW_TRACEQL_REST_CONTEXT_PATH_OTLP` respectively. If you customize a path, use the customized path in the Grafana Tempo data source URL.
-The OTLP data source requires `receiver-otel` to run with `otlpTraceStorage: otlp`, see [OpenTelemetry Trace Format](otlp-trace.md).
+The OTLP data source serves the spans `receiver-otel` stores with `otlpTraceStorage: otlp`, the default, see [OpenTelemetry Trace Format](otlp-trace.md).
 
 ***Notice:*** The feature requires version `Grafana 12 or later`. And require disabling the Streaming option for the Tempo data source in the following configuration.
 
