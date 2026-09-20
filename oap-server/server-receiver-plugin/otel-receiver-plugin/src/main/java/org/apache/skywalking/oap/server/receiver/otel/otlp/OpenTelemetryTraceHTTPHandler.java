@@ -39,9 +39,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class OpenTelemetryTraceHTTPHandler {
-    private static final byte[] EMPTY_RESPONSE =
-        ExportTraceServiceResponse.getDefaultInstance().toByteArray();
-
     private final OpenTelemetryTraceHandler traceHandler;
 
     @Blocking
@@ -51,8 +48,8 @@ public class OpenTelemetryTraceHTTPHandler {
         try {
             final ExportTraceServiceRequest exportRequest =
                 ExportTraceServiceRequest.parseFrom(request.content().array());
-            traceHandler.processExport(exportRequest);
-            return HttpResponse.of(HttpStatus.OK, MediaType.PROTOBUF, EMPTY_RESPONSE);
+            final ExportTraceServiceResponse response = traceHandler.processExport(exportRequest);
+            return HttpResponse.of(HttpStatus.OK, MediaType.PROTOBUF, response.toByteArray());
         } catch (InvalidProtocolBufferException e) {
             log.warn("Failed to parse OTLP/HTTP trace request", e);
             return HttpResponse.of(HttpStatus.BAD_REQUEST);
@@ -71,8 +68,11 @@ public class OpenTelemetryTraceHTTPHandler {
                 ExportTraceServiceRequest.newBuilder();
             JsonFormat.parser().ignoringUnknownFields().merge(
                 request.contentUtf8(), builder);
-            traceHandler.processExport(builder.build());
-            return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, "{}");
+            final ExportTraceServiceResponse response = traceHandler.processExport(builder.build());
+            // An empty response prints as `{}`, which is what this endpoint always answered before.
+            return HttpResponse.of(
+                HttpStatus.OK, MediaType.JSON_UTF_8,
+                JsonFormat.printer().omittingInsignificantWhitespace().print(response));
         } catch (InvalidProtocolBufferException e) {
             log.warn("Failed to parse OTLP/HTTP JSON trace request", e);
             return HttpResponse.of(HttpStatus.BAD_REQUEST);

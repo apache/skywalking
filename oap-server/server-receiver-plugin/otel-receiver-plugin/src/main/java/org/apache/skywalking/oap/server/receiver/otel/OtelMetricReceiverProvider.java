@@ -23,6 +23,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
@@ -67,6 +68,11 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (!config.isOtlpTraceStorageValid()) {
+            throw new ModuleStartException(
+                "receiver-otel.default.otlpTraceStorage must be `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN
+                    + "` or `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP + "`, got `" + config.getOtlpTraceStorage() + "`");
+        }
         metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(
             getManager(), config);
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
@@ -107,6 +113,8 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         // module-system sort could place OTEL ahead of Storage, the resolver would
         // silently no-op at boot, and DB overrides would only take effect on the
         // reconciler's next tick.
-        return new String[] {SharingServerModule.NAME, StorageModule.NAME};
+        // CoreModule: the trace handler reaches SourceReceiver, NamingControl and SpanListenerManager through the
+        // module manager, which is only legal for a declared dependency.
+        return new String[] {SharingServerModule.NAME, StorageModule.NAME, CoreModule.NAME};
     }
 }

@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.analyzer.genai.module.GenAIAnalyzerModule;
 import org.apache.skywalking.oap.analyzer.genai.service.IGenAIMeterAnalyzerService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.trace.SpanListener;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
@@ -35,11 +36,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.genai.GenAISemanticAttributes;
 
 /**
- * {@link SpanListener} that extracts GenAI metrics from Zipkin spans.
+ * {@link SpanListener} that extracts GenAI metrics from spans after phase 1.
  *
  * <p>Implements {@link #onZipkinSpan} (phase 2) so it works for all trace sources
- * (OTLP, Zipkin HTTP, Kafka). Replicates the logic previously hardcoded in
- * {@code SpanForward.processGenAILogic()}.
+ * (OTLP converted to Zipkin, Zipkin HTTP, Kafka), and {@link #onNativeOTLPSpan} for OTLP
+ * spans stored natively, which never become Zipkin spans. Each span reaches exactly one
+ * of the two. Replicates the logic previously hardcoded in {@code SpanForward.processGenAILogic()}.
  *
  * <p>Sources (GenAI metrics) are emitted directly to {@link SourceReceiver} — not
  * returned in the result. The result only carries additional tags (estimated cost).
@@ -66,7 +68,18 @@ public class GenAISpanListener implements SpanListener {
 
     @Override
     public SpanListenerResult onZipkinSpan(final ZipkinSpan span) {
-        final GenAIMetrics metrics = analyzerService.extractMetricsFromZipkinSpan(span);
+        return emit(analyzerService.extractMetricsFromZipkinSpan(span));
+    }
+
+    @Override
+    public SpanListenerResult onNativeOTLPSpan(final OTLPSpanReader span,
+                                               final Map<String, String> resourceAttributes,
+                                               final String scopeName,
+                                               final String scopeVersion) {
+        return emit(analyzerService.extractMetricsFromOTLPSpan(span));
+    }
+
+    private SpanListenerResult emit(final GenAIMetrics metrics) {
         if (metrics == null) {
             return SpanListenerResult.CONTINUE;
         }

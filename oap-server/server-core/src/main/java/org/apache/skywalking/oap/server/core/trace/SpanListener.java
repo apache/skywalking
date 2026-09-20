@@ -85,4 +85,24 @@ public interface SpanListener {
     default SpanListenerResult onZipkinSpan(final ZipkinSpan span) {
         return SpanListenerResult.CONTINUE;
     }
+
+    /**
+     * Phase 2 for OTLP spans stored natively, when {@code receiver-otel.otlpTraceStorage} is {@code otlp}. No
+     * Zipkin conversion happens in that mode, so {@link #onZipkinSpan} is never called for these spans; a listener
+     * that reads a span's attributes after phase 1 implements this method instead, over the same attribute
+     * semantics. It is called right after {@link #onOTLPSpan} for the same span, and only when phase 1 did not
+     * veto persistence.
+     *
+     * @param span               abstracted OTLP span (no proto dependency)
+     * @param resourceAttributes OTLP resource attributes as a flat map
+     * @param scopeName          InstrumentationScope name
+     * @param scopeVersion       InstrumentationScope version
+     * @return result controlling persistence and tag injection; injected tags are appended to the stored span
+     */
+    default SpanListenerResult onNativeOTLPSpan(final OTLPSpanReader span,
+                                                final Map<String, String> resourceAttributes,
+                                                final String scopeName,
+                                                final String scopeVersion) {
+        return SpanListenerResult.CONTINUE;
+    }
 }

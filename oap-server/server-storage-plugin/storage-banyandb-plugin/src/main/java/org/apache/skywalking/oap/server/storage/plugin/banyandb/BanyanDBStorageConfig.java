@@ -40,6 +40,7 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     private RecordsNormal recordsNormal = new RecordsNormal();
     private Trace trace = new Trace();
     private ZipkinTrace zipkinTrace = new ZipkinTrace();
+    private OtlpTrace otlpTrace = new OtlpTrace();
     private RecordsTrace recordsTrace = new RecordsTrace();
     private RecordsZipkinTrace recordsZipkinTrace = new RecordsZipkinTrace();
     private RecordsLog recordsLog = new RecordsLog();
@@ -239,6 +240,15 @@ public class BanyanDBStorageConfig extends ModuleConfig {
     @Getter
     @Setter
     public static class ZipkinTrace extends BanyanDBStorageConfig.GroupResource {
+    }
+
+    /**
+     * The group of natively stored OTLP spans, {@code otlp_span}, kept apart from {@link ZipkinTrace} so the two
+     * protocols can be retained and sized on their own.
+     */
+    @Getter
+    @Setter
+    public static class OtlpTrace extends BanyanDBStorageConfig.GroupResource {
     }
 
     @Getter

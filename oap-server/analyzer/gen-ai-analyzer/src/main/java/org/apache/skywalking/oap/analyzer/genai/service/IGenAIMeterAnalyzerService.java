@@ -22,6 +22,7 @@ import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanObject;
 import org.apache.skywalking.oap.server.core.source.GenAIMetrics;
 import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.module.Service;
 
@@ -32,6 +33,14 @@ public interface IGenAIMeterAnalyzerService extends Service {
     GenAIMetrics extractMetricsFromSWSpan(SpanObject span, SegmentObject segment);
 
     GenAIMetrics extractMetricsFromZipkinSpan(ZipkinSpan zipkinSpan);
+
+    /**
+     * The counterpart of {@link #extractMetricsFromZipkinSpan} for OTLP spans stored natively, which never become
+     * Zipkin spans. Reads the same attributes; status comes from the span status instead of the {@code error} tag.
+     *
+     * @return null when the span carries no {@code gen_ai.response.model}
+     */
+    GenAIMetrics extractMetricsFromOTLPSpan(OTLPSpanReader span);
 
     List<Source> transferToSources(GenAIMetrics metrics);
 

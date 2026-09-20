@@ -71,4 +71,10 @@ public class TraceQLQueryParams {
      * Status filter
      */
     private String status;
+
+    /**
+     * Span kind filter, the TraceQL spelling: {@code server}, {@code client}, {@code producer}, {@code consumer},
+     * {@code internal} or {@code unspecified}. Served by the OTLP datasource only.
+     */
+    private String kind;
 }

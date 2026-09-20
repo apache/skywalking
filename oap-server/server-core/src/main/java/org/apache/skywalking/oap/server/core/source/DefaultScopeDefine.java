@@ -162,6 +162,10 @@ public class DefaultScopeDefine {
     public static final int GEN_AI_EVALUATION_RECORD = 99;
     public static final int AI_AGENT_SESSION_DATA = 100;
     public static final int AI_AGENT_SESSION_FLOW = 101;
+    public static final int OTLP_SPAN = 102;
+    public static final int OTLP_SERVICE = 103;
+    public static final int OTLP_SERVICE_SPAN = 104;
+    public static final int OTLP_SERVICE_RELATION = 105;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.

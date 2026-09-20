@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.query.traceql;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
+import org.apache.skywalking.oap.query.traceql.handler.OTLPTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.SkyWalkingTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.ZipkinTraceQLApiHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -97,6 +98,14 @@ public class TraceQLProvider extends ModuleProvider {
                 new SkyWalkingTraceQLApiHandler(getManager(), config),
                 Collections.singletonList(HttpMethod.GET),
                 config.getRestContextPathSkywalking()
+            );
+        }
+        if (config.isEnableDatasourceOTLP()) {
+            // Natively stored OTLP spans, served as the OTLP they arrived as, with /otlp context path
+            httpServer.addHandler(
+                new OTLPTraceQLApiHandler(getManager(), config),
+                Collections.singletonList(HttpMethod.GET),
+                config.getRestContextPathOTLP()
             );
         }
     }

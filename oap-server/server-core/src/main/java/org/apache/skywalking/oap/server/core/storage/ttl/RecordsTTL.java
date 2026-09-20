@@ -30,12 +30,14 @@ public class RecordsTTL {
     private final int normal;
     private final int trace;
     private final int zipkinTrace;
+    private final int otlpTrace;
     private final int log;
     private final int browserErrorLog;
 
     private int coldNormal = -1;
     private int coldTrace = -1;
     private int coldZipkinTrace = -1;
+    private int coldOtlpTrace = -1;
     private int coldLog = -1;
     private int coldBrowserErrorLog = -1;
 }

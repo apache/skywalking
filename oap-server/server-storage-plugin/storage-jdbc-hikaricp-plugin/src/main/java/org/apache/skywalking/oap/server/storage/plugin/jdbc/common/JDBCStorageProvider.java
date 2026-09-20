@@ -59,6 +59,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQue
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.ttl.DefaultStorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
@@ -102,6 +103,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTopol
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCRuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCUITemplateManagementDAO;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCZipkinQueryDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
@@ -256,6 +258,10 @@ public abstract class JDBCStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(
             IZipkinQueryDAO.class,
             new JDBCZipkinQueryDAO(jdbcClient, tableHelper)
+        );
+        this.registerServiceImplementation(
+            IOTLPTraceQueryDAO.class,
+            new JDBCOTLPTraceQueryDAO(jdbcClient, tableHelper)
         );
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class,

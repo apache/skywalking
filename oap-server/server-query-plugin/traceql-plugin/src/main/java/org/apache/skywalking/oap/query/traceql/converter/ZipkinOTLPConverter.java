@@ -34,15 +34,27 @@ import io.opentelemetry.proto.trace.v1.Status;
 import org.apache.skywalking.oap.query.traceql.entity.SearchResponse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.ERROR;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.NAME;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.REMOTE_SERVICE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_REMOTE_SERVICE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_SERVICE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_SERVICE_NAME;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SCOPE_RESOURCE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SERVICE;
 import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SERVICE_NAME;
 import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SPAN_KIND;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SPAN_PREFIX;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.STATUS;
 
 /**
  * Converter for transforming Zipkin trace data to OpenTelemetry Protocol (OTLP) format.
@@ -275,14 +287,81 @@ public class ZipkinOTLPConverter {
     }
 
     /**
+     * The tag keys of one scope on the spans of the sampled traces that the matcher accepts, for Tempo's filtered
+     * {@code /api/v2/search/tags}. Zipkin spans have no resource, so that scope keeps its fixed names.
+     */
+    public static List<String> tagNames(List<List<zipkin2.Span>> traces, ZipkinSpanMatcher matcher, String scope) {
+        if (SCOPE_RESOURCE.equals(scope)) {
+            return Arrays.asList(SERVICE, REMOTE_SERVICE);
+        }
+        Set<String> keys = new LinkedHashSet<>();
+        for (zipkin2.Span span : matched(traces, matcher)) {
+            keys.addAll(span.tags().keySet());
+        }
+        return new ArrayList<>(keys);
+    }
+
+    /**
+     * The distinct values of one tag on the spans of the sampled traces that the matcher accepts, for Tempo's
+     * filtered {@code /api/v2/search/tag/{tag}/values}. {@code tag} is the normalized name the handler switches on.
+     */
+    public static List<String> tagValues(List<List<zipkin2.Span>> traces, ZipkinSpanMatcher matcher, String tag) {
+        Set<String> values = new LinkedHashSet<>();
+        for (zipkin2.Span span : matched(traces, matcher)) {
+            String value = tagValue(span, tag);
+            if (StringUtil.isNotEmpty(value)) {
+                values.add(value);
+            }
+        }
+        return new ArrayList<>(values);
+    }
+
+    private static String tagValue(zipkin2.Span span, String tag) {
+        switch (tag) {
+            case RESOURCE_SERVICE_NAME:
+            case RESOURCE_SERVICE:
+                return span.localServiceName();
+            case RESOURCE_REMOTE_SERVICE:
+                return span.remoteServiceName();
+            case NAME:
+                return span.name();
+            case STATUS:
+                // Zipkin's error convention: an "error" tag, whatever its value.
+                return span.tags().containsKey(ERROR) ? ERROR : null;
+            default:
+                if (tag.startsWith(SPAN_PREFIX)) {
+                    return span.tags().get(tag.substring(SPAN_PREFIX.length()));
+                }
+                return null;
+        }
+    }
+
+    private static List<zipkin2.Span> matched(List<List<zipkin2.Span>> traces, ZipkinSpanMatcher matcher) {
+        List<zipkin2.Span> spans = new ArrayList<>();
+        for (List<zipkin2.Span> trace : traces) {
+            for (zipkin2.Span span : trace) {
+                if (matcher == null || matcher.matches(span)) {
+                    spans.add(span);
+                }
+            }
+        }
+        return spans;
+    }
+
+    /**
      * Convert Zipkin traces to SearchResponse.
      * Each trace in the list becomes a Trace in the SearchResponse.
      *
-     * @param traces      List of Zipkin trace (each trace is a list of spans)
-     * @param allowedTags Only span attributes whose key is in this set are included in the result
+     * @param traces          List of Zipkin trace (each trace is a list of spans)
+     * @param allowedTags     Only span attributes whose key is in this set are included in the result
+     * @param matcher         selects the spans the span set lists, null lists every span of the trace
+     * @param spansPerSpanSet Tempo's {@code spss}, the most spans a span set lists; zero or less lists all matches
      * @return SearchResponse containing the converted traces
      */
-    public static SearchResponse convertToSearchResponse(List<List<zipkin2.Span>> traces, Set<String> allowedTags) {
+    public static SearchResponse convertToSearchResponse(List<List<zipkin2.Span>> traces,
+                                                         Set<String> allowedTags,
+                                                         ZipkinSpanMatcher matcher,
+                                                         int spansPerSpanSet) {
         SearchResponse response = new SearchResponse();
 
         if (traces == null || traces.isEmpty()) {
@@ -294,7 +373,7 @@ public class ZipkinOTLPConverter {
                 continue;
             }
 
-            SearchResponse.Trace trace = convertZipkinTraceToSearchTrace(zipkinTrace, allowedTags);
+            SearchResponse.Trace trace = convertZipkinTraceToSearchTrace(zipkinTrace, allowedTags, matcher, spansPerSpanSet);
             response.getTraces().add(trace);
         }
 
@@ -304,12 +383,16 @@ public class ZipkinOTLPConverter {
     /**
      * Convert a single Zipkin trace (list of spans) to SearchResponse.Trace.
      *
-     * @param zipkinTrace List of Zipkin spans representing one trace
-     * @param allowedTags Only span attributes whose key is in this set are included; null means all
+     * @param zipkinTrace     List of Zipkin spans representing one trace
+     * @param allowedTags     Only span attributes whose key is in this set are included; null means all
+     * @param matcher         selects the spans the span set lists, null lists every span of the trace
+     * @param spansPerSpanSet the most spans the span set lists; zero or less lists all matches
      * @return SearchResponse.Trace
      */
     private static SearchResponse.Trace convertZipkinTraceToSearchTrace(List<zipkin2.Span> zipkinTrace,
-                                                                         Set<String> allowedTags) {
+                                                                         Set<String> allowedTags,
+                                                                         ZipkinSpanMatcher matcher,
+                                                                         int spansPerSpanSet) {
         SearchResponse.Trace trace = new SearchResponse.Trace();
 
         if (zipkinTrace.isEmpty()) {
@@ -344,13 +427,36 @@ public class ZipkinOTLPConverter {
         trace.setStartTimeUnixNano(String.valueOf(TimeUnit.MICROSECONDS.toNanos(minStartTime)));
         trace.setDurationMs((int) TimeUnit.MICROSECONDS.toMillis(maxEndTime - minStartTime));
 
-        // First pass: collect all attribute keys across all spans.
+        for (zipkin2.Span zipkinSpan : zipkinTrace) {
+            String service = zipkinSpan.localServiceName() != null ? zipkinSpan.localServiceName() : "unknown-service";
+            SearchResponse.ServiceStat stat = trace.getServiceStats()
+                                                   .computeIfAbsent(service, k -> new SearchResponse.ServiceStat(0, 0));
+            stat.setSpanCount(stat.getSpanCount() + 1);
+            // Zipkin's error convention: an "error" tag, whatever its value.
+            if (zipkinSpan.tags() != null && zipkinSpan.tags().containsKey(ERROR)) {
+                stat.setErrorCount(stat.getErrorCount() + 1);
+            }
+        }
+
+        List<zipkin2.Span> matched = zipkinTrace;
+        if (matcher != null) {
+            matched = zipkinTrace.stream().filter(matcher::matches).collect(Collectors.toList());
+            if (matched.isEmpty()) {
+                // The storage matched this trace on the same request, so the two evaluations disagree; list every
+                // span rather than an empty set, which Tempo never returns.
+                matched = zipkinTrace;
+            }
+        }
+        List<zipkin2.Span> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet
+            ? matched.subList(0, spansPerSpanSet) : matched;
+
+        // First pass: collect all attribute keys across the listed spans.
         // Grafana has a bug (search.go:369) where spans missing an attribute key that other
         // spans have cause a type panic: Append("") on a []*string field instead of Append(nil).
         // By ensuring all spans have the same keys (padding missing ones with ""), we avoid
         // the else branch in Grafana entirely.
         Set<String> allSpanAttrKeys = new LinkedHashSet<>();
-        for (zipkin2.Span zipkinSpan : zipkinTrace) {
+        for (zipkin2.Span zipkinSpan : listed) {
             if (zipkinSpan.tags() != null) {
                 allSpanAttrKeys.addAll(zipkinSpan.tags().keySet());
             }
@@ -362,12 +468,13 @@ public class ZipkinOTLPConverter {
         // Add fixed tags last so they always appear
         allSpanAttrKeys.add(SERVICE_NAME);
         allSpanAttrKeys.add(SPAN_KIND);
+        allSpanAttrKeys.add(STATUS);
 
         SearchResponse.SpanSet spanSet = new SearchResponse.SpanSet();
-        for (zipkin2.Span zipkinSpan : zipkinTrace) {
+        for (zipkin2.Span zipkinSpan : listed) {
             spanSet.getSpans().add(convertZipkinSpanToSearchSpan(zipkinSpan, allSpanAttrKeys));
         }
-        spanSet.setMatched(spanSet.getSpans().size());
+        spanSet.setMatched(matched.size());
         trace.getSpanSets().add(spanSet);
 
         return trace;
@@ -408,6 +515,8 @@ public class ZipkinOTLPConverter {
         if (zipkinSpan.tags() != null) {
             spanAttrMap.putAll(zipkinSpan.tags());
         }
+        // The span status as a fixed attribute, Zipkin's error convention: an "error" tag, whatever its value (#14093).
+        spanAttrMap.put(STATUS, zipkinSpan.tags() != null && zipkinSpan.tags().containsKey(ERROR) ? ERROR : "unset");
 
         // Output all keys in consistent order, padding missing keys with "" to avoid
         // the Grafana search.go:369 type panic on []*string fields

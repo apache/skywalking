@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.admin.status;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -27,6 +28,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.linecorp.armeria.common.AggregatedHttpResponse;
 import com.linecorp.armeria.common.HttpRequest;
+import com.linecorp.armeria.common.MediaType;
 import com.linecorp.armeria.server.annotation.Default;
 import com.linecorp.armeria.server.annotation.ExceptionHandler;
 import com.linecorp.armeria.server.annotation.Get;
@@ -34,6 +36,7 @@ import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.ProducesJson;
 import com.linecorp.armeria.server.annotation.ProducesText;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,12 +53,16 @@ import org.apache.skywalking.oap.server.admin.status.topology.DebuggingQueryProc
 import org.apache.skywalking.oap.server.admin.status.topology.DebuggingQueryServiceTopologyRsp;
 import org.apache.skywalking.oap.server.admin.status.trace.DebuggingQueryTraceBriefRsp;
 import org.apache.skywalking.oap.server.admin.status.trace.DebuggingQueryTraceRsp;
+import org.apache.skywalking.oap.server.admin.status.trace.otlp.DebuggingOTLPQueryTraceRsp;
+import org.apache.skywalking.oap.server.admin.status.trace.otlp.DebuggingOTLPQueryTracesRsp;
 import org.apache.skywalking.oap.server.admin.status.trace.zipkin.DebuggingZipkinQueryTraceRsp;
 import org.apache.skywalking.oap.server.admin.status.trace.zipkin.DebuggingZipkinQueryTracesRsp;
 import org.apache.skywalking.oap.query.graphql.resolver.LogQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.MetricsExpressionQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
+import org.apache.skywalking.oap.query.traceql.TraceQLConfig;
+import org.apache.skywalking.oap.query.traceql.handler.OTLPTraceQLApiHandler;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryConfig;
 import org.apache.skywalking.oap.query.zipkin.handler.ZipkinQueryHandler;
 import org.apache.skywalking.oap.server.core.Const;
@@ -96,6 +103,7 @@ public class DebuggingHTTPHandler {
     private final MetricsExpressionQuery mqeQuery;
     private final TraceQuery traceQuery;
     private final ZipkinQueryHandler zipkinQueryHandler;
+    private final OTLPTraceQLApiHandler otlpTraceQLApiHandler;
     private final TopologyQuery topologyQuery;
     private final LogQuery logQuery;
     final StatusModuleConfig config;
@@ -109,6 +117,8 @@ public class DebuggingHTTPHandler {
         this.traceQuery = new TraceQuery(manager);
         //use zipkin default config for debugging
         this.zipkinQueryHandler = new ZipkinQueryHandler(new ZipkinQueryConfig(), manager);
+        //use TraceQL default config for debugging
+        this.otlpTraceQLApiHandler = new OTLPTraceQLApiHandler(manager, new TraceQLConfig());
         this.topologyQuery = new TopologyQuery(manager);
         this.logQuery = new LogQuery(manager);
     }
@@ -333,6 +343,83 @@ public class DebuggingHTTPHandler {
             traceContext.stopTrace();
             DebuggingTraceContext.TRACE_CONTEXT.remove();
         }
+    }
+
+    /**
+     * The TraceQL {@code /otlp/api/search} query with its execution trace. {@code q} is a TraceQL expression,
+     * {@code start} and {@code end} are epoch seconds, {@code minDuration} and {@code maxDuration} TraceQL durations.
+     */
+    @SneakyThrows
+    @Get("/debugging/query/otlp/api/search")
+    public String queryOTLPTraces(@Param("q") Optional<String> q,
+                                  @Param("tags") Optional<String> tags,
+                                  @Param("minDuration") Optional<String> minDuration,
+                                  @Param("maxDuration") Optional<String> maxDuration,
+                                  @Param("limit") Optional<Integer> limit,
+                                  @Param("start") Optional<Long> start,
+                                  @Param("end") Optional<Long> end,
+                                  @Param("coldStage") Optional<Boolean> coldStage) {
+        final String condition = "q: " + q.orElse(null) +
+            ", tags: " + tags.orElse(null) +
+            ", minDuration: " + minDuration.orElse(null) +
+            ", maxDuration: " + maxDuration.orElse(null) +
+            ", limit: " + limit.orElse(null) +
+            ", start: " + start.orElse(null) +
+            ", end: " + end.orElse(null) +
+            ", coldStage: " + coldStage.orElse(null);
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(condition, true, false);
+        DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+        try {
+            AggregatedHttpResponse response = otlpTraceQLApiHandler.search(
+                q, tags, minDuration, maxDuration, limit, start, end, Optional.empty(), coldStage
+            ).aggregate().join();
+            DebuggingOTLPQueryTracesRsp result = new DebuggingOTLPQueryTracesRsp(
+                jsonField(response, "traces"), transformTrace(traceContext.getExecTrace()));
+            return transToYAMLString(result);
+        } finally {
+            traceContext.stopTrace();
+            DebuggingTraceContext.TRACE_CONTEXT.remove();
+        }
+    }
+
+    /**
+     * The TraceQL {@code /otlp/api/v2/traces/{traceId}} query with its execution trace. Only BanyanDB can query
+     * the trace in the cold stage, which needs {@code start} and {@code end} in epoch seconds.
+     */
+    @SneakyThrows
+    @Get("/debugging/query/otlp/api/v2/trace")
+    public String getOTLPTraceById(@Param("traceId") String traceId,
+                                   @Param("start") Optional<Long> start,
+                                   @Param("end") Optional<Long> end,
+                                   @Param("coldStage") Optional<Boolean> coldStage) {
+        final String condition = "traceId: " + traceId +
+            ", start: " + start.orElse(null) +
+            ", end: " + end.orElse(null) +
+            ", coldStage: " + coldStage.orElse(null);
+        DebuggingTraceContext traceContext = new DebuggingTraceContext(condition, true, false);
+        DebuggingTraceContext.TRACE_CONTEXT.set(traceContext);
+        try {
+            AggregatedHttpResponse response = otlpTraceQLApiHandler.queryTrace(
+                traceId, start, end, coldStage, Optional.of(MediaType.JSON.toString())
+            ).aggregate().join();
+            DebuggingOTLPQueryTraceRsp result = new DebuggingOTLPQueryTraceRsp(
+                jsonField(response, "trace"), transformTrace(traceContext.getExecTrace()));
+            return transToYAMLString(result);
+        } finally {
+            traceContext.stopTrace();
+            DebuggingTraceContext.TRACE_CONTEXT.remove();
+        }
+    }
+
+    /**
+     * The named field of a 200 JSON response; the whole body otherwise, so an error message stays visible.
+     */
+    private static JsonNode jsonField(final AggregatedHttpResponse response, final String field) throws IOException {
+        final JsonNode body = new ObjectMapper().readTree(response.contentUtf8());
+        if (response.status().code() == 200 && body != null && body.has(field)) {
+            return body.get(field);
+        }
+        return body;
     }
 
     @SneakyThrows

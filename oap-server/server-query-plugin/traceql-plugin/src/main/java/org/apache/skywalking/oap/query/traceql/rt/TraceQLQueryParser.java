@@ -18,9 +18,15 @@
 
 package org.apache.skywalking.oap.query.traceql.rt;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.skywalking.oap.query.tempo.grammar.TraceQLLexer;
 import org.apache.skywalking.oap.query.tempo.grammar.TraceQLParser;
@@ -42,7 +48,36 @@ public class TraceQLQueryParser {
         TraceQLLexer lexer = new TraceQLLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         TraceQLParser parser = new TraceQLParser(tokens);
-        return parser.query();
+        // ANTLR's default listener prints the error and recovers, which used to hand the visitor a partial tree and
+        // let a query with an unsupported construct answer with unfiltered traces (#14093). Collect instead and fail.
+        final SyntaxErrors errors = new SyntaxErrors();
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errors);
+        parser.removeErrorListeners();
+        parser.addErrorListener(errors);
+        final ParseTree tree = parser.query();
+        if (!errors.messages.isEmpty()) {
+            throw new IllegalArgumentException("Invalid TraceQL: " + String.join("; ", errors.messages));
+        }
+        return tree;
+    }
+
+    private static final class SyntaxErrors extends BaseErrorListener {
+        private final List<String> messages = new ArrayList<>();
+
+        @Override
+        public void syntaxError(final Recognizer<?, ?> recognizer,
+                                final Object offendingSymbol,
+                                final int line,
+                                final int charPositionInLine,
+                                final String msg,
+                                final RecognitionException e) {
+            // OR is the one unsupported construct users meet by accident: Grafana's query builder emits
+            // `{(a || b)}` for a multi-select value. Name it instead of echoing the grammar's expectation.
+            final String reason = offendingSymbol instanceof Token && "||".equals(((Token) offendingSymbol).getText())
+                ? "OR (||) is not supported, select one value at a time" : msg;
+            messages.add("line " + line + ":" + charPositionInLine + " " + reason);
+        }
     }
 
     /**
@@ -57,7 +92,7 @@ public class TraceQLQueryParser {
             TraceQLQueryVisitor visitor = new TraceQLQueryVisitor();
             return visitor.visit(tree);
         } catch (Throwable t) {
-            return TraceQLParseResult.error("Failed to parse TraceQL: " + t.getMessage());
+            return TraceQLParseResult.error(t.getMessage());
         }
     }
 }

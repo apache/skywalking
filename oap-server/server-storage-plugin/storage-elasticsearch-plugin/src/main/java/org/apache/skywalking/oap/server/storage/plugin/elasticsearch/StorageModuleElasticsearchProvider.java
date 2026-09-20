@@ -66,6 +66,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQue
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.ttl.DefaultStorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
@@ -114,6 +115,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.Topol
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.TraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.RuntimeRuleManagementEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.UITemplateManagementEsDAO;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.otlp.OTLPTraceQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.zipkin.ZipkinQueryEsDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
@@ -289,6 +291,8 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
             ITagAutoCompleteQueryDAO.class, new TagAutoCompleteQueryDAO(elasticSearchClient));
         this.registerServiceImplementation(
             IZipkinQueryDAO.class, new ZipkinQueryEsDAO(elasticSearchClient));
+        this.registerServiceImplementation(
+            IOTLPTraceQueryDAO.class, new OTLPTraceQueryEsDAO(elasticSearchClient));
         this.registerServiceImplementation(
             ISpanAttachedEventQueryDAO.class, new SpanAttachedEventEsDAO(elasticSearchClient, config));
 
