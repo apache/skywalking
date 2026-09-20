@@ -43,12 +43,12 @@ cases:
     expected: expected/search-traces-by-duration.yml
 
   # Search traces with a service, an intrinsic kind and a span attribute
-  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" && kind=server && span.rpc.method="ListProducts"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
+  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" %26%26 kind=server %26%26 span.rpc.method="ListProducts"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-complex.yml
 
   # Query trace by ID (JSON format), returned as the OTLP the SDK exported
   - query: |
-      TRACE_ID=$(curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" && kind=server}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=1' | jq -r '.traces[0].traceID // empty')
+      TRACE_ID=$(curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" %26%26 kind=server}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=1' | jq -r '.traces[0].traceID // empty')
       if [ -n "$TRACE_ID" ]; then
         curl -X GET http://${oap_host}:${oap_3200}/otlp/api/v2/traces/${TRACE_ID} -H "Accept: application/json"
       else
@@ -67,9 +67,9 @@ cases:
     expected: expected/trace-by-id-protobuf-header.yml
 
   # Tempo's scoped spelling of the same intrinsic
-  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" && span:kind=server && span.rpc.method="ListProducts"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
+  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="productcatalogservice" %26%26 span:kind=server %26%26 span.rpc.method="ListProducts"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-complex.yml
 
   # An INTERNAL span (the frontend's fs instrumentation) reads back as SPAN_KIND_INTERNAL, the kind Zipkin cannot represent
-  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="frontend" && kind=internal}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=5'
+  - query: curl -X GET http://${oap_host}:${oap_3200}/otlp/api/search -d 'q={resource.service.name="frontend" %26%26 kind=internal}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=5'
     expected: expected/search-traces-by-kind-internal.yml

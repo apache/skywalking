@@ -53,6 +53,9 @@ services:
     extends:
       file: ../docker-compose-demo.yml
       service: frontend
+    # Re-declared: infra-e2e reads this file for the ports it exports as ${frontend_8080}, not the extended one.
+    ports:
+      - 8080
     depends_on:
       oap:
         condition: service_healthy

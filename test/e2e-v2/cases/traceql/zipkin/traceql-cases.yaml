@@ -47,7 +47,7 @@ cases:
     expected: expected/search-traces-by-duration.yml
 
   # Search traces with complex TraceQL query
-  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend" && span.http.method="GET"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
+  - query: curl -X GET http://${oap_host}:${oap_3200}/zipkin/api/search -d 'q={resource.service.name="frontend" %26%26 span.http.method="GET"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-complex.yml
 
   # Query trace by ID (JSON format)

@@ -13,12 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# `contains` renders this block once per actual element and counts an element as matched only when the rendering
+# equals it, so every key of the productcatalogservice element is listed; the frontend element of the same trace
+# is the extra one `contains` tolerates.
 trace:
   resourceSpans:
     {{- contains .trace.resourceSpans }}
     - resource:
         attributes:
-          {{- contains .attributes }}
+          {{- contains .resource.attributes }}
           - key: service.name
             value:
               stringValue: productcatalogservice
@@ -30,10 +33,12 @@ trace:
         {{- contains .scopeSpans }}
         - scope:
             name: {{ notEmpty .scope.name }}
+            version: {{ notEmpty .scope.version }}
           spans:
             {{- contains .spans }}
             - traceId: {{ notEmpty .traceId }}
               spanId: {{ notEmpty .spanId }}
+              parentSpanId: {{ notEmpty .parentSpanId }}
               name: oteldemo.ProductCatalogService/ListProducts
               kind: SPAN_KIND_SERVER
               startTimeUnixNano: "{{ notEmpty .startTimeUnixNano }}"
@@ -50,6 +55,19 @@ trace:
                   value:
                     intValue: "0"
                 {{- end }}
+              events:
+                {{- contains .events }}
+                - timeUnixNano: "{{ notEmpty .timeUnixNano }}"
+                  name: message
+                  attributes:
+                    {{- contains .attributes }}
+                    - key: message.type
+                      value:
+                        stringValue: {{ notEmpty .value.stringValue }}
+                    {{- end }}
+                {{- end }}
+              status: {}
             {{- end }}
         {{- end }}
+      schemaUrl: {{ notEmpty .schemaUrl }}
     {{- end }}
