@@ -17,6 +17,9 @@
 
 package org.apache.skywalking.oap.server.core.trace;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Read-only abstraction over an OTLP span, decoupled from the protobuf
  * {@code io.opentelemetry.proto.trace.v1.Span} type so that {@code server-core}
@@ -66,4 +69,26 @@ public interface OTLPSpanReader {
      * @return the attribute value as a string, or empty string if not found
      */
     String getAttribute(String key);
+
+    /**
+     * @return the parent span id encoded as lowercase hex, empty for a root span
+     */
+    default String parentSpanId() {
+        return "";
+    }
+
+    /**
+     * @return the status code as the OTLP proto enum name, {@code STATUS_CODE_UNSET}, {@code STATUS_CODE_OK} or
+     * {@code STATUS_CODE_ERROR}
+     */
+    default String statusCode() {
+        return "STATUS_CODE_UNSET";
+    }
+
+    /**
+     * @return every span attribute, values rendered as strings; the first occurrence of a duplicated key wins
+     */
+    default Map<String, String> attributes() {
+        return Collections.emptyMap();
+    }
 }

@@ -80,6 +80,7 @@ services:
       - 12800
       - 9412
     environment:
+      SW_OTEL_TRACE_STORAGE: zipkin
       SW_RECEIVER_ZIPKIN: default
       SW_QUERY_ZIPKIN: default
 

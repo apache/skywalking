@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.source.GenAIProviderAccess;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIContextResolver;
@@ -45,11 +46,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
+    private static final String STATUS_CODE_ERROR = "STATUS_CODE_ERROR";
+    /**
+     * The attributes {@link #extractMetrics} reads, copied out of a Zipkin span's tag object.
+     */
+    private static final String[] GEN_AI_KEYS = {
+        GenAISemanticAttributes.RESPONSE_MODEL,
+        GenAISemanticAttributes.PROVIDER_NAME,
+        GenAISemanticAttributes.SYSTEM_NAME,
+        GenAISemanticAttributes.USAGE_INPUT_TOKENS,
+        GenAISemanticAttributes.USAGE_OUTPUT_TOKENS,
+        GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN
+    };
 
     private final GenAIProviderPrefixMatcher matcher;
 
@@ -113,16 +127,54 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
     @Override
     public GenAIMetrics extractMetricsFromZipkinSpan(ZipkinSpan zipkinSpan) {
-        JsonObject tags = zipkinSpan.getTags();
-        JsonElement element = tags.get(GenAISemanticAttributes.RESPONSE_MODEL);
-        if (element == null || StringUtil.isBlank(element.getAsString())) {
+        final JsonObject tags = zipkinSpan.getTags();
+        final Map<String, String> attributes = new HashMap<>();
+        for (final String key : GEN_AI_KEYS) {
+            final String value = getZipkinSpanTagValue(tags, key);
+            if (StringUtil.isNotBlank(value)) {
+                attributes.put(key, value);
+            }
+        }
+        return extractMetrics(
+            attributes,
+            zipkinSpan.getDuration() / 1000,
+            StringUtil.isBlank(getZipkinSpanTagValue(tags, "error")),
+            zipkinSpan.getTimestamp() / 1000
+        );
+    }
+
+    @Override
+    public GenAIMetrics extractMetricsFromOTLPSpan(final OTLPSpanReader span) {
+        return extractMetrics(
+            span.attributes(),
+            TimeUnit.NANOSECONDS.toMillis(span.endTimeNanos() - span.startTimeNanos()),
+            !STATUS_CODE_ERROR.equals(span.statusCode()),
+            TimeUnit.NANOSECONDS.toMillis(span.startTimeNanos())
+        );
+    }
+
+    /**
+     * The attribute-driven part shared by the Zipkin and the native OTLP path: both carry the GenAI semantic
+     * conventions as string attributes; only latency, status and the timestamp are read differently.
+     *
+     * @param attributes      span attributes as strings
+     * @param latencyMillis   the span's duration in milliseconds
+     * @param status          true when the span did not fail
+     * @param startTimeMillis the span's start in milliseconds since the epoch
+     * @return null when the span carries no {@code gen_ai.response.model}
+     */
+    private GenAIMetrics extractMetrics(final Map<String, String> attributes,
+                                        final long latencyMillis,
+                                        final boolean status,
+                                        final long startTimeMillis) {
+        if (StringUtil.isBlank(attributes.get(GenAISemanticAttributes.RESPONSE_MODEL))) {
             return null;
         }
 
         final Map<String, String> contextTags = new HashMap<>();
-        putTag(contextTags, tags, GenAISemanticAttributes.RESPONSE_MODEL);
-        putTag(contextTags, tags, GenAISemanticAttributes.PROVIDER_NAME);
-        putTag(contextTags, tags, GenAISemanticAttributes.SYSTEM_NAME);
+        putAttribute(contextTags, attributes, GenAISemanticAttributes.RESPONSE_MODEL);
+        putAttribute(contextTags, attributes, GenAISemanticAttributes.PROVIDER_NAME);
+        putAttribute(contextTags, attributes, GenAISemanticAttributes.SYSTEM_NAME);
         final GenAIContextResolver.Result resolvedContext = GenAIContextResolver.resolve(contextTags);
         String modelName = resolvedContext.getModelName();
         String provider = resolvedContext.getProviderName();
@@ -131,8 +183,8 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
 
         GenAIConfig.Model modelConfig = matchResult.getModelConfig();
 
-        long inputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAISemanticAttributes.USAGE_INPUT_TOKENS));
-        long outputTokens = parseSafeLong(getZipkinSpanTagValue(tags, GenAISemanticAttributes.USAGE_OUTPUT_TOKENS));
+        long inputTokens = parseSafeLong(attributes.get(GenAISemanticAttributes.USAGE_INPUT_TOKENS));
+        long outputTokens = parseSafeLong(attributes.get(GenAISemanticAttributes.USAGE_OUTPUT_TOKENS));
 
         double totalCost = calculateTotalCost(modelConfig, inputTokens, outputTokens);
 
@@ -142,19 +194,18 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setModelName(modelName);
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
-        metrics.setTimeToFirstToken(parseSafeInt(
-            getZipkinSpanTagValue(tags, GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(parseSafeInt(attributes.get(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
         metrics.setTotalEstimatedCost(totalCost);
-        metrics.setLatency(zipkinSpan.getDuration() / 1000);
-        metrics.setStatus(StringUtil.isBlank(getZipkinSpanTagValue(tags, "error")));
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(zipkinSpan.getTimestamp() / 1000));
+        metrics.setLatency(latencyMillis);
+        metrics.setStatus(status);
+        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(startTimeMillis));
         return metrics;
     }
 
-    private void putTag(final Map<String, String> target,
-                        final JsonObject source,
-                        final String key) {
-        final String value = getZipkinSpanTagValue(source, key);
+    private static void putAttribute(final Map<String, String> target,
+                                     final Map<String, String> source,
+                                     final String key) {
+        final String value = source.get(key);
         if (StringUtil.isNotBlank(value)) {
             target.put(key, value);
         }

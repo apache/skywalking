@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The OpenTelemetry demo services every native OTLP trace storage variant runs. The variants add the storage,
+# the OAP settings and the depends_on edges, which extends does not carry over.
+
+x-default-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+services:
+  frontend:
+    image: ghcr.io/open-telemetry/demo:1.4.0-frontend
+    restart: unless-stopped
+    ports:
+      - 8080
+    environment:
+      PORT: 8080
+      FRONTEND_ADDR: frontend:8080
+      PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      ENV_PLATFORM: local
+      OTEL_SERVICE_NAME: frontend
+      WEB_OTEL_SERVICE_NAME: frontend-web
+      CURRENCY_SERVICE_ADDR: productcatalogservice:3550
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 8080"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    logging: *logging
+
+  productcatalogservice:
+    image: ghcr.io/open-telemetry/demo:1.4.0-productcatalogservice
+    restart: unless-stopped
+    ports:
+      - "3550"
+    environment:
+      PRODUCT_CATALOG_SERVICE_PORT: 3550
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      OTEL_SERVICE_NAME: productcatalogservice
+      FEATURE_FLAG_GRPC_SERVICE_ADDR: productcatalogservice:3550
+    healthcheck:
+      test: ["CMD", "sh", "-c", "nc -nz 127.0.0.1 3550"]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+    logging: *logging

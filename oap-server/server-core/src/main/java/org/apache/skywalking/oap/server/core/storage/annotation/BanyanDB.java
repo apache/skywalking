@@ -353,6 +353,7 @@ public @interface BanyanDB {
     enum TraceGroup {
         TRACE("trace"),
         ZIPKIN_TRACE("zipkinTrace"),
+        OTLP_TRACE("otlpTrace"),
         NONE("none");
 
         @Getter

@@ -382,12 +382,14 @@ metrics.day.cold=-1
 records.normal=3
 records.trace=10
 records.zipkinTrace=3
+records.otlpTrace=3
 records.log=3
 records.browserErrorLog=3
 # Cold data, '-1' represents no cold stage data.
 records.normal.cold=-1
 records.trace.cold=30
 records.zipkinTrace.cold=-1
+records.otlpTrace.cold=-1
 records.log.cold=-1
 records.browserErrorLog.cold=-1
 ```
@@ -413,11 +415,13 @@ curl -X GET "http://oap:17128/status/config/ttl" \
     "normal": 3,
     "trace": 10,
     "zipkinTrace": 3,
+    "otlpTrace": 3,
     "log": 3,
     "browserErrorLog": 3,
     "coldNormal": -1,
     "coldTrace": 30,
     "coldZipkinTrace": -1,
+    "coldOtlpTrace": -1,
     "coldLog": -1,
     "coldBrowserErrorLog": -1
   }
@@ -448,6 +452,8 @@ why a query is slow or returning unexpected data.
 | `/debugging/query/trace/queryTrace` | Trace detail. |
 | `/debugging/query/zipkin/api/v2/traces` | Zipkin compat brief. |
 | `/debugging/query/zipkin/api/v2/trace` | Zipkin compat detail. |
+| `/debugging/query/otlp/api/search` | Natively stored OTLP trace search, the TraceQL `/otlp/api/search` query (`q`, `start`, `end`, `limit`, `coldStage`). |
+| `/debugging/query/otlp/api/v2/trace` | Natively stored OTLP trace detail by `traceId`, the TraceQL `/otlp/api/v2/traces/{traceId}` query. |
 | `/debugging/query/topology/getGlobalTopology` | Global topology debug. |
 | `/debugging/query/topology/getServicesTopology` | Per-service topology debug. |
 | `/debugging/query/topology/getServiceInstanceTopology` | Per-instance topology debug. |

@@ -20,6 +20,7 @@ services:
       service: oap
     environment:
       SW_QUERY_ZIPKIN: default
+      SW_OTEL_TRACE_STORAGE: zipkin
       SW_RECEIVER_ZIPKIN: default
       SW_AI_EVALUATION: default
       SW_AI_EVALUATION_SAMPLE_RATE: 1000000

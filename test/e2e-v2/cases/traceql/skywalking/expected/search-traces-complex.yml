@@ -20,6 +20,12 @@ traces:
     rootTraceName: {{ notEmpty .rootTraceName }}
     startTimeUnixNano: "{{ notEmpty .startTimeUnixNano }}"
     durationMs: {{ gt .durationMs -1 }}
+    serviceStats:
+      {{- range $service, $stat := .serviceStats }}
+      {{ $service }}:
+        spanCount: {{ gt $stat.spanCount 0 }}
+        errorCount: {{ ge $stat.errorCount 0 }}
+      {{- end }}
     spanSets:
       {{- contains .spanSets }}
       - matched: {{ gt .matched 0 }}

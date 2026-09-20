@@ -840,6 +840,15 @@ public enum MetadataRegistry {
                             DownSampling.None,
                             config.getZipkinTrace()
                         );
+                    case OTLP_TRACE:
+                        return new SchemaMetadata(
+                            namespace,
+                            BanyanDB.TraceGroup.OTLP_TRACE.getName(),
+                            model.getName(),
+                            Kind.TRACE,
+                            DownSampling.None,
+                            config.getOtlpTrace()
+                        );
                     default:
                         throw new IllegalStateException("unknown trace group " + traceGroup);
                 }

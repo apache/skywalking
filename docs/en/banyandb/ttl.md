@@ -32,6 +32,7 @@ Warm and Cold are disabled by default. The values listed for warm/cold apply if 
 | records                | 3   | 7        | 30       |
 | trace                  | 3   | 7        | 30       |
 | zipkinTrace            | 3   | 7        | 30       |
+| otlpTrace              | 3   | 7        | 30       |
 | recordsLog             | 3   | 7        | 30       |
 | recordsBrowserErrorLog | 3   | 7        | 30       |
 | metricsMinute          | 7   | 15       | 60       |

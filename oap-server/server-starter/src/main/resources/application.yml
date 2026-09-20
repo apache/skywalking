@@ -433,6 +433,17 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-traces,otlp-metrics,otlp-logs"}
+    # Where the `otlp-traces` handler stores spans.
+    #   otlp:   store the native OTLP span in `otlp_span`, served by the TraceQL `/otlp` datasource
+    #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (needs receiver-zipkin and query-zipkin)
+    otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:otlp}
+    # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags). Every resource and span
+    # attribute is indexed for equality search regardless of this list; same meaning as receiver-zipkin.searchableTracesTags.
+    otlpTraceSearchableTags: ${SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS:http.request.method,http.response.status_code,url.path,rpc.method,rpc.grpc.status_code,db.system.name,db.namespace,messaging.system,messaging.destination.name,peer.service}
+    # `otlp` mode only. Head sampling by trace id, precision 1/10000.
+    otlpTraceSampleRate: ${SW_OTEL_TRACE_SAMPLE_RATE:10000}
+    # `otlp` mode only. Spans per second accepted before dropping. 0 means no limit.
+    otlpTraceMaxSpansPerSecond: ${SW_OTEL_TRACE_MAX_SPANS_PER_SECOND:0}
     enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*,ai-agent/*"}
 
 receiver-zipkin:
@@ -558,8 +569,11 @@ traceQL:
     restPort: ${SW_TRACEQL_REST_PORT:3200}
     enableDatasourceZipkin: ${SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN:false}
     enableDatasourceSkywalking: ${SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING:false}
+    # Natively stored OTLP spans (receiver-otel.otlpTraceStorage: otlp), served as the OTLP they arrived as.
+    enableDatasourceOTLP: ${SW_TRACEQL_ENABLE_DATASOURCE_OTLP:false}
     restContextPathZipkin: ${SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN:/zipkin}
     restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
+    restContextPathOTLP: ${SW_TRACEQL_REST_CONTEXT_PATH_OTLP:/otlp}
     restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
     restSSLEnabled: ${SW_TRACEQL_REST_SSL_ENABLED:false}
@@ -570,6 +584,8 @@ traceQL:
     # The tags in the list result of traces query, which would be used for trace grouping and shown in the trace list page.
     zipkinTracesListResultTags: ${SW_TRACEQL_ZIPKIN_TRACES_LIST_RESULT_TAGS:http.method,error}
     skywalkingTracesListResultTags: ${SW_TRACEQL_SKYWALKING_TRACES_LIST_RESULT_TAGS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # The span attributes included in the trace list result of the OTLP datasource, used by Grafana for grouping.
+    otlpTracesListResultTags: ${SW_TRACEQL_OTLP_TRACES_LIST_RESULT_TAGS:http.request.method,http.response.status_code}
 
 alarm:
   selector: ${SW_ALARM:default}

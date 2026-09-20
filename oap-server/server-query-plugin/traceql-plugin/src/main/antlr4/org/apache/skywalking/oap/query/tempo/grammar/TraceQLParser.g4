@@ -70,9 +70,10 @@ scope
     | LINK
     ;
 
-// Intrinsic fields (using IDENTIFIER to avoid keyword conflicts)
+// Intrinsic fields (using IDENTIFIER to avoid keyword conflicts), plain or with Tempo's scope prefix:
+// duration, name, status, kind, span:kind, span:duration, trace:duration, event:name
 intrinsicField
-    : IDENTIFIER  // duration, name, status, kind, parent, traceID, rootName, rootServiceName
+    : ((scope | IDENTIFIER) COLON)? IDENTIFIER
     ;
 
 // Operators
@@ -95,5 +96,6 @@ staticValue
     | TRUE                                                              # TrueLiteral
     | FALSE                                                             # FalseLiteral
     | NIL                                                               # NilLiteral
+    | IDENTIFIER                                                        # KeywordLiteral  // TraceQL enums: kind = server, status = error
     ;
 

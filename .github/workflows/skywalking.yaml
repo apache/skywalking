@@ -700,6 +700,8 @@ jobs:
             config: test/e2e-v2/cases/virtual-genai/e2e.yaml
           - name: OTLP Virtual GenAI
             config: test/e2e-v2/cases/otlp-virtual-genai/e2e.yaml
+          - name: OTLP Virtual GenAI Native
+            config: test/e2e-v2/cases/otlp-virtual-genai/native/e2e.yaml
           - name: Zipkin Virtual GenAI
             config: test/e2e-v2/cases/zipkin-virtual-genai/e2e.yaml
           - name: iOS Monitoring
@@ -766,6 +768,12 @@ jobs:
 
           - name: OTLP Trace
             config: test/e2e-v2/cases/otlp-traces/e2e.yaml
+          - name: OTLP Trace Native BanyanDB
+            config: test/e2e-v2/cases/otlp-traces/native/banyandb/e2e.yaml
+          - name: OTLP Trace Native ES
+            config: test/e2e-v2/cases/otlp-traces/native/es/e2e.yaml
+          - name: OTLP Trace Native MySQL
+            config: test/e2e-v2/cases/otlp-traces/native/mysql/e2e.yaml
 
           - name: UI Management BanyanDB
             config: test/e2e-v2/cases/ui-management/banyandb/e2e.yaml

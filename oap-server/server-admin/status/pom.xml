@@ -62,6 +62,15 @@
             <version>${project.version}</version>
         </dependency>
         <!--
+          traceql-plugin: the OTLP debug-trace endpoints route through the
+          same TraceQL handler the /otlp datasource uses.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>traceql-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--
           server-alarm-plugin: alarm runtime status queries inspect the
           alarm provider's in-memory rule + window state.
         -->
