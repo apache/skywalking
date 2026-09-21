@@ -62,12 +62,12 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
     }
 
     @Override
-    public List<String> getServiceNames(@Nullable final Duration duration) throws IOException {
+    public List<String> getServiceNames() throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(
             OTLPServiceTraffic.INDEX_NAME, DownSampling.Minute);
+        // No time range on the catalogs, see IOTLPTraceQueryDAO#getServiceNames.
         final MeasureQueryResponse resp = queryDebuggable(
-            false, schema, SERVICE_TRAFFIC_TAGS, Collections.emptySet(),
-            getTimestampRange(duration),
+            false, schema, SERVICE_TRAFFIC_TAGS, Collections.emptySet(), null,
             Conditions.create().limit(QUERY_MAX_SIZE));
         final List<String> services = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
@@ -77,7 +77,7 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
     }
 
     @Override
-    public List<String> getSpanNames(final String serviceName, @Nullable final Duration duration) throws IOException {
+    public List<String> getSpanNames(final String serviceName) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(
             OTLPServiceSpanTraffic.INDEX_NAME, DownSampling.Minute);
         final Conditions where = Conditions.create();
@@ -86,7 +86,7 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
         }
         where.limit(QUERY_MAX_SIZE);
         final MeasureQueryResponse resp = queryDebuggable(
-            false, schema, SPAN_TRAFFIC_TAGS, Collections.emptySet(), getTimestampRange(duration), where);
+            false, schema, SPAN_TRAFFIC_TAGS, Collections.emptySet(), null, where);
         final List<String> spanNames = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             spanNames.add(dataPoint.getTagValue(OTLPServiceSpanTraffic.SPAN_NAME));
@@ -95,8 +95,7 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
     }
 
     @Override
-    public List<String> getPeerServiceNames(final String serviceName,
-                                            @Nullable final Duration duration) throws IOException {
+    public List<String> getPeerServiceNames(final String serviceName) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(
             OTLPServiceRelationTraffic.INDEX_NAME, DownSampling.Minute);
         final Conditions where = Conditions.create();
@@ -105,7 +104,7 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
         }
         where.limit(QUERY_MAX_SIZE);
         final MeasureQueryResponse resp = queryDebuggable(
-            false, schema, RELATION_TRAFFIC_TAGS, Collections.emptySet(), getTimestampRange(duration), where);
+            false, schema, RELATION_TRAFFIC_TAGS, Collections.emptySet(), null, where);
         final List<String> peerServices = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
             peerServices.add(dataPoint.getTagValue(OTLPServiceRelationTraffic.PEER_SERVICE));

@@ -151,10 +151,62 @@ class OTLPTraceAssemblerTest {
 
         final SearchResponse.Span frontend = spans.get(1);
         assertEquals(keys(checkout), keys(frontend));
-        assertEquals("200", frontend.getAttributes().get(0).getValue().getIntValue());
-        assertNull(frontend.getAttributes().get(0).getValue().getStringValue());
+        // the child span has no status code, so the key is text on both spans: the "" padding and "200" must be
+        // of one type, or Grafana's column typed from the first span fails on the second
+        assertEquals("200", frontend.getAttributes().get(0).getValue().getStringValue());
+        assertNull(frontend.getAttributes().get(0).getValue().getIntValue());
         assertEquals("frontend", frontend.getAttributes().get(1).getValue().getStringValue());
         assertTrue(keys(frontend).stream().noneMatch("http.route"::equals));
+    }
+
+    @Test
+    void shouldKeepAnAttributeTypeOnlyWhenEveryListedSpanSharesIt() {
+        final Span root = span(ROOT_SPAN_ID, ByteString.EMPTY, "GET /", 1_000_000L, 4_000_000L)
+            .addAttributes(KeyValue.newBuilder().setKey("http.response.status_code").setValue(AnyValue.newBuilder().setIntValue(200)))
+            .addAttributes(KeyValue.newBuilder().setKey("http.request.method").setValue(AnyValue.newBuilder().setStringValue("GET")))
+            .build();
+        final Span child = span(CHILD_SPAN_ID, ROOT_SPAN_ID, "Charge", 2_000_000L, 3_000_000L)
+            .addAttributes(KeyValue.newBuilder().setKey("http.response.status_code").setValue(AnyValue.newBuilder().setIntValue(503)))
+            .addAttributes(KeyValue.newBuilder().setKey("http.request.method").setValue(AnyValue.newBuilder().setIntValue(1)))
+            .build();
+
+        final SearchResponse response = OTLPTraceAssembler.toSearchResponse(Collections.singletonList(Arrays.asList(
+            stored(FRONTEND, HTTP_SCOPE, root), stored(CHECKOUT, GRPC_SCOPE, child)
+        )), Set.of("http.response.status_code", "http.request.method"), null, 0);
+
+        final List<SearchResponse.Span> spans = response.getTraces().get(0).getSpanSets().get(0).getSpans();
+        // both spans carry the status code as an integer: the type is kept
+        assertEquals("200", spans.get(0).getAttributes().get(0).getValue().getIntValue());
+        assertEquals("503", spans.get(1).getAttributes().get(0).getValue().getIntValue());
+        // the method is a string on one span and an integer on the other: both render as text
+        assertEquals("GET", spans.get(0).getAttributes().get(1).getValue().getStringValue());
+        assertEquals("1", spans.get(1).getAttributes().get(1).getValue().getStringValue());
+        assertNull(spans.get(1).getAttributes().get(1).getValue().getIntValue());
+    }
+
+    @Test
+    void shouldDecideAnAttributeTypeOverTheWholeResponse() {
+        // Grafana's spans table is one column set over every trace: an integer here and a padding "" in the other
+        // trace would meet in one column, so the key is text in both traces
+        final Span typed = span(ROOT_SPAN_ID, ByteString.EMPTY, "GET /", 1_000_000L, 4_000_000L)
+            .addAttributes(KeyValue.newBuilder().setKey("http.response.status_code").setValue(AnyValue.newBuilder().setIntValue(200)))
+            .build();
+        final Span padded = span(CHILD_SPAN_ID, ByteString.EMPTY, "Charge", 2_000_000L, 3_000_000L).build();
+        final Span other = span(ByteString.copyFrom(new byte[] {9, 9, 9, 9, 9, 9, 9, 9}), CHILD_SPAN_ID, "Pay", 2_000_000L, 3_000_000L)
+            .addAttributes(KeyValue.newBuilder().setKey("http.response.status_code").setValue(AnyValue.newBuilder().setIntValue(503)))
+            .build();
+
+        final SearchResponse response = OTLPTraceAssembler.toSearchResponse(Arrays.asList(
+            Collections.singletonList(stored(FRONTEND, HTTP_SCOPE, typed)),
+            Arrays.asList(stored(CHECKOUT, GRPC_SCOPE, padded), stored(CHECKOUT, GRPC_SCOPE, other))
+        ), Set.of("http.response.status_code"), null, 0);
+
+        final SearchResponse.Span first = response.getTraces().get(0).getSpanSets().get(0).getSpans().get(0);
+        assertEquals("200", first.getAttributes().get(0).getValue().getStringValue());
+        assertNull(first.getAttributes().get(0).getValue().getIntValue());
+        final List<SearchResponse.Span> second = response.getTraces().get(1).getSpanSets().get(0).getSpans();
+        assertEquals("", second.get(0).getAttributes().get(0).getValue().getStringValue());
+        assertEquals("503", second.get(1).getAttributes().get(0).getValue().getStringValue());
     }
 
     @Test

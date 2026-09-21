@@ -69,7 +69,7 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<String> getServiceNames(@Nullable final Duration duration) {
+    public List<String> getServiceNames() {
         final List<String> tables = tableHelper.getTablesWithinTTL(OTLPServiceTraffic.INDEX_NAME);
         final Set<String> services = new LinkedHashSet<>();
         for (final String table : tables) {
@@ -87,7 +87,7 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<String> getSpanNames(final String serviceName, @Nullable final Duration duration) {
+    public List<String> getSpanNames(final String serviceName) {
         final List<String> tables = tableHelper.getTablesWithinTTL(OTLPServiceSpanTraffic.INDEX_NAME);
         final Set<String> spanNames = new LinkedHashSet<>();
         for (final String table : tables) {
@@ -106,7 +106,7 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<String> getPeerServiceNames(final String serviceName, @Nullable final Duration duration) {
+    public List<String> getPeerServiceNames(final String serviceName) {
         final List<String> tables = tableHelper.getTablesWithinTTL(OTLPServiceRelationTraffic.INDEX_NAME);
         final Set<String> peerServices = new LinkedHashSet<>();
         for (final String table : tables) {
