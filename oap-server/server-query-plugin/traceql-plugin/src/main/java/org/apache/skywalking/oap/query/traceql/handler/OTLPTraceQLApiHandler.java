@@ -359,7 +359,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
             case RESOURCE_SERVICE_NAME:
             case RESOURCE_SERVICE:
             case SERVICE_NAME:
-                return successResponse(stringValues(queryService.getServiceNames(duration), limit));
+                return successResponse(stringValues(queryService.getServiceNames(), limit));
             case RESOURCE_SERVICE_INSTANCE_ID:
             case RESOURCE_INSTANCE:
                 return successResponse(stringValues(
@@ -377,7 +377,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                     tagAutoCompleteQueryService.queryTagAutocompleteValues(TagType.OTLP, OTEL_SCOPE_NAME, duration), limit));
             case NAME:
             case RESOURCE_REMOTE_SERVICE:
-                return scopedValues(tag, query, duration, limit);
+                return scopedValues(tag, query, limit);
             default:
                 if (tag.startsWith(SPAN_PREFIX)) {
                     return successResponse(stringValues(tagAutoCompleteQueryService.queryTagAutocompleteValues(
@@ -393,7 +393,6 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
      */
     private HttpResponse scopedValues(final String tagName,
                                       final Optional<String> query,
-                                      final Duration duration,
                                       final Optional<Integer> limit) throws IOException {
         if (!query.isPresent() || query.get().isEmpty()) {
             return successResponse(new TagValuesResponse());
@@ -407,8 +406,8 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
             return successResponse(new TagValuesResponse());
         }
         if (NAME.equals(tagName)) {
-            return successResponse(stringValues(queryService.getSpanNames(serviceName, duration), limit));
+            return successResponse(stringValues(queryService.getSpanNames(serviceName), limit));
         }
-        return successResponse(stringValues(queryService.getPeerServiceNames(serviceName, duration), limit));
+        return successResponse(stringValues(queryService.getPeerServiceNames(serviceName), limit));
     }
 }

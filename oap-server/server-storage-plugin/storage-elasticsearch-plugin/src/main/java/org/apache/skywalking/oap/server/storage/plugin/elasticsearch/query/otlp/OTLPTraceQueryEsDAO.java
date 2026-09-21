@@ -72,7 +72,7 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
     }
 
     @Override
-    public List<String> getServiceNames(@Nullable final Duration duration) {
+    public List<String> getServiceNames() {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPServiceTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
         if (IndexController.LogicIndicesRegister.isMergedTable(OTLPServiceTraffic.INDEX_NAME)) {
@@ -91,7 +91,7 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
     }
 
     @Override
-    public List<String> getSpanNames(final String serviceName, @Nullable final Duration duration) {
+    public List<String> getSpanNames(final String serviceName) {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPServiceSpanTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(OTLPServiceSpanTraffic.SERVICE_NAME, serviceName));
         if (IndexController.LogicIndicesRegister.isMergedTable(OTLPServiceSpanTraffic.INDEX_NAME)) {
@@ -108,7 +108,7 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
     }
 
     @Override
-    public List<String> getPeerServiceNames(final String serviceName, @Nullable final Duration duration) {
+    public List<String> getPeerServiceNames(final String serviceName) {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPServiceRelationTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(OTLPServiceRelationTraffic.SERVICE_NAME, serviceName));
         if (IndexController.LogicIndicesRegister.isMergedTable(OTLPServiceRelationTraffic.INDEX_NAME)) {

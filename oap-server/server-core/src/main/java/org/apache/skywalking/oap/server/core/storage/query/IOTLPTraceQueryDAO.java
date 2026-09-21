@@ -35,19 +35,15 @@ import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
  */
 public interface IOTLPTraceQueryDAO extends DAO {
     /**
-     * @param duration nullable: the catalog is then read without a time bound.
+     * The three catalogs list every name the storage retains and take no time range: their traffic rows are
+     * insert-only ({@code supportUpdate = false}), so each keeps the minute its name was first seen, and a
+     * time-bounded read would drop every name older than the window.
      */
-    List<String> getServiceNames(@Nullable Duration duration) throws IOException;
+    List<String> getServiceNames() throws IOException;
 
-    /**
-     * @param duration nullable: the catalog is then read without a time bound.
-     */
-    List<String> getSpanNames(String serviceName, @Nullable Duration duration) throws IOException;
+    List<String> getSpanNames(String serviceName) throws IOException;
 
-    /**
-     * @param duration nullable: the catalog is then read without a time bound.
-     */
-    List<String> getPeerServiceNames(String serviceName, @Nullable Duration duration) throws IOException;
+    List<String> getPeerServiceNames(String serviceName) throws IOException;
 
     /**
      * @param duration nullable: the lookup then searches everything the storage retains; a non-null one bounds it to

@@ -851,7 +851,10 @@ As on every datasource, a span set holds only the spans that matched, capped at 
 spans and errors per service. Every returned trace has at least one matching span: when the storage matched a trace
 but no single span of it satisfies every condition of the query, the trace is left out rather than listed with spans
 the query excluded. The listed attributes are `service.name`, `span.kind` and the keys configured by
-`otlpTracesListResultTags`, each with its OTLP type.
+`otlpTracesListResultTags`. A key keeps its OTLP type only when every listed span of the whole response carries it
+with the same type; a key that a span lacks, or that mixes types across spans, is rendered as a string on every span,
+because Grafana types the column from the first span and rejects a value of another type on the next, and its spans
+table is one column set over every trace.
 
 ### Tag Names and Values
 `/api/v2/search/tags` returns `service.name`, `service.instance.id` and `remote.service` under the `resource` scope,
@@ -860,7 +863,10 @@ and `name`, `status`, `kind`, `duration` and their `span:` spellings under `intr
 one scope (`event`, `link` and `instrumentation` are accepted and empty), `limit` caps the number of names per scope,
 and the v1 `/api/search/tags` lists the same names without scopes. `service.name` values come from the service catalog, `name`
 values from the span-name catalog of the service given in `q`, `remote.service` values from the peer catalog, and the
-other span keys from the tag autocomplete index; `limit` caps every value list. A `q` narrower than a service name, for
+other span keys from the tag autocomplete index; `limit` caps every value list. The three catalogs list every name the
+storage retains and ignore `start` and `end`: a catalog row is written once, when its name is first seen, so a time
+window would hide every name older than it; the autocomplete index and the sample below honor the window. A `q`
+narrower than a service name, for
 instance `{ resource.service.name = "frontend" && kind = client }`, switches both endpoints to a sample: the newest 50
 matching traces are read and the names or values are taken from the spans in them that match the filter, which is
 how Grafana's dependent dropdowns narrow down. Every attribute is indexed, so every key such a sample offers is

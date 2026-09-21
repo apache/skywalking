@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -262,28 +263,72 @@ public final class OTLPTraceAssembler {
                                                   final OTLPSpanMatcher matcher,
                                                   final int spansPerSpanSet) {
         final SearchResponse response = new SearchResponse();
+        final List<List<StoredSpan>> all = new ArrayList<>();
+        final List<List<StoredSpan>> matched = new ArrayList<>();
         for (final List<ResourceSpans> trace : traces) {
             final List<StoredSpan> spans = flatten(trace);
             if (spans.isEmpty()) {
                 continue;
             }
-            final SearchResponse.Trace searchTrace = toSearchTrace(spans, allowedTags, matcher, spansPerSpanSet);
-            if (searchTrace != null) {
-                response.getTraces().add(searchTrace);
+            final List<StoredSpan> matching = matcher == null ? spans : spans.stream()
+                .filter(s -> matcher.matches(s.resource, s.scope, s.span))
+                .collect(Collectors.toList());
+            // The storage matched this trace on the same conditions, so an empty result means the two evaluations
+            // disagree; the trace is left out rather than listed with spans the query excluded (#14093).
+            if (matching.isEmpty()) {
+                continue;
             }
+            all.add(spans);
+            matched.add(matching);
+        }
+        final List<List<StoredSpan>> listed = new ArrayList<>(matched.size());
+        for (final List<StoredSpan> matching : matched) {
+            listed.add(spansPerSpanSet > 0 && matching.size() > spansPerSpanSet
+                           ? matching.subList(0, spansPerSpanSet) : matching);
+        }
+        final Set<String> asText = keysToRenderAsText(listed, allowedTags);
+        for (int i = 0; i < all.size(); i++) {
+            response.getTraces().add(toSearchTrace(all.get(i), matched.get(i).size(), listed.get(i), allowedTags, asText));
         }
         return response;
     }
 
     /**
-     * @return null when the matcher accepts none of the spans. The storage matched the trace on the same conditions,
-     * so the two evaluations disagree; the trace is left out rather than listed with spans the query excluded, the
-     * failure #14093 describes.
+     * Grafana types a key's column from the first span carrying it, and fails on the next span whose value is of
+     * another type ("interface {} is *string, not *int64"); its spans table is one column set over every trace of
+     * the response. So a key keeps its OTLP type only when every listed span of the response carries it with the
+     * same one; otherwise every span renders it as text, which the "" padding of a span without the key fits.
+     */
+    private static Set<String> keysToRenderAsText(final List<List<StoredSpan>> listed, final Set<String> allowedTags) {
+        final Set<String> asText = new HashSet<>();
+        for (final String key : allowedTags) {
+            AnyValue.ValueCase seen = null;
+            outer:
+            for (final List<StoredSpan> spans : listed) {
+                for (final StoredSpan stored : spans) {
+                    final AnyValue value = stored.attributes().get(key);
+                    if (value == null || (seen != null && seen != value.getValueCase())) {
+                        asText.add(key);
+                        break outer;
+                    }
+                    seen = value.getValueCase();
+                }
+            }
+        }
+        return asText;
+    }
+
+    /**
+     * @param spans   every span of the trace, for the root, the bounds and {@code serviceStats}
+     * @param matched how many spans the query matched, Tempo's {@code matched}
+     * @param listed  the matched spans the span set lists, capped by {@code spss}
+     * @param asText  the keys rendered as text on every span, see {@link #keysToRenderAsText}
      */
     private static SearchResponse.Trace toSearchTrace(final List<StoredSpan> spans,
+                                                      final int matched,
+                                                      final List<StoredSpan> listed,
                                                       final Set<String> allowedTags,
-                                                      final OTLPSpanMatcher matcher,
-                                                      final int spansPerSpanSet) {
+                                                      final Set<String> asText) {
         final SearchResponse.Trace trace = new SearchResponse.Trace();
         final StoredSpan first = spans.get(0);
         trace.setTraceID(hex(first.span.getTraceId().toByteArray()));
@@ -307,18 +352,6 @@ public final class OTLPTraceAssembler {
                 stat.setErrorCount(stat.getErrorCount() + 1);
             }
         }
-
-        List<StoredSpan> matched = spans;
-        if (matcher != null) {
-            matched = spans.stream()
-                           .filter(s -> matcher.matches(s.resource, s.scope, s.span))
-                           .collect(Collectors.toList());
-            if (matched.isEmpty()) {
-                return null;
-            }
-        }
-        final List<StoredSpan> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet
-            ? matched.subList(0, spansPerSpanSet) : matched;
 
         // Every span lists the same keys, missing ones padded with an empty string: Grafana's search.go:369
         // appends "" to a []*string field when a key is absent and panics on nil.
@@ -350,17 +383,19 @@ public final class OTLPTraceAssembler {
                     value.setStringValue(statusSpelling(stored.span));
                 } else if (SERVICE_NAME.equals(key) && !attributes.containsKey(SERVICE_NAME)) {
                     value.setStringValue(stored.serviceName());
-                } else if (attributes.containsKey(key)) {
-                    fill(value, attributes.get(key));
-                } else {
+                } else if (!attributes.containsKey(key)) {
                     value.setStringValue("");
+                } else if (asText.contains(key)) {
+                    value.setStringValue(OTLPValues.render(attributes.get(key)));
+                } else {
+                    fill(value, attributes.get(key));
                 }
                 attribute.setValue(value);
                 span.getAttributes().add(attribute);
             }
             spanSet.getSpans().add(span);
         }
-        spanSet.setMatched(matched.size());
+        spanSet.setMatched(matched);
         trace.getSpanSets().add(spanSet);
         return trace;
     }

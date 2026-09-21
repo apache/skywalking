@@ -54,17 +54,16 @@ public class OTLPTraceQueryService {
         return queryDAO;
     }
 
-    public List<String> getServiceNames(@Nullable final Duration duration) throws IOException {
-        return getQueryDAO().getServiceNames(duration);
+    public List<String> getServiceNames() throws IOException {
+        return getQueryDAO().getServiceNames();
     }
 
-    public List<String> getSpanNames(final String serviceName, @Nullable final Duration duration) throws IOException {
-        return getQueryDAO().getSpanNames(serviceName, duration);
+    public List<String> getSpanNames(final String serviceName) throws IOException {
+        return getQueryDAO().getSpanNames(serviceName);
     }
 
-    public List<String> getPeerServiceNames(final String serviceName,
-                                            @Nullable final Duration duration) throws IOException {
-        return getQueryDAO().getPeerServiceNames(serviceName, duration);
+    public List<String> getPeerServiceNames(final String serviceName) throws IOException {
+        return getQueryDAO().getPeerServiceNames(serviceName);
     }
 
     /**
