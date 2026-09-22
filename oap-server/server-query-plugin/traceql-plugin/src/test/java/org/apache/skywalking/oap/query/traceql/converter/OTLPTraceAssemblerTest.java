@@ -29,6 +29,7 @@ import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
 import io.opentelemetry.proto.trace.v1.Span;
 import io.opentelemetry.proto.trace.v1.Status;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,7 +80,9 @@ class OTLPTraceAssemblerTest {
                      frontendScope.getSpansList().stream().map(Span::getName).collect(Collectors.toList()));
         assertEquals(CHECKOUT, resourceSpans.get(1).getResource());
         assertEquals(GRPC_SCOPE, resourceSpans.get(1).getScopeSpans(0).getScope());
-        assertEquals(other, resourceSpans.get(1).getScopeSpans(0).getSpans(0));
+        // Passed through untouched but for the status, which assemble fills in when the sender left it out.
+        assertEquals(other.toBuilder().setStatus(Status.getDefaultInstance()).build(),
+                     resourceSpans.get(1).getScopeSpans(0).getSpans(0));
     }
 
     @Test
@@ -289,6 +293,41 @@ class OTLPTraceAssemblerTest {
 
     private static List<String> keys(final SearchResponse.Span span) {
         return span.getAttributes().stream().map(SearchResponse.Attribute::getKey).collect(Collectors.toList());
+    }
+
+    /**
+     * Grafana dereferences the span status without a nil check, so every span of a trace response carries one even
+     * when the sender left it out.
+     */
+    @Test
+    void shouldGiveASpanStoredWithoutAStatusAnEmptyOne() throws IOException {
+        final Span noStatus = span(ROOT_SPAN_ID, ByteString.EMPTY, "/homepage", 100L, 200L).build();
+        assertFalse(noStatus.hasStatus());
+
+        final TraceByIDResponse response = OTLPTraceAssembler.assemble(
+            Collections.singletonList(stored(FRONTEND, HTTP_SCOPE, noStatus)));
+
+        final Span listed = response.getTrace().getResourceSpans(0).getScopeSpans(0).getSpans(0);
+        assertTrue(listed.hasStatus());
+        assertEquals(Status.StatusCode.STATUS_CODE_UNSET, listed.getStatus().getCode());
+        // Present on the wire too, which is the shape Grafana reads.
+        assertTrue(OTLPTraceAssembler.toJson(response).contains("\"status\""));
+    }
+
+    @Test
+    void shouldKeepTheStatusASpanWasStoredWith() {
+        final Status error = Status.newBuilder()
+                                   .setCode(Status.StatusCode.STATUS_CODE_ERROR)
+                                   .setMessage("upstream response status: 502")
+                                   .build();
+        final Span failed = span(ROOT_SPAN_ID, ByteString.EMPTY, "/homepage", 100L, 200L)
+            .setStatus(error)
+            .build();
+
+        final TraceByIDResponse response = OTLPTraceAssembler.assemble(
+            Collections.singletonList(stored(FRONTEND, HTTP_SCOPE, failed)));
+
+        assertEquals(error, response.getTrace().getResourceSpans(0).getScopeSpans(0).getSpans(0).getStatus());
     }
 
     private static Resource resource(final String serviceName) {

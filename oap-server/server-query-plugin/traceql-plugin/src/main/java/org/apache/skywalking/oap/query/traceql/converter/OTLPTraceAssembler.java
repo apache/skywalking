@@ -77,6 +77,15 @@ public final class OTLPTraceAssembler {
      */
     public static final String OTEL_SCOPE_NAME = "otel.scope.name";
 
+    /**
+     * The status a span gets when it was stored without one. Grafana reads a span's status without checking that it
+     * is there ({@code int64(span.Status.Code)} in the Tempo datasource's {@code trace_transform.go}), so a span
+     * without one crashes its trace view with a nil dereference. The field is optional in OTLP and senders do leave
+     * it out, for instance APISIX's opentelemetry plugin, which sets a status only on an upstream 5xx. An absent
+     * status and an empty one both mean {@code STATUS_CODE_UNSET}, so filling it in changes nothing a client reads.
+     */
+    private static final Status UNSET_STATUS = Status.getDefaultInstance();
+
     private OTLPTraceAssembler() {
     }
 
@@ -193,7 +202,8 @@ public final class OTLPTraceAssembler {
     /**
      * Group single-span messages by resource identity, byte-equal {@code Resource} plus schema URL, then by scope
      * identity, and order the spans of each scope by start time. That is the wire shape of one export of the
-     * whole trace and the only regrouping this datasource performs.
+     * whole trace and the only regrouping this datasource performs. Spans are returned as they were stored, except
+     * that one stored without a status gets an empty one, see {@link #UNSET_STATUS}.
      */
     public static TraceByIDResponse assemble(final List<ResourceSpans> singleSpanMessages) {
         final Map<ResourceKey, Map<ScopeKey, List<Span>>> grouped = new LinkedHashMap<>();
@@ -212,10 +222,14 @@ public final class OTLPTraceAssembler {
                                                                      .setSchemaUrl(resourceKey.schemaUrl);
             scopes.forEach((scopeKey, spans) -> {
                 spans.sort(Comparator.comparingLong(Span::getStartTimeUnixNano));
-                resourceSpans.addScopeSpans(ScopeSpans.newBuilder()
-                                                      .setScope(scopeKey.scope)
-                                                      .setSchemaUrl(scopeKey.schemaUrl)
-                                                      .addAllSpans(spans));
+                final ScopeSpans.Builder scopeSpans = ScopeSpans.newBuilder()
+                                                                .setScope(scopeKey.scope)
+                                                                .setSchemaUrl(scopeKey.schemaUrl);
+                for (final Span span : spans) {
+                    scopeSpans.addSpans(
+                        span.hasStatus() ? span : span.toBuilder().setStatus(UNSET_STATUS).build());
+                }
+                resourceSpans.addScopeSpans(scopeSpans);
             });
             trace.addResourceSpans(resourceSpans);
         });
