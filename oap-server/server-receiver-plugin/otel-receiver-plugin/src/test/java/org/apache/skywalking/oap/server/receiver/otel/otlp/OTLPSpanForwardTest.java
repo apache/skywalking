@@ -28,6 +28,7 @@ import io.opentelemetry.proto.trace.v1.Status;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
@@ -85,7 +86,7 @@ class OTLPSpanForwardTest {
         when(namingControl.formatEndpointName(anyString(), anyString())).thenAnswer(invocation -> invocation.getArgument(1));
 
         config = new OtelMetricReceiverConfig();
-        config.setOtlpTraceSearchableTags("http.request.method,peer.service");
+        config.setOtlpTraceSearchableTags("span.http.request.method,span.peer.service");
     }
 
     @Test
@@ -156,11 +157,57 @@ class OTLPSpanForwardTest {
                                                         .collect(Collectors.toMap(
                                                             TagAutocomplete::getTagKey, TagAutocomplete::getTagValue));
         assertEquals(Map.of(
-            "http.request.method", "GET",
-            "peer.service", "payment",
+            "span.http.request.method", "GET",
+            "span.peer.service", "payment",
             OTLPSpanForward.SCOPE_NAME_TAG, "io.opentelemetry.http",
             OTLPSpanForward.INSTANCE_TAG, "checkout-1"
         ), autocomplete);
+    }
+
+    @Test
+    void shouldPublishAutocompleteKeysUnderTheScopeTheyWereSeenIn() {
+        config.setOtlpTraceSearchableTags(
+            "resource.deployment.environment,span.deployment.environment,span.http.request.method");
+        final OTLPSpanForward forward = new OTLPSpanForward(config, moduleManager);
+        final Resource resource = Resource.newBuilder()
+                                          .addAttributes(string("service.name", "checkout"))
+                                          .addAttributes(string("deployment.environment", "prod"))
+                                          .build();
+        final Span span = span().addAttributes(string("http.request.method", "GET"))
+                                .addAttributes(string("deployment.environment", "canary"))
+                                .build();
+
+        assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
+                                Map.of("service.name", "checkout"), Map.of()));
+
+        // Each configured entry names one scope; a key listed for both is published once per scope.
+        final Set<String> autocomplete = received().stream()
+                                                   .filter(TagAutocomplete.class::isInstance)
+                                                   .map(TagAutocomplete.class::cast)
+                                                   .map(tag -> tag.getTagKey() + "=" + tag.getTagValue())
+                                                   .collect(Collectors.toSet());
+        assertEquals(Set.of(
+            "resource.deployment.environment=prod",
+            "span.deployment.environment=canary",
+            "span.http.request.method=GET"
+        ), autocomplete);
+    }
+
+    @Test
+    void shouldPublishOnlyTheScopeAnEntryNames() {
+        config.setOtlpTraceSearchableTags("resource.deployment.environment");
+        final OTLPSpanForward forward = new OTLPSpanForward(config, moduleManager);
+        final Resource resource = Resource.newBuilder().addAttributes(string("deployment.environment", "prod")).build();
+        final Span span = span().addAttributes(string("deployment.environment", "canary")).build();
+
+        assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
+                                Map.of(), Map.of()));
+
+        assertEquals(Set.of("resource.deployment.environment=prod"), received().stream()
+                                                                             .filter(TagAutocomplete.class::isInstance)
+                                                                             .map(TagAutocomplete.class::cast)
+                                                                             .map(tag -> tag.getTagKey() + "=" + tag.getTagValue())
+                                                                             .collect(Collectors.toSet()));
     }
 
     @Test

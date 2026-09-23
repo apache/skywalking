@@ -63,7 +63,7 @@ receiver-otel:
   default:
     enabledHandlers: otlp-traces
     otlpTraceStorage: otlp
-    otlpTraceSearchableTags: http.request.method,http.response.status_code,url.path,rpc.method,rpc.grpc.status_code,db.system.name,db.namespace,messaging.system,messaging.destination.name,peer.service
+    otlpTraceSearchableTags: resource.deployment.environment.name,resource.deployment.environment,resource.service.namespace,resource.service.version,resource.k8s.namespace.name,resource.k8s.cluster.name,span.http.request.method,span.http.response.status_code,span.url.path,span.rpc.method,span.rpc.grpc.status_code,span.db.system.name,span.db.namespace,span.messaging.system,span.messaging.destination.name,span.peer.service
     otlpTraceSampleRate: 10000
     otlpTraceMaxSpansPerSecond: 0
 
@@ -80,7 +80,7 @@ The Zipkin receiver and query modules are not needed in this mode.
 | Setting                      | Environment variable                 | Meaning                                                                                                                                                                              |
 |------------------------------|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `otlpTraceStorage`           | `SW_OTEL_TRACE_STORAGE`              | `otlp`, the default, stores the native span. `zipkin` converts to Zipkin v2 as earlier releases did. Any other value fails the boot.                                               |
-| `otlpTraceSearchableTags`    | `SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS`  | Attribute keys offered by tag autocomplete (`/api/v2/search/tags`). Every resource and span attribute is indexed for equality search regardless of this list.                        |
+| `otlpTraceSearchableTags`    | `SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS`  | Attribute keys offered by tag autocomplete (`/api/v2/search/tags`), each written with its TraceQL scope, `resource.<key>` or `span.<key>`, and listed under that scope; an entry without a scope fails the boot. List low-cardinality attributes only: every distinct value is stored once per day. Every resource and span attribute is indexed for equality search regardless of this list.                        |
 | `otlpTraceSampleRate`        | `SW_OTEL_TRACE_SAMPLE_RATE`          | Head sampling by trace id, precision 1/10000. `10000` keeps every trace.                                                                                                              |
 | `otlpTraceMaxSpansPerSecond` | `SW_OTEL_TRACE_MAX_SPANS_PER_SECOND` | Spans per second accepted before the receiver drops the rest. `0` means no limit. Dropped spans are counted in the `otel_spans_dropped` self-observability metric.                    |
 

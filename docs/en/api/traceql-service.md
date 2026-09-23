@@ -858,12 +858,15 @@ table is one column set over every trace.
 
 ### Tag Names and Values
 `/api/v2/search/tags` returns `service.name`, `service.instance.id` and `remote.service` under the `resource` scope,
-the keys configured by `receiver-otel.default.otlpTraceSearchableTags` plus `otel.scope.name` under the `span` scope,
-and `name`, `status`, `kind`, `duration` and their `span:` spellings under `intrinsic`. `scope` narrows the answer to
+`otel.scope.name` under the `span` scope, and `name`, `status`, `kind`, `duration` and their `span:` spellings under
+`intrinsic`. A key configured by `receiver-otel.default.otlpTraceSearchableTags` is written there with its
+scope, `resource.<key>` or `span.<key>`, and listed under that scope without the prefix, so a key picked from the
+list builds a query that matches. `scope` narrows the answer to
 one scope (`event`, `link` and `instrumentation` are accepted and empty), `limit` caps the number of names per scope,
 and the v1 `/api/search/tags` lists the same names without scopes. `service.name` values come from the service catalog, `name`
 values from the span-name catalog of the service given in `q`, `remote.service` values from the peer catalog, and the
-other span keys from the tag autocomplete index; `limit` caps every value list. The three catalogs list every name the
+other `resource.` and `span.` keys from the tag autocomplete index of that scope, both scopes for an unscoped `.key`;
+`limit` caps every value list. The three catalogs list every name the
 storage retains and ignore `start` and `end`: a catalog row is written once, when its name is first seen, so a time
 window would hide every name older than it; the autocomplete index and the sample below honor the window. A `q`
 narrower than a service name, for

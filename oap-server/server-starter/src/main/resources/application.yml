@@ -437,9 +437,12 @@ receiver-otel:
     #   otlp:   store the native OTLP span in `otlp_span`, served by the TraceQL `/otlp` datasource
     #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (needs receiver-zipkin and query-zipkin)
     otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:otlp}
-    # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags). Every resource and span
-    # attribute is indexed for equality search regardless of this list; same meaning as receiver-zipkin.searchableTracesTags.
-    otlpTraceSearchableTags: ${SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS:http.request.method,http.response.status_code,url.path,rpc.method,rpc.grpc.status_code,db.system.name,db.namespace,messaging.system,messaging.destination.name,peer.service}
+    # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags), each written with its
+    # TraceQL scope, `resource.<key>` or `span.<key>`; an entry without a scope fails the boot. List low-cardinality
+    # attributes only: every distinct value is stored once per day. Every resource and span attribute is indexed for
+    # equality search regardless of this list. Not read in `zipkin` mode: the converted spans go through receiver-zipkin,
+    # whose `searchableTracesTags` decides autocomplete there.
+    otlpTraceSearchableTags: ${SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS:resource.deployment.environment.name,resource.deployment.environment,resource.service.namespace,resource.service.version,resource.k8s.namespace.name,resource.k8s.cluster.name,span.http.request.method,span.http.response.status_code,span.url.path,span.rpc.method,span.rpc.grpc.status_code,span.db.system.name,span.db.namespace,span.messaging.system,span.messaging.destination.name,span.peer.service}
     # `otlp` mode only. Head sampling by trace id, precision 1/10000.
     otlpTraceSampleRate: ${SW_OTEL_TRACE_SAMPLE_RATE:10000}
     # `otlp` mode only. Spans per second accepted before dropping. 0 means no limit.

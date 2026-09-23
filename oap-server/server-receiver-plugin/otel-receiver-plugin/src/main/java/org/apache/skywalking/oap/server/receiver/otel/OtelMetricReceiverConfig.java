@@ -23,9 +23,11 @@ import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.otlp.OTLPSpanRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The configuration of every OTLP handler. The name is historical; the trace and log handlers read it too.
@@ -57,8 +59,9 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
     private String otlpTraceStorage = OTLP_TRACE_STORAGE_OTLP;
 
     /**
-     * Native mode only. Attribute keys offered by tag autocomplete. Every attribute is indexed for equality
-     * search regardless of this list.
+     * Native mode only. Attribute keys offered by tag autocomplete, each with its TraceQL scope:
+     * {@code resource.<key>} or {@code span.<key>}. Every attribute is indexed for equality search regardless of
+     * this list.
      */
     @Setter
     private String otlpTraceSearchableTags;
@@ -83,6 +86,21 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
 
     public List<String> getOtlpTraceSearchableTags() {
         return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(otlpTraceSearchableTags));
+    }
+
+    /**
+     * The {@link #otlpTraceSearchableTags} entries that name no scope; they would match no attribute, so the boot
+     * refuses them instead of silently leaving their dropdown empty.
+     */
+    public List<String> getUnscopedOtlpTraceSearchableTags() {
+        return getOtlpTraceSearchableTags().stream()
+                                           .filter(key -> !isScoped(key, OTLPSpanRecord.RESOURCE_TAG_PREFIX)
+                                               && !isScoped(key, OTLPSpanRecord.SPAN_TAG_PREFIX))
+                                           .collect(Collectors.toList());
+    }
+
+    private static boolean isScoped(final String key, final String scopePrefix) {
+        return key.startsWith(scopePrefix) && key.length() > scopePrefix.length();
     }
 
     public boolean isOtlpTraceStorageNative() {
