@@ -63,14 +63,15 @@ public class OTLPSpanForward {
     public static final String PEER_SERVICE = OTLPSpanRecord.PEER_SERVICE_ATTRIBUTE;
     /**
      * The tag autocomplete key the instrumentation scope name is always published under, so TraceQL can list
-     * {@code otel.scope.name} values without configuration.
+     * {@code otel.scope.name} values without configuration. Like every autocomplete key it carries its TraceQL
+     * scope, so the TraceQL datasource lists each key under the scope a query must name it with.
      */
-    public static final String SCOPE_NAME_TAG = "otel.scope.name";
+    public static final String SCOPE_NAME_TAG = OTLPSpanRecord.SPAN_TAG_PREFIX + "otel.scope.name";
     /**
      * The tag autocomplete key the resolved instance is always published under, so TraceQL's
      * {@code resource.service.instance.id} dropdown fills regardless of {@code otlpTraceSearchableTags}.
      */
-    public static final String INSTANCE_TAG = "service.instance.id";
+    public static final String INSTANCE_TAG = OTLPSpanRecord.RESOURCE_TAG_PREFIX + "service.instance.id";
     private static final int TRACE_ID_LENGTH = 16;
 
     private final ModuleManager moduleManager;
@@ -222,8 +223,9 @@ public class OTLPSpanForward {
 
     /**
      * Append every attribute as {@code <scope>.key=value} to the search index, skipping entries longer than
-     * {@link Tag#TAG_LENGTH}, and publish the configured keys to tag autocomplete, which stays scope-less: it only
-     * feeds the value dropdowns.
+     * {@link Tag#TAG_LENGTH}, and publish the attributes {@code otlpTraceSearchableTags} names with this scope to
+     * tag autocomplete under the same prefix, so the TraceQL datasource lists each key under the scope a query must
+     * name it with.
      *
      * @param scopePrefix {@link OTLPSpanRecord#RESOURCE_TAG_PREFIX} or {@link OTLPSpanRecord#SPAN_TAG_PREFIX}
      * @return the {@code peer.service} value, or null when the attributes carry none
@@ -246,8 +248,9 @@ public class OTLPSpanForward {
                 continue;
             }
             tags.add(tag);
-            if (searchableTagKeys.contains(attribute.getKey())) {
-                addAutocompleteTag(minuteTimeBucket, attribute.getKey(), value);
+            final String scopedKey = scopePrefix + attribute.getKey();
+            if (searchableTagKeys.contains(scopedKey)) {
+                addAutocompleteTag(minuteTimeBucket, scopedKey, value);
             }
         }
         return peerService;

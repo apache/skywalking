@@ -75,6 +75,13 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
                 "receiver-otel.default.otlpTraceStorage must be `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN
                     + "` or `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP + "`, got `" + config.getOtlpTraceStorage() + "`");
         }
+        // Only OTLPSpanForward, the native path, reads otlpTraceSearchableTags; in zipkin mode the list is dead config
+        // and receiver-zipkin.searchableTracesTags applies, so a stale value there must not fail the boot.
+        if (config.isOtlpTraceStorageNative() && !config.getUnscopedOtlpTraceSearchableTags().isEmpty()) {
+            throw new ModuleStartException(
+                "receiver-otel.default.otlpTraceSearchableTags entries must name their scope, `resource.<key>` or "
+                    + "`span.<key>`, got " + config.getUnscopedOtlpTraceSearchableTags());
+        }
         metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(
             getManager(), config);
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
