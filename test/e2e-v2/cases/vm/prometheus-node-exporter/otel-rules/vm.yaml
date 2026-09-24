@@ -1,9 +1,9 @@
 # Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
+# contributor license agreements. See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
 # The ASF licenses this file to You under the Apache License, Version 2.0
 # (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
+# the License. You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -12,85 +12,285 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-# This will parse a textual representation of a duration. The formats
-# accepted are based on the ISO-8601 duration format {@code PnDTnHnMn.nS}
-# with days considered to be exactly 24 hours.
-# <p>
-# Examples:
-# <pre>
-#    "PT20.345S" -- parses as "20.345 seconds"
-#    "PT15M"     -- parses as "15 minutes" (where a minute is 60 seconds)
-#    "PT10H"     -- parses as "10 hours" (where an hour is 3600 seconds)
-#    "P2D"       -- parses as "2 days" (where a day is 24 hours or 86400 seconds)
-#    "P2DT3H4M"  -- parses as "2 days, 3 hours and 4 minutes"
-#    "P-6H3M"    -- parses as "-6 hours and +3 minutes"
-#    "-P6H3M"    -- parses as "-6 hours and -3 minutes"
-#    "-P-6H+3M"  -- parses as "+6 hours and -3 minutes"
-# </pre>
-filter: "{ tags -> tags.job_name == 'vm-monitoring' }" # The OpenTelemetry job name
+#
+# Linux infrastructure MAL.
+#
+# This rule intentionally accepts TWO source metric families under the same
+# existing job_name "vm-monitoring":
+#   1. node-exporter metrics (existing SkyWalking integration)
+#   2. OpenTelemetry hostmetrics metrics (new alternative source)
+#
+# Both sources are mapped by ONE MAL file to the canonical meter_vm_* targets.
+# This avoids cross-file metric ownership collisions in OAP 11 runtime rules.
+#
+# MAL SampleFamily '+' treats an EMPTY family as identity. Because a host sends
+# one source family or the other, each expression can safely add the equivalent
+# node-exporter and hostmetrics branches. The output metric is registered once.
+filter: "{ tags -> tags.job_name == 'vm-monitoring' }"
 metricPrefix: meter_vm
+
 metricsRules:
+  # ---------------------------------------------------------------------------
+  # Canonical metrics: same target names and semantics for both sources.
+  # ---------------------------------------------------------------------------
 
-  #node cpu
+  # CPU
   - name: cpu_total_percentage
-    exp: (node_cpu_seconds_total * 100).tagNotEqual('mode' , 'idle').sum(['node_identifier_host_name']).rate('PT1M').service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (node_cpu_seconds_total * 100)
+        .tagNotEqual('mode','idle')
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      +
+      (system_cpu_utilization * 100)
+        .tagNotEqual('mode','idle')
+        .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: cpu_average_used
-    exp: (node_cpu_seconds_total * 100).sum(['node_identifier_host_name' , 'mode']).rate('PT1M').service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (node_cpu_seconds_total * 100)
+        .sum(['node_identifier_host_name','mode'])
+        .rate('PT1M')
+      +
+      (system_cpu_utilization * 100)
+        .sum(['node_identifier_host_name','mode'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: cpu_load1
-    exp: (node_load1 * 100).service(['node_identifier_host_name'] , Layer.OS_LINUX).decorate({ me -> me.attr0 = me.layer.name()})
+    exp: "((node_load1 * 100) + (system_cpu_load_average_1m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX).decorate({ me -> me.attr0 = me.layer.name()})"
+
   - name: cpu_load5
-    exp: (node_load5 * 100).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: "((node_load5 * 100) + (system_cpu_load_average_5m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX)"
+
   - name: cpu_load15
-    exp: (node_load15 * 100).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: "((node_load15 * 100) + (system_cpu_load_average_15m * 100)).service(['node_identifier_host_name'], Layer.OS_LINUX)"
 
-    #node Memory
+  # Physical memory
   - name: memory_total
-    exp: node_memory_MemTotal_bytes.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: "(node_memory_MemTotal_bytes + system_memory_limit).service(['node_identifier_host_name'], Layer.OS_LINUX)"
+
   - name: memory_available
-    exp: node_memory_MemAvailable_bytes.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: "(node_memory_MemAvailable_bytes + system_linux_memory_available).service(['node_identifier_host_name'], Layer.OS_LINUX)"
+
   - name: memory_used
-    exp: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+      +
+      (system_memory_limit - system_linux_memory_available)
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: memory_buff_cache
-    exp: (node_memory_Buffers_bytes + node_memory_Cached_bytes).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (node_memory_Buffers_bytes + node_memory_Cached_bytes)
+      +
+      (
+        system_memory_usage.tagEqual('state','buffered').sum(['node_identifier_host_name'])
+        +
+        system_memory_usage.tagEqual('state','cached').sum(['node_identifier_host_name'])
+        -
+        system_memory_usage.tagEqual('state','slab_reclaimable').sum(['node_identifier_host_name'])
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
+  # Swap
   - name: memory_swap_free
-    exp: node_memory_SwapFree_bytes.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_memory_SwapFree_bytes
+      +
+      system_paging_usage
+        .tagEqual('state','free')
+        .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: memory_swap_total
-    exp: node_memory_SwapTotal_bytes.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_memory_SwapTotal_bytes
+      +
+      (
+        system_paging_usage.tagEqual('state','used').sum(['node_identifier_host_name'])
+        +
+        system_paging_usage.tagEqual('state','free').sum(['node_identifier_host_name'])
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: memory_swap_percentage
-    exp: (100 - ((node_memory_SwapFree_bytes * 100) / node_memory_SwapTotal_bytes)).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (
+        100 - ((node_memory_SwapFree_bytes * 100) / node_memory_SwapTotal_bytes)
+      )
+      +
+      (
+        (
+          system_paging_usage.tagEqual('state','used').sum(['node_identifier_host_name'])
+          * 100
+        )
+        /
+        (
+          system_paging_usage.tagEqual('state','used').sum(['node_identifier_host_name'])
+          +
+          system_paging_usage.tagEqual('state','free').sum(['node_identifier_host_name'])
+        )
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-    #node filesystem
+  # Filesystem. hostmetrics free+reserved+used is the full capacity.
   - name: filesystem_percentage
-    exp: (100 - ((node_filesystem_avail_bytes * 100).sum(['node_identifier_host_name' , 'mountpoint']) / node_filesystem_size_bytes.sum(['node_identifier_host_name' , 'mountpoint']))).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      (
+        100 - (
+          (node_filesystem_avail_bytes * 100)
+            .sum(['node_identifier_host_name','mountpoint'])
+          /
+          node_filesystem_size_bytes
+            .sum(['node_identifier_host_name','mountpoint'])
+        )
+      )
+      +
+      (
+        100 - (
+          (system_filesystem_usage.tagEqual('state','free') * 100)
+            .sum(['node_identifier_host_name','mountpoint'])
+          /
+          (
+            system_filesystem_usage.tagEqual('state','free')
+              .sum(['node_identifier_host_name','mountpoint'])
+            +
+            system_filesystem_usage.tagEqual('state','reserved')
+              .sum(['node_identifier_host_name','mountpoint'])
+            +
+            system_filesystem_usage.tagEqual('state','used')
+              .sum(['node_identifier_host_name','mountpoint'])
+          )
+        )
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-    #node disk
+  # Disk throughput
   - name: disk_read
-    exp: (node_disk_read_bytes_total.sum(['node_identifier_host_name']).rate('PT1M')).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_disk_read_bytes_total
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      +
+      system_disk_io
+        .tagEqual('direction','read')
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: disk_written
-    exp: (node_disk_written_bytes_total.sum(['node_identifier_host_name']).rate('PT1M')).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_disk_written_bytes_total
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      +
+      system_disk_io
+        .tagEqual('direction','write')
+        .sum(['node_identifier_host_name'])
+        .rate('PT1M')
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-    #node network
+  # Network throughput
   - name: network_receive
-    exp: (node_network_receive_bytes_total.sum(['node_identifier_host_name']).irate()).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_network_receive_bytes_total
+        .sum(['node_identifier_host_name'])
+        .irate()
+      +
+      system_network_io
+        .tagEqual('direction','receive')
+        .sum(['node_identifier_host_name'])
+        .irate()
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: network_transmit
-    exp: (node_network_transmit_bytes_total.sum(['node_identifier_host_name']).irate()).service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_network_transmit_bytes_total
+        .sum(['node_identifier_host_name'])
+        .irate()
+      +
+      system_network_io
+        .tagEqual('direction','transmit')
+        .sum(['node_identifier_host_name'])
+        .irate()
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-    #node netstat
+  # TCP connection metrics with true hostmetrics equivalents.
+  # Collector normalizes system.network.connections state values to lowercase.
   - name: tcp_curr_estab
-    exp: node_netstat_Tcp_CurrEstab.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_netstat_Tcp_CurrEstab
+      +
+      (
+        system_network_connections
+          .tagEqual('protocol','tcp')
+          .tagEqual('state','established')
+          .sum(['node_identifier_host_name'])
+        +
+        system_network_connections
+          .tagEqual('protocol','tcp')
+          .tagEqual('state','close_wait')
+          .sum(['node_identifier_host_name'])
+      )
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: tcp_tw
-    exp: node_sockstat_TCP_tw.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: >
+      (
+      node_sockstat_TCP_tw
+      +
+      system_network_connections
+        .tagEqual('protocol','tcp')
+        .tagEqual('state','time_wait')
+        .sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
+  # ---------------------------------------------------------------------------
+  # Existing node-exporter-only canonical metrics.
+  # hostmetrics has no source with equivalent semantics, so these remain node
+  # exporter only rather than being populated with a misleading approximation.
+  # ---------------------------------------------------------------------------
   - name: tcp_alloc
-    exp: node_sockstat_TCP_alloc.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: (node_sockstat_TCP_alloc).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: sockets_used
-    exp: node_sockstat_sockets_used.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: (node_sockstat_sockets_used).service(['node_identifier_host_name'], Layer.OS_LINUX)
+
   - name: udp_inuse
-    exp: node_sockstat_UDP_inuse.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: (node_sockstat_UDP_inuse).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-    #node filefd
   - name: filefd_allocated
-    exp: node_filefd_allocated.service(['node_identifier_host_name'] , Layer.OS_LINUX)
+    exp: (node_filefd_allocated).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
+  # ---------------------------------------------------------------------------
+  # New hostmetrics-only capabilities. New names are used whenever semantics
+  # do not exactly match an existing node-exporter target metric.
+  # ---------------------------------------------------------------------------
+  - name: cpu_cores_num
+    exp: (system_cpu_logical_count.sum(['node_identifier_host_name'])).service(['node_identifier_host_name'], Layer.OS_LINUX)
 
-
+  - name: cpu_norm_percentage
+    exp: >
+      (
+      (
+        (system_cpu_utilization * 100)
+          .tagNotEqual('mode','idle')
+          .sum(['node_identifier_host_name'])
+      )
+      /
+      system_cpu_logical_count.sum(['node_identifier_host_name'])
+      ).service(['node_identifier_host_name'], Layer.OS_LINUX)

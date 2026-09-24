@@ -194,7 +194,7 @@
   "receiver-log.provider": "default",
   "receiver-meter.provider": "default",
   "receiver-otel.default.enabledHandlers": "otlp-traces,otlp-metrics,otlp-logs",
-  "receiver-otel.default.enabledOtelMetricsRules": "apisix,nginx/*,k8s/*,istio-controlplane,vm,mysql/*,postgresql/*,oap,aws-eks/*,windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*,ai-agent/*",
+  "receiver-otel.default.enabledOtelMetricsRules": "apisix,nginx/*,k8s/*,istio-controlplane,vm,process-hostmetrics-linux,mysql/*,postgresql/*,oap,aws-eks/*,windows,process-hostmetrics-windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*,ai-agent/*",
   "receiver-otel.default.otlpTraceMaxSpansPerSecond": "0",
   "receiver-otel.default.otlpTraceSampleRate": "10000",
   "receiver-otel.default.otlpTraceSearchableTags": "resource.deployment.environment.name,resource.deployment.environment,resource.service.namespace,resource.service.version,resource.k8s.namespace.name,resource.k8s.cluster.name,span.http.request.method,span.http.response.status_code,span.url.path,span.rpc.method,span.rpc.grpc.status_code,span.db.system.name,span.db.namespace,span.messaging.system,span.messaging.destination.name,span.peer.service",
