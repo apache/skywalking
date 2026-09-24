@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.agent.conversation.query.type;
+package org.apache.skywalking.oap.server.admin.status.trace.otlp;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingTrace;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.admin.status.DebuggingTraceRsp;
 
+/**
+ * The {@code trace} of a TraceQL {@code /api/v2/traces/{traceId}} response, as the OTLP JSON the datasource returned.
+ */
+@RequiredArgsConstructor
 @Data
-public class ConversationRawFiles {
-    private String errorReason;
-    private List<ConversationRawFile> files = new ArrayList<>();
-    private DebuggingTrace debuggingTrace;
+public class DebuggingOTLPQueryTraceRsp {
+    private final JsonNode trace;
+    private final DebuggingTraceRsp debuggingTrace;
 }

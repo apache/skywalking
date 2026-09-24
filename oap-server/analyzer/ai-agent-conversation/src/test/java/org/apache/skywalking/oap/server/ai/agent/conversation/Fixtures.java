@@ -37,6 +37,11 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlow
  * <p>Under <code>workspace-changes/</code>, the same for <code>tests/scenarios/workspace-changes.yaml</code>, which
  * exercises every producer of a change record: a shell command the plugin observed on the main stream, an
  * <code>Edit</code> whose patch the runtime recorded on its own result, and a shell command inside a subagent.
+ *
+ * <p>Under <code>provider-bodies/</code>, the same for <code>tests/scenarios/provider-bodies.yaml</code>: a session
+ * with a subagent whose calls' request and response bodies landed in one <code>provider_body</code> file. Under
+ * <code>provider-bodies-errors/</code>, the same for <code>tests/scenarios/provider-bodies-errors.yaml</code>: an API
+ * error the runtime wrote as a synthetic call, between two calls it did send.
  */
 public final class Fixtures {
     public static final String SESSION = "00000001-0000-4000-8000-000000000001";
@@ -61,6 +66,23 @@ public final class Fixtures {
     };
     public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-475193a5f44b.sf";
 
+    public static final String PROVIDER_BODIES_DIR = "provider-bodies/";
+    public static final String PROVIDER_BODIES_SESSION = "6b7a6063-8714-4f6b-87cd-6c2da3a5094d";
+    public static final String[] PROVIDER_BODIES_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "transcript-20260101T000000.000000000Z-000002.sd",
+        "meta-20260101T000000.000000000Z-000003.sd",
+        "provider_body-20260101T000000.000000000Z-000004.sd",
+    };
+    public static final String PROVIDER_BODIES_ROUND_FILE = "r000001-ff8eaba03b03.sf";
+
+    public static final String PROVIDER_BODIES_ERRORS_DIR = "provider-bodies-errors/";
+    public static final String[] PROVIDER_BODIES_ERRORS_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "provider_body-20260101T000000.000000000Z-000002.sd",
+    };
+    public static final String PROVIDER_BODIES_ERRORS_ROUND_FILE = "r000001-0a33a0c2d269.sf";
+
     private Fixtures() {
     }
 
@@ -79,6 +101,14 @@ public final class Fixtures {
 
     public static Map<Long, SessionDataFile> workspaceChangesDataFiles() throws IOException {
         return dataFiles(WORKSPACE_CHANGES_DIR, WORKSPACE_CHANGES_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> providerBodiesDataFiles() throws IOException {
+        return dataFiles(PROVIDER_BODIES_DIR, PROVIDER_BODIES_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> providerBodiesErrorsDataFiles() throws IOException {
+        return dataFiles(PROVIDER_BODIES_ERRORS_DIR, PROVIDER_BODIES_ERRORS_DATA_FILES);
     }
 
     private static Map<Long, SessionDataFile> dataFiles(final String dir, final String[] names) throws IOException {

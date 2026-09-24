@@ -62,6 +62,7 @@ public class BanyanDBConfigDumpExtension implements ConfigDumpExtension {
         groups.put("recordsLog", config.getRecordsLog());
         groups.put("trace", config.getTrace());
         groups.put("zipkinTrace", config.getZipkinTrace());
+        groups.put("otlpTrace", config.getOtlpTrace());
         groups.put("recordsBrowserErrorLog", config.getRecordsBrowserErrorLog());
         groups.put("recordsAIAgent", config.getRecordsAIAgent());
         groups.put("metricsMinute", config.getMetricsMin());

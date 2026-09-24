@@ -20,9 +20,11 @@ package org.apache.skywalking.oap.query.traceql;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
+import org.apache.skywalking.oap.query.traceql.handler.OTLPTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.SkyWalkingTraceQLApiHandler;
 import org.apache.skywalking.oap.query.traceql.handler.ZipkinTraceQLApiHandler;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
@@ -99,6 +101,14 @@ public class TraceQLProvider extends ModuleProvider {
                 config.getRestContextPathSkywalking()
             );
         }
+        if (config.isEnableDatasourceOTLP()) {
+            // Natively stored OTLP spans, served as the OTLP they arrived as, with /otlp context path
+            httpServer.addHandler(
+                new OTLPTraceQLApiHandler(getManager(), config),
+                Collections.singletonList(HttpMethod.GET),
+                config.getRestContextPathOTLP()
+            );
+        }
     }
 
     @Override
@@ -115,7 +125,9 @@ public class TraceQLProvider extends ModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-            CoreModule.NAME
+            CoreModule.NAME,
+            // The /otlp handler constructs OTLPTraceQueryService, which finds the storage DAO through the module manager.
+            StorageModule.NAME
         };
     }
 }

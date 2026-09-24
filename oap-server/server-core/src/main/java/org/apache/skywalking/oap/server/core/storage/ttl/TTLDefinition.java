@@ -57,12 +57,14 @@ public class TTLDefinition {
         ttlDefinition.append("records.normal=").append(records.getNormal()).append("\n");
         ttlDefinition.append("records.trace=").append(records.getTrace()).append("\n");
         ttlDefinition.append("records.zipkinTrace=").append(records.getZipkinTrace()).append("\n");
+        ttlDefinition.append("records.otlpTrace=").append(records.getOtlpTrace()).append("\n");
         ttlDefinition.append("records.log=").append(records.getLog()).append("\n");
         ttlDefinition.append("records.browserErrorLog=").append(records.getBrowserErrorLog()).append("\n");
         ttlDefinition.append("# Cold data, '-1' represents no cold stage data.\n");
         ttlDefinition.append("records.normal.cold=").append(records.getColdNormal()).append("\n");
         ttlDefinition.append("records.trace.cold=").append(records.getColdTrace()).append("\n");
         ttlDefinition.append("records.zipkinTrace.cold=").append(records.getColdZipkinTrace()).append("\n");
+        ttlDefinition.append("records.otlpTrace.cold=").append(records.getColdOtlpTrace()).append("\n");
         ttlDefinition.append("records.log.cold=").append(records.getColdLog()).append("\n");
         ttlDefinition.append("records.browserErrorLog.cold=").append(records.getColdBrowserErrorLog()).append("\n");
         return ttlDefinition.toString();

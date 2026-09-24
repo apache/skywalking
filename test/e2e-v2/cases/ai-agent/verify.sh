@@ -26,7 +26,7 @@
 #   verify.sh list-filters  OAP            one conversation by id, and a title fragment in any case
 #   verify.sh views         OAP ASZ        every conversation's asz.view equals the Sessionizer's, through
 #                                          swctl as JSON and YAML, and over the route on HTTP/2 and gzipped
-#   verify.sh raw-files     OAP            the raw files are the files the document names, and export them
+#   verify.sh raw-files     OAP            the Session Data files the document names, read and exported by seq
 #   verify.sh reject        OAP            a file with a wrong digest is never stored, seen through the export by id
 #   verify.sh multi-round   OAP            the session landed in three stages folds to one verified document
 #   verify.sh lost-file     OAP            a landed file deleted after a round bound to it: named once, the rest folds
@@ -34,6 +34,8 @@
 #   verify.sh size          OAP            a file over maxFileBytes is never stored; one under it is
 #   verify.sh changes       OAP            the workspace-changes conversation: the plugin's changes files landed beside
 #                                          the transcripts, every change record joins its step, the export names the files
+#   verify.sh provider-bodies OAP          the provider-bodies conversation: the provider_body file landed beside the
+#                                          transcripts, every call names its request and response, the export names the file
 #   verify.sh metrics       OAP            the runtime's token metric the Sessionizer derived, summed over every session
 #                                          and sender per minute, and over the run equal to what the scenarios declare
 set -euo pipefail
@@ -50,6 +52,8 @@ THREE_ROUNDS="bd16edc4-0b6b-4020-8405-3ce58724f2bc"
 LOST="c9d9b18b-be85-4906-850d-40a1cd240171"
 # workspace-changes.yaml likewise: every producer of a change record in one session.
 WC="3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3"
+# provider-bodies.yaml likewise: every call's request and response bodies in one session.
+PB="6b7a6063-8714-4f6b-87cd-6c2da3a5094d"
 
 # swctl against this OAP, JSON out.
 sw() {
@@ -59,13 +63,13 @@ sw() {
 # The view route straight over HTTP: $1 conversation, $2 Accept, then extra curl flags.
 route() {
   local c=$1 accept=$2; shift 2
-  curl -sf -H "Accept: $accept" "$@" "$OAP/ai-agent/conversations/$c/v1/view?service=$SERVICE"
+  curl -sf -H "Accept: $accept" "$@" "$OAP/ai-agent/conversations/$c/v1/view?service=$SERVICE&instance=$INSTANCE"
 }
 
 # The document through swctl: $1 conversation, then extra flags such as --yaml.
 view() {
   local c=$1; shift
-  sw ai-agent view --service-name "$SERVICE" --conversation "$c" "$@"
+  sw ai-agent view --service-name "$SERVICE" --instance-name "$INSTANCE" --conversation "$c" "$@"
 }
 
 # "yyyy-MM-dd HHmm" (MINUTE) or "yyyy-MM-dd HHmmss" (SECOND) in UTC, from epoch seconds; GNU date, then BSD date.
@@ -90,10 +94,22 @@ list_where() {
 EOF
 }
 
-# How many files the export by id returns for one Session Data seq of the first conversation: 1 when the OAP
-# stored it, 0 when it did not.
+# The files route has no read of every file: a reader names each one by its session and landed seq. These give the
+# seqs a conversation's document lists, comma separated, of one kind when $2 names it, and read those files through
+# swctl: $1 the conversation, whose own session holds them, $2 the kind or empty, then extra swctl flags.
+seqs_of() {
+  view "$1" | yq -p=json '[.files[] | select(.seq != null and (strenv(KIND) == "" or .kind == strenv(KIND))) | .seq] | join(",")'
+}
+files_of() {
+  local c=$1 kind=$2; shift 2
+  sw ai-agent files --service-name "$SERVICE" --instance-name "$INSTANCE" --conversation "$c" --session "$c" \
+    --seqs "$(KIND="$kind" seqs_of "$c")" "$@"
+}
+
+# How many files the files route returns for one Session Data seq of the first conversation: 1 when the OAP stored
+# it, 0 when it did not.
 stored() {
-  sw ai-agent files --service-name "$SERVICE" --conversation "$FIRST" --files "$FIRST/streams/main/transcript-20260101T000000.000000000Z-0000$1.sd" \
+  sw ai-agent files --service-name "$SERVICE" --instance-name "$INSTANCE" --conversation "$FIRST" --session "$FIRST" --seqs "$1" \
     | yq -p=json '.files | length'
 }
 
@@ -167,27 +183,28 @@ case "$MODE" in
       [ "$(route "$id" application/json --http2-prior-knowledge | yq -o=json 'sort_keys(..)')" = "$theirs" ] && h2_equal=$((h2_equal + 1))
       [ "$(route "$id" application/json --compressed | yq -o=json 'sort_keys(..)')" = "$theirs" ] && gzip_equal=$((gzip_equal + 1))
     done
-    encoding=$(curl -s -o /dev/null -D - -H 'Accept-Encoding: gzip' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE" | tr -d '\r' | awk -F': ' 'tolower($1) == "content-encoding" {print $2}')
+    encoding=$(curl -s -o /dev/null -D - -H 'Accept-Encoding: gzip' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE&instance=$INSTANCE" | tr -d '\r' | awk -F': ' 'tolower($1) == "content-encoding" {print $2}')
     [ -n "$encoding" ] || encoding=none
     # the format and the version are on the wire too: the media type names the document, its version is a parameter
-    json_type=$(curl -s -o /dev/null -w '%{content_type}' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE")
-    yaml_type=$(curl -s -o /dev/null -w '%{content_type}' -H 'Accept: application/vnd.skywalking.asz.view+yaml' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE")
+    json_type=$(curl -s -o /dev/null -w '%{content_type}' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE&instance=$INSTANCE")
+    yaml_type=$(curl -s -o /dev/null -w '%{content_type}' -H 'Accept: application/vnd.skywalking.asz.view+yaml' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE&instance=$INSTANCE")
     # an error is a problem document (RFC 9457) that carries its status
-    missing_type=$(curl -s -o /dev/null -w '%{content_type}' "$OAP/ai-agent/conversations/no-such-conversation/v1/view?service=$SERVICE")
-    missing=$(curl -s "$OAP/ai-agent/conversations/no-such-conversation/v1/view?service=$SERVICE" | yq -p=json -o=json -I=0 '{"status": .status, "title": .title, "detail": .detail}')
-    noservice=$(curl -s -o /dev/null -w '%{http_code}' "$OAP/ai-agent/conversations/$FIRST/v1/view")
+    missing_type=$(curl -s -o /dev/null -w '%{content_type}' "$OAP/ai-agent/conversations/no-such-conversation/v1/view?service=$SERVICE&instance=$INSTANCE")
+    missing=$(curl -s "$OAP/ai-agent/conversations/no-such-conversation/v1/view?service=$SERVICE&instance=$INSTANCE" | yq -p=json -o=json -I=0 '{"status": .status, "title": .title, "detail": .detail}')
+    # the service and the sender are both required, as a list row names both
+    noservice=$(curl -s -o /dev/null -w '%{http_code}' "$OAP/ai-agent/conversations/$FIRST/v1/view?instance=$INSTANCE")
+    noinstance=$(curl -s -o /dev/null -w '%{http_code}' "$OAP/ai-agent/conversations/$FIRST/v1/view?service=$SERVICE")
     # swctl says the problem in words
     cli_missing=$( (view no-such-conversation 2>&1 || true) | grep -c "404 Not Found: no round of conversation no-such-conversation")
     printf 'conversations: %s\nequal: %s\nyaml_equal: %s\nh2_equal: %s\ngzip_equal: %s\nformat: %s\nversion: "%s"\njson_type: "%s"\nyaml_type: "%s"\nencoding: %s\nmissing_type: "%s"\nmissing: %s\nnoservice: %s\n' "$total" "$equal" "$yaml_equal" "$h2_equal" "$gzip_equal" "$format" "$version" "$json_type" "$yaml_type" "$encoding" "$missing_type" "$missing" "$noservice"
-    printf 'cli_missing: %s\n' "$cli_missing"
+    printf 'noinstance: %s\ncli_missing: %s\n' "$noinstance" "$cli_missing"
     ;;
   raw-files)
-    raw=$(sw ai-agent files --service-name "$SERVICE" --conversation "$FIRST" \
-      | yq -p=json -o=json '.files | map({"file": .id, "digest": .digest}) | sort_by(.file)')
-    named=$(view "$FIRST" | yq -p=json -o=json '.files | map({"file": .file, "digest": .digest}) | sort_by(.file)')
+    raw=$(files_of "$FIRST" "" | yq -p=json -o=json '.files | map({"file": .file, "digest": .digest}) | sort_by(.file)')
+    named=$(view "$FIRST" | yq -p=json -o=json '.files | map(select(.seq != null)) | map({"file": .file, "digest": .digest}) | sort_by(.file)')
     match=false; [ "$raw" = "$named" ] && match=true
-    # the export writes every body to its id path, and each lands with the digest the document names
-    root=$(mktemp -d); sw ai-agent files --service-name "$SERVICE" --conversation "$FIRST" --export "$root" > /dev/null
+    # the export writes every file to its name, and each lands with the digest the document names
+    root=$(mktemp -d); files_of "$FIRST" "" --export "$root" > /dev/null
     exported=$(cd "$root" && find . -type f | sed 's#^\./##' | while read -r f; do printf '{"file":"%s","digest":"%s"}\n' "$f" "$(sha256sum "$f" | cut -d' ' -f1)"; done | paste -sd, -)
     exported=$(echo "[$exported]" | yq -p=json -o=json 'sort_by(.file)')
     export_match=false; [ "$exported" = "$named" ] && export_match=true
@@ -295,8 +312,23 @@ case "$MODE" in
       "steps": ([.. | select(tag == "!!map" and has("kind") and has("changes")) | {"id": .id, "changes": .changes}] | sort_by(.id))
     }'
     # the file names carry the build's stamp, which differs on every run; the stream and the seq are what matter
-    sw ai-agent files --service-name "$SERVICE" --conversation "$WC" \
-      | yq -p=json -P '{"exported_changes_files": (.files | map(.id) | map(select(test("/changes-"))) | map(sub("changes-[^/]*-0", "changes-*-0")) | sort)}'
+    files_of "$WC" changes \
+      | yq -p=json -P '{"exported_changes_files": (.files | map(.file) | map(select(test("/changes-"))) | map(sub("changes-[^/]*-0", "changes-*-0")) | sort)}'
+    ;;
+  provider-bodies)
+    # The request and response bodies of every call, on the main stream and in a subagent, landed as provider_body
+    # records in one file under the session's provider_body directory. The document names where each call's bodies
+    # landed, its request then its response, and never carries their bytes; the summary counts the bodies and the
+    # calls whose request is captured; the export names the file by that directory. The document equals the
+    # Sessionizer's, which the views case checks; this case says in words what it holds.
+    view "$PB" --yaml | yq -P '{
+      "state": .summary.state, "provider_bodies": .summary.provider_bodies, "captured_prompts": .summary.captured_prompts,
+      "provider_files": [.files[] | select(.kind == "provider_body") | {"seq": .seq, "stream": .stream, "run": .run, "lines": .lines}],
+      "calls": ([.. | select(tag == "!!map" and .kind == "llm.call") | {"id": .id, "stream": .stream, "bodies": [(.provider_bodies // [])[] | {"role": .role, "seq": .ref.seq, "row": .ref.row}]}] | sort_by(.id))
+    }'
+    # the file name carries the build's stamp, which differs on every run; the directory and the seq are what matter
+    files_of "$PB" provider_body \
+      | yq -p=json -P '{"exported_provider_files": (.files | map(.file) | map(select(test("/provider_body/"))) | map(sub("provider_body-[^/]*-0", "provider_body-*-0")) | sort)}'
     ;;
   list-horizon)
     # The list exactly as Horizon's conversation page queries it: the same condition, the service and the sender,
@@ -330,7 +362,8 @@ GQL
     # The runtime's token metric: one delta point per minute per series, sent by the Sessionizer beside the files,
     # kept by the receiver as the point's value at the point's time, and summed by the rules over every session and
     # sender of a minute. Over the run the totals are what the scenarios declare, every call once: the three fixture
-    # sessions, the three-round session, the lost-file session and the workspace-changes session, all on one model.
+    # sessions, the three-round session, the lost-file session, the workspace-changes session and the provider-bodies
+    # session, all on one model.
     m() { sw metrics exec --expression="$1" --service-name "$SERVICE" --start "$wide_start" --end "$wide_end" "${@:2}"; }
     total() { m "$@" | yq -p=json -o=json '.results[0].values[0].value | tonumber'; }
     by() { m "$1" | yq -p=json -o=json '[.results[] | {"labels": (.metric.labels | map({"key": .key, "value": .value}) | sort_by(.key)), "value": (.values[0].value | tonumber)}] | sort_by(.labels | map(.value) | join("/"))'; }

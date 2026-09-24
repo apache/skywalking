@@ -76,7 +76,7 @@ message ScopeSpans {
 
 // A Span represents a single operation performed by a single component of the system.
 //
-// The next available field id is 17.
+// The next available field id is 18.
 message Span {
   // A unique identifier for a trace. All spans from the same trace share
   // the same `trace_id`. The ID is a 16-byte array. An ID with all zeroes
@@ -240,6 +240,25 @@ message Span {
     // dropped_attributes_count is the number of dropped attributes. If the value is 0,
     // then no attributes were dropped.
     uint32 dropped_attributes_count = 5;
+
+    // Flags, a bit field.
+    //
+    // Bits 0-7 (8 least significant bits) are the trace flags as defined in W3C Trace
+    // Context specification. To read the 8-bit W3C trace flag, use
+    // `flags & SPAN_FLAGS_TRACE_FLAGS_MASK`.
+    //
+    // See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+    //
+    // Bits 8 and 9 represent the 3 states of whether the link is remote.
+    // The states are (unknown, is not remote, is remote).
+    // To read whether the value is known, use `(flags & SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK) != 0`.
+    // To read whether the link is remote, use `(flags & SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK) != 0`.
+    //
+    // Readers MUST NOT assume that bits 10-31 (22 most significant bits) will be zero.
+    // When creating new spans, bits 10-31 (most-significant 22-bits) MUST be zero.
+    //
+    // [Optional].
+    fixed32 flags = 6;
   }
 
   // links is a collection of Links, which are references from this span to a span
@@ -253,6 +272,27 @@ message Span {
   // An optional final status for this span. Semantically when Status isn't set, it means
   // span's status code is unset, i.e. assume STATUS_CODE_UNSET (code = 0).
   Status status = 15;
+
+  // Flags, a bit field.
+  //
+  // Bits 0-7 (8 least significant bits) are the trace flags as defined in W3C Trace
+  // Context specification. To read the 8-bit W3C trace flag, use
+  // `flags & SPAN_FLAGS_TRACE_FLAGS_MASK`.
+  //
+  // See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+  //
+  // Bits 8 and 9 represent the 3 states of whether a span's parent
+  // is remote. The states are (unknown, is not remote, is remote).
+  // To read whether the value is known, use `(flags & SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK) != 0`.
+  // To read whether the span is remote, use `(flags & SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK) != 0`.
+  //
+  // When creating span messages, if the message is logically forked from an existing
+  // span, the flags field MUST be set to the value of the existing span's flags.
+  // If a span is not forked, the flags field is 0 or the trace flags of the span's
+  // context, and bits 8 and 9 are set as described above.
+  //
+  // [Optional].
+  fixed32 flags = 16;
 }
 
 // The Status type defines a logical error model that is suitable for different
@@ -277,4 +317,35 @@ message Status {
 
   // The status code.
   StatusCode code = 3;
+}
+
+// SpanFlags represents constants used to interpret the
+// Span.flags field, which is protobuf 'fixed32' type and is to
+// be used as bit-fields. Each non-zero value defined in this enum is
+// a bit-mask.  To extract the bit-field, for example, use an
+// expression like:
+//
+//   (span.flags & SPAN_FLAGS_TRACE_FLAGS_MASK)
+//
+// See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+//
+// Note that Span flags were introduced in version 1.1 of the
+// OpenTelemetry protocol.  Older Span producers do not set this
+// field, consequently consumers should not rely on the absence of a
+// particular flag bit to indicate the presence of a particular feature.
+enum SpanFlags {
+  // The zero value for the enum. Should not be used for comparisons.
+  // Instead use bitwise "and" with the appropriate mask as shown above.
+  SPAN_FLAGS_DO_NOT_USE = 0;
+
+  // Bits 0-7 are used for trace flags.
+  SPAN_FLAGS_TRACE_FLAGS_MASK = 0x000000FF;
+
+  // Bits 8 and 9 are used to indicate that the parent span or link span is remote.
+  // Bit 8 (`HAS_IS_REMOTE`) indicates whether the value is known.
+  // Bit 9 (`IS_REMOTE`) indicates whether the span or link is remote.
+  SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK = 0x00000100;
+  SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK = 0x00000200;
+
+  // Bits 10-31 are reserved for future use.
 }

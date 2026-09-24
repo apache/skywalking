@@ -36,17 +36,31 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.query.type.LogEntity;
 import org.apache.skywalking.oap.server.core.query.type.Ref;
 import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceList;
+import org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceV2;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.ERROR;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.INSTANCE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.NAME;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.OK;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_INSTANCE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_SERVICE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.RESOURCE_SERVICE_NAME;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SCOPE_RESOURCE;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SERVICE;
 import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SERVICE_NAME;
 import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SPAN_KIND;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.SPAN_PREFIX;
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.STATUS;
 
 /**
  * Converter for transforming SkyWalking trace data to OpenTelemetry Protocol (OTLP) format.
@@ -273,22 +287,106 @@ public class SkyWalkingOTLPConverter {
     }
 
     /**
+     * The tag keys of one scope on the spans of the sampled traces that the matcher accepts, for Tempo's filtered
+     * {@code /api/v2/search/tags}. Only the keys in {@code searchableKeys} are query conditions on this store, so
+     * the span scope is cut down to them; SkyWalking spans have no resource, so that scope keeps its fixed names.
+     */
+    public static List<String> tagNames(TraceList traceList, SkyWalkingSpanMatcher matcher, String scope,
+                                        Set<String> searchableKeys) {
+        if (SCOPE_RESOURCE.equals(scope)) {
+            return Arrays.asList(SERVICE, INSTANCE);
+        }
+        Set<String> keys = new LinkedHashSet<>();
+        for (org.apache.skywalking.oap.server.core.query.type.Span span : matched(traceList, matcher)) {
+            for (org.apache.skywalking.oap.server.core.query.type.KeyValue tag : span.getTags()) {
+                if (searchableKeys.contains(tag.getKey())) {
+                    keys.add(tag.getKey());
+                }
+            }
+        }
+        return new ArrayList<>(keys);
+    }
+
+    /**
+     * The distinct values of one tag on the spans of the sampled traces that the matcher accepts, for Tempo's
+     * filtered {@code /api/v2/search/tag/{tag}/values}. {@code tag} is the normalized name the handler switches on.
+     */
+    public static List<String> tagValues(TraceList traceList, SkyWalkingSpanMatcher matcher, String tag) {
+        Set<String> values = new LinkedHashSet<>();
+        for (org.apache.skywalking.oap.server.core.query.type.Span span : matched(traceList, matcher)) {
+            String value = tagValue(span, tag);
+            if (StringUtil.isNotEmpty(value)) {
+                values.add(value);
+            }
+        }
+        return new ArrayList<>(values);
+    }
+
+    private static String tagValue(org.apache.skywalking.oap.server.core.query.type.Span span, String tag) {
+        switch (tag) {
+            case RESOURCE_SERVICE_NAME:
+            case RESOURCE_SERVICE:
+                return span.getServiceCode();
+            case RESOURCE_INSTANCE:
+                return span.getServiceInstanceName();
+            case NAME:
+                return span.getEndpointName();
+            case STATUS:
+                return span.isError() ? ERROR : OK;
+            default:
+                if (tag.startsWith(SPAN_PREFIX)) {
+                    String key = tag.substring(SPAN_PREFIX.length());
+                    for (org.apache.skywalking.oap.server.core.query.type.KeyValue kv : span.getTags()) {
+                        if (key.equals(kv.getKey())) {
+                            return kv.getValue();
+                        }
+                    }
+                }
+                return null;
+        }
+    }
+
+    private static List<org.apache.skywalking.oap.server.core.query.type.Span> matched(TraceList traceList,
+                                                                                        SkyWalkingSpanMatcher matcher) {
+        List<org.apache.skywalking.oap.server.core.query.type.Span> spans = new ArrayList<>();
+        if (traceList == null || traceList.getTraces() == null) {
+            return spans;
+        }
+        for (TraceV2 trace : traceList.getTraces()) {
+            for (org.apache.skywalking.oap.server.core.query.type.Span span : trace.getSpans()) {
+                if (matcher == null || matcher.matches(span)) {
+                    spans.add(span);
+                }
+            }
+        }
+        return spans;
+    }
+
+    /**
      * Convert TraceList to SearchResponse format.
      *
-     * @param traceList   SkyWalking trace list
-     * @param allowedTags Only span attributes whose key is in this set are included; null means all
+     * @param traceList       SkyWalking trace list
+     * @param allowedTags     Only span attributes whose key is in this set are included; null means all
+     * @param matcher         selects the spans the span set lists, null lists every span of the trace
+     * @param spansPerSpanSet Tempo's {@code spss}, the most spans a span set lists; zero or less lists all matches
      * @return SearchResponse containing the converted traces
      */
-    public static SearchResponse convertTraceListToSearchResponse(TraceList traceList, Set<String> allowedTags) {
+    public static SearchResponse convertTraceListToSearchResponse(TraceList traceList,
+                                                                  Set<String> allowedTags,
+                                                                  SkyWalkingSpanMatcher matcher,
+                                                                  int spansPerSpanSet) {
         SearchResponse response = new SearchResponse();
         List<SearchResponse.Trace> traces = new ArrayList<>();
 
         if (traceList != null && traceList.getTraces() != null) {
-            for (org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceV2 trace : traceList.getTraces()) {
+            for (TraceV2 trace : traceList.getTraces()) {
                 if (trace.getSpans().isEmpty()) {
                     continue;
                 }
-                traces.add(convertSWTraceToSearchTrace(trace, allowedTags));
+                final SearchResponse.Trace searchTrace = convertSWTraceToSearchTrace(trace, allowedTags, matcher, spansPerSpanSet);
+                if (searchTrace != null) {
+                    traces.add(searchTrace);
+                }
             }
         }
 
@@ -299,12 +397,15 @@ public class SkyWalkingOTLPConverter {
     /**
      * Convert a single SkyWalking TraceV2 to SearchResponse.Trace.
      *
-     * @param swTrace       SkyWalking TraceV2
-     * @param allowedTags Only span attributes whose key is in this set are included; null means all
+     * @param swTrace         SkyWalking TraceV2
+     * @param allowedTags     Only span attributes whose key is in this set are included; null means all
+     * @param matcher         selects the spans the span set lists, null lists every span of the trace
+     * @param spansPerSpanSet the most spans the span set lists; zero or less lists all matches
      * @return SearchResponse.Trace
      */
     private static SearchResponse.Trace convertSWTraceToSearchTrace(
-        org.apache.skywalking.oap.server.core.query.type.trace.v2.TraceV2 swTrace, Set<String> allowedTags) {
+        TraceV2 swTrace, Set<String> allowedTags,
+        SkyWalkingSpanMatcher matcher, int spansPerSpanSet) {
 
         SearchResponse.Trace trace = new SearchResponse.Trace();
 
@@ -329,13 +430,35 @@ public class SkyWalkingOTLPConverter {
         trace.setStartTimeUnixNano(String.valueOf(minStartTime * 1_000_000));
         trace.setDurationMs((int) (maxEndTime - minStartTime));
 
-        // First pass: collect all attribute keys across all spans.
+        for (org.apache.skywalking.oap.server.core.query.type.Span span : swTrace.getSpans()) {
+            SearchResponse.ServiceStat stat = trace.getServiceStats()
+                                                   .computeIfAbsent(span.getServiceCode(), k -> new SearchResponse.ServiceStat(0, 0));
+            stat.setSpanCount(stat.getSpanCount() + 1);
+            if (span.isError()) {
+                stat.setErrorCount(stat.getErrorCount() + 1);
+            }
+        }
+
+        List<org.apache.skywalking.oap.server.core.query.type.Span> matched = swTrace.getSpans();
+        if (matcher != null) {
+            matched = swTrace.getSpans().stream().filter(matcher::matches).collect(Collectors.toList());
+            if (matched.isEmpty()) {
+                // The storage matched the segment on conditions it evaluates per segment, tags and duration among
+                // them, while TraceQL asks for one span meeting all of them; leaving the trace out is the strict
+                // answer, listing spans the query excluded is the failure #14093 describes.
+                return null;
+            }
+        }
+        List<org.apache.skywalking.oap.server.core.query.type.Span> listed = spansPerSpanSet > 0 && matched.size() > spansPerSpanSet
+            ? matched.subList(0, spansPerSpanSet) : matched;
+
+        // First pass: collect all attribute keys across the listed spans.
         // Grafana has a bug (search.go:369) where spans missing an attribute key that other
         // spans have cause a type panic: Append("") on a []*string field instead of Append(nil).
         // By ensuring all spans have the same keys (padding missing ones with ""), we avoid
         // the else branch in Grafana entirely.
         Set<String> allSpanAttrKeys = new LinkedHashSet<>();
-        for (org.apache.skywalking.oap.server.core.query.type.Span span : swTrace.getSpans()) {
+        for (org.apache.skywalking.oap.server.core.query.type.Span span : listed) {
             for (org.apache.skywalking.oap.server.core.query.type.KeyValue tag : span.getTags()) {
                 allSpanAttrKeys.add(tag.getKey());
             }
@@ -347,11 +470,12 @@ public class SkyWalkingOTLPConverter {
         // Add fixed tags
         allSpanAttrKeys.add(SPAN_KIND);
         allSpanAttrKeys.add(SERVICE_NAME);
+        allSpanAttrKeys.add(STATUS);
         SearchResponse.SpanSet spanSet = new SearchResponse.SpanSet();
-        for (org.apache.skywalking.oap.server.core.query.type.Span span : swTrace.getSpans()) {
+        for (org.apache.skywalking.oap.server.core.query.type.Span span : listed) {
             spanSet.getSpans().add(convertSWSpanToSearchSpan(span, allSpanAttrKeys));
         }
-        spanSet.setMatched(spanSet.getSpans().size());
+        spanSet.setMatched(matched.size());
         trace.getSpanSets().add(spanSet);
 
         return trace;
@@ -386,6 +510,8 @@ public class SkyWalkingOTLPConverter {
         for (org.apache.skywalking.oap.server.core.query.type.KeyValue tag : swSpan.getTags()) {
             spanAttrMap.put(tag.getKey(), tag.getValue());
         }
+        // The span status as a fixed attribute, so a trace list can show failures without opening each trace (#14093).
+        spanAttrMap.put(STATUS, swSpan.isError() ? ERROR : OK);
 
         // Output all keys in consistent order, padding missing keys with "" to avoid
         // the Grafana search.go:369 type panic on []*string fields

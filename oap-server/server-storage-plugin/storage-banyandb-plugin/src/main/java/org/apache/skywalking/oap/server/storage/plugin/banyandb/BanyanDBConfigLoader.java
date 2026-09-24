@@ -121,6 +121,17 @@ public class BanyanDBConfigLoader {
                     (Map<String, Object>) rawGroups.get(BanyanDB.TraceGroup.ZIPKIN_TRACE.getName()), config.getZipkinTrace());
             }
 
+            Properties otlpSpan = (Properties) groups.get(BanyanDB.TraceGroup.OTLP_TRACE.getName());
+            copyProperties(
+                config.getOtlpTrace(), otlpSpan,
+                moduleProvider.getModule().name(), moduleProvider.name()
+            );
+            copyStages(otlpSpan, config.getOtlpTrace());
+            if (rawGroups != null && rawGroups.get(BanyanDB.TraceGroup.OTLP_TRACE.getName()) instanceof Map) {
+                copyPipeline(
+                    (Map<String, Object>) rawGroups.get(BanyanDB.TraceGroup.OTLP_TRACE.getName()), config.getOtlpTrace());
+            }
+
             Properties aiAgent = (Properties) groups.get(BanyanDB.StreamGroup.RECORDS_AI_AGENT.getName());
             copyProperties(
                     config.getRecordsAIAgent(), aiAgent,

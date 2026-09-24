@@ -22,5 +22,6 @@ public enum TagType {
     TRACE,
     LOG,
     ZIPKIN,
-    ALARM
+    ALARM,
+    OTLP
 }

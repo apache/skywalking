@@ -13,97 +13,97 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-tokens: 37368
-instance_tokens: 37368
+tokens: 44662
+instance_tokens: 44662
 by_type:
   - labels:
       - key: type
         value: cacheCreation
-    value: 3600
+    value: 4300
   - labels:
       - key: type
         value: cacheRead
-    value: 32400
+    value: 38700
   - labels:
       - key: type
         value: input
-    value: 72
+    value: 86
   - labels:
       - key: type
         value: output
-    value: 1296
+    value: 1576
 by_model:
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: cacheCreation
-    value: 3600
+    value: 4300
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: cacheRead
-    value: 32400
+    value: 38700
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: input
-    value: 72
+    value: 86
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: output
-    value: 1296
+    value: 1576
 by_source:
   - labels:
       - key: query_source
         value: main
       - key: type
         value: cacheCreation
-    value: 2700
+    value: 3200
   - labels:
       - key: query_source
         value: main
       - key: type
         value: cacheRead
-    value: 24300
+    value: 28800
   - labels:
       - key: query_source
         value: main
       - key: type
         value: input
-    value: 54
+    value: 64
   - labels:
       - key: query_source
         value: main
       - key: type
         value: output
-    value: 930
+    value: 1130
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: cacheCreation
-    value: 900
+    value: 1100
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: cacheRead
-    value: 8100
+    value: 9900
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: input
-    value: 18
+    value: 22
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: output
-    value: 366
+    value: 446
 cache_read_share_in_range: true

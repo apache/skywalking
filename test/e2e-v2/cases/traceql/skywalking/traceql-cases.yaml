@@ -47,7 +47,7 @@ cases:
     expected: expected/search-traces-by-duration.yml
 
   # Search traces with complex TraceQL query
-  - query: curl -X GET http://${oap_host}:${oap_3200}/skywalking/api/search -d 'q={resource.service.name="e2e-service-provider" && span.http.method="POST"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
+  - query: curl -X GET http://${oap_host}:${oap_3200}/skywalking/api/search -d 'q={resource.service.name="e2e-service-provider" %26%26 span.http.method="POST"}&start='$(($(date +%s)-1800))'&end='$(date +%s)'&limit=10'
     expected: expected/search-traces-complex.yml
 
   # Query trace by ID (JSON format)

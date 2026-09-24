@@ -27,11 +27,13 @@
     "normal": 3,
     "trace": 3,
     "zipkinTrace": 3,
+    "otlpTrace": 3,
     "log": 3,
     "browserErrorLog": 3,
     "coldNormal": -1,
     "coldTrace": -1,
     "coldZipkinTrace": -1,
+    "coldOtlpTrace": -1,
     "coldLog": -1,
     "coldBrowserErrorLog": -1
   }

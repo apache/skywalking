@@ -324,24 +324,27 @@ extend type Query {
 ```
 
 ### AI Agent Conversations
-Provide [AI agent conversation](../setup/backend/ai-agent-conversation.md) query APIs since 11.1.0: the list page and the raw-file export
-are GraphQL queries; the conversation itself is an HTTP route on the same server, because its `asz.view` document is as
-large as the conversation and is streamed.
+Provide [AI agent conversation](../setup/backend/ai-agent-conversation.md) query APIs since 11.1.0: the list page is a
+GraphQL query; the conversation itself and its stored files are HTTP routes on the same server, because an `asz.view`
+document is as large as the conversation and both are streamed.
 ```graphql
 extend type Query {
     # The conversations of a service active in the duration, newest first.
     listConversations(condition: ConversationListCondition!, duration: Duration!, debug: Boolean): ConversationList
-    # Every file of a conversation, as stored. Select `body` to export them.
-    getConversationRawFiles(condition: ConversationCondition!, files: [ID!], debug: Boolean): ConversationRawFiles
 }
 ```
 ```
-GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}[&instance={instanceName}]
+GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}&instance={instanceName}[&coldStage=true]
+GET /ai-agent/conversations/{conversation}/v1/files?service={serviceName}&instance={instanceName}&session={session}&seq={seq}[&seq={seq}...][&coldStage=true]
 ```
 The body is one `asz.view` 1.0 document, streamed, and its `Content-Type` names the format and the version:
 `application/vnd.skywalking.asz.view+json; version=1.0`, or the `+yaml` twin when `Accept` asks for YAML; compressed on
-`Accept-Encoding`. `v1` in the path is the document version. 400 without a service, 404 when no round of the conversation
-is stored, 500 on a storage failure, each as `application/problem+json`.
+`Accept-Encoding`. `v1` in the path is the document version. The files route streams up to 32 Session Data files of a session,
+each chosen by its landed seq, as `application/vnd.skywalking.asz.files+ndjson`: for each file a line naming it, then the
+file's bytes. The naming line carries `copies` when the storage holds that seq more than once, the file served being the
+first. Both routes
+answer 400 without the service or the instance, 404 when the sender stores no round of the conversation, 500 on a
+storage failure, each as `application/problem+json`.
 
 ## Condition
 ### Duration

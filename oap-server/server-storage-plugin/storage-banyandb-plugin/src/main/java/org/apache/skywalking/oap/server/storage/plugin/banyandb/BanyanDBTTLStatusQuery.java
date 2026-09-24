@@ -29,6 +29,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private int grNormalTTLDays;
     private int grTraceTTLDays;
     private int grZipkinTraceTTLDays;
+    private int grOtlpTraceTTLDays;
     private int grLogTTLDays;
     private int grBrowserErrorLogTTLDays;
     private int grSuperTTLDays;
@@ -36,6 +37,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     private int grColdNormalTTLDays = -1;
     private int grColdTraceTTLDays = -1;
     private int grColdZipkinTraceTTLDays = -1;
+    private int grColdOtlpTraceTTLDays = -1;
     private int grColdLogTTLDays = -1;
     private int grColdBrowserErrorLogTTLDays = -1;
     private int gmMinuteTTLDays;
@@ -50,6 +52,7 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
         grNormalTTLDays = config.getRecordsNormal().getTtl();
         grTraceTTLDays = config.getTrace().getTtl();
         grZipkinTraceTTLDays = config.getZipkinTrace().getTtl();
+        grOtlpTraceTTLDays = config.getOtlpTrace().getTtl();
         grLogTTLDays = config.getRecordsLog().getTtl();
         grBrowserErrorLogTTLDays = config.getRecordsBrowserErrorLog().getTtl();
         gmMinuteTTLDays = config.getMetricsMin().getTtl();
@@ -76,6 +79,13 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
                 grZipkinTraceTTLDays = grZipkinTraceTTLDays + stage.getTtl();
             } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
                 grColdZipkinTraceTTLDays = stage.getTtl();
+            }
+        });
+        config.getOtlpTrace().getAdditionalLifecycleStages().forEach(stage -> {
+            if (stage.getName().equals(BanyanDBStorageConfig.StageName.warm)) {
+                grOtlpTraceTTLDays = grOtlpTraceTTLDays + stage.getTtl();
+            } else if (stage.getName().equals(BanyanDBStorageConfig.StageName.cold)) {
+                grColdOtlpTraceTTLDays = stage.getTtl();
             }
         });
         config.getRecordsLog().getAdditionalLifecycleStages().forEach(stage -> {
@@ -119,11 +129,15 @@ public class BanyanDBTTLStatusQuery implements StorageTTLStatusQuery {
     public TTLDefinition getTTL() {
         TTLDefinition definition = new TTLDefinition(
             new MetricsTTL(gmMetadataTTLDays, gmMinuteTTLDays, gmHourTTLDays, gmDayTTLDays),
-            new RecordsTTL(grNormalTTLDays, grTraceTTLDays, grZipkinTraceTTLDays, grLogTTLDays, grBrowserErrorLogTTLDays)
+            new RecordsTTL(
+                grNormalTTLDays, grTraceTTLDays, grZipkinTraceTTLDays, grOtlpTraceTTLDays, grLogTTLDays,
+                grBrowserErrorLogTTLDays
+            )
         );
         definition.getRecords().setColdNormal(grColdNormalTTLDays);
         definition.getRecords().setColdTrace(grColdTraceTTLDays);
         definition.getRecords().setColdZipkinTrace(grColdZipkinTraceTTLDays);
+        definition.getRecords().setColdOtlpTrace(grColdOtlpTraceTTLDays);
         definition.getRecords().setColdLog(grColdLogTTLDays);
         definition.getRecords().setColdBrowserErrorLog(grColdBrowserErrorLogTTLDays);
         definition.getMetrics().setColdMinute(gmColdMinuteTTLDays);

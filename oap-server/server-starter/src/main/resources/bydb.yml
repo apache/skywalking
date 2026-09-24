@@ -209,6 +209,28 @@ groups:
             # include both bare keys and "key=value". Same compact grammar as the trace group:
             #   SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_TAG_RULES='http.status_code=~5\d\d'
             keepTagRules: ${SW_STORAGE_BANYANDB_ZIPKIN_TRACE_SAMPLER_KEEP_TAG_RULES:[]}
+  # Natively stored OTLP spans (`otlp_span`, CATALOG_TRACE), written when `receiver-otel.otlpTraceStorage` is `otlp`.
+  # Kept apart from `zipkinTrace` so OTLP and Zipkin traces can be retained and sized independently. BanyanDB ships no
+  # `otlp-trace-sampler` plugin yet, so this group takes no `pipeline` block until one lands.
+  otlpTrace:
+    shardNum: ${SW_STORAGE_BANYANDB_OTLP_TRACE_SHARD_NUM:2}
+    segmentInterval: ${SW_STORAGE_BANYANDB_OTLP_TRACE_SI_DAYS:1}
+    ttl: ${SW_STORAGE_BANYANDB_OTLP_TRACE_TTL_DAYS:3}
+    replicas: ${SW_STORAGE_BANYANDB_OTLP_TRACE_REPLICAS:0}
+    enableWarmStage: ${SW_STORAGE_BANYANDB_OTLP_TRACE_ENABLE_WARM_STAGE:false}
+    enableColdStage: ${SW_STORAGE_BANYANDB_OTLP_TRACE_ENABLE_COLD_STAGE:false}
+    warm:
+      shardNum: ${SW_STORAGE_BANYANDB_OTLP_TRACE_WARM_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_OTLP_TRACE_WARM_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_OTLP_TRACE_WARM_TTL_DAYS:7}
+      replicas: ${SW_STORAGE_BANYANDB_OTLP_TRACE_WARM_REPLICAS:0}
+      nodeSelector: ${SW_STORAGE_BANYANDB_OTLP_TRACE_WARM_NODE_SELECTOR:"type=warm"}
+    cold:
+      shardNum: ${SW_STORAGE_BANYANDB_OTLP_TRACE_COLD_SHARD_NUM:2}
+      segmentInterval: ${SW_STORAGE_BANYANDB_OTLP_TRACE_COLD_SI_DAYS:1}
+      ttl: ${SW_STORAGE_BANYANDB_OTLP_TRACE_COLD_TTL_DAYS:30}
+      replicas: ${SW_STORAGE_BANYANDB_OTLP_TRACE_COLD_REPLICAS:0}
+      nodeSelector: ${SW_STORAGE_BANYANDB_OTLP_TRACE_COLD_NODE_SELECTOR:"type=cold"}
   recordsLog:
     shardNum: ${SW_STORAGE_BANYANDB_LOG_SHARD_NUM:2}
     segmentInterval: ${SW_STORAGE_BANYANDB_LOG_SI_DAYS:1}

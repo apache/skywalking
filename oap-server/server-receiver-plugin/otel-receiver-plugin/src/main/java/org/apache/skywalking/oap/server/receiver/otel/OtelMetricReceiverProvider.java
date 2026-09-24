@@ -23,8 +23,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
+import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
+import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 import java.util.ArrayList;
@@ -67,6 +70,18 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
 
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
+        if (!config.isOtlpTraceStorageValid()) {
+            throw new ModuleStartException(
+                "receiver-otel.default.otlpTraceStorage must be `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN
+                    + "` or `" + OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP + "`, got `" + config.getOtlpTraceStorage() + "`");
+        }
+        // Only OTLPSpanForward, the native path, reads otlpTraceSearchableTags; in zipkin mode the list is dead config
+        // and receiver-zipkin.searchableTracesTags applies, so a stale value there must not fail the boot.
+        if (config.isOtlpTraceStorageNative() && !config.getUnscopedOtlpTraceSearchableTags().isEmpty()) {
+            throw new ModuleStartException(
+                "receiver-otel.default.otlpTraceSearchableTags entries must name their scope, `resource.<key>` or "
+                    + "`span.<key>`, got " + config.getUnscopedOtlpTraceSearchableTags());
+        }
         metricRequestProcessor = new OpenTelemetryMetricRequestProcessor(
             getManager(), config);
         registerServiceImplementation(OpenTelemetryMetricRequestProcessor.class, metricRequestProcessor);
@@ -107,6 +122,15 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         // module-system sort could place OTEL ahead of Storage, the resolver would
         // silently no-op at boot, and DB overrides would only take effect on the
         // reconciler's next tick.
-        return new String[] {SharingServerModule.NAME, StorageModule.NAME};
+        // CoreModule: the trace handler reaches SourceReceiver, NamingControl and SpanListenerManager through the
+        // module manager, which is only legal for a declared dependency.
+        final List<String> required = new ArrayList<>(List.of(SharingServerModule.NAME, StorageModule.NAME, CoreModule.NAME));
+        // The Zipkin mode of otlp-traces hands spans to receiver-zipkin's SpanForwardService; declaring it here makes
+        // a boot without that module fail with the module system's own error instead of on the first export, while
+        // the native mode keeps not needing it.
+        if (config.getEnabledHandlers().contains(OpenTelemetryTraceHandler.TYPE) && !config.isOtlpTraceStorageNative()) {
+            required.add(ZipkinReceiverModule.NAME);
+        }
+        return required.toArray(new String[0]);
     }
 }

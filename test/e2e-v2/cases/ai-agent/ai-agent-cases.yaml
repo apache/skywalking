@@ -67,6 +67,10 @@ cases:
   # joins its step, and the export names the files
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh changes http://${oap_host}:${oap_12800}
     expected: expected/changes.yml
+  # the provider-bodies conversation: the provider_body file landed beside the transcripts, every call names where its
+  # request and response landed, and the export names the file
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh provider-bodies http://${oap_host}:${oap_12800}
+    expected: expected/provider-bodies.yml
   # the runtime's token metric the Sessionizer derived, summed per minute over every session and sender, and over the
   # run equal to what the scenarios declare; the service and the sender both
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh metrics http://${oap_host}:${oap_12800}

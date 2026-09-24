@@ -16,14 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.agent.conversation.query.type;
+package org.apache.skywalking.oap.server.admin.status.trace.otlp;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.admin.status.DebuggingTraceRsp;
 
 /**
- * Which of the two landed formats a raw file is.
+ * The {@code traces} array of a TraceQL {@code /api/search} response, as the JSON the datasource returned.
  */
-public enum ConversationFileFormat {
-    /** Session Data: the records of one stream, an agent's meta file, a run journal, a workflow manifest or script. */
-    SD,
-    /** Session Flow: one round of the conversation's chain. */
-    SF
+@RequiredArgsConstructor
+@Data
+public class DebuggingOTLPQueryTracesRsp {
+    private final JsonNode traces;
+    private final DebuggingTraceRsp debuggingTrace;
 }

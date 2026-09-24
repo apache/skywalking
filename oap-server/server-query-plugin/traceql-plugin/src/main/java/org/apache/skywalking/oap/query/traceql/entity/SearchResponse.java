@@ -20,7 +20,9 @@ package org.apache.skywalking.oap.query.traceql.entity;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,6 +39,12 @@ public class SearchResponse extends QueryResponse {
         private String startTimeUnixNano;
         private Integer durationMs;
         private List<SpanSet> spanSets = new ArrayList<>();
+        /**
+         * Span and error counts per service over the whole trace, filled by every datasource; omitted when a trace
+         * has no spans to count.
+         */
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        private Map<String, ServiceStat> serviceStats = new LinkedHashMap<>();
     }
 
     @Data
@@ -59,10 +67,18 @@ public class SearchResponse extends QueryResponse {
         private Value value;
     }
 
+    /**
+     * One of the fields is set, following the OTLP/JSON {@code AnyValue} encoding: {@code intValue} is a decimal
+     * string because proto3 JSON renders int64 as a string. The Zipkin and SkyWalking datasources set
+     * {@code stringValue} only; the OTLP datasource keeps the attribute's type.
+     */
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Value {
         private String stringValue;
+        private String intValue;
+        private Boolean boolValue;
+        private Double doubleValue;
     }
 
     @Data

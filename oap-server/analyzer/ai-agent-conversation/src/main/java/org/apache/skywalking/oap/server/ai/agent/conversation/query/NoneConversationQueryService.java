@@ -18,17 +18,18 @@
 
 package org.apache.skywalking.oap.server.ai.agent.conversation.query;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.function.BooleanSupplier;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFiles;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 
 /**
  * Answers every query of a disabled module with nothing, so that the GraphQL query module, which requires the
  * {@link org.apache.skywalking.oap.server.ai.agent.conversation.AIAgentConversationModule}, still boots and its
- * two conversation queries answer instead of failing.
+ * conversation list answers instead of failing. The module registers no HTTP route, so the document and the files
+ * are never asked for; asked directly, they are not there.
  */
 public class NoneConversationQueryService implements IConversationQueryService {
     private static final String DISABLED =
@@ -50,18 +51,16 @@ public class NoneConversationQueryService implements IConversationQueryService {
     @Override
     public Map<String, Object> buildConversationView(final String serviceId,
                                                      @Nullable final String serviceInstanceId,
-                                                     final String conversation, final boolean coldStage) {
+                                                     final String conversation, final boolean coldStage,
+                                                     final BooleanSupplier alive) {
         return null;
     }
 
     @Override
-    public ConversationRawFiles getConversationRawFiles(final String serviceId,
-                                                        @Nullable final String serviceInstanceId,
-                                                        final String conversation,
-                                                        @Nullable final List<String> files,
-                                                        final boolean includeBody, final boolean coldStage) {
-        final ConversationRawFiles rawFiles = new ConversationRawFiles();
-        rawFiles.setErrorReason(DISABLED);
-        return rawFiles;
+    public boolean readConversationFiles(final String serviceId, final String serviceInstanceId,
+                                         final String conversation, final String session,
+                                         final Collection<Long> seqs, final boolean coldStage,
+                                         final BooleanSupplier alive, final FileSink sink) {
+        return false;
     }
 }

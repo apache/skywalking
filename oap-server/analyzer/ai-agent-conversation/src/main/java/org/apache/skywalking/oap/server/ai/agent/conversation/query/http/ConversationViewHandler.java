@@ -28,7 +28,6 @@ import com.linecorp.armeria.common.ResponseHeaders;
 import com.linecorp.armeria.common.util.TimeoutMode;
 import com.linecorp.armeria.server.ServiceRequestContext;
 import com.linecorp.armeria.server.annotation.Decorator;
-import com.linecorp.armeria.server.annotation.Default;
 import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Header;
 import com.linecorp.armeria.server.annotation.Param;
@@ -36,7 +35,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -55,14 +56,14 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * long one: it is written to the response as it is rendered, never held whole as one string, compressed when
  * the client allows, and given its own request timeout in place of the server's default.
  *
- * <p>Query parameters: <code>service</code>, the service name, or <code>serviceId</code>; optionally
- * <code>instance</code>, the sender's instance name, and <code>coldStage</code>, false by default, to query
- * BanyanDB's cold stage. What the body is, the HTTP layer says: the media type
+ * <p>Query parameters: <code>service</code>, the service name, and <code>instance</code>, the sender's instance
+ * name, both required, as the conversation list names them, so every storage read is a full series lookup; and
+ * <code>coldStage</code>, optional and false by default, to query BanyanDB's cold stage. What the body is, the HTTP layer says: the media type
  * names the document format and its version, <code>application/vnd.skywalking.asz.view+json; version=1.0</code>, or the
  * <code>+yaml</code> twin when <code>Accept</code> asks for YAML. The document's own first two keys repeat it.
  *
- * <p>Status: 200 with the document; 400 when no service is named; 404 when the service stores no round of the
- * conversation; 500 on a storage failure. An error is <code>application/problem+json</code> (RFC 9457):
+ * <p>Status: 200 with the document; 400 when the service or the instance is not named; 404 when the sender stores
+ * no round of the conversation; 500 on a storage failure. An error is <code>application/problem+json</code> (RFC 9457):
  * <code>{"type": "about:blank", "title": "...", "status": 404, "detail": "..."}</code>.
  */
 @Slf4j
@@ -91,42 +92,60 @@ public class ConversationViewHandler {
     public HttpResponse view(final ServiceRequestContext ctx,
                              @Param("conversation") final String conversation,
                              @Param("service") @Nullable final String serviceName,
-                             @Param("serviceId") @Nullable final String serviceIdParam,
                              @Param("instance") @Nullable final String instanceName,
-                             @Param("coldStage") @Default("false") final boolean coldStage,
+                             @Param("coldStage") @Nullable final String coldStageParam,
                              @Header("Accept") @Nullable final String accept) {
-        final String serviceId;
-        if (StringUtil.isNotEmpty(serviceIdParam)) {
-            serviceId = serviceIdParam;
-        } else if (StringUtil.isNotEmpty(serviceName)) {
-            serviceId = IDManager.ServiceID.buildId(serviceName, true);
-        } else {
-            return HttpResponse.of(HttpStatus.BAD_REQUEST, PROBLEM, problem(HttpStatus.BAD_REQUEST, "service or serviceId is required"));
+        if (StringUtil.isEmpty(serviceName) || StringUtil.isEmpty(instanceName)) {
+            return badRequest("service and instance are required");
         }
-        final String instanceId = StringUtil.isEmpty(instanceName)
-            ? null : IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
+        final Boolean coldStage = coldStage(coldStageParam);
+        if (coldStage == null) {
+            return badRequest("coldStage " + coldStageParam + " is neither true nor false");
+        }
+        final String serviceId = IDManager.ServiceID.buildId(serviceName, true);
+        final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, instanceName);
         final boolean yaml = accept != null && accept.contains("yaml");
 
         ctx.setRequestTimeout(TimeoutMode.SET_FROM_NOW, timeout);
         final HttpResponseWriter res = HttpResponse.streaming();
-        ctx.blockingTaskExecutor().execute(() -> stream(res, serviceId, instanceId, conversation, yaml, coldStage));
+        // Every refusal this route makes is a problem document. A request that runs out of time would
+        // otherwise take the server's own answer, which is plain text, so it is answered here instead -
+        // while nothing has been written, which is the only moment a status can still be chosen.
+        final AtomicBoolean answered = new AtomicBoolean();
+        ctx.whenRequestCancelling().thenAccept(cause -> {
+            if (answered.compareAndSet(false, true)) {
+                problem(res, HttpStatus.SERVICE_UNAVAILABLE,
+                        "the request took longer than the " + timeout.toSeconds() + " seconds allowed");
+            }
+        });
+        ctx.blockingTaskExecutor().execute(
+            () -> stream(res, serviceId, instanceId, conversation, yaml, coldStage, answered));
         return res;
     }
 
-    private void stream(final HttpResponseWriter res, final String serviceId, @Nullable final String instanceId,
-                        final String conversation, final boolean yaml, final boolean coldStage) {
+    private void stream(final HttpResponseWriter res, final String serviceId, final String instanceId,
+                        final String conversation, final boolean yaml, final boolean coldStage,
+                        final AtomicBoolean answered) {
         final Map<String, Object> doc;
         try {
-            doc = service.buildConversationView(serviceId, instanceId, conversation, coldStage);
+            // The whole chain is read before a byte is written, so the read itself asks whether anyone is
+            // still waiting: a caller who gave up must not leave thousands of storage reads behind.
+            doc = service.buildConversationView(serviceId, instanceId, conversation, coldStage, res::isOpen);
         } catch (final Exception e) {
+            if (!answered.compareAndSet(false, true)) {
+                return;
+            }
             // a storage client can surface a checked failure it never declared; whatever it is, the response
             // must say so, or the caller waits for the request timeout
             log.error("AI agent conversation {} of service {} could not be read", conversation, serviceId, e);
             problem(res, HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             return;
         }
+        if (!answered.compareAndSet(false, true)) {
+            return;
+        }
         if (doc == null) {
-            problem(res, HttpStatus.NOT_FOUND, "no round of conversation " + conversation + " is stored for this service");
+            problem(res, HttpStatus.NOT_FOUND, notFound(conversation));
             return;
         }
         res.write(ResponseHeaders.builder(HttpStatus.OK).contentType(yaml ? YAML_UTF_8 : JSON_UTF_8).build());
@@ -144,7 +163,34 @@ public class ConversationViewHandler {
         res.close();
     }
 
-    private static void problem(final HttpResponseWriter res, final HttpStatus status, @Nullable final String detail) {
+    /**
+     * @return the <code>coldStage</code> parameter: false when absent, the boolean it names, or null when it names
+     * neither, which Armeria would otherwise refuse with a plain-text 400 before the handler could answer
+     */
+    @Nullable
+    static Boolean coldStage(@Nullable final String param) {
+        if (param == null) {
+            return false;
+        }
+        switch (param.trim().toLowerCase(Locale.ROOT)) {
+            case "true":
+                return true;
+            case "false":
+                return false;
+            default:
+                return null;
+        }
+    }
+
+    static HttpResponse badRequest(final String detail) {
+        return HttpResponse.of(HttpStatus.BAD_REQUEST, PROBLEM, problem(HttpStatus.BAD_REQUEST, detail));
+    }
+
+    static String notFound(final String conversation) {
+        return "no round of conversation " + conversation + " is stored for this sender";
+    }
+
+    static void problem(final HttpResponseWriter res, final HttpStatus status, @Nullable final String detail) {
         res.write(ResponseHeaders.builder(status).contentType(PROBLEM).build());
         res.write(HttpData.ofUtf8(problem(status, detail)));
         res.close();

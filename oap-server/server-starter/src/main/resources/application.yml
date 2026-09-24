@@ -274,17 +274,18 @@ ai-agent-conversation:
   # conversation view route is registered. The GraphQL query module requires this module, so `-` can't remove it.
   none:
   default:
-    # How many Session Data files one storage read fetches; keeps a single BanyanDB response under its inbound cap.
-    fileReadWindow: ${SW_AI_AGENT_CONVERSATION_FILE_READ_WINDOW:16}
-    roundReadWindow: ${SW_AI_AGENT_CONVERSATION_ROUND_READ_WINDOW:16}
-    # How many rebuilt conversation views stay in memory, keyed by the head round's digest. A large view is ~20 MB.
-    # The most rounds one list query reads before folding to one row per conversation.
-    maxListLimit: ${SW_AI_AGENT_CONVERSATION_MAX_LIST_LIMIT:10000}
+    # The most rounds one conversation list reads. It counts rounds, not conversations, so a busy
+    # conversation spends the budget of the quiet ones.
+    conversationListMaxLimit: ${SW_AI_AGENT_CONVERSATION_LIST_MAX_LIMIT:10000}
+    # How long one conversation view request may take, in seconds; the whole chain is folded before the first byte.
     viewRequestTimeout: ${SW_AI_AGENT_CONVERSATION_VIEW_REQUEST_TIMEOUT:120}
-    # The largest file stored, in bytes; a larger one is rejected at ingest. Under BanyanDB's 16 MiB gRPC message limit.
-    maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
-    # The most bytes one window read may answer with, applied to that read alone where the storage caps a response per call.
+    # How many files or rounds one storage query fetches; a conversation is read batch by batch.
+    readWindow: ${SW_AI_AGENT_CONVERSATION_READ_WINDOW:16}
+    # The most bytes one storage query may answer with. BanyanDB alone accepts it, raising its client's
+    # 50 MB per-call cap for this module; Elasticsearch and JDBC bound a read by hits and by rows.
     maxResponseBytes: ${SW_AI_AGENT_CONVERSATION_MAX_RESPONSE_BYTES:104857600}
+    # The largest file stored; a larger one is rejected at ingest, under BanyanDB's 16 MiB message limit.
+    maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}
@@ -432,6 +433,20 @@ receiver-otel:
   selector: ${SW_OTEL_RECEIVER:default}
   default:
     enabledHandlers: ${SW_OTEL_RECEIVER_ENABLED_HANDLERS:"otlp-traces,otlp-metrics,otlp-logs"}
+    # Where the `otlp-traces` handler stores spans.
+    #   otlp:   store the native OTLP span in `otlp_span`, served by the TraceQL `/otlp` datasource
+    #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (needs receiver-zipkin and query-zipkin)
+    otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:otlp}
+    # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags), each written with its
+    # TraceQL scope, `resource.<key>` or `span.<key>`; an entry without a scope fails the boot. List low-cardinality
+    # attributes only: every distinct value is stored once per day. Every resource and span attribute is indexed for
+    # equality search regardless of this list. Not read in `zipkin` mode: the converted spans go through receiver-zipkin,
+    # whose `searchableTracesTags` decides autocomplete there.
+    otlpTraceSearchableTags: ${SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS:resource.deployment.environment.name,resource.deployment.environment,resource.service.namespace,resource.service.version,resource.k8s.namespace.name,resource.k8s.cluster.name,span.http.request.method,span.http.response.status_code,span.url.path,span.rpc.method,span.rpc.grpc.status_code,span.db.system.name,span.db.namespace,span.messaging.system,span.messaging.destination.name,span.peer.service}
+    # `otlp` mode only. Head sampling by trace id, precision 1/10000.
+    otlpTraceSampleRate: ${SW_OTEL_TRACE_SAMPLE_RATE:10000}
+    # `otlp` mode only. Spans per second accepted before dropping. 0 means no limit.
+    otlpTraceMaxSpansPerSecond: ${SW_OTEL_TRACE_MAX_SPANS_PER_SECOND:0}
     enabledOtelMetricsRules: ${SW_OTEL_RECEIVER_ENABLED_OTEL_METRICS_RULES:"apisix,nginx/*,k8s/*,istio-controlplane,vm,process-hostmetrics-linux,mysql/*,postgresql/*,oap,aws-eks/*,windows,process-hostmetrics-windows,aws-s3/*,aws-dynamodb/*,aws-gateway/*,redis/*,elasticsearch/*,rabbitmq/*,mongodb/*,kafka/*,pulsar/*,bookkeeper/*,rocketmq/*,clickhouse/*,activemq/*,kong/*,flink/*,airflow/*,banyandb/*,envoy-ai-gateway/*,ios/*,miniprogram/*,ai-agent/*"}
 
 receiver-zipkin:
@@ -557,8 +572,11 @@ traceQL:
     restPort: ${SW_TRACEQL_REST_PORT:3200}
     enableDatasourceZipkin: ${SW_TRACEQL_ENABLE_DATASOURCE_ZIPKIN:false}
     enableDatasourceSkywalking: ${SW_TRACEQL_ENABLE_DATASOURCE_SKYWALKING:false}
+    # Natively stored OTLP spans (receiver-otel.otlpTraceStorage: otlp), served as the OTLP they arrived as.
+    enableDatasourceOTLP: ${SW_TRACEQL_ENABLE_DATASOURCE_OTLP:false}
     restContextPathZipkin: ${SW_TRACEQL_REST_CONTEXT_PATH_ZIPKIN:/zipkin}
     restContextPathSkywalking: ${SW_TRACEQL_REST_CONTEXT_PATH_SKYWALKING:/skywalking}
+    restContextPathOTLP: ${SW_TRACEQL_REST_CONTEXT_PATH_OTLP:/otlp}
     restIdleTimeOut: ${SW_TRACEQL_REST_IDLE_TIMEOUT:30000}
     restAcceptQueueSize: ${SW_TRACEQL_REST_QUEUE_SIZE:0}
     restSSLEnabled: ${SW_TRACEQL_REST_SSL_ENABLED:false}
@@ -569,6 +587,8 @@ traceQL:
     # The tags in the list result of traces query, which would be used for trace grouping and shown in the trace list page.
     zipkinTracesListResultTags: ${SW_TRACEQL_ZIPKIN_TRACES_LIST_RESULT_TAGS:http.method,error}
     skywalkingTracesListResultTags: ${SW_TRACEQL_SKYWALKING_TRACES_LIST_RESULT_TAGS:http.method,http.status_code,rpc.status_code,db.type,db.instance,mq.queue,mq.topic,mq.broker}
+    # The span attributes included in the trace list result of the OTLP datasource, used by Grafana for grouping.
+    otlpTracesListResultTags: ${SW_TRACEQL_OTLP_TRACES_LIST_RESULT_TAGS:http.request.method,http.response.status_code}
 
 alarm:
   selector: ${SW_ALARM:default}

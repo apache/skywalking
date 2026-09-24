@@ -43,6 +43,8 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.BooleanSupplier;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -56,7 +58,6 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
-import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRawFiles;
 import org.apache.skywalking.oap.server.ai.agent.conversation.view.ConversationViewBuilder;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -94,7 +95,8 @@ public class ConversationViewHandlerTest {
         public Map<String, Object> buildConversationView(final String serviceId,
                                                          @Nullable final String serviceInstanceId,
                                                          final String conversation,
-                                                         final boolean coldStage) throws IOException {
+                                                         final boolean coldStage,
+                                                         final BooleanSupplier alive) throws IOException {
             LAST_INSTANCE_ID.set(serviceInstanceId);
             LAST_COLD_STAGE.set(coldStage);
             if ("broken".equals(conversation)) {
@@ -104,12 +106,10 @@ public class ConversationViewHandlerTest {
         }
 
         @Override
-        public ConversationRawFiles getConversationRawFiles(final String serviceId,
-                                                            @Nullable final String serviceInstanceId,
-                                                            final String conversation,
-                                                            @Nullable final List<String> files,
-                                                            final boolean includeBody,
-                                                            final boolean coldStage) {
+        public boolean readConversationFiles(final String serviceId, final String serviceInstanceId,
+                                             final String conversation, final String session,
+                                             final Collection<Long> seqs, final boolean coldStage,
+                                             final BooleanSupplier alive, final FileSink sink) {
             throw new UnsupportedOperationException();
         }
     };
@@ -137,7 +137,7 @@ public class ConversationViewHandlerTest {
     }
 
     private static String path(final String conversation) {
-        return "/ai-agent/conversations/" + conversation + "/v1/view?service=" + SERVICE;
+        return "/ai-agent/conversations/" + conversation + "/v1/view?service=" + SERVICE + "&instance=sender-1";
     }
 
     private static AggregatedHttpResponse get(final String path, final String... headers) {
@@ -240,7 +240,7 @@ public class ConversationViewHandlerTest {
 
     @Test
     public void theInstanceParameterNamesTheSender() {
-        get(path(Fixtures.SESSION) + "&instance=sender-1");
+        get(path(Fixtures.SESSION));
         assertEquals(IDManager.ServiceInstanceID.buildId(SERVICE_ID, "sender-1"), LAST_INSTANCE_ID.get());
     }
 
@@ -256,6 +256,14 @@ public class ConversationViewHandlerTest {
     public void statusesOfTheErrorPaths() {
         assertEquals(404, get(path("no-such-conversation")).status().code());
         assertEquals(400, get("/ai-agent/conversations/" + Fixtures.SESSION + "/v1/view").status().code());
+        // the list names both the service and the sender, so the route needs both
+        assertEquals(400, get("/ai-agent/conversations/" + Fixtures.SESSION + "/v1/view?service=" + SERVICE).status().code());
+        assertEquals(400, get("/ai-agent/conversations/" + Fixtures.SESSION + "/v1/view?instance=sender-1").status().code());
+        assertEquals(400, get("/ai-agent/conversations/" + Fixtures.SESSION + "/v1/view?serviceId=" + SERVICE_ID + "&instance=sender-1").status().code());
+        // a coldStage that is neither true nor false is refused with a problem document, not Armeria's plain text
+        final AggregatedHttpResponse garbage = get(path(Fixtures.SESSION) + "&coldStage=garbage");
+        assertEquals(400, garbage.status().code());
+        assertTrue(garbage.contentType().is(MediaType.parse("application/problem+json")), String.valueOf(garbage.contentType()));
         final AggregatedHttpResponse broken = get(path("broken"));
         assertEquals(500, broken.status().code());
         assertTrue(broken.contentType().is(MediaType.parse("application/problem+json")), String.valueOf(broken.contentType()));

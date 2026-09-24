@@ -16,16 +16,19 @@
  *
  */
 
-package org.apache.skywalking.oap.server.ai.agent.conversation.query.input;
+package org.apache.skywalking.oap.server.core.otlp.dispatcher;
 
-import lombok.Data;
-import org.apache.skywalking.oap.server.core.query.input.InstanceCondition;
-import org.apache.skywalking.oap.server.core.query.input.ServiceCondition;
+import org.apache.skywalking.oap.server.core.analysis.SourceDispatcher;
+import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.otlp.OTLPServiceTraffic;
+import org.apache.skywalking.oap.server.core.otlp.source.OTLPService;
 
-@Data
-public class ConversationCondition {
-    private ServiceCondition service;
-    private String conversation;
-    private InstanceCondition instance;
-    private boolean coldStage;
+public class OTLPServiceDispatcher implements SourceDispatcher<OTLPService> {
+    @Override
+    public void dispatch(final OTLPService source) {
+        final OTLPServiceTraffic traffic = new OTLPServiceTraffic();
+        traffic.setServiceName(source.getServiceName());
+        traffic.setTimeBucket(source.getTimeBucket());
+        MetricsStreamProcessor.getInstance().in(traffic);
+    }
 }

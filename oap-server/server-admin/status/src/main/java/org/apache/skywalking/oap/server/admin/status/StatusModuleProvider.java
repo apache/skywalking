@@ -22,6 +22,7 @@ import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -85,6 +86,8 @@ public class StatusModuleProvider extends ModuleProvider {
         return new String[] {
             CoreModule.NAME,
             AdminServerModule.NAME,
+            // The debugging queries reach the storage DAOs through the query services they construct.
+            StorageModule.NAME,
         };
     }
 

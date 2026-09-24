@@ -36,6 +36,7 @@ SPAN:        'span';
 
 // Operators
 DOT:         '.';
+COLON:       ':';
 COMMA:       ',';
 L_PAREN:     '(';
 R_PAREN:     ')';

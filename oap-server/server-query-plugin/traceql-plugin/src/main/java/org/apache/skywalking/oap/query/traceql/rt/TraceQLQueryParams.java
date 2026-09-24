@@ -27,6 +27,8 @@ import java.util.Map;
  */
 @Data
 public class TraceQLQueryParams {
+    private static final String[] SCOPE_PREFIXES = {"resource.", "span."};
+
     /**
      * Service name filter
      */
@@ -58,9 +60,29 @@ public class TraceQLQueryParams {
     private Long maxDuration;
 
     /**
-     * Additional tag filters (resource, span, or intrinsic attributes)
+     * Attribute equality filters keyed as written, {@code resource.env}, {@code span.env} or the unscoped
+     * {@code env}. The OTLP datasource matches each in its own scope; the others take {@link #flatTags()}.
      */
     private Map<String, String> tags = new HashMap<>();
+
+    /**
+     * @return the tags with the {@code resource.} and {@code span.} scopes stripped, for the Zipkin and SkyWalking
+     * datasources whose tag indexes have no scopes
+     */
+    public Map<String, String> flatTags() {
+        final Map<String, String> flat = new HashMap<>(tags.size());
+        for (final Map.Entry<String, String> tag : tags.entrySet()) {
+            String key = tag.getKey();
+            for (final String scope : SCOPE_PREFIXES) {
+                if (key.startsWith(scope)) {
+                    key = key.substring(scope.length());
+                    break;
+                }
+            }
+            flat.put(key, tag.getValue());
+        }
+        return flat;
+    }
 
     /**
      * HTTP status code filter
@@ -71,4 +93,10 @@ public class TraceQLQueryParams {
      * Status filter
      */
     private String status;
+
+    /**
+     * Span kind filter, the TraceQL spelling: {@code server}, {@code client}, {@code producer}, {@code consumer},
+     * {@code internal} or {@code unspecified}. Served by the OTLP datasource only.
+     */
+    private String kind;
 }

@@ -33,4 +33,6 @@ enum Source {
     SKYWALKING_EVENT = 1;
     ZIPKIN = 2;
     ZIPKIN_EVENT = 3;
+    // A single-span OTLP ResourceSpans message, stored verbatim by OTLPSpanRecord.
+    OTLP = 4;
 }

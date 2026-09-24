@@ -1,0 +1,50 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Provider bodies beside the steps: every call writes its request and its
+# response, as Claude Code does when OTEL_LOG_RAW_API_BODIES names a
+# directory. A child's calls land between two calls of the main stream, and
+# a compaction starts the main stream's message list again. The bodies land in
+# two passes, into files cut small, so a body refers to bodies and pieces in
+# earlier files. Each body lands in the session, rebuilds from the files up to
+# its own, and leaves the fold as it is.
+title: provider bodies beside the calls
+provider_bodies: true
+steps:
+  - input: read the configuration and summarise it
+  - call:
+      text: Reading it.
+      tool:
+        name: Read
+        input: {file_path: /Users/dev/scenario/config.yaml}
+        result: {text: "timeout: 30\nretries: 3\n", after: 200ms}
+  - call: {text: "The timeout is 30 seconds, with 3 retries."}
+    checkpoint: read
+  - input: find where the timeout is used
+  - call:
+      agent:
+        name: searcher
+        prompt: find every use of the timeout
+        steps:
+          - call:
+              text: Searching.
+              tool: {name: Bash, input: {command: grep -rn timeout .}, result: {text: "server.go:3: var timeout = 30", after: 300ms}}
+          - call: {text: It is used in server.go.}
+  - call: {text: The searcher found it in server.go.}
+  - reset: {summary: "The configuration sets a 30 second timeout, used in server.go."}
+  - input: and the retries?
+  - call: {text: There are 3 retries.}

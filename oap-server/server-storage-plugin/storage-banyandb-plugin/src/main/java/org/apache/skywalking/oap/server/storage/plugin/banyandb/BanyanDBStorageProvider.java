@@ -72,6 +72,7 @@ import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQue
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITopologyQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.ITraceQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.query.IOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.ttl.StorageTTLStatusQuery;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -111,6 +112,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBP
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBSpanAttachedEventQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTraceQueryDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBZipkinQueryDAO;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.HealthCheckMetrics;
@@ -225,6 +227,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IAggregationQueryDAO.class, new BanyanDBAggregationQueryDAO(client));
         this.registerServiceImplementation(IRecordsQueryDAO.class, new BanyanDBRecordsQueryDAO(client));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new BanyanDBZipkinQueryDAO(client));
+        this.registerServiceImplementation(IOTLPTraceQueryDAO.class, new BanyanDBOTLPTraceQueryDAO(client));
         this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client, this.config.getGlobal().getProfileDataQueryBatchSize()));
         this.registerServiceImplementation(IHierarchyQueryDAO.class, new BanyanDBHierarchyQueryDAO(client, this.config));
         this.registerServiceImplementation(

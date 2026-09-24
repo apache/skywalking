@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -66,6 +67,13 @@ public final class ConversationViewBuilder {
     static final String STATE_VERIFIED = "verified";
     static final String STATE_INCOMPLETE = "incomplete";
     static final String STATE_MISMATCH = "mismatch";
+    static final String KIND_PROVIDER_BODY = "provider_body";
+    static final String PROVIDER_BODY_SCHEMA = "provider_body/1";
+    static final String ROLE_REQUEST = "request";
+    static final String ROLE_RESPONSE = "response";
+    private static final String JOIN_EXACT = "exact";
+    private static final String JOIN_AMBIGUOUS = "ambiguous";
+    private static final String JOIN_UNRESOLVED = "unresolved";
 
     private final ConversationFold fold;
     private final List<RoundInput> rounds;
@@ -75,6 +83,8 @@ public final class ConversationViewBuilder {
     private final Map<Ref, Long> at = new HashMap<>();
     /** Each step's workspace change ids, in the order the document lists the records; filled by {@link #workspaceChanges}. */
     private final Map<String, List<String>> changesByStep = new HashMap<>();
+    /** Each call step's joined provider bodies, its request then its response; filled by {@link #providerBodies}. */
+    private final Map<String, List<Map<String, Object>>> providerBodiesByStep = new HashMap<>();
 
     /**
      * @param fold     the fold of the rounds, in order
@@ -108,6 +118,15 @@ public final class ConversationViewBuilder {
         final Chain chain = chain();
         // before the nodes are rendered: each step lists the ids of its records
         final List<Map<String, Object>> workspaceChanges = workspaceChanges();
+        final int providerBodies = providerBodies();
+        int capturedPrompts = 0;
+        for (final List<Map<String, Object>> bodies : providerBodiesByStep.values()) {
+            for (final Map<String, Object> b : bodies) {
+                if (ROLE_REQUEST.equals(b.get("role"))) {
+                    capturedPrompts++;
+                }
+            }
+        }
 
         final Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("format", ViewYaml.FORMAT);
@@ -132,6 +151,8 @@ public final class ConversationViewBuilder {
         summary.put("rounds", chain.rounds.size());
         summary.put("unresolved", fold.openUnresolved().size());
         summary.put("changes", workspaceChanges.size());
+        summary.put("provider_bodies", providerBodies);
+        summary.put("captured_prompts", capturedPrompts);
         final SessionFlowRound.Node sessionNode = fold.node(sessionNodeId());
         summary.put("from", sessionNode == null ? 0L : Times.millis(sessionNode.attr("from_time")));
         summary.put("to", sessionNode == null ? 0L : Times.millis(sessionNode.attr("through_time")));
@@ -255,14 +276,28 @@ public final class ConversationViewBuilder {
                 ok = false;
             }
             final List<String> added = new ArrayList<>();
-            for (long seq = h.getFromSeq(); seq <= h.getThroughSeq(); seq++) {
+            // A round names a range of sequences, and a round that names an impossible one - or a chain
+            // whose files are all gone - would otherwise cost one entry per absent sequence before they
+            // are coalesced, and the counter itself would wrap at the end of the range.
+            long missingFrom = 0;
+            long missingTo = 0;
+            for (long seq = h.getFromSeq(); seq <= h.getThroughSeq() && seq >= h.getFromSeq(); seq++) {
                 final SessionDataFile f = files.get(seq);
                 if (f == null) {
-                    missingFiles.add(new long[] {h.getRound(), seq});
+                    if (missingFrom == 0) {
+                        missingFrom = seq;
+                    } else if (seq != missingTo + 1) {
+                        missingFiles.add(new long[] {h.getRound(), missingFrom, missingTo});
+                        missingFrom = seq;
+                    }
+                    missingTo = seq;
                     ok = false;
                     continue;
                 }
                 added.add(f.getFileDigest());
+            }
+            if (missingFrom != 0) {
+                missingFiles.add(new long[] {h.getRound(), missingFrom, missingTo});
             }
             if (ok && !Digests.chainInputDigest(prevInput, added).equals(h.getInputDigest())) {
                 chain.mismatch("round " + h.getRound() + ": the input digest does not match the landed files");
@@ -313,21 +348,23 @@ public final class ConversationViewBuilder {
     }
 
     /**
-     * @param missing the round and seq of every landed file a round names and the read did not find, in chain order
-     * @return one problem per run of consecutive seqs, worded as one file when the run is one
+     * @param missing one entry per run of absent seqs a round names, as the round and the run's first and last
+     *                seq, in chain order
+     * @return one problem per run of consecutive seqs, joined across rounds where they meet, worded as one file
+     * when the run is one
      */
     private static List<String> missingFileProblems(final List<long[]> missing) {
         final List<String> out = new ArrayList<>();
         int i = 0;
         while (i < missing.size()) {
             int j = i;
-            while (j + 1 < missing.size() && missing.get(j + 1)[1] == missing.get(j)[1] + 1) {
+            while (j + 1 < missing.size() && missing.get(j + 1)[1] == missing.get(j)[2] + 1) {
                 j++;
             }
             final long firstRound = missing.get(i)[0];
             final long lastRound = missing.get(j)[0];
             final long firstSeq = missing.get(i)[1];
-            final long lastSeq = missing.get(j)[1];
+            final long lastSeq = missing.get(j)[2];
             out.add((firstRound == lastRound ? "round " + firstRound : "rounds " + firstRound + "-" + lastRound)
                         + (firstSeq == lastSeq ? ": landed file seq " + firstSeq + " is missing"
                             : ": landed files seq " + firstSeq + "-" + lastSeq + " are missing"));
@@ -904,6 +941,10 @@ public final class ConversationViewBuilder {
         if (changes != null && !changes.isEmpty()) {
             out.put("changes", new ArrayList<>(changes));
         }
+        final List<Map<String, Object>> bodies = providerBodiesByStep.get(n.getId());
+        if (bodies != null && !bodies.isEmpty()) {
+            out.put("provider_bodies", bodies);
+        }
         if (depth < MAX_DEPTH) {
             final List<Map<String, Object>> children = new ArrayList<>();
             for (final SessionFlowRound.Node k : fold.children(n.getId())) {
@@ -1278,6 +1319,392 @@ public final class ConversationViewBuilder {
             this.step = step;
             this.ref = ref;
             this.record = record;
+        }
+    }
+
+    // ---------------------------------------------------------------- provider bodies
+
+    /**
+     * Joins the session's provider bodies to their calls, as the Sessionizer's view joins them. A body is a
+     * <code>provider_body</code> record: the request or the response a runtime exchanged with its model provider,
+     * cut so it keeps only what the session did not hold yet, with a manifest as its last part. The document names
+     * where each joined body landed and never carries the body; a reader loads the files up to that seq and rebuilds
+     * it. Fills {@link #providerBodiesByStep} on the way, which {@link #step} reads, so this runs before the nodes are
+     * rendered.
+     *
+     * <p>A response joins by its message id, which is the call's own. A request names no call, only the request
+     * before it and its prompt, so it joins to the call of its stream whose previous call's response carries that
+     * request id and whose prompt is the one it names, when exactly one request and exactly one call carry those two
+     * ids. A synthetic call was never sent to a provider and takes part in no join. No request joins in a stream
+     * whose landed transcript lines have a gap, since a call may be missing between two that look consecutive.
+     * Nothing is joined by position or by time.
+     *
+     * @return how many bodies the session holds
+     */
+    private int providerBodies() {
+        final List<Body> out = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        final List<Long> seqs = new ArrayList<>(files.keySet());
+        Collections.sort(seqs);
+        for (final Long seq : seqs) {
+            final SessionDataFile f = files.get(seq);
+            if (!KIND_PROVIDER_BODY.equals(f.getHeader().getKind())) {
+                continue;
+            }
+            for (final SessionDataFile.Record rec : f.getRecords()) {
+                final JsonObject m = manifest(rec);
+                // a body landed twice by an interrupted pass is one body
+                if (m == null || !seen.add(nullToEmpty(rec.getId()))) {
+                    continue;
+                }
+                out.add(new Body(new Ref(seq, rec.getRow(), null), nullToEmpty(string(m, "role")),
+                                 nullToEmpty(string(m, "run")), nullToEmpty(string(m, "previous_request")),
+                                 nullToEmpty(string(m, "request")), nullToEmpty(string(m, "call"))));
+            }
+        }
+        if (out.isEmpty()) {
+            return 0;
+        }
+
+        // the calls, with their message id, their prompt and their stream, in line order within a stream
+        final List<Call> calls = new ArrayList<>();
+        for (final SessionFlowRound.Node n : fold.getNodes().values()) {
+            if (!"llm.call".equals(n.getKind()) || n.getRef() == null) {
+                continue;
+            }
+            // a call whose record is gone stays in its stream with no message id, so the call after it has no
+            // previous response to name and is left unjoined rather than taken for the first of its stream
+            final Call k = new Call(n.getId(), nullToEmpty(n.getStream()), n.getRef());
+            final SessionDataFile.Record rec = decodable(record(n.getRef()));
+            if (rec != null) {
+                // a synthetic record sits in the stream like a response, but no provider was called
+                if (rec.flags().contains("synthetic")) {
+                    continue;
+                }
+                k.msg = nullToEmpty(string(rec.getJson(), "call"));
+            }
+            final SessionFlowRound.Node p = StringUtil.isEmpty(n.getParent()) ? null : fold.node(n.getParent());
+            if (p != null && "run".equals(p.getKind()) && p.getRef() != null) {
+                final SessionDataFile.Record run = decodable(record(p.getRef()));
+                if (run != null) {
+                    k.prompt = nullToEmpty(string(run.getJson(), "run"));
+                }
+            }
+            calls.add(k);
+        }
+        calls.sort(Comparator.comparing((Call c) -> c.stream)
+                             .thenComparingLong(c -> c.at.getSeq())
+                             .thenComparingLong(c -> c.at.getRow())
+                             .thenComparing(c -> c.id));
+
+        // responses, by message id
+        final Map<String, List<Integer>> byMsg = new HashMap<>();
+        for (int i = 0; i < out.size(); i++) {
+            final Body b = out.get(i);
+            if (ROLE_RESPONSE.equals(b.role) && !b.call.isEmpty()) {
+                byMsg.computeIfAbsent(b.call, x -> new ArrayList<>()).add(i);
+            }
+        }
+        final Map<String, String> requestOf = new HashMap<>();
+        final Map<String, Integer> responseOf = new HashMap<>();
+        for (final Call k : calls) {
+            if (k.msg.isEmpty()) {
+                continue;
+            }
+            final List<Integer> hits = byMsg.getOrDefault(k.msg, Collections.emptyList());
+            if (hits.size() == 1) {
+                final Body b = out.get(hits.get(0));
+                b.join = JOIN_EXACT;
+                requestOf.put(k.id, b.request);
+                responseOf.put(k.id, hits.get(0));
+            } else {
+                for (final int i : hits) {
+                    out.get(i).join = JOIN_AMBIGUOUS;
+                }
+            }
+        }
+
+        // requests, by the request before them and their prompt
+        final Map<List<String>, List<Integer>> byKey = new HashMap<>();
+        for (int i = 0; i < out.size(); i++) {
+            final Body b = out.get(i);
+            if (ROLE_REQUEST.equals(b.role) && !b.run.isEmpty()) {
+                byKey.computeIfAbsent(Arrays.asList(b.previousRequest, b.run), x -> new ArrayList<>()).add(i);
+            }
+        }
+        // the key each call's request would carry: none when the previous call has no response carrying its request
+        // id, and none in a stream whose landed lines have a gap
+        final Map<String, Boolean> gapped = new HashMap<>();
+        for (final Call k : calls) {
+            gapped.computeIfAbsent(k.stream, this::streamHasGap);
+        }
+        final Map<String, List<String>> callKey = new HashMap<>();
+        final Map<List<String>, Integer> callsByKey = new HashMap<>();
+        for (int i = 0; i < calls.size(); i++) {
+            final Call k = calls.get(i);
+            if (gapped.get(k.stream)) {
+                continue;
+            }
+            String prev = "";
+            if (i > 0 && calls.get(i - 1).stream.equals(k.stream)) {
+                prev = requestOf.get(calls.get(i - 1).id);
+                if (StringUtil.isEmpty(prev)) {
+                    continue;
+                }
+            }
+            if (k.prompt.isEmpty()) {
+                continue;
+            }
+            final List<String> key = Arrays.asList(prev, k.prompt);
+            callKey.put(k.id, key);
+            callsByKey.merge(key, 1, Integer::sum);
+        }
+        final Map<String, Integer> requestFor = new HashMap<>();
+        for (final Call k : calls) {
+            final List<String> key = callKey.get(k.id);
+            if (key == null) {
+                continue;
+            }
+            final List<Integer> hits = byKey.getOrDefault(key, Collections.emptyList());
+            if (hits.isEmpty()) {
+                continue;
+            }
+            if (hits.size() == 1 && callsByKey.get(key) == 1) {
+                // one request and one call carry the key: nothing else could be this call's request
+                final Body b = out.get(hits.get(0));
+                if (JOIN_UNRESOLVED.equals(b.join)) {
+                    b.join = JOIN_EXACT;
+                    requestFor.put(k.id, hits.get(0));
+                }
+            } else {
+                for (final int i : hits) {
+                    if (JOIN_UNRESOLVED.equals(out.get(i).join)) {
+                        out.get(i).join = JOIN_AMBIGUOUS;
+                    }
+                }
+            }
+        }
+        for (final Call k : calls) {
+            final Integer request = requestFor.get(k.id);
+            if (request != null) {
+                providerBodiesByStep.computeIfAbsent(k.id, x -> new ArrayList<>()).add(out.get(request).toMap());
+            }
+            final Integer response = responseOf.get(k.id);
+            if (response != null) {
+                providerBodiesByStep.computeIfAbsent(k.id, x -> new ArrayList<>()).add(out.get(response).toMap());
+            }
+        }
+        return out.size();
+    }
+
+    /**
+     * @param rec a record of a <code>provider_body</code> file
+     * @return its manifest: the last part, when it is a data part holding a <code>provider_body/1</code> object that
+     * decodes as the Sessionizer's <code>providerbody.Manifest</code>, or null
+     */
+    @Nullable
+    private static JsonObject manifest(final SessionDataFile.Record rec) {
+        final List<SessionDataFile.Part> parts = rec.getParts();
+        if (parts.isEmpty()) {
+            return null;
+        }
+        final SessionDataFile.Part last = parts.get(parts.size() - 1);
+        final String data = last.data();
+        if (!"data".equals(last.getKind()) || data == null) {
+            return null;
+        }
+        final JsonObject m;
+        try {
+            final JsonElement e = JsonParser.parseString(data);
+            if (!e.isJsonObject()) {
+                return null;
+            }
+            m = e.getAsJsonObject();
+        } catch (final RuntimeException e) {
+            return null;
+        }
+        if (!fieldsDecode(m, MANIFEST_STRINGS, MANIFEST_INTS)) {
+            return null;
+        }
+        final JsonElement segments = m.get("segments");
+        if (segments != null && !segments.isJsonNull()) {
+            if (!segments.isJsonArray()) {
+                return null;
+            }
+            for (final JsonElement seg : segments.getAsJsonArray()) {
+                if (seg.isJsonNull()) {
+                    continue;
+                }
+                if (!seg.isJsonObject() || !fieldsDecode(seg.getAsJsonObject(), SEGMENT_STRINGS, SEGMENT_INTS)) {
+                    return null;
+                }
+                final JsonElement copy = seg.getAsJsonObject().get("copy");
+                if (copy != null && !copy.isJsonNull()
+                    && (!copy.isJsonObject() || !fieldsDecode(copy.getAsJsonObject(), COPY_STRINGS, COPY_INTS))) {
+                    return null;
+                }
+            }
+        }
+        return PROVIDER_BODY_SCHEMA.equals(string(m, "schema")) ? m : null;
+    }
+
+    private static final String[] MANIFEST_STRINGS = {
+        "schema", "role", "src", "sha256", "chain", "why", "model", "session", "run", "call", "request", "previous_request"};
+    private static final String[] MANIFEST_INTS = {"bytes", "depth"};
+    private static final String[] SEGMENT_STRINGS = {"lit", "piece"};
+    private static final String[] SEGMENT_INTS = {"part"};
+    private static final String[] COPY_STRINGS = {"from", "sha256"};
+    private static final String[] COPY_INTS = {"len"};
+
+    /**
+     * @return whether each named key is absent, null, or of the type Go decodes it into: a string, or an integer that
+     * fits a 64-bit int. A value of another type fails Go's decoding of the whole object.
+     */
+    private static boolean fieldsDecode(final JsonObject o, final String[] strings, final String[] ints) {
+        for (final String key : strings) {
+            final JsonElement v = o.get(key);
+            if (v != null && !v.isJsonNull() && !(v.isJsonPrimitive() && v.getAsJsonPrimitive().isString())) {
+                return false;
+            }
+        }
+        for (final String key : ints) {
+            final JsonElement v = o.get(key);
+            if (v != null && !v.isJsonNull() && integer(v, false) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @param v        a JSON value
+     * @param unsigned whether the Go type is an unsigned 64-bit integer rather than a signed one
+     * @return the value's bits as Go decodes a JSON number into that type, or null when Go refuses it: not a number,
+     * a fraction or an exponent, or out of range
+     */
+    @Nullable
+    private static Long integer(final JsonElement v, final boolean unsigned) {
+        if (!v.isJsonPrimitive() || !v.getAsJsonPrimitive().isNumber() || !INTEGER_LITERAL.matcher(v.getAsString()).matches()) {
+            return null;
+        }
+        final BigInteger n = new BigInteger(v.getAsString());
+        final BigInteger min = unsigned ? BigInteger.ZERO : BigInteger.valueOf(Long.MIN_VALUE);
+        final BigInteger max = unsigned ? BigInteger.ONE.shiftLeft(64).subtract(BigInteger.ONE) : BigInteger.valueOf(Long.MAX_VALUE);
+        return n.compareTo(min) < 0 || n.compareTo(max) > 0 ? null : n.longValue();
+    }
+
+    /**
+     * @param rec a record, or null
+     * @return the record, or null when the call or run it names is not a string: the Sessionizer does not decode such
+     * a record, so to the join it is gone
+     */
+    @Nullable
+    private static SessionDataFile.Record decodable(@Nullable final SessionDataFile.Record rec) {
+        return rec == null || !fieldsDecode(rec.getJson(), RECORD_STRINGS, new String[0]) ? null : rec;
+    }
+
+    private static final String[] RECORD_STRINGS = {"call", "run"};
+
+    /**
+     * @param stream a stream
+     * @return whether the stream's landed transcript lines skip a line: the first is not line 1, or a line after a
+     * later one is missing. A line landed twice is a repeat, not a gap. Only each record's ord is read, as the
+     * Sessionizer reads it from the raw line: the digits after a leading <code>{"ord":</code>, or else the line
+     * decoded. A line that does not decode, or a file the reader refuses, may hide a missing call, so it counts as a
+     * gap.
+     */
+    private boolean streamHasGap(final String stream) {
+        final List<Long> seqs = new ArrayList<>(files.keySet());
+        Collections.sort(seqs);
+        long prev = 0;
+        for (final Long seq : seqs) {
+            final SessionDataFile f = files.get(seq);
+            final SessionDataFile.Header h = f.getHeader();
+            if (!"transcript".equals(h.getKind()) || !stream.equals(nullToEmpty(h.getStream()))) {
+                continue;
+            }
+            if (!h.isValid()) {
+                return true;
+            }
+            for (final SessionDataFile.Record rec : f.getRecords()) {
+                final long ord;
+                if (rec.getLeadingOrd() != null) {
+                    if (rec.getLeadingOrd().isEmpty()) {
+                        return true;
+                    }
+                    // Go reads the digits into a uint64 and lets it wrap, so the long's bits are that value
+                    long n = 0;
+                    for (int i = 0; i < rec.getLeadingOrd().length(); i++) {
+                        n = n * 10 + (rec.getLeadingOrd().charAt(i) - '0');
+                    }
+                    ord = n;
+                } else {
+                    final JsonElement v = rec.getJson().get("ord");
+                    if (v == null || v.isJsonNull()) {
+                        ord = 0;
+                    } else {
+                        final Long n = integer(v, true);
+                        if (n == null) {
+                            return true;
+                        }
+                        ord = n;
+                    }
+                }
+                // unsigned, as the Sessionizer compares uint64 values
+                if (Long.compareUnsigned(ord, prev + 1) > 0) {
+                    return true;
+                }
+                if (Long.compareUnsigned(ord, prev) > 0) {
+                    prev = ord;
+                }
+            }
+            if (f.isStoppedEarly()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** One landed provider body, and how it joined. */
+    private static final class Body {
+        final Ref ref;
+        final String role;
+        final String run;
+        final String previousRequest;
+        final String request;
+        final String call;
+        String join = JOIN_UNRESOLVED;
+
+        Body(final Ref ref, final String role, final String run, final String previousRequest, final String request,
+             final String call) {
+            this.ref = ref;
+            this.role = role;
+            this.run = run;
+            this.previousRequest = previousRequest;
+            this.request = request;
+            this.call = call;
+        }
+
+        Map<String, Object> toMap() {
+            final Map<String, Object> m = new LinkedHashMap<>();
+            m.put("role", role);
+            m.put("ref", ref.toMap());
+            return m;
+        }
+    }
+
+    /** One call step, with the ids its bodies are joined by. */
+    private static final class Call {
+        final String id;
+        final String stream;
+        final Ref at;
+        String msg = "";
+        String prompt = "";
+
+        Call(final String id, final String stream, final Ref at) {
+            this.id = id;
+            this.stream = stream;
+            this.at = at;
         }
     }
 

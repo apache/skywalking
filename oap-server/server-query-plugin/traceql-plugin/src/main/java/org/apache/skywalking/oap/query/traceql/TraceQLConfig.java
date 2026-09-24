@@ -30,8 +30,13 @@ public class TraceQLConfig extends ModuleConfig {
     private int restPort;
     private boolean enableDatasourceZipkin;
     private boolean enableDatasourceSkywalking;
+    /**
+     * Serves natively stored OTLP spans, {@code receiver-otel.otlpTraceStorage: otlp}, with no format mapping.
+     */
+    private boolean enableDatasourceOTLP;
     private String restContextPathZipkin;
     private String restContextPathSkywalking;
+    private String restContextPathOTLP;
     private long restIdleTimeOut = 30000;
     private int restAcceptQueueSize = 0;
     /**
@@ -44,11 +49,18 @@ public class TraceQLConfig extends ModuleConfig {
     private long lookback = 86400000L;
     private String zipkinTracesListResultTags = ZIPKIN_TRACES_LIST_RESULT_TAGS;
     private String skywalkingTracesListResultTags = SKYWALKING_TRACES_LIST_RESULT_TAGS;
+    private String otlpTracesListResultTags = OTLP_TRACES_LIST_RESULT_TAGS;
 
     private static final String ZIPKIN_TRACES_LIST_RESULT_TAGS = String.join(
         Const.COMMA,
         "http.method",
         "error"
+    );
+
+    private static final String OTLP_TRACES_LIST_RESULT_TAGS = String.join(
+        Const.COMMA,
+        "http.request.method",
+        "http.response.status_code"
     );
     private static final String SKYWALKING_TRACES_LIST_RESULT_TAGS = String.join(
         Const.COMMA,

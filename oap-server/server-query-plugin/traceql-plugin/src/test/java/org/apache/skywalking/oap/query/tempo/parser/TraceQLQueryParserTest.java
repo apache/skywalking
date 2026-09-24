@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Test TraceQL parser.
@@ -79,7 +80,7 @@ public class TraceQLQueryParserTest {
         assertFalse(result.hasError(), "Parse should succeed");
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
-        assertEquals(100000L, params.getMinDuration()); // 100ms = 100000 microseconds
+        assertEquals(100001L, params.getMinDuration()); // > 100ms: at least 100000 + 1 microseconds
     }
 
     @Test
@@ -90,7 +91,7 @@ public class TraceQLQueryParserTest {
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
         assertEquals("myservice", params.getServiceName());
-        assertEquals(1000000L, params.getMinDuration()); // 1s = 1000000 microseconds
+        assertEquals(1000001L, params.getMinDuration()); // > 1s: at least 1000000 + 1 microseconds
         assertEquals("200", params.getHttpStatusCode());
     }
 
@@ -107,13 +108,36 @@ public class TraceQLQueryParserTest {
 
     @Test
     public void testScopedHttpAttributes() {
-        // Test that span.http.method is stored as http.method (scope prefix removed)
+        // the scope is kept, the datasources without scopes read the flattened view
         String query = "{span.http.method=\"POST\"}";
         TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
         assertFalse(result.hasError(), "Parse should succeed");
         TraceQLQueryParams params = result.getParams();
         assertNotNull(params);
-        assertEquals("POST", params.getTags().get("http.method"));
+        assertEquals("POST", params.getTags().get("span.http.method"));
+        assertEquals("POST", params.flatTags().get("http.method"));
+    }
+
+    @Test
+    public void testResourceAndSpanScopesStayApart() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{resource.env=\"prod\" && span.env=\"dev\" && .region=\"eu\"}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        TraceQLQueryParams params = result.getParams();
+        assertEquals("prod", params.getTags().get("resource.env"));
+        assertEquals("dev", params.getTags().get("span.env"));
+        assertEquals("eu", params.getTags().get("region"));
+        assertEquals(3, params.getTags().size());
+        // flattened, the two scopes collapse onto one key: the last one written wins, which is why the OTLP
+        // datasource reads the scoped map instead
+        assertEquals("eu", params.flatTags().get("region"));
+    }
+
+    @Test
+    public void testIntrinsicScopedAttributeIsASyntaxError() {
+        // `intrinsic` is a scope token of the tag-name endpoints only; as an attribute prefix it never parses
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{intrinsic.name=\"GET /\"}");
+        assertTrue(result.hasError());
+        assertTrue(result.getErrorInfo().startsWith("Invalid TraceQL"), result.getErrorInfo());
     }
 
     @Test
@@ -153,13 +177,90 @@ public class TraceQLQueryParserTest {
         assertEquals("HTTP GET", params.getSpanName());
 
         // Check duration (both min and max should be set)
-        assertEquals(100000L, params.getMinDuration()); // 100ms in microseconds
-        assertEquals(10000L, params.getMaxDuration()); // 10ms in microseconds
+        assertEquals(100001L, params.getMinDuration()); // > 100ms
+        assertEquals(9999L, params.getMaxDuration()); // < 10ms
 
         // Check status
         assertEquals("ok", params.getStatus());
 
-        // Check http.method tag
-        assertEquals("GET", params.getTags().get("http.method"));
+        // Check http.method tag, scope kept
+        assertEquals("GET", params.getTags().get("span.http.method"));
+    }
+
+    @Test
+    public void testScopedSpanIntrinsics() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{span:kind=server && span:duration>100ms && span:name=\"GET /\"}");
+        assertFalse(result.hasError(), "Parse should succeed: " + result.getErrorInfo());
+        TraceQLQueryParams params = result.getParams();
+        assertEquals("server", params.getKind());
+        assertEquals(100_001L, params.getMinDuration());
+        assertEquals("GET /", params.getSpanName());
+    }
+
+    @Test
+    public void testOtherScopedIntrinsicsAreRejected() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{trace:duration>1s}");
+        assertTrue(result.hasError(), "trace: intrinsics have no column to filter on");
+        assertTrue(result.getErrorInfo().contains("trace:duration"), result.getErrorInfo());
+    }
+
+    @Test
+    public void testKeywordLiteralsForKindAndStatus() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams("{kind=server && status=error}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        assertEquals("server", result.getParams().getKind());
+        assertEquals("error", result.getParams().getStatus());
+        result = TraceQLQueryParser.extractParams("{status=\"OK\"}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        assertEquals("ok", result.getParams().getStatus());
+    }
+
+    @Test
+    public void testSyntaxErrorsAreRefusedInsteadOfRecovered() {
+        // every one of these used to parse "successfully" with the offending part dropped (#14093)
+        String[] queries = {
+            "{(resource.service.name=\"a\" || resource.service.name=\"b\")}",
+            "{resource.service.name=\"a\" || resource.service.name=\"b\"}",
+            "{span.http.method=~\"G.*\"}",
+            "{http.method=\"NOPE\"}",
+            "{service.name=\"skywalking\"}",
+            "{event.name=\"nope\"}",
+            "{ this is not traceql"
+        };
+        for (String query : queries) {
+            TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+            assertTrue(result.hasError(), query);
+            assertTrue(result.getErrorInfo().startsWith("Invalid TraceQL: line 1:"), result.getErrorInfo());
+        }
+    }
+
+    @Test
+    public void testOrInsideASpansetNamesTheConstruct() {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(
+            "{(resource.service.name=\"songs\" || resource.service.name=\"rating\")}");
+        assertTrue(result.hasError());
+        assertTrue(result.getErrorInfo().contains("OR (||) is not supported"), result.getErrorInfo());
+    }
+
+    @Test
+    public void testUnsupportedConstructsAreRefused() {
+        assertRefused("{span.http.method!=\"GET\"}", "Unsupported operator !=");
+        assertRefused("{status!=error}", "Unsupported operator !=");
+        assertRefused("{name>\"a\"}", "Unsupported operator >");
+        assertRefused("{duration=99999ms}", "Unsupported operator = on duration");
+        assertRefused("{status=\"STATUS_CODE_ERROR\"}", "Unsupported status value");
+        assertRefused("{kind=SERVERISH}", "Unsupported kind value");
+        assertRefused("{rootName=\"x\"}", "Unsupported intrinsic rootName");
+        assertRefused("{!(span.http.method=\"GET\")}", "Negation");
+        assertRefused("{span.nonexistent.tag}", "existence");
+        assertRefused("{resource.service.name=\"a\"} && {span.http.method=\"NOPE\"}", "Multiple spansets");
+        assertRefused("{resource.service.name=\"a\"} || {resource.service.name=\"b\"}", "Multiple spansets");
+    }
+
+    private static void assertRefused(String query, String reason) {
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(query);
+        assertTrue(result.hasError(), query + " should be refused");
+        assertTrue(result.getErrorInfo().contains(reason), query + " -> " + result.getErrorInfo());
     }
 }
+

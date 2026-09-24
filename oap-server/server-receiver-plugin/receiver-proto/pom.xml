@@ -49,6 +49,11 @@
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
         </dependency>
+        <!-- OTLPValues renders attribute values for the tag index; shared by the OTLP receiver and the TraceQL plugin. -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

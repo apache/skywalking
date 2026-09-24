@@ -81,6 +81,23 @@
   subagents: 1
   bashRuns: 2
   timed: true
+- conversation: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d
+  instance: e2e-sender
+  instanceIdSet: true
+  title: provider bodies beside the calls
+  round: 1
+  talks: 5
+  steps: 23
+  streams: 2
+  segments: 1
+  unresolved: 0
+  changes: 0
+  linesAdded: 0
+  linesRemoved: 0
+  llmCalls: 7
+  subagents: 1
+  bashRuns: 1
+  timed: true
 - conversation: bd16edc4-0b6b-4020-8405-3ce58724f2bc
   instance: e2e-sender
   instanceIdSet: true

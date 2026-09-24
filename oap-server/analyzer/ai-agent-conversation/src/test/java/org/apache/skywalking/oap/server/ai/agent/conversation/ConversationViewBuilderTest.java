@@ -237,6 +237,174 @@ public class ConversationViewBuilderTest {
     }
 
     /**
+     * The Sessionizer's provider-bodies scenario: a main stream and a subagent, every call's request and response
+     * landed in one <code>provider_body</code> file. The document equals the Sessionizer's. Each call names its request
+     * and then its response by where they landed, never their bytes, and the summary counts the bodies and the calls
+     * whose request is captured.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void providerBodiesJoinTheirCallsAsTheSessionizerJoinsThem() throws Exception {
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE),
+            Fixtures.providerBodiesDataFiles(), Collections.emptyList());
+        final JsonElement expected = JsonParser.parseString(new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.VIEW_EXAMPLE_JSON), StandardCharsets.UTF_8));
+        final JsonElement actual = GSON.toJsonTree(doc);
+        assertEquals(expected, actual);
+        assertEquals(GSON.toJson(expected), GSON.toJson(actual));
+
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals(14, summary.get("provider_bodies"));
+        assertEquals(7, summary.get("captured_prompts"));
+        final Map<String, Object> first = node(doc, "call/s2-call-fdae022ac306");
+        assertEquals(Arrays.asList(
+            Map.of("role", "request", "ref", Map.of("seq", 4L, "row", 1L)),
+            Map.of("role", "response", "ref", Map.of("seq", 4L, "row", 2L))), first.get("provider_bodies"));
+        // a subagent's calls join in its own stream, from the same file
+        assertEquals(2, ((List<?>) node(doc, "call/searcher-s1-call-fdae022ac306").get("provider_bodies")).size());
+    }
+
+    /**
+     * Without its provider bodies the session folds to the same document, less the keys that name them: the bodies
+     * are evidence beside the calls, not steps.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void aSessionWithoutItsProviderBodiesListsNone() throws Exception {
+        final byte[] round = Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE);
+        final Map<Long, SessionDataFile> files = Fixtures.providerBodiesDataFiles();
+        final Map<String, Object> whole = view(round, files, Collections.emptyList());
+        files.remove(4L);
+        final Map<String, Object> without = view(round, files, Collections.emptyList());
+        final Map<String, Object> summary = (Map<String, Object>) without.get("summary");
+        assertEquals(0, summary.get("provider_bodies"));
+        assertEquals(0, summary.get("captured_prompts"));
+        assertEquals(stripProviderBodies(GSON.toJsonTree(whole.get("talks"))), GSON.toJsonTree(without.get("talks")));
+        assertEquals(stripProviderBodies(GSON.toJsonTree(whole.get("loose"))), GSON.toJsonTree(without.get("loose")));
+    }
+
+    /**
+     * A stream whose landed lines skip one may be missing a call between two that look consecutive, so no request
+     * joins in it; its responses still join by message id, and the other stream is untouched.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void noRequestJoinsInAStreamWithAGap() throws Exception {
+        final Map<Long, SessionDataFile> files = Fixtures.providerBodiesDataFiles();
+        final String main = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_DATA_FILES[0]), StandardCharsets.UTF_8);
+        assertTrue(main.contains("\n{\"ord\":3,"));
+        files.put(1L, SessionDataFile.parse(main.replace("\n{\"ord\":3,", "\n{\"ord\":4,").getBytes(StandardCharsets.UTF_8)));
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), files, Collections.emptyList());
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals(14, summary.get("provider_bodies"));
+        assertEquals(2, summary.get("captured_prompts"));
+        assertEquals(Collections.singletonList(Map.of("role", "response", "ref", Map.of("seq", 4L, "row", 2L))),
+                     node(doc, "call/s2-call-fdae022ac306").get("provider_bodies"));
+        assertEquals(2, ((List<?>) node(doc, "call/searcher-s2-call-fdae022ac306").get("provider_bodies")).size());
+    }
+
+    /**
+     * An API error the runtime wrote as a call, between two calls it sent. No provider was called for it, so it lists
+     * no bodies and is not the call before the next one: the next call's request names the call before the error,
+     * and joins. The document equals the Sessionizer's.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void aSyntheticCallTakesPartInNoJoin() throws Exception {
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_ERRORS_DIR + Fixtures.PROVIDER_BODIES_ERRORS_ROUND_FILE),
+            Fixtures.providerBodiesErrorsDataFiles(), Collections.emptyList());
+        final JsonElement expected = JsonParser.parseString(new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_ERRORS_DIR + Fixtures.VIEW_EXAMPLE_JSON), StandardCharsets.UTF_8));
+        final JsonElement actual = GSON.toJsonTree(doc);
+        assertEquals(expected, actual);
+        assertEquals(GSON.toJson(expected), GSON.toJson(actual));
+
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals(4, summary.get("provider_bodies"));
+        assertEquals(2, summary.get("captured_prompts"));
+        assertNull(node(doc, "call/s3-synthetic-call").get("provider_bodies"));
+        assertEquals(Arrays.asList(
+            Map.of("role", "request", "ref", Map.of("seq", 2L, "row", 3L)),
+            Map.of("role", "response", "ref", Map.of("seq", 2L, "row", 4L))), node(doc, "call/s4-call-f7d240c7da38").get("provider_bodies"));
+    }
+
+    /**
+     * A manifest the Sessionizer does not decode is no body: a known key of the wrong type, at the top or inside a
+     * segment, fails Go's decoding of the whole manifest. The first request goes, and nothing else changes.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void aManifestTheSessionizerDoesNotDecodeIsNoBody() throws Exception {
+        final String bodies = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_DATA_FILES[3]), StandardCharsets.UTF_8);
+        final String first = "\"sha256\":\"25a4cf0c2c2a0f485f56519e56e1f6bcf79466df6599fc4f38fd0f0df84540fa\",\"bytes\":8155,\"depth\":0,";
+        assertTrue(bodies.contains(first));
+        for (final String broken : new String[] {
+            bodies.replace(first, first.replace("\"depth\":0,", "\"depth\":\"0\",")),
+            bodies.replace(first, first.replace("\"bytes\":8155,", "\"bytes\":8155.5,")),
+            bodies.replace(first + "\"chain\":\"f48484e6a7a8135e\",", first + "\"chain\":7,"),
+        }) {
+            assertFalse(broken.equals(bodies));
+            final Map<Long, SessionDataFile> files = Fixtures.providerBodiesDataFiles();
+            files.put(4L, SessionDataFile.parse(broken.getBytes(StandardCharsets.UTF_8)));
+            final Map<String, Object> doc = view(
+                Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), files, Collections.emptyList());
+            final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+            assertEquals(13, summary.get("provider_bodies"));
+            assertEquals(6, summary.get("captured_prompts"));
+            assertEquals(Collections.singletonList(Map.of("role", "response", "ref", Map.of("seq", 4L, "row", 2L))),
+                         node(doc, "call/s2-call-fdae022ac306").get("provider_bodies"));
+        }
+    }
+
+    /**
+     * An ord is read as the Sessionizer reads it. A null ord that does not lead the line decodes as 0, which on the last
+     * line is no gap.
+     * The digits after a leading <code>{"ord":</code> are an unsigned 64-bit number, so the largest one is far past the
+     * next line, a gap. A line that does not decode, even after every record, may hide a call, and is one too. Each
+     * file is one the Sessionizer's reader decodes up to that line, so its whole document is comparable.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void ordsAreReadAsTheSessionizerReadsThem() throws Exception {
+        final String main = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_DATA_FILES[0]), StandardCharsets.UTF_8);
+        final String third = "\n{\"ord\":3,\"off\":498,";
+        final String last = "\n{\"ord\":14,\"off\":4332,";
+        assertTrue(main.contains(third) && main.contains(last));
+        final int end = main.lastIndexOf("{\"t\":\"end\"");
+        final String[][] cases = {
+            {main.replace(last, "\n{\"off\":4332,\"ord\":null,"), "7"},
+            {main.replace(third, "\n{\"ord\":18446744073709551615,\"off\":498,"), "2"},
+            {main.substring(0, end) + "}\n" + main.substring(end), "2"},
+        };
+        for (final String[] c : cases) {
+            assertFalse(c[0].equals(main));
+            final Map<Long, SessionDataFile> files = Fixtures.providerBodiesDataFiles();
+            files.put(1L, SessionDataFile.parse(c[0].getBytes(StandardCharsets.UTF_8)));
+            final Map<String, Object> doc = view(
+                Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), files, Collections.emptyList());
+            final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+            assertEquals(14, summary.get("provider_bodies"));
+            assertEquals(Integer.parseInt(c[1]), summary.get("captured_prompts"));
+        }
+    }
+
+    private static JsonElement stripProviderBodies(final JsonElement e) {
+        if (e.isJsonArray()) {
+            e.getAsJsonArray().forEach(ConversationViewBuilderTest::stripProviderBodies);
+        } else if (e.isJsonObject()) {
+            e.getAsJsonObject().remove("provider_bodies");
+            e.getAsJsonObject().entrySet().forEach(x -> stripProviderBodies(x.getValue()));
+        }
+        return e;
+    }
+
+    /**
      * @return the node of that id under <code>talks</code> or <code>loose</code>
      */
     @SuppressWarnings("unchecked")
