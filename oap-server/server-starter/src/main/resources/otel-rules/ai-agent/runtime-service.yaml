@@ -13,9 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# AI agent runtimes, service level: the metrics an agent runtime's own OpenTelemetry exporter sends, or the
-# AI Sessionizer derives from the landed transcripts, under the AI_AGENT layer. One service per kind of
-# runtime, `Claude Code` by default, summed over every sender and every session.
+# AI agent runtimes, service level, under the AI_AGENT layer: the tokens the AI Sessionizer derives from the landed
+# transcripts, and the metrics only Claude Code's own OpenTelemetry exporter sends, when it is pointed at the OAP
+# directly. One service per kind of runtime, `Claude Code` by default, summed over every sender and every session.
+# The exporter's own token metric, claude_code.token.usage, is not read: the tokens come from the Sessionizer, so a
+# call is never counted twice when both send.
 #
 # A point is a delta, the tokens of the minute the call ended, and the receiver keeps it as the point's value
 # at the point's time, so no rule here calls increase(). Each rule sums a minute's points over the labels it
@@ -31,29 +33,29 @@ expSuffix: service(['service_name'], Layer.AI_AGENT)
 metricPrefix: meter_ai_agent
 
 metricsRules:
-  # ===================== claude_code.token.usage: sent by the exporter and derived by the Sessionizer alike
+  # ===================== agent.token.usage: derived by the Sessionizer from the landed transcripts
 
   # Tokens per minute, every type
   - name: tokens
-    exp: claude_code_token_usage.sum(['service_name']).downsampling(SUM)
+    exp: agent_token_usage.sum(['service_name']).downsampling(SUM)
 
   # By type: input, output, cacheRead, cacheCreation
   - name: tokens_by_type
-    exp: claude_code_token_usage.sum(['type', 'service_name']).downsampling(SUM)
+    exp: agent_token_usage.sum(['type', 'service_name']).downsampling(SUM)
 
   # By the model the call ran on
   - name: tokens_by_model
-    exp: claude_code_token_usage.sum(['model', 'type', 'service_name']).downsampling(SUM)
+    exp: agent_token_usage.sum(['model', 'type', 'service_name']).downsampling(SUM)
 
-  # By where the call was made: main or subagent, and from the exporter also auxiliary
+  # By where the call was made: main or subagent
   - name: tokens_by_source
-    exp: claude_code_token_usage.sum(['query_source', 'type', 'service_name']).downsampling(SUM)
+    exp: agent_token_usage.sum(['query_source', 'type', 'service_name']).downsampling(SUM)
 
   # How much of what the model read came from cache, in percent: cacheRead over every type but output
   - name: cache_read_share
-    exp: claude_code_token_usage.tagEqual('type', 'cacheRead').sum(['service_name']).safeDiv(claude_code_token_usage.tagNotEqual('type', 'output').sum(['service_name'])) * 100
+    exp: agent_token_usage.tagEqual('type', 'cacheRead').sum(['service_name']).safeDiv(agent_token_usage.tagNotEqual('type', 'output').sum(['service_name'])) * 100
 
-  # ===================== the exporter's other metrics; absent when the Sessionizer derived the points
+  # ===================== Claude Code's own exporter, sent to the OAP directly; the Sessionizer sends none of these
 
   # Cost in micro-dollars (USD * 1,000,000), by model
   - name: cost_by_model

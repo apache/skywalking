@@ -1,0 +1,42 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# AI agent runtimes, the MCP targets an agent called, one endpoint each under the agent's service in the AI_AGENT
+# layer. The AI Sessionizer derives two metrics from the record the Claude Code plugin writes after every call to an
+# MCP server: agent.mcp.calls, one per call, and agent.mcp.duration, the milliseconds the runtime measured around it,
+# which include any wait before the call started and are not the server's own time. The endpoint is the server and
+# the tool, `<server>/<tool>`. When the runtime's name for a call does not split into exactly one server and one tool,
+# the tool is that whole name.
+#
+# A point is a delta, the calls of the minute they were observed, kept as the point's value at the point's time, so
+# no rule calls increase(). Each rule sums a minute's points over the labels it does not keep and downsamples by SUM.
+# session.id, the stream the call ran on and the source of the server's configuration are summed away.
+
+filter: "{ tags -> tags.service_layer == 'AI_AGENT' }"
+expSuffix: endpoint(['service_name'], ['mcp_server_name', 'mcp_tool_name'], '/', Layer.AI_AGENT)
+metricPrefix: meter_ai_agent_mcp
+
+metricsRules:
+  # Calls per minute
+  - name: calls
+    exp: agent_mcp_calls.sum(['service_name', 'mcp_server_name', 'mcp_tool_name']).downsampling(SUM)
+
+  # By how the call ended: returned, failed, interrupted
+  - name: calls_by_outcome
+    exp: agent_mcp_calls.sum(['outcome', 'service_name', 'mcp_server_name', 'mcp_tool_name']).downsampling(SUM)
+
+  # Milliseconds per minute, summed over the calls. Divided by calls it is the mean over any time range.
+  - name: duration
+    exp: agent_mcp_duration.sum(['service_name', 'mcp_server_name', 'mcp_tool_name']).downsampling(SUM)

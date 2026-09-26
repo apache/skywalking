@@ -36,8 +36,9 @@ import lombok.RequiredArgsConstructor;
 public final class Ref {
     private final long seq;
     private final long row;
+    /** A Go <code>int</code>, 64 bits wide. */
     @Nullable
-    private final Integer block;
+    private final Long block;
 
     @Nullable
     public static Ref of(@Nullable final JsonObject json) {
@@ -47,7 +48,7 @@ public final class Ref {
         return new Ref(
             json.get("seq").getAsLong(),
             json.get("row").getAsLong(),
-            json.has("block") && !json.get("block").isJsonNull() ? json.get("block").getAsInt() : null
+            json.has("block") && !json.get("block").isJsonNull() ? json.get("block").getAsLong() : null
         );
     }
 

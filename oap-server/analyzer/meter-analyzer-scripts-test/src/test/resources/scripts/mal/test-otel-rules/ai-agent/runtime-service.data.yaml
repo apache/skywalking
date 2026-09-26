@@ -17,7 +17,7 @@
 # session.id always, the sender at service level, the model and the source where the rule does not keep them.
 script: oap-server/server-starter/src/main/resources/otel-rules/ai-agent/runtime-service.yaml
 input:
-  claude_code_token_usage:
+  agent_token_usage:
     - labels:
         service_name: 'Claude Code'
         service_layer: 'AI_AGENT'

@@ -675,24 +675,6 @@ talks:
           via: inside the window of the talk that delegated it
 loose: []
 relations:
-    - id: rel/ends_with/stream_a16c61ba3c4753923/output_a16c61ba3c4753923
-      type: ends_with
-      from: stream/a16c61ba3c4753923
-      to: output/a16c61ba3c4753923
-      quality: exact_unique
-      via: the last response in the child stream, and what it returned
-      evidence:
-        - seq: 3
-          row: 5
-    - id: rel/in_segment/talk_a16c61ba3c4753923/segment_at_1_2
-      type: in_segment
-      from: talk/a16c61ba3c4753923
-      to: segment/at_1_2
-      quality: strong_inference
-      via: inside the window of the talk that delegated it
-      evidence:
-        - seq: 3
-          row: 1
     - id: rel/in_segment/talk_main_s1-cycle/segment_at_1_2
       type: in_segment
       from: talk/main/s1-cycle
@@ -702,15 +684,6 @@ relations:
       evidence:
         - seq: 1
           row: 2
-    - id: rel/reports/notify_1_11/stream_a16c61ba3c4753923
-      type: reports
-      from: notify/1/11
-      to: stream/a16c61ba3c4753923
-      quality: exact_unique
-      via: task id on the notification
-      evidence:
-        - seq: 1
-          row: 11
     - id: rel/starts/tool_s4-tool/stream_a16c61ba3c4753923
       type: starts
       from: tool/s4-tool
@@ -720,6 +693,33 @@ relations:
       evidence:
         - seq: 1
           row: 10
+    - id: rel/in_segment/talk_a16c61ba3c4753923/segment_at_1_2
+      type: in_segment
+      from: talk/a16c61ba3c4753923
+      to: segment/at_1_2
+      quality: strong_inference
+      via: inside the window of the talk that delegated it
+      evidence:
+        - seq: 3
+          row: 1
+    - id: rel/ends_with/stream_a16c61ba3c4753923/output_a16c61ba3c4753923
+      type: ends_with
+      from: stream/a16c61ba3c4753923
+      to: output/a16c61ba3c4753923
+      quality: exact_unique
+      via: the last response in the child stream, and what it returned
+      evidence:
+        - seq: 3
+          row: 5
+    - id: rel/reports/notify_1_11/stream_a16c61ba3c4753923
+      type: reports
+      from: notify/1/11
+      to: stream/a16c61ba3c4753923
+      quality: exact_unique
+      via: task id on the notification
+      evidence:
+        - seq: 1
+          row: 11
 unresolved: []
 workspace_changes:
     - step: tool/s2-tool
@@ -896,4 +896,5 @@ workspace_changes:
               new_lines: 0
               lines:
                 - -old notes
+tool_executions: []
 

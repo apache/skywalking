@@ -18,9 +18,9 @@
 
 package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -38,6 +39,20 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  */
 @Getter
 public final class SessionFlowRound {
+    /** The attribute a call node carries the provider bodies joined to it under. */
+    public static final String PROVIDER_BODIES_ATTR = "provider_bodies";
+    public static final String ROLE_REQUEST = "request";
+    public static final String ROLE_RESPONSE = "response";
+    /** The Sessionizer's <code>sessionflow.Ref</code>, field for field and tag for tag. */
+    public static final GoJson.Struct REF = new GoJson.Struct()
+        .field("seq", GoJson.Kind.UINT)
+        .field("row", GoJson.Kind.UINT)
+        .field("block,omitempty", GoJson.Kind.INT_POINTER);
+    /** The Sessionizer's <code>sessionflow.ProviderBody</code>, field for field and tag for tag. */
+    private static final GoJson.Struct PROVIDER_BODY = new GoJson.Struct()
+        .field("role", GoJson.Kind.STRING)
+        .field("ref", GoJson.Kind.STRUCT, REF);
+
     private final Header header;
     private final List<Node> nodes;
     private final List<Relation> relations;
@@ -86,7 +101,12 @@ public final class SessionFlowRound {
             if (line.isEmpty()) {
                 continue;
             }
-            final JsonObject json = JsonParser.parseString(line).getAsJsonObject();
+            // read as Go reads a frame: a line Go's decoder refuses is no frame, whatever Gson's lenient parser accepts
+            final JsonElement frame = GoJson.parse(line);
+            if (frame == null || !frame.isJsonObject()) {
+                throw new IllegalArgumentException("line " + lineNo + " is not a JSON object");
+            }
+            final JsonObject json = frame.getAsJsonObject();
             final String t = SessionDataFile.string(json, "t");
             if (t == null) {
                 throw new IllegalArgumentException("a Session Flow frame without a type");
@@ -103,10 +123,23 @@ public final class SessionFlowRound {
                     header.validate();
                     break;
                 case "node": {
-                    final Node n = new Node(json);
+                    final String attrsText = attrsText(line);
+                    // an attribute that names provider bodies but does not read as them is refused, not skipped
+                    final List<ProviderBody> bodies;
+                    try {
+                        bodies = providerBodiesOf(attrsText);
+                    } catch (final IllegalArgumentException e) {
+                        throw new IllegalArgumentException("line " + lineNo + ": " + e.getMessage());
+                    }
+                    final Node n = new Node(json, attrsText, bodies);
                     claim(ids, lineNo, "node", n.getId());
                     checkRevision(lineNo, n.getRevision(), header);
-                    checkRefs(lineNo, n.getRef(), n.getRefs(), header);
+                    checkRef(lineNo, n.getRef(), header);
+                    checkRefs(lineNo, n.getRefs(), header);
+                    // a provider body a call names is a reference like any other, so it must lie in the round's range
+                    for (final ProviderBody y : bodies) {
+                        checkRef(lineNo, y.getRef(), header);
+                    }
                     nodes.add(n);
                     break;
                 }
@@ -119,7 +152,7 @@ public final class SessionFlowRound {
                         throw new IllegalArgumentException(
                             "line " + lineNo + ": relation " + rel.getId() + " is missing an endpoint or a type");
                     }
-                    checkRefs(lineNo, null, rel.getEvidence(), header);
+                    checkRefs(lineNo, rel.getEvidence(), header);
                     relations.add(rel);
                     break;
                 }
@@ -197,21 +230,87 @@ public final class SessionFlowRound {
      * A reference past the range the header declares it read describes evidence the round did not claim to
      * have seen, and its input digest does not cover it.
      */
-    private static void checkRefs(final int line, @Nullable final Ref one, final List<Ref> many, final Header header) {
-        final List<Ref> all = new ArrayList<>();
-        if (one != null) {
-            all.add(one);
+    private static void checkRef(final int line, @Nullable final Ref r, final Header header) {
+        if (r == null) {
+            return;
         }
-        all.addAll(many);
-        for (final Ref r : all) {
-            if (r.getSeq() == 0 && r.getRow() == 0) {
-                throw new IllegalArgumentException("line " + line + ": a reference to seq 0 row 0 is not a position");
-            }
-            if (r.getSeq() > header.getThroughSeq()) {
-                throw new IllegalArgumentException("line " + line + ": reference to landed sequence " + r.getSeq()
-                                                       + ", past the round's declared " + header.getThroughSeq());
+        if (r.getSeq() == 0 && r.getRow() == 0) {
+            throw new IllegalArgumentException("line " + line + ": a reference to seq 0 row 0 is not a position");
+        }
+        if (r.getSeq() > header.getThroughSeq()) {
+            throw new IllegalArgumentException("line " + line + ": reference to landed sequence " + r.getSeq()
+                                                   + ", past the round's declared " + header.getThroughSeq());
+        }
+    }
+
+    private static void checkRefs(final int line, final List<Ref> refs, final Header header) {
+        for (final Ref r : refs) {
+            checkRef(line, r, header);
+        }
+    }
+
+    /**
+     * The text of a node's attrs as Go picks it: the value of the last key that names the field, in any case, as the
+     * Sessionizer's reader keeps it as written.
+     *
+     * @param line a frame that reads as one JSON object, so it reads member by member
+     */
+    @Nullable
+    private static String attrsText(final String line) {
+        String text = null;
+        for (final String[] m : GoJson.members(line)) {
+            if (m[0].equalsIgnoreCase("attrs")) {
+                text = m[1];
             }
         }
+        return text;
+    }
+
+    /**
+     * The provider bodies a node carries, read as the Sessionizer's <code>sessionflow.ProviderBodiesOf</code> reads
+     * them: the attributes as a map of values kept as written, so a key given twice keeps its later value and the
+     * earlier one is never decoded, then that value as a list of bodies. The join is made when the round is parsed,
+     * and the round carries it, so no reader repeats it.
+     *
+     * @param attrs a node's attributes as written, or null
+     * @return the bodies, none when the attributes are not an object or do not name them
+     * @throws IllegalArgumentException when the attribute is there but is not a list of bodies: a body whose role is
+     *                                  not request or response, or whose seq or row is zero, names nothing
+     */
+    static List<ProviderBody> providerBodiesOf(@Nullable final String attrs) {
+        final List<String[]> members = attrs == null ? null : GoJson.members(attrs);
+        if (members == null) {
+            return Collections.emptyList();
+        }
+        String raw = null;
+        for (final String[] m : members) {
+            if (PROVIDER_BODIES_ATTR.equals(m[0])) {
+                raw = m[1];
+            }
+        }
+        if (raw == null) {
+            return Collections.emptyList();
+        }
+        final JsonArray decoded = GoJson.decodeSlice(raw, PROVIDER_BODY);
+        if (decoded == null) {
+            throw new IllegalArgumentException(PROVIDER_BODIES_ATTR + " is not a list of provider bodies");
+        }
+        final List<ProviderBody> out = new ArrayList<>();
+        for (final JsonElement e : decoded) {
+            final String role = e.getAsJsonObject().get("role").getAsString();
+            if (!ROLE_REQUEST.equals(role) && !ROLE_RESPONSE.equals(role)) {
+                throw new IllegalArgumentException("a provider body has the role \"" + role + "\"");
+            }
+            final Ref ref = Ref.of(e.getAsJsonObject().getAsJsonObject("ref"));
+            // both halves of the position, not just one: sequences and rows are counted from one, so a zero in either
+            // names no landed record
+            if (ref.getSeq() == 0 || ref.getRow() == 0) {
+                throw new IllegalArgumentException("a provider body is at seq " + ref.getSeq() + " row " + ref.getRow()
+                                                       + ", which is no position");
+            }
+            out.add(new ProviderBody(role, ref));
+        }
+        return out;
     }
 
     public boolean isIntact() {
@@ -320,13 +419,21 @@ public final class SessionFlowRound {
         @Nullable
         private final Ref ref;
         private final List<Ref> refs;
+        /** The attrs as written, for decoding as Go decodes them; null when the frame has none. */
         @Nullable
+        private final String attrsText;
         /** The attrs as written, any JSON value, for rendering; null when the frame has none. */
+        @Nullable
         private final JsonElement rawAttrs;
-        /** The attrs when they are an object, for lookups. */
+        /**
+         * The attrs for lookups, as the Sessionizer decodes them into a map: null when they are not an object, or hold
+         * a number past a double's range, which fails the whole decoding, so every lookup then finds nothing.
+         */
         private final JsonObject attrs;
+        /** The provider bodies the node carries, read from its attributes as written. */
+        private final List<ProviderBody> providerBodies;
 
-        Node(final JsonObject json) {
+        Node(final JsonObject json, @Nullable final String attrsText, final List<ProviderBody> providerBodies) {
             super(json);
             this.kind = SessionDataFile.string(json, "kind");
             this.parent = SessionDataFile.string(json, "parent");
@@ -339,15 +446,18 @@ public final class SessionFlowRound {
                 }
             }
             this.refs = Collections.unmodifiableList(list);
-            this.rawAttrs = json.get("attrs");
-            this.attrs = rawAttrs != null && rawAttrs.isJsonObject() ? rawAttrs.getAsJsonObject() : null;
+            this.attrsText = attrsText;
+            this.rawAttrs = attrsText == null ? null : GoJson.parse(attrsText);
+            this.attrs = rawAttrs != null && rawAttrs.isJsonObject() && GoJson.decodesAsAny(attrsText)
+                ? rawAttrs.getAsJsonObject() : null;
+            this.providerBodies = Collections.unmodifiableList(providerBodies);
         }
 
-        @Nullable
         /**
          * @return the attr when it is a string, as the Sessionizer's <code>attrString</code>; null for a number,
          * an object or nothing
          */
+        @Nullable
         public String attr(final String key) {
             if (attrs == null) {
                 return null;
@@ -373,6 +483,17 @@ public final class SessionFlowRound {
             return e != null && !e.isJsonNull() && e.isJsonPrimitive() && e.getAsJsonPrimitive().isBoolean()
                 && e.getAsBoolean();
         }
+    }
+
+    /**
+     * One landed provider body joined to a call: whether it is the request or the response, and the record it
+     * rebuilds from. The body itself is never in a round.
+     */
+    @Getter
+    @RequiredArgsConstructor
+    public static final class ProviderBody {
+        private final String role;
+        private final Ref ref;
     }
 
     @Getter

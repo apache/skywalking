@@ -42,6 +42,14 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlow
  * with a subagent whose calls' request and response bodies landed in one <code>provider_body</code> file. Under
  * <code>provider-bodies-errors/</code>, the same for <code>tests/scenarios/provider-bodies-errors.yaml</code>: an API
  * error the runtime wrote as a synthetic call, between two calls it did send.
+ *
+ * <p>Under <code>mcp-calls/</code>, the same for <code>tests/scenarios/mcp-calls.yaml</code>: calls to MCP servers on
+ * the main stream and in a subagent, each with the execution record the plugin wrote after it in an
+ * <code>execution</code> file of its stream, one of them written twice.
+ *
+ * <p>Under <code>langchain-subagent/</code>, one LangChain conversation as the Sessionizer lands it from what a real
+ * LangSmith client sent, its <code>subagent</code> capture, parsed: a main stream, a nested agent's child stream, and
+ * an auxiliary stream that summarises, with the provider bodies of every call.
  */
 public final class Fixtures {
     public static final String SESSION = "00000001-0000-4000-8000-000000000001";
@@ -74,14 +82,33 @@ public final class Fixtures {
         "meta-20260101T000000.000000000Z-000003.sd",
         "provider_body-20260101T000000.000000000Z-000004.sd",
     };
-    public static final String PROVIDER_BODIES_ROUND_FILE = "r000001-ff8eaba03b03.sf";
+    public static final String PROVIDER_BODIES_ROUND_FILE = "r000001-e292bd0f6de6.sf";
 
     public static final String PROVIDER_BODIES_ERRORS_DIR = "provider-bodies-errors/";
     public static final String[] PROVIDER_BODIES_ERRORS_DATA_FILES = {
         "transcript-20260101T000000.000000000Z-000001.sd",
         "provider_body-20260101T000000.000000000Z-000002.sd",
     };
-    public static final String PROVIDER_BODIES_ERRORS_ROUND_FILE = "r000001-0a33a0c2d269.sf";
+    public static final String PROVIDER_BODIES_ERRORS_ROUND_FILE = "r000001-76f9606aacf3.sf";
+
+    public static final String MCP_CALLS_DIR = "mcp-calls/";
+    public static final String[] MCP_CALLS_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "execution-20260101T000000.000000000Z-000002.sd",
+        "transcript-20260101T000000.000000000Z-000003.sd",
+        "execution-20260101T000000.000000000Z-000004.sd",
+        "meta-20260101T000000.000000000Z-000005.sd",
+    };
+    public static final String MCP_CALLS_ROUND_FILE = "r000001-0465bcdcdb72.sf";
+
+    public static final String LANGCHAIN_SUBAGENT_DIR = "langchain-subagent/";
+    public static final String[] LANGCHAIN_SUBAGENT_DATA_FILES = {
+        "transcript-20260920T110158.000000000Z-000001.sd",
+        "transcript-20260920T110158.000000000Z-000002.sd",
+        "transcript-20260920T110158.000000000Z-000003.sd",
+        "provider_body-20260920T110158.000000000Z-000004.sd",
+    };
+    public static final String LANGCHAIN_SUBAGENT_ROUND_FILE = "r000001-3fd311176e49.sf";
 
     private Fixtures() {
     }
@@ -109,6 +136,14 @@ public final class Fixtures {
 
     public static Map<Long, SessionDataFile> providerBodiesErrorsDataFiles() throws IOException {
         return dataFiles(PROVIDER_BODIES_ERRORS_DIR, PROVIDER_BODIES_ERRORS_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> mcpCallsDataFiles() throws IOException {
+        return dataFiles(MCP_CALLS_DIR, MCP_CALLS_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> langchainSubagentDataFiles() throws IOException {
+        return dataFiles(LANGCHAIN_SUBAGENT_DIR, LANGCHAIN_SUBAGENT_DATA_FILES);
     }
 
     private static Map<Long, SessionDataFile> dataFiles(final String dir, final String[] names) throws IOException {

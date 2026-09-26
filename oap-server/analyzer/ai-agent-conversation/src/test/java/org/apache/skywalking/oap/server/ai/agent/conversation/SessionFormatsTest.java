@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SessionFormatsTest {
@@ -115,6 +117,18 @@ public class SessionFormatsTest {
         assertFalse(r.isIntact());
     }
 
+    /**
+     * A file's stamp writes the year as the Sessionizer does, four digits of the year itself: year zero is 0000, not the
+     * first year of an era.
+     */
+    @Test
+    public void aFilesStampWritesYearZeroAsTheSessionizerDoes() {
+        final SessionDataFile f = SessionDataFile.parse(("{\"h\":1,\"schema\":\"sd/1\",\"seq\":1,\"at\":\"0000-01-01T00:00:00Z\","
+            + "\"kind\":\"transcript\",\"adapter\":\"mock/0.2.0\",\"dialect\":\"mock/1\",\"src\":\"x\",\"session\":\"s\","
+            + "\"stream\":\"main\"}\n").getBytes(StandardCharsets.UTF_8));
+        assertEquals("s/streams/main/transcript-00000101T000000.000000000Z-000001.sd", FileNames.dataFile(f.getHeader()));
+    }
+
     @Test
     public void fileNamesFollowTheStorageRootLayout() throws Exception {
         final Map<Long, SessionDataFile> files = Fixtures.dataFiles();
@@ -165,5 +179,168 @@ public class SessionFormatsTest {
         // a literal null is the text "null", as Go keeps it in a raw message and prints it
         assertEquals("null", parts.get(2).data());
         assertEquals("\"plain\"", parts.get(3).data());
+    }
+
+    /**
+     * A call's provider bodies are references like any other, so a round whose bodies do not read, or name a record
+     * past the round's range, is refused, and a body's own block is kept. Every verdict here is the one the
+     * Sessionizer's <code>sessionflow.Read</code> gave for the same round with the same line changed.
+     */
+    @Test
+    public void aRoundWhoseProviderBodiesDoNotReadIsRefused() throws Exception {
+        final String round = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), StandardCharsets.UTF_8);
+        final String from = "\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},";
+        assertTrue(round.contains(from));
+        final Object[][] cases = {
+            {from, true},
+            {"\"provider_bodies\":[{\"role\":\"prompt\",\"ref\":{\"seq\":4,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":0,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":0}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":5,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4.0,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":7,\"ref\":{\"seq\":4,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1,\"block\":2}},", true},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":-4,\"row\":1}},", false},
+            {"\"provider_bodies\":[null,", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1,\"block\":2147483648}},", true},
+        };
+        for (final Object[] c : cases) {
+            final int at = round.indexOf(from);
+            final byte[] changed = (round.substring(0, at) + c[0] + round.substring(at + from.length()))
+                .getBytes(StandardCharsets.UTF_8);
+            if ((Boolean) c[1]) {
+                SessionFlowRound.parse(changed);
+            } else {
+                assertThrows(IllegalArgumentException.class, () -> SessionFlowRound.parse(changed), (String) c[0]);
+            }
+        }
+        // a block past 32 bits is kept whole, as Go's int keeps it
+        assertEquals(Long.valueOf(2147483648L), call(round.replace(from, (String) cases[10][0])).getProviderBodies().get(0)
+            .getRef().getBlock());
+        assertEquals(2147483648L, call(round.replace(from, (String) cases[10][0])).getProviderBodies().get(0).getRef()
+            .toMap().get("block"));
+        final String withBlock = round.replace(from, (String) cases[7][0]);
+        final SessionFlowRound.Node call = SessionFlowRound.parse(withBlock.getBytes(StandardCharsets.UTF_8)).getNodes()
+            .stream().filter(n -> "call/s2-call-fdae022ac306".equals(n.getId())).findFirst().orElseThrow();
+        assertEquals(Long.valueOf(2), call.getProviderBodies().get(0).getRef().getBlock());
+        // what Go settles from the text as written: a key in another case, a key given twice, an object given twice
+        final Object[][] asWritten = {
+            {"\"provider_bodies\":[{\"role\":7,\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},", null},
+            {"\"provider_bodies\":[{\"Role\":\"request\",\"REF\":{\"Seq\":4,\"row\":1}},", "4/1"},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"seq\":5,\"row\":1}},", null},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":\"4\",\"seq\":4,\"row\":1}},", null},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":-4,\"seq\":4,\"row\":1}},", null},
+            // syntax only Gson's lenient parser takes: Go refuses the line, and with it the round
+            {"\"x\":0;\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},", null},
+            {"x:0,\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},", null},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":-1,\"row\":1}},", null},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1},\"ref\":{\"row\":2}},", "4/2"},
+            {"\"provider_bodies\":\"x\",\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},", "4/1"},
+        };
+        for (final Object[] c : asWritten) {
+            final String changed = round.replace(from, (String) c[0]);
+            if (c[1] == null) {
+                assertThrows(IllegalArgumentException.class,
+                    () -> SessionFlowRound.parse(changed.getBytes(StandardCharsets.UTF_8)), (String) c[0]);
+            } else {
+                final Ref first = call(changed).getProviderBodies().get(0).getRef();
+                assertEquals(c[1], first.getSeq() + "/" + first.getRow(), (String) c[0]);
+            }
+        }
+        // the node's attrs under a key in another case, and given twice: Go takes the last, in any case
+        for (final String key : new String[] {"\"Attrs\":", "\"attrs\":{\"x\":1},\"attrs\":"}) {
+            final String changed = round.replaceFirst(
+                "(\"id\":\"call/s2-call-fdae022ac306\"[^\\n]*?)\"attrs\":", "$1" + key.replace("$", "\\$"));
+            assertFalse(changed.equals(round));
+            assertEquals(2, call(changed).getProviderBodies().size(), key);
+        }
+        // the attribute as a whole: null is no bodies, anything else that is not a list is refused
+        SessionFlowRound.parse(round.replaceAll("\"provider_bodies\":\\[[^\\]]*\\],?", "\"provider_bodies\":null,")
+                                    .getBytes(StandardCharsets.UTF_8));
+        assertThrows(IllegalArgumentException.class, () -> SessionFlowRound.parse(
+            round.replaceAll("\"provider_bodies\":\\[[^\\]]*\\],?", "\"provider_bodies\":\"x\",").getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static SessionFlowRound.Node call(final String round) {
+        return SessionFlowRound.parse(round.getBytes(StandardCharsets.UTF_8)).getNodes()
+            .stream().filter(n -> "call/s2-call-fdae022ac306".equals(n.getId())).findFirst().orElseThrow();
+    }
+
+    /**
+     * A record time is read as Go's <code>time.Parse(time.RFC3339Nano, s)</code> reads it, so the OAP orders and
+     * times records as the Sessionizer does. Every value on the right is what Go 1.27 gave for the text on the left,
+     * as <code>UnixNano</code>, or its refusal: a fraction of any length cut to the nanosecond, a comma before it, an
+     * offset of 24 hours, no lowercase letters and no compact offset.
+     */
+    @Test
+    public void recordTimesAreReadAsGoReadsThem() {
+        final String[][] cases = {
+            {"2026-01-01T00:00:00Z", "1767225600000000000"},
+            {"2026-01-01T00:00:00.1Z", "1767225600100000000"},
+            {"2026-01-01T00:00:00.123456789Z", "1767225600123456789"},
+            {"2026-01-01T00:00:00.0000000001Z", "1767225600000000000"},
+            {"2026-01-01T00:00:00.1234567891234Z", "1767225600123456789"},
+            {"2026-01-01T00:00:00+08:00", "1767196800000000000"},
+            {"2026-01-01T00:00:00.5-05:30", "1767245400500000000"},
+            {"2026-01-01t00:00:00z", "refused"},
+            {"2026-01-01T00:00:00", "refused"},
+            {"2026-01-01 00:00:00Z", "refused"},
+            {"2026-01-01T24:00:00Z", "refused"},
+            {"2026-02-30T00:00:00Z", "refused"},
+            {"2026-01-01T00:00:60Z", "refused"},
+            {"2026-01-01T00:00:00.Z", "refused"},
+            {"2026-01-01T00:00:00,5Z", "1767225600500000000"},
+            {"2026-1-01T00:00:00Z", "refused"},
+            {"2026-01-01T00:00:00+0800", "refused"},
+            {"2026-01-01T00:00:00+08", "refused"},
+            {"2026-01-01T00:00:00+24:00", "1767139200000000000"},
+            {"2026-01-01T00:00:00-00:00", "1767225600000000000"},
+            {"", "refused"},
+            {"2026-01-01T00:00:00.999999999999Z", "1767225600999999999"},
+            {"2026-01-01T00:00:00,Z", "refused"},
+            {"2026-01-01T00:00:00,123Z", "1767225600123000000"},
+            {"2026-01-01T00:00:00+23:59", "1767139260000000000"},
+            {"2026-01-01T00:00:00+23:60", "1767139200000000000"},
+            {"2026-01-01T00:00:00+24:59", "1767135660000000000"},
+            {"2026-01-01T00:00:00+25:00", "refused"},
+            {"2026-01-01T00:00:00+99:00", "refused"},
+            {"2026-01-01T00:00:00.5+24:00", "1767139200500000000"},
+            {"2026-01-01T00:00:00,5+08:00", "1767196800500000000"},
+            {"2026-01-01T00:00:00.1234567890123456789012Z", "1767225600123456789"},
+            {"2026-01-01T00:00:00Z ", "refused"},
+            {" 2026-01-01T00:00:00Z", "refused"},
+            {"0000-01-01T00:00:00Z", "-6826986978871345152"},
+            {"9999-12-31T23:59:59Z", "-4852116232933722624"},
+            {"2026-01-01T00:00:00.5", "refused"},
+            {"2026-01-01T00:00:00.-5Z", "refused"},
+            {"2026-01-01T00:00:00..5Z", "refused"},
+            {"2024-02-29T00:00:00Z", "1709164800000000000"},
+            {"2025-02-29T00:00:00Z", "refused"},
+            {"2026-01-01T00:00:00.5z", "refused"},
+            {"2026-01-01T00:00:00-24:00", "1767312000000000000"},
+            {"2026-01-01T00:00:00+00:00:00", "refused"},
+            {"2026-01-01T00:00:00+24:60", "1767135600000000000"},
+            {"2026-01-01T00:00:00+00:60", "1767222000000000000"},
+            {"2026-01-01T00:00:00+00:61", "refused"},
+            {"2026-01-01T00:00:00,1234567891234Z", "1767225600123456789"},
+            {"2026-01-01T00:00:00.5-24:59", "1767315540500000000"},
+            {"2026-01-01T00:00:00+2:00", "refused"},
+            {"2026-01-01T00:00:00+02:0", "refused"},
+            {"2026-01-01T00:00:00+0a:00", "refused"},
+            {"2026-01-01T00:00:00+02-00", "refused"},
+            {"2026-01-01T00:00:00Z07:00", "refused"}
+        };
+        for (final String[] c : cases) {
+            final long want = "refused".equals(c[1]) ? 0L : Long.parseLong(c[1]);
+            assertEquals(want, Times.nanos(c[0]), c[0]);
+        }
+        // a time Go refuses sorts after every time it reads, by its text in Go's order of strings
+        assertTrue(Times.compare("2026-01-01T00:00:00.0000000001Z", "2026-01-01T00:00:01Z") < 0);
+        // two spellings of one instant are one time, and two times that do not parse are equal: the caller decides
+        assertEquals(0, Times.compare("2026-01-01T00:00:01Z", "2026-01-01T00:00:01.0Z"));
+        assertEquals(0, Times.compare("\ue000", "\ud800\udc00"));
+        assertTrue(Times.compare("2026-01-01T00:00:00.11Z", "2026-01-01T00:00:00.1Z") > 0);
+        assertTrue(Times.compare("2026-01-01t00:00:00z", "2026-01-01T00:00:01Z") > 0);
     }
 }

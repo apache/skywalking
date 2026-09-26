@@ -54,6 +54,7 @@ LOST="c9d9b18b-be85-4906-850d-40a1cd240171"
 WC="3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3"
 # provider-bodies.yaml likewise: every call's request and response bodies in one session.
 PB="6b7a6063-8714-4f6b-87cd-6c2da3a5094d"
+MCP="720d2f9e-dca7-49be-8c5e-89b667b39a01"
 
 # swctl against this OAP, JSON out.
 sw() {
@@ -329,6 +330,32 @@ case "$MODE" in
     # the file name carries the build's stamp, which differs on every run; the directory and the seq are what matter
     files_of "$PB" provider_body \
       | yq -p=json -P '{"exported_provider_files": (.files | map(.file) | map(select(test("/provider_body/"))) | map(sub("provider_body-[^/]*-0", "provider_body-*-0")) | sort)}'
+    ;;
+  mcp)
+    # Calls to MCP servers, on the main stream and in a subagent, each with the record the Claude Code plugin wrote
+    # after it, in an execution file beside the stream's transcript, and the first record written twice. The document
+    # lists each record once, joined to its step by tool-use id, and a call to an MCP server names its server and tool;
+    # a name that does not split into one server and one tool names neither. The Sessionizer derives a call count and a
+    # duration from the records, and the OAP keeps them per endpoint, one per server and tool under the service; over
+    # the run they are what the scenario declares. The document equals the Sessionizer's, which the views case checks.
+    view "$MCP" --yaml | yq -P '{
+      "state": .summary.state,
+      "execution_files": [.files[] | select(.kind == "execution") | {"seq": .seq, "stream": .stream, "lines": .lines}],
+      "executions": [.tool_executions[] | {"step": .step, "ref": .ref, "server": .server, "tool_name": .tool_name,
+                     "outcome": .outcome, "duration_ms": .duration_ms}],
+      "steps": ([.. | select(tag == "!!map" and .kind == "tool") | {"id": .id, "mcp_server": .attrs.mcp_server,
+                 "mcp_tool": .attrs.mcp_tool, "executions": .executions}] | sort_by(.id))
+    }'
+    m() { sw metrics exec --expression="$1" --service-name "$SERVICE" --endpoint-name "$2" --start "$wide_start" --end "$wide_end"; }
+    total() { m "$@" | yq -p=json -o=json '.results[0].values[0].value | tonumber'; }
+    by() { m "$@" | yq -p=json -o=json '[.results[] | {"outcome": (.metric.labels[] | select(.key == "outcome") | .value), "value": (.values[0].value | tonumber)}] | sort_by(.outcome)'; }
+    printf '{"endpoints": %s, "status/lookup": {"calls": %s, "by_outcome": %s, "duration": %s}, "docs/read": {"calls": %s, "by_outcome": %s, "duration": %s}}' \
+      "$(sw endpoint list --service-name "$SERVICE" | yq -p=json -o=json '[.[] | .name] | sort')" \
+      "$(total 'sum(meter_ai_agent_mcp_calls)' status/lookup)" "$(by 'sum(meter_ai_agent_mcp_calls_by_outcome)' status/lookup)" \
+      "$(total 'sum(meter_ai_agent_mcp_duration)' status/lookup)" \
+      "$(total 'sum(meter_ai_agent_mcp_calls)' docs/read)" "$(by 'sum(meter_ai_agent_mcp_calls_by_outcome)' docs/read)" \
+      "$(total 'sum(meter_ai_agent_mcp_duration)' docs/read)" \
+      | yq -p=json -P
     ;;
   list-horizon)
     # The list exactly as Horizon's conversation page queries it: the same condition, the service and the sender,

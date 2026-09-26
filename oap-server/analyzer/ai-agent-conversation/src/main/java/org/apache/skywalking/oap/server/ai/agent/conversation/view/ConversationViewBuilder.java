@@ -21,12 +21,8 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.view;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,17 +32,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.regex.Pattern;
+import java.util.function.Function;
+import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.ai.agent.conversation.fold.ConversationFold;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.ChangesRecord;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.ExecutionRecord;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.GoJson;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.GoStrings;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.ToolCallRecord;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -61,29 +62,46 @@ public final class ConversationViewBuilder {
     /** The readable text a node carries is clipped to this many bytes; the full size is in <code>bytes</code>. */
     static final int PREVIEW_BYTES = 2000;
     private static final int MAX_DEPTH = 12;
-    private static final Pattern INTEGER_LITERAL = Pattern.compile("-?\\d+");
-    /** A parent walk stops here; a well-formed fold is far shallower, a malformed one must not loop. */
-    private static final int MAX_ANCESTORS = 64;
     static final String STATE_VERIFIED = "verified";
     static final String STATE_INCOMPLETE = "incomplete";
     static final String STATE_MISMATCH = "mismatch";
-    static final String KIND_PROVIDER_BODY = "provider_body";
-    static final String PROVIDER_BODY_SCHEMA = "provider_body/1";
-    static final String ROLE_REQUEST = "request";
-    static final String ROLE_RESPONSE = "response";
-    private static final String JOIN_EXACT = "exact";
-    private static final String JOIN_AMBIGUOUS = "ambiguous";
-    private static final String JOIN_UNRESOLVED = "unresolved";
+    /** The typed values the Sessionizer's view reads out of records and attributes, as its Go structs declare them. */
+    private static final GoJson.Struct JOURNAL_ROW = new GoJson.Struct()
+        .field("type", GoJson.Kind.STRING)
+        .field("result", GoJson.Kind.STRUCT, new GoJson.Struct()
+            .field("surface", GoJson.Kind.STRING)
+            .field("summary", GoJson.Kind.STRING)
+            .field("verdict", GoJson.Kind.STRING)
+            .field("refuted_claims", GoJson.Kind.STRUCTS, new GoJson.Struct()
+                .field("claim", GoJson.Kind.STRING)));
+    private static final GoJson.Struct QUEUED_COMMAND = new GoJson.Struct()
+        .field("type", GoJson.Kind.STRING)
+        .field("prompt", GoJson.Kind.STRUCTS, new GoJson.Struct()
+            .field("text", GoJson.Kind.STRING));
+    private static final GoJson.Struct DURATION = new GoJson.Struct()
+        .field("durationMs", GoJson.Kind.INT);
+    private static final GoJson.Struct SESSION_ATTRS = new GoJson.Struct()
+        .field("provider_bodies_landed", GoJson.Kind.INT);
+    private static final GoJson.Struct USAGE_AT = new GoJson.Struct()
+        .field("usage_at", GoJson.Kind.STRUCT_POINTER, SessionFlowRound.REF);
 
     private final ConversationFold fold;
     private final List<RoundInput> rounds;
-    private final Map<Long, SessionDataFile> files;
+    /** By seq, so every walk over the files is in landed order. */
+    private final TreeMap<Long, SessionDataFile> files;
     private final List<String> problems;
     /** Every timed record's moment in nanoseconds, the precision the Sessionizer computes intervals with. */
     private final Map<Ref, Long> at = new HashMap<>();
+    /**
+     * Each file's lane by seq: the directory it lands in, its stream's or its workflow run's. A position orders records
+     * only inside one lane.
+     */
+    private final Map<Long, String> lanes = new HashMap<>();
     /** Each step's workspace change ids, in the order the document lists the records; filled by {@link #workspaceChanges}. */
     private final Map<String, List<String>> changesByStep = new HashMap<>();
-    /** Each call step's joined provider bodies, its request then its response; filled by {@link #providerBodies}. */
+    /** Each step's tool execution record ids, in the order the document lists the records; filled by {@link #toolExecutions}. */
+    private final Map<String, List<String>> executionsByStep = new HashMap<>();
+    /** Each call step's joined provider bodies, its request then its response; filled by {@link #joinProviderBodies}. */
     private final Map<String, List<Map<String, Object>>> providerBodiesByStep = new HashMap<>();
 
     /**
@@ -99,9 +117,10 @@ public final class ConversationViewBuilder {
                                    final List<String> problems) {
         this.fold = fold;
         this.rounds = rounds;
-        this.files = files;
+        this.files = new TreeMap<>(files);
         this.problems = problems;
         for (final SessionDataFile f : files.values()) {
+            lanes.put(f.getHeader().getSeq(), FileNames.lane(f.getHeader()));
             for (final SessionDataFile.Record r : f.getRecords()) {
                 if (r.getTimeNanos() != 0) {
                     at.put(new Ref(f.getHeader().getSeq(), r.getRow(), null), r.getTimeNanos());
@@ -118,15 +137,8 @@ public final class ConversationViewBuilder {
         final Chain chain = chain();
         // before the nodes are rendered: each step lists the ids of its records
         final List<Map<String, Object>> workspaceChanges = workspaceChanges();
-        final int providerBodies = providerBodies();
-        int capturedPrompts = 0;
-        for (final List<Map<String, Object>> bodies : providerBodiesByStep.values()) {
-            for (final Map<String, Object> b : bodies) {
-                if (ROLE_REQUEST.equals(b.get("role"))) {
-                    capturedPrompts++;
-                }
-            }
-        }
+        final List<Map<String, Object>> toolExecutions = toolExecutions();
+        final int capturedPrompts = joinProviderBodies();
 
         final Map<String, Object> doc = new LinkedHashMap<>();
         doc.put("format", ViewYaml.FORMAT);
@@ -151,7 +163,7 @@ public final class ConversationViewBuilder {
         summary.put("rounds", chain.rounds.size());
         summary.put("unresolved", fold.openUnresolved().size());
         summary.put("changes", workspaceChanges.size());
-        summary.put("provider_bodies", providerBodies);
+        summary.put("provider_bodies", landedProviderBodies());
         summary.put("captured_prompts", capturedPrompts);
         final SessionFlowRound.Node sessionNode = fold.node(sessionNodeId());
         summary.put("from", sessionNode == null ? 0L : Times.millis(sessionNode.attr("from_time")));
@@ -171,6 +183,7 @@ public final class ConversationViewBuilder {
         doc.put("relations", relations());
         doc.put("unresolved", unresolved());
         doc.put("workspace_changes", workspaceChanges);
+        doc.put("tool_executions", toolExecutions);
         return doc;
     }
 
@@ -189,7 +202,7 @@ public final class ConversationViewBuilder {
                 others.add(s);
             }
         }
-        Collections.sort(others);
+        others.sort(GoStrings.ORDER);
         out.addAll(others);
         return out;
     }
@@ -375,10 +388,7 @@ public final class ConversationViewBuilder {
 
     private List<Map<String, Object>> files() {
         final List<Map<String, Object>> out = new ArrayList<>();
-        final List<Long> seqs = new ArrayList<>(files.keySet());
-        Collections.sort(seqs);
-        for (final Long seq : seqs) {
-            final SessionDataFile f = files.get(seq);
+        for (final SessionDataFile f : files.values()) {
             final SessionDataFile.Header h = f.getHeader();
             final Map<String, Object> m = new LinkedHashMap<>();
             m.put("file", FileNames.dataFile(h));
@@ -407,6 +417,8 @@ public final class ConversationViewBuilder {
         int tools;
         long from;
         long to;
+        /** When the talk began, in nanoseconds, which is what talks are ordered by. */
+        long began;
         boolean child;
         String segment = "";
         String reply = "";
@@ -417,9 +429,9 @@ public final class ConversationViewBuilder {
 
     private static final class Overview {
         String title = "";
-        Map<String, Object> kinds;
-        Map<String, Object> relationTypes;
-        Map<String, Object> quality;
+        Map<String, Integer> kinds;
+        Map<String, Integer> relationTypes;
+        Map<String, Integer> quality;
         List<TalkRow> talks;
         List<Map<String, Object>> streams;
         List<Map<String, Object>> segments;
@@ -427,27 +439,26 @@ public final class ConversationViewBuilder {
 
     private Overview overview() {
         final Overview o = new Overview();
-        final TreeMap<String, Object> kinds = new TreeMap<>();
+        o.kinds = new TreeMap<>(GoStrings.ORDER);
         for (final SessionFlowRound.Node n : fold.getNodes().values()) {
-            kinds.merge(nullToEmpty(n.getKind()), 1, (a, b) -> (Integer) a + (Integer) b);
+            o.kinds.merge(nullToEmpty(n.getKind()), 1, Integer::sum);
             if ("session".equals(n.getKind())) {
                 o.title = nullToEmpty(n.attr("title"));
             }
         }
-        final TreeMap<String, Object> quality = new TreeMap<>();
-        final TreeMap<String, Object> rels = new TreeMap<>();
+        o.relationTypes = new TreeMap<>(GoStrings.ORDER);
+        o.quality = new TreeMap<>(GoStrings.ORDER);
         for (final SessionFlowRound.Relation r : fold.getRelations().values()) {
-            rels.merge(nullToEmpty(r.getType()), 1, (a, b) -> (Integer) a + (Integer) b);
-            quality.merge(nullToEmpty(r.getQuality()), 1, (a, b) -> (Integer) a + (Integer) b);
+            o.relationTypes.merge(nullToEmpty(r.getType()), 1, Integer::sum);
+            o.quality.merge(nullToEmpty(r.getQuality()), 1, Integer::sum);
         }
-        o.kinds = kinds;
-        o.relationTypes = rels;
-        o.quality = quality;
 
-        final Map<String, Boolean> childStream = new HashMap<>();
+        // a child agent's talk, and only that: an auxiliary stream is the same agent carrying a different prompt, not
+        // a child, as the Sessionizer reads it
+        final Set<String> childStreams = new HashSet<>();
         for (final SessionFlowRound.Node st : streamNodes()) {
-            if (!"main".equals(st.attr("role"))) {
-                childStream.put(st.getStream(), true);
+            if ("child".equals(st.attr("role"))) {
+                childStreams.add(st.getStream());
             }
         }
         final Map<String, String> inSegment = new HashMap<>();
@@ -460,16 +471,21 @@ public final class ConversationViewBuilder {
         for (final SessionFlowRound.Node t : fold.nodesOfKind("talk")) {
             final TalkRow row = new TalkRow();
             row.node = t;
-            row.child = childStream.containsKey(t.getStream());
+            row.child = childStreams.contains(t.getStream());
             final long[] span = span(t);
             row.from = span[0];
             row.to = span[1];
+            row.began = beganAt(t);
             row.segment = inSegment.getOrDefault(t.getId(), "");
             walkCounts(t.getId(), row);
             row.labelAt = labelRefs(t);
             row.replyAt = replyRef(t);
             talks.add(row);
         }
+        // Across streams the order is time, not landed position: a position orders records within one stream only,
+        // and a child's file can land before its parent's. Every timed talk comes before every untimed one, timed
+        // talks by time, and the sort is stable, so position decides among equals, as the Sessionizer orders them.
+        talks.sort(Comparator.comparing((TalkRow t) -> t.began == 0).thenComparingLong(t -> t.began));
         for (final TalkRow row : talks) {
             for (final Ref r : row.labelAt) {
                 final String text = readableAt(r);
@@ -602,19 +618,28 @@ public final class ConversationViewBuilder {
         }
         final Map<String, String> parent = new HashMap<>();
         final Map<String, List<Map<String, Object>>> openedBy = new HashMap<>();
+        // each stream's origins in the order their steps happened, so a stream with several candidate origins lists
+        // them in one order on every read, the Sessionizer's; each stream's on their own, since one order over every
+        // stream's origins is not the same: an untimed step holds back the rest of its lane
+        final Map<String, List<SessionFlowRound.Relation>> startsOf = new HashMap<>();
         for (final SessionFlowRound.Relation r : fold.getRelations().values()) {
-            if (!"starts".equals(r.getType())) {
-                continue;
+            // an origin whose step is in no stream is not listed, so it takes no part in the order either
+            final SessionFlowRound.Node step = fold.node(r.getFrom());
+            if ("starts".equals(r.getType()) && step != null && StringUtil.isNotEmpty(step.getStream())) {
+                startsOf.computeIfAbsent(r.getTo(), k -> new ArrayList<>()).add(r);
             }
-            final SessionFlowRound.Node n = fold.node(r.getFrom());
-            if (n != null && StringUtil.isNotEmpty(n.getStream())) {
-                parent.put(r.getTo(), n.getStream());
+        }
+        final Function<SessionFlowRound.Relation, Order.Point> stepPoint = r -> pointOf(fold.node(r.getFrom()).getRef());
+        for (final Map.Entry<String, List<SessionFlowRound.Relation>> stream : startsOf.entrySet()) {
+            for (final SessionFlowRound.Relation r : Order.inOrder(stream.getValue(), stepPoint, RELATION_TIE)) {
+                final SessionFlowRound.Node n = fold.node(r.getFrom());
+                parent.put(stream.getKey(), n.getStream());
                 final Map<String, Object> origin = new LinkedHashMap<>();
                 origin.put("step", r.getFrom());
                 origin.put("stream", n.getStream());
                 origin.put("talk", talkOf(r.getFrom()));
                 origin.put("quality", nullToEmpty(r.getQuality()));
-                openedBy.computeIfAbsent(r.getTo(), x -> new ArrayList<>()).add(origin);
+                openedBy.computeIfAbsent(stream.getKey(), x -> new ArrayList<>()).add(origin);
             }
         }
         final Map<String, String> journalNames = journalNames();
@@ -632,7 +657,7 @@ public final class ConversationViewBuilder {
             m.put("role", nullToEmpty(st.attr("role")));
             m.put("label", label);
             m.put("parent", parent.getOrDefault(st.getId(), ""));
-            m.put("records", (int) st.attrNumber("records"));
+            m.put("records", (long) st.attrNumber("records"));
             m.put("steps", steps.getOrDefault(nullToEmpty(st.getStream()), 0));
             m.put("talk", firstTalk.getOrDefault(nullToEmpty(st.getStream()), ""));
             m.put("named_by", namedBy);
@@ -647,10 +672,7 @@ public final class ConversationViewBuilder {
      */
     private Map<String, String> journalNames() {
         final Map<String, String> names = new HashMap<>();
-        final List<Long> seqs = new ArrayList<>(files.keySet());
-        Collections.sort(seqs);
-        for (final Long seq : seqs) {
-            final SessionDataFile f = files.get(seq);
+        for (final SessionDataFile f : files.values()) {
             if (StringUtil.isEmpty(f.getHeader().getBatch())) {
                 continue;
             }
@@ -659,96 +681,55 @@ public final class ConversationViewBuilder {
                 if (StringUtil.isEmpty(child) || names.containsKey(child)) {
                     continue;
                 }
-                for (final String raw : candidates(rec)) {
-                    final JsonObject row;
-                    try {
-                        final JsonElement parsed = JsonParser.parseString(raw);
-                        if (!parsed.isJsonObject()) {
-                            continue;
-                        }
-                        row = parsed.getAsJsonObject();
-                    } catch (final RuntimeException e) {
-                        continue;
-                    }
-                    // the row must decode as Go's typed struct, or the candidate is skipped
-                    if (!isStringOrAbsent(row, "type") || !isObjectOrAbsent(row, "result")) {
-                        continue;
-                    }
-                    if (!"result".equals(string(row, "type"))) {
-                        continue;
-                    }
-                    final JsonObject result = row.has("result") && row.get("result").isJsonObject()
-                        ? row.getAsJsonObject("result") : new JsonObject();
-                    if (!isStringOrAbsent(result, "surface") || !isStringOrAbsent(result, "summary")
-                        || !isStringOrAbsent(result, "verdict") || !isClaimsOrAbsent(result)) {
-                        continue;
-                    }
-                    String name = string(result, "surface");
-                    if (StringUtil.isEmpty(name)) {
-                        name = string(result, "summary");
-                    }
-                    if (StringUtil.isEmpty(name) && StringUtil.isNotEmpty(string(result, "verdict"))) {
-                        name = string(result, "verdict");
-                        final JsonElement refuted = result.get("refuted_claims");
-                        if (refuted != null && refuted.isJsonArray() && refuted.getAsJsonArray().size() > 0) {
-                            final JsonElement first = refuted.getAsJsonArray().get(0);
-                            if (first.isJsonObject() && StringUtil.isNotEmpty(string(first.getAsJsonObject(), "claim"))) {
-                                name += " · " + string(first.getAsJsonObject(), "claim");
-                            }
-                        }
-                    }
-                    name = shortName(name);
-                    if (!name.isEmpty()) {
-                        names.put(child, name);
-                    }
-                    break;
+                final String name = resultName(rec);
+                if (StringUtil.isNotEmpty(name)) {
+                    names.put(child, name);
                 }
             }
         }
         return names;
     }
 
-    private static boolean isObjectOrAbsent(final JsonObject json, final String key) {
-        final JsonElement e = json.get(key);
-        return e == null || e.isJsonNull() || e.isJsonObject();
+    /**
+     * @param rec a record of a run's journal
+     * @return the name the record's first result row gives the child it started: its surface, else its summary, else
+     * its verdict and the first claim it refuted; empty when that row gives none; null when no candidate of the record
+     * is a result row
+     */
+    @Nullable
+    static String resultName(final SessionDataFile.Record rec) {
+        for (final String raw : candidates(rec)) {
+            final JsonObject row = GoJson.decode(raw, JOURNAL_ROW);
+            if (row == null || !"result".equals(row.get("type").getAsString())) {
+                continue;
+            }
+            final JsonObject result = row.getAsJsonObject("result");
+            String name = result.get("surface").getAsString();
+            if (name.isEmpty()) {
+                name = result.get("summary").getAsString();
+            }
+            if (name.isEmpty() && !result.get("verdict").getAsString().isEmpty()) {
+                name = result.get("verdict").getAsString();
+                final JsonElement refuted = result.get("refuted_claims");
+                if (refuted.isJsonArray() && refuted.getAsJsonArray().size() > 0) {
+                    final String claim = refuted.getAsJsonArray().get(0).getAsJsonObject().get("claim").getAsString();
+                    if (!claim.isEmpty()) {
+                        name += " · " + claim;
+                    }
+                }
+            }
+            return shortName(name);
+        }
+        return null;
     }
 
     /**
-     * @return whether <code>refuted_claims</code> is absent or a list of objects whose <code>claim</code> is a
-     * string, the shape Go decodes
+     * A name cut to what a label holds: its words joined by one space, clipped to 160 bytes, and marked when clipped.
      */
-    private static boolean isClaimsOrAbsent(final JsonObject result) {
-        final JsonElement e = result.get("refuted_claims");
-        if (e == null || e.isJsonNull()) {
-            return true;
-        }
-        if (!e.isJsonArray()) {
-            return false;
-        }
-        for (final JsonElement x : e.getAsJsonArray()) {
-            if (!x.isJsonObject() || !isStringOrAbsent(x.getAsJsonObject(), "claim")) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static String shortName(@Nullable final String s) {
-        if (s == null) {
-            return "";
-        }
+    private static String shortName(final String s) {
         final String joined = String.join(" ", fields(s));
-        final int limit = 160;
-        final byte[] bytes = joined.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length <= limit) {
-            return joined;
-        }
-        // Go backs up to a rune boundary here, unlike clip, so no replacement character
-        int cut = limit;
-        while (cut > 0 && (bytes[cut] & 0xC0) == 0x80) {
-            cut--;
-        }
-        return new String(bytes, 0, cut, StandardCharsets.UTF_8) + "…";
+        final String clipped = clipBytes(joined, 160);
+        return clipped.length() < joined.length() ? clipped + "…" : joined;
     }
 
     /**
@@ -856,9 +837,10 @@ public final class ConversationViewBuilder {
             }
             out.put("refs", refs);
         }
-        if (n.getRawAttrs() != null) {
+        final JsonElement attrs = withoutProviderBodies(n.getRawAttrs());
+        if (attrs != null) {
             // as the Sessionizer prints the raw attrs: an empty object stays {}, an explicit null stays null
-            out.put("attrs", jsonToValue(n.getRawAttrs()));
+            out.put("attrs", GoJson.toValue(attrs));
         }
 
         // text, state, bytes; then usage, flags, dropped; then the talk keys; then the tool keys
@@ -876,7 +858,7 @@ public final class ConversationViewBuilder {
                 if (dropped != null && dropped.size() > 0) {
                     final List<Object> drops = new ArrayList<>();
                     for (final JsonElement d : dropped) {
-                        drops.add(d.isJsonObject() ? jsonToMap(d.getAsJsonObject()) : d.toString());
+                        drops.add(d.isJsonObject() ? GoJson.toMap(d.getAsJsonObject()) : d.toString());
                     }
                     content.put("dropped", drops);
                 }
@@ -893,7 +875,7 @@ public final class ConversationViewBuilder {
         final JsonObject usage = usageAt(n);
         if (usage != null) {
             // as the Sessionizer prints the record's raw usage object, an empty one included
-            content.put("usage", jsonToMap(usage));
+            content.put("usage", GoJson.toMap(usage));
         }
         // sessionview.Node lists text, state, bytes, then usage, flags, dropped
         for (final String key : new String[] {"text", "state", "bytes", "usage", "flags", "dropped"}) {
@@ -941,6 +923,10 @@ public final class ConversationViewBuilder {
         if (changes != null && !changes.isEmpty()) {
             out.put("changes", new ArrayList<>(changes));
         }
+        final List<String> executions = executionsByStep.get(n.getId());
+        if (executions != null && !executions.isEmpty()) {
+            out.put("executions", new ArrayList<>(executions));
+        }
         final List<Map<String, Object>> bodies = providerBodiesByStep.get(n.getId());
         if (bodies != null && !bodies.isEmpty()) {
             out.put("provider_bodies", bodies);
@@ -954,16 +940,18 @@ public final class ConversationViewBuilder {
                 out.put("children", children);
             }
         }
-        // every relation touching the node, by relation id and then direction, as the Sessionizer lists them
-        final List<Map<String, Object>> edges = new ArrayList<>();
+        // every relation touching the node, in the order the relations happened, as the Sessionizer lists them
+        final List<Map<String, Object>> touching = new ArrayList<>();
         for (final SessionFlowRound.Relation r : fold.relationsFrom(n.getId())) {
-            edges.add(edge(r, r.getTo(), "out"));
+            touching.add(edge(r, r.getTo(), "out"));
         }
         for (final SessionFlowRound.Relation r : fold.relationsTo(n.getId())) {
-            edges.add(edge(r, r.getFrom(), "in"));
+            touching.add(edge(r, r.getFrom(), "in"));
         }
-        edges.sort(Comparator.comparing((Map<String, Object> e) -> (String) e.get("id"))
-                             .thenComparing(e -> (String) e.get("dir")));
+        final List<Map<String, Object>> edges = Order.inOrder(
+            touching, e -> relationPoint(fold.getRelations().get((String) e.get("id"))),
+            Comparator.comparing((Map<String, Object> e) -> (String) e.get("id"), GoStrings.ORDER)
+                      .thenComparing(e -> (String) e.get("dir")));
         for (final Map<String, Object> e : edges) {
             e.remove("id");
         }
@@ -986,8 +974,11 @@ public final class ConversationViewBuilder {
             }
             SessionFlowRound.Node top = n;
             boolean covered = false;
-            SessionFlowRound.Node cur = n;
-            for (int i = 0; cur != null && i < MAX_ANCESTORS; i++) {
+            // the whole parent chain, as the Sessionizer walks it; a malformed fold whose parents loop stops where it
+            // comes back round
+            final Set<String> walked = new HashSet<>();
+            for (SessionFlowRound.Node cur = n; cur != null && walked.add(cur.getId());
+                 cur = StringUtil.isEmpty(cur.getParent()) ? null : fold.node(cur.getParent())) {
                 if ("talk".equals(cur.getKind())) {
                     covered = true;
                     break;
@@ -995,7 +986,6 @@ public final class ConversationViewBuilder {
                 if ("run".equals(cur.getKind()) || isStep(cur.getKind())) {
                     top = cur;
                 }
-                cur = StringUtil.isEmpty(cur.getParent()) ? null : fold.node(cur.getParent());
             }
             if (!covered) {
                 roots.put(top.getId(), top);
@@ -1025,7 +1015,7 @@ public final class ConversationViewBuilder {
     }
 
     private static void fill(final Map<String, Object> content, final Map<String, Object> tool,
-                             final SessionDataFile.Record rec, @Nullable final Integer block) {
+                             final SessionDataFile.Record rec, @Nullable final Long block) {
         final SessionDataFile.Part p = partAt(rec, block);
         if (p == null) {
             final String text = clip(readable(rec));
@@ -1061,19 +1051,24 @@ public final class ConversationViewBuilder {
 
     @Nullable
     private JsonObject usageAt(final SessionFlowRound.Node n) {
-        if (!"llm.call".equals(n.getKind()) || n.getAttrs() == null || !n.getAttrs().has("usage_at")
-            || !n.getAttrs().get("usage_at").isJsonObject()) {
+        if (!"llm.call".equals(n.getKind())) {
             return null;
         }
-        final SessionDataFile.Record at = record(Ref.of(n.getAttrs().getAsJsonObject("usage_at")));
+        // as the Sessionizer decodes the attrs into a struct: the key in any case, and a reference with nothing in it
+        // names no record
+        final JsonObject attrs = GoJson.decode(n.getAttrsText(), USAGE_AT);
+        if (attrs == null || !attrs.get("usage_at").isJsonObject()) {
+            return null;
+        }
+        final SessionDataFile.Record at = record(Ref.of(attrs.getAsJsonObject("usage_at")));
         return at == null ? null : at.usage();
     }
 
     private static void fillResult(final Map<String, Object> tool, final SessionDataFile.Record rec,
-                                   @Nullable final Integer block) {
+                                   @Nullable final Long block) {
         SessionDataFile.Part p = null;
         if (block != null && block < rec.getParts().size()) {
-            p = rec.getParts().get(block);
+            p = rec.getParts().get(block.intValue());
         } else {
             for (final SessionDataFile.Part x : rec.getParts()) {
                 if ("result".equals(x.getKind())) {
@@ -1134,26 +1129,7 @@ public final class ConversationViewBuilder {
         if (!"turn.duration".equals(n.getKind())) {
             return;
         }
-        long durationMs = 0;
-        for (final String raw : candidates(rec)) {
-            try {
-                final JsonElement e = JsonParser.parseString(raw);
-                if (e.isJsonObject() && e.getAsJsonObject().has("durationMs")) {
-                    final JsonElement d = e.getAsJsonObject().get("durationMs");
-                    if (!d.isJsonPrimitive() || !d.getAsJsonPrimitive().isNumber()
-                        || !INTEGER_LITERAL.matcher(d.getAsString()).matches()) {
-                        // not the integer Go decodes into; the candidate is skipped
-                        continue;
-                    }
-                    durationMs = Long.parseLong(d.getAsString());
-                    if (durationMs != 0) {
-                        break;
-                    }
-                }
-            } catch (final RuntimeException ignored) {
-                // not JSON; the next candidate may be
-            }
-        }
+        final long durationMs = reportedDuration(rec);
         if (durationMs == 0) {
             return;
         }
@@ -1165,11 +1141,28 @@ public final class ConversationViewBuilder {
         content.remove("text");
     }
 
+    /**
+     * @param rec a turn duration record
+     * @return the milliseconds the runtime reported for the turn, from the first candidate that reports any; 0 when
+     * none does
+     */
+    static long reportedDuration(final SessionDataFile.Record rec) {
+        for (final String raw : candidates(rec)) {
+            final JsonObject probe = GoJson.decode(raw, DURATION);
+            if (probe != null && probe.get("durationMs").getAsLong() != 0) {
+                return probe.get("durationMs").getAsLong();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * @return every relation of the fold, in the order they happened, each at the earliest record that supports it
+     */
     private List<Map<String, Object>> relations() {
-        final List<SessionFlowRound.Relation> sorted = new ArrayList<>(fold.getRelations().values());
-        sorted.sort(Comparator.comparing(SessionFlowRound.Relation::getId));
         final List<Map<String, Object>> out = new ArrayList<>();
-        for (final SessionFlowRound.Relation r : sorted) {
+        final List<SessionFlowRound.Relation> all = new ArrayList<>(fold.getRelations().values());
+        for (final SessionFlowRound.Relation r : Order.inOrder(all, this::relationPoint, RELATION_TIE)) {
             final Map<String, Object> m = new LinkedHashMap<>();
             m.put("id", r.getId());
             m.put("type", nullToEmpty(r.getType()));
@@ -1193,7 +1186,7 @@ public final class ConversationViewBuilder {
 
     private List<Map<String, Object>> unresolved() {
         final List<SessionFlowRound.Unresolved> sorted = new ArrayList<>(fold.getUnresolved().values());
-        sorted.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId));
+        sorted.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, GoStrings.ORDER));
         final List<Map<String, Object>> out = new ArrayList<>();
         for (final SessionFlowRound.Unresolved u : sorted) {
             final Map<String, Object> m = new LinkedHashMap<>();
@@ -1207,20 +1200,156 @@ public final class ConversationViewBuilder {
         return out;
     }
 
-    // ---------------------------------------------------------------- workspace changes
+    // ---------------------------------------------------------------- workspace changes and tool executions
 
     /**
      * Every workspace change record the session's files carry, each joined to its step. Two places hold them: a
      * result record of an editing tool carries the runtime's own patch as a data part beside the raw result, and
-     * a <code>changes</code> file the plugin's adapter landed holds one record per line. The join is the tool-use
-     * id, which the record names and the step's call part carries; nothing is matched by time. Fills
+     * a <code>changes</code> file the plugin's adapter landed holds one record per line. Fills
      * {@link #changesByStep} on the way, which {@link #step} reads, so this runs before the nodes are rendered.
      *
-     * @return the entries in the order the document lists them: by time, the runtime's record before the plugin's
-     * for one call, then by id
+     * @return the entries in the order the document lists them: by the instant each names, the runtime's record
+     * before the plugin's for one call, then by where each was read
      */
     private List<Map<String, Object>> workspaceChanges() {
-        // which step carries which tool-use id, from the call part each tool step points at
+        final Map<String, String> stepOf = stepsByToolUse();
+        final List<Joined<ChangesRecord>> entries = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        final BiConsumer<Ref, String> collect = (ref, data) -> {
+            final ChangesRecord r = ChangesRecord.decode(data);
+            // the id is the tool-use id, so two producers observing one call share it; who captured the record
+            // tells them apart, and a line landed twice by an interrupted pass is the same on both counts
+            if (r != null && seen.add(r.getCapturedBy() + "|" + r.getId())) {
+                entries.add(new Joined<>(r, stepOf.get(r.getTool()), ref));
+            }
+        };
+        // the runtime's own patches, on the result records a tool step reads after its call
+        for (final SessionFlowRound.Node n : fold.getNodes().values()) {
+            if (!"tool".equals(n.getKind())) {
+                continue;
+            }
+            for (int i = 1; i < n.getRefs().size(); i++) {
+                final Ref ref = n.getRefs().get(i);
+                forEachDataPart(ref.getSeq(), record(ref), collect);
+            }
+        }
+        // the plugin's records, from the files its adapter landed
+        for (final SessionDataFile f : filesOfKind("changes")) {
+            for (final SessionDataFile.Record rec : f.getRecords()) {
+                forEachDataPart(f.getHeader().getSeq(), rec, collect);
+            }
+        }
+        entries.sort((a, b) -> {
+            final int byTime = Times.compare(a.record.getTime(), b.record.getTime());
+            if (byTime != 0) {
+                return byTime;
+            }
+            // the runtime's record is listed first, and a viewer showing one prefers it
+            final int byProducer = Boolean.compare(!ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(a.record.getCapturedBy()),
+                                                   !ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(b.record.getCapturedBy()));
+            return byProducer != 0 ? byProducer : Order.comparePositions(pointOf(a.ref), pointOf(b.ref));
+        });
+        return listed(entries, changesByStep);
+    }
+
+    /**
+     * Every tool execution record the session's <code>execution</code> files carry, each joined to the step of the
+     * call it observed: what an observer around the call saw it do, such as which MCP server ran it, how it ended and
+     * how long it took. One call can have several records, one per observation, so a step lists them all. Fills
+     * {@link #executionsByStep} on the way, which {@link #step} reads, so this runs before the nodes are rendered.
+     *
+     * @return the entries in the order the document lists them: by the instant each names, then by where each was read
+     */
+    private List<Map<String, Object>> toolExecutions() {
+        final Map<String, String> stepOf = stepsByToolUse();
+        final List<Joined<ExecutionRecord>> entries = new ArrayList<>();
+        final Set<String> seen = new HashSet<>();
+        final BiConsumer<Ref, String> collect = (ref, data) -> {
+            final ExecutionRecord r = ExecutionRecord.decode(data);
+            // kept once by its own id: the same line landed twice, by a hook handed its event again or by an
+            // interrupted pass, is one record
+            if (r != null && seen.add(r.getId())) {
+                entries.add(new Joined<>(r, stepOf.get(r.getTool()), ref));
+            }
+        };
+        for (final SessionDataFile f : filesOfKind("execution")) {
+            for (final SessionDataFile.Record rec : f.getRecords()) {
+                forEachDataPart(f.getHeader().getSeq(), rec, collect);
+            }
+        }
+        entries.sort((a, b) -> {
+            final int byTime = Times.compare(a.record.getTime(), b.record.getTime());
+            return byTime != 0 ? byTime : Order.comparePositions(pointOf(a.ref), pointOf(b.ref));
+        });
+        return listed(entries, executionsByStep);
+    }
+
+    /**
+     * A record about a tool call, the step of that call, and where the record was read. The join is the tool-use id
+     * the record names, which the step's call part carries; nothing is matched by name or by time. A record whose
+     * call is not a step of the document is kept with no step.
+     */
+    private static final class Joined<R extends ToolCallRecord> {
+        final R record;
+        final String step;
+        final Ref ref;
+
+        Joined(final R record, @Nullable final String step, final Ref ref) {
+            this.record = record;
+            this.step = nullToEmpty(step);
+            this.ref = ref;
+        }
+    }
+
+    /**
+     * @param byStep filled with each step's record ids, in the order of the entries
+     * @return each entry as the document lists it: its step, its reference, then the record's own fields
+     */
+    private static <R extends ToolCallRecord> List<Map<String, Object>> listed(
+        final List<Joined<R>> entries, final Map<String, List<String>> byStep) {
+        final List<Map<String, Object>> out = new ArrayList<>(entries.size());
+        for (final Joined<R> e : entries) {
+            final Map<String, Object> m = new LinkedHashMap<>();
+            m.put("step", e.step);
+            m.put("ref", e.ref.toMap());
+            m.putAll(e.record.fields());
+            out.add(m);
+            if (!e.step.isEmpty()) {
+                byStep.computeIfAbsent(e.step, k -> new ArrayList<>()).add(e.record.getId());
+            }
+        }
+        return out;
+    }
+
+    /** Hands each data part of a record to a consumer, with the reference that names the part. */
+    private static void forEachDataPart(final long seq, @Nullable final SessionDataFile.Record rec,
+                                        final BiConsumer<Ref, String> consumer) {
+        if (rec == null) {
+            return;
+        }
+        for (int b = 0; b < rec.getParts().size(); b++) {
+            final SessionDataFile.Part p = rec.getParts().get(b);
+            if ("data".equals(p.getKind())) {
+                consumer.accept(new Ref(seq, rec.getRow(), (long) b), p.data());
+            }
+        }
+    }
+
+    private List<SessionDataFile> filesOfKind(final String kind) {
+        final List<SessionDataFile> out = new ArrayList<>();
+        for (final SessionDataFile f : files.values()) {
+            if (kind.equals(f.getHeader().getKind())) {
+                out.add(f);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * Which step carries which tool-use id, from the call part each tool or agent step points at. A change record and
+     * an execution record name their call by that id, and it is their only join.
+     */
+    private Map<String, String> stepsByToolUse() {
         final Map<String, String> stepOf = new HashMap<>();
         for (final SessionFlowRound.Node n : fold.getNodes().values()) {
             if (!"tool".equals(n.getKind()) && !"agent.call".equals(n.getKind()) || n.getRef() == null) {
@@ -1232,480 +1361,78 @@ public final class ConversationViewBuilder {
                 stepOf.put(p.getId(), n.getId());
             }
         }
-        final List<WorkspaceChange> entries = new ArrayList<>();
-        final Set<String> seen = new HashSet<>();
-        // the runtime's own patches, on the result records the tool steps read
-        for (final SessionFlowRound.Node n : fold.getNodes().values()) {
-            if (!"tool".equals(n.getKind()) || n.getRefs().size() < 2) {
-                continue;
-            }
-            for (int i = 1; i < n.getRefs().size(); i++) {
-                final Ref ref = n.getRefs().get(i);
-                collectChanges(record(ref), ref.getSeq(), ref.getRow(), stepOf, seen, entries);
-            }
-        }
-        // the plugin's records, from the files its adapter landed, in seq order
-        final List<Long> seqs = new ArrayList<>(files.keySet());
-        Collections.sort(seqs);
-        for (final Long seq : seqs) {
-            final SessionDataFile f = files.get(seq);
-            if (!"changes".equals(f.getHeader().getKind())) {
-                continue;
-            }
-            for (final SessionDataFile.Record rec : f.getRecords()) {
-                collectChanges(rec, seq, rec.getRow(), stepOf, seen, entries);
-            }
-        }
-        entries.sort((a, b) -> {
-            final int byTime = a.record.getTime().compareTo(b.record.getTime());
-            if (byTime != 0) {
-                return byTime;
-            }
-            if (!a.record.getCapturedBy().equals(b.record.getCapturedBy())) {
-                // the runtime's record is listed first, and a viewer showing one prefers it
-                if (ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(a.record.getCapturedBy())) {
-                    return -1;
-                }
-                return ChangesRecord.CAPTURED_BY_CLAUDE_CODE.equals(b.record.getCapturedBy()) ? 1 : 0;
-            }
-            return a.record.getId().compareTo(b.record.getId());
-        });
-        final List<Map<String, Object>> out = new ArrayList<>(entries.size());
-        for (final WorkspaceChange e : entries) {
-            final Map<String, Object> m = new LinkedHashMap<>();
-            m.put("step", e.step);
-            m.put("ref", e.ref.toMap());
-            m.putAll(e.record.fields());
-            out.add(m);
-            if (!e.step.isEmpty()) {
-                changesByStep.computeIfAbsent(e.step, k -> new ArrayList<>()).add(e.record.getId());
-            }
-        }
-        return out;
-    }
-
-    private static void collectChanges(@Nullable final SessionDataFile.Record rec, final long seq, final long row,
-                                       final Map<String, String> stepOf, final Set<String> seen,
-                                       final List<WorkspaceChange> entries) {
-        if (rec == null) {
-            return;
-        }
-        final List<SessionDataFile.Part> parts = rec.getParts();
-        for (int b = 0; b < parts.size(); b++) {
-            final SessionDataFile.Part p = parts.get(b);
-            if (!"data".equals(p.getKind())) {
-                continue;
-            }
-            final ChangesRecord r = ChangesRecord.decode(p.data());
-            if (r == null) {
-                continue;
-            }
-            // the id is the tool-use id, so two producers observing one call share it; who captured the record
-            // tells them apart, and a line landed twice by an interrupted pass is the same on both counts
-            if (!seen.add(r.getCapturedBy() + "|" + r.getId())) {
-                continue;
-            }
-            entries.add(new WorkspaceChange(nullToEmpty(stepOf.get(r.getTool())), new Ref(seq, row, b), r));
-        }
-    }
-
-    /** One change record with the step it joins to, or none, and the record it was read from. */
-    private static final class WorkspaceChange {
-        final String step;
-        final Ref ref;
-        final ChangesRecord record;
-
-        WorkspaceChange(final String step, final Ref ref, final ChangesRecord record) {
-            this.step = step;
-            this.ref = ref;
-            this.record = record;
-        }
+        return stepOf;
     }
 
     // ---------------------------------------------------------------- provider bodies
 
     /**
-     * Joins the session's provider bodies to their calls, as the Sessionizer's view joins them. A body is a
-     * <code>provider_body</code> record: the request or the response a runtime exchanged with its model provider,
-     * cut so it keeps only what the session did not hold yet, with a manifest as its last part. The document names
-     * where each joined body landed and never carries the body; a reader loads the files up to that seq and rebuilds
-     * it. Fills {@link #providerBodiesByStep} on the way, which {@link #step} reads, so this runs before the nodes are
-     * rendered.
-     *
-     * <p>A response joins by its message id, which is the call's own. A request names no call, only the request
-     * before it and its prompt, so it joins to the call of its stream whose previous call's response carries that
-     * request id and whose prompt is the one it names, when exactly one request and exactly one call carry those two
-     * ids. A synthetic call was never sent to a provider and takes part in no join. No request joins in a stream
-     * whose landed transcript lines have a gap, since a call may be missing between two that look consecutive.
-     * Nothing is joined by position or by time.
-     *
-     * @return how many bodies the session holds
+     * A node's attributes without the provider bodies a call carries. The document gives them a field of their own,
+     * <code>provider_bodies</code> on the step, so leaving them in the attributes as well would say the same thing
+     * twice. Every other attribute travels as the round wrote it. When the bodies are taken out, what is left is
+     * written as Go writes a map, with its keys sorted, and nothing is left when nothing else was there.
      */
-    private int providerBodies() {
-        final List<Body> out = new ArrayList<>();
-        final Set<String> seen = new HashSet<>();
-        final List<Long> seqs = new ArrayList<>(files.keySet());
-        Collections.sort(seqs);
-        for (final Long seq : seqs) {
-            final SessionDataFile f = files.get(seq);
-            if (!KIND_PROVIDER_BODY.equals(f.getHeader().getKind())) {
-                continue;
-            }
-            for (final SessionDataFile.Record rec : f.getRecords()) {
-                final JsonObject m = manifest(rec);
-                // a body landed twice by an interrupted pass is one body
-                if (m == null || !seen.add(nullToEmpty(rec.getId()))) {
-                    continue;
-                }
-                out.add(new Body(new Ref(seq, rec.getRow(), null), nullToEmpty(string(m, "role")),
-                                 nullToEmpty(string(m, "run")), nullToEmpty(string(m, "previous_request")),
-                                 nullToEmpty(string(m, "request")), nullToEmpty(string(m, "call"))));
+    @Nullable
+    private static JsonElement withoutProviderBodies(@Nullable final JsonElement raw) {
+        if (raw == null || !raw.isJsonObject() || !raw.getAsJsonObject().has(SessionFlowRound.PROVIDER_BODIES_ATTR)) {
+            return raw;
+        }
+        // by code point, which is the order of Go's sort on the UTF-8 bytes; Java's own String order is by UTF-16 unit
+        // and puts a character past U+FFFF before U+E000
+        final TreeMap<String, JsonElement> sorted = new TreeMap<>(GoStrings.ORDER);
+        for (final Map.Entry<String, JsonElement> e : raw.getAsJsonObject().entrySet()) {
+            if (!SessionFlowRound.PROVIDER_BODIES_ATTR.equals(e.getKey())) {
+                sorted.put(e.getKey(), e.getValue());
             }
         }
-        if (out.isEmpty()) {
-            return 0;
+        if (sorted.isEmpty()) {
+            return null;
         }
+        final JsonObject out = new JsonObject();
+        sorted.forEach(out::add);
+        return out;
+    }
 
-        // the calls, with their message id, their prompt and their stream, in line order within a stream
-        final List<Call> calls = new ArrayList<>();
+    /**
+     * Each call's provider bodies, as the round carries them. A body is the request or the response a runtime
+     * exchanged with its model provider. The document names where each joined body landed and never carries the
+     * body; a reader loads the files up to that seq and rebuilds it. Fills {@link #providerBodiesByStep} on the way,
+     * which {@link #step} reads, so this runs before the nodes are rendered.
+     *
+     * <p>The join is not made here. The Sessionizer makes it once, when it parses the round, and the round carries it
+     * on each <code>llm.call</code>: a body joins by identifiers only its manifest holds, and a reader that made the
+     * join itself would open every landed body, the largest files a session holds, to read one line of each. A
+     * round whose bodies do not read is refused when it is read, so what reaches here is the shape or nothing.
+     *
+     * @return how many requests are joined, which is how many calls have their prompt captured
+     */
+    private int joinProviderBodies() {
+        int requests = 0;
         for (final SessionFlowRound.Node n : fold.getNodes().values()) {
-            if (!"llm.call".equals(n.getKind()) || n.getRef() == null) {
+            if (!"llm.call".equals(n.getKind())) {
                 continue;
             }
-            // a call whose record is gone stays in its stream with no message id, so the call after it has no
-            // previous response to name and is left unjoined rather than taken for the first of its stream
-            final Call k = new Call(n.getId(), nullToEmpty(n.getStream()), n.getRef());
-            final SessionDataFile.Record rec = decodable(record(n.getRef()));
-            if (rec != null) {
-                // a synthetic record sits in the stream like a response, but no provider was called
-                if (rec.flags().contains("synthetic")) {
-                    continue;
-                }
-                k.msg = nullToEmpty(string(rec.getJson(), "call"));
-            }
-            final SessionFlowRound.Node p = StringUtil.isEmpty(n.getParent()) ? null : fold.node(n.getParent());
-            if (p != null && "run".equals(p.getKind()) && p.getRef() != null) {
-                final SessionDataFile.Record run = decodable(record(p.getRef()));
-                if (run != null) {
-                    k.prompt = nullToEmpty(string(run.getJson(), "run"));
-                }
-            }
-            calls.add(k);
-        }
-        calls.sort(Comparator.comparing((Call c) -> c.stream)
-                             .thenComparingLong(c -> c.at.getSeq())
-                             .thenComparingLong(c -> c.at.getRow())
-                             .thenComparing(c -> c.id));
-
-        // responses, by message id
-        final Map<String, List<Integer>> byMsg = new HashMap<>();
-        for (int i = 0; i < out.size(); i++) {
-            final Body b = out.get(i);
-            if (ROLE_RESPONSE.equals(b.role) && !b.call.isEmpty()) {
-                byMsg.computeIfAbsent(b.call, x -> new ArrayList<>()).add(i);
-            }
-        }
-        final Map<String, String> requestOf = new HashMap<>();
-        final Map<String, Integer> responseOf = new HashMap<>();
-        for (final Call k : calls) {
-            if (k.msg.isEmpty()) {
-                continue;
-            }
-            final List<Integer> hits = byMsg.getOrDefault(k.msg, Collections.emptyList());
-            if (hits.size() == 1) {
-                final Body b = out.get(hits.get(0));
-                b.join = JOIN_EXACT;
-                requestOf.put(k.id, b.request);
-                responseOf.put(k.id, hits.get(0));
-            } else {
-                for (final int i : hits) {
-                    out.get(i).join = JOIN_AMBIGUOUS;
+            for (final SessionFlowRound.ProviderBody y : n.getProviderBodies()) {
+                final Map<String, Object> m = new LinkedHashMap<>();
+                m.put("role", y.getRole());
+                m.put("ref", y.getRef().toMap());
+                providerBodiesByStep.computeIfAbsent(n.getId(), k -> new ArrayList<>()).add(m);
+                if (SessionFlowRound.ROLE_REQUEST.equals(y.getRole())) {
+                    requests++;
                 }
             }
         }
-
-        // requests, by the request before them and their prompt
-        final Map<List<String>, List<Integer>> byKey = new HashMap<>();
-        for (int i = 0; i < out.size(); i++) {
-            final Body b = out.get(i);
-            if (ROLE_REQUEST.equals(b.role) && !b.run.isEmpty()) {
-                byKey.computeIfAbsent(Arrays.asList(b.previousRequest, b.run), x -> new ArrayList<>()).add(i);
-            }
-        }
-        // the key each call's request would carry: none when the previous call has no response carrying its request
-        // id, and none in a stream whose landed lines have a gap
-        final Map<String, Boolean> gapped = new HashMap<>();
-        for (final Call k : calls) {
-            gapped.computeIfAbsent(k.stream, this::streamHasGap);
-        }
-        final Map<String, List<String>> callKey = new HashMap<>();
-        final Map<List<String>, Integer> callsByKey = new HashMap<>();
-        for (int i = 0; i < calls.size(); i++) {
-            final Call k = calls.get(i);
-            if (gapped.get(k.stream)) {
-                continue;
-            }
-            String prev = "";
-            if (i > 0 && calls.get(i - 1).stream.equals(k.stream)) {
-                prev = requestOf.get(calls.get(i - 1).id);
-                if (StringUtil.isEmpty(prev)) {
-                    continue;
-                }
-            }
-            if (k.prompt.isEmpty()) {
-                continue;
-            }
-            final List<String> key = Arrays.asList(prev, k.prompt);
-            callKey.put(k.id, key);
-            callsByKey.merge(key, 1, Integer::sum);
-        }
-        final Map<String, Integer> requestFor = new HashMap<>();
-        for (final Call k : calls) {
-            final List<String> key = callKey.get(k.id);
-            if (key == null) {
-                continue;
-            }
-            final List<Integer> hits = byKey.getOrDefault(key, Collections.emptyList());
-            if (hits.isEmpty()) {
-                continue;
-            }
-            if (hits.size() == 1 && callsByKey.get(key) == 1) {
-                // one request and one call carry the key: nothing else could be this call's request
-                final Body b = out.get(hits.get(0));
-                if (JOIN_UNRESOLVED.equals(b.join)) {
-                    b.join = JOIN_EXACT;
-                    requestFor.put(k.id, hits.get(0));
-                }
-            } else {
-                for (final int i : hits) {
-                    if (JOIN_UNRESOLVED.equals(out.get(i).join)) {
-                        out.get(i).join = JOIN_AMBIGUOUS;
-                    }
-                }
-            }
-        }
-        for (final Call k : calls) {
-            final Integer request = requestFor.get(k.id);
-            if (request != null) {
-                providerBodiesByStep.computeIfAbsent(k.id, x -> new ArrayList<>()).add(out.get(request).toMap());
-            }
-            final Integer response = responseOf.get(k.id);
-            if (response != null) {
-                providerBodiesByStep.computeIfAbsent(k.id, x -> new ArrayList<>()).add(out.get(response).toMap());
-            }
-        }
-        return out.size();
+        return requests;
     }
 
     /**
-     * @param rec a record of a <code>provider_body</code> file
-     * @return its manifest: the last part, when it is a data part holding a <code>provider_body/1</code> object that
-     * decodes as the Sessionizer's <code>providerbody.Manifest</code>, or null
+     * @return how many bodies the session holds as of the folded chain, joined or not, as its session node states it;
+     * 0 when the node does not, or states it as Go cannot decode into an int
      */
-    @Nullable
-    private static JsonObject manifest(final SessionDataFile.Record rec) {
-        final List<SessionDataFile.Part> parts = rec.getParts();
-        if (parts.isEmpty()) {
-            return null;
-        }
-        final SessionDataFile.Part last = parts.get(parts.size() - 1);
-        final String data = last.data();
-        if (!"data".equals(last.getKind()) || data == null) {
-            return null;
-        }
-        final JsonObject m;
-        try {
-            final JsonElement e = JsonParser.parseString(data);
-            if (!e.isJsonObject()) {
-                return null;
-            }
-            m = e.getAsJsonObject();
-        } catch (final RuntimeException e) {
-            return null;
-        }
-        if (!fieldsDecode(m, MANIFEST_STRINGS, MANIFEST_INTS)) {
-            return null;
-        }
-        final JsonElement segments = m.get("segments");
-        if (segments != null && !segments.isJsonNull()) {
-            if (!segments.isJsonArray()) {
-                return null;
-            }
-            for (final JsonElement seg : segments.getAsJsonArray()) {
-                if (seg.isJsonNull()) {
-                    continue;
-                }
-                if (!seg.isJsonObject() || !fieldsDecode(seg.getAsJsonObject(), SEGMENT_STRINGS, SEGMENT_INTS)) {
-                    return null;
-                }
-                final JsonElement copy = seg.getAsJsonObject().get("copy");
-                if (copy != null && !copy.isJsonNull()
-                    && (!copy.isJsonObject() || !fieldsDecode(copy.getAsJsonObject(), COPY_STRINGS, COPY_INTS))) {
-                    return null;
-                }
-            }
-        }
-        return PROVIDER_BODY_SCHEMA.equals(string(m, "schema")) ? m : null;
-    }
-
-    private static final String[] MANIFEST_STRINGS = {
-        "schema", "role", "src", "sha256", "chain", "why", "model", "session", "run", "call", "request", "previous_request"};
-    private static final String[] MANIFEST_INTS = {"bytes", "depth"};
-    private static final String[] SEGMENT_STRINGS = {"lit", "piece"};
-    private static final String[] SEGMENT_INTS = {"part"};
-    private static final String[] COPY_STRINGS = {"from", "sha256"};
-    private static final String[] COPY_INTS = {"len"};
-
-    /**
-     * @return whether each named key is absent, null, or of the type Go decodes it into: a string, or an integer that
-     * fits a 64-bit int. A value of another type fails Go's decoding of the whole object.
-     */
-    private static boolean fieldsDecode(final JsonObject o, final String[] strings, final String[] ints) {
-        for (final String key : strings) {
-            final JsonElement v = o.get(key);
-            if (v != null && !v.isJsonNull() && !(v.isJsonPrimitive() && v.getAsJsonPrimitive().isString())) {
-                return false;
-            }
-        }
-        for (final String key : ints) {
-            final JsonElement v = o.get(key);
-            if (v != null && !v.isJsonNull() && integer(v, false) == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param v        a JSON value
-     * @param unsigned whether the Go type is an unsigned 64-bit integer rather than a signed one
-     * @return the value's bits as Go decodes a JSON number into that type, or null when Go refuses it: not a number,
-     * a fraction or an exponent, or out of range
-     */
-    @Nullable
-    private static Long integer(final JsonElement v, final boolean unsigned) {
-        if (!v.isJsonPrimitive() || !v.getAsJsonPrimitive().isNumber() || !INTEGER_LITERAL.matcher(v.getAsString()).matches()) {
-            return null;
-        }
-        final BigInteger n = new BigInteger(v.getAsString());
-        final BigInteger min = unsigned ? BigInteger.ZERO : BigInteger.valueOf(Long.MIN_VALUE);
-        final BigInteger max = unsigned ? BigInteger.ONE.shiftLeft(64).subtract(BigInteger.ONE) : BigInteger.valueOf(Long.MAX_VALUE);
-        return n.compareTo(min) < 0 || n.compareTo(max) > 0 ? null : n.longValue();
-    }
-
-    /**
-     * @param rec a record, or null
-     * @return the record, or null when the call or run it names is not a string: the Sessionizer does not decode such
-     * a record, so to the join it is gone
-     */
-    @Nullable
-    private static SessionDataFile.Record decodable(@Nullable final SessionDataFile.Record rec) {
-        return rec == null || !fieldsDecode(rec.getJson(), RECORD_STRINGS, new String[0]) ? null : rec;
-    }
-
-    private static final String[] RECORD_STRINGS = {"call", "run"};
-
-    /**
-     * @param stream a stream
-     * @return whether the stream's landed transcript lines skip a line: the first is not line 1, or a line after a
-     * later one is missing. A line landed twice is a repeat, not a gap. Only each record's ord is read, as the
-     * Sessionizer reads it from the raw line: the digits after a leading <code>{"ord":</code>, or else the line
-     * decoded. A line that does not decode, or a file the reader refuses, may hide a missing call, so it counts as a
-     * gap.
-     */
-    private boolean streamHasGap(final String stream) {
-        final List<Long> seqs = new ArrayList<>(files.keySet());
-        Collections.sort(seqs);
-        long prev = 0;
-        for (final Long seq : seqs) {
-            final SessionDataFile f = files.get(seq);
-            final SessionDataFile.Header h = f.getHeader();
-            if (!"transcript".equals(h.getKind()) || !stream.equals(nullToEmpty(h.getStream()))) {
-                continue;
-            }
-            if (!h.isValid()) {
-                return true;
-            }
-            for (final SessionDataFile.Record rec : f.getRecords()) {
-                final long ord;
-                if (rec.getLeadingOrd() != null) {
-                    if (rec.getLeadingOrd().isEmpty()) {
-                        return true;
-                    }
-                    // Go reads the digits into a uint64 and lets it wrap, so the long's bits are that value
-                    long n = 0;
-                    for (int i = 0; i < rec.getLeadingOrd().length(); i++) {
-                        n = n * 10 + (rec.getLeadingOrd().charAt(i) - '0');
-                    }
-                    ord = n;
-                } else {
-                    final JsonElement v = rec.getJson().get("ord");
-                    if (v == null || v.isJsonNull()) {
-                        ord = 0;
-                    } else {
-                        final Long n = integer(v, true);
-                        if (n == null) {
-                            return true;
-                        }
-                        ord = n;
-                    }
-                }
-                // unsigned, as the Sessionizer compares uint64 values
-                if (Long.compareUnsigned(ord, prev + 1) > 0) {
-                    return true;
-                }
-                if (Long.compareUnsigned(ord, prev) > 0) {
-                    prev = ord;
-                }
-            }
-            if (f.isStoppedEarly()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** One landed provider body, and how it joined. */
-    private static final class Body {
-        final Ref ref;
-        final String role;
-        final String run;
-        final String previousRequest;
-        final String request;
-        final String call;
-        String join = JOIN_UNRESOLVED;
-
-        Body(final Ref ref, final String role, final String run, final String previousRequest, final String request,
-             final String call) {
-            this.ref = ref;
-            this.role = role;
-            this.run = run;
-            this.previousRequest = previousRequest;
-            this.request = request;
-            this.call = call;
-        }
-
-        Map<String, Object> toMap() {
-            final Map<String, Object> m = new LinkedHashMap<>();
-            m.put("role", role);
-            m.put("ref", ref.toMap());
-            return m;
-        }
-    }
-
-    /** One call step, with the ids its bodies are joined by. */
-    private static final class Call {
-        final String id;
-        final String stream;
-        final Ref at;
-        String msg = "";
-        String prompt = "";
-
-        Call(final String id, final String stream, final Ref at) {
-            this.id = id;
-            this.stream = stream;
-            this.at = at;
-        }
+    private long landedProviderBodies() {
+        final SessionFlowRound.Node session = fold.node(sessionNodeId());
+        final JsonObject attrs = session == null ? null : GoJson.decode(session.getAttrsText(), SESSION_ATTRS);
+        return attrs == null ? 0 : attrs.get("provider_bodies_landed").getAsLong();
     }
 
     /**
@@ -1714,14 +1441,39 @@ public final class ConversationViewBuilder {
      * @return the part named, or the only part when none is named, or null
      */
     @Nullable
-    private static SessionDataFile.Part partAt(final SessionDataFile.Record rec, @Nullable final Integer block) {
+    private static SessionDataFile.Part partAt(final SessionDataFile.Record rec, @Nullable final Long block) {
         if (block != null && block < rec.getParts().size()) {
-            return rec.getParts().get(block);
+            return rec.getParts().get(block.intValue());
         }
         return rec.getParts().size() == 1 ? rec.getParts().get(0) : null;
     }
 
     // ---------------------------------------------------------------- records and times
+
+    /** Relations one record supports are listed by id, as nothing else tells them apart. */
+    private static final Comparator<SessionFlowRound.Relation> RELATION_TIE =
+        Comparator.comparing(SessionFlowRound.Relation::getId, GoStrings.ORDER);
+
+    /** Where a reference sits: its file's lane, its position, and its record's time. */
+    private Order.Point pointOf(@Nullable final Ref r) {
+        if (r == null || r.getSeq() == 0) {
+            return Order.Point.NOWHERE;
+        }
+        return new Order.Point(lanes.getOrDefault(r.getSeq(), ""), r.getSeq(), r.getRow(),
+                               r.getBlock() == null ? -1 : r.getBlock(), nanosAt(r));
+    }
+
+    /** Where a relation happened: at the earliest record that supports it. */
+    private Order.Point relationPoint(@Nullable final SessionFlowRound.Relation r) {
+        if (r == null) {
+            return Order.Point.NOWHERE;
+        }
+        final List<Order.Point> points = new ArrayList<>();
+        for (final Ref e : r.getEvidence()) {
+            points.add(pointOf(e));
+        }
+        return Order.earliest(points);
+    }
 
     @Nullable
     private SessionDataFile.Record record(@Nullable final Ref ref) {
@@ -1755,6 +1507,21 @@ public final class ConversationViewBuilder {
         return lohi;
     }
 
+    /**
+     * The earliest record time under a node, in nanoseconds: talks are ordered at the precision the Sessionizer
+     * keeps, so two that began in the same millisecond keep their order. 0 when nothing under it is timed.
+     */
+    private long beganAt(final SessionFlowRound.Node x) {
+        long lo = nanosAt(x.getRef());
+        for (final SessionFlowRound.Node k : fold.children(x.getId())) {
+            final long t = beganAt(k);
+            if (t != 0 && (lo == 0 || t < lo)) {
+                lo = t;
+            }
+        }
+        return lo;
+    }
+
     private void walkSpan(final SessionFlowRound.Node x, final long[] lohi) {
         final long t = time(x);
         if (t != 0) {
@@ -1784,41 +1551,34 @@ public final class ConversationViewBuilder {
             return t;
         }
         for (final String raw : candidates(rec)) {
-            try {
-                final JsonElement e = JsonParser.parseString(raw);
-                if (!e.isJsonObject() || !"queued_command".equals(string(e.getAsJsonObject(), "type"))) {
-                    continue;
-                }
-                final JsonElement prompt = e.getAsJsonObject().get("prompt");
-                if (prompt == null || !prompt.isJsonArray()) {
-                    continue;
-                }
-                // the whole candidate is the shape Go decodes, or it is skipped: every element an object whose
-                // text, when present, is a string
-                final List<String> out = new ArrayList<>();
-                boolean shaped = true;
-                for (final JsonElement p : prompt.getAsJsonArray()) {
-                    if (!p.isJsonObject() || !isStringOrAbsent(p.getAsJsonObject(), "text")) {
-                        shaped = false;
-                        break;
-                    }
-                    if (StringUtil.isNotEmpty(string(p.getAsJsonObject(), "text"))) {
-                        out.add(string(p.getAsJsonObject(), "text"));
-                    }
-                }
-                if (shaped && !out.isEmpty()) {
-                    return trimSpace(String.join("\n", out));
-                }
-            } catch (final RuntimeException ignored) {
-                // not JSON; the next candidate may be
+            final String prompt = queuedPrompt(raw);
+            if (prompt != null) {
+                return prompt;
             }
         }
         return "";
     }
 
-    private static boolean isStringOrAbsent(final JsonObject json, final String key) {
-        final JsonElement e = json.get(key);
-        return e == null || e.isJsonNull() || e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
+    /**
+     * @param raw one candidate of a record
+     * @return the texts of the prompt a queued command envelope carries, one per line and trimmed, or null when the
+     * candidate is not one or carries no text
+     */
+    @Nullable
+    private static String queuedPrompt(final String raw) {
+        final JsonObject envelope = GoJson.decode(raw, QUEUED_COMMAND);
+        if (envelope == null || !"queued_command".equals(envelope.get("type").getAsString())
+            || !envelope.get("prompt").isJsonArray()) {
+            return null;
+        }
+        final List<String> out = new ArrayList<>();
+        for (final JsonElement p : envelope.getAsJsonArray("prompt")) {
+            final String text = p.getAsJsonObject().get("text").getAsString();
+            if (!text.isEmpty()) {
+                out.add(text);
+            }
+        }
+        return out.isEmpty() ? null : trimSpace(String.join("\n", out));
     }
 
     static List<String> candidates(final SessionDataFile.Record rec) {
@@ -1891,56 +1651,10 @@ public final class ConversationViewBuilder {
         return new String(bytes, 0, cut, StandardCharsets.UTF_8);
     }
 
-    static Map<String, Object> jsonToMap(final JsonObject json) {
-        final Map<String, Object> out = new LinkedHashMap<>();
-        for (final Map.Entry<String, JsonElement> e : json.entrySet()) {
-            out.put(e.getKey(), jsonToValue(e.getValue()));
-        }
-        return out;
-    }
-
-    private static Object jsonToValue(final JsonElement e) {
-        if (e == null || e.isJsonNull()) {
-            return null;
-        }
-        if (e.isJsonObject()) {
-            return jsonToMap(e.getAsJsonObject());
-        }
-        if (e.isJsonArray()) {
-            final List<Object> list = new ArrayList<>();
-            for (final JsonElement x : e.getAsJsonArray()) {
-                list.add(jsonToValue(x));
-            }
-            return list;
-        }
-        if (e.getAsJsonPrimitive().isBoolean()) {
-            return e.getAsBoolean();
-        }
-        if (e.getAsJsonPrimitive().isNumber()) {
-            // as written: Go prints the raw attrs, so 1.0 stays 1.0 and 1 stays 1
-            final String literal = e.getAsString();
-            if (INTEGER_LITERAL.matcher(literal).matches()) {
-                try {
-                    return Long.parseLong(literal);
-                } catch (final NumberFormatException ignored) {
-                    return new BigInteger(literal);
-                }
-            }
-            return new BigDecimal(literal);
-        }
-        return e.getAsString();
-    }
-
     @Nullable
     private static Long millisOrNull(@Nullable final String rfc3339) {
         // absent is null; present but unreadable is 0, as the Sessionizer's millisPtr
         return StringUtil.isEmpty(rfc3339) ? null : Long.valueOf(Times.millis(rfc3339));
-    }
-
-    @Nullable
-    private static String string(final JsonObject json, final String key) {
-        final JsonElement e = json.get(key);
-        return e == null || e.isJsonNull() || !e.isJsonPrimitive() ? null : e.getAsString();
     }
 
     private static String nullToEmpty(@Nullable final String s) {

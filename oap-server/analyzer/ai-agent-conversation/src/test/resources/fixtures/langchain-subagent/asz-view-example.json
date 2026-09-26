@@ -1,0 +1,1064 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "ls-asz-harness-thread-subagent-4e1037625675",
+  "sessions": [
+    "ls-asz-harness-thread-subagent-4e1037625675"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "3fd311176e49c289fc90f98be080c73ec33acfbbef97dce888b569af9bcd6c7e"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "Is prod-1 healthy?",
+    "state": "verified",
+    "problems": [],
+    "talks": 3,
+    "steps": 14,
+    "streams": 3,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 0,
+    "provider_bodies": 12,
+    "captured_prompts": 6,
+    "from": 1789901215524,
+    "to": 1789901215562,
+    "kinds": {
+      "agent.call": 1,
+      "agent.output": 1,
+      "epoch": 3,
+      "llm.call": 6,
+      "message.assistant": 3,
+      "message.external": 1,
+      "run": 3,
+      "segment": 1,
+      "session": 1,
+      "stream": 3,
+      "talk": 3,
+      "tool": 2
+    },
+    "relation_types": {
+      "ends_with": 1,
+      "in_segment": 3,
+      "result_of": 2,
+      "starts": 2
+    },
+    "quality": {
+      "exact_unique": 6,
+      "strong_inference": 2
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "3fd311176e49c289fc90f98be080c73ec33acfbbef97dce888b569af9bcd6c7e",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 4,
+      "input_digest": "f3644169bcc6e832fae6eaa18af2747851d804b425e16bf1c245ede0945ad525",
+      "from_time": 1789901215524,
+      "through_time": 1789901215562,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "ls-asz-harness-thread-subagent-4e1037625675/streams/delegate-to-analyst-6e581483db74/transcript-20260920T110158.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "delegate-to-analyst-6e581483db74",
+      "run": null,
+      "lines": 17,
+      "bytes": 17348,
+      "digest": "9543c811671b35488339792b5a639feb81fd9240b035d973b77329f04d64e140",
+      "from_time": 1789901215550,
+      "through_time": 1789901215555
+    },
+    {
+      "file": "ls-asz-harness-thread-subagent-4e1037625675/streams/main/transcript-20260920T110158.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 2,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 27,
+      "bytes": 22437,
+      "digest": "d368f0bb0f0fbb7579fa7c0240ae9f7a498e7510f4d53e705a4322eab8239b20",
+      "from_time": 1789901215524,
+      "through_time": 1789901215562
+    },
+    {
+      "file": "ls-asz-harness-thread-subagent-4e1037625675/streams/summarise-d6aa2d533d9e/transcript-20260920T110158.000000000Z-000003.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 3,
+      "round": null,
+      "stream": "summarise-d6aa2d533d9e",
+      "run": null,
+      "lines": 3,
+      "bytes": 828,
+      "digest": "9ffc294dc8a62771c3b589324eb3e8749dea903c0069c2598c57a245219617c8",
+      "from_time": 1789901215559,
+      "through_time": 1789901215559
+    },
+    {
+      "file": "ls-asz-harness-thread-subagent-4e1037625675/provider_body/provider_body-20260920T110158.000000000Z-000004.sd",
+      "format": "sd",
+      "kind": "provider_body",
+      "seq": 4,
+      "round": null,
+      "stream": null,
+      "run": null,
+      "lines": 14,
+      "bytes": 24376,
+      "digest": "9f2bad635245b486b0920268fb646d55587753204f4062584993779dce02733e",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/ls-asz-harness-thread-subagent-4e1037625675/rounds/r000001-3fd311176e49.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 38,
+      "bytes": 12042,
+      "digest": "5fdbf9f7cb00c5ba634c9da349e37eb7a835ff2aedc4fb75fe97ade911bbdbf2",
+      "from_time": 1789901215524,
+      "through_time": 1789901215562
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 25,
+      "steps": 7,
+      "talk": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+      "named_by": "",
+      "opened_by": []
+    },
+    {
+      "id": "stream/delegate-to-analyst-6e581483db74",
+      "name": "delegate-to-analyst-6e581483db74",
+      "role": "child",
+      "label": "",
+      "parent": "main",
+      "records": 15,
+      "steps": 5,
+      "talk": "talk/delegate-to-analyst-6e581483db74",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/call_delegate_to_analyst_23",
+          "stream": "main",
+          "talk": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+          "quality": "exact_unique"
+        }
+      ]
+    },
+    {
+      "id": "stream/summarise-d6aa2d533d9e",
+      "name": "summarise-d6aa2d533d9e",
+      "role": "auxiliary",
+      "label": "",
+      "parent": "main",
+      "records": 1,
+      "steps": 2,
+      "talk": "talk/summarise-d6aa2d533d9e",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/call_summarise_26",
+          "stream": "main",
+          "talk": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+          "quality": "exact_unique"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_2_2",
+      "state": "open",
+      "committable": false,
+      "talks": 3,
+      "from": 1789901215524,
+      "to": 1789901215561
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1789901215524,
+      "ref": {
+        "seq": 2,
+        "row": 2
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "external"
+      },
+      "label": "Is prod-1 healthy?",
+      "reply": "answer 28",
+      "runs": 1,
+      "steps": 7,
+      "tools": 2,
+      "from": 1789901215524,
+      "to": 1789901215561,
+      "segment": "segment/at_2_2",
+      "children": [
+        {
+          "id": "run/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/01a0be6d-1724-7870-b615-7535de6b6e91",
+          "kind": "run",
+          "parent": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+          "stream": "main",
+          "at": 1789901215524,
+          "ref": {
+            "seq": 2,
+            "row": 2
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/2/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/01a0be6d-1724-7870-b615-7535de6b6e91",
+              "stream": "main",
+              "at": 1789901215524,
+              "ref": {
+                "seq": 2,
+                "row": 2
+              },
+              "text": "Is prod-1 healthy?",
+              "state": "available",
+              "bytes": 18,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/01a0be6d-1735-76d3-b90b-cd6a57657ebe",
+              "kind": "llm.call",
+              "parent": "run/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/01a0be6d-1724-7870-b615-7535de6b6e91",
+              "stream": "main",
+              "at": 1789901215548,
+              "ref": {
+                "seq": 2,
+                "row": 8
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 8
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 8,
+                  "seq": 2
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 123,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 1
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 2
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "tool/call_delegate_to_analyst_23",
+                  "kind": "agent.call",
+                  "parent": "call/01a0be6d-1735-76d3-b90b-cd6a57657ebe",
+                  "stream": "main",
+                  "at": 1789901215548,
+                  "ref": {
+                    "seq": 2,
+                    "row": 8,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 2,
+                      "row": 8,
+                      "block": 0
+                    },
+                    {
+                      "seq": 2,
+                      "row": 11,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "delegate_to_analyst",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"cluster\":\"prod-1\",\"question\":\"check prod-1\",\"text\":\"some findings\"}",
+                  "state": "available",
+                  "bytes": 69,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "delegate_to_analyst",
+                  "result": "answer 25",
+                  "result_state": "available",
+                  "result_bytes": 9,
+                  "request_to_result_ms": 7,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "starts",
+                      "other": "stream/delegate-to-analyst-6e581483db74",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    },
+                    {
+                      "type": "result_of",
+                      "other": "output/delegate-to-analyst-6e581483db74",
+                      "dir": "in",
+                      "quality": "exact_unique",
+                      "via": "the result the call that started this stream received"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/01a0be6d-1744-73e1-b54f-bcfda53a8067",
+              "kind": "llm.call",
+              "parent": "run/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/01a0be6d-1724-7870-b615-7535de6b6e91",
+              "stream": "main",
+              "at": 1789901215557,
+              "ref": {
+                "seq": 2,
+                "row": 16
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 16
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 16,
+                  "seq": 2
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 126,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 7
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 8
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "tool/call_summarise_26",
+                  "kind": "tool",
+                  "parent": "call/01a0be6d-1744-73e1-b54f-bcfda53a8067",
+                  "stream": "main",
+                  "at": 1789901215557,
+                  "ref": {
+                    "seq": 2,
+                    "row": 16,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 2,
+                      "row": 16,
+                      "block": 0
+                    },
+                    {
+                      "seq": 2,
+                      "row": 19,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "summarise",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"cluster\":\"prod-1\",\"question\":\"check prod-1\",\"text\":\"some findings\"}",
+                  "state": "available",
+                  "bytes": 69,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "summarise",
+                  "result": "answer 27",
+                  "result_state": "available",
+                  "result_bytes": 9,
+                  "request_to_result_ms": 2,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "result_of",
+                      "other": "call/01a0be6d-1746-7170-b6d0-d6ba40ae33b2",
+                      "dir": "in",
+                      "quality": "exact_unique",
+                      "via": "the result the tool that started this stream received"
+                    },
+                    {
+                      "type": "starts",
+                      "other": "stream/summarise-d6aa2d533d9e",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/01a0be6d-1748-76f1-8883-e83b7c887dc1",
+              "kind": "llm.call",
+              "parent": "run/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/01a0be6d-1724-7870-b615-7535de6b6e91",
+              "stream": "main",
+              "at": 1789901215561,
+              "ref": {
+                "seq": 2,
+                "row": 24
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 24
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 24,
+                  "seq": 2
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 128,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 11
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 12
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/2/24:0",
+                  "kind": "message.assistant",
+                  "parent": "call/01a0be6d-1748-76f1-8883-e83b7c887dc1",
+                  "stream": "main",
+                  "at": 1789901215561,
+                  "ref": {
+                    "seq": 2,
+                    "row": 24,
+                    "block": 0
+                  },
+                  "text": "answer 28",
+                  "state": "available",
+                  "bytes": 9,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_2_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/delegate-to-analyst-6e581483db74",
+      "kind": "talk",
+      "parent": "epoch/delegate-to-analyst-6e581483db74/0",
+      "stream": "delegate-to-analyst-6e581483db74",
+      "at": 1789901215555,
+      "ref": {
+        "seq": 1,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "reply": "answer 25",
+      "runs": 1,
+      "steps": 5,
+      "tools": 1,
+      "from": 1789901215551,
+      "to": 1789901215555,
+      "child": true,
+      "segment": "segment/at_2_2",
+      "children": [
+        {
+          "id": "run/talk_delegate-to-analyst-6e581483db74/01a0be6d-173d-7c81-a464-6e581483db74",
+          "kind": "run",
+          "parent": "talk/delegate-to-analyst-6e581483db74",
+          "stream": "delegate-to-analyst-6e581483db74",
+          "at": 1789901215555,
+          "ref": {
+            "seq": 1,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "call/01a0be6d-173e-7082-be42-8daec07f7b13",
+              "kind": "llm.call",
+              "parent": "run/talk_delegate-to-analyst-6e581483db74/01a0be6d-173d-7c81-a464-6e581483db74",
+              "stream": "delegate-to-analyst-6e581483db74",
+              "at": 1789901215551,
+              "ref": {
+                "seq": 1,
+                "row": 6
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 6
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 6,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 124,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 3
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 4
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "tool/call_lookup_status_24",
+                  "kind": "tool",
+                  "parent": "call/01a0be6d-173e-7082-be42-8daec07f7b13",
+                  "stream": "delegate-to-analyst-6e581483db74",
+                  "at": 1789901215551,
+                  "ref": {
+                    "seq": 1,
+                    "row": 6,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 6,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 9,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "lookup_status",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"cluster\":\"prod-1\",\"question\":\"check prod-1\",\"text\":\"some findings\"}",
+                  "state": "available",
+                  "bytes": 69,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "lookup_status",
+                  "result": "cluster prod-1: 3/3 pods ready",
+                  "result_state": "available",
+                  "result_bytes": 30,
+                  "request_to_result_join": "exact_unique"
+                }
+              ]
+            },
+            {
+              "id": "call/01a0be6d-1741-7073-b4de-f8b2848b3db2",
+              "kind": "llm.call",
+              "parent": "run/talk_delegate-to-analyst-6e581483db74/01a0be6d-173d-7c81-a464-6e581483db74",
+              "stream": "delegate-to-analyst-6e581483db74",
+              "at": 1789901215554,
+              "ref": {
+                "seq": 1,
+                "row": 14
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 14
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 14,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 125,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 5
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 6
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/14:0",
+                  "kind": "message.assistant",
+                  "parent": "call/01a0be6d-1741-7073-b4de-f8b2848b3db2",
+                  "stream": "delegate-to-analyst-6e581483db74",
+                  "at": 1789901215554,
+                  "ref": {
+                    "seq": 1,
+                    "row": 14,
+                    "block": 0
+                  },
+                  "text": "answer 25",
+                  "state": "available",
+                  "bytes": 9,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "output/delegate-to-analyst-6e581483db74",
+              "kind": "agent.output",
+              "parent": "run/talk_delegate-to-analyst-6e581483db74/01a0be6d-173d-7c81-a464-6e581483db74",
+              "stream": "delegate-to-analyst-6e581483db74",
+              "at": 1789901215554,
+              "ref": {
+                "seq": 1,
+                "row": 14
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 14
+                },
+                {
+                  "seq": 2,
+                  "row": 11,
+                  "block": 0
+                }
+              ],
+              "attrs": {
+                "returned_value": "observed_replayable"
+              },
+              "text": "answer 25",
+              "state": "available",
+              "bytes": 9,
+              "flags": [
+                "finished"
+              ],
+              "result": "answer 25",
+              "result_state": "available",
+              "result_bytes": 9,
+              "edges": [
+                {
+                  "type": "ends_with",
+                  "other": "stream/delegate-to-analyst-6e581483db74",
+                  "dir": "in",
+                  "quality": "exact_unique",
+                  "via": "the last response in the child stream, and what it returned"
+                },
+                {
+                  "type": "result_of",
+                  "other": "tool/call_delegate_to_analyst_23",
+                  "dir": "out",
+                  "quality": "exact_unique",
+                  "via": "the result the call that started this stream received"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_2_2",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    },
+    {
+      "id": "talk/summarise-d6aa2d533d9e",
+      "kind": "talk",
+      "parent": "epoch/summarise-d6aa2d533d9e/0",
+      "stream": "summarise-d6aa2d533d9e",
+      "at": 1789901215559,
+      "ref": {
+        "seq": 3,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "reply": "answer 27",
+      "runs": 1,
+      "steps": 2,
+      "from": 1789901215559,
+      "to": 1789901215559,
+      "segment": "segment/at_2_2",
+      "children": [
+        {
+          "id": "run/talk_summarise-d6aa2d533d9e/01a0be6d-1746-7170-b6d0-d6aa2d533d9e",
+          "kind": "run",
+          "parent": "talk/summarise-d6aa2d533d9e",
+          "stream": "summarise-d6aa2d533d9e",
+          "at": 1789901215559,
+          "ref": {
+            "seq": 3,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "call/01a0be6d-1746-7170-b6d0-d6ba40ae33b2",
+              "kind": "llm.call",
+              "parent": "run/talk_summarise-d6aa2d533d9e/01a0be6d-1746-7170-b6d0-d6aa2d533d9e",
+              "stream": "summarise-d6aa2d533d9e",
+              "at": 1789901215559,
+              "ref": {
+                "seq": 3,
+                "row": 1
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 1
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 1,
+                  "seq": 3
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 127,
+                "out": 10,
+                "cache_read": 5
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 9
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 10
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/3/1:0",
+                  "kind": "message.assistant",
+                  "parent": "call/01a0be6d-1746-7170-b6d0-d6ba40ae33b2",
+                  "stream": "summarise-d6aa2d533d9e",
+                  "at": 1789901215559,
+                  "ref": {
+                    "seq": 3,
+                    "row": 1,
+                    "block": 0
+                  },
+                  "text": "answer 27",
+                  "state": "available",
+                  "bytes": 9,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ],
+              "edges": [
+                {
+                  "type": "result_of",
+                  "other": "tool/call_summarise_26",
+                  "dir": "out",
+                  "quality": "exact_unique",
+                  "via": "the result the tool that started this stream received"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_2_2",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/in_segment/talk_main_01a0be6d-1724-7870-b615-7535de6b6e91/segment_at_2_2",
+      "type": "in_segment",
+      "from": "talk/main/01a0be6d-1724-7870-b615-7535de6b6e91",
+      "to": "segment/at_2_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_delegate-to-analyst-6e581483db74/segment_at_2_2",
+      "type": "in_segment",
+      "from": "talk/delegate-to-analyst-6e581483db74",
+      "to": "segment/at_2_2",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/ends_with/stream_delegate-to-analyst-6e581483db74/output_delegate-to-analyst-6e581483db74",
+      "type": "ends_with",
+      "from": "stream/delegate-to-analyst-6e581483db74",
+      "to": "output/delegate-to-analyst-6e581483db74",
+      "quality": "exact_unique",
+      "via": "the last response in the child stream, and what it returned",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 14
+        },
+        {
+          "seq": 2,
+          "row": 11,
+          "block": 0
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_call_delegate_to_analyst_23/stream_delegate-to-analyst-6e581483db74",
+      "type": "starts",
+      "from": "tool/call_delegate_to_analyst_23",
+      "to": "stream/delegate-to-analyst-6e581483db74",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 11
+        }
+      ]
+    },
+    {
+      "id": "rel/result_of/output_delegate-to-analyst-6e581483db74/tool_call_delegate_to_analyst_23",
+      "type": "result_of",
+      "from": "output/delegate-to-analyst-6e581483db74",
+      "to": "tool/call_delegate_to_analyst_23",
+      "quality": "exact_unique",
+      "via": "the result the call that started this stream received",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 11,
+          "block": 0
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_summarise-d6aa2d533d9e/segment_at_2_2",
+      "type": "in_segment",
+      "from": "talk/summarise-d6aa2d533d9e",
+      "to": "segment/at_2_2",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/result_of/call_01a0be6d-1746-7170-b6d0-d6ba40ae33b2/tool_call_summarise_26",
+      "type": "result_of",
+      "from": "call/01a0be6d-1746-7170-b6d0-d6ba40ae33b2",
+      "to": "tool/call_summarise_26",
+      "quality": "exact_unique",
+      "via": "the result the tool that started this stream received",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 1
+        },
+        {
+          "seq": 2,
+          "row": 19,
+          "block": 0
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_call_summarise_26/stream_summarise-d6aa2d533d9e",
+      "type": "starts",
+      "from": "tool/call_summarise_26",
+      "to": "stream/summarise-d6aa2d533d9e",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 19
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": [],
+  "tool_executions": []
+}

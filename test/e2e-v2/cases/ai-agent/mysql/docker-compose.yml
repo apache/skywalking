@@ -19,6 +19,8 @@
 #   session                           tool call changed files, in the same root
 #   provider-bodies.yaml, one         build -> collect, once, after the workspace-changes pass: a session whose
 #   session                           calls' request and response bodies landed as provider_body records
+#   mcp-calls.yaml, one session       build -> collect, once, after the provider-bodies pass: calls to MCP servers,
+#                                     each with the plugin's execution record landed beside the transcripts
 #   three-rounds.yaml, one session    build through the first checkpoint -> collect, then through the second,
 #                                     then to the end: three rounds over files cut at each stage, and the final
 #                                     document must cover it all
@@ -41,6 +43,7 @@ x-asz: &asz
     - ../lost-file.yaml:/asz/lost-file.yaml:ro
     - ../workspace-changes.yaml:/asz/workspace-changes.yaml:ro
     - ../provider-bodies.yaml:/asz/provider-bodies.yaml:ro
+    - ../mcp-calls.yaml:/asz/mcp-calls.yaml:ro
   networks:
     - e2e
 
@@ -146,12 +149,27 @@ services:
     depends_on:
       pb-build:
         condition: service_completed_successfully
+  # ---- mcp-calls.yaml: calls to MCP servers, one session in the same root. The build lands the plugin's execution
+  # records as execution files beside the transcripts; the pass sends them like any landed file, and derives from them
+  # the calls to each MCP server and their time.
+  mcp-build:
+    <<: *asz
+    command: ["scenario", "build", "/asz/mcp-calls.yaml", "--format", "sd", "--out", "/asz/data"]
+    depends_on:
+      pb-collect:
+        condition: service_completed_successfully
+  mcp-collect:
+    <<: *asz
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      mcp-build:
+        condition: service_completed_successfully
   # ---- three-rounds.yaml: one session in three stages, each parsed and sent before the next is built
   mr-build-1:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "first"]
     depends_on:
-      pb-collect:
+      mcp-collect:
         condition: service_completed_successfully
   mr-collect-1:
     <<: *asz
