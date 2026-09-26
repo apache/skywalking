@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import org.apache.skywalking.oap.server.ai.agent.conversation.format.GoStrings;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.CodePointOrder;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 
@@ -228,7 +228,7 @@ public final class ConversationFold {
                 out.add(u);
             }
         }
-        out.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, GoStrings.ORDER));
+        out.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, CodePointOrder.ORDER));
         return out;
     }
 
@@ -263,7 +263,7 @@ public final class ConversationFold {
         } else if (bp != null) {
             return 1;
         }
-        return GoStrings.compare(a.getId(), b.getId());
+        return CodePointOrder.compare(a.getId(), b.getId());
     }
 
     private void index() {

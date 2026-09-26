@@ -21,16 +21,15 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 import java.util.Comparator;
 
 /**
- * The order Go sorts strings in, <code>strings.Compare</code> and the <code>&lt;</code> operator: by their UTF-8
- * bytes, which is the order of their code points. Java's own order of strings is by UTF-16 unit, and puts a character
- * past U+FFFF before U+E000. Every list the Sessionizer sorts by a string, such as ids and map keys, is sorted here
- * with this order, so the two list them alike.
+ * The order of strings by their code points, which is the order of their UTF-8 bytes. Java's own order of strings is
+ * by UTF-16 unit, and puts a character past U+FFFF before U+E000. Where the formats order by a string, such as an id
+ * breaking a tie, or the keys of a map, they order by code point, so every reader lists them alike.
  */
-public final class GoStrings {
-    /** Go's order of strings, as a comparator. */
-    public static final Comparator<String> ORDER = GoStrings::compare;
+public final class CodePointOrder {
+    /** The order, as a comparator. */
+    public static final Comparator<String> ORDER = CodePointOrder::compare;
 
-    private GoStrings() {
+    private CodePointOrder() {
     }
 
     /**

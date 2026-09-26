@@ -131,18 +131,19 @@ GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}&instanc
 It answers with the whole conversation, once, as one `asz.view` version 1.0 document, the document the Sessionizer
 defines under [The asz.view
 document](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/asz-view/) and serves from its
-own viewer; the OAP's document equals it, key for key, for the same files. `v1` in the path is the document version.
-The OAP reads the conversation's rounds over the whole retention window, then the files of each session the head round
-names over the time range the head round carries, checks the chain, folds the rounds, resolves every reference into
-the landed records, and renders the document. Verification is content, not an error: a missing round or file, or a
-failed digest, is written into the document's `summary.state` and `summary.problems`, and the rest of the document
-holds whatever could still be folded. The fold shows as much as landed: a round that is missing, that does not read,
-or that the fold refuses is skipped, the chain resumes at the next stored round, and the absent rounds are named once
-as a range, as are the files a round names that did not land. After a round that is missing or does not read, the
-round the chain resumes at is listed unverified, because nothing links it to what is absent; a round the fold refused
-still reads, so the round after it verifies against it. The rounds after the resumed one verify against it; `head`
-names the last round folded. This goes further than the Sessionizer's own viewer, whose fold stops before the first
-gap. The document is built on every call and nothing is cached.
+own viewer; the OAP's document equals it, key for key, for the same files. `v1` in the path is the document version. The
+OAP reads the conversation's rounds over the whole retention window, then the files of each session the head round names
+over the time range the head round carries, checks the chain, folds the rounds, resolves every reference into the landed
+records, and renders the document. Verification is content, not an error: a missing round or file, or a failed digest,
+is written into the document's `summary.state` and `summary.problems`, and the rest of the document holds whatever could
+still be folded. The fold shows as much as landed: a round that is missing, that does not read, or that the fold refuses
+is skipped, the chain resumes at the next stored round, and the absent rounds are named once as a range, as are the
+files a round names that did not land. After a round that is missing or does not read, the round the chain resumes at is
+listed unverified, because nothing links it to what is absent; a round the fold refused still reads, so the round after
+it verifies against it. The rounds after the resumed one verify against it; `head` names the last round folded. This
+goes further than the Sessionizer's own viewer, whose fold stops before the first gap. A round does not read when a line
+of it is not a JSON object, or nests deeper than 256 levels, which no round the Sessionizer writes does. The document is
+built on every call and nothing is cached.
 
 | Parameter or header | Meaning |
 |---|---|
@@ -240,7 +241,8 @@ by the tool-use id, which the record names and the step's call part carries; not
 
 - `workspace_changes` lists, in time order, every record of the session's `changes` files and the runtime's own patch
   of every tool step the fold holds, each with the `step` it belongs to and the `ref` it was read from, then the
-  record's own fields as `changes/1` lists them; a patch on a result record no step reads is not listed;
+  record's own fields as `changes/1` lists them, in its order, a data part of another shape not being a record; a
+  patch on a result record no step reads is not listed;
 - `summary.changes` counts them;
 - a tool step lists the ids of its records under `changes`.
 
@@ -269,7 +271,8 @@ the milliseconds the runtime measured around the call, the size and the SHA-256 
 returned, the size and the SHA-256 of the answer; never their text. In the `asz.view` document:
 
 - `tool_executions` lists every record of the session in time order, each with the `step` it belongs to and the
-  `ref` it was read from, then the record's own fields as `execution/1` lists them;
+  `ref` it was read from, then the record's own fields as `execution/1` lists them, in its order, a data part of
+  another shape not being a record; records of one instant are in the order they were read;
 - a tool step lists the ids of its records under `executions`;
 - a call to an MCP server carries `mcp_server` and `mcp_tool` in its `attrs` when its name, `mcp__<server>__<tool>`,
   splits into exactly one server and one tool. The attributes come with the round.
@@ -308,7 +311,7 @@ The OAP does not make the join. The Sessionizer makes it when it parses a round,
 `llm.call` node names its bodies in its `provider_bodies` attribute, and the `session` node states
 `provider_bodies_landed`, how many bodies the session holds. The OAP reads both from the fold and opens no body to do
 it. A round whose `provider_bodies` attribute is malformed, a value other than null that is not a list of bodies, a
-role that is not `request` or `response`, a zero seq or row, or a reference past the round's own range, is refused
+role that is not `request` or `response`, a seq or row below one, or a reference past the round's own range, is refused
 like a round with any other bad reference. Whether the record a body names exists and rebuilds is not checked here: a
 missing file is the chain's problem, and a body is only rebuilt by a reader. The document lists the bodies on the
 step, not in its `attrs`. A missing `provider_body` file does not change what a call names: the file is the chain's

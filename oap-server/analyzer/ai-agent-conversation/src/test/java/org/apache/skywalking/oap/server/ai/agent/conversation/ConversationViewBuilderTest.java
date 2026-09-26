@@ -501,15 +501,14 @@ public class ConversationViewBuilderTest {
     }
 
     /**
-     * What a round carries is read as the Sessionizer reads it, even when it is not what the Sessionizer writes. A
-     * session's body count written as 1.5 does not decode into Go's integer, so the document counts 0 bodies while the
-     * calls still name theirs. With the provider bodies taken out of a call's attributes, the rest are listed by code
-     * point, as Go sorts a map's keys: U+E000 before U+10000, where Java's own order of strings puts it after. The
-     * Sessionizer's document for the same round, re-signed, says 0 bodies, 7 captured prompts, and that key order.
+     * A session's body count is an integer: written as 1.5 it is none, so the document counts 0 bodies while the calls
+     * still name theirs. With the provider bodies taken out of a call's attributes, the rest are listed by code point:
+     * U+E000 before U+10000, where Java's own order of strings puts it after. The Sessionizer's document for the same
+     * round, re-signed, says 0 bodies, 7 captured prompts, and that key order.
      */
     @Test
     @SuppressWarnings("unchecked")
-    public void aRoundIsReadAsTheSessionizerReadsIt() throws Exception {
+    public void aBodyCountIsAnIntegerAndAttrsKeysSortByCodePoint() throws Exception {
         String round = new String(
             Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), StandardCharsets.UTF_8);
         final String bodies = "\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}}";
@@ -524,15 +523,11 @@ public class ConversationViewBuilderTest {
         final Map<String, Object> attrs = (Map<String, Object>) node(doc, "call/s2-call-fdae022ac306").get("attrs");
         assertEquals(Arrays.asList("fragments", "usage", "usage_at", "usage_from", "\ue000", "\ud800\udc00"),
                      new ArrayList<>(attrs.keySet()));
-        // the count as Go decodes the session's attrs into an int: a key in any case, the later of two, a null leaving
-        // the value as it was, and a string refused
+        // the count is a whole number; written any other way, there is none
         final String original = new String(
             Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), StandardCharsets.UTF_8);
         final String[][] counts = {
-            {"\"PROVIDER_BODIES_LANDED\":14", "14"},
-            {"\"provider_bodies_landed\":14,\"Provider_Bodies_Landed\":3", "3"},
-            {"\"Provider_Bodies_Landed\":3,\"provider_bodies_landed\":14", "14"},
-            {"\"provider_bodies_landed\":14,\"provider_bodies_landed\":null", "14"},
+            {"\"provider_bodies_landed\":14", "14"},
             {"\"provider_bodies_landed\":\"14\"", "0"},
         };
         for (final String[] c : counts) {
@@ -672,11 +667,11 @@ public class ConversationViewBuilderTest {
     }
 
     /**
-     * A call's usage is read from the record its attrs name, as the Sessionizer decodes them into a struct: the key in
-     * any case, and a reference with nothing in it names no record rather than failing the document.
+     * A call's usage is read from the record its attrs name under <code>usage_at</code>. A reference with nothing in it
+     * names no record, and one of another shape gives no usage, rather than failing the document.
      */
     @Test
-    public void aCallsUsageIsReadAsTheSessionizerReadsItsAttrs() throws Exception {
+    public void aCallsUsageIsReadFromTheRecordItsAttrsName() throws Exception {
         final String usage = "{\"h\":1,\"schema\":\"sd/1\",\"seq\":1,\"at\":\"2026-01-01T00:00:00Z\",\"kind\":\"transcript\","
             + "\"adapter\":\"mock/0.2.0\",\"dialect\":\"mock/1\",\"src\":\"x\",\"session\":\"s\",\"stream\":\"A\"}\n"
             + "{\"ord\":1,\"off\":0,\"sha\":\"0\",\"bytes\":1,\"time\":\"2026-01-01T00:00:01Z\",\"parts\":[]}\n"
@@ -684,7 +679,7 @@ public class ConversationViewBuilderTest {
         final Map<Long, SessionDataFile> files = new TreeMap<>();
         files.put(1L, SessionDataFile.parse(usage.getBytes(StandardCharsets.UTF_8)));
         final Object[][] cases = {
-            {",\"attrs\":{\"USAGE_AT\":{\"seq\":1,\"row\":2}}", Map.of("in", 5L)},
+            {",\"attrs\":{\"usage_at\":{\"seq\":1,\"row\":2}}", Map.of("in", 5L)},
             {",\"attrs\":{\"usage_at\":{}}", null},
             {",\"attrs\":{\"usage_at\":{\"seq\":\"1\",\"row\":2}}", null},
         };
@@ -722,24 +717,16 @@ public class ConversationViewBuilderTest {
         assertEquals(Arrays.asList("run/loop-1", "run/loop-2"), loose);
     }
 
-    /**
-     * A node's attrs are looked up as the Sessionizer decodes them into a map: a stream's record count past 32 bits is
-     * kept, and a number past a double's range fails the whole decoding, so the session's title is then empty.
-     */
+    /** A stream's record count is a 64-bit integer, kept past 32 bits. */
     @Test
     @SuppressWarnings("unchecked")
-    public void attrsAreLookedUpAsTheSessionizerDecodesThem() throws Exception {
+    public void aStreamsRecordCountKeepsSixtyFourBits() throws Exception {
         final Map<Long, SessionDataFile> files = new TreeMap<>();
         files.put(1L, dataFile(1, "transcript", "A", "", "2026-01-01T00:00:01Z"));
-        // the number past the range fails the decoding even where a later key replaces it
-        for (final String other : new String[] {"1e400", "1e400,\"other\":0"}) {
-            final Map<String, Object> doc = view(round(
-                frameNode("session/s", "session", "", 1, 1, ",\"attrs\":{\"title\":\"hello\",\"other\":" + other + "}"),
-                frameNode("stream/A", "stream", "A", 1, 1, ",\"attrs\":{\"role\":\"main\",\"records\":2147483648}")),
-                files, Collections.emptyList());
-            assertEquals("", ((Map<String, Object>) doc.get("summary")).get("title"), other);
-            assertEquals(2147483648L, ((List<Map<String, Object>>) doc.get("streams")).get(0).get("records"));
-        }
+        final Map<String, Object> doc = view(round(
+            frameNode("stream/A", "stream", "A", 1, 1, ",\"attrs\":{\"role\":\"main\",\"records\":2147483648}")),
+            files, Collections.emptyList());
+        assertEquals(2147483648L, ((List<Map<String, Object>>) doc.get("streams")).get(0).get("records"));
     }
 
     /** A round of these node and relation frames, with its header and commit, signed. */

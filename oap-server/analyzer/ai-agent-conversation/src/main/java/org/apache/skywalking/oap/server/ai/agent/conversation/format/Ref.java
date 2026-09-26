@@ -36,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 public final class Ref {
     private final long seq;
     private final long row;
-    /** A Go <code>int</code>, 64 bits wide. */
+    /** A 64-bit integer, as the format writes it. */
     @Nullable
     private final Long block;
 
@@ -50,6 +50,14 @@ public final class Ref {
             json.get("row").getAsLong(),
             json.has("block") && !json.get("block").isJsonNull() ? json.get("block").getAsLong() : null
         );
+    }
+
+    /**
+     * @param fields a reference as {@link SessionFlowRound#REF} reads it
+     * @return the reference
+     */
+    public static Ref of(final Map<?, ?> fields) {
+        return new Ref((Long) fields.get("seq"), (Long) fields.get("row"), (Long) fields.get("block"));
     }
 
     /**

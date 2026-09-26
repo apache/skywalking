@@ -18,13 +18,14 @@
 
 package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +45,19 @@ public final class SessionFlowRound {
     public static final String ROLE_REQUEST = "request";
     public static final String ROLE_RESPONSE = "response";
     /** The Sessionizer's <code>sessionflow.Ref</code>, field for field and tag for tag. */
-    public static final GoJson.Struct REF = new GoJson.Struct()
-        .field("seq", GoJson.Kind.UINT)
-        .field("row", GoJson.Kind.UINT)
-        .field("block,omitempty", GoJson.Kind.INT_POINTER);
+    public static final Schema REF = new Schema()
+        .field("seq", Schema.Kind.INTEGER)
+        .field("row", Schema.Kind.INTEGER)
+        .optional("block", Schema.Kind.NULLABLE_INTEGER);
     /** The Sessionizer's <code>sessionflow.ProviderBody</code>, field for field and tag for tag. */
-    private static final GoJson.Struct PROVIDER_BODY = new GoJson.Struct()
-        .field("role", GoJson.Kind.STRING)
-        .field("ref", GoJson.Kind.STRUCT, REF);
+    private static final Schema PROVIDER_BODY = new Schema()
+        .field("role", Schema.Kind.STRING)
+        .field("ref", Schema.Kind.OBJECT, REF);
+    /**
+     * No frame the Sessionizer writes nests more than a few levels. A deeper one is refused, so writing the document
+     * never exhausts the stack.
+     */
+    private static final int MAX_FRAME_DEPTH = 256;
 
     private final Header header;
     private final List<Node> nodes;
@@ -101,10 +107,12 @@ public final class SessionFlowRound {
             if (line.isEmpty()) {
                 continue;
             }
-            // read as Go reads a frame: a line Go's decoder refuses is no frame, whatever Gson's lenient parser accepts
-            final JsonElement frame = GoJson.parse(line);
+            final JsonElement frame = Schema.parse(line);
             if (frame == null || !frame.isJsonObject()) {
                 throw new IllegalArgumentException("line " + lineNo + " is not a JSON object");
+            }
+            if (depthOf(frame) > MAX_FRAME_DEPTH) {
+                throw new IllegalArgumentException("line " + lineNo + " nests deeper than " + MAX_FRAME_DEPTH + " levels");
             }
             final JsonObject json = frame.getAsJsonObject();
             final String t = SessionDataFile.string(json, "t");
@@ -123,15 +131,14 @@ public final class SessionFlowRound {
                     header.validate();
                     break;
                 case "node": {
-                    final String attrsText = attrsText(line);
                     // an attribute that names provider bodies but does not read as them is refused, not skipped
                     final List<ProviderBody> bodies;
                     try {
-                        bodies = providerBodiesOf(attrsText);
+                        bodies = providerBodiesOf(json.get("attrs"));
                     } catch (final IllegalArgumentException e) {
                         throw new IllegalArgumentException("line " + lineNo + ": " + e.getMessage());
                     }
-                    final Node n = new Node(json, attrsText, bodies);
+                    final Node n = new Node(json, bodies);
                     claim(ids, lineNo, "node", n.getId());
                     checkRevision(lineNo, n.getRevision(), header);
                     checkRef(lineNo, n.getRef(), header);
@@ -249,62 +256,64 @@ public final class SessionFlowRound {
         }
     }
 
-    /**
-     * The text of a node's attrs as Go picks it: the value of the last key that names the field, in any case, as the
-     * Sessionizer's reader keeps it as written.
-     *
-     * @param line a frame that reads as one JSON object, so it reads member by member
-     */
-    @Nullable
-    private static String attrsText(final String line) {
-        String text = null;
-        for (final String[] m : GoJson.members(line)) {
-            if (m[0].equalsIgnoreCase("attrs")) {
-                text = m[1];
+    /** How deep a value nests, walked without recursion. */
+    private static int depthOf(final JsonElement value) {
+        int deepest = 0;
+        final Deque<JsonElement> open = new ArrayDeque<>();
+        final Deque<Integer> depths = new ArrayDeque<>();
+        open.push(value);
+        depths.push(1);
+        while (!open.isEmpty()) {
+            final JsonElement e = open.pop();
+            final int depth = depths.pop();
+            deepest = Math.max(deepest, depth);
+            if (e.isJsonObject()) {
+                for (final Map.Entry<String, JsonElement> m : e.getAsJsonObject().entrySet()) {
+                    open.push(m.getValue());
+                    depths.push(depth + 1);
+                }
+            } else if (e.isJsonArray()) {
+                for (final JsonElement x : e.getAsJsonArray()) {
+                    open.push(x);
+                    depths.push(depth + 1);
+                }
             }
         }
-        return text;
+        return deepest;
     }
 
     /**
-     * The provider bodies a node carries, read as the Sessionizer's <code>sessionflow.ProviderBodiesOf</code> reads
-     * them: the attributes as a map of values kept as written, so a key given twice keeps its later value and the
-     * earlier one is never decoded, then that value as a list of bodies. The join is made when the round is parsed,
-     * and the round carries it, so no reader repeats it.
+     * The provider bodies a node carries under its <code>provider_bodies</code> attribute: a list of
+     * <code>{role, ref}</code>, where role is request or response, and ref names the landed record. The join is made
+     * when the Sessionizer parses the round, and the round carries it, so no reader repeats it.
      *
-     * @param attrs a node's attributes as written, or null
+     * @param attrs a node's attributes, or null
      * @return the bodies, none when the attributes are not an object or do not name them
-     * @throws IllegalArgumentException when the attribute is there but is not a list of bodies: a body whose role is
-     *                                  not request or response, or whose seq or row is zero, names nothing
+     * @throws IllegalArgumentException when the attribute is there but is not a list of bodies: a body of another
+     *                                  shape, a role that is not request or response, or a seq or row below one
      */
-    static List<ProviderBody> providerBodiesOf(@Nullable final String attrs) {
-        final List<String[]> members = attrs == null ? null : GoJson.members(attrs);
-        if (members == null) {
+    static List<ProviderBody> providerBodiesOf(@Nullable final JsonElement attrs) {
+        final JsonElement listed = attrs != null && attrs.isJsonObject() ? attrs.getAsJsonObject().get(PROVIDER_BODIES_ATTR)
+            : null;
+        if (listed == null || listed.isJsonNull()) {
             return Collections.emptyList();
         }
-        String raw = null;
-        for (final String[] m : members) {
-            if (PROVIDER_BODIES_ATTR.equals(m[0])) {
-                raw = m[1];
-            }
-        }
-        if (raw == null) {
-            return Collections.emptyList();
-        }
-        final JsonArray decoded = GoJson.decodeSlice(raw, PROVIDER_BODY);
-        if (decoded == null) {
+        if (!listed.isJsonArray()) {
             throw new IllegalArgumentException(PROVIDER_BODIES_ATTR + " is not a list of provider bodies");
         }
         final List<ProviderBody> out = new ArrayList<>();
-        for (final JsonElement e : decoded) {
-            final String role = e.getAsJsonObject().get("role").getAsString();
+        for (final JsonElement e : listed.getAsJsonArray()) {
+            final Map<String, Object> body = PROVIDER_BODY.read(e);
+            if (body == null) {
+                throw new IllegalArgumentException(PROVIDER_BODIES_ATTR + " is not a list of provider bodies");
+            }
+            final String role = (String) body.get("role");
             if (!ROLE_REQUEST.equals(role) && !ROLE_RESPONSE.equals(role)) {
                 throw new IllegalArgumentException("a provider body has the role \"" + role + "\"");
             }
-            final Ref ref = Ref.of(e.getAsJsonObject().getAsJsonObject("ref"));
-            // both halves of the position, not just one: sequences and rows are counted from one, so a zero in either
-            // names no landed record
-            if (ref.getSeq() == 0 || ref.getRow() == 0) {
+            final Ref ref = Ref.of((Map<?, ?>) body.get("ref"));
+            // both halves of the position: sequences and rows are counted from one
+            if (ref.getSeq() < 1 || ref.getRow() < 1) {
                 throw new IllegalArgumentException("a provider body is at seq " + ref.getSeq() + " row " + ref.getRow()
                                                        + ", which is no position");
             }
@@ -419,21 +428,16 @@ public final class SessionFlowRound {
         @Nullable
         private final Ref ref;
         private final List<Ref> refs;
-        /** The attrs as written, for decoding as Go decodes them; null when the frame has none. */
-        @Nullable
-        private final String attrsText;
         /** The attrs as written, any JSON value, for rendering; null when the frame has none. */
         @Nullable
         private final JsonElement rawAttrs;
-        /**
-         * The attrs for lookups, as the Sessionizer decodes them into a map: null when they are not an object, or hold
-         * a number past a double's range, which fails the whole decoding, so every lookup then finds nothing.
-         */
+        /** The attrs when they are an object, for lookups. */
+        @Nullable
         private final JsonObject attrs;
         /** The provider bodies the node carries, read from its attributes as written. */
         private final List<ProviderBody> providerBodies;
 
-        Node(final JsonObject json, @Nullable final String attrsText, final List<ProviderBody> providerBodies) {
+        Node(final JsonObject json, final List<ProviderBody> providerBodies) {
             super(json);
             this.kind = SessionDataFile.string(json, "kind");
             this.parent = SessionDataFile.string(json, "parent");
@@ -446,10 +450,8 @@ public final class SessionFlowRound {
                 }
             }
             this.refs = Collections.unmodifiableList(list);
-            this.attrsText = attrsText;
-            this.rawAttrs = attrsText == null ? null : GoJson.parse(attrsText);
-            this.attrs = rawAttrs != null && rawAttrs.isJsonObject() && GoJson.decodesAsAny(attrsText)
-                ? rawAttrs.getAsJsonObject() : null;
+            this.rawAttrs = json.get("attrs");
+            this.attrs = rawAttrs != null && rawAttrs.isJsonObject() ? rawAttrs.getAsJsonObject() : null;
             this.providerBodies = Collections.unmodifiableList(providerBodies);
         }
 

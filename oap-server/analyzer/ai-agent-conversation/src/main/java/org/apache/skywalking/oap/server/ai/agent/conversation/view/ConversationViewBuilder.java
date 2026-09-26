@@ -21,6 +21,8 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.view;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -41,9 +44,9 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.ChangesReco
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.ExecutionRecord;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
-import org.apache.skywalking.oap.server.ai.agent.conversation.format.GoJson;
-import org.apache.skywalking.oap.server.ai.agent.conversation.format.GoStrings;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.CodePointOrder;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.Schema;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
@@ -62,28 +65,29 @@ public final class ConversationViewBuilder {
     /** The readable text a node carries is clipped to this many bytes; the full size is in <code>bytes</code>. */
     static final int PREVIEW_BYTES = 2000;
     private static final int MAX_DEPTH = 12;
+    private static final Pattern INTEGER_LITERAL = Pattern.compile("-?\\d+");
     static final String STATE_VERIFIED = "verified";
     static final String STATE_INCOMPLETE = "incomplete";
     static final String STATE_MISMATCH = "mismatch";
-    /** The typed values the Sessionizer's view reads out of records and attributes, as its Go structs declare them. */
-    private static final GoJson.Struct JOURNAL_ROW = new GoJson.Struct()
-        .field("type", GoJson.Kind.STRING)
-        .field("result", GoJson.Kind.STRUCT, new GoJson.Struct()
-            .field("surface", GoJson.Kind.STRING)
-            .field("summary", GoJson.Kind.STRING)
-            .field("verdict", GoJson.Kind.STRING)
-            .field("refuted_claims", GoJson.Kind.STRUCTS, new GoJson.Struct()
-                .field("claim", GoJson.Kind.STRING)));
-    private static final GoJson.Struct QUEUED_COMMAND = new GoJson.Struct()
-        .field("type", GoJson.Kind.STRING)
-        .field("prompt", GoJson.Kind.STRUCTS, new GoJson.Struct()
-            .field("text", GoJson.Kind.STRING));
-    private static final GoJson.Struct DURATION = new GoJson.Struct()
-        .field("durationMs", GoJson.Kind.INT);
-    private static final GoJson.Struct SESSION_ATTRS = new GoJson.Struct()
-        .field("provider_bodies_landed", GoJson.Kind.INT);
-    private static final GoJson.Struct USAGE_AT = new GoJson.Struct()
-        .field("usage_at", GoJson.Kind.STRUCT_POINTER, SessionFlowRound.REF);
+    /** The shapes the view reads out of records and attributes. */
+    private static final Schema JOURNAL_ROW = new Schema()
+        .field("type", Schema.Kind.STRING)
+        .field("result", Schema.Kind.OBJECT, new Schema()
+            .field("surface", Schema.Kind.STRING)
+            .field("summary", Schema.Kind.STRING)
+            .field("verdict", Schema.Kind.STRING)
+            .field("refuted_claims", Schema.Kind.OBJECTS, new Schema()
+                .field("claim", Schema.Kind.STRING)));
+    private static final Schema QUEUED_COMMAND = new Schema()
+        .field("type", Schema.Kind.STRING)
+        .field("prompt", Schema.Kind.OBJECTS, new Schema()
+            .field("text", Schema.Kind.STRING));
+    private static final Schema DURATION = new Schema()
+        .field("durationMs", Schema.Kind.INTEGER);
+    private static final Schema SESSION_ATTRS = new Schema()
+        .field("provider_bodies_landed", Schema.Kind.INTEGER);
+    private static final Schema USAGE_AT = new Schema()
+        .field("usage_at", Schema.Kind.NULLABLE_OBJECT, SessionFlowRound.REF);
 
     private final ConversationFold fold;
     private final List<RoundInput> rounds;
@@ -202,7 +206,7 @@ public final class ConversationViewBuilder {
                 others.add(s);
             }
         }
-        others.sort(GoStrings.ORDER);
+        others.sort(CodePointOrder.ORDER);
         out.addAll(others);
         return out;
     }
@@ -439,15 +443,15 @@ public final class ConversationViewBuilder {
 
     private Overview overview() {
         final Overview o = new Overview();
-        o.kinds = new TreeMap<>(GoStrings.ORDER);
+        o.kinds = new TreeMap<>(CodePointOrder.ORDER);
         for (final SessionFlowRound.Node n : fold.getNodes().values()) {
             o.kinds.merge(nullToEmpty(n.getKind()), 1, Integer::sum);
             if ("session".equals(n.getKind())) {
                 o.title = nullToEmpty(n.attr("title"));
             }
         }
-        o.relationTypes = new TreeMap<>(GoStrings.ORDER);
-        o.quality = new TreeMap<>(GoStrings.ORDER);
+        o.relationTypes = new TreeMap<>(CodePointOrder.ORDER);
+        o.quality = new TreeMap<>(CodePointOrder.ORDER);
         for (final SessionFlowRound.Relation r : fold.getRelations().values()) {
             o.relationTypes.merge(nullToEmpty(r.getType()), 1, Integer::sum);
             o.quality.merge(nullToEmpty(r.getQuality()), 1, Integer::sum);
@@ -699,23 +703,21 @@ public final class ConversationViewBuilder {
     @Nullable
     static String resultName(final SessionDataFile.Record rec) {
         for (final String raw : candidates(rec)) {
-            final JsonObject row = GoJson.decode(raw, JOURNAL_ROW);
-            if (row == null || !"result".equals(row.get("type").getAsString())) {
+            final Map<String, Object> row = JOURNAL_ROW.read(Schema.parse(raw));
+            if (row == null || !"result".equals(row.get("type"))) {
                 continue;
             }
-            final JsonObject result = row.getAsJsonObject("result");
-            String name = result.get("surface").getAsString();
+            final Map<?, ?> result = (Map<?, ?>) row.get("result");
+            String name = (String) result.get("surface");
             if (name.isEmpty()) {
-                name = result.get("summary").getAsString();
+                name = (String) result.get("summary");
             }
-            if (name.isEmpty() && !result.get("verdict").getAsString().isEmpty()) {
-                name = result.get("verdict").getAsString();
-                final JsonElement refuted = result.get("refuted_claims");
-                if (refuted.isJsonArray() && refuted.getAsJsonArray().size() > 0) {
-                    final String claim = refuted.getAsJsonArray().get(0).getAsJsonObject().get("claim").getAsString();
-                    if (!claim.isEmpty()) {
-                        name += " · " + claim;
-                    }
+            if (name.isEmpty() && !((String) result.get("verdict")).isEmpty()) {
+                name = (String) result.get("verdict");
+                final List<?> refuted = (List<?>) result.get("refuted_claims");
+                final String claim = refuted == null || refuted.isEmpty() ? "" : (String) ((Map<?, ?>) refuted.get(0)).get("claim");
+                if (!claim.isEmpty()) {
+                    name += " · " + claim;
                 }
             }
             return shortName(name);
@@ -840,7 +842,7 @@ public final class ConversationViewBuilder {
         final JsonElement attrs = withoutProviderBodies(n.getRawAttrs());
         if (attrs != null) {
             // as the Sessionizer prints the raw attrs: an empty object stays {}, an explicit null stays null
-            out.put("attrs", GoJson.toValue(attrs));
+            out.put("attrs", jsonToValue(attrs));
         }
 
         // text, state, bytes; then usage, flags, dropped; then the talk keys; then the tool keys
@@ -858,7 +860,7 @@ public final class ConversationViewBuilder {
                 if (dropped != null && dropped.size() > 0) {
                     final List<Object> drops = new ArrayList<>();
                     for (final JsonElement d : dropped) {
-                        drops.add(d.isJsonObject() ? GoJson.toMap(d.getAsJsonObject()) : d.toString());
+                        drops.add(d.isJsonObject() ? jsonToMap(d.getAsJsonObject()) : d.toString());
                     }
                     content.put("dropped", drops);
                 }
@@ -875,7 +877,7 @@ public final class ConversationViewBuilder {
         final JsonObject usage = usageAt(n);
         if (usage != null) {
             // as the Sessionizer prints the record's raw usage object, an empty one included
-            content.put("usage", GoJson.toMap(usage));
+            content.put("usage", jsonToMap(usage));
         }
         // sessionview.Node lists text, state, bytes, then usage, flags, dropped
         for (final String key : new String[] {"text", "state", "bytes", "usage", "flags", "dropped"}) {
@@ -950,7 +952,7 @@ public final class ConversationViewBuilder {
         }
         final List<Map<String, Object>> edges = Order.inOrder(
             touching, e -> relationPoint(fold.getRelations().get((String) e.get("id"))),
-            Comparator.comparing((Map<String, Object> e) -> (String) e.get("id"), GoStrings.ORDER)
+            Comparator.comparing((Map<String, Object> e) -> (String) e.get("id"), CodePointOrder.ORDER)
                       .thenComparing(e -> (String) e.get("dir")));
         for (final Map<String, Object> e : edges) {
             e.remove("id");
@@ -1054,13 +1056,12 @@ public final class ConversationViewBuilder {
         if (!"llm.call".equals(n.getKind())) {
             return null;
         }
-        // as the Sessionizer decodes the attrs into a struct: the key in any case, and a reference with nothing in it
-        // names no record
-        final JsonObject attrs = GoJson.decode(n.getAttrsText(), USAGE_AT);
-        if (attrs == null || !attrs.get("usage_at").isJsonObject()) {
+        // a reference with nothing in it names no record
+        final Map<String, Object> attrs = USAGE_AT.read(n.getRawAttrs());
+        if (attrs == null || attrs.get("usage_at") == null) {
             return null;
         }
-        final SessionDataFile.Record at = record(Ref.of(attrs.getAsJsonObject("usage_at")));
+        final SessionDataFile.Record at = record(Ref.of((Map<?, ?>) attrs.get("usage_at")));
         return at == null ? null : at.usage();
     }
 
@@ -1148,9 +1149,9 @@ public final class ConversationViewBuilder {
      */
     static long reportedDuration(final SessionDataFile.Record rec) {
         for (final String raw : candidates(rec)) {
-            final JsonObject probe = GoJson.decode(raw, DURATION);
-            if (probe != null && probe.get("durationMs").getAsLong() != 0) {
-                return probe.get("durationMs").getAsLong();
+            final Map<String, Object> probe = DURATION.read(Schema.parse(raw));
+            if (probe != null && (Long) probe.get("durationMs") != 0) {
+                return (Long) probe.get("durationMs");
             }
         }
         return 0;
@@ -1186,7 +1187,7 @@ public final class ConversationViewBuilder {
 
     private List<Map<String, Object>> unresolved() {
         final List<SessionFlowRound.Unresolved> sorted = new ArrayList<>(fold.getUnresolved().values());
-        sorted.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, GoStrings.ORDER));
+        sorted.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, CodePointOrder.ORDER));
         final List<Map<String, Object>> out = new ArrayList<>();
         for (final SessionFlowRound.Unresolved u : sorted) {
             final Map<String, Object> m = new LinkedHashMap<>();
@@ -1370,16 +1371,14 @@ public final class ConversationViewBuilder {
      * A node's attributes without the provider bodies a call carries. The document gives them a field of their own,
      * <code>provider_bodies</code> on the step, so leaving them in the attributes as well would say the same thing
      * twice. Every other attribute travels as the round wrote it. When the bodies are taken out, what is left is
-     * written as Go writes a map, with its keys sorted, and nothing is left when nothing else was there.
+     * written with its keys in code point order, and nothing is left when nothing else was there.
      */
     @Nullable
     private static JsonElement withoutProviderBodies(@Nullable final JsonElement raw) {
         if (raw == null || !raw.isJsonObject() || !raw.getAsJsonObject().has(SessionFlowRound.PROVIDER_BODIES_ATTR)) {
             return raw;
         }
-        // by code point, which is the order of Go's sort on the UTF-8 bytes; Java's own String order is by UTF-16 unit
-        // and puts a character past U+FFFF before U+E000
-        final TreeMap<String, JsonElement> sorted = new TreeMap<>(GoStrings.ORDER);
+        final TreeMap<String, JsonElement> sorted = new TreeMap<>(CodePointOrder.ORDER);
         for (final Map.Entry<String, JsonElement> e : raw.getAsJsonObject().entrySet()) {
             if (!SessionFlowRound.PROVIDER_BODIES_ATTR.equals(e.getKey())) {
                 sorted.put(e.getKey(), e.getValue());
@@ -1427,12 +1426,12 @@ public final class ConversationViewBuilder {
 
     /**
      * @return how many bodies the session holds as of the folded chain, joined or not, as its session node states it;
-     * 0 when the node does not, or states it as Go cannot decode into an int
+     * 0 when the node does not, or states it as something other than a whole number
      */
     private long landedProviderBodies() {
         final SessionFlowRound.Node session = fold.node(sessionNodeId());
-        final JsonObject attrs = session == null ? null : GoJson.decode(session.getAttrsText(), SESSION_ATTRS);
-        return attrs == null ? 0 : attrs.get("provider_bodies_landed").getAsLong();
+        final Map<String, Object> attrs = session == null ? null : SESSION_ATTRS.read(session.getRawAttrs());
+        return attrs == null ? 0 : (Long) attrs.get("provider_bodies_landed");
     }
 
     /**
@@ -1452,7 +1451,7 @@ public final class ConversationViewBuilder {
 
     /** Relations one record supports are listed by id, as nothing else tells them apart. */
     private static final Comparator<SessionFlowRound.Relation> RELATION_TIE =
-        Comparator.comparing(SessionFlowRound.Relation::getId, GoStrings.ORDER);
+        Comparator.comparing(SessionFlowRound.Relation::getId, CodePointOrder.ORDER);
 
     /** Where a reference sits: its file's lane, its position, and its record's time. */
     private Order.Point pointOf(@Nullable final Ref r) {
@@ -1566,14 +1565,13 @@ public final class ConversationViewBuilder {
      */
     @Nullable
     private static String queuedPrompt(final String raw) {
-        final JsonObject envelope = GoJson.decode(raw, QUEUED_COMMAND);
-        if (envelope == null || !"queued_command".equals(envelope.get("type").getAsString())
-            || !envelope.get("prompt").isJsonArray()) {
+        final Map<String, Object> envelope = QUEUED_COMMAND.read(Schema.parse(raw));
+        if (envelope == null || !"queued_command".equals(envelope.get("type")) || envelope.get("prompt") == null) {
             return null;
         }
         final List<String> out = new ArrayList<>();
-        for (final JsonElement p : envelope.getAsJsonArray("prompt")) {
-            final String text = p.getAsJsonObject().get("text").getAsString();
+        for (final Object p : (List<?>) envelope.get("prompt")) {
+            final String text = (String) ((Map<?, ?>) p).get("text");
             if (!text.isEmpty()) {
                 out.add(text);
             }
@@ -1649,6 +1647,46 @@ public final class ConversationViewBuilder {
             cut--;
         }
         return new String(bytes, 0, cut, StandardCharsets.UTF_8);
+    }
+
+    static Map<String, Object> jsonToMap(final JsonObject json) {
+        final Map<String, Object> out = new LinkedHashMap<>();
+        for (final Map.Entry<String, JsonElement> e : json.entrySet()) {
+            out.put(e.getKey(), jsonToValue(e.getValue()));
+        }
+        return out;
+    }
+
+    private static Object jsonToValue(final JsonElement e) {
+        if (e == null || e.isJsonNull()) {
+            return null;
+        }
+        if (e.isJsonObject()) {
+            return jsonToMap(e.getAsJsonObject());
+        }
+        if (e.isJsonArray()) {
+            final List<Object> list = new ArrayList<>();
+            for (final JsonElement x : e.getAsJsonArray()) {
+                list.add(jsonToValue(x));
+            }
+            return list;
+        }
+        if (e.getAsJsonPrimitive().isBoolean()) {
+            return e.getAsBoolean();
+        }
+        if (e.getAsJsonPrimitive().isNumber()) {
+            // as written: Go prints the raw attrs, so 1.0 stays 1.0 and 1 stays 1
+            final String literal = e.getAsString();
+            if (INTEGER_LITERAL.matcher(literal).matches()) {
+                try {
+                    return Long.parseLong(literal);
+                } catch (final NumberFormatException ignored) {
+                    return new BigInteger(literal);
+                }
+            }
+            return new BigDecimal(literal);
+        }
+        return e.getAsString();
     }
 
     @Nullable
