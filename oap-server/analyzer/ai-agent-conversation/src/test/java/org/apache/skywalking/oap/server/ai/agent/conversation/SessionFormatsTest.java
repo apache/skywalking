@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SessionFormatsTest {
@@ -115,6 +116,18 @@ public class SessionFormatsTest {
         assertFalse(r.isIntact());
     }
 
+    /**
+     * A file's stamp writes the year as the Sessionizer does, four digits of the year itself: year zero is 0000, not the
+     * first year of an era.
+     */
+    @Test
+    public void aFilesStampWritesYearZeroAsTheSessionizerDoes() {
+        final SessionDataFile f = SessionDataFile.parse(("{\"h\":1,\"schema\":\"sd/1\",\"seq\":1,\"at\":\"0000-01-01T00:00:00Z\","
+            + "\"kind\":\"transcript\",\"adapter\":\"mock/0.2.0\",\"dialect\":\"mock/1\",\"src\":\"x\",\"session\":\"s\","
+            + "\"stream\":\"main\"}\n").getBytes(StandardCharsets.UTF_8));
+        assertEquals("s/streams/main/transcript-00000101T000000.000000000Z-000001.sd", FileNames.dataFile(f.getHeader()));
+    }
+
     @Test
     public void fileNamesFollowTheStorageRootLayout() throws Exception {
         final Map<Long, SessionDataFile> files = Fixtures.dataFiles();
@@ -165,5 +178,91 @@ public class SessionFormatsTest {
         // a literal null is the text "null", as Go keeps it in a raw message and prints it
         assertEquals("null", parts.get(2).data());
         assertEquals("\"plain\"", parts.get(3).data());
+    }
+
+    /**
+     * A call's provider bodies are references like any other. The round is refused when its bodies do not read as a
+     * list of <code>{role, ref}</code>: a role other than request or response, a seq or row below one, a value of
+     * another type, or a record past the round's range. A body's own block is kept.
+     */
+    @Test
+    public void aRoundWhoseProviderBodiesDoNotReadIsRefused() throws Exception {
+        final String round = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), StandardCharsets.UTF_8);
+        final String from = "\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},";
+        assertTrue(round.contains(from));
+        final Object[][] cases = {
+            {from, true},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1,\"block\":2}},", true},
+            {"\"provider_bodies\":[{\"role\":\"prompt\",\"ref\":{\"seq\":4,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":7,\"ref\":{\"seq\":4,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":0,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":0}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":-4,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":\"4\",\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4.0,\"row\":1}},", false},
+            {"\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":5,\"row\":1}},", false},
+            {"\"provider_bodies\":[null,", false},
+        };
+        for (final Object[] c : cases) {
+            final byte[] changed = round.replace(from, (String) c[0]).getBytes(StandardCharsets.UTF_8);
+            if ((Boolean) c[1]) {
+                SessionFlowRound.parse(changed);
+            } else {
+                assertThrows(IllegalArgumentException.class, () -> SessionFlowRound.parse(changed), (String) c[0]);
+            }
+        }
+        // the block is kept, past 32 bits too
+        final String wide = "\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1,\"block\":2147483648}},";
+        assertEquals(Long.valueOf(2147483648L), call(round.replace(from, wide)).getProviderBodies().get(0).getRef().getBlock());
+        assertEquals(2147483648L, call(round.replace(from, wide)).getProviderBodies().get(0).getRef().toMap().get("block"));
+        // the attribute as a whole: null is no bodies, anything else that is not a list is refused
+        SessionFlowRound.parse(round.replaceAll("\"provider_bodies\":\\[[^\\]]*\\],?", "\"provider_bodies\":null,")
+                                    .getBytes(StandardCharsets.UTF_8));
+        assertThrows(IllegalArgumentException.class, () -> SessionFlowRound.parse(
+            round.replaceAll("\"provider_bodies\":\\[[^\\]]*\\],?", "\"provider_bodies\":\"x\",").getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /**
+     * No frame the Sessionizer writes nests more than a few levels. A frame nested deeper than the reader takes is
+     * refused, so writing the document never exhausts the stack; a frame at the limit still reads.
+     */
+    @Test
+    public void aFrameNestedTooDeepIsRefused() throws Exception {
+        final String round = new String(
+            Fixtures.bytes(Fixtures.PROVIDER_BODIES_DIR + Fixtures.PROVIDER_BODIES_ROUND_FILE), StandardCharsets.UTF_8);
+        final String from = "\"provider_bodies\":[{\"role\":\"request\",\"ref\":{\"seq\":4,\"row\":1}},";
+        // the frame, its attrs and this key are three levels, so these reach the limit and one past it
+        final String deep = "\"x\":" + "[".repeat(253) + "0" + "]".repeat(253) + "," + from;
+        final String deeper = "\"x\":" + "[".repeat(254) + "0" + "]".repeat(254) + "," + from;
+        SessionFlowRound.parse(round.replace(from, deep).getBytes(StandardCharsets.UTF_8));
+        assertThrows(IllegalArgumentException.class,
+            () -> SessionFlowRound.parse(round.replace(from, deeper).getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static SessionFlowRound.Node call(final String round) {
+        return SessionFlowRound.parse(round.getBytes(StandardCharsets.UTF_8)).getNodes()
+            .stream().filter(n -> "call/s2-call-fdae022ac306".equals(n.getId())).findFirst().orElseThrow();
+    }
+
+    /**
+     * Record times are RFC 3339, with Z or an offset, and compare as the instants they name, whatever the length of
+     * their fractions or the offset they are written in. A time that does not parse sorts after every one that does,
+     * and two such times are equal, so the caller decides between them by where each record was read.
+     */
+    @Test
+    public void recordTimesCompareAsInstants() {
+        assertEquals(1767225600123456789L, Times.nanos("2026-01-01T00:00:00.123456789Z"));
+        assertEquals(1767196800000000000L, Times.nanos("2026-01-01T00:00:00+08:00"));
+        assertEquals(0L, Times.nanos("2026-01-01 00:00:00Z"));
+        // a year of four digits, as RFC 3339 has it: one past 9999 is not a time, and is never converted
+        assertEquals(0L, Times.millis("+999999999-12-31T23:59:59Z"));
+        assertEquals(253402300799000L, Times.millis("9999-12-31T23:59:59Z"));
+        assertTrue(Times.compare("2026-01-01T00:00:00.11Z", "2026-01-01T00:00:00.1Z") > 0);
+        assertTrue(Times.compare("2026-01-01T00:00:00.5Z", "2026-01-01T00:00:01Z") < 0);
+        assertEquals(0, Times.compare("2026-01-01T00:00:01Z", "2026-01-01T00:00:01.0Z"));
+        assertEquals(0, Times.compare("2026-01-01T08:00:01+08:00", "2026-01-01T00:00:01Z"));
+        assertTrue(Times.compare("not a time", "2026-01-01T00:00:01Z") > 0);
+        assertEquals(0, Times.compare("not a time", "another"));
     }
 }

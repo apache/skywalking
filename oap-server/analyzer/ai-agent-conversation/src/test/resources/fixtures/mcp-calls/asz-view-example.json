@@ -1,0 +1,1307 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "720d2f9e-dca7-49be-8c5e-89b667b39a01",
+  "sessions": [
+    "720d2f9e-dca7-49be-8c5e-89b667b39a01"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "0465bcdcdb729b5e5022b97e10f03c2589937c735debe88956af173df7f612d1"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "calls to MCP servers",
+    "state": "verified",
+    "problems": [],
+    "talks": 2,
+    "steps": 25,
+    "streams": 2,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 0,
+    "provider_bodies": 0,
+    "captured_prompts": 0,
+    "from": 1767225600000,
+    "to": 1767225613900,
+    "kinds": {
+      "agent.call": 1,
+      "agent.launch_ack": 1,
+      "agent.output": 1,
+      "epoch": 2,
+      "llm.call": 8,
+      "message.assistant": 7,
+      "message.external": 1,
+      "run": 3,
+      "runtime.notification": 1,
+      "segment": 1,
+      "session": 1,
+      "stream": 2,
+      "talk": 2,
+      "tool": 5
+    },
+    "relation_types": {
+      "ends_with": 1,
+      "in_segment": 2,
+      "reports": 1,
+      "starts": 1
+    },
+    "quality": {
+      "exact_unique": 4,
+      "strong_inference": 1
+    }
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "0465bcdcdb729b5e5022b97e10f03c2589937c735debe88956af173df7f612d1",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 5,
+      "input_digest": "d89701ec46c206724a1881d3571defaab92ce201520b19f84362aa85c9f47627",
+      "from_time": 1767225600000,
+      "through_time": 1767225613900,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 20,
+      "bytes": 6910,
+      "digest": "76e8539b8ad8ea080bd5daec3c187554d68c8a648533974d40cfff535081e0a0",
+      "from_time": 1767225600000,
+      "through_time": 1767225613900
+    },
+    {
+      "file": "720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/main/execution-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "execution",
+      "seq": 2,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 6,
+      "bytes": 3507,
+      "digest": "9a6de86e0baa955694fc14b3f1764820a93b7bb30fedf92854a1ea0cbdae4c94",
+      "from_time": 1767225601500,
+      "through_time": 1767225606200
+    },
+    {
+      "file": "720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/a39a255c7ba239348/transcript-20260101T000000.000000000Z-000003.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 3,
+      "round": null,
+      "stream": "a39a255c7ba239348",
+      "run": null,
+      "lines": 7,
+      "bytes": 2147,
+      "digest": "3211096e8b6f85c6b6459be1d3d855a2930d49f4065f4d1d4315a7fc357ee5d4",
+      "from_time": 1767225609500,
+      "through_time": 1767225611900
+    },
+    {
+      "file": "720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/a39a255c7ba239348/execution-20260101T000000.000000000Z-000004.sd",
+      "format": "sd",
+      "kind": "execution",
+      "seq": 4,
+      "round": null,
+      "stream": "a39a255c7ba239348",
+      "run": null,
+      "lines": 3,
+      "bytes": 1253,
+      "digest": "aea3dc04001736aba88914ff0eacea3731ebbf62915d58941b09110d6099f066",
+      "from_time": 1767225610900,
+      "through_time": 1767225610900
+    },
+    {
+      "file": "720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/a39a255c7ba239348/meta-20260101T000000.000000000Z-000005.sd",
+      "format": "sd",
+      "kind": "agent_meta",
+      "seq": 5,
+      "round": null,
+      "stream": "a39a255c7ba239348",
+      "run": null,
+      "lines": 3,
+      "bytes": 664,
+      "digest": "eec87b3a2a776af6ebcbc9209d820cbe05dff81c067b8ca70f829e59e5e08781",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/720d2f9e-dca7-49be-8c5e-89b667b39a01/rounds/r000001-0465bcdcdb72.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 43,
+      "bytes": 10874,
+      "digest": "2ea12f2b3a05408df1eefc01e2273a681e6f26a37ff6ec92bc950b5bd8a7b8a6",
+      "from_time": 1767225600000,
+      "through_time": 1767225613900
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 18,
+      "steps": 19,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    },
+    {
+      "id": "stream/a39a255c7ba239348",
+      "name": "a39a255c7ba239348",
+      "role": "child",
+      "label": "auditor",
+      "parent": "main",
+      "records": 6,
+      "steps": 6,
+      "talk": "talk/a39a255c7ba239348",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/s6-tool",
+          "stream": "main",
+          "talk": "talk/main/s1-cycle",
+          "quality": "exact_unique"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_2",
+      "state": "open",
+      "committable": false,
+      "talks": 2,
+      "from": 1767225600000,
+      "to": 1767225613900
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 2
+      },
+      "attrs": {
+        "loops": 2,
+        "runs": 2,
+        "trigger": "external"
+      },
+      "label": "check the checkout service and then the payment service",
+      "reply": "Checkout is healthy and payment is not.",
+      "runs": 2,
+      "steps": 19,
+      "tools": 5,
+      "from": 1767225600000,
+      "to": 1767225613900,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 2
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/1/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "check the checkout service and then the payment service",
+              "state": "available",
+              "bytes": 55,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s2-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 3
+                },
+                {
+                  "seq": 1,
+                  "row": 4
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 4,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/3:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s2-call",
+                  "stream": "main",
+                  "at": 1767225601000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "text": "Asking the status server about checkout.",
+                  "state": "available",
+                  "bytes": 40
+                },
+                {
+                  "id": "tool/s2-tool",
+                  "kind": "tool",
+                  "parent": "call/s2-call",
+                  "stream": "main",
+                  "at": 1767225601100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 4,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 4,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 5,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "mcp_server": "status",
+                    "mcp_tool": "lookup",
+                    "name": "mcp__status__lookup",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"service\":\"checkout\"}",
+                  "state": "available",
+                  "bytes": 22,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "mcp__status__lookup",
+                  "result": "checkout: 3 of 3 ready",
+                  "result_state": "available",
+                  "result_bytes": 22,
+                  "request_to_result_ms": 400,
+                  "request_to_result_join": "exact_unique",
+                  "executions": [
+                    "s2-tool/client_hook"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s3-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225602500,
+              "ref": {
+                "seq": 1,
+                "row": 6
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 6
+                },
+                {
+                  "seq": 1,
+                  "row": 7
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 7,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/6:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225602500,
+                  "ref": {
+                    "seq": 1,
+                    "row": 6,
+                    "block": 0
+                  },
+                  "text": "And about payment.",
+                  "state": "available",
+                  "bytes": 18
+                },
+                {
+                  "id": "tool/s3-tool",
+                  "kind": "tool",
+                  "parent": "call/s3-call",
+                  "stream": "main",
+                  "at": 1767225602600,
+                  "ref": {
+                    "seq": 1,
+                    "row": 7,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 7,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 8,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "mcp_server": "status",
+                    "mcp_tool": "lookup",
+                    "name": "mcp__status__lookup",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"service\":\"payment\"}",
+                  "state": "available",
+                  "bytes": 21,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "mcp__status__lookup",
+                  "failed": true,
+                  "result": "the status server could not reach payment",
+                  "result_state": "available",
+                  "result_bytes": 41,
+                  "request_to_result_ms": 2000,
+                  "request_to_result_join": "exact_unique",
+                  "executions": [
+                    "s3-tool/client_hook"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s4-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225605600,
+              "ref": {
+                "seq": 1,
+                "row": 9
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 9
+                },
+                {
+                  "seq": 1,
+                  "row": 10
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 10,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/9:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s4-call",
+                  "stream": "main",
+                  "at": 1767225605600,
+                  "ref": {
+                    "seq": 1,
+                    "row": 9,
+                    "block": 0
+                  },
+                  "text": "Asking again, through a hook that names the region.",
+                  "state": "available",
+                  "bytes": 51
+                },
+                {
+                  "id": "tool/s4-tool",
+                  "kind": "tool",
+                  "parent": "call/s4-call",
+                  "stream": "main",
+                  "at": 1767225605700,
+                  "ref": {
+                    "seq": 1,
+                    "row": 10,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 10,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 11,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "mcp_server": "status",
+                    "mcp_tool": "lookup",
+                    "name": "mcp__status__lookup",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"service\":\"payment\"}",
+                  "state": "available",
+                  "bytes": 21,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "mcp__status__lookup",
+                  "result": "payment: 1 of 3 ready",
+                  "result_state": "available",
+                  "result_bytes": 21,
+                  "request_to_result_ms": 500,
+                  "request_to_result_join": "exact_unique",
+                  "executions": [
+                    "s4-tool/client_hook"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/s5-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225607200,
+              "ref": {
+                "seq": 1,
+                "row": 12
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 12
+                },
+                {
+                  "seq": 1,
+                  "row": 13
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 13,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/12:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s5-call",
+                  "stream": "main",
+                  "at": 1767225607200,
+                  "ref": {
+                    "seq": 1,
+                    "row": 12,
+                    "block": 0
+                  },
+                  "text": "A tool whose name the runtime cannot split.",
+                  "state": "available",
+                  "bytes": 43
+                },
+                {
+                  "id": "tool/s5-tool",
+                  "kind": "tool",
+                  "parent": "call/s5-call",
+                  "stream": "main",
+                  "at": 1767225607300,
+                  "ref": {
+                    "seq": 1,
+                    "row": 13,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 13,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 14,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "mcp__odd__name__twice",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{}",
+                  "state": "available",
+                  "bytes": 2,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "mcp__odd__name__twice",
+                  "result": "ok",
+                  "result_state": "available",
+                  "result_bytes": 2,
+                  "request_to_result_ms": 100,
+                  "request_to_result_join": "exact_unique"
+                }
+              ]
+            },
+            {
+              "id": "call/s6-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225608400,
+              "ref": {
+                "seq": 1,
+                "row": 15
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 15
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 15,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "tool/s6-tool",
+                  "kind": "agent.call",
+                  "parent": "call/s6-call",
+                  "stream": "main",
+                  "at": 1767225608400,
+                  "ref": {
+                    "seq": 1,
+                    "row": 15,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 15,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 16,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Agent",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"description\":\"auditor\",\"prompt\":\"read the release notes\"}",
+                  "state": "available",
+                  "bytes": 59,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Agent",
+                  "result": "launched",
+                  "result_state": "available",
+                  "result_bytes": 8,
+                  "request_to_result_ms": 100,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "starts",
+                      "other": "stream/a39a255c7ba239348",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ack/1/16",
+              "kind": "agent.launch_ack",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225608500,
+              "ref": {
+                "seq": 1,
+                "row": 16
+              },
+              "text": "launched",
+              "state": "available",
+              "bytes": 8,
+              "flags": [
+                "launch_ack"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "run/talk_main_s1-cycle/s6-cycle-notification",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225612900,
+          "ref": {
+            "seq": 1,
+            "row": 17
+          },
+          "attrs": {
+            "trigger": "notification"
+          },
+          "children": [
+            {
+              "id": "notify/1/17",
+              "kind": "runtime.notification",
+              "parent": "run/talk_main_s1-cycle/s6-cycle-notification",
+              "stream": "main",
+              "at": 1767225612900,
+              "ref": {
+                "seq": 1,
+                "row": 17
+              },
+              "text": "\u003ctask-notification\u003e\n\u003ctask-id\u003ea39a255c7ba239348\u003c/task-id\u003e\n\u003ctool-use-id\u003es6-tool\u003c/tool-use-id\u003e\n\u003cstatus\u003ecompleted\u003c/status\u003e\n\u003c/task-notification\u003e",
+              "state": "available",
+              "bytes": 139,
+              "edges": [
+                {
+                  "type": "reports",
+                  "other": "stream/a39a255c7ba239348",
+                  "dir": "out",
+                  "quality": "exact_unique",
+                  "via": "task id on the notification"
+                }
+              ]
+            },
+            {
+              "id": "call/s7-call",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s6-cycle-notification",
+              "stream": "main",
+              "at": 1767225613900,
+              "ref": {
+                "seq": 1,
+                "row": 18
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 18
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 18,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/1/18:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s7-call",
+                  "stream": "main",
+                  "at": 1767225613900,
+                  "ref": {
+                    "seq": 1,
+                    "row": 18,
+                    "block": 0
+                  },
+                  "text": "Checkout is healthy and payment is not.",
+                  "state": "available",
+                  "bytes": 39,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/a39a255c7ba239348",
+      "kind": "talk",
+      "parent": "epoch/a39a255c7ba239348/0",
+      "stream": "a39a255c7ba239348",
+      "at": 1767225609500,
+      "ref": {
+        "seq": 3,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "reply": "Read.",
+      "runs": 1,
+      "steps": 6,
+      "tools": 1,
+      "from": 1767225609500,
+      "to": 1767225611900,
+      "child": true,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_a39a255c7ba239348/a39a255c7ba239348-cycle",
+          "kind": "run",
+          "parent": "talk/a39a255c7ba239348",
+          "stream": "a39a255c7ba239348",
+          "at": 1767225609500,
+          "ref": {
+            "seq": 3,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "call/auditor-s1-call",
+              "kind": "llm.call",
+              "parent": "run/talk_a39a255c7ba239348/a39a255c7ba239348-cycle",
+              "stream": "a39a255c7ba239348",
+              "at": 1767225610500,
+              "ref": {
+                "seq": 3,
+                "row": 2
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 2
+                },
+                {
+                  "seq": 3,
+                  "row": 3
+                }
+              ],
+              "attrs": {
+                "fragments": 2,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 3,
+                  "seq": 3
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/3/2:0",
+                  "kind": "message.assistant",
+                  "parent": "call/auditor-s1-call",
+                  "stream": "a39a255c7ba239348",
+                  "at": 1767225610500,
+                  "ref": {
+                    "seq": 3,
+                    "row": 2,
+                    "block": 0
+                  },
+                  "text": "Reading them.",
+                  "state": "available",
+                  "bytes": 13
+                },
+                {
+                  "id": "tool/auditor-s1-tool",
+                  "kind": "tool",
+                  "parent": "call/auditor-s1-call",
+                  "stream": "a39a255c7ba239348",
+                  "at": 1767225610600,
+                  "ref": {
+                    "seq": 3,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 3,
+                      "row": 3,
+                      "block": 0
+                    },
+                    {
+                      "seq": 3,
+                      "row": 4,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "mcp_server": "docs",
+                    "mcp_tool": "read",
+                    "name": "mcp__docs__read",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"page\":\"release-notes\"}",
+                  "state": "available",
+                  "bytes": 24,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "mcp__docs__read",
+                  "result": "0.6.0: ...",
+                  "result_state": "available",
+                  "result_bytes": 10,
+                  "request_to_result_ms": 300,
+                  "request_to_result_join": "exact_unique",
+                  "executions": [
+                    "auditor-s1-tool/client_hook"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "call/auditor-s2-call",
+              "kind": "llm.call",
+              "parent": "run/talk_a39a255c7ba239348/a39a255c7ba239348-cycle",
+              "stream": "a39a255c7ba239348",
+              "at": 1767225611900,
+              "ref": {
+                "seq": 3,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 5,
+                  "seq": 3
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "children": [
+                {
+                  "id": "msg/3/5:0",
+                  "kind": "message.assistant",
+                  "parent": "call/auditor-s2-call",
+                  "stream": "a39a255c7ba239348",
+                  "at": 1767225611900,
+                  "ref": {
+                    "seq": 3,
+                    "row": 5,
+                    "block": 0
+                  },
+                  "text": "Read.",
+                  "state": "available",
+                  "bytes": 5,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "output/a39a255c7ba239348",
+              "kind": "agent.output",
+              "parent": "run/talk_a39a255c7ba239348/a39a255c7ba239348-cycle",
+              "stream": "a39a255c7ba239348",
+              "at": 1767225611900,
+              "ref": {
+                "seq": 3,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 3,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "returned_value": "unavailable"
+              },
+              "text": "Read.",
+              "state": "available",
+              "bytes": 5,
+              "flags": [
+                "finished"
+              ],
+              "edges": [
+                {
+                  "type": "ends_with",
+                  "other": "stream/a39a255c7ba239348",
+                  "dir": "in",
+                  "quality": "exact_unique",
+                  "via": "the last response in the child stream, and what it returned"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_s6-tool/stream_a39a255c7ba239348",
+      "type": "starts",
+      "from": "tool/s6-tool",
+      "to": "stream/a39a255c7ba239348",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 16
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_a39a255c7ba239348/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/a39a255c7ba239348",
+      "to": "segment/at_1_2",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/ends_with/stream_a39a255c7ba239348/output_a39a255c7ba239348",
+      "type": "ends_with",
+      "from": "stream/a39a255c7ba239348",
+      "to": "output/a39a255c7ba239348",
+      "quality": "exact_unique",
+      "via": "the last response in the child stream, and what it returned",
+      "evidence": [
+        {
+          "seq": 3,
+          "row": 5
+        }
+      ]
+    },
+    {
+      "id": "rel/reports/notify_1_17/stream_a39a255c7ba239348",
+      "type": "reports",
+      "from": "notify/1/17",
+      "to": "stream/a39a255c7ba239348",
+      "quality": "exact_unique",
+      "via": "task id on the notification",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 17
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": [],
+  "tool_executions": [
+    {
+      "step": "tool/s2-tool",
+      "ref": {
+        "seq": 2,
+        "row": 1,
+        "block": 0
+      },
+      "schema": "execution/1",
+      "id": "s2-tool/client_hook",
+      "observed_by": "asz-plugin",
+      "boundary": "client_hook",
+      "session": "720d2f9e-dca7-49be-8c5e-89b667b39a01",
+      "stream": "main",
+      "tool": "s2-tool",
+      "tool_name": "mcp__status__lookup",
+      "cwd": "/Users/dev/scenario",
+      "protocol": "mcp",
+      "server": {
+        "name": "status",
+        "source": "user"
+      },
+      "time": "2026-01-01T00:00:01.500Z",
+      "duration_ms": 380,
+      "outcome": "returned",
+      "arguments": {
+        "state": "size_only",
+        "bytes": 22,
+        "sha256": "ea3a64398a82e2ee89a19c80733d2be7a2496e0a0a64050fa307a20f7be8879b"
+      },
+      "result": {
+        "state": "size_only",
+        "bytes": 49,
+        "sha256": "b8af7b751371023596105f146d227c1f580834e3a84903b6d822a166de343be9"
+      }
+    },
+    {
+      "step": "tool/s3-tool",
+      "ref": {
+        "seq": 2,
+        "row": 3,
+        "block": 0
+      },
+      "schema": "execution/1",
+      "id": "s3-tool/client_hook",
+      "observed_by": "asz-plugin",
+      "boundary": "client_hook",
+      "session": "720d2f9e-dca7-49be-8c5e-89b667b39a01",
+      "stream": "main",
+      "tool": "s3-tool",
+      "tool_name": "mcp__status__lookup",
+      "cwd": "/Users/dev/scenario",
+      "protocol": "mcp",
+      "server": {
+        "name": "status",
+        "source": "user"
+      },
+      "time": "2026-01-01T00:00:04.600Z",
+      "duration_ms": 2000,
+      "outcome": "failed",
+      "arguments": {
+        "state": "size_only",
+        "bytes": 21,
+        "sha256": "e0f7631369273f52e3e7c14ca01c6bbf3f8416a36ed125c8d45fc14156596c36"
+      }
+    },
+    {
+      "step": "tool/s4-tool",
+      "ref": {
+        "seq": 2,
+        "row": 4,
+        "block": 0
+      },
+      "schema": "execution/1",
+      "id": "s4-tool/client_hook",
+      "observed_by": "asz-plugin",
+      "boundary": "client_hook",
+      "session": "720d2f9e-dca7-49be-8c5e-89b667b39a01",
+      "stream": "main",
+      "tool": "s4-tool",
+      "tool_name": "mcp__status__lookup",
+      "cwd": "/Users/dev/scenario",
+      "protocol": "mcp",
+      "server": {
+        "name": "status",
+        "source": "user"
+      },
+      "time": "2026-01-01T00:00:06.200Z",
+      "duration_ms": 450,
+      "outcome": "returned",
+      "arguments": {
+        "state": "size_only",
+        "bytes": 42,
+        "sha256": "ea25b35f703111d67a809bd52709c167eda433619f18d87eb668eeab5dcc0851"
+      },
+      "result": {
+        "state": "size_only",
+        "bytes": 48,
+        "sha256": "0397134b1598c5571ad554ef3963b3ad77adaca182426b6850b6b89be698fc32"
+      }
+    },
+    {
+      "step": "tool/auditor-s1-tool",
+      "ref": {
+        "seq": 4,
+        "row": 1,
+        "block": 0
+      },
+      "schema": "execution/1",
+      "id": "auditor-s1-tool/client_hook",
+      "observed_by": "asz-plugin",
+      "boundary": "client_hook",
+      "session": "720d2f9e-dca7-49be-8c5e-89b667b39a01",
+      "stream": "a39a255c7ba239348",
+      "tool": "auditor-s1-tool",
+      "tool_name": "mcp__docs__read",
+      "cwd": "/Users/dev/scenario",
+      "protocol": "mcp",
+      "server": {
+        "name": "docs",
+        "source": "project"
+      },
+      "time": "2026-01-01T00:00:10.900Z",
+      "duration_ms": 280,
+      "outcome": "returned",
+      "arguments": {
+        "state": "size_only",
+        "bytes": 24,
+        "sha256": "5cb51817b71b5f57c1159e9cedfe7a555f4e89d469548438ee4b25324cac71a0"
+      },
+      "result": {
+        "state": "size_only",
+        "bytes": 37,
+        "sha256": "1dc1201945582b1373186efab341595fbbb3ab3316889ea91ea5c2968456e164"
+      }
+    }
+  ]
+}

@@ -63,6 +63,16 @@
   segments: 1
   unresolved: 0
   timed: true
+- conversation: 720d2f9e-dca7-49be-8c5e-89b667b39a01
+  instance: e2e-sender
+  title: calls to MCP servers
+  round: 1
+  talks: 2
+  steps: 25
+  streams: 2
+  segments: 1
+  unresolved: 0
+  timed: true
 - conversation: bd16edc4-0b6b-4020-8405-3ce58724f2bc
   instance: e2e-sender
   title: three rounds

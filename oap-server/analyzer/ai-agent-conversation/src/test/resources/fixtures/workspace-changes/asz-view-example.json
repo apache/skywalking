@@ -891,16 +891,30 @@
   "loose": [],
   "relations": [
     {
-      "id": "rel/ends_with/stream_a16c61ba3c4753923/output_a16c61ba3c4753923",
-      "type": "ends_with",
-      "from": "stream/a16c61ba3c4753923",
-      "to": "output/a16c61ba3c4753923",
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
       "quality": "exact_unique",
-      "via": "the last response in the child stream, and what it returned",
+      "via": "activity window",
       "evidence": [
         {
-          "seq": 3,
-          "row": 5
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_s4-tool/stream_a16c61ba3c4753923",
+      "type": "starts",
+      "from": "tool/s4-tool",
+      "to": "stream/a16c61ba3c4753923",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 10
         }
       ]
     },
@@ -919,16 +933,16 @@
       ]
     },
     {
-      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
-      "type": "in_segment",
-      "from": "talk/main/s1-cycle",
-      "to": "segment/at_1_2",
+      "id": "rel/ends_with/stream_a16c61ba3c4753923/output_a16c61ba3c4753923",
+      "type": "ends_with",
+      "from": "stream/a16c61ba3c4753923",
+      "to": "output/a16c61ba3c4753923",
       "quality": "exact_unique",
-      "via": "activity window",
+      "via": "the last response in the child stream, and what it returned",
       "evidence": [
         {
-          "seq": 1,
-          "row": 2
+          "seq": 3,
+          "row": 5
         }
       ]
     },
@@ -943,20 +957,6 @@
         {
           "seq": 1,
           "row": 11
-        }
-      ]
-    },
-    {
-      "id": "rel/starts/tool_s4-tool/stream_a16c61ba3c4753923",
-      "type": "starts",
-      "from": "tool/s4-tool",
-      "to": "stream/a16c61ba3c4753923",
-      "quality": "exact_unique",
-      "via": "parent tool result",
-      "evidence": [
-        {
-          "seq": 1,
-          "row": 10
         }
       ]
     }
@@ -1197,5 +1197,6 @@
         }
       ]
     }
-  ]
+  ],
+  "tool_executions": []
 }

@@ -1,0 +1,110 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+state: verified
+execution_files:
+  - seq: 2
+    stream: main
+    lines: 6
+  - seq: 4
+    stream: a39a255c7ba239348
+    lines: 3
+executions:
+  - step: tool/s2-tool
+    ref:
+      seq: 2
+      row: 1
+      block: 0
+    server:
+      name: status
+      source: user
+    tool_name: mcp__status__lookup
+    outcome: returned
+    duration_ms: 380
+  - step: tool/s3-tool
+    ref:
+      seq: 2
+      row: 3
+      block: 0
+    server:
+      name: status
+      source: user
+    tool_name: mcp__status__lookup
+    outcome: failed
+    duration_ms: 2000
+  - step: tool/s4-tool
+    ref:
+      seq: 2
+      row: 4
+      block: 0
+    server:
+      name: status
+      source: user
+    tool_name: mcp__status__lookup
+    outcome: returned
+    duration_ms: 450
+  - step: tool/auditor-s1-tool
+    ref:
+      seq: 4
+      row: 1
+      block: 0
+    server:
+      name: docs
+      source: project
+    tool_name: mcp__docs__read
+    outcome: returned
+    duration_ms: 280
+steps:
+  - id: tool/auditor-s1-tool
+    mcp_server: docs
+    mcp_tool: read
+    executions:
+      - auditor-s1-tool/client_hook
+  - id: tool/s2-tool
+    mcp_server: status
+    mcp_tool: lookup
+    executions:
+      - s2-tool/client_hook
+  - id: tool/s3-tool
+    mcp_server: status
+    mcp_tool: lookup
+    executions:
+      - s3-tool/client_hook
+  - id: tool/s4-tool
+    mcp_server: status
+    mcp_tool: lookup
+    executions:
+      - s4-tool/client_hook
+  - id: tool/s5-tool
+    mcp_server: null
+    mcp_tool: null
+    executions: null
+endpoints:
+  - docs/read
+  - status/lookup
+status/lookup:
+  calls: 3
+  by_outcome:
+    - outcome: failed
+      value: 1
+    - outcome: returned
+      value: 2
+  duration: 2830
+docs/read:
+  calls: 1
+  by_outcome:
+    - outcome: returned
+      value: 1
+  duration: 280

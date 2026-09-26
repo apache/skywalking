@@ -1,0 +1,76 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Calls to MCP servers.
+#
+# Claude Code names a call to an MCP server mcp__<server>__<tool>, and the
+# adapter reads the server and the tool from the name where it splits
+# exactly. The plugin's hook after each call saw which server ran it, where
+# its configuration came from, how the call ended and how long it took, and
+# wrote an execution record the view joins to the step by the tool-use id.
+# The shapes are the ones measured on Claude Code 2.1.282: a call that
+# returned, an error the server returned, a call whose input a hook rewrote
+# before it was sent, a name with a second "__" that is left whole, and a
+# call inside a subagent. The hook of the first call was handed its event
+# twice, so its record is written twice, and it is still one call. None of
+# the records is a step: the same session without them folds to the same
+# nodes.
+title: calls to MCP servers
+steps:
+  - input: check the checkout service and then the payment service
+  - call:
+      text: Asking the status server about checkout.
+      tool:
+        name: mcp__status__lookup
+        input: {service: checkout}
+        result: {text: "checkout: 3 of 3 ready", after: 400ms}
+        execution: {server: status, source: user, duration: 380ms, twice: true}
+  - call:
+      text: And about payment.
+      tool:
+        name: mcp__status__lookup
+        input: {service: payment}
+        result: {text: "the status server could not reach payment", failed: true, after: 2s}
+        execution: {server: status, source: user, duration: 2s}
+  - call:
+      text: Asking again, through a hook that names the region.
+      tool:
+        name: mcp__status__lookup
+        input: {service: payment}
+        result: {text: "payment: 1 of 3 ready", after: 500ms}
+        execution: {server: status, source: user, duration: 450ms, arguments: {service: payment, region: us-west-2}}
+  - call:
+      text: A tool whose name the runtime cannot split.
+      tool:
+        name: mcp__odd__name__twice
+        input: {}
+        result: {text: "ok", after: 100ms}
+  - call:
+      agent:
+        name: auditor
+        prompt: read the release notes
+        notify: true
+        steps:
+          - call:
+              text: Reading them.
+              tool:
+                name: mcp__docs__read
+                input: {page: release-notes}
+                result: {text: "0.6.0: ...", after: 300ms}
+                execution: {server: docs, source: project, duration: 280ms}
+          - call: {text: Read.}
+  - call: {text: Checkout is healthy and payment is not.}

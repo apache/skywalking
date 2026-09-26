@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "0a33a0c2d269a8b66804075c0eb46e0546187e9a9f45d8eca10486bbcb040699"
+    "digest": "76f9606aacf31460a8b0446391c9c94b94ccb458772356c595629899cd6efadd"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -48,11 +48,11 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "0a33a0c2d269a8b66804075c0eb46e0546187e9a9f45d8eca10486bbcb040699",
+      "digest": "76f9606aacf31460a8b0446391c9c94b94ccb458772356c595629899cd6efadd",
       "previous": null,
       "from_seq": 1,
       "through_seq": 2,
-      "input_digest": "950a569a9d180b4b09b44f954d6cbfe8e1a85a717f285edd7f4f437440bb2778",
+      "input_digest": "fa6cbbf0240ea542877c410da5e6c494904cc8cce39621304e1712b01d97d9f2",
       "from_time": 1767225600000,
       "through_time": 1767225603000,
       "verified": true
@@ -82,13 +82,13 @@
       "stream": null,
       "run": null,
       "lines": 6,
-      "bytes": 12454,
-      "digest": "bb4e2514f2da98c009ce6fcf716c82b091582929800c98c76de6ec18b0434ec4",
+      "bytes": 12926,
+      "digest": "7be8ce0d6c7396c55930498a3f9fd7d6771b2f9004baf62ce0e6277db23161ad",
       "from_time": null,
       "through_time": null
     },
     {
-      "file": "_conversations/f41b7a16-49fa-44ea-8ef6-bb39db57ab1d/rounds/r000001-0a33a0c2d269.sf",
+      "file": "_conversations/f41b7a16-49fa-44ea-8ef6-bb39db57ab1d/rounds/r000001-76f9606aacf3.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -96,8 +96,8 @@
       "stream": null,
       "run": null,
       "lines": 16,
-      "bytes": 3840,
-      "digest": "078b6f3f50c11dbbc522d8246fd12c561276a95e66ce7102eb9bead4ce26ae23",
+      "bytes": 4081,
+      "digest": "14fec4e63a8c6bde9b33810b556c5d014e8c9dcd6c00634ab2dd8662788210fd",
       "from_time": 1767225600000,
       "through_time": 1767225603000
     }
@@ -392,5 +392,6 @@
     }
   ],
   "unresolved": [],
-  "workspace_changes": []
+  "workspace_changes": [],
+  "tool_executions": []
 }

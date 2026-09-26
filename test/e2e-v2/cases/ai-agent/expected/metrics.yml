@@ -13,97 +13,97 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-tokens: 44662
-instance_tokens: 44662
+tokens: 52998
+instance_tokens: 52998
 by_type:
   - labels:
       - key: type
         value: cacheCreation
-    value: 4300
+    value: 5100
   - labels:
       - key: type
         value: cacheRead
-    value: 38700
+    value: 45900
   - labels:
       - key: type
         value: input
-    value: 86
+    value: 102
   - labels:
       - key: type
         value: output
-    value: 1576
+    value: 1896
 by_model:
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: cacheCreation
-    value: 4300
+    value: 5100
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: cacheRead
-    value: 38700
+    value: 45900
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: input
-    value: 86
+    value: 102
   - labels:
       - key: model
         value: claude-opus-5
       - key: type
         value: output
-    value: 1576
+    value: 1896
 by_source:
   - labels:
       - key: query_source
         value: main
       - key: type
         value: cacheCreation
-    value: 3200
+    value: 3800
   - labels:
       - key: query_source
         value: main
       - key: type
         value: cacheRead
-    value: 28800
+    value: 34200
   - labels:
       - key: query_source
         value: main
       - key: type
         value: input
-    value: 64
+    value: 76
   - labels:
       - key: query_source
         value: main
       - key: type
         value: output
-    value: 1130
+    value: 1370
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: cacheCreation
-    value: 1100
+    value: 1300
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: cacheRead
-    value: 9900
+    value: 11700
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: input
-    value: 22
+    value: 26
   - labels:
       - key: query_source
         value: subagent
       - key: type
         value: output
-    value: 446
+    value: 526
 cache_read_share_in_range: true
