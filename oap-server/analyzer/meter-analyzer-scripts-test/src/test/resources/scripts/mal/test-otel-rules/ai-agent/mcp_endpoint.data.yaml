@@ -1,0 +1,242 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Two sessions from two senders, three MCP targets: a tool called on both streams and by both senders, one that
+# failed once, and a name the runtime could not split, which arrives as the whole name. Each rule sums away the
+# session, the sender, the stream and the source of the server's configuration, and keeps one endpoint per target.
+script: oap-server/server-starter/src/main/resources/otel-rules/ai-agent/mcp_endpoint.yaml
+input:
+  agent_mcp_calls:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'main'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'returned'
+      value: 2.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'main'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'failed'
+      value: 1.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        query_source: 'subagent'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'returned'
+      value: 1.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'subagent'
+        mcp_server_name: 'docs'
+        mcp_server_source: 'project'
+        mcp_tool_name: 'read'
+        outcome: 'returned'
+      value: 1.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        query_source: 'main'
+        mcp_server_name: 'odd'
+        mcp_server_source: 'dynamic'
+        mcp_tool_name: 'mcp__odd__name__twice'
+        outcome: 'returned'
+      value: 1.0
+  agent_mcp_duration:
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'main'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'returned'
+      value: 760.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'main'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'failed'
+      value: 2000.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        query_source: 'subagent'
+        mcp_server_name: 'status'
+        mcp_server_source: 'user'
+        mcp_tool_name: 'lookup'
+        outcome: 'returned'
+      value: 400.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev@host'
+        session_id: 's1'
+        query_source: 'subagent'
+        mcp_server_name: 'docs'
+        mcp_server_source: 'project'
+        mcp_tool_name: 'read'
+        outcome: 'returned'
+      value: 280.0
+    - labels:
+        service_name: 'Claude Code'
+        service_layer: 'AI_AGENT'
+        telemetry_sdk_name: 'asz'
+        service_instance_id: 'dev2@host'
+        session_id: 's2'
+        query_source: 'main'
+        mcp_server_name: 'odd'
+        mcp_server_source: 'dynamic'
+        mcp_tool_name: 'mcp__odd__name__twice'
+        outcome: 'returned'
+      value: 100.0
+expected:
+  meter_ai_agent_mcp_calls:
+    entities:
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'status/lookup'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'docs/read'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'odd/mcp__odd__name__twice'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'status'
+          mcp_tool_name: 'lookup'
+        value: 4.0
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'docs'
+          mcp_tool_name: 'read'
+        value: 1.0
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'odd'
+          mcp_tool_name: 'mcp__odd__name__twice'
+        value: 1.0
+  meter_ai_agent_mcp_calls_by_outcome:
+    entities:
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'status/lookup'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'docs/read'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'odd/mcp__odd__name__twice'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          outcome: 'returned'
+          service_name: 'Claude Code'
+          mcp_server_name: 'status'
+          mcp_tool_name: 'lookup'
+        value: 3.0
+      - labels:
+          outcome: 'failed'
+          service_name: 'Claude Code'
+          mcp_server_name: 'status'
+          mcp_tool_name: 'lookup'
+        value: 1.0
+      - labels:
+          outcome: 'returned'
+          service_name: 'Claude Code'
+          mcp_server_name: 'docs'
+          mcp_tool_name: 'read'
+        value: 1.0
+      - labels:
+          outcome: 'returned'
+          service_name: 'Claude Code'
+          mcp_server_name: 'odd'
+          mcp_tool_name: 'mcp__odd__name__twice'
+        value: 1.0
+  meter_ai_agent_mcp_duration:
+    entities:
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'status/lookup'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'docs/read'
+        layer: AI_AGENT
+      - scope: ENDPOINT
+        service: 'Claude Code'
+        endpoint: 'odd/mcp__odd__name__twice'
+        layer: AI_AGENT
+    samples:
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'status'
+          mcp_tool_name: 'lookup'
+        value: 3160.0
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'docs'
+          mcp_tool_name: 'read'
+        value: 280.0
+      - labels:
+          service_name: 'Claude Code'
+          mcp_server_name: 'odd'
+          mcp_tool_name: 'mcp__odd__name__twice'
+        value: 100.0

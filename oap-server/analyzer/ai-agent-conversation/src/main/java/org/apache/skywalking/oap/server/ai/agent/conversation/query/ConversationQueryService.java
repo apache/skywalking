@@ -342,7 +342,7 @@ public class ConversationQueryService implements IConversationQueryService {
         /** Every stored round in number order, readable or not, for the document's listing. */
         final List<ConversationViewBuilder.RoundInput> roundInputs = new ArrayList<>();
         final Map<Long, SessionDataFile> files = new TreeMap<>();
-        /** What stopped the fold short of the chain's last round, in words, as the Sessionizer's FoldPartial. */
+        /** What stopped the fold short of the chain's last round, in the words of the Sessionizer's document. */
         final List<String> problems = new ArrayList<>();
     }
 
@@ -441,8 +441,7 @@ public class ConversationQueryService implements IConversationQueryService {
                 try {
                     chain.files.put(f.getSeq(), SessionDataFile.parse(f.getBody()));
                 } catch (final RuntimeException e) {
-                    // as the Sessionizer's reader, a file that does not decode contributes no records and is
-                    // named by the chain check as missing
+                    // a file that does not read contributes no records, and the chain check names it as missing
                     chain.problems.add("file seq " + f.getSeq() + " of session " + session + " cannot be decoded: "
                                            + e.getMessage());
                 }

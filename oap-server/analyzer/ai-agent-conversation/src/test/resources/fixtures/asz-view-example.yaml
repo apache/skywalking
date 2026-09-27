@@ -542,39 +542,6 @@ talks:
           dir: out
           quality: exact_unique
           via: activity window
-    - id: talk/main/s8-cycle-compact
-      kind: talk
-      parent: epoch/main/s8-boundary
-      stream: main
-      at: 1767225610700
-      ref:
-        seq: 1
-        row: 16
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: external
-      runs: 1
-      from: 1767225610700
-      to: 1767225610700
-      segment: segment/at_1_2
-      children:
-        - id: run/talk_main_s8-cycle-compact/s8-cycle-compact
-          kind: run
-          parent: talk/main/s8-cycle-compact
-          stream: main
-          at: 1767225610700
-          ref:
-            seq: 1
-            row: 16
-          attrs:
-            trigger: external
-      edges:
-        - type: in_segment
-          other: segment/at_1_2
-          dir: out
-          quality: exact_unique
-          via: activity window
     - id: talk/a0a10ef0666c4dc7e
       kind: talk
       parent: epoch/a0a10ef0666c4dc7e/0
@@ -674,6 +641,39 @@ talks:
           dir: out
           quality: strong_inference
           via: inside the window of the talk that delegated it
+    - id: talk/main/s8-cycle-compact
+      kind: talk
+      parent: epoch/main/s8-boundary
+      stream: main
+      at: 1767225610700
+      ref:
+        seq: 1
+        row: 16
+      attrs:
+        loops: 1
+        runs: 1
+        trigger: external
+      runs: 1
+      from: 1767225610700
+      to: 1767225610700
+      segment: segment/at_1_2
+      children:
+        - id: run/talk_main_s8-cycle-compact/s8-cycle-compact
+          kind: run
+          parent: talk/main/s8-cycle-compact
+          stream: main
+          at: 1767225610700
+          ref:
+            seq: 1
+            row: 16
+          attrs:
+            trigger: external
+      edges:
+        - type: in_segment
+          other: segment/at_1_2
+          dir: out
+          quality: exact_unique
+          via: activity window
 loose:
     - id: boundary/1/15
       kind: epoch.boundary
@@ -714,33 +714,6 @@ loose:
           quality: exact_unique
           via: containment parent
 relations:
-    - id: rel/ends_with/stream_a0a10ef0666c4dc7e/output_a0a10ef0666c4dc7e
-      type: ends_with
-      from: stream/a0a10ef0666c4dc7e
-      to: output/a0a10ef0666c4dc7e
-      quality: exact_unique
-      via: the last response in the child stream, and what it returned
-      evidence:
-        - seq: 3
-          row: 2
-    - id: rel/follows/epoch_main_s8-boundary/epoch_main_0
-      type: follows
-      from: epoch/main/s8-boundary
-      to: epoch/main/0
-      quality: exact_unique
-      via: explicit context reset
-      evidence:
-        - seq: 1
-          row: 15
-    - id: rel/in_segment/talk_a0a10ef0666c4dc7e/segment_at_1_2
-      type: in_segment
-      from: talk/a0a10ef0666c4dc7e
-      to: segment/at_1_2
-      quality: strong_inference
-      via: inside the window of the talk that delegated it
-      evidence:
-        - seq: 3
-          row: 1
     - id: rel/in_segment/talk_main_s1-cycle/segment_at_1_2
       type: in_segment
       from: talk/main/s1-cycle
@@ -750,24 +723,6 @@ relations:
       evidence:
         - seq: 1
           row: 2
-    - id: rel/in_segment/talk_main_s8-cycle-compact/segment_at_1_2
-      type: in_segment
-      from: talk/main/s8-cycle-compact
-      to: segment/at_1_2
-      quality: exact_unique
-      via: activity window
-      evidence:
-        - seq: 1
-          row: 16
-    - id: rel/reports/notify_1_12/stream_a0a10ef0666c4dc7e
-      type: reports
-      from: notify/1/12
-      to: stream/a0a10ef0666c4dc7e
-      quality: exact_unique
-      via: task id on the notification
-      evidence:
-        - seq: 1
-          row: 12
     - id: rel/starts/tool_s5-tool/stream_a0a10ef0666c4dc7e
       type: starts
       from: tool/s5-tool
@@ -777,6 +732,51 @@ relations:
       evidence:
         - seq: 1
           row: 11
+    - id: rel/in_segment/talk_a0a10ef0666c4dc7e/segment_at_1_2
+      type: in_segment
+      from: talk/a0a10ef0666c4dc7e
+      to: segment/at_1_2
+      quality: strong_inference
+      via: inside the window of the talk that delegated it
+      evidence:
+        - seq: 3
+          row: 1
+    - id: rel/ends_with/stream_a0a10ef0666c4dc7e/output_a0a10ef0666c4dc7e
+      type: ends_with
+      from: stream/a0a10ef0666c4dc7e
+      to: output/a0a10ef0666c4dc7e
+      quality: exact_unique
+      via: the last response in the child stream, and what it returned
+      evidence:
+        - seq: 3
+          row: 2
+    - id: rel/reports/notify_1_12/stream_a0a10ef0666c4dc7e
+      type: reports
+      from: notify/1/12
+      to: stream/a0a10ef0666c4dc7e
+      quality: exact_unique
+      via: task id on the notification
+      evidence:
+        - seq: 1
+          row: 12
+    - id: rel/follows/epoch_main_s8-boundary/epoch_main_0
+      type: follows
+      from: epoch/main/s8-boundary
+      to: epoch/main/0
+      quality: exact_unique
+      via: explicit context reset
+      evidence:
+        - seq: 1
+          row: 15
+    - id: rel/in_segment/talk_main_s8-cycle-compact/segment_at_1_2
+      type: in_segment
+      from: talk/main/s8-cycle-compact
+      to: segment/at_1_2
+      quality: exact_unique
+      via: activity window
+      evidence:
+        - seq: 1
+          row: 16
     - id: rel/summarizes/summary_1_16/boundary_1_15
       type: summarizes
       from: summary/1/16
@@ -846,4 +846,5 @@ workspace_changes:
                 - ' '
                 - -const Version = "0.2.0"
                 - +const Version = "0.3.0"
+tool_executions: []
 

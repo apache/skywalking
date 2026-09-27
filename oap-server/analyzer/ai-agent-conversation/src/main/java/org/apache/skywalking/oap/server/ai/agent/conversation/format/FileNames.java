@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * &lt;session&gt;/streams/&lt;stream&gt;/transcript-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/streams/&lt;stream&gt;/meta-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/streams/&lt;stream&gt;/changes-&lt;stamp&gt;-&lt;seq&gt;.sd
+ * &lt;session&gt;/streams/&lt;stream&gt;/execution-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/journal-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/manifest-&lt;stamp&gt;-&lt;seq&gt;.sd
  * &lt;session&gt;/runs/&lt;run&gt;/script-&lt;stamp&gt;-&lt;seq&gt;.sd
@@ -45,50 +46,70 @@ public final class FileNames {
      * @return the file's relative path in the storage root
      */
     public static String dataFile(final SessionDataFile.Header header) {
+        final Place place = place(header);
+        final String stamp = Times.fileStamp(header.getAt());
+        return header.getSession() + "/" + place.directory + "/" + place.prefix + "-" + (stamp == null ? "unknown" : stamp)
+            + "-" + String.format(Locale.ROOT, "%06d", header.getSeq()) + ".sd";
+    }
+
+    /**
+     * @param header the header line of a Session Data file
+     * @return the directory the file lands in under its session: <code>streams/&lt;stream&gt;</code> for a stream's
+     * records, <code>runs/&lt;run&gt;</code> for a workflow run's, and <code>provider_body</code> for the session's
+     * provider bodies
+     */
+    public static String directory(final SessionDataFile.Header header) {
+        return place(header).directory;
+    }
+
+    /**
+     * @param header the header line of a Session Data file
+     * @return the lane the file's records are in: its stream's or its workflow run's directory, or empty for the
+     * session's provider bodies, which belong to no stream or run
+     */
+    public static String lane(final SessionDataFile.Header header) {
+        return "provider_body".equals(header.getKind()) ? "" : place(header).directory;
+    }
+
+    /** Where a file of one kind lands: the prefix of its name and its directory under the session. */
+    private static final class Place {
         final String prefix;
-        final String dir;
+        final String directory;
+
+        Place(final String prefix, final String directory) {
+            this.prefix = prefix;
+            this.directory = directory;
+        }
+    }
+
+    private static Place place(final SessionDataFile.Header header) {
         switch (header.getKind() == null ? "" : header.getKind()) {
             case "transcript":
-                prefix = "transcript";
-                dir = "streams/" + header.getStream();
-                break;
+                return new Place("transcript", "streams/" + header.getStream());
             case "agent_meta":
-                prefix = "meta";
-                dir = "streams/" + header.getStream();
-                break;
+                return new Place("meta", "streams/" + header.getStream());
             case "changes":
                 // the plugin's workspace change records, beside the transcript of the stream the tool ran under
-                prefix = "changes";
-                dir = "streams/" + header.getStream();
-                break;
+                return new Place("changes", "streams/" + header.getStream());
+            case "execution":
+                // what the plugin saw each tool call do after the model asked for it, beside the transcript of the
+                // stream the call ran under
+                return new Place("execution", "streams/" + header.getStream());
             case "journal":
-                prefix = "journal";
-                dir = "runs/" + header.getBatch();
-                break;
+                return new Place("journal", "runs/" + header.getBatch());
             case "workflow_manifest":
-                prefix = "manifest";
-                dir = "runs/" + header.getBatch();
-                break;
+                return new Place("manifest", "runs/" + header.getBatch());
             case "workflow_script":
-                prefix = "script";
-                dir = "runs/" + header.getBatch();
-                break;
+                return new Place("script", "runs/" + header.getBatch());
             case "provider_body":
                 // the bodies a runtime exchanged with its model provider, one directory for the session: a body is
                 // evidence beside a call of any stream, and a later body refers to earlier ones of every stream
-                prefix = "provider_body";
-                dir = "provider_body";
-                break;
+                return new Place("provider_body", "provider_body");
             default:
-                prefix = header.getKind() == null ? "file" : header.getKind();
-                dir = StringUtil.isNotEmpty(header.getStream())
-                    ? "streams/" + header.getStream()
-                    : "runs/" + header.getBatch();
-                break;
+                return new Place(header.getKind() == null ? "file" : header.getKind(),
+                                 StringUtil.isNotEmpty(header.getStream()) ? "streams/" + header.getStream()
+                                     : "runs/" + header.getBatch());
         }
-        final String stamp = Times.fileStamp(header.getAt());
-        return header.getSession() + "/" + dir + "/" + prefix + "-" + (stamp == null ? "unknown" : stamp)
-            + "-" + String.format(Locale.ROOT, "%06d", header.getSeq()) + ".sd";
     }
 
     /**

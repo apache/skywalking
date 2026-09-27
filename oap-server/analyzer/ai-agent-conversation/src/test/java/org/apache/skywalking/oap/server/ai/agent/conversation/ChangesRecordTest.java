@@ -82,8 +82,8 @@ public class ChangesRecordTest {
 
     /**
      * What is not a change record is not one, and not an error: another schema, not an object, or a value of a type
-     * the record cannot hold, as the Sessionizer's reader refuses them. A record never given its list of changes
-     * says so with null, which is not the same as an empty list.
+     * the format does not give the field. A record never given its list of changes says so with null, which is not
+     * the same as an empty list.
      */
     @Test
     public void whatIsNotAChangeRecordIsNotOne() {
