@@ -24,12 +24,12 @@ import javax.annotation.Nullable;
 
 /**
  * Finds the raw text of each part's <code>data</code> value in one record line, so a part's data is rendered
- * as the Sessionizer wrote it. Go keeps that value as <code>json.RawMessage</code> and prints it verbatim, escapes,
- * key order and spacing included; a value that was parsed and printed again would differ in all three and break
- * the document's equality with the Sessionizer's, and clip at another byte.
+ * as the line holds it. The formats keep data as it was written, escapes, key order and spacing included; a value
+ * that was parsed and printed again would differ in all three and break the document's equality with the
+ * Sessionizer's, and clip at another byte.
  *
  * <p>This is a walk over the line's JSON syntax, not a parser: it only needs the start and the end of each
- * value, and it leaves the decoding to Gson, which has already accepted the line.
+ * value, and it leaves the decoding to <code>Schema.parse</code>, which has already read the line as JSON.
  */
 final class RawJson {
     private final String text;
@@ -145,8 +145,13 @@ final class RawJson {
                 }
             }
         } else {
+            final int start = pos;
             while (pos < text.length() && ",}] \t\r\n".indexOf(text.charAt(pos)) < 0) {
                 pos++;
+            }
+            if (pos == start) {
+                // a value is at least one character, so the walk always moves on
+                throw new IllegalStateException("no value at " + pos);
             }
         }
     }

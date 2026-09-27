@@ -27,12 +27,13 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.CodePointOrder;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Ref;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 
 /**
- * The fold of a conversation's rounds, as the Sessionizer's <code>sessionflow.View</code> folds them: entities
- * keyed by id, a higher revision replaces a lower one, a tombstone removes, absence means unchanged.
+ * The fold of a conversation's rounds, as Session Flow defines it: entities keyed by id, a higher revision
+ * replaces a lower one, a tombstone removes, absence means unchanged.
  *
  * <p>Rounds must fold in order and each must name the previous round's commit digest. A gap in the stored
  * rounds is bridged by {@link #applyAfterGap}: what the absent rounds carried stays as it was, and the document
@@ -58,9 +59,9 @@ public final class ConversationFold {
     private Map<String, List<SessionFlowRound.Relation>> to;
 
     /**
-     * Fold one round on top of the current head, or refuse it the way the Sessionizer's <code>Apply</code>
-     * does: a round out of order, naming another head, or from another conversation, session, parser or policy
-     * is not merged, and the reason is returned in the Sessionizer's words for the document to carry.
+     * Fold one round on top of the current head, or refuse it as Session Flow's fold does: a round out of order,
+     * naming another head, or from another conversation, session, parser or policy is not merged, and the reason
+     * is returned in the Sessionizer's words for the document to carry.
      *
      * @param r the next round of the chain
      * @return null when the round was folded, else why it was refused
@@ -227,13 +228,12 @@ public final class ConversationFold {
                 out.add(u);
             }
         }
-        out.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId));
+        out.sort(Comparator.comparing(SessionFlowRound.Unresolved::getId, CodePointOrder.ORDER));
         return out;
     }
 
     /**
-     * Record order: by the record a node stands on, then by id; a positioned node before one without a
-     * reference.
+     * The nodes in record order, as {@link #compare} gives it.
      *
      * @param nodes the nodes
      * @return a sorted copy
@@ -244,26 +244,29 @@ public final class ConversationFold {
         return out;
     }
 
+    /**
+     * Record order: by the record a node stands on, its seq, its row and its block, a node that names no block before
+     * one that names one; then by id. A node with a reference comes before one without. The order is total, so a sort
+     * never finds it contradicting itself, even among siblings that mix both kinds of reference at one record.
+     */
     public static int compare(final SessionFlowRound.Node a, final SessionFlowRound.Node b) {
         final Ref ap = a.getRef();
         final Ref bp = b.getRef();
-        if (ap != null && bp != null) {
-            if (ap.getSeq() != bp.getSeq()) {
-                return Long.compare(ap.getSeq(), bp.getSeq());
-            }
-            if (ap.getRow() != bp.getRow()) {
-                return Long.compare(ap.getRow(), bp.getRow());
-            }
-            if (ap.getBlock() != null && bp.getBlock() != null && !ap.getBlock().equals(bp.getBlock())) {
-                return Integer.compare(ap.getBlock(), bp.getBlock());
-            }
-        } else if (ap != null) {
-            return -1;
-        } else if (bp != null) {
-            return 1;
+        if ((ap == null) != (bp == null)) {
+            return ap != null ? -1 : 1;
         }
-        return a.getId().compareTo(b.getId());
+        if (ap != null) {
+            final int byPosition = POSITION.compare(ap, bp);
+            if (byPosition != 0) {
+                return byPosition;
+            }
+        }
+        return CodePointOrder.compare(a.getId(), b.getId());
     }
+
+    private static final Comparator<Ref> POSITION = Comparator.comparingLong(Ref::getSeq)
+        .thenComparingLong(Ref::getRow)
+        .thenComparing(Ref::getBlock, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     private void index() {
         if (kids != null) {

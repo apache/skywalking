@@ -21,29 +21,29 @@ expSuffix: instance(['service_name'], ['service_instance_id'], Layer.AI_AGENT)
 metricPrefix: meter_ai_agent_instance
 
 metricsRules:
-  # ===================== claude_code.token.usage: sent by the exporter and derived by the Sessionizer alike
+  # ===================== agent.token.usage: derived by the Sessionizer from the landed transcripts
 
   # Tokens per minute, every type
   - name: tokens
-    exp: claude_code_token_usage.sum(['service_name', 'service_instance_id']).downsampling(SUM)
+    exp: agent_token_usage.sum(['service_name', 'service_instance_id']).downsampling(SUM)
 
   # By type: input, output, cacheRead, cacheCreation
   - name: tokens_by_type
-    exp: claude_code_token_usage.sum(['type', 'service_name', 'service_instance_id']).downsampling(SUM)
+    exp: agent_token_usage.sum(['type', 'service_name', 'service_instance_id']).downsampling(SUM)
 
   # By the model the call ran on
   - name: tokens_by_model
-    exp: claude_code_token_usage.sum(['model', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
+    exp: agent_token_usage.sum(['model', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
 
-  # By where the call was made: main or subagent, and from the exporter also auxiliary
+  # By where the call was made: main or subagent
   - name: tokens_by_source
-    exp: claude_code_token_usage.sum(['query_source', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
+    exp: agent_token_usage.sum(['query_source', 'type', 'service_name', 'service_instance_id']).downsampling(SUM)
 
   # How much of what the model read came from cache, in percent: cacheRead over every type but output
   - name: cache_read_share
-    exp: claude_code_token_usage.tagEqual('type', 'cacheRead').sum(['service_name', 'service_instance_id']).safeDiv(claude_code_token_usage.tagNotEqual('type', 'output').sum(['service_name', 'service_instance_id'])) * 100
+    exp: agent_token_usage.tagEqual('type', 'cacheRead').sum(['service_name', 'service_instance_id']).safeDiv(agent_token_usage.tagNotEqual('type', 'output').sum(['service_name', 'service_instance_id'])) * 100
 
-  # ===================== the exporter's other metrics; absent when the Sessionizer derived the points
+  # ===================== Claude Code's own exporter, sent to the OAP directly; the Sessionizer sends none of these
 
   # Cost in micro-dollars (USD * 1,000,000), by model
   - name: cost_by_model

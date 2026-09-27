@@ -1,0 +1,3 @@
+{"h":1,"schema":"sd/1","seq":5,"at":"2026-01-01T00:00:00Z","kind":"agent_meta","adapter":"mock/0.2.0","dialect":"mock/1","src":"-Users-dev-scenario/720d2f9e-dca7-49be-8c5e-89b667b39a01/streams/a39a255c7ba239348.meta","session":"720d2f9e-dca7-49be-8c5e-89b667b39a01","stream":"a39a255c7ba239348"}
+{"ord":1,"off":0,"sha":"7c2a0613d0e3","bytes":253,"child":"a39a255c7ba239348","label":"auditor","from":"runtime","parts":[{"k":"data","data":{"agentType":"general-purpose","description":"auditor","spawnDepth":1,"toolUseId":"s6-tool"},"state":"available","bytes":92}]}
+{"t":"end","records":1,"digest":"ef8a5275d50244e9612dad7b431bce18287017914a6ed87dbb40097b0af20c32"}

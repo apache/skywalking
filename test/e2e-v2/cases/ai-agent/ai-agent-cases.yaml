@@ -71,6 +71,10 @@ cases:
   # request and response landed, and the export names the file
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh provider-bodies http://${oap_host}:${oap_12800}
     expected: expected/provider-bodies.yml
+  # the mcp-calls conversation: the plugin's execution files landed beside the transcripts, every record joins its step,
+  # and the calls to each MCP server and their time are kept per endpoint, one per server and tool
+  - query: bash test/e2e-v2/cases/ai-agent/verify.sh mcp http://${oap_host}:${oap_12800}
+    expected: expected/mcp.yml
   # the runtime's token metric the Sessionizer derived, summed per minute over every session and sender, and over the
   # run equal to what the scenarios declare; the service and the sender both
   - query: bash test/e2e-v2/cases/ai-agent/verify.sh metrics http://${oap_host}:${oap_12800}

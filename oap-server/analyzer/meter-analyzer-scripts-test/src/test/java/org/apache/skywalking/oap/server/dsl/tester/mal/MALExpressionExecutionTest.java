@@ -333,8 +333,18 @@ class MALExpressionExecutionTest {
                         metricName + ": sample[" + i + "] labels mismatch");
                 }
 
-                // Compare values with tolerance
-                // For time()-dependent expressions (large magnitudes), use relative tolerance
+                // A value taken from time() is written as value_minus_now: a fixed value holds only near the day it
+                // was recorded. The expression ran a moment before this check, so a minute covers the gap.
+                if (expSample.containsKey("value_minus_now")) {
+                    final double expValue = ((Number) expSample.get("value_minus_now")).doubleValue()
+                        - java.time.Instant.now().getEpochSecond();
+                    final double actValue = actSample.getValue();
+                    assertEquals(expValue, actValue, 60,
+                        metricName + ": sample[" + i + "] value mismatch"
+                            + " (expected=" + expValue + ", actual=" + actValue + ")");
+                }
+
+                // Compare values with tolerance; a large value within 1%
                 if (expSample.containsKey("value")) {
                     final double expValue = ((Number) expSample.get("value")).doubleValue();
                     final double actValue = actSample.getValue();

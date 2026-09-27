@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -38,6 +38,75 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  */
 @Getter
 public final class SessionFlowRound {
+    /** The attribute a call node carries the provider bodies joined to it under. */
+    public static final String PROVIDER_BODIES_ATTR = "provider_bodies";
+    public static final String ROLE_REQUEST = "request";
+    public static final String ROLE_RESPONSE = "response";
+    /** A reference into the landed data, as Session Flow gives it: a seq, a row, and a block for one part. */
+    public static final Schema REF = new Schema()
+        .field("seq", Schema.Kind.INTEGER)
+        .field("row", Schema.Kind.INTEGER)
+        .optional("block", Schema.Kind.NULLABLE_INTEGER);
+    /** One provider body a call names, as Session Flow gives it: its role and its reference. */
+    private static final Schema PROVIDER_BODY = new Schema()
+        .field("role", Schema.Kind.STRING)
+        .field("ref", Schema.Kind.OBJECT, REF);
+    /**
+     * The fields of each frame type and their types, as Session Flow writes them. A frame with a field of another type
+     * does not decode, and a line that does not decode makes the round refused. A node's attrs can be any JSON value.
+     */
+    private static final Map<String, Schema> FRAMES = Map.of(
+        "header", new Schema()
+            .field("schema", Schema.Kind.STRING)
+            .field("conversation", Schema.Kind.STRING)
+            .field("session", Schema.Kind.STRING)
+            .field("round", Schema.Kind.INTEGER)
+            .field("previous", Schema.Kind.STRING)
+            .field("from_seq", Schema.Kind.INTEGER)
+            .field("through_seq", Schema.Kind.INTEGER)
+            .field("input_digest", Schema.Kind.STRING)
+            .field("parser", Schema.Kind.STRING)
+            .field("policy", Schema.Kind.STRING)
+            .field("from_time", Schema.Kind.STRING)
+            .field("through_time", Schema.Kind.STRING)
+            .field("session_from_time", Schema.Kind.STRING)
+            .field("session_through_time", Schema.Kind.STRING)
+            .field("title", Schema.Kind.STRING)
+            .field("talks", Schema.Kind.INTEGER)
+            .field("steps", Schema.Kind.INTEGER)
+            .field("streams", Schema.Kind.INTEGER)
+            .field("segments", Schema.Kind.INTEGER)
+            .field("unresolved", Schema.Kind.INTEGER)
+            .field("changes", Schema.Kind.NULLABLE_INTEGER)
+            .field("lines_added", Schema.Kind.NULLABLE_INTEGER)
+            .field("lines_removed", Schema.Kind.NULLABLE_INTEGER)
+            .field("llm_calls", Schema.Kind.NULLABLE_INTEGER)
+            .field("subagents", Schema.Kind.NULLABLE_INTEGER)
+            .field("bash_runs", Schema.Kind.NULLABLE_INTEGER),
+        "node", entity()
+            .field("kind", Schema.Kind.STRING)
+            .field("parent", Schema.Kind.STRING)
+            .field("stream", Schema.Kind.STRING)
+            .field("ref", Schema.Kind.NULLABLE_OBJECT, REF)
+            .field("refs", Schema.Kind.OBJECTS, REF),
+        "relation", entity()
+            .field("type", Schema.Kind.STRING)
+            .field("from", Schema.Kind.STRING)
+            .field("to", Schema.Kind.STRING)
+            .field("quality", Schema.Kind.STRING)
+            .field("via", Schema.Kind.STRING)
+            .field("evidence", Schema.Kind.OBJECTS, REF),
+        "unresolved", entity()
+            .field("kind", Schema.Kind.STRING)
+            .field("ref", Schema.Kind.STRING)
+            .field("reason", Schema.Kind.STRING)
+            .field("state", Schema.Kind.STRING),
+        "commit", new Schema()
+            .field("digest", Schema.Kind.STRING)
+            .field("counts", Schema.Kind.OBJECT, new Schema()
+                .field("nodes", Schema.Kind.INTEGER)
+                .field("relations", Schema.Kind.INTEGER)
+                .field("unresolved", Schema.Kind.INTEGER)));
     private final Header header;
     private final List<Node> nodes;
     private final List<Relation> relations;
@@ -78,7 +147,7 @@ public final class SessionFlowRound {
         String commitDigest = null;
         JsonObject commitCounts = null;
         boolean sawCommit = false;
-        // the checks the Sessionizer's own reader makes; a round that fails one is not a round
+        // the rules Session Flow gives a reader; a round that breaks one is not a round
         final Map<String, String> ids = new HashMap<>();
         int lineNo = 0;
         for (final String line : rawLines) {
@@ -86,13 +155,23 @@ public final class SessionFlowRound {
             if (line.isEmpty()) {
                 continue;
             }
-            final JsonObject json = JsonParser.parseString(line).getAsJsonObject();
+            final JsonElement frame = Schema.parse(line);
+            if (frame == null || !frame.isJsonObject()) {
+                throw new IllegalArgumentException(
+                    "line " + lineNo + " is not a JSON object nested at most " + Schema.MAX_DEPTH + " levels deep");
+            }
+            final JsonObject json = frame.getAsJsonObject();
             final String t = SessionDataFile.string(json, "t");
             if (t == null) {
                 throw new IllegalArgumentException("a Session Flow frame without a type");
             }
             if (sawCommit) {
                 throw new IllegalArgumentException("content after the commit frame");
+            }
+            final Schema shape = FRAMES.get(t);
+            if (shape != null && shape.read(json) == null) {
+                throw new IllegalArgumentException(
+                    "line " + lineNo + ": a field of the " + t + " frame is not of the type Session Flow gives it");
             }
             switch (t) {
                 case "header":
@@ -103,10 +182,22 @@ public final class SessionFlowRound {
                     header.validate();
                     break;
                 case "node": {
-                    final Node n = new Node(json);
+                    // an attribute that names provider bodies but does not read as them is refused, not skipped
+                    final List<ProviderBody> bodies;
+                    try {
+                        bodies = providerBodiesOf(json.get("attrs"));
+                    } catch (final IllegalArgumentException e) {
+                        throw new IllegalArgumentException("line " + lineNo + ": " + e.getMessage());
+                    }
+                    final Node n = new Node(json, bodies);
                     claim(ids, lineNo, "node", n.getId());
                     checkRevision(lineNo, n.getRevision(), header);
-                    checkRefs(lineNo, n.getRef(), n.getRefs(), header);
+                    checkRef(lineNo, n.getRef(), header);
+                    checkRefs(lineNo, n.getRefs(), header);
+                    // a provider body a call names is a reference like any other, so it must lie in the round's range
+                    for (final ProviderBody y : bodies) {
+                        checkRef(lineNo, y.getRef(), header);
+                    }
                     nodes.add(n);
                     break;
                 }
@@ -119,7 +210,7 @@ public final class SessionFlowRound {
                         throw new IllegalArgumentException(
                             "line " + lineNo + ": relation " + rel.getId() + " is missing an endpoint or a type");
                     }
-                    checkRefs(lineNo, null, rel.getEvidence(), header);
+                    checkRefs(lineNo, rel.getEvidence(), header);
                     relations.add(rel);
                     break;
                 }
@@ -173,6 +264,14 @@ public final class SessionFlowRound {
             Digests.countLines(body), body.length);
     }
 
+    /** The fields every entity frame has. */
+    private static Schema entity() {
+        return new Schema()
+            .field("id", Schema.Kind.STRING)
+            .field("revision", Schema.Kind.INTEGER)
+            .field("tombstone", Schema.Kind.BOOLEAN);
+    }
+
     private static void claim(final Map<String, String> ids, final int line, final String kind, final String id) {
         if (StringUtil.isEmpty(id)) {
             throw new IllegalArgumentException("line " + line + ": " + kind + " frame has no id");
@@ -197,21 +296,67 @@ public final class SessionFlowRound {
      * A reference past the range the header declares it read describes evidence the round did not claim to
      * have seen, and its input digest does not cover it.
      */
-    private static void checkRefs(final int line, @Nullable final Ref one, final List<Ref> many, final Header header) {
-        final List<Ref> all = new ArrayList<>();
-        if (one != null) {
-            all.add(one);
+    private static void checkRef(final int line, @Nullable final Ref r, final Header header) {
+        if (r == null) {
+            return;
         }
-        all.addAll(many);
-        for (final Ref r : all) {
-            if (r.getSeq() == 0 && r.getRow() == 0) {
-                throw new IllegalArgumentException("line " + line + ": a reference to seq 0 row 0 is not a position");
-            }
-            if (r.getSeq() > header.getThroughSeq()) {
-                throw new IllegalArgumentException("line " + line + ": reference to landed sequence " + r.getSeq()
-                                                       + ", past the round's declared " + header.getThroughSeq());
-            }
+        if (r.getSeq() == 0 && r.getRow() == 0) {
+            throw new IllegalArgumentException("line " + line + ": a reference to seq 0 row 0 is not a position");
         }
+        // landed sequences and rows count from 1, so neither is ever negative
+        if (r.getSeq() < 0 || r.getRow() < 0) {
+            throw new IllegalArgumentException("line " + line + ": a reference to a negative seq or row");
+        }
+        if (r.getSeq() > header.getThroughSeq()) {
+            throw new IllegalArgumentException("line " + line + ": reference to landed sequence " + r.getSeq()
+                                                   + ", past the round's declared " + header.getThroughSeq());
+        }
+    }
+
+    private static void checkRefs(final int line, final List<Ref> refs, final Header header) {
+        for (final Ref r : refs) {
+            checkRef(line, r, header);
+        }
+    }
+
+    /**
+     * The provider bodies a node carries under its <code>provider_bodies</code> attribute: a list of
+     * <code>{role, ref}</code>, where role is request or response, and ref names the landed record. The join is made
+     * when the Sessionizer parses the round, and the round carries it, so no reader repeats it.
+     *
+     * @param attrs a node's attributes, or null
+     * @return the bodies, none when the attributes are not an object or do not name them
+     * @throws IllegalArgumentException when the attribute is there but is not a list of bodies: a body of another
+     *                                  shape, a role that is not request or response, or a seq or row below one
+     */
+    static List<ProviderBody> providerBodiesOf(@Nullable final JsonElement attrs) {
+        final JsonElement listed = attrs != null && attrs.isJsonObject() ? attrs.getAsJsonObject().get(PROVIDER_BODIES_ATTR)
+            : null;
+        if (listed == null || listed.isJsonNull()) {
+            return Collections.emptyList();
+        }
+        if (!listed.isJsonArray()) {
+            throw new IllegalArgumentException(PROVIDER_BODIES_ATTR + " is not a list of provider bodies");
+        }
+        final List<ProviderBody> out = new ArrayList<>();
+        for (final JsonElement e : listed.getAsJsonArray()) {
+            final Map<String, Object> body = PROVIDER_BODY.read(e);
+            if (body == null) {
+                throw new IllegalArgumentException(PROVIDER_BODIES_ATTR + " is not a list of provider bodies");
+            }
+            final String role = (String) body.get("role");
+            if (!ROLE_REQUEST.equals(role) && !ROLE_RESPONSE.equals(role)) {
+                throw new IllegalArgumentException("a provider body has the role \"" + role + "\"");
+            }
+            final Ref ref = Ref.of((Map<?, ?>) body.get("ref"));
+            // both halves of the position: sequences and rows are counted from one
+            if (ref.getSeq() < 1 || ref.getRow() < 1) {
+                throw new IllegalArgumentException("a provider body is at seq " + ref.getSeq() + " row " + ref.getRow()
+                                                       + ", which is no position");
+            }
+            out.add(new ProviderBody(role, ref));
+        }
+        return out;
     }
 
     public boolean isIntact() {
@@ -256,7 +401,7 @@ public final class SessionFlowRound {
         }
 
         /**
-         * The header the Sessionizer's own reader would refuse: it cannot be acted on.
+         * A header that breaks one of Session Flow's header rules cannot be acted on.
          */
         void validate() {
             if (!"sf/1".equals(schema)) {
@@ -268,7 +413,7 @@ public final class SessionFlowRound {
             if (StringUtil.isEmpty(session)) {
                 throw new IllegalArgumentException("header missing session");
             }
-            if (round == 0) {
+            if (round < 1) {
                 throw new IllegalArgumentException("round must count from 1");
             }
             if (round > 1 && StringUtil.isEmpty(previous)) {
@@ -286,8 +431,8 @@ public final class SessionFlowRound {
             if (StringUtil.isEmpty(inputDigest)) {
                 throw new IllegalArgumentException("header missing input digest");
             }
-            if (fromSeq == 0) {
-                throw new IllegalArgumentException("landed sequences count from 1, so from_seq must not be 0");
+            if (fromSeq < 1) {
+                throw new IllegalArgumentException("landed sequences count from 1, so from_seq must be 1 or more");
             }
             if (throughSeq < fromSeq - 1) {
                 throw new IllegalArgumentException("round " + round + " consumes sequences " + fromSeq + ".." + throughSeq + ", which is not a range");
@@ -320,13 +465,16 @@ public final class SessionFlowRound {
         @Nullable
         private final Ref ref;
         private final List<Ref> refs;
-        @Nullable
         /** The attrs as written, any JSON value, for rendering; null when the frame has none. */
+        @Nullable
         private final JsonElement rawAttrs;
         /** The attrs when they are an object, for lookups. */
+        @Nullable
         private final JsonObject attrs;
+        /** The provider bodies the node carries, read from its attributes as written. */
+        private final List<ProviderBody> providerBodies;
 
-        Node(final JsonObject json) {
+        Node(final JsonObject json, final List<ProviderBody> providerBodies) {
             super(json);
             this.kind = SessionDataFile.string(json, "kind");
             this.parent = SessionDataFile.string(json, "parent");
@@ -341,13 +489,13 @@ public final class SessionFlowRound {
             this.refs = Collections.unmodifiableList(list);
             this.rawAttrs = json.get("attrs");
             this.attrs = rawAttrs != null && rawAttrs.isJsonObject() ? rawAttrs.getAsJsonObject() : null;
+            this.providerBodies = Collections.unmodifiableList(providerBodies);
         }
 
-        @Nullable
         /**
-         * @return the attr when it is a string, as the Sessionizer's <code>attrString</code>; null for a number,
-         * an object or nothing
+         * @return the attr when it is a JSON string; null for a number, an object or nothing
          */
+        @Nullable
         public String attr(final String key) {
             if (attrs == null) {
                 return null;
@@ -373,6 +521,17 @@ public final class SessionFlowRound {
             return e != null && !e.isJsonNull() && e.isJsonPrimitive() && e.getAsJsonPrimitive().isBoolean()
                 && e.getAsBoolean();
         }
+    }
+
+    /**
+     * One landed provider body joined to a call: whether it is the request or the response, and the record it
+     * rebuilds from. The body itself is never in a round.
+     */
+    @Getter
+    @RequiredArgsConstructor
+    public static final class ProviderBody {
+        private final String role;
+        private final Ref ref;
     }
 
     @Getter
