@@ -288,6 +288,24 @@ public class SessionFormatsTest {
     }
 
     /**
+     * A time is what Session Data defines: a four-digit year, the letter T, the time of day to the second with a
+     * fraction of up to nine digits or none, and Z or an offset with a colon. Anything else is no time, which reads as
+     * 0, the way the Sessionizer reads it: a time without seconds is not one, though java.time's ISO reader takes it.
+     */
+    @Test
+    public void onlyATimeTheFormatDefinesIsATime() {
+        assertEquals(1767225601000L, Times.millis("2026-01-01T00:00:01Z"));
+        assertEquals(1767225601500L, Times.millis("2026-01-01T08:00:01.5+08:00"));
+        assertEquals(1767225601123L, Times.millis("2026-01-01T00:00:01.123456789Z"));
+        for (final String notATime : new String[] {
+            "2026-01-01T00:00Z", "2026-01-01T00:00+08:00", "12026-01-01T00:00:01Z", "2026-01-01T00:00:01+0800",
+            "2026-01-01t00:00:01Z", "2026-01-01T24:00:00Z", "2026-01-01T00:00:01.1234567890Z", "2026-02-30T00:00:01Z",
+        }) {
+            assertEquals(0L, Times.millis(notATime), notATime);
+        }
+    }
+
+    /**
      * Record times are RFC 3339, with Z or an offset, and compare as the instants they name, whatever the length of
      * their fractions or the offset they are written in. A time that does not parse sorts after every one that does,
      * and two such times are equal, so the caller decides between them by where each record was read.

@@ -21,8 +21,12 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.format;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+import java.time.temporal.ChronoField;
 import javax.annotation.Nullable;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -36,6 +40,31 @@ public final class Times {
      */
     private static final DateTimeFormatter FILE_STAMP =
         DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss.nnnnnnnnn'Z'").withZone(ZoneOffset.UTC);
+
+    /**
+     * A time as Session Data defines it: a four-digit year, the letter T, the time of day to the second with a
+     * fraction of up to nine digits or none, and Z or an offset such as +08:00. java.time's ISO reader also takes a
+     * time without seconds and years of other widths, which the format does not.
+     */
+    private static final DateTimeFormatter RFC_3339 = new DateTimeFormatterBuilder()
+        .appendValue(ChronoField.YEAR, 4)
+        .appendLiteral('-')
+        .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+        .appendLiteral('-')
+        .appendValue(ChronoField.DAY_OF_MONTH, 2)
+        .appendLiteral('T')
+        .appendValue(ChronoField.HOUR_OF_DAY, 2)
+        .appendLiteral(':')
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+        .appendLiteral(':')
+        .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+        .optionalStart()
+        .appendFraction(ChronoField.NANO_OF_SECOND, 1, 9, true)
+        .optionalEnd()
+        .appendOffset("+HH:MM", "Z")
+        .toFormatter()
+        .withResolverStyle(ResolverStyle.STRICT)
+        .withChronology(IsoChronology.INSTANCE);
 
     private Times() {
     }
@@ -88,16 +117,14 @@ public final class Times {
         return t == null ? null : FILE_STAMP.format(t);
     }
 
-    /** RFC 3339, with Z or an offset, and a year of four digits, as RFC 3339 has it. */
+    /** A time as {@link #RFC_3339} reads it; null when it is not one. */
     @Nullable
     private static Instant instant(@Nullable final String rfc3339) {
         if (StringUtil.isEmpty(rfc3339)) {
             return null;
         }
         try {
-            final OffsetDateTime t = OffsetDateTime.parse(rfc3339, DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-            // java.time also reads years past 9999 and before 0; a moment that far out overflows unix milliseconds
-            return t.getYear() >= 0 && t.getYear() <= 9999 ? t.toInstant() : null;
+            return OffsetDateTime.parse(rfc3339, RFC_3339).toInstant();
         } catch (final DateTimeParseException e) {
             return null;
         }
