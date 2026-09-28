@@ -17,13 +17,15 @@
 
 package org.apache.skywalking.library.elasticsearch.bulk;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import org.apache.skywalking.library.elasticsearch.requests.factory.v7plus.codec.V78Codec;
 import org.apache.skywalking.library.elasticsearch.response.bulk.BulkItemResult;
 import org.apache.skywalking.library.elasticsearch.response.bulk.BulkResponse;
 import org.junit.jupiter.api.Test;
@@ -35,9 +37,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BulkProcessorTest {
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
     /**
      * A response reported in https://github.com/apache/skywalking/issues/14113: Elasticsearch returns overall
      * HTTP 200 while an item is rejected because the index is blocked by the flood-stage disk watermark.
@@ -64,7 +63,7 @@ class BulkProcessorTest {
 
     @Test
     void decodesItemLevelFailureFromHttp200Response() throws Exception {
-        final BulkResponse response = MAPPER.readValue(BLOCKED_ITEM_RESPONSE, BulkResponse.class);
+        final BulkResponse response = decode(BLOCKED_ITEM_RESPONSE);
 
         assertTrue(response.isErrors());
         assertEquals(1, response.getItems().size());
@@ -77,7 +76,7 @@ class BulkProcessorTest {
 
     @Test
     void decodesAllSucceededResponse() throws Exception {
-        final BulkResponse response = MAPPER.readValue(ALL_SUCCEEDED_RESPONSE, BulkResponse.class);
+        final BulkResponse response = decode(ALL_SUCCEEDED_RESPONSE);
 
         assertFalse(response.isErrors());
         assertNull(response.getItems().get(0).values().iterator().next().getError());
@@ -85,7 +84,7 @@ class BulkProcessorTest {
 
     @Test
     void completesAllHoldersWhenNoErrors() throws Exception {
-        final BulkResponse response = MAPPER.readValue(ALL_SUCCEEDED_RESPONSE, BulkResponse.class);
+        final BulkResponse response = decode(ALL_SUCCEEDED_RESPONSE);
         final CompletableFuture<Void> future = new CompletableFuture<>();
         final List<BulkProcessor.Holder> holders = holdersOf(future);
 
@@ -96,7 +95,7 @@ class BulkProcessorTest {
     }
 
     @Test
-    void failsOnlyTheItemThatIsRejectedByElasticsearch() throws Exception {
+    void failsOnlyTheItemsThatAreRejectedByElasticsearchWithASummaryMessage() throws Exception {
         final String twoItemResponse = "{"
             + "\"errors\":true,"
             + "\"items\":["
@@ -104,7 +103,7 @@ class BulkProcessorTest {
             + "  {\"update\":{\"_index\":\"idx\",\"_id\":\"2\",\"status\":429,"
             + "    \"error\":{\"type\":\"cluster_block_exception\",\"reason\":\"disk usage exceeded flood-stage watermark\"}}}"
             + "]}";
-        final BulkResponse response = MAPPER.readValue(twoItemResponse, BulkResponse.class);
+        final BulkResponse response = decode(twoItemResponse);
 
         final CompletableFuture<Void> succeeded = new CompletableFuture<>();
         final CompletableFuture<Void> failed = new CompletableFuture<>();
@@ -120,13 +119,42 @@ class BulkProcessorTest {
         assertTrue(failed.isDone());
         assertTrue(failed.isCompletedExceptionally());
         final ExecutionException ex = assertThrows(ExecutionException.class, failed::get);
-        assertTrue(ex.getCause().getMessage().contains("cluster_block_exception"));
+        final String message = ex.getCause().getMessage();
+        assertTrue(message.contains("1 of 2 items rejected"), message);
+        assertTrue(message.contains("code=429 type=cluster_block_exception count=1"), message);
+        assertFalse(message.contains("\"2\""), "the rejected document id must not be logged: " + message);
+        assertFalse(message.contains("flood-stage"), "the raw ES error reason must not be logged: " + message);
+    }
+
+    @Test
+    void failsRequestsThatHaveNoCorrespondingResponseItem() throws Exception {
+        // "errors: true" but only one item reported for two requests in the chunk.
+        final BulkResponse response = decode(BLOCKED_ITEM_RESPONSE);
+
+        final CompletableFuture<Void> withItem = new CompletableFuture<>();
+        final CompletableFuture<Void> withoutItem = new CompletableFuture<>();
+        final List<BulkProcessor.Holder> holders = Arrays.asList(
+            new BulkProcessor.Holder(withItem, "req-1"),
+            new BulkProcessor.Holder(withoutItem, "req-2"));
+
+        BulkProcessor.completeHolders(holders, response);
+
+        assertTrue(withItem.isCompletedExceptionally());
+        assertTrue(withoutItem.isCompletedExceptionally());
+        final String message = assertThrows(ExecutionException.class, withoutItem::get).getCause().getMessage();
+        assertTrue(message.contains("no response item count=1"), message);
     }
 
     @Test
     void itemResultOfReturnsNullWhenIndexOutOfBounds() {
         assertNull(BulkProcessor.itemResultOf(null, 0));
         assertNull(BulkProcessor.itemResultOf(new ArrayList<>(), 0));
+    }
+
+    private static BulkResponse decode(final String json) throws Exception {
+        try (final InputStream is = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8))) {
+            return V78Codec.INSTANCE.decode(is, BulkResponse.class);
+        }
     }
 
     private static List<BulkProcessor.Holder> holdersOf(final CompletableFuture<Void> future) {
