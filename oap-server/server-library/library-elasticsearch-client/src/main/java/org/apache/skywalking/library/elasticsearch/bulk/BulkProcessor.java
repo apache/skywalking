@@ -17,14 +17,17 @@
 
 package org.apache.skywalking.library.elasticsearch.bulk;
 
+import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.common.util.Exceptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -39,6 +42,9 @@ import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.Codec;
 import org.apache.skywalking.library.elasticsearch.requests.factory.RequestFactory;
+import org.apache.skywalking.library.elasticsearch.response.bulk.BulkItemError;
+import org.apache.skywalking.library.elasticsearch.response.bulk.BulkItemResult;
+import org.apache.skywalking.library.elasticsearch.response.bulk.BulkResponse;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -161,23 +167,31 @@ public final class BulkProcessor {
             final List<byte[]> bs = new ArrayList<>();
             List<CompletableFuture<Void>> futures = new ArrayList<>();
             List<ByteBuf> byteBufList = new ArrayList<>();
+            List<List<Holder>> holderChunks = new ArrayList<>();
+            List<Holder> currentChunkHolders = new ArrayList<>();
             for (final Holder holder : batch) {
                 byte[] bytes = codec.encode(holder.request);
                 bs.add(bytes);
                 bs.add("\n".getBytes());
                 bufferOfBytes += bytes.length + 1;
+                currentChunkHolders.add(holder);
                 if (bufferOfBytes >= batchOfBytes) {
                     final ByteBuf content = Unpooled.wrappedBuffer(bs.toArray(new byte[0][]));
                     byteBufList.add(content);
+                    holderChunks.add(currentChunkHolders);
                     bs.clear();
                     bufferOfBytes = 0;
+                    currentChunkHolders = new ArrayList<>();
                 }
             }
             if (CollectionUtils.isNotEmpty(bs)) {
                 final ByteBuf content = Unpooled.wrappedBuffer(bs.toArray(new byte[0][]));
                 byteBufList.add(content);
+                holderChunks.add(currentChunkHolders);
             }
-            for (final ByteBuf content : byteBufList) {
+            for (int i = 0; i < byteBufList.size(); i++) {
+                final ByteBuf content = byteBufList.get(i);
+                final List<Holder> chunkHolders = holderChunks.get(i);
                 CompletableFuture<Void> future = es.get().version().thenCompose(v -> {
                     try {
                         final RequestFactory rf = v.requestFactory();
@@ -186,6 +200,14 @@ public final class BulkProcessor {
                             if (status != HttpStatus.OK) {
                                 throw new RuntimeException(response.contentUtf8());
                             }
+                            final BulkResponse bulkResponse;
+                            try (final HttpData responseContent = response.content();
+                                 final InputStream is = responseContent.toInputStream()) {
+                                bulkResponse = v.codec().decode(is, BulkResponse.class);
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                            completeHolders(chunkHolders, bulkResponse);
                         });
                     } catch (Exception e) {
                         return Exceptions.throwUnsafely(e);
@@ -193,12 +215,9 @@ public final class BulkProcessor {
                 });
                 future.whenComplete((ignored, exception) -> {
                     if (exception != null) {
-                        batch.stream().map(it -> it.future)
-                             .forEach(it -> it.completeExceptionally((Throwable) exception));
+                        chunkHolders.stream().map(it -> it.future)
+                                    .forEach(it -> it.completeExceptionally((Throwable) exception));
                         log.error("Failed to execute requests in bulk", exception);
-                    } else {
-                        log.debug("Succeeded to execute {} requests in bulk", batch.size());
-                        batch.stream().map(it -> it.future).forEach(it -> it.complete(null));
                     }
                 });
                 futures.add(future);
@@ -209,6 +228,43 @@ public final class BulkProcessor {
             log.error("Failed to execute requests in bulk", e);
             return Collections.emptyList();
         }
+    }
+
+    static void completeHolders(final List<Holder> holders, final BulkResponse bulkResponse) {
+        if (!bulkResponse.isErrors()) {
+            log.debug("Succeeded to execute {} requests in bulk", holders.size());
+            holders.forEach(it -> it.future.complete(null));
+            return;
+        }
+
+        final List<Map<String, BulkItemResult>> items = bulkResponse.getItems();
+        for (int i = 0; i < holders.size(); i++) {
+            final Holder holder = holders.get(i);
+            final BulkItemResult result = itemResultOf(items, i);
+            final BulkItemError error = result == null ? null : result.getError();
+            if (error == null) {
+                holder.future.complete(null);
+                continue;
+            }
+            log.error(
+                "Failed to execute bulk item, index: {}, id: {}, status: {}, error type: {}, reason: {}",
+                result.getIndex(), result.getId(), result.getStatus(), error.getType(), error.getReason());
+            holder.future.completeExceptionally(new RuntimeException(
+                "Bulk item failed, index: " + result.getIndex() + ", id: " + result.getId()
+                    + ", status: " + result.getStatus() + ", error type: " + error.getType()
+                    + ", reason: " + error.getReason()));
+        }
+    }
+
+    static BulkItemResult itemResultOf(final List<Map<String, BulkItemResult>> items, final int index) {
+        if (items == null || index >= items.size()) {
+            return null;
+        }
+        final Map<String, BulkItemResult> item = items.get(index);
+        if (item == null || item.isEmpty()) {
+            return null;
+        }
+        return item.values().iterator().next();
     }
 
     @RequiredArgsConstructor
