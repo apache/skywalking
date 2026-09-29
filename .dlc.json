@@ -23,6 +23,9 @@
     },
     {
       "pattern": "^https://x.com/AsfSkyWalking"
+    },
+    {
+      "pattern": "^https://docs.konghq.com/hub/kong-inc/prometheus/$"
     }
   ],
   "timeout": "10s",

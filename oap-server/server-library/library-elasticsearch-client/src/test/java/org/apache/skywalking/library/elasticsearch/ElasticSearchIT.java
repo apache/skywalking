@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.library.elasticsearch;
 
+import org.apache.skywalking.library.elasticsearch.bulk.BulkProcessor;
 import org.apache.skywalking.library.elasticsearch.client.TemplateClient;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
@@ -28,6 +29,7 @@ import org.apache.skywalking.library.elasticsearch.response.Documents;
 import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.library.elasticsearch.response.Mappings;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.awaitility.Duration;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -42,6 +44,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -49,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Tag("slow")
@@ -449,5 +456,88 @@ public class ElasticSearchIT {
         assertTrue(client.index().delete(index));
 
         server.close();
+    }
+
+    /**
+     * https://github.com/apache/skywalking/issues/14113: Elasticsearch answers a bulk write with overall HTTP 200
+     * while rejecting individual items, e.g. when an index is blocked for writes. Run against every ES/OpenSearch
+     * version in the matrix, and with a chunked ({@code batchOfBytes(1)}) and unchunked bulk request, to also cover
+     * the fix that scoped a chunk's completion to its own requests instead of the whole flush.
+     */
+    @ParameterizedTest(name = "version: {0}")
+    @MethodSource("es")
+    public void testBulkProcessorItemLevelFailure(final String ignored,
+                                                   final ElasticsearchContainer server) throws Exception {
+        server.start();
+
+        final ElasticSearch client =
+            ElasticSearch.builder()
+                         .endpoints(server.getHttpHostAddress())
+                         .build();
+        client.connect();
+
+        final String normalIndex = "bulk-item-failure-normal";
+        final String blockedIndex = "bulk-item-failure-blocked";
+        assertTrue(client.index().create(normalIndex, null, null));
+        final Map<String, Object> blockedSettings = new HashMap<>();
+        blockedSettings.put("index.blocks.write", true);
+        assertTrue(client.index().create(blockedIndex, null, blockedSettings));
+
+        // One `_bulk` request carrying both a succeeding and a rejected item.
+        runBulkAndAssertItemLevelFailure(client, normalIndex, blockedIndex, "one-chunk", 5 * 1024 * 1024);
+        // `batchOfBytes(1)` forces each item into its own chunk/`_bulk` request.
+        runBulkAndAssertItemLevelFailure(client, normalIndex, blockedIndex, "many-chunks", 1);
+
+        server.close();
+    }
+
+    private static void runBulkAndAssertItemLevelFailure(final ElasticSearch client,
+                                                           final String normalIndex,
+                                                           final String blockedIndex,
+                                                           final String idSuffix,
+                                                           final int batchOfBytes) throws Exception {
+        final BulkProcessor bulkProcessor = BulkProcessor.builder()
+            .bulkActions(2)
+            .batchOfBytes(batchOfBytes)
+            .flushInterval(java.time.Duration.ofSeconds(30))
+            .concurrentRequests(2)
+            .bulkMetrics(new HistogramMetrics() {
+                @Override
+                public void observe(final double value) {
+                }
+            })
+            .build(new AtomicReference<>(client));
+
+        final String type = "type";
+        final String normalId = "normal-" + idSuffix;
+        final String blockedId = "blocked-" + idSuffix;
+
+        final CompletableFuture<Void> normalFuture = bulkProcessor.add(
+            IndexRequest.builder()
+                        .index(normalIndex)
+                        .type(type)
+                        .id(normalId)
+                        .doc(ImmutableMap.of("key", "val"))
+                        .build());
+        final CompletableFuture<Void> blockedFuture = bulkProcessor.add(
+            IndexRequest.builder()
+                        .index(blockedIndex)
+                        .type(type)
+                        .id(blockedId)
+                        .doc(ImmutableMap.of("key", "val"))
+                        .build());
+
+        bulkProcessor.flush();
+
+        // The scheduler thread's own periodical flush can race this method's explicit flush() and drain either
+        // or both requests first, so wait on the futures themselves instead of asserting isDone() right after
+        // flush() returns.
+        normalFuture.get(30, TimeUnit.SECONDS);
+        assertTrue(client.documents().get(normalIndex, type, normalId).isPresent());
+
+        final String message = assertThrows(
+            ExecutionException.class, () -> blockedFuture.get(30, TimeUnit.SECONDS)).getCause().getMessage();
+        assertTrue(message.contains("type=cluster_block_exception"), message);
+        assertFalse(message.contains(blockedId), "the rejected document id must not be logged: " + message);
     }
 }

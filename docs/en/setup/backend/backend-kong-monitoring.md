@@ -7,13 +7,13 @@ SkyWalking leverages OpenTelemetry Collector to transfer the metrics to[OpenTele
 and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### Data flow
-1. [KONG Prometheus plugin](https://docs.konghq.com/hub/kong-inc/prometheus/) collects metrics data from KONG.
-2. OpenTelemetry Collector fetches metrics from [KONG Prometheus plugin](https://docs.konghq.com/hub/kong-inc/prometheus/) via 
+1. [KONG Prometheus plugin](https://developer.konghq.com/plugins/prometheus/) collects metrics data from KONG.
+2. OpenTelemetry Collector fetches metrics from [KONG Prometheus plugin](https://developer.konghq.com/plugins/prometheus/) via 
    Prometheus Receiver and pushes metrics to SkyWalking OAP Server via OpenTelemetry gRPC exporter.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 
 ### Set up
-1. Enable KONG [KONG Prometheus plugin](https://docs.konghq.com/hub/kong-inc/prometheus/). Note that if need to monitor per_consumer, 
+1. Enable KONG [KONG Prometheus plugin](https://developer.konghq.com/plugins/prometheus/). Note that if need to monitor per_consumer, 
    status_code_metrics, ai_metrics, latency_metrics, bandwidth_metrics or upstream_health_metrics, **need to enable them manually as needed**, 
    which can be enabled in the [konga](https://pantsel.github.io/konga/) dashboard or through the Admin API, such as the following command
    ~~~bash
@@ -32,7 +32,7 @@ and into the [Meter System](./../../concepts-and-designs/mal.md).
 
 ### KONG Monitoring
 
-[KONG prometheus plugin](https://docs.konghq.com/hub/kong-inc/prometheus/) provide multiple dimensions metrics for KONG server, upstream, route etc.
+[KONG prometheus plugin](https://developer.konghq.com/plugins/prometheus/) provide multiple dimensions metrics for KONG server, upstream, route etc.
 Accordingly, SkyWalking observes the status, requests, and latency of the KONG server, which is cataloged as a `LAYER: KONG` `Service` in the OAP.
 Each Kong server is cataloged as a `LAYER: KONG` `instance`, meanwhile, the route rules would be recognized as a `LAYER: KONG` `endpoint`.
 
