@@ -17,7 +17,6 @@
 
 package org.apache.skywalking.library.elasticsearch.response.bulk;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,9 +24,5 @@ import lombok.Setter;
 @Setter
 public final class BulkItemResult {
     private int status;
-    @JsonProperty("_index")
-    private String index;
-    @JsonProperty("_id")
-    private String id;
     private BulkItemError error;
 }

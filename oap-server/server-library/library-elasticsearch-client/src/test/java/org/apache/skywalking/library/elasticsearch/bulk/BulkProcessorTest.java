@@ -69,8 +69,6 @@ class BulkProcessorTest {
         assertEquals(1, response.getItems().size());
         final BulkItemResult item = response.getItems().get(0).values().iterator().next();
         assertEquals(429, item.getStatus());
-        assertEquals("blocked-test-index", item.getIndex());
-        assertEquals("oap-block-check-1", item.getId());
         assertEquals("cluster_block_exception", item.getError().getType());
     }
 
@@ -100,7 +98,7 @@ class BulkProcessorTest {
             + "\"errors\":true,"
             + "\"items\":["
             + "  {\"index\":{\"_index\":\"idx\",\"_id\":\"1\",\"status\":201}},"
-            + "  {\"update\":{\"_index\":\"idx\",\"_id\":\"2\",\"status\":429,"
+            + "  {\"update\":{\"_index\":\"idx\",\"_id\":\"rejected-doc-2\",\"status\":429,"
             + "    \"error\":{\"type\":\"cluster_block_exception\",\"reason\":\"disk usage exceeded flood-stage watermark\"}}}"
             + "]}";
         final BulkResponse response = decode(twoItemResponse);
@@ -122,7 +120,7 @@ class BulkProcessorTest {
         final String message = ex.getCause().getMessage();
         assertTrue(message.contains("1 of 2 items rejected"), message);
         assertTrue(message.contains("code=429 type=cluster_block_exception count=1"), message);
-        assertFalse(message.contains("\"2\""), "the rejected document id must not be logged: " + message);
+        assertFalse(message.contains("rejected-doc-2"), "the rejected document id must not be logged: " + message);
         assertFalse(message.contains("flood-stage"), "the raw ES error reason must not be logged: " + message);
     }
 

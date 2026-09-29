@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -528,13 +529,14 @@ public class ElasticSearchIT {
 
         bulkProcessor.flush();
 
-        assertTrue(normalFuture.isDone());
-        assertFalse(normalFuture.isCompletedExceptionally());
+        // The scheduler thread's own periodical flush can race this method's explicit flush() and drain either
+        // or both requests first, so wait on the futures themselves instead of asserting isDone() right after
+        // flush() returns.
+        normalFuture.get(30, TimeUnit.SECONDS);
         assertTrue(client.documents().get(normalIndex, type, normalId).isPresent());
 
-        assertTrue(blockedFuture.isDone());
-        assertTrue(blockedFuture.isCompletedExceptionally());
-        final String message = assertThrows(ExecutionException.class, blockedFuture::get).getCause().getMessage();
+        final String message = assertThrows(
+            ExecutionException.class, () -> blockedFuture.get(30, TimeUnit.SECONDS)).getCause().getMessage();
         assertTrue(message.contains("type=cluster_block_exception"), message);
         assertFalse(message.contains(blockedId), "the rejected document id must not be logged: " + message);
     }

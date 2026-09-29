@@ -24,5 +24,4 @@ import lombok.Setter;
 @Setter
 public final class BulkItemError {
     private String type;
-    private String reason;
 }
