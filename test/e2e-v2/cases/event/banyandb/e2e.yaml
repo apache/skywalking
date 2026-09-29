@@ -27,6 +27,17 @@ setup:
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
     - name: install swctl
       command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    # No service here waits on OAP's healthcheck, so wait for OAP to answer before verifying;
+    # it opens its ports only after installing the BanyanDB schemas, which outlasts the verify retries.
+    - name: wait for OAP
+      command: |
+        export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+        for i in $(seq 1 100); do
+          swctl --base-url=http://${oap_host}:${oap_12800}/graphql service ls > /dev/null 2>&1 && exit 0
+          sleep 3
+        done
+        echo "OAP did not answer within 300s"
+        exit 1
 
 verify:
   retry:
