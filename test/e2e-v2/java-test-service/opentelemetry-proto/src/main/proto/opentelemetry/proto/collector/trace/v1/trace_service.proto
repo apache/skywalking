@@ -28,8 +28,6 @@ option go_package = "go.opentelemetry.io/proto/otlp/collector/trace/v1";
 // OpenTelemetry and a collector, or between a collector and a central collector (in this
 // case spans are sent/received to/from multiple Applications).
 service TraceService {
-  // For performance reasons, it is recommended to keep this RPC
-  // alive for the entire life of the application.
   rpc Export(ExportTraceServiceRequest) returns (ExportTraceServiceResponse) {}
 }
 

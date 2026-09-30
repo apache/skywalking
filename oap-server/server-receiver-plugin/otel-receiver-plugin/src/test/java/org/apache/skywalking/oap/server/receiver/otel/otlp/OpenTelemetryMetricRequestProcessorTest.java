@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
+import io.opentelemetry.proto.common.v1.AnyValue;
+import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.metrics.v1.ExponentialHistogram;
 import io.opentelemetry.proto.metrics.v1.ExponentialHistogramDataPoint;
 import io.opentelemetry.proto.metrics.v1.Metric;
@@ -130,5 +132,34 @@ public class OpenTelemetryMetricRequestProcessorTest {
 
         assertTrue(histogramMetric.getBuckets().containsKey(-Math.pow(base, 17)));
         assertEquals(2, histogramMetric.getBuckets().get(-Math.pow(base, 17)));
+    }
+
+    private static KeyValue attribute(final String key, final String value) {
+        return KeyValue.newBuilder().setKey(key).setValue(AnyValue.newBuilder().setStringValue(value)).build();
+    }
+
+    // OTel Collector v0.127.0 and later send a Prometheus target's host as server.address only.
+    @Test
+    public void testHostNameFromServerAddress() {
+        final Map<String, String> labels = OpenTelemetryMetricRequestProcessor.nodeLabels(List.of(
+            attribute("service.name", "windows-monitoring"),
+            attribute("server.address", "172.25.0.1"),
+            attribute("service.instance.id", "172.25.0.1:9182")
+        ));
+        assertEquals("172.25.0.1", labels.get("node_identifier_host_name"));
+        assertEquals("windows-monitoring", labels.get("job_name"));
+        assertEquals("172.25.0.1", labels.get("server_address"));
+    }
+
+    @Test
+    public void testLegacyHostAttributesWinOverServerAddress() {
+        assertEquals("win-host", OpenTelemetryMetricRequestProcessor.nodeLabels(List.of(
+            attribute("server.address", "172.25.0.1"),
+            attribute("host.name", "win-host")
+        )).get("node_identifier_host_name"));
+        assertEquals("10.211.55.3", OpenTelemetryMetricRequestProcessor.nodeLabels(List.of(
+            attribute("net.host.name", "10.211.55.3"),
+            attribute("server.address", "10.211.55.3")
+        )).get("node_identifier_host_name"));
     }
 }

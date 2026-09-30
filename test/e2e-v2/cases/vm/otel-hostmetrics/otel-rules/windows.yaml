@@ -29,10 +29,13 @@ metricsRules:
   # ---------------------------------------------------------------------------
 
   # CPU
+  # windows_exporter's `privileged` time already includes its `interrupt` and
+  # `dpc` time (Windows' % Privileged Time counter), so busy time is user plus
+  # privileged; adding the other two would count them twice.
   - name: cpu_total_percentage
     exp: >
       (windows_cpu_time_total * 100)
-        .tagNotEqual('mode','idle')
+        .tagMatch('mode','^(user|privileged)$')
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
       +
@@ -52,15 +55,17 @@ metricsRules:
         .rate('PT1M')
 
   # Physical memory
+  # windows_exporter's memory collector, v0.29.0 or later. The cs collector and
+  # the os collector's memory metrics this used to read were removed in v0.31.0.
   - name: memory_total
     exp: >
-      windows_cs_physical_memory_bytes
+      windows_memory_physical_total_bytes
       +
       system_memory_limit.sum(['node_identifier_host_name'])
 
   - name: memory_available
     exp: >
-      windows_os_physical_memory_free_bytes
+      windows_memory_physical_free_bytes
       +
       system_memory_usage
         .tagEqual('state','free')
@@ -68,7 +73,7 @@ metricsRules:
 
   - name: memory_used
     exp: >
-      (windows_cs_physical_memory_bytes - windows_os_physical_memory_free_bytes)
+      (windows_memory_physical_total_bytes - windows_memory_physical_free_bytes)
       +
       (
         system_memory_limit.sum(['node_identifier_host_name'])
@@ -82,7 +87,7 @@ metricsRules:
   #   Memory\\Committed Bytes
   - name: memory_virtual_memory_free
     exp: >
-      windows_os_virtual_memory_free_bytes
+      (windows_memory_commit_limit - windows_memory_committed_bytes)
       +
       (
         system_virtual_memory_commit_limit.sum(['node_identifier_host_name'])
@@ -92,14 +97,14 @@ metricsRules:
 
   - name: memory_virtual_memory_total
     exp: >
-      windows_os_virtual_memory_bytes
+      windows_memory_commit_limit
       +
       system_virtual_memory_commit_limit.sum(['node_identifier_host_name'])
 
   - name: memory_virtual_memory_percentage
     exp: >
       (
-        100 - ((windows_os_virtual_memory_free_bytes * 100) / windows_os_virtual_memory_bytes)
+        (windows_memory_committed_bytes * 100) / windows_memory_commit_limit
       )
       +
       (

@@ -15,11 +15,29 @@
 
 script: oap-server/server-starter/src/main/resources/otel-rules/windows.yaml
 input:
+  # windows_exporter's privileged time already includes its interrupt and dpc
+  # time, so only user and privileged count as busy.
   windows_cpu_time_total:
     - labels:
         node_identifier_host_name: test-host
         mode: user
       value: 100.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: privileged
+      value: 60.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: interrupt
+      value: 8.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: dpc
+      value: 4.0
+    - labels:
+        node_identifier_host_name: test-host
+        mode: idle
+      value: 200.0
   # Native OpenTelemetry hostmetrics contract after Collector normalization.
   # Values are fixed for deterministic MAL assertions.
   system_cpu_logical_count:
@@ -81,18 +99,23 @@ input:
         device: 'C:\\pagefile.sys'
         state: free
       value: 70.0
-  windows_cs_physical_memory_bytes:
+  # windows_exporter's memory collector, v0.29.0 or later.
+  windows_memory_physical_total_bytes:
     - labels:
+        node_identifier_host_name: test-host
       value: 100.0
-  windows_os_physical_memory_free_bytes:
+  windows_memory_physical_free_bytes:
     - labels:
-      value: 100.0
-  windows_os_virtual_memory_free_bytes:
+        node_identifier_host_name: test-host
+      value: 30.0
+  windows_memory_commit_limit:
     - labels:
+        node_identifier_host_name: test-host
       value: 100.0
-  windows_os_virtual_memory_bytes:
+  windows_memory_committed_bytes:
     - labels:
-      value: 100.0
+        node_identifier_host_name: test-host
+      value: 40.0
   windows_logical_disk_read_bytes_total:
     - labels:
         node_identifier_host_name: test-host
@@ -118,7 +141,7 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
-        value: 3500.0
+        value: 5000.0
   meter_win_cpu_average_used:
     entities:
       - scope: SERVICE
@@ -127,50 +150,70 @@ expected:
     samples:
       - labels:
           node_identifier_host_name: test-host
+          mode: idle
+        value: 6500.0
+      - labels:
+          node_identifier_host_name: test-host
+          mode: interrupt
+        value: 400.0
+      - labels:
+          node_identifier_host_name: test-host
           mode: user
         value: 3000.0
   meter_win_memory_total:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
+          node_identifier_host_name: test-host
         value: 100.0
   meter_win_memory_available:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
-        value: 100.0
+          node_identifier_host_name: test-host
+        value: 30.0
   meter_win_memory_used:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
-        value: 0.0
+          node_identifier_host_name: test-host
+        value: 70.0
   meter_win_memory_virtual_memory_free:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
-        value: 100.0
+          node_identifier_host_name: test-host
+        value: 60.0
   meter_win_memory_virtual_memory_total:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
+          node_identifier_host_name: test-host
         value: 100.0
   meter_win_memory_virtual_memory_percentage:
     entities:
       - scope: SERVICE
+        service: test-host
         layer: OS_WINDOWS
     samples:
       - labels:
-        value: -0.0
+          node_identifier_host_name: test-host
+        value: 40.0
   meter_win_disk_read:
     entities:
       - scope: SERVICE

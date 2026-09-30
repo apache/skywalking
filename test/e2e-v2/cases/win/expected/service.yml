@@ -14,10 +14,10 @@
 # limitations under the License.
 
   {{- containsOnce . }}
-- id: {{ b64enc "10.211.55.3" }}.1
-  name: 10.211.55.3
+- id: {{ b64enc "172.25.0.1" }}.1
+  name: 172.25.0.1
   group: ""
-  shortname: 10.211.55.3
+  shortname: 172.25.0.1
   normal: true
   layers:
     - OS_WINDOWS

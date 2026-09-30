@@ -28,8 +28,6 @@ option go_package = "go.opentelemetry.io/proto/otlp/collector/metrics/v1";
 // instrumented with OpenTelemetry and a collector, or between a collector and a
 // central collector.
 service MetricsService {
-  // For performance reasons, it is recommended to keep this RPC
-  // alive for the entire life of the application.
   rpc Export(ExportMetricsServiceRequest) returns (ExportMetricsServiceResponse) {}
 }
 

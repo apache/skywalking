@@ -55,6 +55,10 @@ message ResourceSpans {
   // A list of ScopeSpans that originate from a resource.
   repeated ScopeSpans scope_spans = 2;
 
+  // The Schema URL, if known. This is the identifier of the Schema that the resource data
+  // is recorded in. Notably, the last part of the URL path is the version number of the
+  // schema: http[s]://server[:port]/path/<version>. To learn more about Schema URL see
+  // https://opentelemetry.io/docs/specs/otel/schemas/#schema-url
   // This schema_url applies to the data in the "resource" field. It does not apply
   // to the data in the "scope_spans" field which have their own schema_url field.
   string schema_url = 3;
@@ -70,7 +74,12 @@ message ScopeSpans {
   // A list of Spans that originate from an instrumentation scope.
   repeated Span spans = 2;
 
-  // This schema_url applies to all spans and span events in the "spans" field.
+  // The Schema URL, if known. This is the identifier of the Schema that the span data
+  // is recorded in. Notably, the last part of the URL path is the version number of the
+  // schema: http[s]://server[:port]/path/<version>. To learn more about Schema URL see
+  // https://opentelemetry.io/docs/specs/otel/schemas/#schema-url
+  // This schema_url applies to the data in the "scope" field and all spans and span
+  // events in the "spans" field.
   string schema_url = 3;
 }
 
@@ -79,21 +88,17 @@ message ScopeSpans {
 // The next available field id is 17.
 message Span {
   // A unique identifier for a trace. All spans from the same trace share
-  // the same `trace_id`. The ID is a 16-byte array. An ID with all zeroes
-  // is considered invalid.
-  //
-  // This field is semantically required. Receiver should generate new
-  // random trace_id if empty or invalid trace_id was received.
+  // the same `trace_id`. The ID is a 16-byte array. An ID with all zeroes OR
+  // of length other than 16 bytes is considered invalid (empty string in OTLP/JSON
+  // is zero-length and thus is also invalid).
   //
   // This field is required.
   bytes trace_id = 1;
 
   // A unique identifier for a span within a trace, assigned when the span
-  // is created. The ID is an 8-byte array. An ID with all zeroes is considered
-  // invalid.
-  //
-  // This field is semantically required. Receiver should generate new
-  // random span_id if empty or invalid span_id was received.
+  // is created. The ID is an 8-byte array. An ID with all zeroes OR of length
+  // other than 8 bytes is considered invalid (empty string in OTLP/JSON
+  // is zero-length and thus is also invalid).
   //
   // This field is required.
   bytes span_id = 2;
@@ -106,6 +111,31 @@ message Span {
   // The `span_id` of this span's parent span. If this is a root span, then this
   // field must be empty. The ID is an 8-byte array.
   bytes parent_span_id = 4;
+
+  // Flags, a bit field.
+  //
+  // Bits 0-7 (8 least significant bits) are the trace flags as defined in W3C Trace
+  // Context specification. To read the 8-bit W3C trace flag, use
+  // `flags & SPAN_FLAGS_TRACE_FLAGS_MASK`.
+  //
+  // See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+  //
+  // Bits 8 and 9 represent the 3 states of whether a span's parent
+  // is remote. The states are (unknown, is not remote, is remote).
+  // To read whether the value is known, use `(flags & SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK) != 0`.
+  // To read whether the span is remote, use `(flags & SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK) != 0`.
+  //
+  // When creating span messages, if the message is logically forwarded from another source
+  // with an equivalent flags fields (i.e., usually another OTLP span message), the field SHOULD
+  // be copied as-is. If creating from a source that does not have an equivalent flags field
+  // (such as a runtime representation of an OpenTelemetry span), the high 22 bits MUST
+  // be set to zero.
+  // Readers MUST NOT assume that bits 10-31 (22 most significant bits) will be zero.
+  //
+  // [Optional].
+  //
+  // [Since v1.1.0]
+  fixed32 flags = 16;
 
   // A description of the span's operation.
   //
@@ -155,7 +185,7 @@ message Span {
   // and `SERVER` (callee) to identify queueing latency associated with the span.
   SpanKind kind = 6;
 
-  // start_time_unix_nano is the start time of the span. On the client side, this is the time
+  // The start time of the span. On the client side, this is the time
   // kept by the local machine where the span execution starts. On the server side, this
   // is the time when the server's application handler starts running.
   // Value is UNIX Epoch time in nanoseconds since 00:00:00 UTC on 1 January 1970.
@@ -163,7 +193,7 @@ message Span {
   // This field is semantically required and it is expected that end_time >= start_time.
   fixed64 start_time_unix_nano = 7;
 
-  // end_time_unix_nano is the end time of the span. On the client side, this is the time
+  // The end time of the span. On the client side, this is the time
   // kept by the local machine where the span execution ends. On the server side, this
   // is the time when the server application handler stops running.
   // Value is UNIX Epoch time in nanoseconds since 00:00:00 UTC on 1 January 1970.
@@ -171,21 +201,20 @@ message Span {
   // This field is semantically required and it is expected that end_time >= start_time.
   fixed64 end_time_unix_nano = 8;
 
-  // attributes is a collection of key/value pairs. Note, global attributes
-  // like server name can be set using the resource API. Examples of attributes:
+  // A collection of key/value pairs. Note, global attributes
+  // like service name can be set using the resource API. Examples of attributes:
   //
-  //     "/http/user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
-  //     "/http/server_latency": 300
-  //     "abc.com/myattribute": true
-  //     "abc.com/score": 10.239
+  //     "user_agent.original": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36"
+  //     "http.response.status_code": 200
+  //     "com.example.myattribute": true
+  //     "com.example.score": 10.239
   //
-  // The OpenTelemetry API specification further restricts the allowed value types:
-  // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/common/README.md#attribute
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 9;
 
-  // dropped_attributes_count is the number of attributes that were discarded. Attributes
+  // The number of attributes that were discarded. Attributes
   // can be discarded because their keys are too long or because there are too many
   // attributes. If this value is 0, then no attributes were dropped.
   uint32 dropped_attributes_count = 10;
@@ -193,27 +222,28 @@ message Span {
   // Event is a time-stamped annotation of the span, consisting of user-supplied
   // text description and key-value pairs.
   message Event {
-    // time_unix_nano is the time the event occurred.
+    // The time the event occurred.
     fixed64 time_unix_nano = 1;
 
-    // name of the event.
+    // The name of the event.
     // This field is semantically required to be set to non-empty string.
     string name = 2;
 
-    // attributes is a collection of attribute key/value pairs on the event.
+    // A collection of attribute key/value pairs on the event.
     // Attribute keys MUST be unique (it is not allowed to have more than one
     // attribute with the same key).
+    // The behavior of software that receives duplicated keys can be unpredictable.
     repeated opentelemetry.proto.common.v1.KeyValue attributes = 3;
 
-    // dropped_attributes_count is the number of dropped attributes. If the value is 0,
+    // The number of dropped attributes. If the value is 0,
     // then no attributes were dropped.
     uint32 dropped_attributes_count = 4;
   }
 
-  // events is a collection of Event items.
+  // A collection of Event items.
   repeated Event events = 11;
 
-  // dropped_events_count is the number of dropped events. If the value is 0, then no
+  // The number of dropped events. If the value is 0, then no
   // events were dropped.
   uint32 dropped_events_count = 12;
 
@@ -232,21 +262,43 @@ message Span {
     // The trace_state associated with the link.
     string trace_state = 3;
 
-    // attributes is a collection of attribute key/value pairs on the link.
+    // A collection of attribute key/value pairs on the link.
     // Attribute keys MUST be unique (it is not allowed to have more than one
     // attribute with the same key).
+    // The behavior of software that receives duplicated keys can be unpredictable.
     repeated opentelemetry.proto.common.v1.KeyValue attributes = 4;
 
-    // dropped_attributes_count is the number of dropped attributes. If the value is 0,
+    // The number of dropped attributes. If the value is 0,
     // then no attributes were dropped.
     uint32 dropped_attributes_count = 5;
+
+    // Flags, a bit field.
+    //
+    // Bits 0-7 (8 least significant bits) are the trace flags as defined in W3C Trace
+    // Context specification. To read the 8-bit W3C trace flag, use
+    // `flags & SPAN_FLAGS_TRACE_FLAGS_MASK`.
+    //
+    // See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+    //
+    // Bits 8 and 9 represent the 3 states of whether the link is remote.
+    // The states are (unknown, is not remote, is remote).
+    // To read whether the value is known, use `(flags & SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK) != 0`.
+    // To read whether the link is remote, use `(flags & SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK) != 0`.
+    //
+    // Readers MUST NOT assume that bits 10-31 (22 most significant bits) will be zero.
+    // When creating new spans, bits 10-31 (most-significant 22-bits) MUST be zero.
+    //
+    // [Optional].
+    //
+    // [Since v1.1.0]
+    fixed32 flags = 6;
   }
 
-  // links is a collection of Links, which are references from this span to a span
+  // A collection of Links, which are references from this span to a span
   // in the same or different trace.
   repeated Link links = 13;
 
-  // dropped_links_count is the number of dropped links after the maximum size was
+  // The number of dropped links after the maximum size was
   // enforced. If this value is 0, then no links were dropped.
   uint32 dropped_links_count = 14;
 
@@ -277,4 +329,40 @@ message Status {
 
   // The status code.
   StatusCode code = 3;
+}
+
+// SpanFlags represents constants used to interpret the
+// Span.flags field, which is protobuf 'fixed32' type and is to
+// be used as bit-fields. Each non-zero value defined in this enum is
+// a bit-mask.  To extract the bit-field, for example, use an
+// expression like:
+//
+//   (span.flags & SPAN_FLAGS_TRACE_FLAGS_MASK)
+//
+// See https://www.w3.org/TR/trace-context-2/#trace-flags for the flag definitions.
+//
+// Note that Span flags were introduced in version 1.1 of the
+// OpenTelemetry protocol.  Older Span producers do not set this
+// field, consequently consumers should not rely on the absence of a
+// particular flag bit to indicate the presence of a particular feature.
+//
+// [Since v1.1.0]
+enum SpanFlags {
+  // The zero value for the enum. Should not be used for comparisons.
+  // Instead use bitwise "and" with the appropriate mask as shown above.
+  SPAN_FLAGS_DO_NOT_USE = 0;
+
+  // Bits 0-7 are used for trace flags.
+  SPAN_FLAGS_TRACE_FLAGS_MASK = 0x000000FF;
+
+  // Bits 8 and 9 are used to indicate that the parent span or link span is remote.
+  // Bit 8 (`HAS_IS_REMOTE`) indicates whether the value is known.
+  // Bit 9 (`IS_REMOTE`) indicates whether the span or link is remote.
+  //
+  // [Since v1.2.0]
+  SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK = 0x00000100;
+  // [Since v1.2.0]
+  SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK = 0x00000200;
+
+  // Bits 10-31 are reserved for future use.
 }

@@ -9,9 +9,11 @@ Windows entity as a `Service` in OAP and on the `Layer: OS_WINDOWS`.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 ## Setup
 **For OpenTelemetry receiver:**
-1. Setup [Prometheus windows_exporter](https://github.com/prometheus-community/windows_exporter).
+1. Setup [Prometheus windows_exporter](https://github.com/prometheus-community/windows_exporter) v0.29.0 or later, with its default collectors. The rules read its `cpu`, `memory`, `logical_disk` and `net` collectors.
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/win/prometheus-windows_exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
+
+Each Windows host is a service named after its host: the resource attribute `host.name` or `net.host.name` when the Collector sends one, otherwise `server.address`, which is where the Collector's Prometheus receiver puts the scraped target's host from v0.127.0.
 
 ### Native OpenTelemetry hostmetrics (expanded alternative)
 SkyWalking can also receive Windows host and process metrics directly from OpenTelemetry Collector Contrib, without Prometheus windows_exporter.
