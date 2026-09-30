@@ -123,13 +123,49 @@
           "scope": {},
           "metrics": [
             {
-              "name": "windows_os_virtual_memory_bytes",
-              "description": "OperatingSystem.TotalVirtualMemorySize",
+              "name": "windows_memory_commit_limit",
+              "description": "Amount of virtual memory, in bytes, that can be committed without having to extend the paging file(s)",
               "gauge": {
                 "dataPoints": [
                   {
                     "timeUnixNano": "1676140375004000000",
                     "asDouble": 8.8387584E9
+                  }
+                ]
+              }
+            },
+            {
+              "name": "windows_memory_committed_bytes",
+              "description": "Amount of committed virtual memory, in bytes",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 4.4193792E9
+                  }
+                ]
+              }
+            },
+            {
+              "name": "windows_memory_physical_total_bytes",
+              "description": "Total bytes of physical memory available to the operating system",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 4.294967296E9
+                  }
+                ]
+              }
+            },
+            {
+              "name": "windows_memory_physical_free_bytes",
+              "description": "Bytes of physical memory currently unused and available",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1676140375004000000",
+                    "asDouble": 1.073741824E9
                   }
                 ]
               }

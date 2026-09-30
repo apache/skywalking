@@ -73,7 +73,30 @@ verify:
     # Synthetic native-Windows OTLP fixtures are normalized by Collector 0.158
     # and then consumed by the production Windows MAL rules.
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_cpu_cores_num --service-name=win-fixture
-      expected: ../expected/metrics-has-value.yml
+      expected: expected/win-cpu-cores-4.yml
+
+    # CPU from system.cpu.time on 4 logical CPUs. The replay grows user by 0.5,
+    # system by 0.3 and interrupt by 0.05 CPU-seconds per second; `system`
+    # already includes interrupt time, so busy CPU is 80% and normalized 20%.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_cpu_total_percentage --service-name=win-fixture
+      expected: expected/win-cpu-total-80.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_cpu_norm_percentage --service-name=win-fixture
+      expected: expected/win-cpu-norm-20.yml
+
+    # Memory, commit, pagefile, filesystem, handles and load: exact values the
+    # fixture's fixed gauges produce.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_used --service-name=win-fixture
+      expected: expected/win-memory-used-5368709120.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_virtual_memory_percentage --service-name=win-fixture
+      expected: expected/win-commit-percentage-50.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_pagefile_percentage --service-name=win-fixture
+      expected: expected/win-pagefile-percentage-25.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_win_filesystem_percentage,avg)" --service-name=win-fixture
+      expected: expected/win-filesystem-percentage-60.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_filehandles_allocated --service-name=win-fixture
+      expected: expected/win-filehandles-45000.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_cpu_load1 --service-name=win-fixture
+      expected: expected/win-cpu-load1-50.yml
 
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=mp_process_windows_num_procs --service-name=win-fixture --instance-name=svchost.exe
       expected: ../expected/metrics-has-value.yml

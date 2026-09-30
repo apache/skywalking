@@ -59,7 +59,7 @@ Likewise, `meter_vm_tcp_alloc`, `meter_vm_sockets_used`, and `meter_vm_udp_inuse
 | TCP Established / Close-Wait | count | `meter_vm_tcp_curr_estab` | TCP connections in ESTABLISHED or CLOSE-WAIT state | Yes | Yes | Yes |
 | TCP Time Wait | count | `meter_vm_tcp_tw` | TCP connections in TIME-WAIT state | Yes | Yes | Yes |
 | TCP Allocated | count | `meter_vm_tcp_alloc` | Allocated TCP sockets | Yes | No | Yes |
-| Sockets Used | count | `meter_vm_sockets_used` | Kernel sockets currently in use | Yes | No | Yes |
+| Sockets Used | count | `meter_vm_sockets_used` | Kernel sockets currently in use | Yes | No | — |
 | UDP In Use | count | `meter_vm_udp_inuse` | UDP sockets currently in use | Yes | No | Yes |
 | Filefd Allocated | count | `meter_vm_filefd_allocated` | Host-level allocated file descriptors from Linux `/proc/sys/fs/file-nr` | Yes | No | — |
 

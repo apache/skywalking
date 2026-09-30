@@ -53,14 +53,24 @@ services:
       - ./fixtures:/fixtures:ro
     networks:
       - e2e
+    # windows-host.json carries cumulative system.cpu.time placeholders
+    # (900000001.0 user, 900000002.0 system, 900000003.0 interrupt,
+    # 900000004.0 idle). Each replay sets them from the clock: per second,
+    # user +0.5, system +0.3, interrupt +0.05 (already inside system) and
+    # idle +3.2 CPU-seconds on 4 logical CPUs, so OAP's rate() yields 80% busy
+    # CPU and 20% normalized CPU. Each value is computed from the same NOW as the
+    # datapoint timestamp, so the counters rise with the timestamp even if the
+    # clock jumps, and rate() is exact however long a replay round takes.
     command:
       - sh
       - -c
       - |
         while true; do
-          TS="$$(date +%s)000000000"
+          NOW="$$(date +%s)"
+          TS="$${NOW}000000000"
+          CPU="$$(awk -v t="$${NOW}" 'BEGIN { printf "s/900000001[.]0/%.1f/g;s/900000002[.]0/%.1f/g;s/900000003[.]0/%.2f/g;s/900000004[.]0/%.1f/g", t*0.5, t*0.3, t*0.05, t*3.2 }')"
           echo "Replaying Windows OTLP fixtures timestamp=$${TS}"
-          sed "s/1788474000000000000/$${TS}/g" \
+          sed -e "s/1788474000000000000/$${TS}/g" -e "$${CPU}" \
             /fixtures/windows-host.json \
             | curl -sS \
                 -o /dev/null \

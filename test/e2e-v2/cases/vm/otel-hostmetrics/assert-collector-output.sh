@@ -65,7 +65,7 @@ function finish_block() {
     in_count = 0
 }
 
-/-> Name: process.count[[:space:]]*$/ {
+/-> Name: process\.count([[:space:]]|$)/ {
     finish_block()
     in_count = 1
     points = 0
@@ -105,21 +105,38 @@ END {
 
 # ---------------------------------------------------------------------------
 # Windows host normalization:
-# native system.cpu.time state -> canonical mode.
+# native system.cpu.time state -> canonical mode, for all four
+# Windows states. Other host metrics keep their state attribute, so the
+# check is scoped to the CPU metric block.
 # ---------------------------------------------------------------------------
-grep -q -- '-> Name: system.cpu.time' \
-  "${TMPDIR}/windows-host.log"
+awk '
+/-> Name: / {
+    in_cpu = ($0 ~ /-> Name: system\.cpu\.time([[:space:]]|$)/)
+    if (in_cpu) {
+        seen = 1
+    }
+    next
+}
 
-grep -q -- '-> mode: Str(idle)' \
-  "${TMPDIR}/windows-host.log"
+in_cpu && /-> state:/ {
+    bad = 1
+}
 
-grep -q -- '-> mode: Str(user)' \
-  "${TMPDIR}/windows-host.log"
+in_cpu && /-> mode: Str\((user|system|interrupt|idle)\)/ {
+    match($0, /Str\([a-z]+\)/)
+    modes[substr($0, RSTART + 4, RLENGTH - 5)] = 1
+}
 
-if grep -q -- '-> state:' "${TMPDIR}/windows-host.log"; then
-  echo "Windows system.cpu.time still contains state attribute" >&2
+END {
+    if (!seen || bad) {
+        exit 1
+    }
+    exit(("user" in modes) && ("system" in modes) && ("interrupt" in modes) && ("idle" in modes) ? 0 : 1)
+}
+' "${TMPDIR}/windows-host.log" || {
+  echo "Windows system.cpu.time state was not normalized to mode" >&2
   exit 1
-fi
+}
 
 
 # ---------------------------------------------------------------------------
@@ -129,7 +146,7 @@ fi
 grep -q -- '-> Name: process.open_handles' \
   "${TMPDIR}/windows-process.log"
 
-if grep -q -- '-> Name: process.handles[[:space:]]*$' \
+if grep -q -E -- '-> Name: process\.handles([[:space:]]|$)' \
   "${TMPDIR}/windows-process.log"; then
   echo "Native process.handles survived normalization" >&2
   exit 1
