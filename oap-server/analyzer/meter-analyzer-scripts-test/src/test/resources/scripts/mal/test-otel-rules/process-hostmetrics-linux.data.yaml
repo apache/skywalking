@@ -62,11 +62,11 @@ input:
       value: 3000.0
   process_memory_utilization:
     - labels: {node_identifier_host_name: test-host, process_name: java}
-      value: 0.01
+      value: 1.0
     - labels: {node_identifier_host_name: test-host, process_name: java}
-      value: 0.02
+      value: 2.0
     - labels: {node_identifier_host_name: test-host, process_name: java}
-      value: 0.03
+      value: 3.0
   process_open_handles:
     - labels: {node_identifier_host_name: test-host, process_name: java}
       value: 5.0
@@ -110,7 +110,7 @@ expected:
   mp_process_linux_memory_resident_percent:
     samples:
       - labels: {node_identifier_host_name: test-host, process_name: java}
-        value: 6.0
+        value: 600.0
   mp_process_linux_open_handles:
     samples:
       - labels: {node_identifier_host_name: test-host, process_name: java}

@@ -18,5 +18,21 @@
 cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ls
     expected: expected/service.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_total --service-name=10.211.55.3
+    expected: expected/memory-total-4294967296.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_used --service-name=10.211.55.3
+    expected: expected/memory-used-3221225472.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_virtual_memory_total --service-name=10.211.55.3
+    expected: expected/commit-limit-8838758400.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_virtual_memory_percentage --service-name=10.211.55.3
+    expected: expected/commit-percentage-50.yml
+  # A recording of windows_exporter 0.31.8 through OpenTelemetry Collector 0.158.0, which names the host
+  # only in `server.address`.
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_total --service-name=172.25.0.1
+    expected: expected/memory-total-8584425472.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_used --service-name=172.25.0.1
+    expected: expected/memory-used-2794070016.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_virtual_memory_total --service-name=172.25.0.1
+    expected: expected/commit-limit-10597691392.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_win_memory_virtual_memory_percentage --service-name=172.25.0.1
     expected: expected/metrics-has-value.yml

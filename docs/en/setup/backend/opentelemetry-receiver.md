@@ -23,8 +23,8 @@ receiver-otel:
 ```
 
 The receiver adds label with key `node_identifier_host_name` to the collected data samples,
-and its value is from `net.host.name` (or `host.name` for some OTLP versions) resource attributes defined in OpenTelemetry proto,
-for identification of the metric data.
+and its value is from the `net.host.name` or `host.name` resource attribute, or, when neither is present,
+`server.address`, for identification of the metric data.
 
 **Label name conversion:** Dots (`.`) in attribute key names are converted to underscores (`_`) for both
 resource attributes and data point (metric-level) attributes. For example, `gen_ai.token.type` becomes
@@ -40,11 +40,12 @@ in the resource attributes, the fallback is skipped.
 | `service.name` | `job_name` | The [OTel Collector Prometheus Receiver](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/receiver/prometheusreceiver/README.md) automatically converts the Prometheus `job` label to `service.name`. This fallback ensures it is available as `job_name` for MAL rule filtering. |
 | `net.host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
 | `host.name` | `node_identifier_host_name` | Legacy: used by VM/Windows MAL rules |
+| `server.address` | `node_identifier_host_name` | Only when neither `net.host.name` nor `host.name` is present. The OTel Collector Prometheus Receiver sends a scraped target's host only as `server.address` from Collector `0.127.0`. |
 
 When `job_name` is set explicitly in `OTEL_RESOURCE_ATTRIBUTES` (e.g., `job_name=envoy-ai-gateway` for [Agent Router](backend-envoy-ai-gateway-monitoring.md)),
 it takes precedence and the `service.name` fallback is skipped.
 
-**Note:** The `net.host.name` and `host.name` mappings are legacy. New integrations should use
+**Note:** The `net.host.name`, `host.name` and `server.address` mappings are legacy. New integrations should use
 the natural dot-to-underscore conversion (e.g., `host.name` → `host_name` in MAL rules).
 
 **Points of one request are analysed a minute at a time**, oldest minute first. A MAL rule folds every sample of

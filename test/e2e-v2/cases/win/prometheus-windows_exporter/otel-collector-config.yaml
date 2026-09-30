@@ -17,7 +17,7 @@ receivers:
   prometheus:
     config:
       scrape_configs:
-        - job_name: "windows-monitoring" # make sure to use this in the vm.yaml to filter only VM metrics
+        - job_name: "windows-monitoring" # windows.yaml keeps only this job
           scrape_interval: 10s
           static_configs:
             - targets: ["win-service:9182"]
@@ -33,12 +33,12 @@ exporters:
     tls:
       insecure: true
   # Exports data to the console
-  logging:
-    logLevel: debug
+  debug:
+    verbosity: detailed
 
 service:
   pipelines:
     metrics:
       receivers: [prometheus]
       processors: [batch]
-      exporters: [otlp, logging]
+      exporters: [otlp, debug]

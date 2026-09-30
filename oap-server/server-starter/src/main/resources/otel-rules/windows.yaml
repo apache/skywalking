@@ -29,15 +29,18 @@ metricsRules:
   # ---------------------------------------------------------------------------
 
   # CPU
+  # Windows modes overlap: windows_exporter's `privileged` already includes
+  # `interrupt` and `dpc` time, and hostmetrics' `system` already includes
+  # `interrupt` time. Busy CPU is therefore user + privileged/system only.
   - name: cpu_total_percentage
     exp: >
       (windows_cpu_time_total * 100)
-        .tagNotEqual('mode','idle')
+        .tagMatch('mode','^(user|privileged)$')
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
       +
       (system_cpu_time * 100)
-        .tagNotEqual('mode','idle')
+        .tagMatch('mode','^(user|system)$')
         .sum(['node_identifier_host_name'])
         .rate('PT1M')
 
@@ -51,16 +54,18 @@ metricsRules:
         .sum(['node_identifier_host_name','mode'])
         .rate('PT1M')
 
-  # Physical memory
+  # Physical memory. The windows_exporter branch reads the `memory` collector
+  # (windows_exporter 0.29.0+); 0.31.0 removed the `cs` collector and the
+  # `os` memory metrics this rule used before.
   - name: memory_total
     exp: >
-      windows_cs_physical_memory_bytes
+      windows_memory_physical_total_bytes
       +
       system_memory_limit.sum(['node_identifier_host_name'])
 
   - name: memory_available
     exp: >
-      windows_os_physical_memory_free_bytes
+      windows_memory_physical_free_bytes
       +
       system_memory_usage
         .tagEqual('state','free')
@@ -68,7 +73,7 @@ metricsRules:
 
   - name: memory_used
     exp: >
-      (windows_cs_physical_memory_bytes - windows_os_physical_memory_free_bytes)
+      (windows_memory_physical_total_bytes - windows_memory_physical_free_bytes)
       +
       (
         system_memory_limit.sum(['node_identifier_host_name'])
@@ -76,13 +81,14 @@ metricsRules:
         system_memory_usage.tagEqual('state','free').sum(['node_identifier_host_name'])
       )
 
-  # Canonical virtual memory semantics.
-  # The hostmetrics branch uses Windows Performance Counters:
+  # Canonical virtual memory semantics: the commit limit and committed bytes.
+  # windows_exporter reads them from its `memory` collector; the hostmetrics
+  # branch uses Windows Performance Counters:
   #   Memory\\Commit Limit
   #   Memory\\Committed Bytes
   - name: memory_virtual_memory_free
     exp: >
-      windows_os_virtual_memory_free_bytes
+      (windows_memory_commit_limit - windows_memory_committed_bytes)
       +
       (
         system_virtual_memory_commit_limit.sum(['node_identifier_host_name'])
@@ -92,14 +98,14 @@ metricsRules:
 
   - name: memory_virtual_memory_total
     exp: >
-      windows_os_virtual_memory_bytes
+      windows_memory_commit_limit
       +
       system_virtual_memory_commit_limit.sum(['node_identifier_host_name'])
 
   - name: memory_virtual_memory_percentage
     exp: >
       (
-        100 - ((windows_os_virtual_memory_free_bytes * 100) / windows_os_virtual_memory_bytes)
+        windows_memory_committed_bytes * 100 / windows_memory_commit_limit
       )
       +
       (

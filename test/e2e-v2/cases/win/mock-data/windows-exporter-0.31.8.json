@@ -1,0 +1,544 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "windows-monitoring"
+            }
+          },
+          {
+            "key": "server.address",
+            "value": {
+              "stringValue": "172.25.0.1"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "172.25.0.1:9182"
+            }
+          },
+          {
+            "key": "server.port",
+            "value": {
+              "stringValue": "9182"
+            }
+          },
+          {
+            "key": "url.scheme",
+            "value": {
+              "stringValue": "http"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiver",
+            "version": "0.158.0"
+          },
+          "metrics": [
+            {
+              "name": "windows_cpu_time_total",
+              "description": "Time that processor spent in different modes (dpc, idle, interrupt, privileged, user)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "dpc"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 1.9375
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "idle"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 84.6875
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "interrupt"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 3.0625
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "privileged"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 60.25
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,0"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "user"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 98.296875
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,1"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "dpc"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 0.203125
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,1"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "idle"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 85.59375
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,1"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "interrupt"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 3.125
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,1"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "privileged"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 58.171875
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "core",
+                        "value": {
+                          "stringValue": "0,1"
+                        }
+                      },
+                      {
+                        "key": "mode",
+                        "value": {
+                          "stringValue": "user"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 99.453125
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "counter"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_logical_disk_read_bytes_total",
+              "description": "The number of bytes transferred from the disk during read operations (LogicalDisk.DiskReadBytesPerSec)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "C:"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 1110196736
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "D:"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 17408
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "HarddiskVolume2"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 0
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "HarddiskVolume3"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 12578304
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "counter"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_logical_disk_write_bytes_total",
+              "description": "The number of bytes transferred to the disk during write operations (LogicalDisk.DiskWriteBytesPerSec)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "C:"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 1111252480
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "D:"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 814047232
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "HarddiskVolume2"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 0
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "volume",
+                        "value": {
+                          "stringValue": "HarddiskVolume3"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 159744
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "counter"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_memory_commit_limit",
+              "description": "(CommitLimit)",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 10597691392
+                  }
+                ]
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "gauge"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_memory_committed_bytes",
+              "description": "(CommittedBytes)",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 2574090240
+                  }
+                ]
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "gauge"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_memory_physical_free_bytes",
+              "description": "The amount of physical memory currently available, in bytes. This is the amount of physical memory that can be immediately reused without having to write its contents to disk first. It is the sum of the size of the standby, free, and zero lists.",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 5790355456
+                  }
+                ]
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "gauge"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_memory_physical_total_bytes",
+              "description": "The amount of actual physical memory, in bytes.",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 8584425472
+                  }
+                ]
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "gauge"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_net_bytes_received_total",
+              "description": "(Network.BytesReceivedPerSec)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "nic",
+                        "value": {
+                          "stringValue": "Mellanox ConnectX-4 Lx Virtual Ethernet Adapter"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 236607072
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "nic",
+                        "value": {
+                          "stringValue": "Microsoft Hyper-V Network Adapter _3"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 253580969
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "counter"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "windows_net_bytes_sent_total",
+              "description": "(Network.BytesSentPerSec)",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "attributes": [
+                      {
+                        "key": "nic",
+                        "value": {
+                          "stringValue": "Mellanox ConnectX-4 Lx Virtual Ethernet Adapter"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 2690078
+                  },
+                  {
+                    "attributes": [
+                      {
+                        "key": "nic",
+                        "value": {
+                          "stringValue": "Microsoft Hyper-V Network Adapter _3"
+                        }
+                      }
+                    ],
+                    "timeUnixNano": "1790731774528000000",
+                    "asDouble": 2613057
+                  }
+                ],
+                "aggregationTemporality": 2,
+                "isMonotonic": true
+              },
+              "metadata": [
+                {
+                  "key": "prometheus.type",
+                  "value": {
+                    "stringValue": "counter"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

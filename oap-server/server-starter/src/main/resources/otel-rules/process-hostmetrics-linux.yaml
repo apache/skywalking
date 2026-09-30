@@ -67,10 +67,10 @@ metricsRules:
   - name: memory_resident_bytes
     exp: "process_memory_usage.sum(['node_identifier_host_name','process_name'])"
 
-  # process.memory.utilization is emitted as a [0,1] fraction. Multiply by
-  # 100 before SkyWalking fixed-point storage to preserve two decimal places
-  # of percentage precision (basis points). UI expressions must divide the
-  # stored metric by 100.
+  # process.memory.utilization is emitted as a percentage (0-100): the
+  # Collector records gopsutil's MemoryPercent, despite the metric's unit "1".
+  # Multiply by 100 before SkyWalking's integer storage to keep two decimal
+  # places (basis points). UI expressions must divide the stored metric by 100.
   - name: memory_resident_percent
     exp: >
       process_memory_utilization

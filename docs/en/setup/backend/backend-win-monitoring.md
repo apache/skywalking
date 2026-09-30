@@ -9,9 +9,13 @@ Windows entity as a `Service` in OAP and on the `Layer: OS_WINDOWS`.
 3. The SkyWalking OAP Server parses the expression with [MAL](../../concepts-and-designs/mal.md) to filter/calculate/aggregate and store the results.
 ## Setup
 **For OpenTelemetry receiver:**
-1. Setup [Prometheus windows_exporter](https://github.com/prometheus-community/windows_exporter).
+1. Setup [Prometheus windows_exporter](https://github.com/prometheus-community/windows_exporter) `0.29.0` or later.
+   - Keep its default `cpu`, `memory`, `logical_disk` and `net` collectors enabled.
+   - Memory metrics are read from the `memory` collector. windows_exporter `0.31.0` removed the `cs` collector and the `os` memory metrics that older SkyWalking releases read.
 2. Setup [OpenTelemetry Collector ](https://opentelemetry.io/docs/collector/). This is an example for OpenTelemetry Collector configuration [otel-collector-config.yaml](../../../../test/e2e-v2/cases/win/prometheus-windows_exporter/otel-collector-config.yaml).
 3. Config SkyWalking [OpenTelemetry receiver](opentelemetry-receiver.md).
+
+Each Windows host is a service named after its host: the `host.name` or `net.host.name` resource attribute when the Collector sends one, otherwise `server.address`, where the Collector's Prometheus receiver puts the scraped target's host from Collector `0.127.0`.
 
 ### Native OpenTelemetry hostmetrics (expanded alternative)
 SkyWalking can also receive Windows host and process metrics directly from OpenTelemetry Collector Contrib, without Prometheus windows_exporter.
@@ -29,8 +33,8 @@ The `OTel hostmetrics` column below refers to the complete OpenTelemetry Collect
 
 | Monitoring Panel | Unit | Metric Name | Description | windows_exporter | OTel hostmetrics |
 |---|---|---|---|:---:|:---:|
-| CPU Usage | % | `meter_win_cpu_total_percentage` | Total CPU usage across all logical CPUs | Yes | Yes |
-| CPU Average Used | % | `meter_win_cpu_average_used` | CPU usage by mode/state | Yes | Yes |
+| CPU Usage | % | `meter_win_cpu_total_percentage` | Busy CPU across all logical CPUs: `user` + `privileged` (windows_exporter) or `user` + `system` (OTel) | Yes | Yes |
+| CPU Average Used | % | `meter_win_cpu_average_used` | CPU usage by mode/state, summed across logical CPUs. Windows modes overlap: `privileged` (windows_exporter) includes `interrupt` and `dpc` time, and `system` (OTel) includes `interrupt` time | Yes | Yes |
 | CPU Cores | count | `meter_win_cpu_cores_num` | Number of logical CPUs | — | Yes |
 | Normalized CPU Usage | % | `meter_win_cpu_norm_percentage` | CPU usage normalized by the number of logical CPUs | — | Yes |
 | CPU Load | | `meter_win_cpu_load1`<br />`meter_win_cpu_load5`<br />`meter_win_cpu_load15` |  CPU load metrics exposed by the Collector hostmetrics load scraper | — | Yes |

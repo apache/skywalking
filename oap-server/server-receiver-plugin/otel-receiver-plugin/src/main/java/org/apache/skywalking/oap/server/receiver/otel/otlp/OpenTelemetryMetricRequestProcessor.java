@@ -105,6 +105,14 @@ public class OpenTelemetryMetricRequestProcessor implements Service, MalConverte
             // in resource attributes (e.g., Envoy AI Gateway), it takes precedence via putIfAbsent.
             .put("service.name", "job_name")
             .build();
+
+    /**
+     * Where a Prometheus target's host arrives from an OTel Collector v0.127.0 or later: its Prometheus receiver
+     * sends {@code server.address} and no longer {@code net.host.name}. Read only when no legacy host attribute
+     * gave {@code node_identifier_host_name}, so an explicit {@code host.name} still wins.
+     */
+    private static final String SERVER_ADDRESS = "server.address";
+    private static final String NODE_IDENTIFIER_HOST_NAME = "node_identifier_host_name";
     /**
      * Active MAL converters, keyed by {@code "<catalog>:<rule-name>"} so boot-time entries and
      * runtime-rule entries share one namespace. A runtime {@code /addOrUpdate} for a rule that
@@ -145,20 +153,7 @@ public class OpenTelemetryMetricRequestProcessor implements Service, MalConverte
                     log.debug("Resource attributes: {}", request.getResource().getAttributesList());
                 }
 
-                // First pass: collect all resource attributes with dots replaced by underscores
-                final Map<String, String> nodeLabels = new HashMap<>();
-                for (final var it : request.getResource().getAttributesList()) {
-                    final String key = it.getKey().replace('.', '_');
-                    final String value = anyValueToString(it.getValue());
-                    nodeLabels.putIfAbsent(key, value);
-                }
-                // Second pass: apply fallback mappings — only if the target key is absent
-                for (final var it : request.getResource().getAttributesList()) {
-                    final String targetKey = FALLBACK_LABEL_MAPPINGS.get(it.getKey());
-                    if (targetKey != null) {
-                        nodeLabels.putIfAbsent(targetKey, anyValueToString(it.getValue()));
-                    }
-                }
+                final Map<String, String> nodeLabels = nodeLabels(request.getResource().getAttributesList());
 
                 // A request is analysed a minute at a time, oldest minute first. A MAL rule folds every sample of
                 // an entity into one value stamped with the first sample's time, which is right for a scrape, whose
@@ -253,6 +248,35 @@ public class OpenTelemetryMetricRequestProcessor implements Service, MalConverte
             // discards the call).
             MalStaticBindingHook.publish(OTEL_CATALOG, rule.getName(), convert);
         }
+    }
+
+    /**
+     * The labels every sample of a resource carries, from its resource attributes.
+     */
+    static Map<String, String> nodeLabels(final List<KeyValue> attributes) {
+        // First pass: collect all resource attributes with dots replaced by underscores
+        final Map<String, String> nodeLabels = new HashMap<>();
+        for (final var it : attributes) {
+            final String key = it.getKey().replace('.', '_');
+            final String value = anyValueToString(it.getValue());
+            nodeLabels.putIfAbsent(key, value);
+        }
+        // Second pass: apply fallback mappings — only if the target key is absent
+        for (final var it : attributes) {
+            final String targetKey = FALLBACK_LABEL_MAPPINGS.get(it.getKey());
+            if (targetKey != null) {
+                nodeLabels.putIfAbsent(targetKey, anyValueToString(it.getValue()));
+            }
+        }
+        if (!nodeLabels.containsKey(NODE_IDENTIFIER_HOST_NAME)) {
+            for (final var it : attributes) {
+                if (SERVER_ADDRESS.equals(it.getKey())) {
+                    nodeLabels.put(NODE_IDENTIFIER_HOST_NAME, anyValueToString(it.getValue()));
+                    break;
+                }
+            }
+        }
+        return nodeLabels;
     }
 
     private static Map<String, String> buildLabels(List<KeyValue> kvs) {

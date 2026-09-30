@@ -29,9 +29,19 @@ message Resource {
   // Set of attributes that describe the resource.
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 1;
 
-  // dropped_attributes_count is the number of dropped attributes. If the value is 0, then
+  // The number of dropped attributes. If the value is 0, then
   // no attributes were dropped.
   uint32 dropped_attributes_count = 2;
+
+  // Set of entities that participate in this Resource.
+  //
+  // Note: keys in the references MUST exist in attributes of this message.
+  //
+  // Status: [Development]
+  //
+  // [Since v1.6.0]
+  repeated opentelemetry.proto.common.v1.EntityRef entity_refs = 3;
 }

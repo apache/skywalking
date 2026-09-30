@@ -29,6 +29,24 @@ option go_package = "go.opentelemetry.io/proto/otlp/metrics/v1";
 // storage, OR can be embedded by other protocols that transfer OTLP metrics
 // data but do not implement the OTLP protocol.
 //
+// MetricsData
+// └─── ResourceMetrics
+//   ├── Resource
+//   ├── SchemaURL
+//   └── ScopeMetrics
+//      ├── Scope
+//      ├── SchemaURL
+//      └── Metric
+//         ├── Name
+//         ├── Description
+//         ├── Unit
+//         └── data
+//            ├── Gauge
+//            ├── Sum
+//            ├── Histogram
+//            ├── ExponentialHistogram
+//            └── Summary
+//
 // The main difference between this message and collector protocol is that
 // in this message there will not be any "control" or "metadata" specific to
 // OTLP protocol.
@@ -55,6 +73,10 @@ message ResourceMetrics {
   // A list of metrics that originate from a resource.
   repeated ScopeMetrics scope_metrics = 2;
 
+  // The Schema URL, if known. This is the identifier of the Schema that the resource data
+  // is recorded in. Notably, the last part of the URL path is the version number of the
+  // schema: http[s]://server[:port]/path/<version>. To learn more about Schema URL see
+  // https://opentelemetry.io/docs/specs/otel/schemas/#schema-url
   // This schema_url applies to the data in the "resource" field. It does not apply
   // to the data in the "scope_metrics" field which have their own schema_url field.
   string schema_url = 3;
@@ -70,7 +92,12 @@ message ScopeMetrics {
   // A list of metrics that originate from an instrumentation library.
   repeated Metric metrics = 2;
 
-  // This schema_url applies to all metrics in the "metrics" field.
+  // The Schema URL, if known. This is the identifier of the Schema that the metric data
+  // is recorded in. Notably, the last part of the URL path is the version number of the
+  // schema: http[s]://server[:port]/path/<version>. To learn more about Schema URL see
+  // https://opentelemetry.io/docs/specs/otel/schemas/#schema-url
+  // This schema_url applies to the data in the "scope" field and all metrics in the
+  // "metrics" field.
   string schema_url = 3;
 }
 
@@ -78,7 +105,6 @@ message ScopeMetrics {
 // brief summary of the Metric data model.  For more details, see:
 //
 //   https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/metrics/data-model.md
-//
 //
 // The data model and relation between entities is shown in the
 // diagram below. Here, "DataPoint" is the term used to refer to any
@@ -91,7 +117,7 @@ message ScopeMetrics {
 // - DataPoint contains timestamps, attributes, and one of the possible value type
 //   fields.
 //
-//     Metric
+//    Metric
 //  +------------+
 //  |name        |
 //  |description |
@@ -162,18 +188,18 @@ message ScopeMetrics {
 message Metric {
   reserved 4, 6, 8;
 
-  // name of the metric, including its DNS name prefix. It must be unique.
+  // The name of the metric.
   string name = 1;
 
-  // description of the metric, which can be used in documentation.
+  // A description of the metric, which can be used in documentation.
   string description = 2;
 
-  // unit in which the metric value is reported. Follows the format
-  // described by http://unitsofmeasure.org/ucum.html.
+  // The unit in which the metric value is reported. Follows the format
+  // described by https://ucum.org/ucum and https://units-of-measurement.org/ 
   string unit = 3;
 
   // Data determines the aggregation type (if any) of the metric, what is the
-  // reported value type for the data points, as well as the relatationship to
+  // reported value type for the data points, as well as the relationship to
   // the time interval over which they are reported.
   oneof data {
     Gauge gauge = 5;
@@ -182,6 +208,18 @@ message Metric {
     ExponentialHistogram exponential_histogram = 10;
     Summary summary = 11;
   }
+
+  // Additional metadata attributes that describe the metric. [Optional].
+  // Attributes are non-identifying.
+  // Consumers SHOULD NOT need to be aware of these attributes.
+  // These attributes MAY be used to encode information allowing
+  // for lossless roundtrip translation to / from another data model.
+  // Attribute keys MUST be unique (it is not allowed to have more than one
+  // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
+  //
+  // [Since v1.2.0]
+  repeated opentelemetry.proto.common.v1.KeyValue metadata = 12;
 }
 
 // Gauge represents the type of a scalar metric that always exports the
@@ -194,25 +232,31 @@ message Metric {
 // AggregationTemporality is not included. Consequently, this also means
 // "StartTimeUnixNano" is ignored for all data points.
 message Gauge {
+  // The time series data points.
+  // Note: Multiple time series may be included (same timestamp, different attributes).
   repeated NumberDataPoint data_points = 1;
 }
 
 // Sum represents the type of a scalar metric that is calculated as a sum of all
 // reported measurements over a time interval.
 message Sum {
+  // The time series data points.
+  // Note: Multiple time series may be included (same timestamp, different attributes).
   repeated NumberDataPoint data_points = 1;
 
   // aggregation_temporality describes if the aggregator reports delta changes
   // since last report time, or cumulative changes since a fixed start time.
   AggregationTemporality aggregation_temporality = 2;
 
-  // If "true" means that the sum is monotonic.
+  // Represents whether the sum is monotonic.
   bool is_monotonic = 3;
 }
 
 // Histogram represents the type of a metric that is calculated by aggregating
 // as a Histogram of all reported measurements over a time interval.
 message Histogram {
+  // The time series data points.
+  // Note: Multiple time series may be included (same timestamp, different attributes).
   repeated HistogramDataPoint data_points = 1;
 
   // aggregation_temporality describes if the aggregator reports delta changes
@@ -223,6 +267,8 @@ message Histogram {
 // ExponentialHistogram represents the type of a metric that is calculated by aggregating
 // as a ExponentialHistogram of all reported double measurements over a time interval.
 message ExponentialHistogram {
+  // The time series data points.
+  // Note: Multiple time series may be included (same timestamp, different attributes).
   repeated ExponentialHistogramDataPoint data_points = 1;
 
   // aggregation_temporality describes if the aggregator reports delta changes
@@ -232,11 +278,16 @@ message ExponentialHistogram {
 
 // Summary metric data are used to convey quantile summaries,
 // a Prometheus (see: https://prometheus.io/docs/concepts/metric_types/#summary)
-// and OpenMetrics (see: https://github.com/OpenObservability/OpenMetrics/blob/4dbf6075567ab43296eed941037c12951faafb92/protos/prometheus.proto#L45)
+// and OpenMetrics (see: https://github.com/prometheus/OpenMetrics/blob/4dbf6075567ab43296eed941037c12951faafb92/protos/prometheus.proto#L45)
 // data type. These data points cannot always be merged in a meaningful way.
 // While they can be useful in some applications, histogram data points are
 // recommended for new applications.
+// Summary metrics do not have an aggregation temporality field. This is
+// because the count and sum fields of a SummaryDataPoint are assumed to be
+// cumulative values.
 message Summary {
+  // The time series data points.
+  // Note: Multiple time series may be included (same timestamp, different attributes).
   repeated SummaryDataPoint data_points = 1;
 }
 
@@ -316,15 +367,17 @@ enum AggregationTemporality {
 // enum is a bit-mask.  To test the presence of a single flag in the flags of
 // a data point, for example, use an expression like:
 //
-//   (point.flags & FLAG_NO_RECORDED_VALUE) == FLAG_NO_RECORDED_VALUE
+//   (point.flags & DATA_POINT_FLAGS_NO_RECORDED_VALUE_MASK) == DATA_POINT_FLAGS_NO_RECORDED_VALUE_MASK
 //
 enum DataPointFlags {
-  FLAG_NONE = 0;
+  // The zero value for the enum. Should not be used for comparisons.
+  // Instead use bitwise "and" with the appropriate mask as shown above.
+  DATA_POINT_FLAGS_DO_NOT_USE = 0;
 
   // This DataPoint is valid but has no recorded value.  This value
   // SHOULD be used to reflect explicitly missing data in a series, as
   // for an equivalent to the Prometheus "staleness marker".
-  FLAG_NO_RECORDED_VALUE = 1;
+  DATA_POINT_FLAGS_NO_RECORDED_VALUE_MASK = 1;
 
   // Bits 2-31 are reserved for future use.
 }
@@ -338,6 +391,7 @@ message NumberDataPoint {
   // where this point belongs. The list may be empty (may contain 0 elements).
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 7;
 
   // StartTimeUnixNano is optional but strongly encouraged, see the
@@ -386,6 +440,7 @@ message HistogramDataPoint {
   // where this point belongs. The list may be empty (may contain 0 elements).
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 9;
 
   // StartTimeUnixNano is optional but strongly encouraged, see the
@@ -413,7 +468,7 @@ message HistogramDataPoint {
   // events, and is assumed to be monotonic over the values of these events.
   // Negative events *can* be recorded, but sum should not be filled out when
   // doing so.  This is specifically to enforce compatibility w/ OpenMetrics,
-  // see: https://github.com/OpenObservability/OpenMetrics/blob/main/specification/OpenMetrics.md#histogram
+  // see: https://github.com/prometheus/OpenMetrics/blob/v1.0.0/specification/OpenMetrics.md#histogram
   optional double sum = 5;
 
   // bucket_counts is an optional field contains the count values of histogram
@@ -422,7 +477,9 @@ message HistogramDataPoint {
   // The sum of the bucket_counts must equal the value in the count field.
   //
   // The number of elements in bucket_counts array must be by one greater than
-  // the number of elements in explicit_bounds array.
+  // the number of elements in explicit_bounds array. The exception to this rule
+  // is when the length of bucket_counts is 0, then the length of explicit_bounds
+  // must also be 0.
   repeated fixed64 bucket_counts = 6;
 
   // explicit_bounds specifies buckets with explicitly defined bounds for values.
@@ -438,6 +495,9 @@ message HistogramDataPoint {
   // Histogram buckets are inclusive of their upper boundary, except the last
   // bucket where the boundary is at infinity. This format is intentionally
   // compatible with the OpenMetrics histogram definition.
+  //
+  // If bucket_counts length is 0 then explicit_bounds length must also be 0,
+  // otherwise the data point is invalid.
   repeated double explicit_bounds = 7;
 
   // (Optional) List of exemplars collected from
@@ -465,6 +525,7 @@ message ExponentialHistogramDataPoint {
   // where this point belongs. The list may be empty (may contain 0 elements).
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 1;
 
   // StartTimeUnixNano is optional but strongly encouraged, see the
@@ -480,21 +541,21 @@ message ExponentialHistogramDataPoint {
   // 1970.
   fixed64 time_unix_nano = 3;
 
-  // count is the number of values in the population. Must be
+  // The number of values in the population. Must be
   // non-negative. This value must be equal to the sum of the "bucket_counts"
   // values in the positive and negative Buckets plus the "zero_count" field.
   fixed64 count = 4;
 
-  // sum of the values in the population. If count is zero then this field
+  // The sum of the values in the population. If count is zero then this field
   // must be zero.
   //
   // Note: Sum should only be filled out when measuring non-negative discrete
   // events, and is assumed to be monotonic over the values of these events.
   // Negative events *can* be recorded, but sum should not be filled out when
   // doing so.  This is specifically to enforce compatibility w/ OpenMetrics,
-  // see: https://github.com/OpenObservability/OpenMetrics/blob/main/specification/OpenMetrics.md#histogram
+  // see: https://github.com/prometheus/OpenMetrics/blob/v1.0.0/specification/OpenMetrics.md#histogram
   optional double sum = 5;
-  
+
   // scale describes the resolution of the histogram.  Boundaries are
   // located at powers of the base, where:
   //
@@ -512,7 +573,7 @@ message ExponentialHistogramDataPoint {
   // values depend on the range of the data.
   sint32 scale = 6;
 
-  // zero_count is the count of values that are either exactly zero or
+  // The count of values that are either exactly zero or
   // within the region considered zero by the instrumentation at the
   // tolerated degree of precision.  This bucket stores values that
   // cannot be expressed using the standard exponential formula as
@@ -531,14 +592,14 @@ message ExponentialHistogramDataPoint {
   // Buckets are a set of bucket counts, encoded in a contiguous array
   // of counts.
   message Buckets {
-    // Offset is the bucket index of the first entry in the bucket_counts array.
-    // 
+    // The bucket index of the first entry in the bucket_counts array.
+    //
     // Note: This uses a varint encoding as a simple form of compression.
     sint32 offset = 1;
 
-    // Count is an array of counts, where count[i] carries the count
-    // of the bucket at index (offset+i).  count[i] is the count of
-    // values greater than base^(offset+i) and less or equal to than
+    // An array of count values, where bucket_counts[i] carries
+    // the count of the bucket at index (offset+i). bucket_counts[i] is the count
+    // of values greater than base^(offset+i) and less than or equal to
     // base^(offset+i+1).
     //
     // Note: By contrast, the explicit HistogramDataPoint uses
@@ -546,7 +607,7 @@ message ExponentialHistogramDataPoint {
     // especially zeros, so uint64 has been selected to ensure
     // varint encoding.
     repeated uint64 bucket_counts = 2;
-  } 
+  }
 
   // Flags that apply to this specific data point.  See DataPointFlags
   // for the available flags and their meaning.
@@ -556,15 +617,24 @@ message ExponentialHistogramDataPoint {
   // measurements that were used to form the data point
   repeated Exemplar exemplars = 11;
 
-  // min is the minimum value over (start_time, end_time].
+  // The minimum value over (start_time, end_time].
   optional double min = 12;
 
-  // max is the maximum value over (start_time, end_time].
+  // The maximum value over (start_time, end_time].
   optional double max = 13;
+
+  // ZeroThreshold may be optionally set to convey the width of the zero
+  // region. Where the zero region is defined as the closed interval
+  // [-ZeroThreshold, ZeroThreshold].
+  // When ZeroThreshold is 0, zero count bucket stores values that cannot be
+  // expressed using the standard exponential formula as well as values that
+  // have been rounded to zero.
+  double zero_threshold = 14;
 }
 
 // SummaryDataPoint is a single data point in a timeseries that describes the
-// time-varying values of a Summary metric.
+// time-varying values of a Summary metric. The count and sum fields represent
+// cumulative values.
 message SummaryDataPoint {
   reserved 1;
 
@@ -572,6 +642,7 @@ message SummaryDataPoint {
   // where this point belongs. The list may be empty (may contain 0 elements).
   // Attribute keys MUST be unique (it is not allowed to have more than one
   // attribute with the same key).
+  // The behavior of software that receives duplicated keys can be unpredictable.
   repeated opentelemetry.proto.common.v1.KeyValue attributes = 7;
 
   // StartTimeUnixNano is optional but strongly encouraged, see the
@@ -597,7 +668,7 @@ message SummaryDataPoint {
   // events, and is assumed to be monotonic over the values of these events.
   // Negative events *can* be recorded, but sum should not be filled out when
   // doing so.  This is specifically to enforce compatibility w/ OpenMetrics,
-  // see: https://github.com/OpenObservability/OpenMetrics/blob/main/specification/OpenMetrics.md#summary
+  // see: https://github.com/prometheus/OpenMetrics/blob/v1.0.0/specification/OpenMetrics.md#summary
   double sum = 5;
 
   // Represents the value at a given quantile of a distribution.
