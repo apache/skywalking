@@ -59,4 +59,27 @@ public class EndpointTrafficTest {
 
         Assertions.assertEquals(endpointTraffic, another);
     }
+
+    @Test
+    public void testCombineKeepsLatestLastPing() {
+        final EndpointTraffic stored = newTraffic(202003281425L);
+
+        stored.combine(newTraffic(0L));
+        Assertions.assertEquals(202003281425L, stored.getLastPingTimestamp());
+
+        stored.combine(newTraffic(202003281421L));
+        Assertions.assertEquals(202003281425L, stored.getLastPingTimestamp());
+
+        stored.combine(newTraffic(202003281430L));
+        Assertions.assertEquals(202003281430L, stored.getLastPingTimestamp());
+    }
+
+    private static EndpointTraffic newTraffic(final long lastPing) {
+        final EndpointTraffic traffic = new EndpointTraffic();
+        traffic.setTimeBucket(202003281420L);
+        traffic.setServiceId("mock_id");
+        traffic.setName("/endpoint-123");
+        traffic.setLastPingTimestamp(lastPing);
+        return traffic;
+    }
 }

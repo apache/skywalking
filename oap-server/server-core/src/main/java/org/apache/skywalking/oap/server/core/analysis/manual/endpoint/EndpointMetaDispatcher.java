@@ -29,6 +29,7 @@ public class EndpointMetaDispatcher implements SourceDispatcher<EndpointMeta> {
         traffic.setTimeBucket(source.getTimeBucket());
         traffic.setName(source.getEndpoint());
         traffic.setServiceId(source.getServiceId());
+        traffic.setLastPingTimestamp(source.getTimeBucket());
         MetricsStreamProcessor.getInstance().in(traffic);
     }
 }
