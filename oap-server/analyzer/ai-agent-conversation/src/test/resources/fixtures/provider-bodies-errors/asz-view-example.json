@@ -43,7 +43,8 @@
     },
     "quality": {
       "exact_unique": 1
-    }
+    },
+    "withheld": {}
   },
   "rounds": [
     {

@@ -337,6 +337,9 @@ extend type Query {
 GET /ai-agent/conversations/{conversation}/v1/view?service={serviceName}&instance={instanceName}[&coldStage=true]
 GET /ai-agent/conversations/{conversation}/v1/files?service={serviceName}&instance={instanceName}&session={session}&seq={seq}[&seq={seq}...][&coldStage=true]
 ```
+When the OAP's `hide` setting names `system_prompt` or `tool_schemas`, both routes rewrite what they serve for every
+reader: the document loses the text of the steps that carry them, and a file is served with that content masked. See
+[Withholding](../setup/backend/ai-agent-conversation.md#withholding).
 The body is one `asz.view` 1.0 document, streamed, and its `Content-Type` names the format and the version:
 `application/vnd.skywalking.asz.view+json; version=1.0`, or the `+yaml` twin when `Accept` asks for YAML; compressed on
 `Accept-Encoding`. `v1` in the path is the document version. The files route streams up to 32 Session Data files of a session,

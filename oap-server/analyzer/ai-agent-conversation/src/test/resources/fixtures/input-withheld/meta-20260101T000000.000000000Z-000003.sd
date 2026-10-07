@@ -1,0 +1,3 @@
+{"h":1,"schema":"sd/1","seq":3,"at":"2026-01-01T00:00:00Z","kind":"agent_meta","adapter":"mock/0.2.0","dialect":"mock/1","src":"-Users-dev-scenario/5499bcd9-30f3-4748-8723-1a9b615f93c9/streams/a932e72cf7535b5f6.meta","session":"5499bcd9-30f3-4748-8723-1a9b615f93c9","stream":"a932e72cf7535b5f6"}
+{"ord":1,"off":0,"sha":"9ada227c0c1a","bytes":263,"child":"a932e72cf7535b5f6","label":"link-checker","from":"runtime","parts":[{"k":"data","data":{"agentType":"general-purpose","description":"link-checker","spawnDepth":1,"toolUseId":"s7-tool"},"state":"available","bytes":97}]}
+{"t":"end","records":1,"digest":"f87c75c65806965687c90707103f56d2d755fa69ececad1a99790aa9919653c9"}

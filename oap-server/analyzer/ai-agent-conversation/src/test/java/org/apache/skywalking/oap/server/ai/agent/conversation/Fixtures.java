@@ -50,6 +50,19 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlow
  * <p>Under <code>langchain-subagent/</code>, one LangChain conversation as the Sessionizer lands it from what a real
  * LangSmith client sent, its <code>subagent</code> capture, parsed: a main stream, a nested agent's child stream, and
  * an auxiliary stream that summarises, with the provider bodies of every call.
+ *
+ * <p>Under <code>prompt-snapshot-withheld/</code>, the same for <code>tests/scenarios/prompt-snapshot-withheld.yaml</code>:
+ * the records that carry what the runtime sent the model, named <code>system_prompt</code> and <code>tool_schemas</code>,
+ * two of them written twice as a runtime replays them before a reset, a child agent whose talk has no input of its own,
+ * and the provider bodies of every call. Beside the whole document, <code>asz-view-withheld-&lt;names&gt;.json</code> is
+ * what <code>asz view</code> serves for the same files with <code>?hide=&lt;names&gt;</code>, which the withheld document
+ * the OAP builds is compared with. The same three are under <code>provider-bodies/</code>, where no record is named.
+ *
+ * <p>Under <code>input-withheld/</code>, the same scenario with the person's input named <code>system_prompt</code>
+ * too, as the LangChain adapter names a first input that holds a system message: <code>"system_prompt"</code> added to
+ * the flags of row 1 of the main transcript and its closing line computed again, then indexed, parsed and verified by
+ * the Sessionizer, which printed the whole document and served the three withheld ones. No scenario can name an input,
+ * so the file is edited; everything else is the Sessionizer's own output.
  */
 public final class Fixtures {
     public static final String SESSION = "00000001-0000-4000-8000-000000000001";
@@ -110,7 +123,28 @@ public final class Fixtures {
     };
     public static final String LANGCHAIN_SUBAGENT_ROUND_FILE = "r000001-3fd311176e49.sf";
 
+    public static final String PROMPT_SNAPSHOT_WITHHELD_DIR = "prompt-snapshot-withheld/";
+    public static final String PROMPT_SNAPSHOT_WITHHELD_SESSION = "5499bcd9-30f3-4748-8723-1a9b615f93c9";
+    public static final String[] PROMPT_SNAPSHOT_WITHHELD_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "transcript-20260101T000000.000000000Z-000002.sd",
+        "meta-20260101T000000.000000000Z-000003.sd",
+        "provider_body-20260101T000000.000000000Z-000004.sd",
+    };
+    public static final String PROMPT_SNAPSHOT_WITHHELD_ROUND_FILE = "r000001-c081727f2581.sf";
+
+    public static final String INPUT_WITHHELD_DIR = "input-withheld/";
+    public static final String INPUT_WITHHELD_ROUND_FILE = "r000001-f6917d7d5f75.sf";
+
     private Fixtures() {
+    }
+
+    /**
+     * @param names the names withheld, joined by <code>+</code>, as the file is named
+     * @return the name of the document <code>asz view</code> serves for the fixture with those names withheld
+     */
+    public static String viewWithheld(final String names) {
+        return "asz-view-withheld-" + names + ".json";
     }
 
     public static byte[] bytes(final String name) throws IOException {
@@ -144,6 +178,14 @@ public final class Fixtures {
 
     public static Map<Long, SessionDataFile> langchainSubagentDataFiles() throws IOException {
         return dataFiles(LANGCHAIN_SUBAGENT_DIR, LANGCHAIN_SUBAGENT_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> promptSnapshotWithheldDataFiles() throws IOException {
+        return dataFiles(PROMPT_SNAPSHOT_WITHHELD_DIR, PROMPT_SNAPSHOT_WITHHELD_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> inputWithheldDataFiles() throws IOException {
+        return dataFiles(INPUT_WITHHELD_DIR, PROMPT_SNAPSHOT_WITHHELD_DATA_FILES);
     }
 
     private static Map<Long, SessionDataFile> dataFiles(final String dir, final String[] names) throws IOException {

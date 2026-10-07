@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.ai.agent.conversation.query.http;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.linecorp.armeria.common.HttpData;
 import com.linecorp.armeria.common.HttpHeaderNames;
@@ -299,6 +300,16 @@ public class ConversationFilesHandler {
         if (file.getCopies() > 1) {
             // the storage holds this sequence more than once; the bytes below are the first copy
             naming.addProperty("copies", file.getCopies());
+        }
+        if (!file.getWithheld().isEmpty()) {
+            // the bytes below are not the stored ones: digest stays the stored file's, which the document names,
+            // and served_digest is theirs
+            final JsonArray withheld = new JsonArray();
+            for (final String name : file.getWithheld()) {
+                withheld.add(name);
+            }
+            naming.add("withheld", withheld);
+            naming.addProperty("served_digest", file.getServedDigest());
         }
         res.write((naming + "\n").getBytes(StandardCharsets.UTF_8), 0, -1);
         for (int off = 0; off < body.length; off += CHUNK_BYTES) {

@@ -58,7 +58,8 @@
     "quality": {
       "exact_unique": 7,
       "strong_inference": 1
-    }
+    },
+    "withheld": {}
   },
   "rounds": [
     {

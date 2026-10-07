@@ -49,6 +49,7 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.ConversationFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
+import org.apache.skywalking.oap.server.ai.agent.conversation.withhold.Hide;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -113,7 +114,10 @@ public class ConversationFilesHandlerTest {
                 throw new IOException("storage is down");
             }
             final boolean failAfterOne = "fails-after-one".equals(conversation);
-            if (!SERVICE_ID.equals(serviceId) || !Fixtures.SESSION.equals(conversation) && !failAfterOne) {
+            // conversation "withheld" is served as an instance whose hide setting names both: the stub serves the
+            // stored bytes under the names, which is what the naming line is tested on
+            final boolean withheld = "withheld".equals(conversation);
+            if (!SERVICE_ID.equals(serviceId) || !Fixtures.SESSION.equals(conversation) && !failAfterOne && !withheld) {
                 return false;
             }
             for (final long seq : new TreeSet<>(seqs)) {
@@ -131,7 +135,9 @@ public class ConversationFilesHandlerTest {
                 }
                 final String id = seq <= Fixtures.DATA_FILES.length
                     ? FileNames.dataFile(SessionDataFile.header(body)) : session + "/unknown-00000" + seq + ".sd";
-                sink.accept(new ConversationFile(id, seq, Digests.sha256Hex(body), body, 1));
+                sink.accept(withheld
+                                ? new ConversationFile(id, seq, Digests.sha256Hex(body), body, 1, Hide.NAMES, Digests.sha256Hex(body))
+                                : new ConversationFile(id, seq, Digests.sha256Hex(body), body, 1));
                 if (failAfterOne) {
                     throw new IOException("storage went away");
                 }
@@ -348,5 +354,19 @@ public class ConversationFilesHandlerTest {
         assertEquals(
             "{\"type\":\"about:blank\",\"title\":\"Internal Server Error\",\"status\":500,\"detail\":\"storage is down\"}",
             broken.contentUtf8());
+    }
+
+    /** The naming line of a file served with names withheld says so, and names the digest of the bytes served. */
+    @Test
+    public void theNamingLineSaysWhatWasWithheld() throws Exception {
+        final AggregatedHttpResponse res = get(path("withheld", 1));
+        assertEquals(200, res.status().code());
+        final Framed f = frames(res.content().array()).get(0);
+        assertEquals("[\"system_prompt\",\"tool_schemas\"]", f.naming.get("withheld").toString());
+        assertEquals(f.naming.get("digest").getAsString(), f.naming.get("served_digest").getAsString());
+        // a file served as stored carries neither
+        final Framed whole = frames(get(path(Fixtures.SESSION, 1)).content().array()).get(0);
+        assertFalse(whole.naming.has("withheld"));
+        assertFalse(whole.naming.has("served_digest"));
     }
 }

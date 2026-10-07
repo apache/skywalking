@@ -37,6 +37,8 @@ verify:
   cases:
     - includes:
         - ../ai-agent-cases.yaml
+        # the second OAP, with the hide setting, over the same storage; BanyanDB alone runs it
+        - ../ai-agent-cases-withheld.yaml
 
 cleanup:
   on: always

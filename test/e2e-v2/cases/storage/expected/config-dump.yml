@@ -44,6 +44,7 @@
   "agent-analyzer.default.traceSamplingPolicySettingsFile": "trace-sampling-policy-settings.yml",
   "agent-analyzer.provider": "default",
   "ai-agent-conversation.default.readWindow": "16",
+  "ai-agent-conversation.default.hide": "",
   "ai-agent-conversation.default.conversationListMaxLimit": "10000",
   "ai-agent-conversation.default.maxFileBytes": "15728640",
   "ai-agent-conversation.default.maxResponseBytes": "104857600",

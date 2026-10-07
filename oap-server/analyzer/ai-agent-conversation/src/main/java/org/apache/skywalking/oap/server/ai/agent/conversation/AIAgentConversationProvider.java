@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.query.Conversation
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.http.ConversationFilesHandler;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.http.ConversationViewHandler;
+import org.apache.skywalking.oap.server.ai.agent.conversation.withhold.Hide;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -83,6 +84,13 @@ public class AIAgentConversationProvider extends ModuleProvider {
         }
         if (config.getMaxResponseBytes() <= 0) {
             throw new ModuleStartException("maxResponseBytes should be greater than 0");
+        }
+        // a name nothing withholds is refused at startup: an operator who set it and was shown everything
+        // would not know
+        try {
+            Hide.parse(config.getHide());
+        } catch (final IllegalArgumentException e) {
+            throw new ModuleStartException("hide: " + e.getMessage());
         }
         queryService = new ConversationQueryService(getManager(), config);
         registerServiceImplementation(IConversationQueryService.class, queryService);
