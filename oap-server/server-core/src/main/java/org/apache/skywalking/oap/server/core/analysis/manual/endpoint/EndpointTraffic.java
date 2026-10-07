@@ -129,7 +129,8 @@ public class EndpointTraffic extends Metrics {
     @Override
     public boolean combine(final Metrics metrics) {
         final EndpointTraffic endpointTraffic = (EndpointTraffic) metrics;
-        this.lastPingTimestamp = endpointTraffic.getLastPingTimestamp();
+        // Several sources feed one endpoint, and a late one may carry an older minute.
+        this.lastPingTimestamp = Math.max(this.lastPingTimestamp, endpointTraffic.getLastPingTimestamp());
         return true;
     }
 
