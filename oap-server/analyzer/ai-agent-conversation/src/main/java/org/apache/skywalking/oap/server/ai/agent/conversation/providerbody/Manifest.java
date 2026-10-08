@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -46,16 +47,23 @@ public final class Manifest {
     public static final long MAX_BYTES = 256L * 1024 * 1024;
     /** How many copies may lie between a body and one with none, as the page says. */
     public static final int MAX_DEPTH = 32;
+    /** The four kinds of segment the page gives, each a key of its own. */
+    private static final List<String> SEGMENT_KINDS = Arrays.asList("lit", "part", "piece", "copy");
+    /** The manifest's fields the page gives as text. */
+    private static final List<String> STRING_KEYS = Arrays.asList(
+        "schema", "role", "src", "sha256", "chain", "why", "model", "session", "run", "call", "request", "previous_request");
 
     /** The manifest as written, so a rewrite keeps every field it does not change. */
     private final JsonObject json;
     private final String role;
     private final String sha256;
     private final long bytes;
-    private final int depth;
+    private final long depth;
     private final List<Segment> segments;
     /** The part the manifest is, so the parts before it are the record's own pieces. */
     private final int partIndex;
+    /** Whether the manifest has the shape the page gives it; see {@link #wellFormed(JsonObject)}. */
+    private final boolean wellFormed;
 
     private Manifest(final JsonObject json, final int partIndex) {
         this.json = json;
@@ -63,7 +71,8 @@ public final class Manifest {
         this.role = string(json, "role");
         this.sha256 = string(json, "sha256");
         this.bytes = longOf(json, "bytes");
-        this.depth = (int) longOf(json, "depth");
+        this.depth = longOf(json, "depth");
+        this.wellFormed = wellFormed(json);
         final List<Segment> list = new ArrayList<>();
         final JsonElement segs = json.get("segments");
         if (segs != null && segs.isJsonArray()) {
@@ -101,6 +110,10 @@ public final class Manifest {
         return ROLE_REQUEST.equals(role);
     }
 
+    public boolean isResponse() {
+        return ROLE_RESPONSE.equals(role);
+    }
+
     /**
      * @return the <code>why</code> the page sets when the body was kept whole in one part because it could not
      * be cut, or null
@@ -116,15 +129,100 @@ public final class Manifest {
         return e != null && e.isJsonPrimitive() && e.getAsJsonPrimitive().isString() ? e.getAsString() : "";
     }
 
-    static long longOf(final JsonObject json, final String key) {
-        final JsonElement e = json.get(key);
-        if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) {
-            return 0;
+    /**
+     * Whether the manifest has the shape the page gives it: every field it gives has the type it gives it, where it is
+     * present and not null, its text fields text, its numbers integers, and its segments a list in which each is one of
+     * the four kinds the page gives, a <code>lit</code>, a <code>part</code>, a <code>piece</code> or a
+     * <code>copy</code>, with that one key set to a value of its type, and a copy's own fields theirs. A segment that is
+     * null, sets none of the four or sets more than one is none of them: the page says nothing of what it adds to a
+     * body, so it is refused rather than read one way or another. The Sessionizer's reader, decoding into its own
+     * types, reads a null or empty segment as one that adds nothing.
+     */
+    private static boolean wellFormed(final JsonObject json) {
+        for (final String key : STRING_KEYS) {
+            if (!textOrAbsent(json.get(key))) {
+                return false;
+            }
+        }
+        if (!integerOrAbsent(json.get("bytes")) || !integerOrAbsent(json.get("depth"))) {
+            return false;
+        }
+        final JsonElement segs = json.get("segments");
+        if (segs == null || segs.isJsonNull()) {
+            return true;
+        }
+        if (!segs.isJsonArray()) {
+            return false;
+        }
+        for (final JsonElement e : segs.getAsJsonArray()) {
+            if (!e.isJsonObject()) {
+                return false;
+            }
+            final JsonObject seg = e.getAsJsonObject();
+            if (!textOrAbsent(seg.get("lit")) || !textOrAbsent(seg.get("piece")) || !integerOrAbsent(seg.get("part"))) {
+                return false;
+            }
+            int kinds = 0;
+            for (final String kind : SEGMENT_KINDS) {
+                if (seg.get(kind) != null && !seg.get(kind).isJsonNull()) {
+                    kinds++;
+                }
+            }
+            if (kinds != 1) {
+                return false;
+            }
+            final JsonElement copy = seg.get("copy");
+            if (copy == null || copy.isJsonNull()) {
+                continue;
+            }
+            if (!copy.isJsonObject()) {
+                return false;
+            }
+            final JsonObject c = copy.getAsJsonObject();
+            if (!textOrAbsent(c.get("from")) || !textOrAbsent(c.get("sha256")) || !integerOrAbsent(c.get("len"))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean textOrAbsent(@Nullable final JsonElement e) {
+        return e == null || e.isJsonNull() || e.isJsonPrimitive() && e.getAsJsonPrimitive().isString();
+    }
+
+    private static boolean integerOrAbsent(@Nullable final JsonElement e) {
+        if (e == null || e.isJsonNull()) {
+            return true;
+        }
+        if (!e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) {
+            return false;
         }
         try {
-            return e.getAsLong();
+            Long.parseLong(e.getAsString());
+            return true;
         } catch (final NumberFormatException ex) {
+            return false;
+        }
+    }
+
+    /**
+     * @return the integer under the key: 0 when the key is absent, and -1, which no field of a manifest may hold,
+     * when the value is not an integer as the page writes one, with no fraction and no exponent, in the range of a
+     * long, so a value that is not is refused rather than read as another, as <code>0.5</code>, <code>0e0</code> or a
+     * number past the range would be. It reads a number as the other integer fields of a file are read.
+     */
+    static long longOf(final JsonObject json, final String key) {
+        final JsonElement e = json.get(key);
+        if (e == null || e.isJsonNull()) {
             return 0;
+        }
+        if (!e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) {
+            return -1;
+        }
+        try {
+            return Long.parseLong(e.getAsString());
+        } catch (final NumberFormatException ex) {
+            return -1;
         }
     }
 
@@ -136,8 +234,9 @@ public final class Manifest {
         /** Literal text whose UTF-8 bytes are bytes of the body. */
         @Nullable
         private final String lit;
-        /** The index of a part of this record, or -1. */
-        private final int part;
+        /** The index of a part of this record, or null when the segment is not a part; -1 when it is not an index. */
+        @Nullable
+        private final Long part;
         /** The digest of a piece an earlier record holds, or null. */
         @Nullable
         private final String piece;
@@ -152,7 +251,7 @@ public final class Manifest {
         /** Set when the segment is none of the four, so a rebuild can refuse it. */
         private final boolean unknown;
 
-        private Segment(@Nullable final String lit, final int part, @Nullable final String piece,
+        private Segment(@Nullable final String lit, @Nullable final Long part, @Nullable final String piece,
                         @Nullable final String copyFrom, @Nullable final String copySha256, final long copyLen,
                         final boolean unknown) {
             this.lit = lit;
@@ -166,27 +265,27 @@ public final class Manifest {
 
         static Segment of(final JsonElement e) {
             if (!e.isJsonObject()) {
-                return new Segment(null, -1, null, null, null, 0, true);
+                return new Segment(null, null, null, null, null, 0, true);
             }
             final JsonObject o = e.getAsJsonObject();
             final JsonElement lit = o.get("lit");
             if (lit != null && lit.isJsonPrimitive() && lit.getAsJsonPrimitive().isString()) {
-                return new Segment(lit.getAsString(), -1, null, null, null, 0, false);
+                return new Segment(lit.getAsString(), null, null, null, null, 0, false);
             }
             final JsonElement part = o.get("part");
-            if (part != null && part.isJsonPrimitive() && part.getAsJsonPrimitive().isNumber()) {
-                return new Segment(null, (int) longOf(o, "part"), null, null, null, 0, false);
+            if (part != null && !part.isJsonNull()) {
+                return new Segment(null, longOf(o, "part"), null, null, null, 0, false);
             }
             final String piece = string(o, "piece");
             if (!piece.isEmpty()) {
-                return new Segment(null, -1, piece, null, null, 0, false);
+                return new Segment(null, null, piece, null, null, 0, false);
             }
             final JsonElement copy = o.get("copy");
             if (copy != null && copy.isJsonObject()) {
                 final JsonObject c = copy.getAsJsonObject();
-                return new Segment(null, -1, null, string(c, "from"), string(c, "sha256"), longOf(c, "len"), false);
+                return new Segment(null, null, null, string(c, "from"), string(c, "sha256"), longOf(c, "len"), false);
             }
-            return new Segment(null, -1, null, null, null, 0, true);
+            return new Segment(null, null, null, null, null, 0, true);
         }
 
         /**

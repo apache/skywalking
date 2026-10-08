@@ -49,15 +49,20 @@ public final class BodyStore {
     /** The record and part holding each piece, by the piece's digest; the first record to hold a piece keeps it. */
     private final Map<String, int[]> pieceAt = new HashMap<>();
     private final Map<String, String> pieceRecord = new HashMap<>();
+    /** Why each record that carries a body is not held, by its id: a size, a reference or a depth the page does not allow. */
+    private final Map<String, String> refused = new HashMap<>();
     /** The rebuilt bodies kept, the one kept longest first. */
     private final Map<String, byte[]> rebuilt = new LinkedHashMap<>();
     private long kept;
 
     private static final class Held {
+        /** The seq of the file the record is in, so the row held is known apart from a later one with its id. */
+        final long seq;
         final SessionDataFile.Record record;
         final Manifest manifest;
 
-        Held(final SessionDataFile.Record record, final Manifest manifest) {
+        Held(final long seq, final SessionDataFile.Record record, final Manifest manifest) {
+            this.seq = seq;
             this.record = record;
             this.manifest = manifest;
         }
@@ -85,24 +90,42 @@ public final class BodyStore {
      */
     public void add(final SessionDataFile file) {
         for (final SessionDataFile.Record rec : file.getRecords()) {
-            add(rec);
+            add(file.getHeader().getSeq(), rec);
         }
     }
 
     /**
-     * @param rec one record of a <code>provider_body</code> file
-     * @return the manifest the record carries, or null when it holds no body
+     * Holds a record's body as the Session Data page's "Provider bodies" section lets a reader: its manifest has the
+     * shape the page gives it, every field of the type it gives and every segment one of its four kinds, its role is
+     * request or response, it claims no more than {@link Manifest#MAX_BYTES}, every reference points at a record that landed
+     * before it, a part it names is one it
+     * has, a copy is of a body with the digest and at least the length it names, and the depth is one more than its
+     * base's, or 0 when it copies nothing, and at most {@link Manifest#MAX_DEPTH}. A record that breaks one is not
+     * held, so whether it is never depends on what lands after it, nor on which later files a reader happens to read.
+     * A record landed again under an id already held, as one is after an interrupted pass, is not held either, as the
+     * Sessionizer's own reader holds only the first: none of its pieces is held, so every piece points at a part of
+     * the record that holds it.
+     *
+     * @param seq the seq of the file the record is in
+     * @param rec one record of a <code>provider_body</code> file, after every record added before it
+     * @return the manifest held under the record's id, or null when it holds no body or is not held
      */
     @Nullable
-    public Manifest add(final SessionDataFile.Record rec) {
+    private Manifest add(final long seq, final SessionDataFile.Record rec) {
         final Manifest m = Manifest.of(rec);
         if (m == null || rec.getId() == null || rec.getId().isEmpty()) {
             return null;
         }
-        // a record landed again under its id, as one is after an interrupted pass, is the one already held
-        if (!records.containsKey(rec.getId())) {
-            records.put(rec.getId(), new Held(rec, m));
+        final Held already = records.get(rec.getId());
+        if (already != null) {
+            return already.manifest;
         }
+        final String why = refusal(rec.getId(), m);
+        if (why != null) {
+            refused.putIfAbsent(rec.getId(), why);
+            return null;
+        }
+        records.put(rec.getId(), new Held(seq, rec, m));
         final List<SessionDataFile.Part> parts = rec.getParts();
         for (int i = 0; i < m.getPartIndex(); i++) {
             final SessionDataFile.Part p = parts.get(i);
@@ -119,9 +142,67 @@ public final class BodyStore {
         return m;
     }
 
+    /** @return why a record may not be held, as {@link #add(SessionDataFile.Record)} says, or null when it may */
+    @Nullable
+    private String refusal(final String id, final Manifest m) {
+        if (!m.isWellFormed()) {
+            return id + " has a manifest of another shape than the page gives it";
+        }
+        if (!m.isRequest() && !m.isResponse()) {
+            return id + " is a body of neither role the page gives";
+        }
+        if (m.getBytes() < 0 || m.getBytes() > Manifest.MAX_BYTES) {
+            return id + " claims " + m.getBytes() + " bytes, past the " + Manifest.MAX_BYTES + " a body may";
+        }
+        if (m.getDepth() < 0 || m.getDepth() > Manifest.MAX_DEPTH) {
+            return id + " claims depth " + m.getDepth();
+        }
+        int copies = 0;
+        for (final Manifest.Segment seg : m.getSegments()) {
+            if (seg.isUnknown()) {
+                // of the right shape, yet naming nothing a body is made of, such as a piece with no digest
+                return id + " holds a segment of no known kind";
+            }
+            if (seg.getPart() != null && (seg.getPart() < 0 || seg.getPart() >= m.getPartIndex())) {
+                return id + " names part " + seg.getPart() + ", which it does not have";
+            }
+            if (seg.getPiece() != null && !pieceRecord.containsKey(seg.getPiece())) {
+                return id + " refers to piece " + seg.getPiece() + ", which no earlier record holds";
+            }
+            if (seg.getCopyFrom() == null) {
+                continue;
+            }
+            copies++;
+            final Held base = records.get(seg.getCopyFrom());
+            if (base == null) {
+                return id + " copies from " + seg.getCopyFrom() + ", which no earlier record holds";
+            }
+            if (!base.manifest.getSha256().equals(seg.getCopySha256()) || seg.getCopyLen() < 0
+                || seg.getCopyLen() > base.manifest.getBytes()) {
+                return id + " copies from " + seg.getCopyFrom() + " with a digest or length it does not have";
+            }
+            if (m.getDepth() != base.manifest.getDepth() + 1) {
+                return id + " claims depth " + m.getDepth() + " over a base of depth " + base.manifest.getDepth();
+            }
+        }
+        if (copies == 0 && m.getDepth() != 0) {
+            return id + " claims depth " + m.getDepth() + " and copies nothing";
+        }
+        return null;
+    }
+
     /** @return the bytes of the rebuilt bodies kept */
     long keptBytes() {
         return kept;
+    }
+
+    /**
+     * @return whether the record on this row of the file with this seq is the one held under its id: not one the page
+     * does not let a reader hold, and not one landed again under an id held before it
+     */
+    public boolean holds(final long seq, final int row, final String id) {
+        final Held h = records.get(id);
+        return h != null && h.seq == seq && h.record.getRow() == row;
     }
 
     /**
@@ -147,7 +228,7 @@ public final class BodyStore {
         }
         final Held h = records.get(id);
         if (h == null) {
-            throw new BodyException("the session holds no body " + id);
+            throw new BodyException(refused.getOrDefault(id, "the session holds no body " + id));
         }
         // Whether a body fits is decided from the manifests, before anything is built, so it depends on the body
         // and the bodies it copies from alone, never on which bodies this store happens to keep: a file asked for
@@ -187,9 +268,10 @@ public final class BodyStore {
                 built += Math.max(0, seg.getCopyLen());
             } else if (seg.getLit() != null) {
                 built += seg.getLit().getBytes(StandardCharsets.UTF_8).length;
-            } else if (seg.getPart() >= 0 && seg.getPart() < m.getPartIndex()) {
-                built += Math.max(0, h.record.getParts().get(seg.getPart()).getBytes());
+            } else if (seg.getPart() != null && seg.getPart() >= 0 && seg.getPart() < m.getPartIndex()) {
+                built += Math.max(0, h.record.getParts().get(seg.getPart().intValue()).getBytes());
             } else if (seg.getPiece() != null && pieceRecord.containsKey(seg.getPiece())) {
+                // a piece is held only by the record whose part it is, so its index is within that record's parts
                 final Held holder = records.get(pieceRecord.get(seg.getPiece()));
                 built += Math.max(0, holder.record.getParts().get(pieceAt.get(seg.getPiece())[0]).getBytes());
             }
@@ -252,7 +334,7 @@ public final class BodyStore {
             final byte[] bytes;
             if (seg.getLit() != null) {
                 bytes = seg.getLit().getBytes(StandardCharsets.UTF_8);
-            } else if (seg.getPart() >= 0) {
+            } else if (seg.getPart() != null) {
                 bytes = partBytes(h, seg.getPart());
             } else if (seg.getPiece() != null) {
                 bytes = pieceBytes(id, seg.getPiece());
@@ -273,12 +355,12 @@ public final class BodyStore {
         return body;
     }
 
-    private static byte[] partBytes(final Held h, final int index) throws BodyException {
+    private static byte[] partBytes(final Held h, final long index) throws BodyException {
         final List<SessionDataFile.Part> parts = h.record.getParts();
-        if (index >= h.manifest.getPartIndex()) {
+        if (index < 0 || index >= h.manifest.getPartIndex()) {
             throw new BodyException(h.record.getId() + " names part " + index + ", which it does not have");
         }
-        final SessionDataFile.Part part = parts.get(index);
+        final SessionDataFile.Part part = parts.get((int) index);
         final String data = part.data();
         if (data == null) {
             throw new BodyException(h.record.getId() + " names part " + index + ", which holds no data");
