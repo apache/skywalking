@@ -21,6 +21,8 @@
 #   session                           calls' request and response bodies landed as provider_body records
 #   mcp-calls.yaml, one session       build -> collect, once, after the provider-bodies pass: calls to MCP servers,
 #                                     each with the plugin's execution record landed beside the transcripts
+#   prompt-snapshot-withheld.yaml  build -> collect, once, after the mcp-calls pass: the records named
+#                                     system_prompt and tool_schemas, and the bodies of every call
 #   three-rounds.yaml, one session    build through the first checkpoint -> collect, then through the second,
 #                                     then to the end: three rounds over files cut at each stage, and the final
 #                                     document must cover it all
@@ -44,6 +46,7 @@ x-asz: &asz
     - ../workspace-changes.yaml:/asz/workspace-changes.yaml:ro
     - ../provider-bodies.yaml:/asz/provider-bodies.yaml:ro
     - ../mcp-calls.yaml:/asz/mcp-calls.yaml:ro
+    - ../prompt-snapshot-withheld.yaml:/asz/prompt-snapshot-withheld.yaml:ro
   networks:
     - e2e
 
@@ -164,12 +167,27 @@ services:
     depends_on:
       mcp-build:
         condition: service_completed_successfully
+  # ---- prompt-snapshot-withheld.yaml: the records that carry what the runtime sent the model, named system_prompt
+  # and tool_schemas, with the provider bodies of every call, one session in the same root. Here it is one more
+  # conversation; the BanyanDB case reads it through a second OAP with the hide setting.
+  psw-build:
+    <<: *asz
+    command: ["scenario", "build", "/asz/prompt-snapshot-withheld.yaml", "--format", "sd", "--out", "/asz/data"]
+    depends_on:
+      mcp-collect:
+        condition: service_completed_successfully
+  psw-collect:
+    <<: *asz
+    command: ["collect", "-once", "-config", "/asz/data/asz.yaml"]
+    depends_on:
+      psw-build:
+        condition: service_completed_successfully
   # ---- three-rounds.yaml: one session in three stages, each parsed and sent before the next is built
   mr-build-1:
     <<: *asz
     command: ["scenario", "build", "/asz/three-rounds.yaml", "--format", "sd", "--out", "/asz/data", "--through", "first"]
     depends_on:
-      mcp-collect:
+      psw-collect:
         condition: service_completed_successfully
   mr-collect-1:
     <<: *asz

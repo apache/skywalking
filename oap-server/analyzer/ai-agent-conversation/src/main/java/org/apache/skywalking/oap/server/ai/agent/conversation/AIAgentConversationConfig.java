@@ -47,7 +47,8 @@ public class AIAgentConversationConfig extends ModuleConfig {
      * The most bytes one storage query may answer with. BanyanDB alone accepts it, as a per-call option
      * raising the 50 MB its client holds every other read to; Elasticsearch and JDBC ignore it and bound a
      * read by hits and by rows. A window of sixteen files at the Sessionizer's 2 MiB cut is a few tens of
-     * megabytes, so only a root whose files land whole needs this raised.
+     * megabytes, so only a root whose files land whole needs this raised. When {@link #hide} names anything, it
+     * also bounds what rebuilding one request body holds at once, and the bodies kept for later copies.
      */
     private int maxResponseBytes = 100 * 1024 * 1024;
     /**
@@ -57,4 +58,13 @@ public class AIAgentConversationConfig extends ModuleConfig {
      * rejection without pushing a file that size.
      */
     private int maxFileBytes = 15 * 1024 * 1024;
+    /**
+     * The names withheld from every reader of this OAP, separated by commas: <code>system_prompt</code>, the
+     * system prompt a runtime sent its model, and <code>tool_schemas</code>, the schemas of the tools it offered.
+     * The conversation document and the files are served with that content masked, at query time; the storage
+     * holds everything. It applies to every reader, and the routes take no parameter for it: the OAP knows nothing
+     * about who is reading, and one instance per audience, each behind the deployment's own authentication, is how
+     * two audiences are served. Empty withholds nothing.
+     */
+    private String hide = "";
 }

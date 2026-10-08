@@ -1,0 +1,763 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "5499bcd9-30f3-4748-8723-1a9b615f93c9",
+  "sessions": [
+    "5499bcd9-30f3-4748-8723-1a9b615f93c9"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "f6917d7d5f75871942d332243caf591c9b3b5ee92f4e18918542978eeddd674f"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "",
+    "state": "verified",
+    "problems": [],
+    "talks": 2,
+    "steps": 15,
+    "streams": 2,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 0,
+    "provider_bodies": 6,
+    "captured_prompts": 3,
+    "from": 1767225600000,
+    "to": 1767225609100,
+    "kinds": {
+      "agent.call": 1,
+      "agent.launch_ack": 1,
+      "agent.output": 1,
+      "context.injection": 6,
+      "epoch": 2,
+      "llm.call": 3,
+      "message.assistant": 2,
+      "message.external": 1,
+      "run": 2,
+      "segment": 1,
+      "session": 1,
+      "stream": 2,
+      "talk": 2
+    },
+    "relation_types": {
+      "ends_with": 1,
+      "in_segment": 2,
+      "starts": 1
+    },
+    "quality": {
+      "exact_unique": 3,
+      "strong_inference": 1
+    },
+    "withheld": {}
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "f6917d7d5f75871942d332243caf591c9b3b5ee92f4e18918542978eeddd674f",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 4,
+      "input_digest": "9a206519b8f8a17fdd4d7cb3732d778d7f94fa935fd728ce477ba2314dd2a7e8",
+      "from_time": 1767225600000,
+      "through_time": 1767225609100,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "5499bcd9-30f3-4748-8723-1a9b615f93c9/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 12,
+      "bytes": 4424,
+      "digest": "497822eb5d6e230933feb6ea00acd9e77869b042fe9264a9281176f6ee18cf14",
+      "from_time": 1767225600000,
+      "through_time": 1767225606100
+    },
+    {
+      "file": "5499bcd9-30f3-4748-8723-1a9b615f93c9/streams/a932e72cf7535b5f6/transcript-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 2,
+      "round": null,
+      "stream": "a932e72cf7535b5f6",
+      "run": null,
+      "lines": 6,
+      "bytes": 1659,
+      "digest": "20c7e25c2fb8d09a4da074bbddb48617a6bf1e70e390d220220f357c55b3fb42",
+      "from_time": 1767225606100,
+      "through_time": 1767225609100
+    },
+    {
+      "file": "5499bcd9-30f3-4748-8723-1a9b615f93c9/streams/a932e72cf7535b5f6/meta-20260101T000000.000000000Z-000003.sd",
+      "format": "sd",
+      "kind": "agent_meta",
+      "seq": 3,
+      "round": null,
+      "stream": "a932e72cf7535b5f6",
+      "run": null,
+      "lines": 3,
+      "bytes": 674,
+      "digest": "0f3b3176d73ec6a6ac461fdd84f4e76d90997c5acb606256ee2c6bccd327716c",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "5499bcd9-30f3-4748-8723-1a9b615f93c9/provider_body/provider_body-20260101T000000.000000000Z-000004.sd",
+      "format": "sd",
+      "kind": "provider_body",
+      "seq": 4,
+      "round": null,
+      "stream": null,
+      "run": null,
+      "lines": 8,
+      "bytes": 17161,
+      "digest": "97f9f4853ed9472523a6729be970aa07b0574e5791fa73999c5a3bcd96804516",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/5499bcd9-30f3-4748-8723-1a9b615f93c9/rounds/r000001-f6917d7d5f75.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 31,
+      "bytes": 7433,
+      "digest": "fb014615bc3b8af0ae4efb55b6a39dba68f5627cd6b7514e149ff5b7cc7e5087",
+      "from_time": 1767225600000,
+      "through_time": 1767225609100
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 8,
+      "steps": 10,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    },
+    {
+      "id": "stream/a932e72cf7535b5f6",
+      "name": "a932e72cf7535b5f6",
+      "role": "child",
+      "label": "link-checker",
+      "parent": "main",
+      "records": 5,
+      "steps": 5,
+      "talk": "talk/a932e72cf7535b5f6",
+      "named_by": "",
+      "opened_by": [
+        {
+          "step": "tool/s7-tool",
+          "stream": "main",
+          "talk": "talk/main/s1-cycle",
+          "quality": "exact_unique"
+        }
+      ]
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_1",
+      "state": "open",
+      "committable": false,
+      "talks": 2,
+      "from": 1767225600000,
+      "to": 1767225609100
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "external"
+      },
+      "label": "summarise what changed in the docs",
+      "reply": "Checking.",
+      "runs": 1,
+      "steps": 10,
+      "tools": 1,
+      "from": 1767225600000,
+      "to": 1767225606100,
+      "segment": "segment/at_1_1",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "input/1/1",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 1
+              },
+              "text": "summarise what changed in the docs",
+              "state": "available",
+              "bytes": 34,
+              "flags": [
+                "external_input",
+                "system_prompt"
+              ]
+            },
+            {
+              "id": "inject/1/2",
+              "kind": "context.injection",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "{\"reminderFold\":false,\"systemPrompt\":[\"You are a helpful assistant. Use the tools when they help.\"],\"type\":\"prompt_snapshot\"}",
+              "state": "available",
+              "bytes": 125,
+              "flags": [
+                "injected",
+                "system_prompt"
+              ]
+            },
+            {
+              "id": "inject/1/3",
+              "kind": "context.injection",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225602000,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "text": "your todo list is empty",
+              "state": "available",
+              "bytes": 23,
+              "flags": [
+                "injected"
+              ]
+            },
+            {
+              "id": "inject/1/4",
+              "kind": "context.injection",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225603000,
+              "ref": {
+                "seq": 1,
+                "row": 4
+              },
+              "text": "{\"reminderFold\":false,\"systemPrompt\":[\"You are a helpful assistant. Use the tools when they help.\"],\"tools\":[{\"description\":\"Read a file.\",\"name\":\"Read\",\"schema\":{\"properties\":{},\"type\":\"object\"}},{\"description\":\"Run a command.\",\"name\":\"Bash\",\"schema\":{\"properties\":{},\"type\":\"object\"}}],\"type\":\"prompt_snapshot\"}",
+              "state": "available",
+              "bytes": 313,
+              "flags": [
+                "injected",
+                "system_prompt",
+                "tool_schemas"
+              ]
+            },
+            {
+              "id": "inject/1/5",
+              "kind": "context.injection",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225604000,
+              "ref": {
+                "seq": 1,
+                "row": 5
+              },
+              "text": "{\"entries\":[{\"description\":\"Fetch a page.\",\"input_schema\":{\"properties\":{},\"type\":\"object\"},\"name\":\"WebFetch\"}],\"type\":\"deferred_tools_record\"}",
+              "state": "available",
+              "bytes": 143,
+              "flags": [
+                "injected",
+                "tool_schemas"
+              ]
+            },
+            {
+              "id": "call/s7-call-8bca561601d0",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225605000,
+              "ref": {
+                "seq": 1,
+                "row": 8
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 8
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 8,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 1
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 2
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "tool/s7-tool",
+                  "kind": "agent.call",
+                  "parent": "call/s7-call-8bca561601d0",
+                  "stream": "main",
+                  "at": 1767225605000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 8,
+                    "block": 0
+                  },
+                  "refs": [
+                    {
+                      "seq": 1,
+                      "row": 8,
+                      "block": 0
+                    },
+                    {
+                      "seq": 1,
+                      "row": 9,
+                      "block": 0
+                    }
+                  ],
+                  "attrs": {
+                    "name": "Agent",
+                    "result": "available",
+                    "result_join": "exact_unique",
+                    "timing": "unavailable"
+                  },
+                  "text": "{\"description\":\"link-checker\",\"prompt\":\"check the links in the docs\"}",
+                  "state": "available",
+                  "bytes": 69,
+                  "flags": [
+                    "finished"
+                  ],
+                  "name": "Agent",
+                  "result": "launched",
+                  "result_state": "available",
+                  "result_bytes": 8,
+                  "request_to_result_ms": 100,
+                  "request_to_result_join": "exact_unique",
+                  "edges": [
+                    {
+                      "type": "starts",
+                      "other": "stream/a932e72cf7535b5f6",
+                      "dir": "out",
+                      "quality": "exact_unique",
+                      "via": "parent tool result"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "ack/1/9",
+              "kind": "agent.launch_ack",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225605100,
+              "ref": {
+                "seq": 1,
+                "row": 9
+              },
+              "text": "launched",
+              "state": "available",
+              "bytes": 8,
+              "flags": [
+                "launch_ack"
+              ]
+            },
+            {
+              "id": "call/s8-call-8bca561601d0",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225606100,
+              "ref": {
+                "seq": 1,
+                "row": 10
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 10
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 10,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 3
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 4
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/10:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s8-call-8bca561601d0",
+                  "stream": "main",
+                  "at": 1767225606100,
+                  "ref": {
+                    "seq": 1,
+                    "row": 10,
+                    "block": 0
+                  },
+                  "text": "Checking.",
+                  "state": "available",
+                  "bytes": 9,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_1",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/a932e72cf7535b5f6",
+      "kind": "talk",
+      "parent": "epoch/a932e72cf7535b5f6/0",
+      "stream": "a932e72cf7535b5f6",
+      "at": 1767225606100,
+      "ref": {
+        "seq": 2,
+        "row": 1
+      },
+      "attrs": {
+        "loops": 1,
+        "runs": 1,
+        "trigger": "unknown"
+      },
+      "label": "check the links one by one",
+      "reply": "The links all resolve.",
+      "runs": 1,
+      "steps": 5,
+      "from": 1767225606100,
+      "to": 1767225609100,
+      "child": true,
+      "segment": "segment/at_1_1",
+      "children": [
+        {
+          "id": "run/talk_a932e72cf7535b5f6/a932e72cf7535b5f6-cycle",
+          "kind": "run",
+          "parent": "talk/a932e72cf7535b5f6",
+          "stream": "a932e72cf7535b5f6",
+          "at": 1767225606100,
+          "ref": {
+            "seq": 2,
+            "row": 1
+          },
+          "attrs": {
+            "trigger": "external"
+          },
+          "children": [
+            {
+              "id": "inject/2/2",
+              "kind": "context.injection",
+              "parent": "run/talk_a932e72cf7535b5f6/a932e72cf7535b5f6-cycle",
+              "stream": "a932e72cf7535b5f6",
+              "at": 1767225607100,
+              "ref": {
+                "seq": 2,
+                "row": 2
+              },
+              "text": "You check links. Report what you find, and nothing else.\n",
+              "state": "available",
+              "bytes": 57,
+              "flags": [
+                "injected",
+                "system_prompt"
+              ]
+            },
+            {
+              "id": "inject/2/3",
+              "kind": "context.injection",
+              "parent": "run/talk_a932e72cf7535b5f6/a932e72cf7535b5f6-cycle",
+              "stream": "a932e72cf7535b5f6",
+              "at": 1767225608100,
+              "ref": {
+                "seq": 2,
+                "row": 3
+              },
+              "text": "check the links one by one",
+              "state": "available",
+              "bytes": 26,
+              "flags": [
+                "injected"
+              ]
+            },
+            {
+              "id": "call/link-checker-s3-call-8bca561601d0",
+              "kind": "llm.call",
+              "parent": "run/talk_a932e72cf7535b5f6/a932e72cf7535b5f6-cycle",
+              "stream": "a932e72cf7535b5f6",
+              "at": 1767225609100,
+              "ref": {
+                "seq": 2,
+                "row": 4
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 4
+                }
+              ],
+              "attrs": {
+                "fragments": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 4,
+                  "seq": 2
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 4,
+                    "row": 5
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 4,
+                    "row": 6
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/2/4:0",
+                  "kind": "message.assistant",
+                  "parent": "call/link-checker-s3-call-8bca561601d0",
+                  "stream": "a932e72cf7535b5f6",
+                  "at": 1767225609100,
+                  "ref": {
+                    "seq": 2,
+                    "row": 4,
+                    "block": 0
+                  },
+                  "text": "The links all resolve.",
+                  "state": "available",
+                  "bytes": 22,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "output/a932e72cf7535b5f6",
+              "kind": "agent.output",
+              "parent": "run/talk_a932e72cf7535b5f6/a932e72cf7535b5f6-cycle",
+              "stream": "a932e72cf7535b5f6",
+              "at": 1767225609100,
+              "ref": {
+                "seq": 2,
+                "row": 4
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 4
+                }
+              ],
+              "attrs": {
+                "returned_value": "unavailable"
+              },
+              "text": "The links all resolve.",
+              "state": "available",
+              "bytes": 22,
+              "flags": [
+                "finished"
+              ],
+              "edges": [
+                {
+                  "type": "ends_with",
+                  "other": "stream/a932e72cf7535b5f6",
+                  "dir": "in",
+                  "quality": "exact_unique",
+                  "via": "the last response in the child stream, and what it returned"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_1",
+          "dir": "out",
+          "quality": "strong_inference",
+          "via": "inside the window of the talk that delegated it"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_1",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_1",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/starts/tool_s7-tool/stream_a932e72cf7535b5f6",
+      "type": "starts",
+      "from": "tool/s7-tool",
+      "to": "stream/a932e72cf7535b5f6",
+      "quality": "exact_unique",
+      "via": "parent tool result",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 9
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_a932e72cf7535b5f6/segment_at_1_1",
+      "type": "in_segment",
+      "from": "talk/a932e72cf7535b5f6",
+      "to": "segment/at_1_1",
+      "quality": "strong_inference",
+      "via": "inside the window of the talk that delegated it",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 1
+        }
+      ]
+    },
+    {
+      "id": "rel/ends_with/stream_a932e72cf7535b5f6/output_a932e72cf7535b5f6",
+      "type": "ends_with",
+      "from": "stream/a932e72cf7535b5f6",
+      "to": "output/a932e72cf7535b5f6",
+      "quality": "exact_unique",
+      "via": "the last response in the child stream, and what it returned",
+      "evidence": [
+        {
+          "seq": 2,
+          "row": 4
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": [],
+  "tool_executions": []
+}

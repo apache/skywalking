@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import org.apache.skywalking.oap.server.ai.agent.conversation.AIAgentConversationConfig;
 import org.apache.skywalking.oap.server.ai.agent.conversation.Fixtures;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
@@ -40,6 +41,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -348,5 +350,98 @@ public class ConversationQueryServiceTest {
 
         verify(dao).queryHeadRoundDebuggable(SERVICE, null, Fixtures.SESSION, coldStage);
         verifyNoMoreInteractions(dao);
+    }
+
+    /**
+     * The module's hide setting withholds from every reader, with no parameter on the routes: the document loses the
+     * text of the named steps and counts them, every count stays, and a file is served with what it holds of the names
+     * masked, the stored bytes where it holds nothing of them.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void theHideSettingWithholdsFromEveryReader() throws Exception {
+        final String dir = Fixtures.PROMPT_SNAPSHOT_WITHHELD_DIR;
+        final String session = Fixtures.PROMPT_SNAPSHOT_WITHHELD_SESSION;
+        final byte[] roundBytes = Fixtures.bytes(dir + Fixtures.PROMPT_SNAPSHOT_WITHHELD_ROUND_FILE);
+        final List<AIAgentSessionDataRecord> files = new ArrayList<>();
+        for (int i = 0; i < Fixtures.PROMPT_SNAPSHOT_WITHHELD_DATA_FILES.length; i++) {
+            final byte[] body = Fixtures.bytes(dir + Fixtures.PROMPT_SNAPSHOT_WITHHELD_DATA_FILES[i]);
+            final AIAgentSessionDataRecord f = new AIAgentSessionDataRecord();
+            f.setServiceId(SERVICE);
+            f.setSession(session);
+            f.setSeq(i + 1);
+            f.setBody(body);
+            f.setDigest(Digests.sha256Hex(body));
+            f.setTimestamp(SENT_AT);
+            files.add(f);
+        }
+        final IAIAgentConversationQueryDAO dao = mock(IAIAgentConversationQueryDAO.class);
+        when(dao.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(session), eq(false))).thenReturn(1L);
+        when(dao.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(session), anyLong(), anyLong(), anyInt(), eq(false)))
+            .thenReturn(Collections.singletonList(storedRound(session, 1, roundBytes)));
+        when(dao.queryFilesDebuggable(eq(SERVICE), any(), eq(session), anyLong(), anyLong(), anyLong(), anyLong(), anyInt(), eq(false)))
+            .thenReturn(files);
+        final AIAgentConversationConfig config = new AIAgentConversationConfig();
+        config.setHide(" tool_schemas, system_prompt,,");
+        final ConversationQueryService service = service(dao, config);
+
+        final Map<String, Object> doc = service.buildConversationView(SERVICE, "sender", session, false, () -> true);
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals(Map.of("provider_bodies", 3, "system_prompt", 3, "tool_schemas", 2), summary.get("withheld"));
+        assertEquals(2, summary.get("talks"));
+        assertEquals(3, summary.get("captured_prompts"));
+        final String json = new com.google.gson.Gson().toJson(doc);
+        assertFalse(json.contains("helpful assistant"), "the system prompt is in the document");
+        assertFalse(json.contains("Fetch a page"), "a tool schema is in the document");
+
+        final List<ConversationFile> served = new ArrayList<>();
+        assertTrue(service.readConversationFiles(SERVICE, "sender", session, session, ALL_SEQS, false, () -> true, served::add));
+        assertEquals(4, served.size());
+        final ConversationFile transcript = served.get(0);
+        assertEquals(Arrays.asList("system_prompt", "tool_schemas"), transcript.getWithheld());
+        assertEquals(Digests.sha256Hex(transcript.getBody()), transcript.getServedDigest());
+        assertEquals(files.get(0).getDigest(), transcript.getDigest(), "digest stays the stored file's");
+        assertFalse(new String(transcript.getBody(), StandardCharsets.UTF_8).contains("helpful assistant"));
+        final ConversationFile meta = served.get(2);
+        assertTrue(meta.getWithheld().isEmpty());
+        assertNull(meta.getServedDigest());
+        assertArrayEquals(files.get(2).getBody(), meta.getBody(), "a file with nothing named is the stored bytes");
+        final ConversationFile bodies = served.get(3);
+        assertEquals(Arrays.asList("system_prompt", "tool_schemas"), bodies.getWithheld());
+        assertFalse(new String(bodies.getBody(), StandardCharsets.UTF_8).contains("working in a scenario"));
+        // a seq past what the head round reaches names no file, and the read goes no further than the round: it
+        // would otherwise scan the storage window by window up to the number asked for
+        final List<ConversationFile> far = new ArrayList<>();
+        assertTrue(service.readConversationFiles(SERVICE, "sender", session, session, Arrays.asList(1L, Long.MAX_VALUE), false, () -> true, far::add));
+        assertEquals(1, far.size());
+        // with no round intact, nothing says how far the files reach, so the runs asked for are read, as without a hide
+        final IAIAgentConversationQueryDAO broken = mock(IAIAgentConversationQueryDAO.class);
+        when(broken.queryHeadRoundDebuggable(eq(SERVICE), any(), eq(session), eq(false))).thenReturn(1L);
+        when(broken.queryRoundsByNumberDebuggable(eq(SERVICE), any(), eq(session), anyLong(), anyLong(), anyInt(), eq(false)))
+            .thenReturn(Collections.singletonList(storedRound(session, 1, "not a round".getBytes(StandardCharsets.UTF_8))));
+        when(broken.queryFilesDebuggable(eq(SERVICE), any(), eq(session), anyLong(), anyLong(), anyLong(), anyLong(), anyInt(), eq(false)))
+            .thenAnswer(inv -> {
+                final long from = inv.getArgument(5);
+                final long to = inv.getArgument(6);
+                final List<AIAgentSessionDataRecord> out = new ArrayList<>();
+                for (final AIAgentSessionDataRecord f : files) {
+                    if (f.getSeq() >= from && f.getSeq() <= to) {
+                        out.add(f);
+                    }
+                }
+                return out;
+            });
+        final List<ConversationFile> unrounded = new ArrayList<>();
+        assertTrue(service(broken, config).readConversationFiles(SERVICE, "sender", session, session, Arrays.asList(1L, 4L), false, () -> true, unrounded::add));
+        assertEquals(2, unrounded.size());
+        assertFalse(new String(unrounded.get(0).getBody(), StandardCharsets.UTF_8).contains("helpful assistant"));
+
+        // the same storage read without the setting serves everything as stored
+        final ConversationQueryService plain = service(dao, new AIAgentConversationConfig());
+        final List<ConversationFile> stored = new ArrayList<>();
+        assertTrue(plain.readConversationFiles(SERVICE, "sender", session, session, ALL_SEQS, false, () -> true, stored::add));
+        assertTrue(stored.get(0).getWithheld().isEmpty());
+        assertArrayEquals(files.get(0).getBody(), stored.get(0).getBody());
+        assertEquals(Collections.emptyMap(), ((Map<?, ?>) plain.buildConversationView(SERVICE, "sender", session, false, () -> true).get("summary")).get("withheld"));
     }
 }

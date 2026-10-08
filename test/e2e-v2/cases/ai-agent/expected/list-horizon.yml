@@ -81,6 +81,23 @@
   subagents: 1
   bashRuns: 2
   timed: true
+- conversation: 5499bcd9-30f3-4748-8723-1a9b615f93c9
+  instance: e2e-sender
+  instanceIdSet: true
+  title: ""
+  round: 1
+  talks: 2
+  steps: 15
+  streams: 2
+  segments: 1
+  unresolved: 0
+  changes: 0
+  linesAdded: 0
+  linesRemoved: 0
+  llmCalls: 3
+  subagents: 1
+  bashRuns: 0
+  timed: true
 - conversation: 6b7a6063-8714-4f6b-87cd-6c2da3a5094d
   instance: e2e-sender
   instanceIdSet: true

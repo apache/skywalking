@@ -1,0 +1,73 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+document:
+  withheld:
+    provider_bodies: 3
+    system_prompt: 3
+    tool_schemas: 2
+  same_counts_as_plain: true
+  omitted:
+    - inject/1/2
+    - inject/1/4
+    - inject/1/5
+    - inject/2/2
+  labels:
+    - summarise what changed in the docs
+    - check the links one by one
+  calls_with_bodies: 3
+  prompt_in_document: false
+  tools_in_document: false
+plain_document:
+  withheld: {}
+  prompt_in_document: true
+transcript_hidden:
+  withheld:
+    - system_prompt
+    - tool_schemas
+  lines: 12
+  served_differs: true
+transcript_hidden_checks:
+  closing_line_checks: true
+  served_digest_is_served: true
+  records: 10
+  prompt_in_bytes: 0
+  tools_in_bytes: 0
+child_transcript_hidden:
+  withheld:
+    - system_prompt
+    - tool_schemas
+  prompt_in_bytes: 0
+  reminder_in_bytes: 1
+bodies_hidden:
+  withheld:
+    - system_prompt
+    - tool_schemas
+  lines: 8
+  served_differs: true
+bodies_hidden_checks:
+  closing_line_checks: true
+  masked_requests: 3
+  requests_rebuild: 3
+  served_digest_is_served: true
+  responses_as_stored: true
+  prompt_in_bytes: 0
+  tools_in_bytes: 0
+as_stored:
+  plain_transcript_naming_plain: true
+  plain_transcript_digest_matches: true
+  meta_from_hiding_oap_unchanged: true
+  meta_bytes_equal: true

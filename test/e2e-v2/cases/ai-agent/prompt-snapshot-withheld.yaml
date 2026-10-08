@@ -1,0 +1,64 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# The snapshots of prompt-snapshot, a deferred tools record, and a child
+# agent, with their provider bodies, read by a view that withholds the system
+# prompt and the tool schemas: each named step keeps its place, its flags and
+# its size, loses its text and says omitted, no call lists a body, and the
+# summary counts what was withheld.
+#
+# The child agent's talk has no input of its own, so it is named from what
+# was first put into its context. Its snapshot carries prose, as a later
+# version of the runtime could write it, and must not become the talk's name
+# in any document, withheld or whole.
+#
+# Right after they are written, the second snapshot and the deferred tools
+# record are written again under their ids, as the runtime does when it
+# replays its last records before a reset. The conversation holds each once,
+# and the summary counts each once.
+provider_bodies: true
+steps:
+  - input: summarise what changed in the docs
+  - inject: {type: prompt_snapshot, system_prompt: "You are a helpful assistant. Use the tools when they help."}
+  - inject: {type: todo_reminder, text: your todo list is empty}
+  - inject:
+      type: prompt_snapshot
+      system_prompt: "You are a helpful assistant. Use the tools when they help."
+      tools:
+        - {name: Read, description: Read a file.}
+        - {name: Bash, description: Run a command.}
+  # The tools the runtime offers on demand, each with its schema.
+  - inject:
+      type: deferred_tools_record
+      tools:
+        - {name: WebFetch, description: Fetch a page.}
+  - replay: 2
+  - call:
+      agent:
+        name: link-checker
+        prompt: check the links in the docs
+        steps:
+          - inject:
+              type: prompt_snapshot
+              system_prompt: "You check links."
+              # Ending in a line break, as prose often does: a talk's label is
+              # read trimmed, and an echo of this must still be found.
+              text: |
+                You check links. Report what you find, and nothing else.
+          - inject: {type: todo_reminder, text: check the links one by one}
+          - call: {text: The links all resolve.}
+  - call: {text: Checking.}

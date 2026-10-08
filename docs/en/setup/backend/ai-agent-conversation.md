@@ -156,7 +156,7 @@ built on every call and nothing is cached.
 | `Accept` | `application/vnd.skywalking.asz.view+yaml`, or any type naming `yaml`, for YAML; anything else, JSON, as `asz conversation -json` prints it |
 | `Content-Type` | names the document and its version, the HTTP way: `application/vnd.skywalking.asz.view+json; version=1.0` or `application/vnd.skywalking.asz.view+yaml; version=1.0`. The document's own first two keys, `format` and `version`, say the same |
 | `Accept-Encoding` | the body is compressed when the client allows; a document is repetitive text and shrinks several times over |
-| status | 200 with the document; 400 when the service or the instance is not named, or when `coldStage` is neither true nor false; 404 when the sender stores no round of the conversation; 500 on a storage failure; 503 when `viewRequestTimeout` runs out before the document starts, and a response already started is cut short instead. An error is `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)): `{"type": "about:blank", "title": "Not Found", "status": 404, "detail": "..."}` |
+| status | 200 with the document, less what the `hide` setting [withholds](#withholding); 400 when the service or the instance is not named, or when `coldStage` is neither true nor false; 404 when the sender stores no round of the conversation; 500 on a storage failure; 503 when `viewRequestTimeout` runs out before the document starts, and a response already started is cut short instead. An error is `application/problem+json` ([RFC 9457](https://www.rfc-editor.org/rfc/rfc9457)): `{"type": "about:blank", "title": "Not Found", "status": 404, "detail": "..."}` |
 
 The route is on the core HTTP server beside `/graphql`, so it has the same host, port, context path and TLS
 settings, and serves HTTP/1.1 and HTTP/2 alike. The document is built whole from the folded rounds and the files it
@@ -183,7 +183,7 @@ session under the named sender, so the session is the caller's to choose, within
 
 | Parameter or header | Meaning |
 |---|---|
-| `service`, `instance`, `coldStage` | as for the view route |
+| `service`, `instance`, `coldStage` | as for the view route. When the `hide` setting names anything, a file is served with what it holds of those names masked, as [Withholding](#withholding) says, and every file of the session up to the highest seq asked for is read first, to rebuild its requests |
 | `session` | required, the session the files belong to |
 | `seq` | required, one to 32 times, a file's landed seq. The Sessionizer cuts a file at 2 MiB by default, so a response is usually no more than about 64 MiB; a file holding one larger record is larger, up to `maxFileBytes`. A reader wanting more files asks again |
 | `Accept` | chooses the format. There is one, which any `Accept` gets: `application/vnd.skywalking.asz.files+ndjson` |
@@ -204,8 +204,10 @@ The naming line carries the file's name as the document lists it, its `seq`, its
 which happens when the same seq was stored with different bytes - two roots of one session pushed by one sender, after
 a repack. The file served is the first, and `copies` says the others are there, so a reader can say so rather than
 show one copy as the whole truth; the field is absent when there is one. It counts what the read returned rather than
-what the storage holds, since a storage caps what one query answers with, so read it as "more than one". Exactly
-`bytes` bytes follow: the file, byte for byte. A non-empty file that does not end with a newline is followed by one,
+what the storage holds, since a storage caps what one query answers with, so read it as "more than one". A file served
+with something masked carries two more: `withheld`, the names applied, and `served_digest`, the sha256 of the bytes
+served; `digest` stays the stored file's, which the document's `files[]` names, and `bytes` and `lines` are the served
+file's. Both are absent when the bytes are the stored ones. Exactly `bytes` bytes follow: the file, byte for byte. A non-empty file that does not end with a newline is followed by one,
 which is not part of it, so the next naming line starts a line; an empty file is followed by nothing. A file the
 Sessionizer wrote ends with a newline, so a reader may equally take `lines` lines. Nothing in a file is escaped. The
 files come in seq order, which is the order a reader must add provider bodies in, because a body refers to pieces and
@@ -301,7 +303,8 @@ its own pieces and from pieces and bodies that landed before it. A body it canno
 - **A `provider_body` file**, a Session Data file of kind `provider_body`, one directory for the session,
   `<session>/provider_body/provider_body-<stamp>-<seq>.sd`, one record per body. It lands, is verified and is stored
   like any other Session Data file, and a round's window covers it. Nothing about it is decoded at ingest, and a body
-  is never rebuilt by the OAP.
+  is rebuilt by the OAP in one case only: to mask a request for a reader that [withholds](#withholding) the system
+  prompt or the tool schemas.
 
 In the `asz.view` document:
 
@@ -328,6 +331,85 @@ Data](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/forma
 Flow](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/session-flow/) and [The asz.view
 document](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/asz-view/).
 
+## Withholding
+
+An operator who shows conversations to the people an agent served may need to keep from them what the runtime sent
+the model, the system prompt and the tool schemas. The `hide` setting names what this OAP withholds, and it applies
+to every reader: the OAP knows nothing about who is reading, and the routes take no parameter for it. Two audiences
+are two OAPs over the same storage, each behind the deployment's own authentication. With the setting, both routes
+rewrite what they serve: the document loses the text of the steps that carry the names, and a file is served with
+that content masked inside it. The names are the two the Sessionizer's [Session
+Data](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/session-data/#flags) page lists:
+`system_prompt`, the system prompt a runtime sent its model, and `tool_schemas`, the schemas of the tools it offered.
+
+Withholding happens as a conversation is served, and only then. The storage holds every file whole, the ingest and
+the rounds do not change, and the GraphQL list carries only the runtime's own title and counts, so it needs none. A
+reader of this OAP cannot ask for less or for more than the setting names.
+
+The OAP withholds by the flags the Sessionizer's adapter set on a record, never by the text or the size of a part. The
+Claude Code adapter names the `prompt_snapshot` and `deferred_tools_record` attachments that hold them; the LangChain
+adapter names the records that can hold a model request. A record landed before the Sessionizer set these flags carries
+none, so nothing of its transcript is withheld and `summary.withheld` counts zero for it; its request bodies are masked
+all the same, since a request is known by its manifest, not by a flag.
+
+**The document** follows the asz.view page's
+[Withholding](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/formats/asz-view/#withholding)
+rules:
+
+- a step read from a record carrying a withheld name keeps its node, `flags` and `bytes`, has no `text`, and has
+  `state` `omitted`; a tool's result read from such a record has no `result` and `result_state` `omitted`; a model
+  call carries the names a reader may withhold that its own record holds, withheld or not, and is marked the same
+  way when one of them is withheld;
+- an injection carrying either name names no talk, and a journal record carrying one names no stream, in every
+  document, withheld or not; a person's input names its talk whatever it carries;
+- `summary.withheld` lists every name asked for with the records carrying it across the session's landed files, once
+  per record id, a zero included; it is `{}` when nothing was asked;
+- every count stays: nothing is deleted, so the round chain and the verification state still hold.
+
+It differs from the Sessionizer's own viewer in two things, since that viewer refuses the bodies where the OAP masks
+them: every call keeps its `provider_bodies` and the summary its `captured_prompts`; and under `provider_bodies`,
+`summary.withheld` counts the session's request bodies, each of which the files route serves masked where it holds
+what is withheld.
+
+**A file** is served with what it holds of the withheld names masked, and is the stored bytes otherwise:
+
+- in a transcript, and in every kind but `provider_body`, a record carrying a withheld name keeps its envelope and its
+  flags, and every part keeps its kind, its size and its other fields, loses `text`, `data` and `encoding`, and has
+  `state` `omitted`; every other line is the stored line;
+- in a `provider_body` file, a request is rebuilt from the session's bodies, as a reader rebuilds it, and masked by
+  the names in force, at any depth, by the shapes the Sessionizer's [LangChain
+  page](https://skywalking.apache.org/docs/skywalking-ai-sessionizer/next/en/adapters/langsmith/#what-each-call-was-sent)
+  lists, since a client may nest them in a configuration of its own, such as Gemini's `config` or Bedrock's
+  `toolConfig`. Every string under a key the request carries the prompt under, `system`, `instructions`,
+  `system_instruction`, `preamble`, `system_message`, `system_prompt`, `system_instructions`, `instruction` and a
+  completion's `prompts`, becomes `[withheld: system_prompt]`, apart from a block's `type` and `role`, which say what
+  it is; so does the content of a message of the `system` or `developer` role, wherever it sits, LangChain's pair of
+  a role and its content, and LangChain's serialized system message, whose role LangChain JS writes only in its
+  `id`. Each tool under `tools`, `functions`, `function_declarations`, `tool_definitions` or `available_tools` keeps
+  its name, or the name of the one object it wraps, which the transcript's tool calls name anyway, and is otherwise
+  `{"withheld":"tool_schemas"}`. The masked request is written
+  back as a body of its own: one `lit` segment, `depth` 0, no `copy` and no `piece`, its own `sha256` and `bytes`,
+  and `withheld` naming what was applied, so a reader that checks a body against its manifest still can. The request's
+  own pieces stay except the ones that are a withheld block's text or a tool, whose bytes are the secret, and a body
+  kept whole in an `unknown` part, which holds them all. A response holds neither and is the stored line, unless it
+  refers to a request's bytes, when it is written whole the same way, which hides nothing. A request that does not
+  rebuild, or is not one JSON object, is withheld whole, as a transcript record is; so is one whose rebuild would
+  hold more than `maxResponseBytes` at once, counted from the manifests before anything is built: the body, and
+  beside it the body it copies from, so about two bodies for a chain of copies. So is a record with no manifest of a
+  schema the OAP knows, since it may be a request;
+- a rewritten file gets a closing line of its own, so it still reads and checks on its own; its records keep their
+  rows, so every reference into it still resolves; a file whose records stop before its closing line ends where a
+  reader stops, and gets none; a file whose stored closing line does not check keeps that line, so a reader refuses
+  the served file as it refuses the stored one;
+- the naming line says so with `withheld` and `served_digest`; `digest` stays the stored file's.
+
+A masked body no longer matches the digest the stored round chained, and a masked request can be larger than the
+stored one, since it no longer shares its front with the request before it. When the setting names anything, the
+files route reads every file of the session up to the highest seq asked for, as the view route reads them all, since
+a file's kind is known only from the file, and rebuilds the requests in memory: whether one fits depends on it alone,
+never on the other files asked for, and the bodies kept for later copies stay within `maxResponseBytes`, the oldest
+going first.
+
 ## Configuration
 
 ```yaml
@@ -340,6 +422,7 @@ ai-agent-conversation:
     readWindow: ${SW_AI_AGENT_CONVERSATION_READ_WINDOW:16}
     maxResponseBytes: ${SW_AI_AGENT_CONVERSATION_MAX_RESPONSE_BYTES:104857600}
     maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
+    hide: ${SW_AI_AGENT_CONVERSATION_HIDE:}
 ```
 
 | Key              | Meaning                                                                                                                                     |
@@ -347,7 +430,8 @@ ai-agent-conversation:
 | `conversationListMaxLimit` | the most rounds one list query reads before folding, and the ceiling of the query's `limit` argument. It counts rounds, not conversations, so a busy conversation spends the budget of the quiet ones and a quiet one can fall off the list. |
 | `viewRequestTimeout` | how long one conversation view request may take, in seconds. |
 | `readWindow` | how many Session Data files, or Session Flow rounds, one storage query fetches. A batch size and not a limit: a view reads every round of the chain and every file of the conversation, and the files route the named ones, this many per query, so a conversation of 865 rounds is 55 queries at 16. Raising it trades bytes in one response for round trips, which are most of the wait before a view's first byte; it must stay within `maxResponseBytes`. Both are cut at 2 MiB by default by the Sessionizer, so a window is usually a few tens of megabytes. |
-| `maxResponseBytes` | the most bytes one storage query may answer with. **BanyanDB alone accepts it**, carried as a call option on the shared client in place of the 50 MB it holds every other read to, so nothing else's read changes; Elasticsearch and JDBC ignore it and bound a read by hits and by rows. 100 MiB by default, above sixteen files at the 2 MiB cut with room for files landed whole. For a root whose files land whole, raise it or lower `readWindow`; a read over the limit fails as a storage error. |
+| `maxResponseBytes` | the most bytes one storage query may answer with. **BanyanDB alone accepts it**, carried as a call option on the shared client in place of the 50 MB it holds every other read to, so nothing else's read changes; Elasticsearch and JDBC ignore it and bound a read by hits and by rows. 100 MiB by default, above sixteen files at the 2 MiB cut with room for files landed whole. For a root whose files land whole, raise it or lower `readWindow`; a read over the limit fails as a storage error. When `hide` names anything, it also bounds what rebuilding one request body holds at once, as [Withholding](#withholding) says. |
+| `hide` | the names withheld from every reader, separated by commas: `system_prompt`, `tool_schemas`, as [Withholding](#withholding) says. Spaces around a name and empty entries are ignored, and a repeated name counts once. A name nothing withholds is refused at startup. Empty withholds nothing, which is the default. |
 | `maxFileBytes` | the largest file stored, in bytes; a larger one is rejected at ingest and counted under the reason `size`. 15 MiB by default, under BanyanDB's 16 MiB gRPC message limit. The Sessionizer cuts files at 2 MiB by default, and a file can still be larger: for a Claude Code transcript the budget is on the source bytes read, and when one source line is over it the file takes that line and every complete line after it; a provider body over it lands alone; a test lowers this to prove the rejection without pushing a file that size. |
 
 ### Turning the feature off

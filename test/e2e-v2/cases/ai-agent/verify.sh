@@ -38,6 +38,10 @@
 #                                          transcripts, every call names its request and response, the export names the file
 #   verify.sh metrics       OAP            the runtime's token metric the Sessionizer derived, summed over every session
 #                                          and sender per minute, and over the run equal to what the scenarios declare
+#   verify.sh withheld      HIDING PLAIN   the prompt-snapshot-withheld conversation as an OAP with the hide setting
+#                                          serves it, against the plain OAP's: the named steps lose their text, every
+#                                          count stays, a served file is masked where it holds what is withheld and is
+#                                          the stored bytes everywhere else
 set -euo pipefail
 
 MODE=$1
@@ -55,6 +59,8 @@ WC="3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3"
 # provider-bodies.yaml likewise: every call's request and response bodies in one session.
 PB="6b7a6063-8714-4f6b-87cd-6c2da3a5094d"
 MCP="720d2f9e-dca7-49be-8c5e-89b667b39a01"
+# prompt-snapshot-withheld.yaml likewise: the records named system_prompt and tool_schemas, and every call's bodies.
+PSW="5499bcd9-30f3-4748-8723-1a9b615f93c9"
 
 # swctl against this OAP, JSON out.
 sw() {
@@ -389,8 +395,8 @@ GQL
     # The runtime's token metric: one delta point per minute per series, sent by the Sessionizer beside the files,
     # kept by the receiver as the point's value at the point's time, and summed by the rules over every session and
     # sender of a minute. Over the run the totals are what the scenarios declare, every call once: the three fixture
-    # sessions, the three-round session, the lost-file session, the workspace-changes session and the provider-bodies
-    # session, all on one model.
+    # sessions, the three-round session, the lost-file session, the workspace-changes, provider-bodies, mcp-calls and
+    # prompt-snapshot-withheld sessions, all on one model.
     m() { sw metrics exec --expression="$1" --service-name "$SERVICE" --start "$wide_start" --end "$wide_end" "${@:2}"; }
     total() { m "$@" | yq -p=json -o=json '.results[0].values[0].value | tonumber'; }
     by() { m "$1" | yq -p=json -o=json '[.results[] | {"labels": (.metric.labels | map({"key": .key, "value": .value}) | sort_by(.key)), "value": (.values[0].value | tonumber)}] | sort_by(.labels | map(.value) | join("/"))'; }
@@ -400,6 +406,76 @@ GQL
       "$(by 'sum(meter_ai_agent_tokens_by_type)')" "$(by 'sum(meter_ai_agent_tokens_by_model)')" "$(by 'sum(meter_ai_agent_tokens_by_source)')" \
       "$(awk -v s="$share" 'BEGIN { print (s > 0 && s <= 100) ? "true" : "false" }')" \
       | yq -p=json -P
+    ;;
+  withheld)
+    # The prompt-snapshot-withheld conversation as the OAP with the hide setting ($2) serves it, against the plain
+    # OAP ($3), which serves the same storage whole. The document keeps every node and every count, loses the text of
+    # the named steps, and says what it withheld. A transcript file is served with the named records' content taken
+    # out and a closing line of its own; a provider_body file with its requests rebuilt, masked and standalone, its
+    # responses as stored; a file with nothing named is the stored bytes. Nothing of the prompt or the tools is in a
+    # byte the hiding OAP serves.
+    PLAIN=${ASZ%/}
+    psw_view() { curl -sf -H 'Accept: application/json' "$1/ai-agent/conversations/$PSW/v1/view?service=$SERVICE&instance=$INSTANCE"; }
+    counts() { yq -p=json -o=json -I=0 '.summary | {"talks": .talks, "steps": .steps, "streams": .streams, "segments": .segments, "rounds": .rounds, "unresolved": .unresolved, "provider_bodies": .provider_bodies, "captured_prompts": .captured_prompts}'; }
+    doc=$(psw_view "$OAP")
+    same=false; [ "$(echo "$doc" | counts)" = "$(psw_view "$PLAIN" | counts)" ] && same=true
+    echo "$doc" | yq -p=json -P "{\"document\": {
+      \"withheld\": .summary.withheld, \"same_counts_as_plain\": $same,
+      \"omitted\": ([.. | select(tag == \"!!map\" and .state == \"omitted\") | .id] | sort),
+      \"labels\": [.talks[] | .label],
+      \"calls_with_bodies\": ([.. | select(tag == \"!!map\" and .kind == \"llm.call\" and ((.provider_bodies // []) | length) > 0)] | length),
+      \"prompt_in_document\": (tostring | test(\"helpful assistant\")),
+      \"tools_in_document\": (tostring | test(\"Fetch a page\"))
+    }}"
+    printf 'plain_document:\n  withheld: %s\n  prompt_in_document: %s\n' \
+      "$(psw_view "$PLAIN" | yq -p=json -o=json -I=0 '.summary.withheld')" "$(psw_view "$PLAIN" | yq -p=json 'tostring | test("helpful assistant")')"
+    # one file through the route: $1 the OAP, $2 seq; the naming line to stdout, exactly its bytes to $3
+    psw_file() {
+      local raw="$3.raw"
+      curl -sf "$1/ai-agent/conversations/$PSW/v1/files?service=$SERVICE&instance=$INSTANCE&session=$PSW&seq=$2" > "$raw"
+      head -n1 "$raw"
+      tail -c +$(( $(head -n1 "$raw" | wc -c) + 1 )) "$raw" | head -c "$(head -n1 "$raw" | yq -p=json '.bytes')" > "$3"
+    }
+    # the sha256 of every byte before a file's closing line, which that line declares
+    before_closing() { awk 'NR>1{printf "%s\n", prev} {prev=$0}' "$1" | sha256sum | cut -d' ' -f1; }
+    declared() { tail -n1 "$1" | yq -p=json '.digest'; }
+    count() { grep -c -- "$1" "$2" || true; }
+    dir=$(mktemp -d)
+    t_stored=$(psw_file "$PLAIN" 1 "$dir/t0"); t_hidden=$(psw_file "$OAP" 1 "$dir/t1")
+    psw_file "$PLAIN" 4 "$dir/b0" > /dev/null; b_hidden=$(psw_file "$OAP" 4 "$dir/b1")
+    m_hidden=$(psw_file "$OAP" 3 "$dir/m1"); c_hidden=$(psw_file "$OAP" 2 "$dir/c1")
+    printf '%s\n' "$t_hidden" | yq -p=json -P '{"transcript_hidden": {"withheld": .withheld, "lines": .lines, "served_differs": (.served_digest != .digest)}}'
+    printf 'transcript_hidden_checks:\n  closing_line_checks: %s\n  served_digest_is_served: %s\n  records: %s\n  prompt_in_bytes: %s\n  tools_in_bytes: %s\n' \
+      "$([ "$(before_closing "$dir/t1")" = "$(declared "$dir/t1")" ] && echo true || echo false)" \
+      "$([ "$(sha256sum "$dir/t1" | cut -d' ' -f1)" = "$(printf '%s\n' "$t_hidden" | yq -p=json '.served_digest')" ] && echo true || echo false)" \
+      "$(count '"ord":' "$dir/t1")" "$(count 'helpful assistant' "$dir/t1")" "$(count 'Fetch a page' "$dir/t1")"
+    # the child agent's transcript holds its own snapshot, and the reminder that names its talk stays
+    printf 'child_transcript_hidden:\n  withheld: %s\n  prompt_in_bytes: %s\n  reminder_in_bytes: %s\n' \
+      "$(printf '%s\n' "$c_hidden" | yq -p=json -o=json -I=0 '.withheld')" "$(count 'You check links' "$dir/c1")" "$(count 'check the links one by one' "$dir/c1")"
+    printf '%s\n' "$b_hidden" | yq -p=json -P '{"bodies_hidden": {"withheld": .withheld, "lines": .lines, "served_differs": (.served_digest != .digest)}}'
+    # the requests are rows 1, 3 and 5, lines 2, 4 and 6; the responses rows 2, 4 and 6, lines 3, 5 and 7
+    # a masked request is one literal segment, and its manifest's digest is that literal's: it rebuilds from the
+    # served file alone, as a reader checks it
+    rebuilt=0
+    for line in 2 4 6; do
+      lit=$(sed -n "${line}p" "$dir/b1" | yq -p=json '.parts[-1].data.segments[0].lit')
+      want=$(sed -n "${line}p" "$dir/b1" | yq -p=json '.parts[-1].data.sha256')
+      bytes=$(sed -n "${line}p" "$dir/b1" | yq -p=json '.parts[-1].data.bytes')
+      segs=$(sed -n "${line}p" "$dir/b1" | yq -p=json '.parts[-1].data.segments | length')
+      [ "$(printf '%s' "$lit" | sha256sum | cut -d' ' -f1)" = "$want" ] && [ "$(printf '%s' "$lit" | wc -c | tr -d ' ')" = "$bytes" ] && [ "$segs" = "1" ] && rebuilt=$((rebuilt + 1))
+    done
+    printf 'bodies_hidden_checks:\n  closing_line_checks: %s\n  masked_requests: %s\n  requests_rebuild: %s\n  served_digest_is_served: %s\n  responses_as_stored: %s\n  prompt_in_bytes: %s\n  tools_in_bytes: %s\n' \
+      "$([ "$(before_closing "$dir/b1")" = "$(declared "$dir/b1")" ] && echo true || echo false)" \
+      "$(count '"withheld":\["system_prompt","tool_schemas"\]' "$dir/b1")" "$rebuilt" \
+      "$([ "$(sha256sum "$dir/b1" | cut -d' ' -f1)" = "$(printf '%s\n' "$b_hidden" | yq -p=json '.served_digest')" ] && echo true || echo false)" \
+      "$([ "$(sed -n '3p;5p;7p' "$dir/b0")" = "$(sed -n '3p;5p;7p' "$dir/b1")" ] && echo true || echo false)" \
+      "$(count 'working in a scenario' "$dir/b1")" "$(count 'Reads a file from the local filesystem' "$dir/b1")"
+    printf 'as_stored:\n  plain_transcript_naming_plain: %s\n  plain_transcript_digest_matches: %s\n  meta_from_hiding_oap_unchanged: %s\n  meta_bytes_equal: %s\n' \
+      "$(printf '%s\n' "$t_stored" | yq -p=json '(has("withheld") or has("served_digest")) | not')" \
+      "$([ "$(sha256sum "$dir/t0" | cut -d' ' -f1)" = "$(printf '%s\n' "$t_stored" | yq -p=json '.digest')" ] && echo true || echo false)" \
+      "$(printf '%s\n' "$m_hidden" | yq -p=json 'has("withheld") | not')" \
+      "$([ "$(sha256sum "$dir/m1" | cut -d' ' -f1)" = "$(printf '%s\n' "$m_hidden" | yq -p=json '.digest')" ] && echo true || echo false)"
+    rm -rf "$dir"
     ;;
   *)
     echo "unknown mode $MODE" >&2; exit 2

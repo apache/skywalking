@@ -52,6 +52,8 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionData
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.ToolCallRecord;
+import org.apache.skywalking.oap.server.ai.agent.conversation.providerbody.Manifest;
+import org.apache.skywalking.oap.server.ai.agent.conversation.withhold.Hide;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
@@ -121,6 +123,15 @@ public final class ConversationViewBuilder {
     private final Map<String, List<String>> executionsByStep = new HashMap<>();
     /** Each call step's joined provider bodies, its request then its response; filled by {@link #joinProviderBodies}. */
     private final Map<String, List<Map<String, Object>>> providerBodiesByStep = new HashMap<>();
+    /** The names this document withholds, sorted; see {@link Hide}. Empty for the whole document. */
+    private final List<String> hidden;
+    /**
+     * How many of the session's landed records carry each name a reader may withhold, once per record id, whether
+     * or not a step is drawn for one: what <code>summary.withheld</code> reports for a withheld name.
+     */
+    private final Map<String, Integer> named = new HashMap<>();
+    /** How many request bodies the session landed, once per record id: what a withheld document masks of them. */
+    private int requestBodies;
 
     /**
      * @param fold     the fold of the rounds, in order
@@ -133,15 +144,46 @@ public final class ConversationViewBuilder {
                                    final List<RoundInput> rounds,
                                    final Map<Long, SessionDataFile> files,
                                    final List<String> problems) {
+        this(fold, rounds, files, problems, Hide.NONE);
+    }
+
+    /**
+     * @param hidden the names the document withholds, as {@link Hide} lists them; see the asz.view page's
+     *               "Withholding". A record carrying one is read with its content withheld, so every field read
+     *               from a record follows: a step's text, a tool's result, a talk's label and reply.
+     */
+    public ConversationViewBuilder(final ConversationFold fold,
+                                   final List<RoundInput> rounds,
+                                   final Map<Long, SessionDataFile> files,
+                                   final List<String> problems,
+                                   final List<String> hidden) {
         this.fold = fold;
         this.rounds = rounds;
         this.files = new TreeMap<>(files);
         this.problems = problems;
+        this.hidden = Hide.names(hidden);
+        final Set<String> counted = new HashSet<>();
         for (final SessionDataFile f : files.values()) {
             lanes.put(f.getHeader().getSeq(), FileNames.lane(f.getHeader()));
+            final boolean bodies = Manifest.KIND.equals(f.getHeader().getKind());
             for (final SessionDataFile.Record r : f.getRecords()) {
                 if (r.getTimeNanos() != 0) {
                     at.put(new Ref(f.getHeader().getSeq(), r.getRow(), null), r.getTimeNanos());
+                }
+                // Counted once by id: the runtime writes some records again under the same id, such as the ones
+                // it replays before a reset, and the conversation holds each once. A record with no id counts by
+                // its position.
+                final String key = StringUtil.isEmpty(r.getId()) ? f.getHeader().getSeq() + "/" + r.getRow() : r.getId();
+                for (final String flag : r.flags()) {
+                    if (Hide.isHideable(flag) && counted.add(flag + "\u0000" + key)) {
+                        named.merge(flag, 1, Integer::sum);
+                    }
+                }
+                if (bodies && counted.add("request\u0000" + key)) {
+                    final Manifest m = Manifest.of(r);
+                    if (m != null && m.isRequest()) {
+                        requestBodies++;
+                    }
                 }
             }
         }
@@ -189,6 +231,17 @@ public final class ConversationViewBuilder {
         summary.put("kinds", o.kinds);
         summary.put("relation_types", o.relationTypes);
         summary.put("quality", o.quality);
+        // every name asked for, a zero included, so a filter that matched nothing still shows it ran; and the
+        // request bodies, each served masked to a reader that withholds anything; by key, as the Sessionizer writes
+        // a map
+        final Map<String, Integer> withheld = new TreeMap<>(CodePointOrder.ORDER);
+        for (final String name : hidden) {
+            withheld.put(name, named.getOrDefault(name, 0));
+        }
+        if (!hidden.isEmpty()) {
+            withheld.put("provider_bodies", requestBodies);
+        }
+        summary.put("withheld", withheld);
         doc.put("summary", summary);
         doc.put("rounds", chain.rounds);
         final List<Map<String, Object>> fileList = files();
@@ -437,6 +490,8 @@ public final class ConversationViewBuilder {
         String segment = "";
         String reply = "";
         List<Ref> labelAt = Collections.emptyList();
+        /** Whether the label candidates are injections, read only because the talk has no input of its own. */
+        boolean labelInjected;
         Ref replyAt;
         SessionFlowRound.Node node;
     }
@@ -493,7 +548,7 @@ public final class ConversationViewBuilder {
             row.to = span[1];
             row.began = beganAt(t, tree);
             count(tree, row);
-            row.labelAt = labelRefs(tree);
+            labelRefs(tree, row);
             row.replyAt = replyRef(tree);
             talks.add(row);
         }
@@ -503,6 +558,13 @@ public final class ConversationViewBuilder {
         talks.sort(Comparator.comparing((TalkRow t) -> t.began == 0).thenComparingLong(t -> t.began));
         for (final TalkRow row : talks) {
             for (final Ref r : row.labelAt) {
+                // An injection that is what the runtime sent the model names no talk, in any document: a talk
+                // with no input of its own would otherwise take a snapshot's prose as its name. A person's input
+                // names its talk whatever it carries.
+                final SessionDataFile.Record candidate = record(r);
+                if (row.labelInjected && candidate != null && Hide.carriesHideable(candidate.flags())) {
+                    continue;
+                }
                 final String text = readableAt(r);
                 if (trimSpace(text).startsWith("{\"type\":\"deferred_tools_delta\"")) {
                     continue;
@@ -561,18 +623,25 @@ public final class ConversationViewBuilder {
         }
     }
 
-    /** The talk's first external message; failing that, its first three injections. */
-    private static List<Ref> labelRefs(final List<SessionFlowRound.Node> tree) {
+    /**
+     * Where the talk's name is read from: its first external message; failing that, its first three injections. Which
+     * of the two was found is said here, as the Sessionizer's <code>labelRefs</code> says it, not read back from a
+     * reference: a run node shares its first input's reference, so the kind found at a reference is not the input's.
+     */
+    private static void labelRefs(final List<SessionFlowRound.Node> tree, final TalkRow row) {
         final List<Ref> injections = new ArrayList<>();
         for (final SessionFlowRound.Node k : tree) {
             if ("message.external".equals(k.getKind()) && k.getRef() != null) {
-                return Collections.singletonList(k.getRef());
+                row.labelAt = Collections.singletonList(k.getRef());
+                row.labelInjected = false;
+                return;
             }
             if ("context.injection".equals(k.getKind()) && k.getRef() != null && injections.size() < 3) {
                 injections.add(k.getRef());
             }
         }
-        return injections;
+        row.labelAt = injections;
+        row.labelInjected = true;
     }
 
     /** The talk's last assistant message or agent output. */
@@ -698,6 +767,10 @@ public final class ConversationViewBuilder {
             for (final SessionDataFile.Record rec : f.getRecords()) {
                 final String child = rec.child();
                 if (StringUtil.isEmpty(child) || names.containsKey(child)) {
+                    continue;
+                }
+                // what the runtime sent the model never names a stream, as it never names a talk
+                if (Hide.carriesHideable(rec.flags())) {
                     continue;
                 }
                 final String name = resultName(rec);
@@ -868,6 +941,7 @@ public final class ConversationViewBuilder {
             final SessionDataFile.Record rec = record(n.getRef());
             if (rec != null) {
                 fill(content, tool, rec, n.getRef().getBlock());
+                markWithheld(content, rec, partAt(rec, n.getRef().getBlock()) == null);
                 fillDuration(content, tool, n, rec);
                 if (!rec.flags().isEmpty()) {
                     content.put("flags", new ArrayList<>(rec.flags()));
@@ -889,6 +963,23 @@ public final class ConversationViewBuilder {
                 }
             }
             fillRequestToResult(tool, n);
+        }
+        // A call shows no content of its own, so it takes only the flags a reader may withhold from its record. A
+        // model call that never finished can land the request it was sent, and a reader withholding that is told so.
+        if (n.getRef() != null && "llm.call".equals(n.getKind())) {
+            final SessionDataFile.Record rec = record(n.getRef());
+            if (rec != null) {
+                final List<String> flags = new ArrayList<>();
+                for (final String flag : rec.flags()) {
+                    if (Hide.isHideable(flag)) {
+                        flags.add(flag);
+                    }
+                }
+                if (!flags.isEmpty()) {
+                    content.put("flags", flags);
+                }
+                markWithheld(content, rec, true);
+            }
         }
         final JsonObject usage = usageAt(n);
         if (usage != null) {
@@ -1031,6 +1122,31 @@ public final class ConversationViewBuilder {
             e.put("via", r.getVia());
         }
         return e;
+    }
+
+    /**
+     * The rule for a step read from a withheld record: no text, the state <code>omitted</code>, and a size. A step
+     * that names one part already has that part's size, a zero kept as zero. One that names no single part of a
+     * record with several has none of its own, and takes the size of all the parts, so a withheld step never says
+     * it withheld nothing.
+     *
+     * @param noPart whether the step names no single part of its record
+     */
+    private void markWithheld(final Map<String, Object> content, final SessionDataFile.Record rec, final boolean noPart) {
+        if (!Hide.carriesAny(rec.flags(), hidden)) {
+            return;
+        }
+        content.remove("text");
+        content.put("state", "omitted");
+        if (noPart && !content.containsKey("bytes")) {
+            long bytes = 0;
+            for (final SessionDataFile.Part p : rec.getParts()) {
+                bytes += p.getBytes();
+            }
+            if (bytes != 0) {
+                content.put("bytes", bytes);
+            }
+        }
     }
 
     private static void fill(final Map<String, Object> content, final Map<String, Object> tool,
@@ -1252,6 +1368,11 @@ public final class ConversationViewBuilder {
         // the plugin's records, from the files its adapter landed
         for (final SessionDataFile f : filesOfKind("changes")) {
             for (final SessionDataFile.Record rec : f.getRecords()) {
+                // a record carrying a withheld name is read with its content withheld, as every record is, so it
+                // lists nothing here
+                if (Hide.carriesAny(rec.flags(), hidden)) {
+                    continue;
+                }
                 forEachDataPart(f.getHeader().getSeq(), rec, collect);
             }
         }
@@ -1290,6 +1411,11 @@ public final class ConversationViewBuilder {
         };
         for (final SessionDataFile f : filesOfKind("execution")) {
             for (final SessionDataFile.Record rec : f.getRecords()) {
+                // a record carrying a withheld name is read with its content withheld, as every record is, so it
+                // lists nothing here
+                if (Hide.carriesAny(rec.flags(), hidden)) {
+                    continue;
+                }
                 forEachDataPart(f.getHeader().getSeq(), rec, collect);
             }
         }
@@ -1491,13 +1617,18 @@ public final class ConversationViewBuilder {
         return Order.earliest(points);
     }
 
+    /**
+     * @return the record at a reference, with its content withheld when it carries a name this document withholds;
+     * null when the files hold no such record
+     */
     @Nullable
     private SessionDataFile.Record record(@Nullable final Ref ref) {
         if (ref == null) {
             return null;
         }
         final SessionDataFile f = files.get(ref.getSeq());
-        return f == null ? null : f.record(ref.getRow());
+        final SessionDataFile.Record rec = f == null ? null : f.record(ref.getRow());
+        return rec != null && Hide.carriesAny(rec.flags(), hidden) ? rec.withheld() : rec;
     }
 
     private long timeAt(@Nullable final Ref ref) {

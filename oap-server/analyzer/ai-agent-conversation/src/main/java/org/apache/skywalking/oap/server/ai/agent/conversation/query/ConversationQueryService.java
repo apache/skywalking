@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.ai.agent.conversation.query;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -38,13 +39,18 @@ import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.ai.agent.conversation.AIAgentConversationConfig;
 import org.apache.skywalking.oap.server.ai.agent.conversation.fold.ConversationFold;
+import org.apache.skywalking.oap.server.ai.agent.conversation.format.Digests;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.FileNames;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlowRound;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.Times;
+import org.apache.skywalking.oap.server.ai.agent.conversation.providerbody.BodyStore;
+import org.apache.skywalking.oap.server.ai.agent.conversation.providerbody.Manifest;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationList;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.type.ConversationRow;
 import org.apache.skywalking.oap.server.ai.agent.conversation.view.ConversationViewBuilder;
+import org.apache.skywalking.oap.server.ai.agent.conversation.withhold.Hide;
+import org.apache.skywalking.oap.server.ai.agent.conversation.withhold.Withholding;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.aiagent.AIAgentSessionDataRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.aiagent.AIAgentSessionFlowRecord;
@@ -67,11 +73,14 @@ public class ConversationQueryService implements IConversationQueryService {
 
     private final ModuleManager moduleManager;
     private final AIAgentConversationConfig config;
+    /** The names the module's <code>hide</code> setting withholds from every reader, sorted; see {@link Hide}. */
+    private final List<String> hide;
     private IAIAgentConversationQueryDAO dao;
 
     public ConversationQueryService(final ModuleManager moduleManager, final AIAgentConversationConfig config) {
         this.moduleManager = moduleManager;
         this.config = config;
+        this.hide = Hide.parse(config.getHide());
     }
 
     private IAIAgentConversationQueryDAO dao() {
@@ -161,7 +170,7 @@ public class ConversationQueryService implements IConversationQueryService {
         if (chain.roundInputs.isEmpty()) {
             return null;
         }
-        return new ConversationViewBuilder(chain.fold, chain.roundInputs, chain.files, chain.problems).build();
+        return new ConversationViewBuilder(chain.fold, chain.roundInputs, chain.files, chain.problems, hide).build();
     }
 
     @Override
@@ -177,6 +186,10 @@ public class ConversationQueryService implements IConversationQueryService {
             return true;
         }
         final long[] range = fileRange(serviceId, serviceInstanceId, conversation, headRound, alive, coldStage);
+        if (!hide.isEmpty()) {
+            readWithheld(serviceId, serviceInstanceId, session, seqs, range, coldStage, alive, sink);
+            return true;
+        }
         final int window = config.getReadWindow();
         for (final long[] run : runs(new TreeSet<>(seqs))) {
             long last = -1;
@@ -214,13 +227,74 @@ public class ConversationQueryService implements IConversationQueryService {
     }
 
     /**
+     * The chosen files with what the reader withholds masked inside them, as {@link Withholding} says. A request
+     * body is rebuilt before it is masked, and a body refers only to the session's earlier bodies, so every file
+     * of the session up to the highest seq asked for is read first, as the view reads them all, and its
+     * <code>provider_body</code> files are added to one store in seq order. The files are then served from that
+     * read, in seq order, the first copy of each seq.
+     */
+    private void readWithheld(final String serviceId, final String serviceInstanceId, final String session,
+                              final Collection<Long> seqs, final long[] range, final boolean coldStage,
+                              final BooleanSupplier alive, final FileSink sink) throws IOException {
+        final TreeSet<Long> wanted = new TreeSet<>(seqs);
+        // Every file up to the last one asked for, but no further than the head round reaches: a seq past it names
+        // no file the conversation holds, and a read up to a number the caller chose would otherwise scan the
+        // storage window by window to it. When no round is intact, nothing says how far the files reach, so only
+        // the runs asked for are read, as they are without a hide; a request whose earlier bodies are not among
+        // them is then withheld whole, since it cannot be rebuilt.
+        final List<AIAgentSessionDataRecord> read = new ArrayList<>();
+        if (range[2] > 0) {
+            read.addAll(readFiles(serviceId, serviceInstanceId, session, range[0], range[1], 1, Math.min(wanted.last(), range[2]), coldStage, alive));
+        } else {
+            for (final long[] run : runs(wanted)) {
+                read.addAll(readFiles(serviceId, serviceInstanceId, session, range[0], range[1], run[0], run[1], coldStage, alive));
+            }
+        }
+        read.sort(Comparator.comparingLong(AIAgentSessionDataRecord::getSeq));
+        final Map<Long, AIAgentSessionDataRecord> first = new TreeMap<>();
+        final Map<Long, Integer> copies = new HashMap<>();
+        for (final AIAgentSessionDataRecord f : read) {
+            first.putIfAbsent(f.getSeq(), f);
+            copies.merge(f.getSeq(), 1, Integer::sum);
+        }
+        // one rebuild holds no more than a storage answer may, and neither do the bodies kept for later copies; a
+        // request that would is withheld whole rather than built
+        final BodyStore store = new BodyStore(config.getMaxResponseBytes());
+        for (final AIAgentSessionDataRecord f : first.values()) {
+            if (!alive.getAsBoolean()) {
+                throw new IOException("the caller of session " + session + " is gone");
+            }
+            try {
+                if (Manifest.KIND.equals(SessionDataFile.header(f.getBody()).getKind())) {
+                    store.add(SessionDataFile.parse(f.getBody()));
+                }
+            } catch (final RuntimeException e) {
+                // a file that does not read holds no body a later one could refer to; it is served as the masking
+                // reads it, which is as far as any reader does
+                log.debug("session {} file seq {} does not read: {}", session, f.getSeq(), e.getMessage());
+            }
+        }
+        for (final long seq : wanted) {
+            final AIAgentSessionDataRecord f = first.get(seq);
+            if (f == null) {
+                continue;
+            }
+            final Withholding.Served served = Withholding.file(f.getBody(), hide, store);
+            sink.accept(new ConversationFile(
+                dataFileId(f.getBody(), session, seq), seq, f.getDigest(), served.getBytes(),
+                copies.getOrDefault(seq, 1), served.isChanged() ? hide : Collections.emptyList(),
+                served.isChanged() ? Digests.sha256Hex(served.getBytes()) : null));
+        }
+    }
+
+    /**
      * The time range the conversation's files are stamped in: the newest intact round's, from its session's first
      * activity to its last or its own row's time, whichever is later, read one round at a time down from the head, so
      * only the rounds above it are read. The view takes its range from the last round it folds, which is this round
      * unless the fold refused it. A conversation with no intact round is read over everything up to the head row's own
      * time, and so is one whose head round and the fifteen below it are all unreadable.
      *
-     * @return the first and the last millisecond
+     * @return the first and the last millisecond, and the last seq the round reaches, or 0 when no round is intact
      */
     private long[] fileRange(final String serviceId, final String serviceInstanceId, final String conversation,
                              final long headRound, final BooleanSupplier alive, final boolean coldStage)
@@ -260,11 +334,12 @@ public class ConversationQueryService implements IConversationQueryService {
                     final SessionFlowRound.Header h = parsed.getHeader();
                     // the intact round's own row, as the view takes its range from the last round it folds
                     return new long[] {
-                        Times.millis(h.getSessionFromTime()), rangeEnd(h.getSessionThroughTime(), r.getTimestamp())};
+                        Times.millis(h.getSessionFromTime()), rangeEnd(h.getSessionThroughTime(), r.getTimestamp()),
+                        h.getThroughSeq()};
                 }
             }
         }
-        return new long[] {0, headRowTimestamp};
+        return new long[] {0, headRowTimestamp, 0};
     }
 
     /**

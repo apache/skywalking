@@ -46,6 +46,7 @@ summary:
     quality:
         exact_unique: 4
         strong_inference: 1
+    withheld: {}
 rounds:
     - round: 1
       digest: 475193a5f44b74117ee7f527bb8e5f29277ef6686dfb8d0e9a07d2e69f34c0ee

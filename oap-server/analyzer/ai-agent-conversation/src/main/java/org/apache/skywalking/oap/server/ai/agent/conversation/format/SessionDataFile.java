@@ -291,6 +291,35 @@ public final class SessionDataFile {
         }
 
         /**
+         * The record with its content withheld, as the asz.view page says a server serves a record a reader may
+         * not see: the envelope and the flags stay, and every part keeps its kind, its size and its other fields,
+         * loses <code>text</code>, <code>data</code> and <code>encoding</code>, and has state <code>omitted</code>.
+         * The stored record is not changed.
+         *
+         * @return the withheld record, at the same row
+         */
+        public Record withheld() {
+            final JsonObject masked = json.deepCopy();
+            if (masked.has("parts") && masked.get("parts").isJsonArray()) {
+                for (final JsonElement e : masked.getAsJsonArray("parts")) {
+                    withholdPart(e.getAsJsonObject());
+                }
+            }
+            return new Record(row, masked.toString(), masked);
+        }
+
+        /**
+         * Takes the content out of one part, in place: <code>text</code>, <code>data</code> and
+         * <code>encoding</code> go, and <code>state</code> becomes <code>omitted</code>, where it was.
+         */
+        public static void withholdPart(final JsonObject part) {
+            part.remove("text");
+            part.remove("data");
+            part.remove("encoding");
+            part.addProperty("state", "omitted");
+        }
+
+        /**
          * @return the record's <code>usage</code> object, or null
          */
         @Nullable

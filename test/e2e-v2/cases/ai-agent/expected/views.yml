@@ -13,11 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-conversations: 8
-equal: 8
-yaml_equal: 8
-h2_equal: 8
-gzip_equal: 8
+conversations: 9
+equal: 9
+yaml_equal: 9
+h2_equal: 9
+gzip_equal: 9
 format: asz.view
 version: "1.0"
 json_type: "application/vnd.skywalking.asz.view+json; version=1.0; charset=utf-8"

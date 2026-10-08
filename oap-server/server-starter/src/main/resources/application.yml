@@ -282,10 +282,16 @@ ai-agent-conversation:
     # How many files or rounds one storage query fetches; a conversation is read batch by batch.
     readWindow: ${SW_AI_AGENT_CONVERSATION_READ_WINDOW:16}
     # The most bytes one storage query may answer with. BanyanDB alone accepts it, raising its client's
-    # 50 MB per-call cap for this module; Elasticsearch and JDBC bound a read by hits and by rows.
+    # 50 MB per-call cap for this module; Elasticsearch and JDBC bound a read by hits and by rows. With hide
+    # set, it also bounds what rebuilding one request body holds at once.
     maxResponseBytes: ${SW_AI_AGENT_CONVERSATION_MAX_RESPONSE_BYTES:104857600}
     # The largest file stored; a larger one is rejected at ingest, under BanyanDB's 16 MiB message limit.
     maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
+    # What is withheld from every reader, separated by commas: system_prompt, the system prompt a runtime sent
+    # its model, and tool_schemas, the schemas of the tools it offered. The conversation document and the files
+    # are served with that content masked; the storage holds everything. It applies to every reader, and the
+    # routes take no parameter for it. Empty withholds nothing.
+    hide: ${SW_AI_AGENT_CONVERSATION_HIDE:}
 
 receiver-sharing-server:
   selector: ${SW_RECEIVER_SHARING_SERVER:default}

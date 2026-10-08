@@ -55,7 +55,8 @@ public interface IConversationQueryService extends Service {
      * @param serviceInstanceId the sender
      * @param conversation      the conversation
      * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
-     * @return the document as ordered maps, or null when the sender stores no round of the conversation
+     * @return the document as ordered maps, less what the module's <code>hide</code> setting withholds, or null when
+     * the sender stores no round of the conversation
      * @throws IOException on a storage failure
      */
     @Nullable
@@ -74,7 +75,10 @@ public interface IConversationQueryService extends Service {
      * @param session           the session the seqs belong to
      * @param seqs              the landed seqs
      * @param coldStage         whether the caller explicitly selected BanyanDB's cold stage
-     * @param sink              takes each file as it is read
+     * @param sink              takes each file as it is read: as stored, or, when the module's <code>hide</code>
+     *                          setting names anything, with what it holds of those names masked, as
+     *                          <code>Withholding</code> says, the session's bodies up to each file read first to
+     *                          rebuild its requests
      * @return false when the sender stores no round of the conversation, before the sink is called
      * @throws IOException on a storage failure, or when the sink fails
      */
