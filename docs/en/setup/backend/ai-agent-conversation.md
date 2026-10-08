@@ -385,15 +385,30 @@ what is withheld.
   completion's `prompts`, becomes `[withheld: system_prompt]`, apart from a block's `type` and `role`, which say what
   it is; so does the content of a message of the `system` or `developer` role, wherever it sits, LangChain's pair of
   a role and its content, and LangChain's serialized system message, whose role LangChain JS writes only in its
-  `id`. Each tool under `tools`, `functions`, `function_declarations`, `tool_definitions` or `available_tools` keeps
-  its name, or the name of the one object it wraps, which the transcript's tool calls name anyway, and is otherwise
-  `{"withheld":"tool_schemas"}`. The masked request is written
+  `id`. A completion's `prompts` and that `id` are the OAP's own: the Sessionizer names no record by them, since its
+  viewer serves no body. Each tool under `tools`, `functions`, `function_declarations`, `tool_definitions` or
+  `available_tools` keeps its name, or the name of the one object it wraps, which the transcript's tool calls name
+  anyway, and is otherwise `{"withheld":"tool_schemas"}`; a list inside the set is more of its tools, and what the set
+  holds besides them, or is as a whole, is masked like anything else. The masked request is written
   back as a body of its own: one `lit` segment, `depth` 0, no `copy` and no `piece`, its own `sha256` and `bytes`,
   and `withheld` naming what was applied, so a reader that checks a body against its manifest still can. The request's
   own pieces stay except the ones that are a withheld block's text or a tool, whose bytes are the secret, and a body
   kept whole in an `unknown` part, which holds them all. A response holds neither and is the stored line, unless it
-  refers to a request's bytes, when it is written whole the same way, which hides nothing. A request that does not
-  rebuild, or is not one JSON object, is withheld whole, as a transcript record is; so is one whose rebuild would
+  refers to a request's bytes, when it is written whole the same way, which hides nothing; a body that is not UTF-8
+  text cannot be written as a literal byte for byte, and is withheld whole instead. A body is held as the Session
+  Data page says a reader holds one: every field of its manifest has the type the page gives it, every segment is
+  one of its four kinds, a `lit`, a `part`, a `piece` or a `copy`, its role is `request` or `response`, it claims
+  at most 256 MiB, every reference points at a record that landed before it, a part it names is one it has, a copy has the digest and length it names, and the depth is one more
+  than its base's, or 0, and at most 32. A record landed again under an id held before it is not held, as the
+  Sessionizer's own reader holds only the first; the OAP does not check it further, as that reader does, since it
+  is withheld whole whatever it holds. A role that is a string other than those two, or no role at all, is not held
+  either, where the Sessionizer's reader holds it, since such a body may be a request and its pieces may hold the
+  prompt; nor is a segment that is null, sets none of the four, sets more than one or names a piece with no digest,
+  which that reader reads in a way of its own and the page does not give. Only the row
+  the session holds is served: any other body record, request or response, is withheld whole, since what it refers
+  to may be gone from what is served. A request that
+  does not rebuild, or is not one JSON object in UTF-8 text, is withheld whole, as a transcript record is; so is one
+  whose rebuild would
   hold more than `maxResponseBytes` at once, counted from the manifests before anything is built: the body, and
   beside it the body it copies from, so about two bodies for a chain of copies. So is a record with no manifest of a
   schema the OAP knows, since it may be a request;

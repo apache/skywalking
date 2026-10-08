@@ -78,6 +78,14 @@ public class WithholdingShapesTest {
         "{\"system\":[{\"type\":\"text\",\"content\":\"" + SECRET + "\"}],\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":[{\"name\":\"t\",\"description\":\"" + TOOL_SECRET + "\"}]}",
         // Bedrock: the tools under the client's toolConfig, each in a toolSpec
         "{\"system\":[{\"text\":\"" + SECRET + "\"}],\"messages\":[{\"role\":\"user\",\"content\":[{\"text\":\"" + PERSON + "\"}]}],\"toolConfig\":{\"tools\":[{\"toolSpec\":{\"name\":\"t\",\"description\":\"" + TOOL_SECRET + "\",\"inputSchema\":{\"json\":{}}}}]}}",
+        // a prompt key inside a set of tools keyed by name, beside a tool
+        "{\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":{\"t\":{\"description\":\"" + TOOL_SECRET + "\"},\"system_prompt\":\"" + SECRET + "\"}}",
+        // a set of tools that is, as a whole, a list of messages with LangChain's system pair in it
+        "{\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":[{\"name\":\"t\",\"description\":\"" + TOOL_SECRET + "\"},[\"system\",\"" + SECRET + "\"]]}",
+        // a set of tools keyed by name that is, as a whole, a system message
+        "{\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":{\"t\":{\"description\":\"" + TOOL_SECRET + "\"},\"role\":\"system\",\"content\":\"" + SECRET + "\"}}",
+        // a list of tools inside the set
+        "{\"system\":\"" + SECRET + "\",\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":[{\"name\":\"a\"},[{\"name\":\"t\",\"description\":\"" + TOOL_SECRET + "\"}]]}",
         // LangChain JS: a serialized system message says its role only in the class that ends its id
         "{\"messages\":[[{\"lc\":1,\"type\":\"constructor\",\"id\":[\"langchain_core\",\"messages\",\"SystemMessage\"],\"kwargs\":{\"content\":\"" + SECRET + "\",\"additional_kwargs\":{}}},{\"lc\":1,\"type\":\"constructor\",\"id\":[\"langchain_core\",\"messages\",\"HumanMessage\"],\"kwargs\":{\"content\":\"" + PERSON + "\"}}]],\"tools\":[{\"name\":\"t\",\"description\":\"" + TOOL_SECRET + "\"}]}",
     })
@@ -519,20 +527,7 @@ public class WithholdingShapesTest {
     public void aRequestKeptWholeInAnUnknownPartIsMasked(final boolean base64) {
         final String body = "{\"system\":\"" + SECRET + "\",\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}]}";
         final byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-        final JsonObject unknown = new JsonObject();
-        unknown.addProperty("k", "unknown");
-        unknown.addProperty("text", "it did not come back whole");
-        unknown.addProperty("data", base64 ? Base64.getEncoder().encodeToString(bytes) : body);
-        if (base64) {
-            unknown.addProperty("encoding", "base64");
-        }
-        unknown.addProperty("state", "available");
-        unknown.addProperty("bytes", bytes.length);
-        final String manifest = "{\"schema\":\"provider_body/1\",\"role\":\"request\",\"src\":\"r1.json\",\"sha256\":\""
-            + Digests.sha256Hex(bytes) + "\",\"bytes\":" + bytes.length + ",\"depth\":0,\"why\":\"it did not come back whole\",\"segments\":[{\"part\":0}]}";
-        final String rec = "{\"ord\":1,\"off\":0,\"sha\":\"0\",\"bytes\":" + bytes.length + ",\"id\":\"r1\",\"parts\":[" + unknown
-            + ",{\"k\":\"data\",\"data\":" + manifest + ",\"state\":\"available\",\"bytes\":" + manifest.length() + "}]}";
-        final byte[] stored = bodyFile(rec);
+        final byte[] stored = bodyFile(keptWhole("r1", Manifest.ROLE_REQUEST, bytes, base64));
         final BodyStore store = new BodyStore();
         store.add(SessionDataFile.parse(stored));
         assertEquals(body, assertRebuilds(store, "r1"));
@@ -543,6 +538,201 @@ public class WithholdingShapesTest {
         again.add(SessionDataFile.parse(served.getBytes(StandardCharsets.UTF_8)));
         final String masked = assertRebuilds(again, "r1");
         assertTrue(masked.contains("[withheld: system_prompt]") && masked.contains(PERSON), masked);
+    }
+
+    /**
+     * A body that is not UTF-8 text cannot be written as a literal byte for byte, so it is withheld whole, never
+     * served with its stored digest over text that no longer has it: a request kept whole, its system prompt beside
+     * the byte FF, which is not one JSON object in UTF-8 text, and a response that copies all of it.
+     */
+    @Test
+    public void aBodyThatIsNotUtf8IsWithheldWholeRatherThanRewritten() {
+        final byte[] head = ("{\"system\":\"" + SECRET + "\",\"x\":\"").getBytes(StandardCharsets.UTF_8);
+        final byte[] bytes = Arrays.copyOf(head, head.length + 3);
+        bytes[head.length] = (byte) 0xff;
+        bytes[head.length + 1] = '"';
+        bytes[head.length + 2] = '}';
+        final String digest = Digests.sha256Hex(bytes);
+        final String response = "{\"ord\":2,\"off\":0,\"sha\":\"0\",\"bytes\":1,\"id\":\"b\",\"parts\":[{\"k\":\"data\",\"data\":"
+            + "{\"schema\":\"provider_body/1\",\"role\":\"response\",\"src\":\"b.json\",\"sha256\":\"" + digest
+            + "\",\"bytes\":" + bytes.length + ",\"depth\":1,\"segments\":[{\"copy\":{\"from\":\"a\",\"sha256\":\"" + digest
+            + "\",\"len\":" + bytes.length + "}}]},\"state\":\"available\",\"bytes\":1}]}";
+        final byte[] stored = bodyFile(keptWhole("a", Manifest.ROLE_REQUEST, bytes, true), response);
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final byte[] served = Withholding.file(stored, Collections.singletonList(Hide.SYSTEM_PROMPT), store).getBytes();
+        assertFalse(new String(served, StandardCharsets.UTF_8).contains(SECRET));
+        final SessionDataFile after = SessionDataFile.parse(served);
+        assertNull(Manifest.of(after.getRecords().get(0)), "a request that is not UTF-8 text is withheld whole");
+        final BodyStore again = new BodyStore();
+        again.add(after);
+        for (final SessionDataFile.Record rec : after.getRecords()) {
+            if (Manifest.of(rec) != null) {
+                // whatever is served with a manifest rebuilds to it
+                assertRebuilds(again, rec.getId());
+                continue;
+            }
+            for (final SessionDataFile.Part p : rec.getParts()) {
+                assertEquals("omitted", p.getState(), rec.getId());
+            }
+        }
+    }
+
+    /**
+     * A record landed again under an id the session holds, with another body, is not the one held, and a reader
+     * refuses it: it is withheld whole, so its own pieces, which the held body's masking knows nothing of, go too. A
+     * repeat with the same body is not the row held either, and is withheld whole as well; the row held is masked.
+     */
+    @Test
+    public void aRecordLandedAgainWithAnotherBodyIsWithheldWhole() {
+        final String held = "{\"system\":\"short\"}";
+        final String piece = "\"" + SECRET + "\"";
+        final String again = "{\"system\":" + piece + "}";
+        final byte[] stored = bodyFile(request("x", held, Collections.emptyList()),
+                                       record("x", Manifest.ROLE_REQUEST, again, Collections.singletonList(piece),
+                                              segments(lit("{\"system\":"), "{\"part\":0}", lit("}"))));
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final String served = new String(Withholding.file(stored, Collections.singletonList(Hide.SYSTEM_PROMPT), store).getBytes(), StandardCharsets.UTF_8);
+        assertFalse(served.contains(SECRET), served);
+        assertNull(Manifest.of(SessionDataFile.parse(served.getBytes(StandardCharsets.UTF_8)).getRecords().get(1)));
+
+        final byte[] twice = bodyFile(request("y", held, Collections.emptyList()), request("y", held, Collections.emptyList()));
+        final BodyStore store2 = new BodyStore();
+        store2.add(SessionDataFile.parse(twice));
+        final SessionDataFile after = SessionDataFile.parse(Withholding.file(twice, Collections.singletonList(Hide.SYSTEM_PROMPT), store2).getBytes());
+        assertNotNull(Manifest.of(after.getRecords().get(0)), "the row held is masked");
+        assertNull(Manifest.of(after.getRecords().get(1)), "a repeat with the same body is withheld whole");
+    }
+
+    /**
+     * A record the Sessionizer kept whole, its body in one unknown part with a why, as plain text or as base64.
+     */
+    private static String keptWhole(final String id, final String role, final byte[] bytes, final boolean base64) {
+        final JsonObject unknown = new JsonObject();
+        unknown.addProperty("k", "unknown");
+        unknown.addProperty("text", "it did not come back whole");
+        unknown.addProperty("data", base64 ? Base64.getEncoder().encodeToString(bytes) : new String(bytes, StandardCharsets.UTF_8));
+        if (base64) {
+            unknown.addProperty("encoding", "base64");
+        }
+        unknown.addProperty("state", "available");
+        unknown.addProperty("bytes", bytes.length);
+        final String manifest = "{\"schema\":\"provider_body/1\",\"role\":\"" + role + "\",\"src\":\"" + id + ".json\",\"sha256\":\""
+            + Digests.sha256Hex(bytes) + "\",\"bytes\":" + bytes.length + ",\"depth\":0,\"why\":\"it did not come back whole\",\"segments\":[{\"part\":0}]}";
+        return "{\"ord\":1,\"off\":0,\"sha\":\"0\",\"bytes\":" + bytes.length + ",\"id\":\"" + id + "\",\"parts\":[" + unknown
+            + ",{\"k\":\"data\",\"data\":" + manifest + ",\"state\":\"available\",\"bytes\":" + manifest.length() + "}]}";
+    }
+
+    /**
+     * A response the session does not hold, here for a depth it claims with no copy, is withheld whole: it may refer
+     * to a piece of a request whose masked form no longer holds it, and a reader would not rebuild it anyway.
+     */
+    @Test
+    public void aResponseTheSessionDoesNotHoldIsWithheldWhole() {
+        final String piece = "\"" + SECRET + "\"";
+        final String requestBody = "{\"system\":" + piece + "}";
+        final String responseBody = "[" + piece + "]";
+        final String request = record("a", Manifest.ROLE_REQUEST, requestBody, Collections.singletonList(piece),
+                                      segments(lit("{\"system\":"), "{\"part\":0}", lit("}")));
+        final String response = record("b", Manifest.ROLE_RESPONSE, responseBody, Collections.emptyList(),
+                                       segments(lit("["), piece(piece), lit("]"))).replace("\"depth\":0", "\"depth\":1");
+        final byte[] stored = bodyFile(request, response);
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final byte[] served = Withholding.file(stored, Collections.singletonList(Hide.SYSTEM_PROMPT), store).getBytes();
+        assertFalse(new String(served, StandardCharsets.UTF_8).contains(SECRET));
+        final SessionDataFile after = SessionDataFile.parse(served);
+        assertNull(Manifest.of(after.getRecords().get(1)), "a response the session does not hold is withheld whole");
+        final BodyStore again = new BodyStore();
+        again.add(after);
+        assertTrue(assertRebuilds(again, "a").contains("[withheld: system_prompt]"));
+    }
+
+    /**
+     * A row is served as the one its session holds, decided when it lands, so a later file cannot change it: a request
+     * in seq 1 with a depth it may not claim, and the same request again in seq 2, valid. Seq 1 is served the same
+     * whether or not seq 2 is read, its request withheld whole either way.
+     */
+    @Test
+    public void aLaterRecordUnderTheSameIdDoesNotChangeAnEarlierRow() {
+        final String body = "{\"system\":\"" + SECRET + "\"}";
+        final byte[] first = bodyFile(request("x", body, Collections.emptyList()).replace("\"depth\":0", "\"depth\":1"));
+        final byte[] second = new String(bodyFile(request("x", body, Collections.emptyList())), StandardCharsets.UTF_8)
+            .replace("\"seq\":1", "\"seq\":2").getBytes(StandardCharsets.UTF_8);
+        final BodyStore alone = new BodyStore();
+        alone.add(SessionDataFile.parse(first));
+        final BodyStore both = new BodyStore();
+        both.add(SessionDataFile.parse(first));
+        both.add(SessionDataFile.parse(second));
+        final byte[] servedAlone = Withholding.file(first, Collections.singletonList(Hide.SYSTEM_PROMPT), alone).getBytes();
+        final byte[] servedWithLater = Withholding.file(first, Collections.singletonList(Hide.SYSTEM_PROMPT), both).getBytes();
+        assertEquals(new String(servedAlone, StandardCharsets.UTF_8), new String(servedWithLater, StandardCharsets.UTF_8));
+        assertNull(Manifest.of(SessionDataFile.parse(servedAlone).getRecords().get(0)));
+        // the valid one in seq 2 is the one held, and is masked
+        final String laterServed = new String(Withholding.file(second, Collections.singletonList(Hide.SYSTEM_PROMPT), both).getBytes(), StandardCharsets.UTF_8);
+        assertFalse(laterServed.contains(SECRET), laterServed);
+        assertNotNull(Manifest.of(SessionDataFile.parse(laterServed.getBytes(StandardCharsets.UTF_8)).getRecords().get(0)));
+    }
+
+    /** A tool named like a prompt key keeps the tools' marker: a masked tool is not walked again. */
+    @Test
+    public void aToolNamedLikeAPromptKeyKeepsTheToolsMarker() {
+        final String body = "{\"messages\":[{\"role\":\"user\",\"content\":\"" + PERSON + "\"}],\"tools\":{\"system\":{\"description\":\"" + TOOL_SECRET + "\"}}}";
+        final byte[] stored = bodyFile(request("r1", body, Collections.emptyList()));
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final byte[] served = Withholding.file(stored, BOTH, store).getBytes();
+        final BodyStore again = new BodyStore();
+        again.add(SessionDataFile.parse(served));
+        final String masked = assertRebuilds(again, "r1");
+        assertTrue(masked.contains("\"system\":{\"withheld\":\"tool_schemas\"}"), masked);
+        assertFalse(masked.contains(MARKER_SYSTEM_TEXT), masked);
+    }
+
+    private static final String MARKER_SYSTEM_TEXT = "[withheld: system_prompt]";
+
+    /**
+     * A body of another role holds no piece a later body may use: it is not held, so a response that uses its piece is
+     * not held either, and both are withheld whole, rather than the response served referring to a piece that is gone.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"\"REQUEST\"", "5"})
+    public void aPieceOfABodyOfAnotherRoleIsUsedByNothingServed(final String role) {
+        final String piece = "\"x\"";
+        final String holder = record("a", Manifest.ROLE_REQUEST, piece, Collections.singletonList(piece), segments("{\"part\":0}"))
+            .replace("\"role\":\"request\"", "\"role\":" + role);
+        final String user = record("b", Manifest.ROLE_RESPONSE, piece, Collections.emptyList(), segments(piece(piece)));
+        final byte[] stored = bodyFile(holder, user);
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final SessionDataFile after = SessionDataFile.parse(Withholding.file(stored, Collections.singletonList(Hide.SYSTEM_PROMPT), store).getBytes());
+        final BodyStore again = new BodyStore();
+        again.add(after);
+        for (final SessionDataFile.Record rec : after.getRecords()) {
+            if (Manifest.of(rec) != null) {
+                // whatever is served with a manifest rebuilds from the served file alone
+                assertRebuilds(again, rec.getId());
+            }
+        }
+        assertNull(Manifest.of(after.getRecords().get(0)));
+        assertNull(Manifest.of(after.getRecords().get(1)));
+    }
+
+    /**
+     * A body whose role is neither request nor response, as the page gives it, may be a request, so it is withheld
+     * whole rather than served as stored like a response.
+     */
+    @ParameterizedTest
+    @ValueSource(strings = {"\"REQUEST\"", "5", "\"\""})
+    public void aBodyOfAnotherRoleIsWithheldWhole(final String role) {
+        final String body = "{\"system\":\"" + SECRET + "\"}";
+        final byte[] stored = bodyFile(request("r1", body, Collections.emptyList()).replace("\"role\":\"request\"", "\"role\":" + role));
+        final BodyStore store = new BodyStore();
+        store.add(SessionDataFile.parse(stored));
+        final String served = new String(Withholding.file(stored, Collections.singletonList(Hide.SYSTEM_PROMPT), store).getBytes(), StandardCharsets.UTF_8);
+        assertFalse(served.contains(SECRET), served);
+        assertNull(Manifest.of(SessionDataFile.parse(served.getBytes(StandardCharsets.UTF_8)).getRecords().get(0)));
     }
 
     private static String piece(final String bytes) {

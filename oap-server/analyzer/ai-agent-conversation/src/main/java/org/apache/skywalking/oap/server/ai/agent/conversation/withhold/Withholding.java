@@ -24,6 +24,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -56,7 +59,8 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * is withheld whole rather than served with a reference that leads nowhere. A response holds neither name and is
  * served as stored, unless it refers to a request's bytes, when it is written whole the same way. A record of a
  * <code>provider_body</code> file with no manifest this reader knows is withheld whole, since nothing says what it
- * holds. A file with nothing to withhold is served byte for byte.
+ * holds, and so is any row that is not the one its session holds, as {@link BodyStore#holds} says. A file with
+ * nothing to withhold is served byte for byte.
  *
  * <p>A rewritten file gets a closing line of its own, so it still reads and checks on its own. Its records keep
  * their rows, so every reference into it still resolves. A file whose stored closing line does not check keeps
@@ -143,7 +147,7 @@ public final class Withholding {
         for (final SessionDataFile.Record rec : file.getRecords()) {
             String line = null;
             if (bodies) {
-                line = body(rec, store, hidden, rewritten);
+                line = body(header.getSeq(), rec, store, hidden, rewritten);
             } else if (Hide.carriesAny(rec.flags(), hidden)) {
                 line = withheldLine(rec);
             }
@@ -214,6 +218,23 @@ public final class Withholding {
         return -1;
     }
 
+    /**
+     * @return the bytes as text, or null when they are not UTF-8: replacing what does not decode would change the
+     * bytes a digest was taken of
+     */
+    @Nullable
+    private static String utf8(final byte[] bytes) {
+        try {
+            return StandardCharsets.UTF_8.newDecoder()
+                                         .onMalformedInput(CodingErrorAction.REPORT)
+                                         .onUnmappableCharacter(CodingErrorAction.REPORT)
+                                         .decode(ByteBuffer.wrap(bytes))
+                                         .toString();
+        } catch (final CharacterCodingException e) {
+            return null;
+        }
+    }
+
     private static void write(final ByteArrayOutputStream out, final String line) {
         final byte[] bytes = line.getBytes(StandardCharsets.UTF_8);
         out.write(bytes, 0, bytes.length);
@@ -224,20 +245,23 @@ public final class Withholding {
      * @return the served line of one record of a <code>provider_body</code> file, or null for the stored line: a
      * request is masked, or withheld whole when it cannot be rebuilt or has no id to be held under; a response is
      * written whole when it refers to a request's bytes, and withheld whole when it cannot be; a record with no
-     * manifest this reader knows, such as one of a later schema, is withheld whole, since it may be a request
+     * manifest this reader knows, such as one of a later schema, is withheld whole, since it may be a request, and so
+     * is a row that is not the one the session holds, a role other than request or response among the reasons
      */
     @Nullable
-    private static String body(final SessionDataFile.Record rec, @Nullable final BodyStore store, final List<String> hidden,
-                               final Map<String, Boolean> rewritten) {
+    private static String body(final long seq, final SessionDataFile.Record rec, @Nullable final BodyStore store,
+                               final List<String> hidden, final Map<String, Boolean> rewritten) {
         final Manifest m = Manifest.of(rec);
-        if (m == null) {
+        // Only the row the session holds is served. One with no id, or a role, a size, a reference or a depth the page
+        // does not allow, or one landed again under an id held before it, is withheld whole: a reader holds the first
+        // and refuses or passes over the rest, and what such a row refers to may be gone from what is served.
+        if (m == null || store == null || StringUtil.isEmpty(rec.getId()) || !store.holds(seq, rec.getRow(), rec.getId())) {
             return withheldLine(rec);
         }
-        final Manifest held = store == null || StringUtil.isEmpty(rec.getId()) ? null : store.manifest(rec.getId());
         if (m.isRequest()) {
-            return held == null ? withheldLine(rec) : request(rec, m, store, hidden, rewritten);
+            return request(rec, m, store, hidden, rewritten);
         }
-        if (held != null && leansOnRewritten(rec.getId(), m, store, rewritten)) {
+        if (leansOnRewritten(rec.getId(), m, store, rewritten)) {
             final String whole = standalone(rec, m, store);
             return whole == null ? withheldLine(rec) : whole;
         }
@@ -327,20 +351,24 @@ public final class Withholding {
 
     /**
      * @return the record's line with its body rebuilt and written as one literal segment, its own pieces kept, and
-     * its digest and size as they were; or null when the body does not rebuild
+     * its digest and size as they were; or null when the body does not rebuild, or is not UTF-8 text, which a literal
+     * segment cannot hold byte for byte
      */
     @Nullable
     private static String standalone(final SessionDataFile.Record rec, final Manifest m, final BodyStore store) {
-        final byte[] body;
+        final String body;
         try {
-            body = store.body(rec.getId());
+            body = utf8(store.body(rec.getId()));
         } catch (final BodyStore.BodyException e) {
+            return null;
+        }
+        if (body == null) {
             return null;
         }
         final JsonObject manifest = m.getJson().deepCopy();
         manifest.addProperty("depth", 0);
         manifest.remove("segments");
-        manifest.add("segments", Manifest.Segment.literal(new String(body, StandardCharsets.UTF_8)));
+        manifest.add("segments", Manifest.Segment.literal(body));
         final List<String> parts = new ArrayList<>();
         final List<SessionDataFile.Part> own = rec.getParts();
         for (int i = 0; i < m.getPartIndex(); i++) {
@@ -361,22 +389,24 @@ public final class Withholding {
     /**
      * @return the request record's line with its body masked; the line written whole when the body holds nothing
      * to withhold but refers to a request's bytes; null for the stored line when it holds nothing and refers to
-     * none; the record withheld whole when its body does not rebuild or is not one JSON object
+     * none; the record withheld whole when its body does not rebuild or is not one JSON object in UTF-8 text
      */
     @Nullable
     private static String request(final SessionDataFile.Record rec, final Manifest m, final BodyStore store,
                                   final List<String> hidden, final Map<String, Boolean> rewritten) {
-        final JsonObject body;
+        final String text;
         try {
-            final JsonElement parsed = Schema.parse(new String(store.body(rec.getId()), StandardCharsets.UTF_8));
-            body = parsed != null && parsed.isJsonObject() ? parsed.getAsJsonObject() : null;
+            text = utf8(store.body(rec.getId()));
         } catch (final BodyStore.BodyException e) {
             return withheldLine(rec);
         }
-        if (body == null) {
-            // a body that is not one JSON object cannot be read for what it holds, so all of it is withheld
+        final JsonElement parsed = text == null ? null : Schema.parse(text);
+        if (parsed == null || !parsed.isJsonObject()) {
+            // a body that is not one JSON object in UTF-8 text cannot be read for what it holds, so all of it is
+            // withheld
             return withheldLine(rec);
         }
+        final JsonObject body = parsed.getAsJsonObject();
         // every string of what is masked, so a piece that held one goes with it
         final Set<String> maskedTexts = new HashSet<>();
         final boolean changed = mask(body, hidden, maskedTexts);
@@ -467,42 +497,59 @@ public final class Withholding {
      * @return whether anything was masked
      */
     private static boolean mask(final JsonElement v, final List<String> hidden, final Set<String> maskedTexts) {
-        final boolean prompt = hidden.contains(Hide.SYSTEM_PROMPT);
-        boolean changed = false;
+        boolean changed = maskShape(v, hidden, maskedTexts);
         if (v.isJsonObject()) {
             final JsonObject o = v.getAsJsonObject();
-            if (prompt) {
-                changed = maskSystemMessage(o, maskedTexts);
-            }
             for (final String key : new ArrayList<>(o.keySet())) {
-                final JsonElement inner = o.get(key);
-                final String k = keyOf(key);
-                if (prompt && PROMPT_KEYS.contains(k) && holdsSomething(inner)) {
-                    o.add(key, maskedPrompt(inner, maskedTexts));
-                    changed = true;
-                } else if (hidden.contains(Hide.TOOL_SCHEMAS) && TOOL_KEYS.contains(k) && offersTools(inner)) {
-                    changed |= maskTools(o, key, maskedTexts);
-                } else {
-                    changed |= mask(inner, hidden, maskedTexts);
-                }
+                changed |= maskMember(o, key, hidden, maskedTexts);
             }
         } else if (v.isJsonArray()) {
-            final JsonArray list = v.getAsJsonArray();
-            if (prompt && systemPairIn(list)) {
-                for (final JsonElement item : list) {
-                    final JsonArray pair = item.isJsonArray() ? item.getAsJsonArray() : null;
-                    if (pair != null && systemRole(pair.get(0)) && holdsSomething(pair.get(1))) {
-                        collect(pair.get(1), maskedTexts);
-                        pair.set(1, new JsonPrimitive(MARKER_SYSTEM));
-                        changed = true;
-                    }
-                }
-            }
-            for (final JsonElement item : list) {
+            for (final JsonElement item : v.getAsJsonArray()) {
                 changed |= mask(item, hidden, maskedTexts);
             }
         }
         return changed;
+    }
+
+    /**
+     * Masks what a value is as a whole, before its members are: a system message, when it is an object, and the system
+     * messages of a list of messages written as LangChain's pairs, when it is a list. Every value the walk reaches is
+     * looked at this way, a set of tools too.
+     */
+    private static boolean maskShape(final JsonElement v, final List<String> hidden, final Set<String> maskedTexts) {
+        if (!hidden.contains(Hide.SYSTEM_PROMPT)) {
+            return false;
+        }
+        if (v.isJsonObject()) {
+            return maskSystemMessage(v.getAsJsonObject(), maskedTexts);
+        }
+        if (!v.isJsonArray() || !systemPairIn(v.getAsJsonArray())) {
+            return false;
+        }
+        boolean changed = false;
+        for (final JsonElement item : v.getAsJsonArray()) {
+            final JsonArray pair = item.isJsonArray() ? item.getAsJsonArray() : null;
+            if (pair != null && systemRole(pair.get(0)) && holdsSomething(pair.get(1))) {
+                collect(pair.get(1), maskedTexts);
+                pair.set(1, new JsonPrimitive(MARKER_SYSTEM));
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    /** Masks one member of an object: a prompt under a prompt key, tools under a tool key, and otherwise what it holds. */
+    private static boolean maskMember(final JsonObject o, final String key, final List<String> hidden, final Set<String> maskedTexts) {
+        final JsonElement inner = o.get(key);
+        final String k = keyOf(key);
+        if (hidden.contains(Hide.SYSTEM_PROMPT) && PROMPT_KEYS.contains(k) && holdsSomething(inner)) {
+            o.add(key, maskedPrompt(inner, maskedTexts));
+            return true;
+        }
+        if (hidden.contains(Hide.TOOL_SCHEMAS) && TOOL_KEYS.contains(k) && offersTools(inner)) {
+            return maskTools(o, key, hidden, maskedTexts);
+        }
+        return mask(inner, hidden, maskedTexts);
     }
 
     /** A key as the prompt and tool keys are compared: without case, underscores or dashes. */
@@ -648,38 +695,47 @@ public final class Withholding {
         message.addProperty("content", MARKER_SYSTEM);
     }
 
-    /**
-     * One set of tools, a list or an object keyed by name: each keeps its name, since the transcript's tool calls
-     * name it anyway, and loses the rest. Every string of a tool is remembered, so a piece that held one, such as a
-     * long description, goes with it.
-     */
-    private static boolean maskTools(final JsonObject holder, final String key, final Set<String> maskedTexts) {
+    /** The set of tools under a tool key, masked as {@link #maskToolSet} says. */
+    private static boolean maskTools(final JsonObject holder, final String key, final List<String> hidden,
+                                     final Set<String> maskedTexts) {
         final JsonElement tools = holder.get(key);
-        if (tools == null) {
-            return false;
-        }
-        boolean changed = false;
+        return tools != null && maskToolSet(tools, hidden, maskedTexts);
+    }
+
+    /**
+     * One set of tools, a list or an object keyed by name. What the set is as a whole is masked first, as every value
+     * is. Then each tool keeps its name, since the transcript's tool calls name it anyway, and loses the rest, and
+     * every string of it is remembered, so a piece that held one, such as a long description, goes with it. A list
+     * inside the set is more of its tools. Anything else in it is masked like any other member, as the Sessionizer's
+     * walk finds it. A masked tool is not walked again, so a tool named like a prompt key keeps the tools' marker.
+     */
+    private static boolean maskToolSet(final JsonElement tools, final List<String> hidden, final Set<String> maskedTexts) {
+        boolean changed = maskShape(tools, hidden, maskedTexts);
         if (tools.isJsonArray()) {
             final JsonArray list = tools.getAsJsonArray();
             for (int i = 0; i < list.size(); i++) {
                 final JsonElement tool = list.get(i);
-                if (!tool.isJsonObject()) {
-                    continue;
+                if (tool.isJsonObject()) {
+                    collect(tool, maskedTexts);
+                    list.set(i, maskedTool(nameOf(tool.getAsJsonObject())));
+                    changed = true;
+                } else if (tool.isJsonArray()) {
+                    changed |= maskToolSet(tool, hidden, maskedTexts);
                 }
-                collect(tool, maskedTexts);
-                list.set(i, maskedTool(nameOf(tool.getAsJsonObject())));
-                changed = true;
             }
         } else if (tools.isJsonObject()) {
             final JsonObject byName = tools.getAsJsonObject();
             for (final String name : new ArrayList<>(byName.keySet())) {
                 final JsonElement tool = byName.get(name);
-                if (!tool.isJsonObject()) {
-                    continue;
+                if (tool.isJsonObject()) {
+                    collect(tool, maskedTexts);
+                    byName.add(name, maskedTool(null));
+                    changed = true;
+                } else if (tool.isJsonArray() && !PROMPT_KEYS.contains(keyOf(name))) {
+                    changed |= maskToolSet(tool, hidden, maskedTexts);
+                } else {
+                    changed |= maskMember(byName, name, hidden, maskedTexts);
                 }
-                collect(tool, maskedTexts);
-                byName.add(name, maskedTool(null));
-                changed = true;
             }
         }
         return changed;
