@@ -5,14 +5,13 @@ If the new configuration is not well-formed, the OAP may fail to start up. The f
 
 Supported handlers:
 
-* `otlp`: [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector/tree/1c217b366fbdb209044d8f4c3fece079ae23bd3b/exporter/otlpexporter) gRPC service handler.
+* `otlp-metrics`: [OpenTelemetry](https://github.com/open-telemetry/opentelemetry-collector/tree/1c217b366fbdb209044d8f4c3fece079ae23bd3b/exporter/otlpexporter) metrics service handler, over gRPC and HTTP.
 
 **Notice:**  Set `SW_OTEL_RECEIVER=default` through system environment or change `receiver-otel/selector=${SW_OTEL_RECEIVER:default}` to activate the OpenTelemetry receiver.
 
 The rule file should be in YAML format, defined by the scheme described in [MAL](../../concepts-and-designs/mal.md).
-Note: `receiver-otel` only supports the `group`, `defaultMetricLevel`, and `metricsRules` nodes of the scheme due to its push mode.
 
-To activate the `otlp` handler and relevant rules of `istio`:
+To activate the `otlp-metrics` handler and relevant rules of `istio`:
 
 ```yaml
 receiver-otel:
@@ -92,5 +91,6 @@ history does: such a request lands as one value per minute, each minute with eve
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-service.yaml           | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-instance.yaml          | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
 | Metrics of BanyanDB                     | otel-rules/banyandb/banyandb-endpoint.yaml          | BanyanDB(embedded prometheus endpoint) -> OpenTelemetry Collector – OTLP exporter –> SkyWalking OAP Server             |
-| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-service.yaml            | Claude Code's OpenTelemetry exporter, or the AI Sessionizer deriving the token metric from the landed transcripts -- OTLP --> SkyWalking OAP Server |
-| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-instance.yaml           | Claude Code's OpenTelemetry exporter, or the AI Sessionizer deriving the token metric from the landed transcripts -- OTLP --> SkyWalking OAP Server |
+| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-service.yaml            | the AI Sessionizer for the token metrics, and Claude Code's OpenTelemetry exporter sent directly for the others -- OTLP --> SkyWalking OAP Server; see [the metric catalog](ai-agent-conversation.md#metric-catalog) |
+| Metrics of AI agent runtimes            | otel-rules/ai-agent/runtime-instance.yaml           | the AI Sessionizer for the token metrics, and Claude Code's OpenTelemetry exporter sent directly for the others -- OTLP --> SkyWalking OAP Server; see [the metric catalog](ai-agent-conversation.md#metric-catalog) |
+| Metrics of AI agent MCP calls           | otel-rules/ai-agent/mcp_endpoint.yaml               | the AI Sessionizer, from the MCP calls its Claude Code plugin records -- OTLP --> SkyWalking OAP Server |

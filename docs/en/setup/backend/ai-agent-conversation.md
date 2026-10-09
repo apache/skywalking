@@ -483,6 +483,47 @@ dropped for want of a record worker; drop `ai-agent` from `SW_LOG_LAL_FILES` as 
 
 ## Metrics of the agent runtime
 
+The layer's metrics come from two sources. Each metric is read from one source only, and neither source supplies the
+other's metrics, so a metric whose source does not send stays empty.
+
+| Source                                           | How it reaches the OAP                                                   | What it supplies                                                                      |
+|--------------------------------------------------|--------------------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| The Sessionizer                                  | its `export.otlp`, over the connection that sends the files              | the token metrics, and the MCP metrics when its Claude Code plugin records the calls  |
+| Claude Code's exporter, sent to the OAP directly | `OTEL_EXPORTER_OTLP_ENDPOINT` pointed at the OAP, not at the Sessionizer | cost, active time, sessions, lines of code, commits, pull requests and edit decisions |
+
+The Sessionizer alone fills the token and MCP metrics and leaves the other seven empty. The exporter alone fills those
+seven and no token metric: the rules do not read its `claude_code.token.usage`, so a call is never counted twice when
+both send. All fifteen have data only when both send.
+
+### Metric catalog
+
+The rule set is `otel-rules/ai-agent/*`, enabled by default in `enabledOtelMetricsRules`. `runtime-service.yaml` gives
+each runtime metric per service, under the prefix `meter_ai_agent_`, one service per kind of runtime, `Claude Code` by
+default. `runtime-instance.yaml` gives the same per sender, under `meter_ai_agent_instance_`. `mcp_endpoint.yaml` gives
+the MCP metrics per endpoint, under `meter_ai_agent_mcp_`. An endpoint is one MCP target the agent called, named
+`<server>/<tool>` under the agent's service, such as `status/lookup`. When the runtime's name for a call does not split
+into exactly one server and one tool, the tool is that whole name.
+
+| Metric             | Scope             | Labels                                                  | Value                                                                                         | Source                 | Read from                             |
+|--------------------|-------------------|---------------------------------------------------------|-----------------------------------------------------------------------------------------------|------------------------|---------------------------------------|
+| `tokens`           | service, instance |                                                         | tokens per minute, every type                                                                 | the Sessionizer        | `agent.token.usage`                   |
+| `tokens_by_type`   | service, instance | `type`: `input`, `output`, `cacheRead`, `cacheCreation` | tokens per minute                                                                             | the Sessionizer        | `agent.token.usage`                   |
+| `tokens_by_model`  | service, instance | `model`, `type`                                         | tokens per minute                                                                             | the Sessionizer        | `agent.token.usage`                   |
+| `tokens_by_source` | service, instance | `query_source`: `main`, `subagent`; `type`              | tokens per minute                                                                             | the Sessionizer        | `agent.token.usage`                   |
+| `cache_read_share` | service, instance |                                                         | percent of what the model read that came from cache: `cacheRead` over every type but `output` | the Sessionizer        | `agent.token.usage`                   |
+| `calls`            | endpoint          |                                                         | calls per minute                                                                              | the Sessionizer        | `agent.mcp.calls`                     |
+| `calls_by_outcome` | endpoint          | `outcome`: `returned`, `failed`, `interrupted`          | calls per minute                                                                              | the Sessionizer        | `agent.mcp.calls`                     |
+| `duration`         | endpoint          |                                                         | milliseconds per minute, summed over the calls                                                | the Sessionizer        | `agent.mcp.duration`                  |
+| `cost_by_model`    | service, instance | `model`                                                 | micro-dollars (USD × 1,000,000) per minute                                                    | Claude Code's exporter | `claude_code.cost.usage`              |
+| `active_time`      | service, instance | `type`: `user`, `cli`                                   | milliseconds per minute                                                                       | Claude Code's exporter | `claude_code.active_time.total`       |
+| `sessions`         | service, instance |                                                         | sessions started per minute                                                                   | Claude Code's exporter | `claude_code.session.count`           |
+| `lines_of_code`    | service, instance | `type`: `added`, `removed`                              | lines per minute                                                                              | Claude Code's exporter | `claude_code.lines_of_code.count`     |
+| `commits`          | service, instance |                                                         | commits per minute                                                                            | Claude Code's exporter | `claude_code.commit.count`            |
+| `pull_requests`    | service, instance |                                                         | pull requests per minute                                                                      | Claude Code's exporter | `claude_code.pull_request.count`      |
+| `edit_decisions`   | service, instance | `decision`: `accept`, `reject`                          | permission decisions on the editing tools per minute                                          | Claude Code's exporter | `claude_code.code_edit_tool.decision` |
+
+### The Sessionizer's metrics
+
 Beside the files, the Sessionizer's collection pipeline derives metrics from the files it lands and sends them over
 the same connection; `asz push` sends the metrics a storage root already holds, and derives none. It derives them when
 its `metrics.enabled` is on and sends them when its `export.otlp.metrics` is on, both by default. Its first derivation
@@ -499,45 +540,23 @@ in the OAP but not its metrics; `0` or `none` derives all of it. They are one fa
   outcome and the query source. A call whose record has no duration counts as a call and adds no time; on Claude Code
   2.1.282 every record had one.
 
-Claude Code's own exporter can also be pointed at the OAP directly, `OTEL_EXPORTER_OTLP_ENDPOINT` on 11800 over gRPC
-or on 12800 over HTTP. The rules read its other metrics, cost, active time, sessions, lines of code, commits, pull
-requests and edit decisions, and not its token metric: the tokens come from the Sessionizer, so a call is never
-counted twice when both send. The exporter names its service `claude-code` unless told otherwise, and the rules group
-by service, so set its `service.name` in `OTEL_RESOURCE_ATTRIBUTES` to the Sessionizer's service, `Claude Code` by
-default, to see both on one service.
+The Sessionizer puts `service.layer=AI_AGENT`, which the rules filter on, and a `service.instance.id` naming the sender,
+`user@host` by default, on every request.
 
-Whichever sends, the resource must carry `service.layer=AI_AGENT`, which is what the rules filter on, and a
-`service.instance.id` naming the sender; the Sessionizer sets both, `AI_AGENT` and `user@host` by default, and the
-exporter takes them from `OTEL_RESOURCE_ATTRIBUTES`. The rule set is `otel-rules/ai-agent/*`, enabled by default in
-`enabledOtelMetricsRules`: `runtime-service.yaml` gives each metric per service, one service per kind of runtime,
-`Claude Code` by default, and `runtime-instance.yaml` the same per sender, under the prefixes `meter_ai_agent_` and
-`meter_ai_agent_instance_`.
+### Claude Code's exporter
 
-| Metric                     | Labels                                                                            | Value                                                                                   | From                   |
-|----------------------------|-----------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------|------------------------|
-| `tokens`                   |                                                                                   | tokens per minute, every type                                                           | the Sessionizer        |
-| `tokens_by_type`           | `type`: `input`, `output`, `cacheRead`, `cacheCreation`                           | tokens per minute                                                                       | the Sessionizer        |
-| `tokens_by_model`          | `model`, `type`                                                                   | tokens per minute                                                                       | the Sessionizer        |
-| `tokens_by_source`         | `query_source`: `main`, `subagent`; `type`                                        | tokens per minute                                                                       | the Sessionizer        |
-| `cache_read_share`         |                                                                                   | percent of what the model read that came from cache: `cacheRead` over every type but `output` | the Sessionizer        |
-| `cost_by_model`            | `model`                                                                           | micro-dollars (USD × 1,000,000) per minute                                              | Claude Code's exporter |
-| `active_time`              | `type`: `user`, `cli`                                                             | milliseconds per minute                                                                 | Claude Code's exporter |
-| `sessions`                 |                                                                                   | sessions started per minute                                                             | Claude Code's exporter |
-| `lines_of_code`            | `type`: `added`, `removed`                                                        | lines per minute                                                                        | Claude Code's exporter |
-| `commits`, `pull_requests` |                                                                                   | per minute                                                                              | Claude Code's exporter |
-| `edit_decisions`           | `decision`: `accept`, `reject`                                                    | permission decisions on the editing tools per minute                                    | Claude Code's exporter |
+The Sessionizer does not receive Claude Code's own exporter. Point the exporter at the OAP itself,
+`OTEL_EXPORTER_OTLP_ENDPOINT` on 11800 over gRPC or on 12800 over HTTP, and turn on its metrics only. Its events would
+arrive as log records under this layer without the Sessionizer's attributes, and such a record is rejected. Set three
+resource attributes in `OTEL_RESOURCE_ATTRIBUTES`:
 
-`mcp_endpoint.yaml` gives the MCP metrics per endpoint, under the prefix `meter_ai_agent_mcp_`. An endpoint is one MCP
-target the agent called, named `<server>/<tool>` under the agent's service, such as `status/lookup`. When the
-runtime's name for a call does not split into exactly one server and one tool, the tool is that whole name.
+- `service.layer=AI_AGENT`. The rules filter on it, and without it they read none of the exporter's points.
+- `service.name`, the Sessionizer's service, `Claude Code` by default. The exporter names its service `claude-code`
+  unless told otherwise, and the rules group by service, so another name puts its metrics on a second service.
+- `service.instance.id`, the Sessionizer's sender, its `export.otlp.instance_id`, `user@host` of the pushing machine by
+  default. Another value puts the per-sender metrics on a second instance.
 
-| Metric             | Labels                                        | Value                                                                                      |
-|--------------------|-----------------------------------------------|--------------------------------------------------------------------------------------------|
-| `calls`            |                                               | calls per minute                                                                           |
-| `calls_by_outcome` | `outcome`: `returned`, `failed`, `interrupted` | calls per minute                                                                           |
-| `duration`         |                                               | milliseconds per minute, summed over the calls; divided by `calls`, the mean when every call had a duration, as every one did on Claude Code 2.1.282 |
-
-When reading them:
+### Reading the metrics
 
 - Every point is a delta, the tokens of the minute a call ended and not of the minute it ran, so a long call's tokens
   land in one minute; an MCP call counts in the minute it was observed. The Sessionizer stamps a point with the end of
@@ -552,6 +571,12 @@ When reading them:
 - A metric value is a whole number, so a fraction is scaled first: cost to micro-dollars, active time to milliseconds,
   the cache share to percent.
 - An MCP call's duration is the runtime's own time around the call. It includes any wait before the call started, and
-  it is not the server's own time.
+  it is not the server's own time. `duration` divided by `calls` is the mean when every call had a duration, as every
+  one did on Claude Code 2.1.282.
+- The two sources do not count the same calls. The exporter counts every model call of each Claude Code process it
+  runs in, the auxiliary calls among them. The Sessionizer counts the finished calls of the transcripts it collected,
+  and none of the sessions its configuration leaves out. The exporter also stamps a point with the time it exported
+  it, so a call's cost and its tokens can fall in different minutes. `cost_by_model` divided by a token metric is
+  therefore not a price per token.
 - Cache reads dominate. On one five-day conversation they were 98% of all tokens, so a chart that stacks the four
   types shows a flat line for the other three unless it is split.
