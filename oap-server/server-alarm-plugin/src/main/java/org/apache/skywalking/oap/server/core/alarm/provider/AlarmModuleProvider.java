@@ -29,7 +29,9 @@ import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStandardPersistence;
 import org.apache.skywalking.oap.server.core.alarm.AlarmStatusWatcherService;
+import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.MetricsNotify;
+import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -41,6 +43,7 @@ public class AlarmModuleProvider extends ModuleProvider {
     private NotifyHandler notifyHandler;
     @Getter
     private AlarmRulesWatcher alarmRulesWatcher;
+    private AlarmModuleConfig moduleConfig = new AlarmModuleConfig();
 
     @Override
     public String name() {
@@ -53,8 +56,19 @@ public class AlarmModuleProvider extends ModuleProvider {
     }
 
     @Override
-    public ConfigCreator newConfigCreator() {
-        return null;
+    public ConfigCreator<? extends ModuleConfig> newConfigCreator() {
+        return new ConfigCreator<AlarmModuleConfig>() {
+            @Override
+            public Class<AlarmModuleConfig> type() {
+                return AlarmModuleConfig.class;
+            }
+
+            @Override
+            public void onInitialized(final AlarmModuleConfig initialized) {
+                moduleConfig = initialized;
+                HttpAlarmCallback.configure(moduleConfig.getHttpTimeout());
+            }
+        };
     }
 
     @Override

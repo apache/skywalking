@@ -155,6 +155,19 @@ Hooks are a way to send alarm messages to the outside world. SkyWalking supports
 For example, you can configure two Slack hooks, one id is `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
 Another id is `custom1` will only apply on the `Alarm Rules` which **with config** `hooks` and include the id `slack.custom1`.
 
+### HTTP delivery timeout
+HTTP-based hooks (WeChat, Feishu, etc.) share one timeout for TCP connect and the HTTP request/response exchange.
+Configure it in `config/application.yml` (not in `alarm-settings.yml`):
+
+```yaml
+alarm:
+  default:
+    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12} # seconds
+```
+
+The default is `12` seconds. Rule evaluation windows such as `period` / `silence-period` / `recovery-observation-period` in `alarm-settings.yml` do **not** control this HTTP delivery timeout.
+The gRPC alarm hook does **not** use this setting.
+
 ```yaml
 hooks:
   slack:
