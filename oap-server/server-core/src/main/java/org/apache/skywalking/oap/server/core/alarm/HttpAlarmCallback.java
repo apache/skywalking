@@ -30,10 +30,39 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class HttpAlarmCallback implements AlarmCallback {
-    private static final HttpClient HTTP_CLIENT = HttpClient
+    /**
+     * Default shared timeout (seconds) for TCP connect and the HTTP request/response exchange.
+     * Overridable via {@code alarm.default.httpTimeout} / {@code SW_ALARM_HTTP_TIMEOUT}.
+     * {@link HttpRequest.Builder#timeout(Duration)} already bounds the overall request,
+     * including obtaining a connection. An explicit
+     * {@link HttpClient.Builder#connectTimeout(Duration)} still matters: it caps the
+     * connection phase separately and fails with
+     * {@link java.net.http.HttpConnectTimeoutException}, so a slow or unreachable webhook
+     * does not hold the single AlarmCore delivery thread during connect longer than needed.
+     */
+    private static final long DEFAULT_HTTP_TIMEOUT_SECONDS = 12;
+
+    private static volatile Duration REQUEST_TIMEOUT = Duration.ofSeconds(DEFAULT_HTTP_TIMEOUT_SECONDS);
+
+    private static volatile HttpClient HTTP_CLIENT = newHttpClient(REQUEST_TIMEOUT);
+
+    private static HttpClient newHttpClient(final Duration connectTimeout) {
+        return HttpClient
             .newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
+            .connectTimeout(connectTimeout)
             .build();
+    }
+
+    /**
+     * Apply HTTP timeouts from alarm module configuration. Values {@code <= 0} fall back to
+     * {@link #DEFAULT_HTTP_TIMEOUT_SECONDS}. The same duration is used for connect and request.
+     */
+    public static synchronized void configure(final long httpTimeoutSeconds) {
+        final long seconds = httpTimeoutSeconds > 0 ? httpTimeoutSeconds : DEFAULT_HTTP_TIMEOUT_SECONDS;
+        REQUEST_TIMEOUT = Duration.ofSeconds(seconds);
+        HTTP_CLIENT = newHttpClient(REQUEST_TIMEOUT);
+    }
 
     protected String post(
             final URI uri,
@@ -45,7 +74,7 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
                 .uri(uri)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(12));
+                .timeout(REQUEST_TIMEOUT);
         headers.forEach(request::header);
 
         final var response = HTTP_CLIENT

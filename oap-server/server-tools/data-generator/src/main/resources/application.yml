@@ -222,6 +222,8 @@ query:
 alarm:
   selector: ${SW_ALARM:default}
   default:
+    # Shared timeout (seconds) for HTTP alarm hooks (WeChat / Feishu / etc.).
+    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12}
 
 telemetry:
   selector: ${SW_TELEMETRY:none}

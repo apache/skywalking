@@ -31,8 +31,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -105,6 +108,33 @@ public class HttpAlarmCallbackTest {
     @BeforeEach
     public void reset() {
         APPENDER.events.clear();
+    }
+
+    @Test
+    public void httpClientHasConnectTimeout() throws Exception {
+        HttpAlarmCallback.configure(12);
+        final Field field = HttpAlarmCallback.class.getDeclaredField("HTTP_CLIENT");
+        field.setAccessible(true);
+        final HttpClient client = (HttpClient) field.get(null);
+        assertTrue(client.connectTimeout().isPresent());
+        assertEquals(Duration.ofSeconds(12), client.connectTimeout().get());
+    }
+
+    @Test
+    public void configureUpdatesConnectAndRequestTimeout() throws Exception {
+        HttpAlarmCallback.configure(5);
+        try {
+            final Field clientField = HttpAlarmCallback.class.getDeclaredField("HTTP_CLIENT");
+            clientField.setAccessible(true);
+            final HttpClient client = (HttpClient) clientField.get(null);
+            assertEquals(Duration.ofSeconds(5), client.connectTimeout().orElseThrow());
+
+            final Field requestTimeoutField = HttpAlarmCallback.class.getDeclaredField("REQUEST_TIMEOUT");
+            requestTimeoutField.setAccessible(true);
+            assertEquals(Duration.ofSeconds(5), requestTimeoutField.get(null));
+        } finally {
+            HttpAlarmCallback.configure(12);
+        }
     }
 
     @Test
