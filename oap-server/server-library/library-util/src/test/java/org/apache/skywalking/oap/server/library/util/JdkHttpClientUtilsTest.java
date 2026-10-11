@@ -63,9 +63,10 @@ public class JdkHttpClientUtilsTest {
     public void delayedHeadersTimeOutAndCloseTheConnection() throws Exception {
         try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_HEADERS, 5_000)) {
             long started = System.nanoTime();
-            HttpTimeoutException failure = assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(1)));
+            // Do not assert the exception message: HttpRequest.timeout and the util share the same
+            // deadline, so either "HTTP request timed out" or the JDK's "request timed out" may win.
+            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(1)));
             long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-            assertEquals("HTTP request timed out", failure.getMessage());
             assertTrue(elapsedMs >= 700 && elapsedMs < 2_500, "elapsedMs=" + elapsedMs);
             assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS), "stalled connection was not closed");
         }
