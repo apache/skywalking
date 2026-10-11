@@ -113,9 +113,7 @@ public class HttpAlarmCallbackTest {
     @Test
     public void httpClientHasConnectTimeout() throws Exception {
         HttpAlarmCallback.configure(12);
-        final Field field = HttpAlarmCallback.class.getDeclaredField("HTTP_CLIENT");
-        field.setAccessible(true);
-        final HttpClient client = (HttpClient) field.get(null);
+        final HttpClient client = settingsClient();
         assertTrue(client.connectTimeout().isPresent());
         assertEquals(Duration.ofSeconds(12), client.connectTimeout().get());
     }
@@ -124,17 +122,57 @@ public class HttpAlarmCallbackTest {
     public void configureUpdatesConnectAndRequestTimeout() throws Exception {
         HttpAlarmCallback.configure(5);
         try {
-            final Field clientField = HttpAlarmCallback.class.getDeclaredField("HTTP_CLIENT");
-            clientField.setAccessible(true);
-            final HttpClient client = (HttpClient) clientField.get(null);
-            assertEquals(Duration.ofSeconds(5), client.connectTimeout().orElseThrow());
-
-            final Field requestTimeoutField = HttpAlarmCallback.class.getDeclaredField("REQUEST_TIMEOUT");
-            requestTimeoutField.setAccessible(true);
-            assertEquals(Duration.ofSeconds(5), requestTimeoutField.get(null));
+            assertEquals(Duration.ofSeconds(5), settingsTimeout());
+            assertEquals(Duration.ofSeconds(5), settingsClient().connectTimeout().orElseThrow());
         } finally {
             HttpAlarmCallback.configure(12);
         }
+    }
+
+    @Test
+    public void configurePublishesTimeoutAndClientAtomically() throws Exception {
+        final Object before = settings();
+        HttpAlarmCallback.configure(7);
+        try {
+            final Object published = settings();
+            assertTrue(published != before, "configure must publish a new settings snapshot");
+            assertEquals(Duration.ofSeconds(7), settingsTimeout(published));
+            assertEquals(Duration.ofSeconds(7), settingsClient(published).connectTimeout().orElseThrow());
+
+            HttpAlarmCallback.configure(3);
+            final Object next = settings();
+            assertTrue(next != published, "each configure must replace the whole settings snapshot");
+            assertEquals(Duration.ofSeconds(3), settingsTimeout(next));
+            assertEquals(Duration.ofSeconds(3), settingsClient(next).connectTimeout().orElseThrow());
+        } finally {
+            HttpAlarmCallback.configure(12);
+        }
+    }
+
+    private static Object settings() throws Exception {
+        final Field field = HttpAlarmCallback.class.getDeclaredField("SETTINGS");
+        field.setAccessible(true);
+        return field.get(null);
+    }
+
+    private static Duration settingsTimeout() throws Exception {
+        return settingsTimeout(settings());
+    }
+
+    private static Duration settingsTimeout(final Object settings) throws Exception {
+        final Field field = settings.getClass().getDeclaredField("timeout");
+        field.setAccessible(true);
+        return (Duration) field.get(settings);
+    }
+
+    private static HttpClient settingsClient() throws Exception {
+        return settingsClient(settings());
+    }
+
+    private static HttpClient settingsClient(final Object settings) throws Exception {
+        final Field field = settings.getClass().getDeclaredField("client");
+        field.setAccessible(true);
+        return (HttpClient) field.get(settings);
     }
 
     @Test

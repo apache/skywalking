@@ -42,9 +42,12 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
      */
     private static final long DEFAULT_HTTP_TIMEOUT_SECONDS = 12;
 
-    private static volatile Duration REQUEST_TIMEOUT = Duration.ofSeconds(DEFAULT_HTTP_TIMEOUT_SECONDS);
-
-    private static volatile HttpClient HTTP_CLIENT = newHttpClient(REQUEST_TIMEOUT);
+    /**
+     * One published pair of timeout + client. {@link #configure(long)} replaces the whole
+     * reference so {@link #post(URI, String, Map)} always observes a matched connect timeout
+     * and request/body deadline.
+     */
+    private static volatile HttpDeliverySettings SETTINGS = HttpDeliverySettings.ofSeconds(DEFAULT_HTTP_TIMEOUT_SECONDS);
 
     private static HttpClient newHttpClient(final Duration connectTimeout) {
         return HttpClient
@@ -61,8 +64,7 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
      */
     public static synchronized void configure(final long httpTimeoutSeconds) {
         final long seconds = httpTimeoutSeconds > 0 ? httpTimeoutSeconds : DEFAULT_HTTP_TIMEOUT_SECONDS;
-        REQUEST_TIMEOUT = Duration.ofSeconds(seconds);
-        HTTP_CLIENT = newHttpClient(REQUEST_TIMEOUT);
+        SETTINGS = HttpDeliverySettings.ofSeconds(seconds);
     }
 
     protected String post(
@@ -70,7 +72,8 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
             final String body,
             final Map<String, String> headers)
             throws IOException, InterruptedException {
-        final Duration timeout = REQUEST_TIMEOUT;
+        final HttpDeliverySettings settings = SETTINGS;
+        final Duration timeout = settings.timeout;
         final var request = HttpRequest
                 .newBuilder()
                 .uri(uri)
@@ -79,7 +82,7 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
                 .timeout(timeout);
         headers.forEach(request::header);
 
-        final var response = JdkHttpClientUtils.sendStringWithTimeout(HTTP_CLIENT, request.build(), timeout);
+        final var response = JdkHttpClientUtils.sendStringWithTimeout(settings.client, request.build(), timeout);
 
         final var status = response.statusCode();
         // Any 2xx means the hook endpoint accepted the alarm. Asynchronous intake APIs answer with 202 rather
@@ -110,4 +113,19 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
 
     protected abstract void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception ;
 
+    private static final class HttpDeliverySettings {
+        private final Duration timeout;
+
+        private final HttpClient client;
+
+        private HttpDeliverySettings(final Duration timeout, final HttpClient client) {
+            this.timeout = timeout;
+            this.client = client;
+        }
+
+        private static HttpDeliverySettings ofSeconds(final long seconds) {
+            final Duration timeout = Duration.ofSeconds(seconds);
+            return new HttpDeliverySettings(timeout, newHttpClient(timeout));
+        }
+    }
 }
