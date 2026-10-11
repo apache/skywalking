@@ -31,6 +31,7 @@ public class AlarmModuleConfig extends ModuleConfig {
     /**
      * End-to-end HTTP delivery deadline (seconds), including TCP connect and reading the response body.
      * Applied to WeChat / Feishu / etc. HTTP hooks that go through {@code HttpAlarmCallback}.
+     * Values {@code <= 0} fall back to 12 seconds; extremely large values are capped.
      */
     private long httpTimeout = 12;
 }

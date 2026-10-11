@@ -39,6 +39,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -144,6 +145,35 @@ public class HttpAlarmCallbackTest {
             assertTrue(next != published, "each configure must replace the whole settings snapshot");
             assertEquals(Duration.ofSeconds(3), settingsTimeout(next));
             assertEquals(Duration.ofSeconds(3), settingsClient(next).connectTimeout().orElseThrow());
+        } finally {
+            HttpAlarmCallback.configure(12);
+        }
+    }
+
+    @Test
+    public void configureFallsBackWhenTimeoutIsNotPositive() throws Exception {
+        HttpAlarmCallback.configure(0);
+        try {
+            assertEquals(Duration.ofSeconds(12), settingsTimeout());
+            assertEquals(Duration.ofSeconds(12), settingsClient().connectTimeout().orElseThrow());
+
+            HttpAlarmCallback.configure(-3);
+            assertEquals(Duration.ofSeconds(12), settingsTimeout());
+            assertEquals(Duration.ofSeconds(12), settingsClient().connectTimeout().orElseThrow());
+        } finally {
+            HttpAlarmCallback.configure(12);
+        }
+    }
+
+    @Test
+    public void configureCapsExtremeTimeoutSoToNanosDoesNotOverflow() throws Exception {
+        HttpAlarmCallback.configure(Long.MAX_VALUE);
+        try {
+            final Duration timeout = settingsTimeout();
+            final long maxSeconds = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
+            assertEquals(Duration.ofSeconds(maxSeconds), timeout);
+            assertEquals(timeout, settingsClient().connectTimeout().orElseThrow());
+            assertTrue(timeout.toNanos() > 0);
         } finally {
             HttpAlarmCallback.configure(12);
         }

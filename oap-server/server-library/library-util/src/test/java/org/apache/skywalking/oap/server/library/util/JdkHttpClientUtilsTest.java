@@ -60,6 +60,15 @@ public class JdkHttpClientUtilsTest {
     }
 
     @Test
+    public void extremeTimeoutDoesNotOverflowToNanos() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.CHARSET, 0)) {
+            // Larger than Long.MAX_VALUE nanoseconds; the util must not throw ArithmeticException.
+            HttpResponse<String> response = send(peer.uri(), Duration.ofSeconds(10_000_000_000L));
+            assertEquals("\u00e9", response.body());
+        }
+    }
+
+    @Test
     public void delayedHeadersTimeOutAndCloseTheConnection() throws Exception {
         try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_HEADERS, 5_000)) {
             long started = System.nanoTime();

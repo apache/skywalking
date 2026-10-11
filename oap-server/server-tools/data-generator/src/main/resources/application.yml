@@ -224,6 +224,7 @@ alarm:
   default:
     # End-to-end HTTP delivery deadline (seconds) for alarm hooks (WeChat / Feishu / etc.),
     # including TCP connect and reading the response body.
+    # Values <= 0 fall back to 12; extremely large values are capped.
     httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12}
 
 telemetry:

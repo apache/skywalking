@@ -48,7 +48,7 @@ public final class JdkHttpClientUtils {
      * {@link HttpRequest.Builder#timeout(Duration)} does not cover body consumption.
      */
     public static HttpResponse<String> sendStringWithTimeout(HttpClient client, HttpRequest request, Duration timeout) throws IOException, InterruptedException {
-        long budgetNanos = timeout.toNanos();
+        long budgetNanos = budgetNanos(timeout);
         if (budgetNanos <= 0) {
             throw new IllegalArgumentException("timeout must be positive");
         }
@@ -87,6 +87,15 @@ public final class JdkHttpClientUtils {
                 throw (Error) cause;
             }
             throw new IOException("HTTP request failed", cause);
+        }
+    }
+
+    private static long budgetNanos(Duration timeout) {
+        try {
+            return timeout.toNanos();
+        } catch (ArithmeticException overflow) {
+            // Extremely large timeouts still get a finite upper bound instead of failing the call.
+            return Long.MAX_VALUE;
         }
     }
 

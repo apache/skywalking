@@ -28,6 +28,7 @@ import java.net.http.HttpRequest;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public abstract class HttpAlarmCallback implements AlarmCallback {
     /**
@@ -41,6 +42,11 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
      * AlarmCore delivery thread during connect longer than this deadline.
      */
     private static final long DEFAULT_HTTP_TIMEOUT_SECONDS = 12;
+
+    /**
+     * Upper bound so {@link Duration#toNanos()} does not overflow when the shared deadline is applied.
+     */
+    private static final long MAX_HTTP_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
 
     /**
      * One published pair of timeout + client. {@link #configure(long)} replaces the whole
@@ -59,11 +65,15 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
 
     /**
      * Apply HTTP timeouts from alarm module configuration. Values {@code <= 0} fall back to
-     * {@link #DEFAULT_HTTP_TIMEOUT_SECONDS}. The same duration is the end-to-end delivery
-     * deadline, including connect and reading the response body.
+     * {@link #DEFAULT_HTTP_TIMEOUT_SECONDS}. Values above {@link #MAX_HTTP_TIMEOUT_SECONDS} are
+     * capped so {@link Duration#toNanos()} cannot overflow. The same duration is the end-to-end
+     * delivery deadline, including connect and reading the response body.
      */
     public static synchronized void configure(final long httpTimeoutSeconds) {
-        final long seconds = httpTimeoutSeconds > 0 ? httpTimeoutSeconds : DEFAULT_HTTP_TIMEOUT_SECONDS;
+        long seconds = httpTimeoutSeconds > 0 ? httpTimeoutSeconds : DEFAULT_HTTP_TIMEOUT_SECONDS;
+        if (seconds > MAX_HTTP_TIMEOUT_SECONDS) {
+            seconds = MAX_HTTP_TIMEOUT_SECONDS;
+        }
         SETTINGS = HttpDeliverySettings.ofSeconds(seconds);
     }
 

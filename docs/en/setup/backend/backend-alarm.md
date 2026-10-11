@@ -165,7 +165,8 @@ alarm:
     httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12} # seconds
 ```
 
-The default is `12` seconds. Rule evaluation windows such as `period` / `silence-period` / `recovery-observation-period` in `alarm-settings.yml` do **not** control this HTTP delivery timeout.
+The default is `12` seconds. Values `<= 0` fall back to `12`. Extremely large values are capped so the deadline stays within what `Duration.toNanos()` can represent.
+Rule evaluation windows such as `period` / `silence-period` / `recovery-observation-period` in `alarm-settings.yml` do **not** control this HTTP delivery timeout.
 The gRPC alarm hook does **not** use this setting.
 
 ```yaml
