@@ -18,11 +18,17 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
+import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
@@ -33,6 +39,7 @@ import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -84,5 +91,40 @@ public class AlarmModuleProviderTest {
             CoreModule.NAME,
             ConfigurationModule.NAME
         }, modules);
+    }
+
+    @Test
+    public void httpTimeoutFallsBackAndIsCapped() {
+        assertEquals(Duration.ofSeconds(5), AlarmModuleProvider.httpTimeout(5));
+        assertEquals(Duration.ofSeconds(12), AlarmModuleProvider.httpTimeout(0));
+        assertEquals(Duration.ofSeconds(12), AlarmModuleProvider.httpTimeout(-3));
+        assertEquals(
+            Duration.ofSeconds(TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE)),
+            AlarmModuleProvider.httpTimeout(Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void configuredHttpTimeoutReachesTheHttpHooks() throws Exception {
+        final AlarmModuleConfig config = new AlarmModuleConfig();
+        config.setHttpTimeout(3);
+        ((ModuleProvider.ConfigCreator<AlarmModuleConfig>) moduleProvider.newConfigCreator()).onInitialized(config);
+        moduleProvider.prepare();
+
+        final NotifyHandler handler = ReflectUtil.getInternalState(moduleProvider, "notifyHandler");
+        final HttpClient client = ReflectUtil.getInternalState(handler, "httpClient");
+        assertEquals(Duration.ofSeconds(3), client.connectTimeout().orElseThrow());
+        final List<HttpAlarmCallback> hooks = handler.buildCallbacks()
+                                                     .stream()
+                                                     .filter(HttpAlarmCallback.class::isInstance)
+                                                     .map(HttpAlarmCallback.class::cast)
+                                                     .collect(Collectors.toList());
+        assertEquals(8, hooks.size());
+        for (final HttpAlarmCallback hook : hooks) {
+            final String name = hook.getClass().getSimpleName();
+            assertSame(client, ReflectUtil.getInternalState(hook, "httpClient"), name);
+            assertEquals(Duration.ofSeconds(3), ReflectUtil.getInternalState(hook, "timeout"), name);
+        }
     }
 }

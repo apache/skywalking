@@ -21,13 +21,14 @@ package org.apache.skywalking.oap.server.core.alarm.provider.slack;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -38,11 +39,16 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * Use SkyWalking alarm slack webhook API calls a remote endpoints.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class SlackhookCallback extends HttpAlarmCallback {
     private static final Gson GSON = new Gson();
 
     private final AlarmRulesWatcher alarmRulesWatcher;
+
+    public SlackhookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
+                             final Duration httpTimeout) {
+        super(httpClient, httpTimeout);
+        this.alarmRulesWatcher = alarmRulesWatcher;
+    }
 
     @Override
     public void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {

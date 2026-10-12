@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.alarm.provider.feishu;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
@@ -31,8 +30,10 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.URI;
+import java.net.http.HttpClient;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
@@ -44,9 +45,14 @@ import java.util.stream.Collectors;
  * Use SkyWalking alarm feishu webhook API.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class FeishuHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
+
+    public FeishuHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
+                              final Duration httpTimeout) {
+        super(httpClient, httpTimeout);
+        this.alarmRulesWatcher = alarmRulesWatcher;
+    }
 
     protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, FeishuSettings> settingsMap = alarmRulesWatcher.getFeishuSettings();

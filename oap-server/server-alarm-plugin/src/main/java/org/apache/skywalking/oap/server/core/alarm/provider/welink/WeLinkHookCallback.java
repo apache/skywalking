@@ -25,7 +25,6 @@ import com.google.gson.JsonObject;
 
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
@@ -33,6 +32,8 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -47,9 +48,14 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * Use SkyWalking alarm WeLink webhook API.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class WeLinkHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
+
+    public WeLinkHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
+                              final Duration httpTimeout) {
+        super(httpClient, httpTimeout);
+        this.alarmRulesWatcher = alarmRulesWatcher;
+    }
 
     /**
      * Send alarm message if the settings not empty

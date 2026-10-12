@@ -509,6 +509,22 @@ discord:
       username: robot
 ```
 
+### HTTP delivery timeout
+Every HTTP-based hook (Webhook, Slack, WeChat, DingTalk, Feishu, WeLink, PagerDuty and Discord) bounds each HTTP request
+it sends by one deadline, covering connecting, waiting for the response and reading the response body. A hook that sends
+more than one request for an alarm gets the full deadline for each of them, for example WeLink fetching its access token
+before sending the message. The gRPC hook does not use it.
+
+The deadline is set in `config/application.yml`, not in `alarm-settings.yml`, so it does not change dynamically:
+
+```yaml
+alarm:
+  default:
+    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12} # seconds
+```
+
+The default is `12` seconds. Values `<= 0` fall back to `12`.
+
 ## Update the settings dynamically
 Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.

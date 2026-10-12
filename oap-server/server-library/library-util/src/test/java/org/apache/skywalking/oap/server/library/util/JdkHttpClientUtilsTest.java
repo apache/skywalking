@@ -1,0 +1,426 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package org.apache.skywalking.oap.server.library.util;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.net.Authenticator;
+import java.net.CookieHandler;
+import java.net.InetAddress;
+import java.net.ProxySelector;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Flow;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@Timeout(value = 20, unit = TimeUnit.SECONDS)
+public class JdkHttpClientUtilsTest {
+
+    @Test
+    public void rejectsNonPositiveTimeout() {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).timeout(Duration.ofSeconds(1)).build();
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ZERO));
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofMillis(-1)));
+        // Overflows Duration.toNanos(); must not saturate into an effectively unlimited timeout.
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofSeconds(-10_000_000_000L)));
+    }
+
+    @Test
+    public void rejectsRequestWithoutItsOwnTimeout() {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).build();
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofSeconds(1)));
+    }
+
+    @Test
+    public void extremeTimeoutDoesNotOverflowToNanos() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.CHARSET, 0)) {
+            // Larger than Long.MAX_VALUE nanoseconds; the util must not throw ArithmeticException.
+            HttpResponse<String> response = send(peer.uri(), Duration.ofSeconds(10_000_000_000L));
+            assertEquals("\u00e9", response.body());
+        }
+    }
+
+    @Test
+    public void delayedHeadersTimeOutAndCloseTheConnection() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_HEADERS, 5_000)) {
+            long started = System.nanoTime();
+            // Do not assert the exception message: HttpRequest.timeout and the util share the same
+            // deadline, so either "HTTP request timed out" or the JDK's "request timed out" may win.
+            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(1)));
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            assertTrue(elapsedMs >= 700 && elapsedMs < 2_500, "elapsedMs=" + elapsedMs);
+            assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS), "stalled connection was not closed");
+        }
+    }
+
+    @Test
+    public void stalledBodyTimesOutAndClosesTheConnection() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.STALL_BODY, 0)) {
+            long started = System.nanoTime();
+            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(1)));
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            assertTrue(elapsedMs >= 700 && elapsedMs < 2_500, "elapsedMs=" + elapsedMs);
+            assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS), "stalled body connection was not closed");
+        }
+    }
+
+    @Test
+    public void headersAndBodyShareOneDeadline() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_THEN_STALL, 1_200)) {
+            long started = System.nanoTime();
+            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(2)));
+            long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            // A fresh 2s body budget after the 1.2s header delay would finish near 3200ms.
+            assertTrue(elapsedMs >= 1_600 && elapsedMs < 2_900, "elapsedMs=" + elapsedMs);
+            assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    public void interruptionCancelsTheBodyAndClosesTheConnection() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.STALL_BODY, 0)) {
+            SubscriptionSignallingClient client = new SubscriptionSignallingClient(newClient());
+            AtomicReference<Throwable> failure = new AtomicReference<>();
+            Thread caller = new Thread(() -> {
+                try {
+                    send(client, peer.uri(), Duration.ofSeconds(30));
+                } catch (Throwable thrown) {
+                    failure.set(thrown);
+                }
+            });
+            caller.start();
+            // The body subscriber holds its subscription, so the interruption hits the body read.
+            assertTrue(client.subscribed.await(5, TimeUnit.SECONDS));
+            caller.interrupt();
+            caller.join(5_000);
+            assertInstanceOf(InterruptedException.class, failure.get());
+            assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS), "interrupted request left the connection open");
+        }
+    }
+
+    @Test
+    public void cancelBeforeSubscriptionArrivesCancelsTheSubscription() throws Exception {
+        Class<?> type = Class.forName(JdkHttpClientUtils.class.getName() + "$CancellableBody");
+        Constructor<?> constructor = type.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        Object handler = constructor.newInstance();
+        Method cancel = type.getDeclaredMethod("cancel", Throwable.class);
+        cancel.setAccessible(true);
+        cancel.invoke(handler, new HttpTimeoutException("HTTP request timed out"));
+
+        AtomicBoolean cancelled = new AtomicBoolean();
+        Flow.Subscription incoming = new Flow.Subscription() {
+            @Override
+            public void request(long n) {
+            }
+
+            @Override
+            public void cancel() {
+                cancelled.set(true);
+            }
+        };
+        Method onSubscribe = type.getDeclaredMethod("onSubscribe", Flow.Subscription.class);
+        onSubscribe.setAccessible(true);
+        onSubscribe.invoke(handler, incoming);
+        assertTrue(cancelled.get());
+    }
+
+    @Test
+    public void preservesTheResponseCharset() throws Exception {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.CHARSET, 0)) {
+            HttpResponse<String> response = send(peer.uri(), Duration.ofSeconds(2));
+            assertEquals("\u00e9", response.body());
+        }
+    }
+
+    private static HttpResponse<String> send(URI uri, Duration timeout) throws IOException, InterruptedException {
+        return send(newClient(), uri, timeout);
+    }
+
+    private static HttpResponse<String> send(HttpClient client, URI uri, Duration timeout) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder(uri).timeout(timeout).GET().build();
+        return JdkHttpClientUtils.sendStringWithTimeout(client, request, timeout);
+    }
+
+    private static HttpClient newClient() {
+        return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(2)).build();
+    }
+
+    /**
+     * A real client that opens {@code subscribed} once the body subscriber passed by
+     * {@link JdkHttpClientUtils} has received its subscription, that is, once the body is being read.
+     */
+    private static final class SubscriptionSignallingClient extends HttpClient {
+        private final HttpClient delegate;
+
+        private final CountDownLatch subscribed = new CountDownLatch(1);
+
+        private SubscriptionSignallingClient(HttpClient delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> handler) {
+            return delegate.sendAsync(request, info -> {
+                HttpResponse.BodySubscriber<T> body = handler.apply(info);
+                return new HttpResponse.BodySubscriber<T>() {
+                    @Override
+                    public CompletionStage<T> getBody() {
+                        return body.getBody();
+                    }
+
+                    @Override
+                    public void onSubscribe(Flow.Subscription subscription) {
+                        body.onSubscribe(subscription);
+                        subscribed.countDown();
+                    }
+
+                    @Override
+                    public void onNext(List<ByteBuffer> item) {
+                        body.onNext(item);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        body.onError(throwable);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        body.onComplete();
+                    }
+                };
+            });
+        }
+
+        @Override
+        public <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> handler,
+                                                                HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
+            return delegate.sendAsync(request, handler, pushPromiseHandler);
+        }
+
+        @Override
+        public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws IOException, InterruptedException {
+            return delegate.send(request, handler);
+        }
+
+        @Override
+        public Optional<CookieHandler> cookieHandler() {
+            return delegate.cookieHandler();
+        }
+
+        @Override
+        public Optional<Duration> connectTimeout() {
+            return delegate.connectTimeout();
+        }
+
+        @Override
+        public Redirect followRedirects() {
+            return delegate.followRedirects();
+        }
+
+        @Override
+        public Optional<ProxySelector> proxy() {
+            return delegate.proxy();
+        }
+
+        @Override
+        public SSLContext sslContext() {
+            return delegate.sslContext();
+        }
+
+        @Override
+        public SSLParameters sslParameters() {
+            return delegate.sslParameters();
+        }
+
+        @Override
+        public Optional<Authenticator> authenticator() {
+            return delegate.authenticator();
+        }
+
+        @Override
+        public Version version() {
+            return delegate.version();
+        }
+
+        @Override
+        public Optional<Executor> executor() {
+            return delegate.executor();
+        }
+    }
+
+    /**
+     * Minimal HTTP/1.1 peer. A stalled response keeps the accepted socket open until the client cancels it.
+     */
+    private static final class RawHttp implements AutoCloseable {
+        private enum Mode {
+            DELAY_HEADERS, STALL_BODY, DELAY_THEN_STALL, CHARSET
+        }
+
+        private final ServerSocket server;
+
+        private final Thread thread;
+
+        private final CountDownLatch closed = new CountDownLatch(1);
+
+        private volatile Socket socket;
+
+        private RawHttp(Mode mode, long delayMs) throws IOException {
+            server = new ServerSocket(0, 1, InetAddress.getByName("127.0.0.1"));
+            thread = new Thread(() -> serve(mode, delayMs), "jdk-http-utils-test");
+            thread.setDaemon(true);
+            thread.start();
+        }
+
+        private URI uri() {
+            return URI.create("http://127.0.0.1:" + server.getLocalPort() + "/");
+        }
+
+        private boolean awaitClosed(long time, TimeUnit unit) throws InterruptedException {
+            return closed.await(time, unit);
+        }
+
+        private void serve(Mode mode, long delayMs) {
+            try {
+                socket = server.accept();
+                socket.setTcpNoDelay(true);
+                InputStream in = socket.getInputStream();
+                OutputStream out = socket.getOutputStream();
+                if (!drainRequest(in)) {
+                    return;
+                }
+                if (mode == Mode.DELAY_HEADERS) {
+                    if (sleepOrClosed(in, delayMs)) {
+                        return;
+                    }
+                    out.write(ascii("HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok"));
+                    out.flush();
+                    return;
+                }
+                if (mode == Mode.DELAY_THEN_STALL && sleepOrClosed(in, delayMs)) {
+                    return;
+                }
+                if (mode == Mode.CHARSET) {
+                    out.write(ascii("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=ISO-8859-1\r\nContent-Length: 1\r\nConnection: close\r\n\r\n"));
+                    out.write(0xE9);
+                    out.flush();
+                    waitForClose(in);
+                    return;
+                }
+                out.write(ascii("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 64\r\nConnection: keep-alive\r\n\r\n"));
+                out.write(ascii("ping"));
+                out.flush();
+                waitForClose(in);
+            } catch (IOException ignored) {
+                closed.countDown();
+            }
+        }
+
+        private boolean sleepOrClosed(InputStream in, long delayMs) throws IOException {
+            long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(delayMs);
+            socket.setSoTimeout(200);
+            while (System.nanoTime() < deadline) {
+                try {
+                    if (in.read() < 0) {
+                        closed.countDown();
+                        return true;
+                    }
+                } catch (SocketTimeoutException ignored) {
+                    // Peer is still open.
+                }
+            }
+            socket.setSoTimeout(0);
+            return false;
+        }
+
+        private void waitForClose(InputStream in) throws IOException {
+            socket.setSoTimeout(0);
+            try {
+                if (in.read() < 0) {
+                    closed.countDown();
+                }
+            } catch (IOException e) {
+                closed.countDown();
+            }
+        }
+
+        private boolean drainRequest(InputStream in) throws IOException {
+            byte[] end = new byte[] {
+                '\r', '\n', '\r', '\n'
+            };
+            int matched = 0;
+            int value;
+            while ((value = in.read()) >= 0) {
+                matched = value == end[matched] ? matched + 1 : 0;
+                if (matched == end.length) {
+                    return true;
+                }
+            }
+            closed.countDown();
+            return false;
+        }
+
+        private static byte[] ascii(String text) {
+            return text.getBytes(StandardCharsets.US_ASCII);
+        }
+
+        @Override
+        public void close() throws IOException {
+            server.close();
+            Socket current = socket;
+            if (current != null) {
+                current.close();
+            }
+            thread.interrupt();
+        }
+    }
+}

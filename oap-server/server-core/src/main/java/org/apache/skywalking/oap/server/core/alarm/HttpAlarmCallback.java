@@ -18,22 +18,39 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import org.apache.skywalking.oap.server.library.util.JdkHttpClientUtils;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
 public abstract class HttpAlarmCallback implements AlarmCallback {
-    private static final HttpClient HTTP_CLIENT = HttpClient
+    private final HttpClient httpClient;
+
+    private final Duration timeout;
+
+    /**
+     * @param httpClient shared by every HTTP hook, see {@link #newHttpClient(Duration)}.
+     * @param timeout    deadline of each {@link #post(URI, String, Map)}, covering connect, the response headers and
+     *                   the response body.
+     */
+    protected HttpAlarmCallback(final HttpClient httpClient, final Duration timeout) {
+        this.httpClient = httpClient;
+        this.timeout = timeout;
+    }
+
+    public static HttpClient newHttpClient(final Duration connectTimeout) {
+        return HttpClient
             .newBuilder()
             .followRedirects(HttpClient.Redirect.NORMAL)
+            .connectTimeout(connectTimeout)
             .build();
+    }
 
     protected String post(
             final URI uri,
@@ -45,11 +62,12 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
                 .uri(uri)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .header("Content-Type", "application/json")
-                .timeout(Duration.ofSeconds(12));
+                // JdkHttpClientUtils requires it: only the request's own timeout aborts an exchange still waiting
+                // for the response headers.
+                .timeout(timeout);
         headers.forEach(request::header);
 
-        final var response = HTTP_CLIENT
-                .send(request.build(), HttpResponse.BodyHandlers.ofString());
+        final var response = JdkHttpClientUtils.sendStringWithTimeout(httpClient, request.build(), timeout);
 
         final var status = response.statusCode();
         // Any 2xx means the hook endpoint accepted the alarm. Asynchronous intake APIs answer with 202 rather
@@ -79,5 +97,4 @@ public abstract class HttpAlarmCallback implements AlarmCallback {
     }
 
     protected abstract void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception ;
-
 }
