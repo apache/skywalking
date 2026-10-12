@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -43,12 +44,18 @@ import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelResponse;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.JdkHttpClientUtils;
 import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class OpenAICompatibleProvider implements JudgeModelProvider {
     private static final Gson GSON = new Gson();
     private static final long DEFAULT_REQUEST_TIMEOUT_SECONDS = 30L;
+    /**
+     * Upper bound so {@link Duration#toNanos()} does not overflow when the shared end-to-end
+     * deadline is applied to connect, {@link HttpRequest} timeout, and body consumption.
+     */
+    private static final long MAX_REQUEST_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
     private static final int DEFAULT_MAX_RETRIES = 2;
     private static final int MAX_CONFIGURED_RETRIES = 5;
     private static final long DEFAULT_RETRY_DELAY_MILLIS = 200L;
@@ -66,7 +73,18 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
     private final Integer maxTokens;
 
     public OpenAICompatibleProvider(final Properties config) throws ModuleStartException {
-        this(HttpClient.newHttpClient(), config);
+        validate(config);
+        // Same duration for connectTimeout and the end-to-end util budget (including body read).
+        // HttpRequest.timeout alone does not cover body consumption.
+        final Duration timeout = Duration.ofSeconds(getRequestTimeoutSeconds(config));
+        this.httpClient = HttpClient.newBuilder().connectTimeout(timeout).build();
+        this.endpoint = getString(config, "endpoint");
+        this.apiKey = getString(config, "api-key");
+        this.model = getString(config, "model");
+        this.requestTimeout = timeout;
+        this.maxRetries = getMaxRetries(config);
+        this.temperature = getDouble(config, "temperature");
+        this.maxTokens = getInteger(config, "max_tokens");
     }
 
     OpenAICompatibleProvider(final HttpClient httpClient, final Properties config) throws ModuleStartException {
@@ -94,7 +112,9 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         for (int retry = 0; ; retry++) {
             final HttpResponse<String> response;
             try {
-                response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                // requestTimeout is one end-to-end budget, including reading the response body.
+                // HttpRequest.timeout alone does not cover body consumption.
+                response = JdkHttpClientUtils.sendStringWithTimeout(httpClient, httpRequest, requestTimeout);
             } catch (HttpTimeoutException e) {
                 if (retry >= maxRetries) {
                     throw new JudgeModelException(Reason.TIMEOUT, "OpenAI compatible judge API request timed out.", e);
@@ -317,14 +337,19 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         if (StringUtil.isBlank(value)) {
             return DEFAULT_REQUEST_TIMEOUT_SECONDS;
         }
+        final long parsed;
         try {
-            return Long.parseLong(value);
+            parsed = Long.parseLong(value);
         } catch (NumberFormatException e) {
             throw new ModuleStartException(
                     "AI evaluation judge config [request-timeout-seconds] must be an integer.",
                     e
             );
         }
+        if (parsed > MAX_REQUEST_TIMEOUT_SECONDS) {
+            return MAX_REQUEST_TIMEOUT_SECONDS;
+        }
+        return parsed;
     }
 
     private static int getMaxRetries(final Properties properties) throws ModuleStartException {
