@@ -96,7 +96,7 @@ public class SessionFormatsTest {
         assertEquals(4, r.getHeader().getThroughSeq());
         assertEquals(45, r.getLines());
         assertEquals(43, r.getNodes().size() + r.getRelations().size() + r.getUnresolved().size());
-        assertEquals("befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d", r.getCommitDigest());
+        assertEquals("58f95b7fc54f33b50e6ebdfd7a63a8139e54b4b351c9e75093d96cf897c0c28e", r.getCommitDigest());
         assertEquals(Times.millis("2026-01-01T00:00:00Z"), Times.millis(r.getHeader().getSessionFromTime()));
     }
 
@@ -114,7 +114,7 @@ public class SessionFormatsTest {
     @Test
     public void tamperedRoundIsNotIntact() throws Exception {
         final byte[] body = Fixtures.bytes(Fixtures.ROUND_FILE);
-        final String text = new String(body, StandardCharsets.UTF_8).replace("\"trigger\":\"external\"", "\"trigger\":\"exterior\"");
+        final String text = new String(body, StandardCharsets.UTF_8).replace("\"reset\":\"none\"", "\"reset\":\"gone\"");
         final SessionFlowRound r = SessionFlowRound.parse(text.getBytes(StandardCharsets.UTF_8));
         assertFalse(r.isIntact());
     }

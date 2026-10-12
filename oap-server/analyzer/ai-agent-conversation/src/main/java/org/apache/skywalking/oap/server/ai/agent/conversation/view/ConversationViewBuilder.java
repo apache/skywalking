@@ -673,8 +673,6 @@ public final class ConversationViewBuilder {
             final long[] s = span.getOrDefault(n.getId(), new long[2]);
             final Map<String, Object> m = new LinkedHashMap<>();
             m.put("id", n.getId());
-            m.put("state", nullToEmpty(n.attr("state")));
-            m.put("committable", n.attrBool("committable"));
             m.put("talks", count.getOrDefault(n.getId(), 0));
             m.put("from", s[0]);
             m.put("to", s[1]);

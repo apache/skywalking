@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,12 +60,17 @@ public class NotifyHandler implements MetricsNotify {
     private final AlarmCore core;
     private final AlarmRulesWatcher alarmRulesWatcher;
     private final ModuleManager manager;
+    private final HttpClient httpClient;
+    private final Duration httpTimeout;
     private MetadataQueryService metadataQueryService;
 
-    public NotifyHandler(AlarmRulesWatcher alarmRulesWatcher, ModuleManager manager) {
+    public NotifyHandler(final AlarmRulesWatcher alarmRulesWatcher, final ModuleManager manager,
+                         final HttpClient httpClient, final Duration httpTimeout) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         core = new AlarmCore(alarmRulesWatcher);
         this.manager = manager;
+        this.httpClient = httpClient;
+        this.httpTimeout = httpTimeout;
     }
 
     private MetadataQueryService metadata() {
@@ -234,16 +241,20 @@ public class NotifyHandler implements MetricsNotify {
     }
 
     public void init(AlarmCallback... callbacks) {
-        List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
-        allCallbacks.add(new WebhookCallback(alarmRulesWatcher));
+        core.start(buildCallbacks(callbacks));
+    }
+
+    List<AlarmCallback> buildCallbacks(final AlarmCallback... callbacks) {
+        final List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
+        allCallbacks.add(new WebhookCallback(alarmRulesWatcher, httpClient, httpTimeout));
         allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
-        allCallbacks.add(new SlackhookCallback(alarmRulesWatcher));
-        allCallbacks.add(new WechatHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new DingtalkHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher));
-        allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher));
-        core.start(allCallbacks);
+        allCallbacks.add(new SlackhookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new WechatHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new DingtalkHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new FeishuHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
+        return allCallbacks;
     }
 }

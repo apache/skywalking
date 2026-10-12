@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,7 +92,7 @@ public class WechatHookCallbackTest {
         rules.getWechatSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWechatSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher);
+        WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         List<AlarmMessage> alarmRecoveryMessages = new ArrayList<>(1);
         AlarmMessage alarmMessage = new AlarmMessage();

@@ -55,6 +55,7 @@
   "ai-pipeline.default.uriRecognitionServerAddr": "",
   "ai-pipeline.default.uriRecognitionServerPort": "17128",
   "ai-pipeline.provider": "default",
+  "alarm.default.httpTimeout": "12",
   "alarm.provider": "default",
   "aws-firehose.default.acceptQueueSize": "0",
   "aws-firehose.default.contextPath": "/",

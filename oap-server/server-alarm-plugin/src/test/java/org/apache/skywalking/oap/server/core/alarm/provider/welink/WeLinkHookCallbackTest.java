@@ -35,6 +35,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -90,7 +92,7 @@ public class WeLinkHookCallbackTest {
         rules.getWeLinkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher);
+        WeLinkHookCallback welinkHookCallback = new WeLinkHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);

@@ -49,7 +49,8 @@ import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionFlow
  *
  * <p>Under <code>langchain-subagent/</code>, one LangChain conversation as the Sessionizer lands it from what a real
  * LangSmith client sent, its <code>subagent</code> capture, parsed: a main stream, a nested agent's child stream, and
- * an auxiliary stream that summarises, with the provider bodies of every call.
+ * an auxiliary stream that summarises, with the provider bodies of every call. The landed files are an earlier
+ * Sessionizer's, from an earlier recording of that capture; the round is the current Sessionizer's, parsed from them.
  *
  * <p>Under <code>prompt-snapshot-withheld/</code>, the same for <code>tests/scenarios/prompt-snapshot-withheld.yaml</code>:
  * the records that carry what the runtime sent the model, named <code>system_prompt</code> and <code>tool_schemas</code>,
@@ -73,7 +74,7 @@ public final class Fixtures {
         "meta-20260101T000000.000000000Z-000004.sd",
     };
     public static final String CHILD_STREAM = "a0a10ef0666c4dc7e";
-    public static final String ROUND_FILE = "r000001-befb6026a577.sf";
+    public static final String ROUND_FILE = "r000001-58f95b7fc54f.sf";
     public static final String VIEW_EXAMPLE_JSON = "asz-view-example.json";
 
     public static final String WORKSPACE_CHANGES_DIR = "workspace-changes/";
@@ -85,7 +86,7 @@ public final class Fixtures {
         "changes-20260101T000000.000000000Z-000004.sd",
         "meta-20260101T000000.000000000Z-000005.sd",
     };
-    public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-475193a5f44b.sf";
+    public static final String WORKSPACE_CHANGES_ROUND_FILE = "r000001-a0076e9f9c3b.sf";
 
     public static final String PROVIDER_BODIES_DIR = "provider-bodies/";
     public static final String PROVIDER_BODIES_SESSION = "6b7a6063-8714-4f6b-87cd-6c2da3a5094d";
@@ -95,14 +96,14 @@ public final class Fixtures {
         "meta-20260101T000000.000000000Z-000003.sd",
         "provider_body-20260101T000000.000000000Z-000004.sd",
     };
-    public static final String PROVIDER_BODIES_ROUND_FILE = "r000001-e292bd0f6de6.sf";
+    public static final String PROVIDER_BODIES_ROUND_FILE = "r000001-30c2e12219c0.sf";
 
     public static final String PROVIDER_BODIES_ERRORS_DIR = "provider-bodies-errors/";
     public static final String[] PROVIDER_BODIES_ERRORS_DATA_FILES = {
         "transcript-20260101T000000.000000000Z-000001.sd",
         "provider_body-20260101T000000.000000000Z-000002.sd",
     };
-    public static final String PROVIDER_BODIES_ERRORS_ROUND_FILE = "r000001-76f9606aacf3.sf";
+    public static final String PROVIDER_BODIES_ERRORS_ROUND_FILE = "r000001-2e9a9e0b87b2.sf";
 
     public static final String MCP_CALLS_DIR = "mcp-calls/";
     public static final String[] MCP_CALLS_DATA_FILES = {
@@ -112,7 +113,7 @@ public final class Fixtures {
         "execution-20260101T000000.000000000Z-000004.sd",
         "meta-20260101T000000.000000000Z-000005.sd",
     };
-    public static final String MCP_CALLS_ROUND_FILE = "r000001-0465bcdcdb72.sf";
+    public static final String MCP_CALLS_ROUND_FILE = "r000001-2053bd8e2eca.sf";
 
     public static final String LANGCHAIN_SUBAGENT_DIR = "langchain-subagent/";
     public static final String[] LANGCHAIN_SUBAGENT_DATA_FILES = {
@@ -121,7 +122,7 @@ public final class Fixtures {
         "transcript-20260920T110158.000000000Z-000003.sd",
         "provider_body-20260920T110158.000000000Z-000004.sd",
     };
-    public static final String LANGCHAIN_SUBAGENT_ROUND_FILE = "r000001-3fd311176e49.sf";
+    public static final String LANGCHAIN_SUBAGENT_ROUND_FILE = "r000001-90fcf565d8f9.sf";
 
     public static final String PROMPT_SNAPSHOT_WITHHELD_DIR = "prompt-snapshot-withheld/";
     public static final String PROMPT_SNAPSHOT_WITHHELD_SESSION = "5499bcd9-30f3-4748-8723-1a9b615f93c9";
@@ -131,10 +132,10 @@ public final class Fixtures {
         "meta-20260101T000000.000000000Z-000003.sd",
         "provider_body-20260101T000000.000000000Z-000004.sd",
     };
-    public static final String PROMPT_SNAPSHOT_WITHHELD_ROUND_FILE = "r000001-c081727f2581.sf";
+    public static final String PROMPT_SNAPSHOT_WITHHELD_ROUND_FILE = "r000001-bbc6bc7257ea.sf";
 
     public static final String INPUT_WITHHELD_DIR = "input-withheld/";
-    public static final String INPUT_WITHHELD_ROUND_FILE = "r000001-f6917d7d5f75.sf";
+    public static final String INPUT_WITHHELD_ROUND_FILE = "r000001-9841b6d6c9c0.sf";
 
     private Fixtures() {
     }

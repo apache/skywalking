@@ -24,6 +24,8 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -79,7 +81,7 @@ public class SlackHookCallbackTest {
         rules.getSlackSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getSlackSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        SlackhookCallback slackhookCallback = new SlackhookCallback(alarmRulesWatcher);
+        SlackhookCallback slackhookCallback = new SlackhookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);

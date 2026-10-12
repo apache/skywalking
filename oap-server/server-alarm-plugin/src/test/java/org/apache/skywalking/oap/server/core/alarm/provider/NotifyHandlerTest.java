@@ -45,6 +45,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -262,7 +264,8 @@ public class NotifyHandlerTest {
 
         ModuleManager moduleManager = mock(ModuleManager.class);
 
-        notifyHandler = new NotifyHandler(new AlarmRulesWatcher(rules, null, moduleManager), moduleManager);
+        notifyHandler = new NotifyHandler(
+            new AlarmRulesWatcher(rules, null, moduleManager), moduleManager, HttpClient.newHttpClient(), Duration.ofSeconds(12));
 
         notifyHandler.init(new AlarmCallback() {
             @Override

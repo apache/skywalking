@@ -5,7 +5,7 @@ sessions:
     - 6b7a6063-8714-4f6b-87cd-6c2da3a5094d
 head:
     round: 1
-    digest: e292bd0f6de64aa79b2c5c03d04d6affed8efd317d2cb31fee346fc06fa394aa
+    digest: 30c2e12219c00b6bf61ea20d50e33780c81bdf0db5796a907064216ff6cb65bf
 parser: v1
 policy: v1+idle=10m0s
 summary:
@@ -51,11 +51,11 @@ summary:
     withheld: {}
 rounds:
     - round: 1
-      digest: e292bd0f6de64aa79b2c5c03d04d6affed8efd317d2cb31fee346fc06fa394aa
+      digest: 30c2e12219c00b6bf61ea20d50e33780c81bdf0db5796a907064216ff6cb65bf
       previous: null
       from_seq: 1
       through_seq: 4
-      input_digest: 8a4c1af7839a7c893ecc33e9c0631639b3e17e16eb41441495d7095762d42160
+      input_digest: 3d07082a0f3fcece5929a86b18a86776d83a56b739716cb0b6363c192c5493bc
       from_time: 1767225600000
       through_time: 1767225608400
       verified: true
@@ -104,11 +104,11 @@ files:
       stream: null
       run: null
       lines: 16
-      bytes: 29526
-      digest: 9b324f02fcc81de83faad5667ee9e6f17a9dc194f5a01666576d01caed6ab8df
+      bytes: 29377
+      digest: a5406221354b85e977d6c6e882dafe5427fbb44a745fa252f0087bdcf058eb21
       from_time: null
       through_time: null
-    - file: _conversations/6b7a6063-8714-4f6b-87cd-6c2da3a5094d/rounds/r000001-e292bd0f6de6.sf
+    - file: _conversations/6b7a6063-8714-4f6b-87cd-6c2da3a5094d/rounds/r000001-30c2e12219c0.sf
       format: sf
       kind: round
       seq: null
@@ -116,8 +116,8 @@ files:
       stream: null
       run: null
       lines: 51
-      bytes: 12791
-      digest: dddf2a17aac5687ff39924e86293168553a1d04810b1a981b667bc2f6732c59d
+      bytes: 12008
+      digest: 4fe2cd18d5ab7de863e31f24e32983b571691420080d6b0bad62600fd4103081
       from_time: 1767225600000
       through_time: 1767225608400
 streams:
@@ -147,8 +147,6 @@ streams:
           quality: exact_unique
 segments:
     - id: segment/at_1_2
-      state: open
-      committable: false
       talks: 5
       from: 1767225600000
       to: 1767225608400
@@ -161,10 +159,6 @@ talks:
       ref:
         seq: 1
         row: 2
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: external
       label: read the configuration and summarise it
       reply: The timeout is 30 seconds, with 3 retries.
       runs: 1
@@ -182,8 +176,6 @@ talks:
           ref:
             seq: 1
             row: 2
-          attrs:
-            trigger: external
           children:
             - id: input/1/2
               kind: message.external
@@ -212,7 +204,6 @@ talks:
                 - seq: 1
                   row: 4
               attrs:
-                fragments: 2
                 usage: observed_replayable
                 usage_at:
                     row: 4
@@ -262,7 +253,6 @@ talks:
                       row: 5
                       block: 0
                   attrs:
-                    name: Read
                     result: available
                     result_join: exact_unique
                     timing: unavailable
@@ -291,7 +281,6 @@ talks:
                 - seq: 1
                   row: 6
               attrs:
-                fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 6
@@ -340,10 +329,6 @@ talks:
       ref:
         seq: 1
         row: 7
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: external
       label: find where the timeout is used
       reply: The searcher found it in server.go.
       runs: 1
@@ -361,8 +346,6 @@ talks:
           ref:
             seq: 1
             row: 7
-          attrs:
-            trigger: external
           children:
             - id: input/1/7
               kind: message.external
@@ -389,7 +372,6 @@ talks:
                 - seq: 1
                   row: 8
               attrs:
-                fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 8
@@ -427,7 +409,6 @@ talks:
                       row: 9
                       block: 0
                   attrs:
-                    name: Agent
                     result: available
                     result_join: exact_unique
                     timing: unavailable
@@ -473,7 +454,6 @@ talks:
                 - seq: 1
                   row: 10
               attrs:
-                fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 10
@@ -522,10 +502,6 @@ talks:
       ref:
         seq: 2
         row: 1
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: unknown
       reply: It is used in server.go.
       runs: 1
       steps: 6
@@ -543,8 +519,6 @@ talks:
           ref:
             seq: 2
             row: 1
-          attrs:
-            trigger: external
           children:
             - id: call/searcher-s1-call-fdae022ac306
               kind: llm.call
@@ -560,7 +534,6 @@ talks:
                 - seq: 2
                   row: 3
               attrs:
-                fragments: 2
                 usage: observed_replayable
                 usage_at:
                     row: 3
@@ -610,7 +583,6 @@ talks:
                       row: 4
                       block: 0
                   attrs:
-                    name: Bash
                     result: available
                     result_join: exact_unique
                     timing: unavailable
@@ -637,7 +609,6 @@ talks:
                 - seq: 2
                   row: 5
               attrs:
-                fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 5
@@ -710,10 +681,6 @@ talks:
       ref:
         seq: 1
         row: 12
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: external
       runs: 1
       from: 1767225606000
       to: 1767225606000
@@ -727,8 +694,6 @@ talks:
           ref:
             seq: 1
             row: 12
-          attrs:
-            trigger: external
       edges:
         - type: in_segment
           other: segment/at_1_2
@@ -743,10 +708,6 @@ talks:
       ref:
         seq: 1
         row: 13
-      attrs:
-        loops: 1
-        runs: 1
-        trigger: external
       label: and the retries?
       reply: There are 3 retries.
       runs: 1
@@ -763,8 +724,6 @@ talks:
           ref:
             seq: 1
             row: 13
-          attrs:
-            trigger: external
           children:
             - id: input/1/13
               kind: message.external
@@ -791,7 +750,6 @@ talks:
                 - seq: 1
                   row: 14
               attrs:
-                fragments: 1
                 usage: observed_replayable
                 usage_at:
                     row: 14

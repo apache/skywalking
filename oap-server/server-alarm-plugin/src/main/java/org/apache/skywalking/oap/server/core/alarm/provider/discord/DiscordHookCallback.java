@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.discord;
 
 import com.google.gson.JsonObject;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
@@ -27,6 +26,8 @@ import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -37,9 +38,14 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  * Use SkyWalking alarm Discord webhook API.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class DiscordHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
+
+    public DiscordHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
+                               final Duration httpTimeout) {
+        super(httpClient, httpTimeout);
+        this.alarmRulesWatcher = alarmRulesWatcher;
+    }
 
     public void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, DiscordSettings> settingsMap = alarmRulesWatcher.getDiscordSettings();

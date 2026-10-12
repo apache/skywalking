@@ -624,6 +624,9 @@ traceQL:
 alarm:
   selector: ${SW_ALARM:default}
   default:
+    # Deadline (seconds) of each HTTP request an HTTP-based alarm hook (every hook except gRPC) sends,
+    # covering connecting, waiting for the response and reading the response body. Values <= 0 fall back to 12.
+    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12}
 
 telemetry:
   selector: ${SW_TELEMETRY:prometheus}

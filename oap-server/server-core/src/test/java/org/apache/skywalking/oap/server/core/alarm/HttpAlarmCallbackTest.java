@@ -33,11 +33,19 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.http.HttpTimeoutException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HttpAlarmCallbackTest {
@@ -63,6 +71,14 @@ public class HttpAlarmCallbackTest {
     }
 
     private static final class Callback extends HttpAlarmCallback {
+        Callback() {
+            this(Duration.ofSeconds(12));
+        }
+
+        Callback(final Duration timeout) {
+            super(HttpAlarmCallback.newHttpClient(timeout), timeout);
+        }
+
         @Override
         protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) {
         }
@@ -72,6 +88,10 @@ public class HttpAlarmCallbackTest {
                 URI.create("http://127.0.0.1:" + SERVER.getAddress().getPort() + "/status/" + status),
                 "{}", Map.of()
             );
+        }
+
+        String send(final URI uri) throws IOException, InterruptedException {
+            return post(uri, "{}", Map.of());
         }
     }
 
@@ -131,5 +151,37 @@ public class HttpAlarmCallbackTest {
         assertEquals(1, APPENDER.events.size());
         assertEquals(Level.ERROR, APPENDER.events.get(0).getLevel());
         assertTrue(APPENDER.events.get(0).getMessage().getFormattedMessage().contains("500"));
+    }
+
+    @Test
+    public void stalledResponseBodyTimesOut() throws Exception {
+        // The request's own timeout stops at the response headers, so only the delivery deadline bounds the body.
+        final CountDownLatch release = new CountDownLatch(1);
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        final HttpServer stalling = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        stalling.setExecutor(executor);
+        stalling.createContext("/stall", exchange -> {
+            exchange.sendResponseHeaders(200, 64);
+            exchange.getResponseBody().write("ping".getBytes(StandardCharsets.UTF_8));
+            exchange.getResponseBody().flush();
+            try {
+                release.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            exchange.close();
+        });
+        stalling.start();
+        try {
+            final URI uri = URI.create("http://127.0.0.1:" + stalling.getAddress().getPort() + "/stall");
+            final long started = System.nanoTime();
+            assertThrows(HttpTimeoutException.class, () -> new Callback(Duration.ofSeconds(1)).send(uri));
+            final long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            assertTrue(elapsedMs < 5_000, "elapsedMs=" + elapsedMs);
+        } finally {
+            release.countDown();
+            stalling.stop(0);
+            executor.shutdownNow();
+        }
     }
 }

@@ -58,15 +58,15 @@ public class WithheldViewTest {
 
     @ParameterizedTest
     @CsvSource({
-        "prompt-snapshot-withheld/, r000001-c081727f2581.sf, system_prompt",
-        "prompt-snapshot-withheld/, r000001-c081727f2581.sf, tool_schemas",
-        "prompt-snapshot-withheld/, r000001-c081727f2581.sf, system_prompt+tool_schemas",
-        "provider-bodies/, r000001-e292bd0f6de6.sf, system_prompt",
-        "provider-bodies/, r000001-e292bd0f6de6.sf, tool_schemas",
-        "provider-bodies/, r000001-e292bd0f6de6.sf, system_prompt+tool_schemas",
-        "input-withheld/, r000001-f6917d7d5f75.sf, system_prompt",
-        "input-withheld/, r000001-f6917d7d5f75.sf, tool_schemas",
-        "input-withheld/, r000001-f6917d7d5f75.sf, system_prompt+tool_schemas",
+        "prompt-snapshot-withheld/, r000001-bbc6bc7257ea.sf, system_prompt",
+        "prompt-snapshot-withheld/, r000001-bbc6bc7257ea.sf, tool_schemas",
+        "prompt-snapshot-withheld/, r000001-bbc6bc7257ea.sf, system_prompt+tool_schemas",
+        "provider-bodies/, r000001-30c2e12219c0.sf, system_prompt",
+        "provider-bodies/, r000001-30c2e12219c0.sf, tool_schemas",
+        "provider-bodies/, r000001-30c2e12219c0.sf, system_prompt+tool_schemas",
+        "input-withheld/, r000001-9841b6d6c9c0.sf, system_prompt",
+        "input-withheld/, r000001-9841b6d6c9c0.sf, tool_schemas",
+        "input-withheld/, r000001-9841b6d6c9c0.sf, system_prompt+tool_schemas",
     })
     public void theWithheldDocumentIsTheSessionizersWithTheBodiesKept(final String dir, final String roundFile,
                                                                      final String names) throws Exception {
@@ -109,7 +109,7 @@ public class WithheldViewTest {
      * talk, as the Sessionizer names it: only a reader who withholds what it carries sees no label.
      */
     @ParameterizedTest
-    @CsvSource({"prompt-snapshot-withheld/, r000001-c081727f2581.sf", "input-withheld/, r000001-f6917d7d5f75.sf"})
+    @CsvSource({"prompt-snapshot-withheld/, r000001-bbc6bc7257ea.sf", "input-withheld/, r000001-9841b6d6c9c0.sf"})
     public void theWholeDocumentIsTheSessionizers(final String dir, final String roundFile) throws Exception {
         final JsonElement expected = JsonParser.parseString(new String(
             Fixtures.bytes(dir + Fixtures.VIEW_EXAMPLE_JSON), StandardCharsets.UTF_8));
@@ -120,8 +120,8 @@ public class WithheldViewTest {
 
     /** With nothing withheld the summary says so with an empty object, and the document is the whole one. */
     @ParameterizedTest
-    @CsvSource({"prompt-snapshot-withheld/, r000001-c081727f2581.sf", "provider-bodies/, r000001-e292bd0f6de6.sf",
-        "input-withheld/, r000001-f6917d7d5f75.sf"})
+    @CsvSource({"prompt-snapshot-withheld/, r000001-bbc6bc7257ea.sf", "provider-bodies/, r000001-30c2e12219c0.sf",
+        "input-withheld/, r000001-9841b6d6c9c0.sf"})
     public void nothingWithheldIsAnEmptyObject(final String dir, final String roundFile) throws Exception {
         final Map<String, Object> doc = view(dir, roundFile, files(dir), Hide.NONE);
         assertEquals(Collections.emptyMap(), ((Map<?, ?>) doc.get("summary")).get("withheld"));

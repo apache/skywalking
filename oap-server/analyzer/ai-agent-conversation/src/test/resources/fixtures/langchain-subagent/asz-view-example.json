@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "3fd311176e49c289fc90f98be080c73ec33acfbbef97dce888b569af9bcd6c7e"
+    "digest": "90fcf565d8f9ffff5b56d39d20a8def21ea0b65fc5d2b7c301ed27983c976951"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -55,7 +55,7 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "3fd311176e49c289fc90f98be080c73ec33acfbbef97dce888b569af9bcd6c7e",
+      "digest": "90fcf565d8f9ffff5b56d39d20a8def21ea0b65fc5d2b7c301ed27983c976951",
       "previous": null,
       "from_seq": 1,
       "through_seq": 4,
@@ -123,7 +123,7 @@
       "through_time": null
     },
     {
-      "file": "_conversations/ls-asz-harness-thread-subagent-4e1037625675/rounds/r000001-3fd311176e49.sf",
+      "file": "_conversations/ls-asz-harness-thread-subagent-4e1037625675/rounds/r000001-90fcf565d8f9.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -131,8 +131,8 @@
       "stream": null,
       "run": null,
       "lines": 38,
-      "bytes": 12042,
-      "digest": "5fdbf9f7cb00c5ba634c9da349e37eb7a835ff2aedc4fb75fe97ade911bbdbf2",
+      "bytes": 11400,
+      "digest": "5d45baf6886f43eb7a0b549dd4d28d0a327dfc5b766bfac200e658bf79246ed5",
       "from_time": 1789901215524,
       "through_time": 1789901215562
     }
@@ -192,8 +192,6 @@
   "segments": [
     {
       "id": "segment/at_2_2",
-      "state": "open",
-      "committable": false,
       "talks": 3,
       "from": 1789901215524,
       "to": 1789901215561
@@ -209,11 +207,6 @@
       "ref": {
         "seq": 2,
         "row": 2
-      },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "external"
       },
       "label": "Is prod-1 healthy?",
       "reply": "answer 28",
@@ -233,9 +226,6 @@
           "ref": {
             "seq": 2,
             "row": 2
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -272,7 +262,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 8,
@@ -326,7 +315,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "delegate_to_analyst",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -379,7 +367,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 16,
@@ -433,7 +420,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "summarise",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -486,7 +472,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 24,
@@ -559,11 +544,6 @@
         "seq": 1,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "reply": "answer 25",
       "runs": 1,
       "steps": 5,
@@ -583,9 +563,6 @@
             "seq": 1,
             "row": 1
           },
-          "attrs": {
-            "trigger": "external"
-          },
           "children": [
             {
               "id": "call/01a0be6d-173e-7082-be42-8daec07f7b13",
@@ -604,7 +581,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 6,
@@ -658,7 +634,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "lookup_status",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -694,7 +669,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 14,
@@ -817,11 +791,6 @@
         "seq": 3,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "reply": "answer 27",
       "runs": 1,
       "steps": 2,
@@ -838,9 +807,6 @@
           "ref": {
             "seq": 3,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -860,7 +826,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 1,
