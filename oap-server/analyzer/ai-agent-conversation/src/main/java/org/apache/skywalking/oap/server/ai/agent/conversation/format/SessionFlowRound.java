@@ -512,15 +512,6 @@ public final class SessionFlowRound {
             return e == null || e.isJsonNull() || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()
                 ? 0 : e.getAsDouble();
         }
-
-        public boolean attrBool(final String key) {
-            if (attrs == null) {
-                return false;
-            }
-            final JsonElement e = attrs.get(key);
-            return e != null && !e.isJsonNull() && e.isJsonPrimitive() && e.getAsJsonPrimitive().isBoolean()
-                && e.getAsBoolean();
-        }
     }
 
     /**

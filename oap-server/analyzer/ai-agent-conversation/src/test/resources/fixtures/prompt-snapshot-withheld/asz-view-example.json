@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "c081727f2581ce1a76ade98c3080fed84192edbd0729d5392a994c8a84969f64"
+    "digest": "bbc6bc7257ea372271828fd4cc7b4b781b9ef1b40a0c635ed9189b5d9ff12576"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -55,11 +55,11 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "c081727f2581ce1a76ade98c3080fed84192edbd0729d5392a994c8a84969f64",
+      "digest": "bbc6bc7257ea372271828fd4cc7b4b781b9ef1b40a0c635ed9189b5d9ff12576",
       "previous": null,
       "from_seq": 1,
       "through_seq": 4,
-      "input_digest": "0c476216fab56a71b3cec3f1095c686c4bf9488c6fdf0d3ef64e2a8e35013df6",
+      "input_digest": "b2e57ef34506e74db1e74f0883d6803e6871ddc55a765dddf2c52b6392d93a0b",
       "from_time": 1767225600000,
       "through_time": 1767225609100,
       "verified": true
@@ -117,13 +117,13 @@
       "stream": null,
       "run": null,
       "lines": 8,
-      "bytes": 17161,
-      "digest": "97f9f4853ed9472523a6729be970aa07b0574e5791fa73999c5a3bcd96804516",
+      "bytes": 17095,
+      "digest": "98cb9fb117c76733fd792a6581f332a232692abc14a9ac7f5f1e7058b211e01b",
       "from_time": null,
       "through_time": null
     },
     {
-      "file": "_conversations/5499bcd9-30f3-4748-8723-1a9b615f93c9/rounds/r000001-c081727f2581.sf",
+      "file": "_conversations/5499bcd9-30f3-4748-8723-1a9b615f93c9/rounds/r000001-bbc6bc7257ea.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -131,8 +131,8 @@
       "stream": null,
       "run": null,
       "lines": 31,
-      "bytes": 7433,
-      "digest": "0c667cedb32547fe5b8b5a376eef50ebab6463a0b0e3947e4859521818b26f92",
+      "bytes": 7025,
+      "digest": "3a7c04faac84166ea39f2de237a8e812f90f3f9c49bed4fa8e6a2c7242aa5447",
       "from_time": 1767225600000,
       "through_time": 1767225609100
     }
@@ -173,8 +173,6 @@
   "segments": [
     {
       "id": "segment/at_1_1",
-      "state": "open",
-      "committable": false,
       "talks": 2,
       "from": 1767225600000,
       "to": 1767225609100
@@ -190,11 +188,6 @@
       "ref": {
         "seq": 1,
         "row": 1
-      },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "external"
       },
       "label": "summarise what changed in the docs",
       "reply": "Checking.",
@@ -214,9 +207,6 @@
           "ref": {
             "seq": 1,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -325,7 +315,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 8,
@@ -380,7 +369,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Agent",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -443,7 +431,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 10,
@@ -517,11 +504,6 @@
         "seq": 2,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "label": "check the links one by one",
       "reply": "The links all resolve.",
       "runs": 1,
@@ -540,9 +522,6 @@
           "ref": {
             "seq": 2,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -597,7 +576,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 4,

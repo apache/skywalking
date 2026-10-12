@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d"
+    "digest": "58f95b7fc54f33b50e6ebdfd7a63a8139e54b4b351c9e75093d96cf897c0c28e"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -64,7 +64,7 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "befb6026a5776f481ed79bb59cc7ff0fbabd36db8e4d174156230ac3051d723d",
+      "digest": "58f95b7fc54f33b50e6ebdfd7a63a8139e54b4b351c9e75093d96cf897c0c28e",
       "previous": null,
       "from_seq": 1,
       "through_seq": 4,
@@ -132,7 +132,7 @@
       "through_time": null
     },
     {
-      "file": "_conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-befb6026a577.sf",
+      "file": "_conversations/00000001-0000-4000-8000-000000000001/rounds/r000001-58f95b7fc54f.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -140,8 +140,8 @@
       "stream": null,
       "run": null,
       "lines": 45,
-      "bytes": 10556,
-      "digest": "3fde4586b26d5f4ac6725b0680648df44ba9d3dc03206aa1c4442d839a9621c6",
+      "bytes": 9909,
+      "digest": "1f3da85a5823383ce8cd6b0db2f91a4b514077851b7d4882700c09628fa6903d",
       "from_time": 1767225600000,
       "through_time": 1767225611100
     }
@@ -182,8 +182,6 @@
   "segments": [
     {
       "id": "segment/at_1_2",
-      "state": "open",
-      "committable": false,
       "talks": 3,
       "from": 1767225600000,
       "to": 1767225610700
@@ -199,11 +197,6 @@
       "ref": {
         "seq": 1,
         "row": 2
-      },
-      "attrs": {
-        "loops": 2,
-        "runs": 2,
-        "trigger": "external"
       },
       "label": "run the build",
       "reply": "Build passed and tests are green.",
@@ -223,9 +216,6 @@
           "ref": {
             "seq": 1,
             "row": 2
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -287,7 +277,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 3,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 6,
@@ -361,7 +350,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Bash",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -401,7 +389,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 8,
@@ -440,7 +427,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "WebSearch",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -477,7 +463,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 10,
@@ -516,7 +501,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Agent",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -574,9 +558,6 @@
             "seq": 1,
             "row": 12
           },
-          "attrs": {
-            "trigger": "notification"
-          },
           "children": [
             {
               "id": "notify/1/12",
@@ -618,7 +599,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 13,
@@ -670,7 +650,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "stop_reason": "unavailable",
                 "usage": "unavailable",
                 "usage_from": "last_fragment_in_line_order"
@@ -719,11 +698,6 @@
         "seq": 3,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "reply": "Tests pass.",
       "runs": 1,
       "steps": 3,
@@ -741,9 +715,6 @@
           "ref": {
             "seq": 3,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -763,7 +734,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 2,
@@ -856,11 +826,6 @@
         "seq": 1,
         "row": 16
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "external"
-      },
       "runs": 1,
       "from": 1767225610700,
       "to": 1767225610700,
@@ -875,9 +840,6 @@
           "ref": {
             "seq": 1,
             "row": 16
-          },
-          "attrs": {
-            "trigger": "external"
           }
         }
       ],

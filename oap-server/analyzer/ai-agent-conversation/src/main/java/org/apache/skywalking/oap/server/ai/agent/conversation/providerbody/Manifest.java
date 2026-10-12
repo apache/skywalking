@@ -114,16 +114,6 @@ public final class Manifest {
         return ROLE_RESPONSE.equals(role);
     }
 
-    /**
-     * @return the <code>why</code> the page sets when the body was kept whole in one part because it could not
-     * be cut, or null
-     */
-    @Nullable
-    public String why() {
-        final String why = string(json, "why");
-        return why.isEmpty() ? null : why;
-    }
-
     static String string(final JsonObject json, final String key) {
         final JsonElement e = json.get(key);
         return e != null && e.isJsonPrimitive() && e.getAsJsonPrimitive().isString() ? e.getAsString() : "";
