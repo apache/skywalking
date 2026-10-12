@@ -30,7 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.ApdexArgument;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
-import org.apache.skywalking.oap.server.core.analysis.metrics.IntValueHolder;
+import org.apache.skywalking.oap.server.core.analysis.metrics.LongValueHolder;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
@@ -50,7 +50,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  */
 @MeterFunction(functionName = "apdex")
 @ToString
-public abstract class ApdexFunction extends Meter implements AcceptableValue<ApdexArgument>, IntValueHolder {
+public abstract class ApdexFunction extends Meter implements AcceptableValue<ApdexArgument>, LongValueHolder {
     protected static final String TOTAL_NUM = "total_num";
     protected static final String S_NUM = "s_num";
     protected static final String T_NUM = "t_num";
@@ -94,7 +94,7 @@ public abstract class ApdexFunction extends Meter implements AcceptableValue<Apd
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
     @BanyanDB.MeasureField
-    private int value;
+    private long value;
 
     @Override
     public final boolean combine(Metrics metrics) {
@@ -107,11 +107,11 @@ public abstract class ApdexFunction extends Meter implements AcceptableValue<Apd
 
     @Override
     public final void calculate() {
-        this.value = (int) ((sNum * 10000 + tNum * 10000 / 2) / totalNum);
+        this.value = (sNum * 10000 + tNum * 10000 / 2) / totalNum;
     }
 
     @Override
-    public int getValue() {
+    public long getValue() {
         return value;
     }
 
@@ -254,7 +254,7 @@ public abstract class ApdexFunction extends Meter implements AcceptableValue<Apd
             metrics.setTotalNum(((Number) converter.get(TOTAL_NUM)).longValue());
             metrics.setSNum(((Number) converter.get(S_NUM)).longValue());
             metrics.setTNum(((Number) converter.get(T_NUM)).longValue());
-            metrics.setValue(((Number) converter.get(VALUE)).intValue());
+            metrics.setValue(((Number) converter.get(VALUE)).longValue());
             metrics.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             metrics.setServiceId((String) converter.get(InstanceTraffic.SERVICE_ID));
             metrics.setEntityId((String) converter.get(ENTITY_ID));

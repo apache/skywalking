@@ -257,7 +257,6 @@
   "trace-analyzer.default.dedupWindow": "0",
   "trace-analyzer.default.pairingSamplePercent": "25",
   "trace-analyzer.default.talFiles": "otlp-default",
-  "trace-analyzer.default.talPath": "tal",
   "trace-analyzer.provider": "default",
   "ui-management.provider": "default"
 }
