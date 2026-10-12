@@ -47,6 +47,7 @@ STATUS:         'status';
 LABELS:         'labels';
 BUCKETS:        'buckets';
 RANKS:          'ranks';
+LABEL_LIMIT:    'labelLimit';
 TIMESTAMP:      'timestamp';
 
 // Keywords - relation detect points, written bare as an entity constructor's first argument

@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.module;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.KnownServices;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
@@ -41,6 +42,8 @@ public class TraceAnalyzerModule extends ModuleDefine {
             SpanFilterListener.Factory.class,
             // The service names seen on spans, which the runtime's alias guards read.
             KnownServices.class,
+            // The rateLimit counters, shared by id across every rule.
+            RateLimitingSamplers.class,
             // The client and server spans waiting for their other half, which learns an alias per call pair.
             SpanPairing.class,
         };

@@ -103,6 +103,12 @@ public class ExecutionContext {
     private boolean sinkKept = true;
 
     /**
+     * Set by an {@code enforcer {}} in a {@code sink {}} block: keep the record past this rule's samplers.
+     */
+    @Getter
+    private boolean recordEnforced;
+
+    /**
      * The record under construction, an instance of the rule's {@code outputType}.
      */
     @Getter
@@ -117,7 +123,8 @@ public class ExecutionContext {
 
     /**
      * Entities this execution has already generated traffic for, so several {@code metrics {}} blocks sharing a
-     * scope register their entity once.
+     * scope register their entity once. Keyed by scope as well as id: an instance and an endpoint of one service
+     * with the same name have the same id.
      */
     private final Set<String> traffickedEntities = new HashSet<>();
 
@@ -144,6 +151,7 @@ public class ExecutionContext {
         this.persistVoted = false;
         this.enforced = false;
         this.sinkKept = true;
+        this.recordEnforced = false;
         this.output = null;
         this.additionalTags.clear();
         this.traffickedEntities.clear();
@@ -213,6 +221,11 @@ public class ExecutionContext {
         this.sinkKept = false;
     }
 
+    public void enforceRecord() {
+        this.recordEnforced = true;
+        this.sinkKept = true;
+    }
+
     public void addTag(final String key, final String value) {
         if (key != null && value != null) {
             additionalTags.put(key, value);
@@ -224,7 +237,7 @@ public class ExecutionContext {
      * @return true the first time this execution sees the entity, so its traffic is generated once
      */
     public boolean markTrafficked(final MeterEntity entity) {
-        return traffickedEntities.add(entity.id());
+        return traffickedEntities.add(entity.getScopeType() + "/" + entity.id());
     }
 
     /**

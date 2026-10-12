@@ -29,13 +29,13 @@ import java.util.Map;
  * {@code scopeAttr()}, {@code event()} and {@code eventAttr()} functions expose, which is why a rule written
  * against {@code meta} and {@code attr()} runs unchanged on every input.
  *
- * <p>The trace-analyzer module registers the OTLP provider; the Zipkin receiver registers the Zipkin one.
+ * <p>The trace-analyzer module registers the OTLP provider, the only input this release ships.
  * Implementations are discovered through {@link java.util.ServiceLoader} from
  * {@code META-INF/services/org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider}.
  */
 public interface TALSourceTypeProvider {
     /**
-     * @return the short name a rule writes in {@code inputType}, such as {@code otlp} or {@code zipkin}
+     * @return the short name a rule writes in {@code inputType}, such as {@code otlp}
      */
     String alias();
 

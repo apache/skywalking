@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,7 +25,8 @@ import java.util.Objects;
  * model is installed before a span arrives.
  *
  * <p>Two blocks declaring the same name with the same shape share one metric, which is how {@code if} branches
- * feed one series; the same name with a different function or scope is a compile error.
+ * feed one series; the same name with a different function, scope, buckets or ranks is a compile error, since one
+ * stored series cannot hold two bucket layouts.
  */
 public final class TALMetricDeclaration {
     public final String fullName;
@@ -34,13 +36,29 @@ public final class TALMetricDeclaration {
      * The name as the rule wrote it, without the file's prefix, for diagnostics.
      */
     public final String declaredName;
+    /**
+     * The histogram or percentile bounds as declared, empty for other functions.
+     */
+    public final List<Long> buckets;
+    /**
+     * The percentile ranks, empty for other functions.
+     */
+    public final List<Integer> ranks;
+    /**
+     * The most label sets one row holds, 0 for a metric that is not labeled.
+     */
+    public final int labelLimit;
 
     public TALMetricDeclaration(final String fullName, final String function,
-                         final String scopeType, final String declaredName) {
+                                final String scopeType, final String declaredName,
+                                final List<Long> buckets, final List<Integer> ranks, final int labelLimit) {
         this.fullName = fullName;
         this.function = function;
         this.scopeType = scopeType;
         this.declaredName = declaredName;
+        this.buckets = List.copyOf(buckets);
+        this.ranks = List.copyOf(ranks);
+        this.labelLimit = labelLimit;
     }
 
     @Override
@@ -54,16 +72,22 @@ public final class TALMetricDeclaration {
         final TALMetricDeclaration other = (TALMetricDeclaration) o;
         return Objects.equals(fullName, other.fullName)
             && Objects.equals(function, other.function)
-            && Objects.equals(scopeType, other.scopeType);
+            && Objects.equals(scopeType, other.scopeType)
+            && buckets.equals(other.buckets)
+            && ranks.equals(other.ranks)
+            && labelLimit == other.labelLimit;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fullName, function, scopeType);
+        return Objects.hash(fullName, function, scopeType, buckets, ranks, labelLimit);
     }
 
     @Override
     public String toString() {
-        return fullName + "(" + function + ", " + scopeType + ")";
+        return fullName + "(" + function + ", " + scopeType
+            + (buckets.isEmpty() ? "" : ", buckets " + buckets)
+            + (ranks.isEmpty() ? "" : ", ranks " + ranks)
+            + (labelLimit == 0 ? "" : ", labelLimit " + labelLimit) + ")";
     }
 }

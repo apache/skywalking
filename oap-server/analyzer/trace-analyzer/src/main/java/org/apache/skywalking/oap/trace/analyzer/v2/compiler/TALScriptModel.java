@@ -238,6 +238,10 @@ public final class TALScriptModel {
         private final String function;
         private final ValueAccess value;
         /**
+         * The {@code as} cast written after {@code value}, or null.
+         */
+        private final String valueCast;
+        /**
          * Required by {@code percent}, forbidden elsewhere: the span counts as a match when this holds.
          */
         private final Condition match;
@@ -247,12 +251,20 @@ public final class TALScriptModel {
         private final Condition status;
         private final Map<String, TagValue> labels;
         /**
+         * The {@code labelLimit} as written, or null for the default.
+         */
+        private final String labelLimit;
+        /**
          * Ascending bucket bounds, in the unit of {@code value}; required by {@code histogram} and
          * {@code percentile}. Kept as the literal text so the compiler preserves the declared numeric type.
          */
         private final List<String> buckets;
         private final List<String> ranks;
         private final ValueAccess timestamp;
+        /**
+         * The {@code as} cast written after {@code timestamp}, or null.
+         */
+        private final String timestampCast;
         private int sourceLine;
         private String sourceText = "";
 
@@ -260,22 +272,28 @@ public final class TALScriptModel {
                             final ValueAccess scope,
                             final String function,
                             final ValueAccess value,
+                            final String valueCast,
                             final Condition match,
                             final Condition status,
                             final Map<String, TagValue> labels,
+                            final String labelLimit,
                             final List<String> buckets,
                             final List<String> ranks,
-                            final ValueAccess timestamp) {
+                            final ValueAccess timestamp,
+                            final String timestampCast) {
             this.name = name;
             this.scope = scope;
             this.function = function;
             this.value = value;
+            this.valueCast = valueCast;
             this.match = match;
             this.status = status;
             this.labels = labels == null ? Collections.emptyMap() : Collections.unmodifiableMap(labels);
+            this.labelLimit = labelLimit;
             this.buckets = buckets == null ? Collections.emptyList() : Collections.unmodifiableList(buckets);
             this.ranks = ranks == null ? Collections.emptyList() : Collections.unmodifiableList(ranks);
             this.timestamp = timestamp;
+            this.timestampCast = timestampCast;
         }
 
         public MetricsBlock withSource(final int line, final String text) {

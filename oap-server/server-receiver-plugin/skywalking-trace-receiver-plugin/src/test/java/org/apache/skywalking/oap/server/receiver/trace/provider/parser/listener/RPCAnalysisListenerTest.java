@@ -468,6 +468,44 @@ public class RPCAnalysisListenerTest {
         mockReceiver.clear();
     }
 
+    /**
+     * An alias row that names no instance, as the trace analyzer writes for an OTLP service without
+     * service.instance.id, folds the edge onto the service and draws no instance relation to a `_blank` instance.
+     */
+    @Test
+    public void testExitSpanWithAliasThatNamesNoInstance() {
+        final NetworkAddressAliasCache cache = Mockito.mock(NetworkAddressAliasCache.class);
+        final NetworkAddressAlias alias = new NetworkAddressAlias();
+        final String serviceId = IDManager.ServiceID.buildId("otlp-service", true);
+        alias.setRepresentServiceId(serviceId);
+        alias.setRepresentServiceInstanceId(IDManager.ServiceInstanceID.buildId(serviceId, ""));
+        when(cache.get(any())).thenReturn(alias);
+        final MockReceiver mockReceiver = new MockReceiver();
+        final RPCAnalysisListener listener = new RPCAnalysisListener(mockReceiver, CONFIG, cache, NAMING_CONTROL);
+
+        final long startTime = System.currentTimeMillis();
+        final SpanObject spanObject = SpanObject.newBuilder()
+                                                .setOperationName("/cart")
+                                                .setStartTime(startTime)
+                                                .setEndTime(startTime + 1000L)
+                                                .setSpanType(SpanType.Exit)
+                                                .setSpanLayer(SpanLayer.Http)
+                                                .setPeer("cart:7070")
+                                                .build();
+        final SegmentObject segment = SegmentObject.newBuilder()
+                                                   .setService("mock-service")
+                                                   .setServiceInstance("mock-instance")
+                                                   .addSpans(spanObject)
+                                                   .build();
+        listener.parseExit(spanObject, segment);
+        listener.build();
+
+        final List<ISource> receivedSources = mockReceiver.getReceivedSources();
+        Assertions.assertEquals(1, receivedSources.size(), receivedSources.toString());
+        Assertions.assertEquals("otlp-service", ((ServiceRelation) receivedSources.get(0)).getDestServiceName());
+        mockReceiver.clear();
+    }
+
     @Test
     public void testMQEntryWithoutRef() {
         final MockReceiver mockReceiver = new MockReceiver();

@@ -215,6 +215,32 @@ class TraceAnalyzerServiceImplTest {
 
     // ==================== Harness ====================
 
+    @Test
+    void aRetriedSpanGetsTheVerdictOfItsFirstDelivery() {
+        given(rule(ctx -> ctx.votePersist(false)));
+        final TraceAnalyzerServiceImpl deduping = new TraceAnalyzerServiceImpl(
+            mock(ModuleManager.class), factory, new KnownServices(), new SpanPairing(), new SeenSpans(60, 1000));
+        final SpanAnalysisResult first = deduping.doAnalysis(
+            spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        final SpanAnalysisResult retry = deduping.doAnalysis(
+            spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertFalse(first.isPersist());
+        assertFalse(retry.isPersist(), "a span a rule dropped is not stored on retry");
+    }
+
+    @Test
+    void theCalleeIsPairedUnderTheLayerTheRuleNamed() {
+        // The span declares a conjectured layer, the rule files it under a normal one: the alias the pair learns
+        // has to name the service id the rule's own metrics and alias name.
+        given(rule(ctx -> ctx.getMeta().setLayer(Layer.OTLP_SERVICE.name())));
+        final SpanMetadata meta = spanMetadata();
+        meta.setLayer(Layer.VIRTUAL_DATABASE.name());
+        meta.setParentSpanId("s0");
+        service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(1, pairingFacts.size());
+        assertTrue(pairingFacts.get(0).isNormal(), "OTLP_SERVICE is normal; the span's own VIRTUAL_DATABASE is not");
+    }
+
     private SpanAnalysisResult analyze() {
         return service.doAnalysis(
             spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());

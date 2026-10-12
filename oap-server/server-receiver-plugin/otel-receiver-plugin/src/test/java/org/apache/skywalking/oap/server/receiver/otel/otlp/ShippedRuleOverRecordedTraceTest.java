@@ -17,10 +17,6 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.protobuf.util.JsonFormat;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
@@ -33,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -211,10 +206,11 @@ class ShippedRuleOverRecordedTraceTest {
 
     /**
      * Nine metrics per SERVER span without an instance id, twelve with one, three per CLIENT span with a peer,
-     * none for INTERNAL spans; the same in both passes, since resolution changes names, not counts.
+     * none for INTERNAL spans; the same in both passes, since resolution changes names, not counts. Next.js's
+     * SERVER span, nested under frontend's HTTP SERVER span of the same request, counts nothing.
      */
     private void assertMetricCounts(final List<AnalyzedSpan> spans) {
-        assertEquals(List.of(3, 0, 9, 9, 3, 9, 3, 12),
+        assertEquals(List.of(3, 0, 9, 0, 3, 9, 3, 12),
             spans.stream().map(s -> s.metrics).collect(Collectors.toList()),
             "metrics emitted per span, in start order");
         assertTrue(sent.stream().map(ShippedRuleOverRecordedTraceTest::entityOf).anyMatch(e -> e.equals("frontend / GET /api/cart")),
@@ -295,9 +291,9 @@ class ShippedRuleOverRecordedTraceTest {
     private static List<AnalyzedSpan> loadSpans() throws Exception {
         final TracesData.Builder builder = TracesData.newBuilder();
         try (InputStream in = ShippedRuleOverRecordedTraceTest.class.getClassLoader().getResourceAsStream(FIXTURE)) {
-            final JsonElement root = JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8));
-            hexIdsToBase64(root);
-            JsonFormat.parser().ignoringUnknownFields().merge(root.toString(), builder);
+            // The receiver's own conversion, so the fixture is read the way an OTLP/JSON export is.
+            JsonFormat.parser().ignoringUnknownFields().merge(
+                OTLPValues.hexIdsToBase64(new String(in.readAllBytes(), StandardCharsets.UTF_8)), builder);
         }
         final List<AnalyzedSpan> out = new ArrayList<>();
         for (final ResourceSpans rs : builder.getResourceSpansList()) {
@@ -321,6 +317,7 @@ class ShippedRuleOverRecordedTraceTest {
                         .latency(SpanMetadata.latencyMillis(span.getStartTimeUnixNano(), span.getEndTimeUnixNano()))
                         .traceId(OTLPValues.hexId(span.getTraceId())).spanId(OTLPValues.hexId(span.getSpanId()))
                         .parentSpanId(parent).root(parent.isEmpty())
+                        .parentLocation(OpenTelemetryTraceHandler.parentLocation(parent, span.getFlags()))
                         .scopeName(ss.getScope().getName()).scopeVersion(ss.getScope().getVersion())
                         .build();
                     out.add(a);
@@ -329,30 +326,6 @@ class ShippedRuleOverRecordedTraceTest {
         }
         out.sort((x, y) -> Long.compare(x.span.getStartTimeUnixNano(), y.span.getStartTimeUnixNano()));
         return out;
-    }
-
-    /**
-     * OTLP/JSON writes ids as hex; protobuf's JSON parser reads {@code bytes} as base64.
-     */
-    private static void hexIdsToBase64(final JsonElement element) {
-        if (element.isJsonObject()) {
-            final JsonObject obj = element.getAsJsonObject();
-            for (final String key : List.of("traceId", "spanId", "parentSpanId")) {
-                if (obj.has(key) && obj.get(key).isJsonPrimitive()) {
-                    final String hex = obj.get(key).getAsString();
-                    final byte[] bytes = new byte[hex.length() / 2];
-                    for (int i = 0; i < bytes.length; i++) {
-                        bytes[i] = (byte) Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
-                    }
-                    obj.addProperty(key, Base64.getEncoder().encodeToString(bytes));
-                }
-            }
-            obj.entrySet().forEach(e -> hexIdsToBase64(e.getValue()));
-        } else if (element.isJsonArray()) {
-            for (final JsonElement e : (JsonArray) element) {
-                hexIdsToBase64(e);
-            }
-        }
     }
 
     // ==================== Reading back what was emitted ====================

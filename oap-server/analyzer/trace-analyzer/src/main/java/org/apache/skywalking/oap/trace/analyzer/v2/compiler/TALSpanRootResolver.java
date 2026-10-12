@@ -46,6 +46,12 @@ public class TALSpanRootResolver implements TALRootResolver {
     /**
      * The entity constructors, which only {@link TALBlockCodegen} may emit.
      */
+    /**
+     * The most keys the runtime helper has a spelled-out overload for; {@code eventAttr} has one fewer, since its
+     * first argument is the event name.
+     */
+    private static final int MAX_SPELLED_KEYS = 4;
+
     static final List<String> ENTITY_CONSTRUCTORS =
         List.of("service", "instance", "endpoint", "serviceRelation", "serviceInstanceRelation");
 
@@ -77,14 +83,14 @@ public class TALSpanRootResolver implements TALRootResolver {
         }
         if ("eventAttr".equals(name)) {
             requireKeys(value, name, 2, Integer.MAX_VALUE);
-            sb.append("h.eventAttr(");
-            for (int i = 0; i < value.getFunctionCallArgs().size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                sb.append("\"").append(literalArg(value, i)).append("\"");
+            final int count = value.getFunctionCallArgs().size();
+            final boolean asArray = count > MAX_SPELLED_KEYS;
+            sb.append("h.eventAttr(\"").append(literalArg(value, 0)).append("\"")
+              .append(asArray ? ", new String[] {" : "");
+            for (int i = 1; i < count; i++) {
+                sb.append(i > 1 || !asArray ? ", " : "").append("\"").append(literalArg(value, i)).append("\"");
             }
-            sb.append(")");
+            sb.append(asArray ? "})" : ")");
             return true;
         }
         if ("component".equals(name) || "resolveAlias".equals(name) || "urlHost".equals(name)) {
@@ -150,6 +156,11 @@ public class TALSpanRootResolver implements TALRootResolver {
     }
 
     @Override
+    public Class<?> metaRootType() {
+        return SpanMetadata.class;
+    }
+
+    @Override
     public String describeContext() {
         return "inputType: " + inputTypeName;
     }
@@ -202,14 +213,18 @@ public class TALSpanRootResolver implements TALRootResolver {
     private static void appendKeyedCall(final StringBuilder sb, final String method,
                                         final TALValueAccess value, final int minKeys) {
         requireKeys(value, value.getFunctionCallName(), minKeys, Integer.MAX_VALUE);
-        sb.append(method).append("(");
-        for (int i = 0; i < value.getFunctionCallArgs().size(); i++) {
+        final int count = value.getFunctionCallArgs().size();
+        // Javassist does not adapt varargs: up to four keys reach a spelled-out overload, more go as the array
+        // the varargs method takes.
+        final boolean asArray = count > MAX_SPELLED_KEYS;
+        sb.append(method).append(asArray ? "(new String[] {" : "(");
+        for (int i = 0; i < count; i++) {
             if (i > 0) {
                 sb.append(", ");
             }
             sb.append("\"").append(literalArg(value, i)).append("\"");
         }
-        sb.append(")");
+        sb.append(asArray ? "})" : ")");
     }
 
     private static String literalArg(final TALValueAccess value, final int index) {

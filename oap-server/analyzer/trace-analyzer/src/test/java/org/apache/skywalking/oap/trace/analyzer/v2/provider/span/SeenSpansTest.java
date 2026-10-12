@@ -25,13 +25,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SeenSpansTest {
+    @Test
+    void aRetryReadsTheVerdictOfTheFirstDelivery() {
+        final SeenSpans seen = new SeenSpans(60, 10);
+        assertTrue(seen.firstSight("t1", "s1"));
+        assertSame(SpanAnalysisResult.CONTINUE, seen.verdictOf("t1", "s1"), "still running: the receiver decides");
+        final SpanAnalysisResult dropped = SpanAnalysisResult.builder().persist(false).build();
+        seen.remember("t1", "s1", dropped);
+        assertFalse(seen.firstSight("t1", "s1"));
+        assertSame(dropped, seen.verdictOf("t1", "s1"));
+    }
+
     @Test
     void aWindowOfZeroRemembersNothing() {
         final SeenSpans seen = new SeenSpans(0, 10);

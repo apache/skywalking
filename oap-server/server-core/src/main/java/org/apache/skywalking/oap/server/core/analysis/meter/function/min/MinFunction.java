@@ -85,7 +85,7 @@ public abstract class MinFunction extends Meter implements AcceptableValue<Long>
     public final boolean combine(Metrics metrics) {
         final MinFunction minFunction = (MinFunction) metrics;
         if (this.value > minFunction.getValue()) {
-            setValue(value);
+            setValue(minFunction.getValue());
         }
         return true;
     }

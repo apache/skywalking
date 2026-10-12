@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -41,38 +42,24 @@ final class TALBlockCodegen {
         "org.apache.skywalking.oap.server.core.analysis.meter.function.ApdexArgument";
     private static final String DATA_TABLE = "org.apache.skywalking.oap.server.core.analysis.metrics.DataTable";
     private static final String DETECT_POINT = "org.apache.skywalking.oap.server.core.source.DetectPoint";
+    private static final List<Integer> DEFAULT_RANKS = List.of(50, 75, 90, 95, 99);
+    /**
+     * The label sets a labeled metric keeps per row by default, OAL's {@code labelCount} default.
+     */
+    private static final int DEFAULT_LABEL_LIMIT = 50;
 
     private TALBlockCodegen() {
     }
 
     /**
-     * The rule's own statements, in the order the DSL wrote them: extractor first, then the record's fate, then
-     * the span's. A block is skipped once the rule has aborted.
+     * The rule's own statements, in the order the DSL wrote them. Everything is generated into one method, so an
+     * {@code abort {}} anywhere returns from it and nothing after it runs, and a filter-level {@code def} is in
+     * scope inside the extractor.
      */
     static void generateTopLevel(final StringBuilder sb,
                                  final List<TALScriptModel.FilterStatement> stmts,
                                  final TALGenCtx genCtx) {
-        for (final TALScriptModel.FilterStatement stmt : stmts) {
-            if (stmt instanceof TALScriptModel.ExtractorBlock) {
-                generateExtractorMethod(sb, (TALScriptModel.ExtractorBlock) stmt, genCtx);
-            } else if (stmt instanceof TALScriptModel.SinkBlock) {
-                generateVoteBlock(sb, ((TALScriptModel.SinkBlock) stmt).getStatements(), genCtx, false);
-            } else if (stmt instanceof TALScriptModel.PersistBlock) {
-                generateVoteBlock(sb, ((TALScriptModel.PersistBlock) stmt).getStatements(), genCtx, true);
-            } else if (stmt instanceof TALScriptModel.AbortStatement) {
-                sb.append("  ctx.abort();\n");
-                sb.append("  return;\n");
-            } else if (stmt instanceof TALScriptModel.IfBlock) {
-                generateIfBlock(sb, (TALScriptModel.IfBlock) stmt, genCtx, false);
-            } else if (stmt instanceof TALScriptModel.DefStatement) {
-                TALDefCodegen.generateDefStatement(sb, (TALScriptModel.DefStatement) stmt, genCtx);
-            } else if (stmt instanceof TALScriptModel.AliasStatement) {
-                generateAliasStatement(sb, (TALScriptModel.AliasStatement) stmt, genCtx);
-            } else {
-                throw new IllegalArgumentException(
-                    "Unsupported top-level TAL statement: " + stmt.getClass().getSimpleName());
-            }
-        }
+        generateStatements(sb, stmts, genCtx, false);
     }
 
     /**
@@ -82,7 +69,20 @@ final class TALBlockCodegen {
                                           final List<TALScriptModel.VoteStatement> stmts,
                                           final TALGenCtx genCtx,
                                           final boolean inPersist) {
-        sb.append("  if (!ctx.isAborted()) {\n");
+        if (genCtx.extractorDepth > 0 || genCtx.voteDepth > 0) {
+            throw new IllegalArgumentException(
+                (inPersist ? "persist" : "sink") + " {} belongs at the filter level, not inside an extractor, "
+                    + "a sink or a persist block");
+        }
+        if (!inPersist) {
+            if (genCtx.outputType == null) {
+                throw new IllegalArgumentException(
+                    "sink {} decides the record of the rule's outputType, and this rule declares none");
+            }
+            genCtx.sinkCount++;
+        }
+        genCtx.voteDepth++;
+        sb.append("  {\n");
         if (stmts.isEmpty()) {
             sb.append("    filterSpec.").append(inPersist ? "persist" : "sink").append("(ctx);\n");
         } else {
@@ -98,74 +98,31 @@ final class TALBlockCodegen {
             generateStatements(sb, asFilter, genCtx, inPersist);
         }
         sb.append("  }\n");
+        genCtx.voteDepth--;
     }
 
     // ==================== Extractor ====================
 
     /**
-     * Emit the extractor as a private method and the guarded call to it, so the abort flag is checked once at
-     * the block boundary rather than before every statement.
+     * The extractor's statements, inline. The block cannot be nested in another extractor, and only reaches the
+     * vote blocks through {@link #generateVoteBlock}, which refuses it.
      */
-    static void generateExtractorMethod(final StringBuilder sb,
-                                        final TALScriptModel.ExtractorBlock block,
-                                        final TALGenCtx genCtx) {
-        final String methodName = genCtx.nextMethodName("extractor");
-        final Object[] savedState = genCtx.saveProtoVarState();
-        genCtx.resetProtoVars();
-
+    private static void generateExtractorBlock(final StringBuilder sb,
+                                               final TALScriptModel.ExtractorBlock block,
+                                               final TALGenCtx genCtx) {
+        if (genCtx.extractorDepth > 0 || genCtx.voteDepth > 0) {
+            throw new IllegalArgumentException(
+                "extractor {} belongs at the filter level, not inside an extractor, a sink or a persist block");
+        }
         final List<TALScriptModel.FilterStatement> stmts = new ArrayList<>();
         for (final TALScriptModel.ExtractorStatement es : block.getStatements()) {
             stmts.add((TALScriptModel.FilterStatement) es);
         }
-        final StringBuilder bodyContent = new StringBuilder();
-        generateStatements(bodyContent, stmts, genCtx, false);
-
-        final StringBuilder body = new StringBuilder();
-        body.append("private void ").append(methodName).append("(").append(HELPER).append(" h) {\n");
-
-        final List<String[]> lvtVars = new ArrayList<>();
-        lvtVars.add(new String[] {"h", "L" + HELPER.replace('.', '/') + ";"});
-        appendRootDeclarations(body, lvtVars, genCtx);
-
-        body.append(bodyContent);
-        body.append("}\n");
-        genCtx.privateMethods.add(new TALPrivateMethod(body.toString(), lvtVars.toArray(new String[0][])));
-        genCtx.restoreProtoVarState(savedState);
-
-        sb.append("  if (!ctx.isAborted()) {\n");
-        sb.append("    ").append(methodName).append("(h);\n");
+        genCtx.extractorDepth++;
+        sb.append("  {\n");
+        generateStatements(sb, stmts, genCtx, false);
         sb.append("  }\n");
-    }
-
-    /**
-     * Declare the cast input and any cached chain or local variables the block's expressions used. Collected
-     * while generating the body, so this runs after it and prepends.
-     */
-    private static void appendRootDeclarations(final StringBuilder body,
-                                               final List<String[]> lvtVars,
-                                               final TALGenCtx genCtx) {
-        if (genCtx.usedProtoAccess) {
-            // The cast is only needed when a chain was rooted at `span`; the cached chain variables are needed
-            // whenever any typed chain ran, `meta.*` included.
-            if (genCtx.inputType != null) {
-                final String typeName = genCtx.inputType.getName();
-                body.append("  ").append(typeName).append(" _p = (")
-                    .append(typeName).append(") h.ctx().getInput();\n");
-                lvtVars.add(new String[] {"_p", "L" + typeName.replace('.', '/') + ";"});
-            }
-            body.append(genCtx.protoVarDecls);
-            lvtVars.addAll(genCtx.protoLvtVars);
-        }
-        if (genCtx.outputType != null) {
-            final String outName = genCtx.outputType.getName();
-            body.append("  ").append(outName).append(" _o = (")
-                .append(outName).append(") h.ctx().getOutput();\n");
-            lvtVars.add(new String[] {"_o", "L" + outName.replace('.', '/') + ";"});
-        }
-        if (genCtx.localVarDecls.length() > 0) {
-            body.append(genCtx.localVarDecls);
-            lvtVars.addAll(genCtx.localVarLvtVars);
-        }
+        genCtx.extractorDepth--;
     }
 
     /**
@@ -176,7 +133,14 @@ final class TALBlockCodegen {
                                    final List<? extends TALScriptModel.FilterStatement> stmts,
                                    final TALGenCtx genCtx,
                                    final boolean inPersist) {
-        for (final TALScriptModel.FilterStatement stmt : stmts) {
+        for (int i = 0; i < stmts.size(); i++) {
+            final TALScriptModel.FilterStatement stmt = stmts.get(i);
+            // abort {} returns, so a statement after it in the same block could never run; Java refuses that code
+            // too, and Javassist would emit bytecode the verifier rejects.
+            if (stmt instanceof TALScriptModel.AbortStatement && i < stmts.size() - 1) {
+                throw new IllegalArgumentException(
+                    "abort {} ends its block; the statements after it in the same block never run");
+            }
             generateStatement(sb, stmt, genCtx, inPersist);
         }
     }
@@ -186,8 +150,18 @@ final class TALBlockCodegen {
                                           final TALGenCtx genCtx,
                                           final boolean inPersist) {
         if (stmt instanceof TALScriptModel.AbortStatement) {
+            // A guarded return: an unconditional one at the end of a block makes the statements after the block
+            // unreachable, and the bytecode Javassist emits for them fails verification.
             sb.append("  h.ctx().abort();\n");
-            sb.append("  return;\n");
+            sb.append("  if (h.ctx().isAborted()) {\n");
+            sb.append("    return;\n");
+            sb.append("  }\n");
+        } else if (stmt instanceof TALScriptModel.ExtractorBlock) {
+            generateExtractorBlock(sb, (TALScriptModel.ExtractorBlock) stmt, genCtx);
+        } else if (stmt instanceof TALScriptModel.SinkBlock) {
+            generateVoteBlock(sb, ((TALScriptModel.SinkBlock) stmt).getStatements(), genCtx, false);
+        } else if (stmt instanceof TALScriptModel.PersistBlock) {
+            generateVoteBlock(sb, ((TALScriptModel.PersistBlock) stmt).getStatements(), genCtx, true);
         } else if (stmt instanceof TALScriptModel.DefStatement) {
             TALDefCodegen.generateDefStatement(sb, (TALScriptModel.DefStatement) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.FieldAssignment) {
@@ -265,7 +239,7 @@ final class TALBlockCodegen {
             throw new IllegalArgumentException(
                 "Output field '" + stmt.getFieldName() + "' needs the rule to declare an outputType");
         }
-        final java.lang.reflect.Method setter = findSetter(genCtx.outputType, stmt.getFieldName());
+        final Method setter = findSetter(genCtx.outputType, stmt.getFieldName());
         sb.append("  _o.").append(setter.getName()).append("(");
         TALValueCodegen.generateCastedValueAccess(sb, stmt.getValue(),
             castFor(setter.getParameterTypes()[0], stmt.getCastType()), genCtx);
@@ -275,15 +249,15 @@ final class TALBlockCodegen {
     /**
      * @return the setter for an output field, or a compile error naming what the builder does offer
      */
-    private static java.lang.reflect.Method findSetter(final Class<?> outputType, final String field) {
+    private static Method findSetter(final Class<?> outputType, final String field) {
         final String wanted = "set" + Character.toUpperCase(field.charAt(0)) + field.substring(1);
-        for (final java.lang.reflect.Method m : outputType.getMethods()) {
+        for (final Method m : outputType.getMethods()) {
             if (m.getName().equals(wanted) && m.getParameterCount() == 1) {
                 return m;
             }
         }
         final List<String> available = new ArrayList<>();
-        for (final java.lang.reflect.Method m : outputType.getMethods()) {
+        for (final Method m : outputType.getMethods()) {
             if (m.getName().startsWith("set") && m.getParameterCount() == 1) {
                 available.add(Character.toLowerCase(m.getName().charAt(3)) + m.getName().substring(4));
             }
@@ -379,8 +353,10 @@ final class TALBlockCodegen {
     // ==================== Metrics ====================
 
     /**
-     * One {@code metrics {}} block becomes this sequence: build the entity, register its traffic once, build the
-     * metric, accept the observation and send it in the span's minute bucket.
+     * One {@code metrics {}} block becomes this sequence: build the entity, read the observation and the time,
+     * register the entity's traffic once, build the metric, accept the observation and send it in that minute
+     * bucket. The observation is read before any traffic, and a failure anywhere in the block skips only the block:
+     * a value that does not parse costs that metric for that span, not the rule's later blocks.
      */
     private static void generateMetricsBlock(final StringBuilder sb,
                                              final TALScriptModel.MetricsBlock block,
@@ -389,48 +365,71 @@ final class TALBlockCodegen {
         final String fullName = genCtx.metricPrefix == null || genCtx.metricPrefix.isEmpty()
             ? block.getName() : genCtx.metricPrefix + "_" + block.getName();
         validate(block, function, fullName);
+        final List<Long> bounds = bucketBounds(block, fullName);
+        final List<Integer> ranks = ranks(block, function, fullName);
+        final int labelLimit = labelLimit(block, function, fullName);
 
         final String entityVar = genCtx.nextLocalName("_e");
         final String valueVar = genCtx.nextLocalName("_v");
+        final String observationVar = genCtx.nextLocalName("_o");
+        final String timeVar = genCtx.nextLocalName("_t");
+        final String failureVar = genCtx.nextLocalName("_x");
 
-        sb.append("  {\n");
+        sb.append("  try {\n");
         sb.append("    ").append(METER_ENTITY).append(" ").append(entityVar).append(" = ");
         final String scopeType = appendEntity(sb, block.getScope(), genCtx);
         sb.append(";\n");
+        if (function.kind == TALMetricFunction.Kind.APDEX && scopeType.endsWith("_RELATION")) {
+            throw new IllegalArgumentException(
+                "apdex needs a service, instance or endpoint scope, whose service names the threshold; metric "
+                    + fullName + " is scoped to a relation");
+        }
         // A layer name that is not registered resolves to null, see TalRuntimeHelper.layer, and the block is skipped
         // rather than filed under a layer the rule did not name.
         sb.append("    if (h.layerResolved(").append(entityVar).append(")) {\n");
-        sb.append("      h.traffic(").append(entityVar).append(");\n");
+        sb.append("      Object ").append(observationVar).append(" = ");
+        appendObservation(sb, block, function, entityVar, bounds, ranks, genCtx);
+        sb.append(";\n");
+        sb.append("      long ").append(timeVar).append(" = ");
+        if (block.getTimestamp() != null) {
+            appendLong(sb, block.getTimestamp(), block.getTimestampCast(), genCtx);
+        } else {
+            // The span's start, the minute the agent path buckets a call in.
+            sb.append("h.ctx().getMeta().getStartTime()");
+        }
+        sb.append(";\n");
+        sb.append("      h.traffic(").append(entityVar).append(", ").append(timeVar).append(");\n");
         sb.append("      ").append(ACCEPTABLE_VALUE).append(" ").append(valueVar)
           .append(" = h.meterSystem().buildMetrics(\"")
           .append(DslJavaSourceText.toLiteral(fullName)).append("\", ")
           .append(function.valueClass).append(".class);\n");
-        sb.append("      ").append(valueVar).append(".accept(").append(entityVar).append(", ");
-        appendObservation(sb, block, function, genCtx);
-        sb.append(");\n");
-        sb.append("      h.send(").append(valueVar).append(", ");
-        if (block.getTimestamp() != null) {
-            sb.append("h.toLong(");
-            TALValueCodegen.generateValueAccessObj(sb, block.getTimestamp(), null, genCtx);
-            sb.append(")");
-        } else {
-            sb.append("h.ctx().getMeta().getTimestamp()");
-        }
-        sb.append(");\n");
+        sb.append("      ").append(valueVar).append(".accept(").append(entityVar).append(", ")
+          .append(observationVar).append(");\n");
+        sb.append("      h.send(").append(valueVar).append(", ").append(timeVar).append(");\n");
         sb.append("    }\n");
+        sb.append("  } catch (RuntimeException ").append(failureVar).append(") {\n");
+        sb.append("    h.metricsBlockFailed(\"").append(DslJavaSourceText.toLiteral(fullName)).append("\", ")
+          .append(failureVar).append(");\n");
         sb.append("  }\n");
 
         genCtx.metricDeclarations.add(
-            new TALMetricDeclaration(fullName, function.meterFunction, scopeType, block.getName()));
+            new TALMetricDeclaration(fullName, function.meterFunction, scopeType, block.getName(), bounds, ranks,
+                labelLimit));
     }
 
     /**
      * The observation the function accepts: a number for most, the {@code match} condition for {@code percent},
      * an argument object for {@code apdex}, and a bucketed or labeled value for the rest.
+     *
+     * @param entityVar the entity the metric is scoped to; {@code apdex} looks its threshold up by that entity's
+     *                  service, the name as the meter system stored and the UI shows it
      */
     private static void appendObservation(final StringBuilder sb,
                                           final TALScriptModel.MetricsBlock block,
                                           final TALMetricFunction function,
+                                          final String entityVar,
+                                          final List<Long> bounds,
+                                          final List<Integer> ranks,
                                           final TALGenCtx genCtx) {
         switch (function.kind) {
             case BOOLEAN:
@@ -439,56 +438,79 @@ final class TALBlockCodegen {
                 sb.append(")");
                 break;
             case APDEX:
-                sb.append("new ").append(APDEX_ARGUMENT).append("(h.toInt(");
-                TALValueCodegen.generateValueAccessObj(sb, block.getValue(), null, genCtx);
-                sb.append("), h.ctx().getMeta().getService(), ");
+                sb.append("new ").append(APDEX_ARGUMENT).append("((int) (");
+                appendLong(sb, block.getValue(), block.getValueCast(), genCtx);
+                sb.append("), ").append(entityVar).append(".getServiceName(), ");
                 sb.append("Boolean.valueOf(");
                 TALValueCodegen.generateCondition(sb, block.getStatus(), genCtx);
                 sb.append(").booleanValue())");
                 break;
             case HISTOGRAM:
-                appendBucketedValues(sb, block, genCtx);
+                appendBucketedValues(sb, block, bounds, genCtx);
                 break;
             case PERCENTILE:
                 sb.append("new ").append(PERCENTILE_ARGUMENT).append("(");
-                appendBucketedValues(sb, block, genCtx);
-                sb.append(", ").append(ranksArray(block)).append(")");
+                appendBucketedValues(sb, block, bounds, genCtx);
+                sb.append(", ").append(ranksArray(ranks)).append(")");
                 break;
             case LABELED:
                 appendLabeledValue(sb, block, genCtx);
                 break;
             case LONG:
             default:
-                sb.append("Long.valueOf(h.toLong(");
-                TALValueCodegen.generateValueAccessObj(sb, block.getValue(), null, genCtx);
-                sb.append("))");
+                sb.append("Long.valueOf(");
+                appendLong(sb, block.getValue(), block.getValueCast(), genCtx);
+                sb.append(")");
                 break;
         }
     }
 
     /**
-     * Place the observation in the first bucket whose bound is not below it; a value above the last bound lands
-     * in the last bucket, so that bound is a finite overflow sentinel.
+     * A {@code value} or {@code timestamp} as a primitive long. A numeric {@code as} cast converts first and
+     * truncates after, so {@code value attr("x") as Double} takes {@code "1.7"} as 1 rather than failing to parse
+     * it as a long.
+     */
+    private static void appendLong(final StringBuilder sb,
+                                   final TALScriptModel.ValueAccess value,
+                                   final String cast,
+                                   final TALGenCtx genCtx) {
+        if ("Double".equals(cast) || "Float".equals(cast) || "Integer".equals(cast) || "Long".equals(cast)) {
+            sb.append("(long) (");
+            TALValueCodegen.generateCastedValueAccess(sb, value, cast, genCtx);
+            sb.append(")");
+            return;
+        }
+        sb.append("h.toLong(");
+        TALValueCodegen.generateValueAccessObj(sb, value, cast, genCtx);
+        sb.append(")");
+    }
+
+    /**
+     * Place the observation in the first bucket whose bound is not below it. An overflow bucket keyed
+     * {@code Long.MAX_VALUE} follows the declared bounds, the key MAL gives OTel's {@code +Inf} bucket, so a value
+     * above the last bound is not counted as if it were at that bound.
      */
     private static void appendBucketedValues(final StringBuilder sb,
                                              final TALScriptModel.MetricsBlock block,
+                                             final List<Long> bounds,
                                              final TALGenCtx genCtx) {
-        final List<String> buckets = block.getBuckets();
+        // The bounds are emitted as parsed numbers, not as the rule spelled them: Javassist reads `010L` as octal.
         sb.append("h.bucketed(new long[] {");
-        for (int i = 0; i < buckets.size(); i++) {
+        for (int i = 0; i < bounds.size(); i++) {
             if (i > 0) {
                 sb.append(", ");
             }
-            sb.append(buckets.get(i)).append("L");
+            sb.append(bounds.get(i)).append("L");
         }
-        sb.append("}, h.toLong(");
-        TALValueCodegen.generateValueAccessObj(sb, block.getValue(), null, genCtx);
-        sb.append("))");
+        if (bounds.get(bounds.size() - 1) != Long.MAX_VALUE) {
+            sb.append(", ").append(Long.MAX_VALUE).append("L");
+        }
+        sb.append("}, ");
+        appendLong(sb, block.getValue(), block.getValueCast(), genCtx);
+        sb.append(")");
     }
 
-    private static String ranksArray(final TALScriptModel.MetricsBlock block) {
-        final List<String> ranks = block.getRanks().isEmpty()
-            ? List.of("50", "75", "90", "95", "99") : block.getRanks();
+    private static String ranksArray(final List<Integer> ranks) {
         final StringBuilder out = new StringBuilder("new int[] {");
         for (int i = 0; i < ranks.size(); i++) {
             if (i > 0) {
@@ -512,9 +534,9 @@ final class TALBlockCodegen {
             TALValueCodegen.generateStringValueAccess(
                 sb, e.getValue().getValue(), e.getValue().getCastType(), genCtx);
         }
-        sb.append("}, h.toLong(");
-        TALValueCodegen.generateValueAccessObj(sb, block.getValue(), null, genCtx);
-        sb.append("))");
+        sb.append("}, ");
+        appendLong(sb, block.getValue(), block.getValueCast(), genCtx);
+        sb.append(")");
     }
 
     /**
@@ -699,18 +721,91 @@ final class TALBlockCodegen {
         if (!block.getRanks().isEmpty() && function.kind != TALMetricFunction.Kind.PERCENTILE) {
             throw new IllegalArgumentException("ranks belong to percentile only; metric " + fullName);
         }
-        requireAscending(block.getBuckets(), fullName);
     }
 
-    private static void requireAscending(final List<String> buckets, final String fullName) {
-        long previous = Long.MIN_VALUE;
-        for (final String bucket : buckets) {
-            final long value = Long.parseLong(bucket);
-            if (value <= previous) {
+    /**
+     * @return the bounds as numbers, checked to be whole and strictly ascending; empty for a function without them
+     */
+    private static List<Long> bucketBounds(final TALScriptModel.MetricsBlock block, final String fullName) {
+        final List<Long> bounds = new ArrayList<>(block.getBuckets().size());
+        for (final String text : block.getBuckets()) {
+            final long bound = wholeNumber(text, "bucket", fullName);
+            if (!bounds.isEmpty() && bound <= bounds.get(bounds.size() - 1)) {
                 throw new IllegalArgumentException(
-                    "metric " + fullName + " has buckets that are not ascending: " + buckets);
+                    "metric " + fullName + " has buckets that are not ascending: " + block.getBuckets());
             }
-            previous = value;
+            bounds.add(bound);
+        }
+        return bounds;
+    }
+
+    /**
+     * @return the ranks a percentile reports, the default set when the block names none; checked to be whole,
+     * within 1..100 and strictly ascending, which is the order the percentile calculation walks them in
+     */
+    private static List<Integer> ranks(final TALScriptModel.MetricsBlock block,
+                                       final TALMetricFunction function,
+                                       final String fullName) {
+        if (function.kind != TALMetricFunction.Kind.PERCENTILE) {
+            return List.of();
+        }
+        if (block.getRanks().isEmpty()) {
+            return DEFAULT_RANKS;
+        }
+        final List<Integer> ranks = new ArrayList<>(block.getRanks().size());
+        for (final String text : block.getRanks()) {
+            final long rank = wholeNumber(text, "rank", fullName);
+            if (rank < 1 || rank > 100) {
+                throw new IllegalArgumentException(
+                    "metric " + fullName + " has a rank outside 1..100: " + block.getRanks());
+            }
+            if (!ranks.isEmpty() && rank <= ranks.get(ranks.size() - 1)) {
+                throw new IllegalArgumentException(
+                    "metric " + fullName + " has ranks that are not ascending: " + block.getRanks());
+            }
+            ranks.add((int) rank);
+        }
+        return ranks;
+    }
+
+    /**
+     * @return the most label sets one row of a labeled metric holds, {@link #DEFAULT_LABEL_LIMIT} unless the block
+     * names one; 0 for a metric that is not labeled. A span attribute can take any number of values, so a labeled
+     * metric is always capped, as OAL's {@code labelCount} is.
+     */
+    private static int labelLimit(final TALScriptModel.MetricsBlock block,
+                                  final TALMetricFunction function,
+                                  final String fullName) {
+        if (function.kind != TALMetricFunction.Kind.LABELED) {
+            if (block.getLabelLimit() != null) {
+                throw new IllegalArgumentException("labelLimit belongs to the labeled functions only; metric "
+                    + fullName + " uses " + function.meterFunction);
+            }
+            return 0;
+        }
+        if (block.getLabelLimit() == null) {
+            return DEFAULT_LABEL_LIMIT;
+        }
+        final long limit = wholeNumber(block.getLabelLimit(), "labelLimit", fullName);
+        if (limit < 1 || limit > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                "metric " + fullName + " has a labelLimit outside 1.." + Integer.MAX_VALUE + ": " + limit);
+        }
+        return (int) limit;
+    }
+
+    private static long wholeNumber(final String text, final String what, final String fullName) {
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) < '0' || text.charAt(i) > '9') {
+                throw new IllegalArgumentException(
+                    "metric " + fullName + " has a " + what + " that is not a whole number: " + text);
+            }
+        }
+        try {
+            return Long.parseLong(text);
+        } catch (final NumberFormatException e) {
+            throw new IllegalArgumentException(
+                "metric " + fullName + " has a " + what + " beyond the range of a long: " + text);
         }
     }
 }

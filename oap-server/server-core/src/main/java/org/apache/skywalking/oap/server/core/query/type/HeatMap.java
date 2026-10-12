@@ -60,7 +60,8 @@ public class HeatMap {
                 if (Bucket.INFINITE_NEGATIVE.equals(minValue)) {
                     bucket.infiniteMin();
                 } else {
-                    bucket.setMin(Integer.parseInt(minValue));
+                    // Long: a meter histogram's keys are long, its overflow bucket Long.MAX_VALUE among them.
+                    bucket.setMin(Long.parseLong(minValue));
                 }
 
                 if (i == sortedKeys.size() - 1) {
@@ -74,7 +75,7 @@ public class HeatMap {
                         bucket.infiniteMax();
                         break;
                     } else {
-                        bucket.setMax(Integer.parseInt(max));
+                        bucket.setMax(Long.parseLong(max));
                     }
                 }
                 this.addBucket(bucket);

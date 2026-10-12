@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -75,13 +76,13 @@ public abstract class MaxLabeledFunction extends Meter implements AcceptableValu
         decorate(entity);
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
-        this.value.setMaxValue(value);
+        this.value.setMaxValue(value, LabeledValueLimits.of(this));
     }
 
     @Override
     public final boolean combine(Metrics metrics) {
         final MaxLabeledFunction maxLabeledFunction = (MaxLabeledFunction) metrics;
-        this.value.setMaxValue(maxLabeledFunction.getValue());
+        this.value.setMaxValue(maxLabeledFunction.getValue(), LabeledValueLimits.of(this, maxLabeledFunction));
         return true;
     }
 

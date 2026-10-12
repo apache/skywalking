@@ -99,6 +99,16 @@ class SpanPairingTest {
     }
 
     @Test
+    void aServerSpanUnderALocalParentSendsNoFact() {
+        // Next.js's SERVER span under the HTTP instrumentation's: its parent is a span of the same process.
+        final SpanMetadata nested = server("frontend", "s3", "s2");
+        nested.setParentLocation(SpanMetadata.PARENT_LOCAL);
+        pairing.serverSeen(nested, true);
+        assertNull(pairing.clientSeen(client("frontend-proxy", "s2"), "172.19.0.19:8080"),
+            "no fact was sent, so nothing pairs with the span's parent");
+    }
+
+    @Test
     void aLearnedPairStillPassesTheGuard() {
         // The browser dialed the proxy, and the proxy's own SERVER span is what pairs with it: allowed.
         known.record("frontend-proxy");

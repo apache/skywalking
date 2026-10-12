@@ -40,7 +40,9 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
@@ -188,14 +190,19 @@ public class TalRuntimeHelper {
 
     /**
      * @param name a layer name, from a literal or an expression
-     * @return the layer; {@link Layer#UNDEFINED} for an empty name; null when the name is not registered, which
-     * {@link #layerResolved} turns into skipping the metrics block. {@code Layer.nameOf} is not used because it
-     * answers {@code UNDEFINED} for an unknown name as well, and {@code UNDEFINED} is a layer a rule may name,
-     * for the {@code User} end of a relation.
+     * @return the layer; null when the name is empty or not registered, which {@link #layerResolved} turns into
+     * skipping the metrics block. An empty name is a `layer: auto` rule whose extractor named no layer, whose output
+     * is dropped rather than filed under a layer nobody chose. {@code Layer.nameOf} is not used because it answers
+     * {@code UNDEFINED} for an unknown name, and {@code UNDEFINED} is a layer a rule names on purpose, for the
+     * {@code User} end of a relation.
      */
     public Layer layer(final String name) {
         if (name == null || name.isEmpty()) {
-            return Layer.UNDEFINED;
+            if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP && REPORTED_UNKNOWN_LAYERS.add("")) {
+                log.warn("A TAL rule built an entity with no layer; its metrics blocks are skipped. A `layer: auto` "
+                    + "rule names the layer in its extractor");
+            }
+            return null;
         }
         try {
             return Layer.valueOf(name);
@@ -204,6 +211,27 @@ public class TalRuntimeHelper {
                 log.warn("TAL rule named an unknown layer '{}'; the metrics blocks on it are skipped", name);
             }
             return null;
+        }
+    }
+
+    /**
+     * Metric names already warned about, as {@link #REPORTED_UNKNOWN_LAYERS} is for layers.
+     */
+    private static final Set<String> REPORTED_FAILED_METRICS = ConcurrentHashMap.newKeySet();
+
+    /**
+     * A {@code metrics {}} block threw, typically on a value that does not parse as a number; the generated code
+     * has skipped that block only. The first failure of each metric is a warning, later ones are debug.
+     *
+     * @param metricName the metric the block feeds
+     * @param e          what it threw
+     */
+    public void metricsBlockFailed(final String metricName, final RuntimeException e) {
+        if (REPORTED_FAILED_METRICS.size() < REPORTED_UNKNOWN_LAYERS_CAP && REPORTED_FAILED_METRICS.add(metricName)) {
+            log.warn("TAL metrics block {} failed on a span and is skipped for it; later failures are logged at debug",
+                metricName, e);
+        } else if (log.isDebugEnabled()) {
+            log.debug("TAL metrics block {} failed on a span", metricName, e);
         }
     }
 
@@ -242,7 +270,8 @@ public class TalRuntimeHelper {
      */
     public void alias(final String address) {
         final SpanMetadata meta = ctx.getMeta();
-        spec.getAliasRegistrar().register(address, meta.getService(), MeterEntity.isNormal(layer(meta.getLayer())),
+        final Layer serviceLayer = StringUtil.isEmpty(meta.getLayer()) ? null : layer(meta.getLayer());
+        spec.getAliasRegistrar().register(address, meta.getService(), MeterEntity.isNormal(serviceLayer),
             meta.getServiceInstance(), meta.getTimestamp());
     }
 
@@ -252,14 +281,17 @@ public class TalRuntimeHelper {
      *
      * @param url an absolute URL, or anything else
      * @return {@code host} or {@code host:port}, without scheme, user info, path, query or fragment; empty when
-     * the value has no authority
+     * the value has no authority, which a value without a {@code scheme://} prefix, a bare path, does not
      */
     public String urlHost(final String url) {
         if (url == null || url.isEmpty()) {
             return "";
         }
         final int scheme = url.indexOf("://");
-        final int start = scheme < 0 ? 0 : scheme + 3;
+        if (scheme <= 0) {
+            return "";
+        }
+        final int start = scheme + 3;
         int end = url.length();
         for (final char stop : new char[] {'/', '?', '#'}) {
             final int at = url.indexOf(stop, start);
@@ -329,14 +361,30 @@ public class TalRuntimeHelper {
     // ==================== Metrics ====================
 
     /**
-     * Register the entity so it appears in the service lists and the topology. Called once per distinct entity
-     * per execution, however many metrics blocks share the scope.
+     * Register the entity so it appears in the service lists and the topology, in the minute its metric lands in.
+     * Called before every metric is accepted; the rows are written once per distinct entity per execution,
+     * however many metrics blocks share the scope.
      *
-     * @param entity the entity a metric was just accepted for
+     * <p>A service or endpoint entity carries its layer's name as {@code attr0}, as {@code ServiceDecorator} and
+     * {@code EndpointDecorator} give the agent metrics, so {@code top_n(..., attr0='...')} filters these too.
+     *
+     * @param entity     the entity a metric is about to be accepted for
+     * @param timeMillis the time the metric is bucketed by
      */
-    public void traffic(final MeterEntity entity) {
+    public void traffic(final MeterEntity entity, final long timeMillis) {
+        if ((entity.getScopeType() == ScopeType.SERVICE || entity.getScopeType() == ScopeType.ENDPOINT)
+            && entity.getLayer() != null) {
+            entity.setAttr0(entity.getLayer().name());
+        }
         if (ctx.markTrafficked(entity)) {
-            EntityTrafficGenerator.generate(entity);
+            EntityTrafficGenerator.generate(entity, timeMillis);
+        } else if (entity.getScopeType() == ScopeType.SERVICE_RELATION && entity.getDetectPoint() != null) {
+            // generate() also names the side that owns a service relation's metric, see
+            // EntityTrafficGenerator.serviceRelationTraffic; a second entity for an already registered relation,
+            // built again by an inline serviceRelation(...), still needs that owner, or its metric files under
+            // an empty service.
+            entity.setServiceName(entity.getDetectPoint() == DetectPoint.SERVER
+                ? entity.getDestServiceName() : entity.getSourceServiceName());
         }
     }
 
@@ -353,7 +401,8 @@ public class TalRuntimeHelper {
 
     /**
      * Place one observation in the bucket it falls into: the first bound not below it, or the last bucket when
-     * it is above every bound, which makes the last bound a finite overflow sentinel.
+     * it is above every bound. The generated code always passes {@code Long.MAX_VALUE} as the last bound, so that
+     * last bucket is the overflow bucket.
      *
      * @param bounds the ascending bucket bounds, in the unit of the observation
      * @param value  the observation
@@ -373,7 +422,9 @@ public class TalRuntimeHelper {
     }
 
     /**
-     * Build the one-entry table a labeled function accepts.
+     * Build the one-entry table a labeled function accepts. The stored table separates entries with {@code |}
+     * and a label set's labels with {@code ,}, so those two characters in a value are replaced by {@code _};
+     * kept as they are, they would split the value when the table is read back.
      *
      * @param labels alternating label name and value
      * @param value  the observation
@@ -382,7 +433,7 @@ public class TalRuntimeHelper {
     public DataTable labeled(final String[] labels, final long value) {
         final DataLabel label = new DataLabel();
         for (int i = 0; i + 1 < labels.length; i += 2) {
-            label.put(labels[i], labels[i + 1] == null ? "" : labels[i + 1]);
+            label.put(labels[i], labels[i + 1] == null ? "" : labels[i + 1].replace('|', '_').replace(',', '_'));
         }
         final DataTable table = new DataTable();
         table.put(label, value);

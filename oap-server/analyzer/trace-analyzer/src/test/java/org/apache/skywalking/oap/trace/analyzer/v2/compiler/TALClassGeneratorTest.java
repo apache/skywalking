@@ -19,7 +19,11 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.Setter;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
+import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
@@ -199,6 +203,142 @@ class TALClassGeneratorTest {
     void rejectAnOutputFieldWithoutAnOutputType() {
         assertCompileFails("filter { extractor { statement attr(\"db.query.text\") } }",
             "needs the rule to declare an outputType");
+    }
+
+    @Test
+    void rejectApdexOnARelation() {
+        assertCompileFails("filter { extractor {\n"
+                + "  def rel = serviceRelation(CLIENT, meta.service, meta.layer, \"backend\", meta.layer,"
+                + "            component(\"http\"))\n"
+                + "  metrics { name \"x\"; scope rel; function apdex; value meta.latency\n"
+                + "            status meta.statusCode != \"ERROR\" }\n"
+                + "} }",
+            "apdex needs a service, instance or endpoint scope");
+    }
+
+    @Test
+    void rejectWhatTheLexerCannotRead() {
+        // A YAML comment inside the DSL is not a comment there; it used to vanish and leave the line live.
+        assertCompileFails("filter {\n  # a note\n  abort {}\n}", "token recognition error");
+    }
+
+    @Test
+    void rejectAMetricNameThatIsNotALiteral() {
+        assertCompileFails("filter { extractor {\n"
+                + "  def svc = service(meta.service, meta.layer)\n"
+                + "  metrics { name meta.service; scope svc; function cpm; value 1 }\n"
+                + "} }",
+            "a metric's name is a string literal");
+    }
+
+    @Test
+    void rejectAnUnknownRoot() {
+        // A misspelled `meta` used to read the input span instead.
+        assertCompileFails("filter { if (mta.kind == \"SERVER\") { abort {} } }", "Cannot resolve 'mta.kind'");
+    }
+
+    @Test
+    void rejectASinkWithoutAnOutputType() {
+        assertCompileFails("filter { sink {} }", "this rule declares none");
+    }
+
+    @Test
+    void rejectAnOutputTypeWithoutASink() {
+        final TALClassGenerator generator = generator("no_sink");
+        generator.setOutputType(StubRecord.class);
+        final Exception e = assertThrows(Exception.class, () -> generator.compile(
+            "filter { extractor { statement \"SELECT 1\" } }"));
+        assertTrue(rootMessage(e).contains("needs a sink {} block"), rootMessage(e));
+    }
+
+    @Test
+    void rejectAStatementAfterAbort() {
+        assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_SERVICE\"\n} }",
+            "abort {} ends its block");
+    }
+
+    @Test
+    void rejectRanksAndBucketsThatCannotBeRead() {
+        assertCompileFails(percentile("buckets [10, 20]; ranks [99, 50]"), "ranks that are not ascending");
+        assertCompileFails(percentile("buckets [10, 20]; ranks [0, 50]"), "a rank outside 1..100");
+        assertCompileFails(percentile("buckets [10, 20]; ranks [50, 150]"), "a rank outside 1..100");
+        assertCompileFails(percentile("buckets [1.5, 20]"), "not a whole number");
+    }
+
+    @Test
+    void rejectOneMetricWithTwoBucketLayouts() {
+        final TALClassGenerator generator = generator("two_layouts");
+        final Exception e = assertThrows(Exception.class, () -> generator.compile(
+            "filter { extractor {\n"
+                + "  def svc = service(meta.service, meta.layer)\n"
+                + "  if (meta.root) {\n"
+                + "    metrics { name \"h\"; scope svc; function histogram; value meta.latency; buckets [0, 10] }\n"
+                + "  } else {\n"
+                + "    metrics { name \"h\"; scope svc; function histogram; value meta.latency; buckets [0, 50] }\n"
+                + "  }\n"
+                + "} }"));
+        assertTrue(rootMessage(e).contains("declared twice with different shapes"), rootMessage(e));
+    }
+
+    @Test
+    void rejectADefReassignedAnotherType() {
+        assertCompileFails("filter { extractor {\n  def x = \"a\"\n  def x = 1\n} }",
+            "def x holds a String and is reassigned a Integer");
+    }
+
+    @Test
+    void rejectALabelLimitOutsideALabeledMetric() {
+        assertCompileFails("filter { extractor {\n"
+                + "  def svc = service(meta.service, meta.layer)\n"
+                + "  metrics { name \"c\"; scope svc; function cpm; value 1; labelLimit 10 }\n"
+                + "} }",
+            "labelLimit belongs to the labeled functions only");
+    }
+
+    @Test
+    void aLabeledMetricIsLimitedByDefault() throws Exception {
+        final TALClassGenerator generator = generator("label_limit");
+        generator.compile("filter { extractor {\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"by_status\"; scope svc; function sumLabeled; labels s: attr(\"s\"); value 1 }\n"
+            + "  metrics { name \"by_route\"; scope svc; function sumLabeled; labels r: attr(\"r\"); value 1;"
+            + " labelLimit 200 }\n"
+            + "} }");
+        assertEquals(50, generator.getMetricDeclarations().get(0).labelLimit, "OAL's labelCount default");
+        assertEquals(200, generator.getMetricDeclarations().get(1).labelLimit);
+    }
+
+    private static String percentile(final String clauses) {
+        return "filter { extractor {\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"p\"; scope svc; function percentile; value meta.latency; " + clauses + " }\n"
+            + "} }";
+    }
+
+    /**
+     * An output type with the one field the rules above write.
+     */
+    public static class StubRecord implements TALOutputBuilder {
+        @Setter
+        private String statement;
+
+        @Override
+        public String name() {
+            return "Stub";
+        }
+
+        @Override
+        public void init(final SpanMetadata meta, final Object input, final ModuleManager moduleManager) {
+        }
+
+        @Override
+        public void complete(final SourceReceiver sourceReceiver) {
+        }
+
+        @Override
+        public String outputToJson() {
+            return "{}";
+        }
     }
 
     private static void assertCompileFails(final String dsl, final String expectedMessage) {

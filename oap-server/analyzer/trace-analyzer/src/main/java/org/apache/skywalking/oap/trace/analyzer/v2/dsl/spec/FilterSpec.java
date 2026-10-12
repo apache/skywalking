@@ -17,8 +17,6 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -68,10 +66,10 @@ public class FilterSpec {
     private final AliasRegistrar aliasRegistrar;
 
     /**
-     * Rate-limit counters keyed by the id a {@code rateLimit("id")} block names. Shared across rules and spans
-     * by id, as LAL's sampler is, so two rules limiting the same id share one budget.
+     * The rate-limit counters by id; the module's shared set in production, so two rules naming one id share
+     * one budget, and a fresh set for a caller that builds the spec from the services it holds.
      */
-    private final ConcurrentMap<String, RateLimitingSampler> samplers = new ConcurrentHashMap<>();
+    private final RateLimitingSamplers samplers;
 
     public FilterSpec(final ModuleManager moduleManager, final TraceAnalyzerModuleConfig config) {
         this(moduleManager, config,
@@ -79,7 +77,8 @@ public class FilterSpec {
             moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class),
             moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class),
             moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(KnownServices.class),
-            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(SpanPairing.class));
+            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(SpanPairing.class),
+            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(RateLimitingSamplers.class));
     }
 
     /**
@@ -97,7 +96,8 @@ public class FilterSpec {
                       final MeterSystem meterSystem,
                       final NamingControl namingControl,
                       final SourceReceiver sourceReceiver) {
-        this(moduleManager, config, meterSystem, namingControl, sourceReceiver, new KnownServices(), new SpanPairing());
+        this(moduleManager, config, meterSystem, namingControl, sourceReceiver, new KnownServices(), new SpanPairing(),
+            new RateLimitingSamplers());
     }
 
     private FilterSpec(final ModuleManager moduleManager,
@@ -106,7 +106,8 @@ public class FilterSpec {
                        final NamingControl namingControl,
                        final SourceReceiver sourceReceiver,
                        final KnownServices knownServices,
-                       final SpanPairing spanPairing) {
+                       final SpanPairing spanPairing,
+                       final RateLimitingSamplers samplers) {
         this.moduleManager = moduleManager;
         this.config = config;
         this.meterSystem = meterSystem;
@@ -114,19 +115,12 @@ public class FilterSpec {
         this.sourceReceiver = sourceReceiver;
         this.knownServices = knownServices;
         this.spanPairing = spanPairing;
-        this.aliasRegistrar = new AliasRegistrar(sourceReceiver, namingControl, knownServices);
+        this.samplers = samplers;
+        // The module's registrar carries the guards that need a booted OAP; a spec built without one makes its own.
         if (spanPairing.getAliasRegistrar() == null) {
-            spanPairing.setAliasRegistrar(this.aliasRegistrar);
+            spanPairing.setAliasRegistrar(new AliasRegistrar(sourceReceiver, namingControl, knownServices));
         }
-    }
-
-    /**
-     * {@code abort {}} — stop the rule for this span.
-     *
-     * @param ctx this span's state
-     */
-    public void abort(final ExecutionContext ctx) {
-        ctx.abort();
+        this.aliasRegistrar = spanPairing.getAliasRegistrar();
     }
 
     /**
@@ -162,8 +156,8 @@ public class FilterSpec {
     }
 
     /**
-     * {@code enforcer {}} — keep regardless of this rule's samplers, and in a {@code persist} block ask the
-     * forward to skip the receiver's trace-id head sampling for this span.
+     * {@code enforcer {}} — keep regardless of this rule's samplers, before or after it, and in a {@code persist}
+     * block ask the forward to skip the receiver's trace-id head sampling for this span.
      *
      * @param ctx       this span's state
      * @param inPersist whether the statement sits in a {@code persist} block
@@ -171,13 +165,15 @@ public class FilterSpec {
     public void enforcer(final ExecutionContext ctx, final boolean inPersist) {
         if (inPersist) {
             ctx.enforce();
+        } else {
+            ctx.enforceRecord();
         }
     }
 
     /**
      * {@code rateLimit(id) { rpm n }} — one counter per id, reset every minute, shared by every rule and span
      * that names the same id. It counts spans, not traces, so two spans of one trace can fall on different
-     * sides of the budget.
+     * sides of the budget. A span or record an {@code enforcer {}} already kept neither votes nor spends budget.
      *
      * @param ctx       this span's state
      * @param id        the counter's id, already interpolated
@@ -185,9 +181,10 @@ public class FilterSpec {
      * @param inPersist whether the sampler sits in a {@code persist} block
      */
     public void rateLimit(final ExecutionContext ctx, final String id, final int rpm, final boolean inPersist) {
-        final boolean sampled = samplers
-            .computeIfAbsent(id, k -> new RateLimitingSampler(rpm))
-            .sample();
+        if (inPersist ? ctx.isEnforced() : ctx.isRecordEnforced()) {
+            return;
+        }
+        final boolean sampled = samplers.of(id, rpm).sample();
         if (inPersist) {
             ctx.votePersist(sampled);
         } else if (!sampled) {

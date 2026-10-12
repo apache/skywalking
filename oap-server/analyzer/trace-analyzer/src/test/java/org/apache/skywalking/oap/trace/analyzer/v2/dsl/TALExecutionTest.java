@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,18 +26,26 @@ import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationClientSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
+import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
+import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
-import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.apdex.ApdexFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.HistogramFunction;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.sum.SumHistogramPercentileFunction;
+import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
+import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
@@ -48,8 +57,10 @@ import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.trace.analyzer.v2.ShippedRules;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.ShippedSlowStatement;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,9 +85,11 @@ import static org.mockito.Mockito.spy;
  */
 class TALExecutionTest {
     /**
-     * The span's end; the minute bucket every metric of that span must land in.
+     * The span's end. Its metrics land in the minute it started in, {@link #SPAN_START_MILLIS}.
      */
     private static final long SPAN_END_MILLIS = 1_700_000_000_500L;
+
+    private static final long SPAN_START_MILLIS = 1_700_000_000_390L;
 
     private ModuleManager moduleManager;
     /**
@@ -113,7 +126,7 @@ class TALExecutionTest {
         final MetricsStreamProcessor processor = mock(MetricsStreamProcessor.class);
         mockedProcessor = Mockito.mockStatic(MetricsStreamProcessor.class);
         mockedProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(processor);
-        doNothing().when(processor).create(any(), (org.apache.skywalking.oap.server.core.analysis.StreamDefinition) any(), any(), any());
+        doNothing().when(processor).create(any(), (StreamDefinition) any(), any(), any());
         doAnswer(invocation -> {
             traffic.add(invocation.getArgument(0));
             return null;
@@ -159,8 +172,8 @@ class TALExecutionTest {
         assertEquals(
             MeterEntity.newService("frontend", Layer.OTLP_SERVICE).id(),
             entityIdOf(value));
-        assertEquals(TimeBucket.getMinuteTimeBucket(SPAN_END_MILLIS), value.getTimeBucket(),
-            "the value lands in the span's own minute bucket, not the wall clock's");
+        assertEquals(TimeBucket.getMinuteTimeBucket(SPAN_START_MILLIS), value.getTimeBucket(),
+            "the value lands in the minute the span started in, not the wall clock's");
     }
 
     @Test
@@ -224,6 +237,422 @@ class TALExecutionTest {
         sentValues.clear();
         execute(rule, clientSpan(), new TestSpanInput().attribute("http.url", "/relative/path"));
         assertTrue(sentValues.isEmpty(), "a URL without an authority names no peer");
+    }
+
+    @Test
+    void aCallIsBucketedWithItsTopologyInTheMinuteItStarted() throws Exception {
+        // Started in the last 100 ms of a minute, ended in the next one.
+        final long start = TimeBucket.getTimestamp(TimeBucket.getMinuteTimeBucket(SPAN_END_MILLIS)) + 59_900L;
+        final SpanMetadata span = serverSpan();
+        span.setStartTime(start);
+        span.setTimestamp(start + 300L);
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"start_minute_cpm\"; scope svc; function cpm; value 1 }\n"
+            + "} }", span, new TestSpanInput());
+        final long startMinute = TimeBucket.getMinuteTimeBucket(start);
+        assertEquals(startMinute, sentValues.get(0).getTimeBucket());
+        final ServiceTraffic row = (ServiceTraffic) traffic.stream().filter(ServiceTraffic.class::isInstance)
+                                                           .findFirst().orElseThrow();
+        assertEquals(startMinute, row.getTimeBucket(), "the service row is in the metric's minute");
+    }
+
+    @Test
+    void serviceAndEndpointMetricsCarryTheirLayerAsAttr0() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  metrics { name \"attr0_svc_cpm\"; scope service(meta.service, meta.layer); function cpm; value 1 }\n"
+            + "  metrics { name \"attr0_ep_cpm\"; scope endpoint(meta.service, meta.endpoint, meta.layer); function cpm;"
+            + " value 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertEquals("OTLP_SERVICE", attr0Of(sentValues.get(0)));
+        assertEquals("OTLP_SERVICE", attr0Of(sentValues.get(1)));
+    }
+
+    @Test
+    void aClientEdgeListsItsCallerAndAConjecturedPeerButNotAServicePeer() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  metrics { name \"to_svc\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"cart:7070\","
+            + " \"OTLP_SERVICE\", 0); function cpm; value 1 }\n"
+            + "  metrics { name \"to_db\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"pg:5432\","
+            + " \"OTLP_VIRTUAL_DATABASE\", 0); function cpm; value 1 }\n"
+            + "} }", clientSpan(), new TestSpanInput());
+        assertEquals(List.of("frontend", "pg:5432"), traffic.stream().filter(ServiceTraffic.class::isInstance)
+            .map(r -> ((ServiceTraffic) r).getName()).distinct().sorted().collect(Collectors.toList()),
+            "cart:7070 lists itself once its own spans arrive; a database never sends any");
+    }
+
+    private static String attr0Of(final AcceptableValue<?> value) throws Exception {
+        return (String) value.getClass().getMethod("getAttr0").invoke(value);
+    }
+
+    @Test
+    void theShippedRuleCountsAnHttp4xxAsAFailure() throws Exception {
+        final TalExpression rule = compileShipped("otlp-service", "tal_exec_4xx");
+        execute(rule, serverSpan(), new TestSpanInput().attribute("http.response.status_code", "404"));
+        final AcceptableValue<?> sla = sentValues.stream()
+            .filter(v -> metricNameOf(v).endsWith("service_sla")).findFirst().orElseThrow();
+        assertEquals(1L, matchOf(sla, "getTotal"));
+        assertEquals(0L, matchOf(sla, "getMatch"), "a 404 is a failed request, as the agent path counts it");
+
+        sentValues.clear();
+        execute(rule, serverSpan(), new TestSpanInput().attribute("http.response.status_code", "200"));
+        final AcceptableValue<?> ok = sentValues.stream()
+            .filter(v -> metricNameOf(v).endsWith("service_sla")).findFirst().orElseThrow();
+        assertEquals(1L, matchOf(ok, "getMatch"));
+    }
+
+    @Test
+    void theShippedRuleLeavesAnIosAppsUrlSessionCallsToTheIosAnalyzer() throws Exception {
+        final TalExpression rule = compileShipped("otlp-service", "tal_exec_ios");
+        final SpanMetadata call = clientSpan();
+        call.setScopeName("NSURLSession");
+        final ExecutionContext ctx = new ExecutionContext();
+        ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
+        ctx.init(call, new TestSpanInput().attribute("server.address", "api.example.com"),
+            Map.of("os.name", "iOS"), Collections.emptyMap());
+        rule.execute(filterSpec, ctx);
+        assertTrue(ctx.isAborted());
+        assertTrue(sentValues.isEmpty(), sentValues.toString());
+    }
+
+    @Test
+    void theShippedRuleNamesComponentsTheWayTheCatalogDoes() throws Exception {
+        final IComponentLibraryCatalogService catalog = mock(IComponentLibraryCatalogService.class);
+        Mockito.when(catalog.getComponentIdIgnoreCase("SqlServer")).thenReturn(3006);
+        Mockito.when(catalog.getComponentIdIgnoreCase("Redis")).thenReturn(7);
+        Mockito.when(catalog.getComponentIdIgnoreCase("Dubbo")).thenReturn(3);
+        Mockito.when(coreProvider.getService(IComponentLibraryCatalogService.class)).thenReturn(catalog);
+        final TalExpression rule = compileShipped("otlp-service", "tal_exec_components");
+        final String[][] cases = {
+            {"db.system", "mssql", "3006"},
+            {"db.system.name", "microsoft.sql_server", "3006"},
+            {"db.system", "valkey", "7"},
+            {"rpc.system", "apache_dubbo", "3"},
+        };
+        for (final String[] c : cases) {
+            traffic.clear();
+            execute(rule, clientSpan(), new TestSpanInput().attribute(c[0], c[1]).attribute("server.address", "peer"));
+            final ServiceRelationClientSideMetrics edge = traffic.stream()
+                .filter(ServiceRelationClientSideMetrics.class::isInstance)
+                .map(ServiceRelationClientSideMetrics.class::cast).findFirst().orElseThrow();
+            assertEquals(Integer.parseInt(c[2]), edge.getComponentIds().get(0), c[1]);
+        }
+    }
+
+    /**
+     * @param metricPrefix a prefix of the calling test's own, for the reason {@link #compile} gives
+     */
+    private TalExpression compileShipped(final String ruleName, final String metricPrefix) throws Exception {
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint(metricPrefix + "_" + ruleName.replace('-', '_'));
+        generator.setMetricPrefix(metricPrefix);
+        generator.setInputType(TestSpanInput.class);
+        generator.setSourceRef(ShippedRules.ref(ruleName));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        final TalExpression expression = generator.compile(ShippedRules.dsl(ruleName));
+        generator.createMetrics(meterSystem);
+        return expression;
+    }
+
+    private static String metricNameOf(final AcceptableValue<?> value) {
+        // The generated metric class is named after the metric, with the shape MeterSystem gives it.
+        final String simple = value.getClass().getSimpleName();
+        return simple.replaceAll("Metrics$", "").replaceAll("([a-z0-9])([A-Z])", "$1_$2").toLowerCase();
+    }
+
+    private static long matchOf(final AcceptableValue<?> value, final String getter) throws Exception {
+        return (Long) value.getClass().getMethod(getter).invoke(value);
+    }
+
+    @Test
+    void anAutoRuleThatNamesNoLayerWritesNothing() throws Exception {
+        // `layer: auto` hands the rule spans without a service.layer; forgetting `layer` in the extractor used to
+        // file the service under UNDEFINED.
+        run("filter { extractor {\n"
+            + "  metrics { name \"no_layer_cpm\"; scope service(meta.service, meta.layer); function cpm; value 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertTrue(sentValues.isEmpty(), sentValues.toString());
+        assertTrue(traffic.isEmpty(), traffic.toString());
+    }
+
+    @Test
+    void aLabeledMetricKeepsNoMoreLabelSetsThanItsLimit() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"by_url\"; scope svc; function sumLabeled; labels url: attr(\"url\"); value 1;"
+            + " labelLimit 2 }\n"
+            + "} }");
+        for (final String url : List.of("/a", "/b", "/c", "/a")) {
+            execute(rule, serverSpan(), new TestSpanInput().attribute("url", url));
+        }
+        final Metrics row = (Metrics) sentValues.get(0);
+        for (int i = 1; i < sentValues.size(); i++) {
+            row.combine((Metrics) sentValues.get(i));
+        }
+        final DataTable kept = (DataTable) row.getClass().getMethod("getValue").invoke(row);
+        assertEquals(2, kept.size(), "a span attribute's third value is not a third label set: " + kept);
+        assertEquals(2L, kept.get("{url=/a}"), "a kept label set still counts");
+    }
+
+    @Test
+    void aNumericMetaFieldTakesPartInArithmetic() throws Exception {
+        // meta.latency + 1 used to concatenate, "110" + "1".
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"plus_one\"; scope svc; function sum; value meta.latency + 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertEquals(111L, longValueOf(sentValues.get(0)));
+    }
+
+    @Test
+    void aDefHoldingANumberLiteralAdds() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def n = 1\n"
+            + "  def m = n + 2\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"three\"; scope svc; function sum; value m }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertEquals(3L, longValueOf(sentValues.get(0)));
+    }
+
+    @Test
+    void aValueCastAsDoubleIsConvertedBeforeItIsCounted() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"amount\"; scope svc; function sum; value attr(\"amount\") as Double }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("amount", "1.7"));
+        assertEquals(1L, longValueOf(sentValues.get(0)));
+    }
+
+    @Test
+    void stringsAreReadAsWrittenAndMethodsApplyToBuiltIns() throws Exception {
+        final ExecutionContext ctx = run("filter { extractor {\n"
+            + "  if (attr(\"x\").trim() == \"a\") { tag \"trimmed\": \"yes\" }\n"
+            + "  if (attr(\"q\") == \"a\\\"b\") { tag \"escaped\": \"yes\" }\n"
+            + "  if (hasAttr(\"k1\", \"k2\", \"k3\", \"k4\", \"k5\")) { tag \"five\": \"yes\" }\n"
+            + "  tag \"host\": urlHost(attr(\"u\"))\n"
+            + "} }", serverSpan(), new TestSpanInput()
+            .attribute("x", " a ").attribute("q", "a\"b").attribute("k5", "v").attribute("u", "api/cart"));
+        assertEquals("yes", ctx.getAdditionalTags().get("trimmed"));
+        assertEquals("yes", ctx.getAdditionalTags().get("escaped"));
+        assertEquals("yes", ctx.getAdditionalTags().get("five"));
+        assertEquals("", ctx.getAdditionalTags().get("host"), "a path has no host");
+    }
+
+    @Test
+    void booleanAndNullLiteralsCompile() throws Exception {
+        final ExecutionContext ctx = run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def nothing = null\n"
+            + "  if (meta.root == true) { tag \"root\": \"yes\" }\n"
+            + "  if (false) { tag \"never\": \"yes\" }\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"always\"; scope svc; function percent; match true }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertEquals("yes", ctx.getAdditionalTags().get("root"));
+        assertFalse(ctx.getAdditionalTags().containsKey("never"));
+        assertEquals(1, sentValues.size());
+    }
+
+    @Test
+    void filterLevelDefsAndBranchesReachTheExtractor() throws Exception {
+        final String dsl = "filter {\n"
+            + "  def owner = meta.service\n"
+            + "  if (meta.root) {\n"
+            + "    extractor {\n"
+            + "      if (meta.kind == \"SERVER\") { def seen = \"server\" }\n"
+            + "      tag \"owner\": owner\n"
+            + "      tag \"seen\": seen\n"
+            + "    }\n"
+            + "  }\n"
+            + "}";
+        final ExecutionContext ctx = run(dsl, serverSpan(), new TestSpanInput());
+        assertEquals("frontend", ctx.getAdditionalTags().get("owner"), "a filter-level def is in scope");
+        assertEquals("server", ctx.getAdditionalTags().get("seen"), "a def from a branch is readable after it");
+        final ExecutionContext client = run(dsl, clientSpan(), new TestSpanInput());
+        assertTrue(client.getAdditionalTags().isEmpty(), "the extractor inside the if did not run");
+    }
+
+    @Test
+    void anAbortedExtractorStopsTheWholeRule() throws Exception {
+        final ExecutionContext ctx = run("filter {\n"
+            + "  extractor { abort {} }\n"
+            + "  alias \"frontend:8080\"\n"
+            + "}", serverSpan(), new TestSpanInput());
+        assertTrue(ctx.isAborted());
+        assertTrue(received.isEmpty(), "the filter-level alias after the aborted extractor is not written");
+    }
+
+    @Test
+    void aRateLimitAfterAnIfOnlySpendsOnTheSpansTheIfLetThrough() throws Exception {
+        final TalExpression rule = compile("filter { persist { sampler {\n"
+            + "  if (meta.root) { abort {} }\n"
+            + "  rateLimit(\"after-if\") { rpm 1 }\n"
+            + "} } }");
+        assertTrue(execute(rule, serverSpan(), new TestSpanInput()).isAborted(), "the root span aborts first");
+        assertTrue(execute(rule, clientSpan(), new TestSpanInput()).isPersist(),
+            "the budget is still there for the first span that reaches the limit");
+    }
+
+    @Test
+    void anEnforcerKeepsTheSpanPastTheRulesSamplers() throws Exception {
+        final ExecutionContext ctx = run("filter { persist {\n"
+            + "  enforcer {}\n"
+            + "  sampler { rateLimit(\"none\") { rpm 0 } }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertTrue(ctx.isPersist());
+        assertTrue(ctx.isEnforced());
+    }
+
+    @Test
+    void anInlineRelationUsedTwiceKeepsItsOwner() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  metrics { name \"rel_a\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"db\","
+            + " \"OTLP_VIRTUAL_DATABASE\", 0); function cpm; value 1 }\n"
+            + "  metrics { name \"rel_b\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"db\","
+            + " \"OTLP_VIRTUAL_DATABASE\", 0); function cpm; value 1 }\n"
+            + "} }", clientSpan(), new TestSpanInput());
+        assertEquals(2, sentValues.size());
+        final String owner = IDManager.ServiceID.buildId("frontend", true);
+        assertEquals(owner, serviceIdOf(sentValues.get(0)));
+        assertEquals(owner, serviceIdOf(sentValues.get(1)), "the second block's entity was not re-registered");
+    }
+
+    @Test
+    void anInstanceAndAnEndpointWithOneNameAreBothRegistered() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  metrics { name \"i\"; scope instance(meta.service, \"same\", meta.layer); function cpm; value 1 }\n"
+            + "  metrics { name \"e\"; scope endpoint(meta.service, \"same\", meta.layer); function cpm; value 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput());
+        assertEquals(1, traffic.stream().filter(InstanceTraffic.class::isInstance).count(), traffic.toString());
+        assertEquals(1, traffic.stream().filter(EndpointTraffic.class::isInstance).count(), traffic.toString());
+    }
+
+    @Test
+    void bucketsAreReadAsDecimalAndLabelValuesCannotSplitTheTable() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"octal\"; scope svc; function histogram; value attr(\"v\"); buckets [010, 20] }\n"
+            + "  metrics { name \"by_route\"; scope svc; function sumLabeled; labels route: attr(\"r\"); value 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("v", "9").attribute("r", "a|b,c"));
+        final DataTable histogram = ((HistogramFunction) sentValues.get(0)).getDataset();
+        assertEquals(1L, histogram.get("10"), "9 falls under 10, not under an octal 8: " + histogram);
+        final String stored = ((DataTable) sentValues.get(1).getClass().getMethod("getValue")
+                                                          .invoke(sentValues.get(1))).toStorageData();
+        assertEquals("{route=a_b_c},1", stored);
+    }
+
+    private static long longValueOf(final AcceptableValue<?> value) throws Exception {
+        return (Long) value.getClass().getMethod("getValue").invoke(value);
+    }
+
+    private static String serviceIdOf(final AcceptableValue<?> value) throws Exception {
+        return (String) value.getClass().getMethod("getServiceId").invoke(value);
+    }
+
+    @Test
+    void aFailingMetricsBlockSkipsOnlyItself() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def peer = service(\"payments\", meta.layer)\n"
+            + "  metrics { name \"amount_sum\"; scope peer; function sum; value attr(\"amount\") }\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"after_cpm\"; scope svc; function cpm; value 1 }\n"
+            + "} }");
+        final ExecutionContext ctx = execute(rule, serverSpan(), new TestSpanInput().attribute("amount", "abc"));
+
+        assertFalse(ctx.isAborted(), "the rule itself goes on");
+        assertEquals(1, sentValues.size(), "the block after the failing one still runs: " + sentValues);
+        assertEquals(List.of("frontend"), traffic.stream().filter(ServiceTraffic.class::isInstance)
+            .map(r -> ((ServiceTraffic) r).getName()).collect(Collectors.toList()),
+            "the failing block registered no traffic for its entity");
+    }
+
+    @Test
+    void apdexLooksTheThresholdUpByTheServiceOfItsEntity() throws Exception {
+        // NamingControl stores a service name cut to 70 characters, and service-apdex-threshold.yml is written
+        // against the name the UI shows, so the lookup has to use the stored name, not the span's.
+        final String longName = "checkout-" + "x".repeat(70);
+        final String stored = longName.substring(0, 70);
+        ApdexFunction.setDICT(name -> "backend".equals(name) || stored.equals(name) ? 100 : 500);
+        try {
+            final TalExpression rule = compile("filter { extractor {\n"
+                + "  layer \"OTLP_SERVICE\"\n"
+                + "  def svc = service(attr(\"callee\"), meta.layer)\n"
+                + "  metrics { name \"callee_apdex\"; scope svc; function apdex; value meta.latency\n"
+                + "            status meta.statusCode != \"ERROR\" }\n"
+                + "} }");
+            // A 110 ms success from a `frontend` span (T=500 would satisfy it), scoped to a T=100 service: tolerated.
+            for (final String callee : List.of("backend", longName)) {
+                sentValues.clear();
+                execute(rule, serverSpan(), new TestSpanInput().attribute("callee", callee));
+                final ApdexFunction apdex = (ApdexFunction) sentValues.get(0);
+                assertEquals(0L, apdex.getSNum(), callee);
+                assertEquals(1L, apdex.getTNum(), callee);
+            }
+        } finally {
+            ApdexFunction.setDICT(null);
+        }
+    }
+
+    @Test
+    void aHistogramCountsAValueInTheFirstBucketNotBelowIt() throws Exception {
+        // A bound is its bucket's upper edge, as MAL keys OTel's `le`; above the last bound is the overflow bucket,
+        // keyed Long.MAX_VALUE like MAL's +Inf.
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"latency_histogram\"; scope svc; function histogram; value attr(\"lat\")\n"
+            + "            buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }\n"
+            + "} }");
+        final String overflow = String.valueOf(Long.MAX_VALUE);
+        final String[][] cases = {
+            {"0", "10"}, {"10", "10"}, {"11", "25"}, {"110", "250"}, {"10000", "10000"}, {"10001", overflow},
+        };
+        for (final String[] c : cases) {
+            sentValues.clear();
+            execute(rule, serverSpan(), new TestSpanInput().attribute("lat", c[0]));
+            assertEquals(1, sentValues.size(), c[0]);
+            final DataTable dataset = ((HistogramFunction) sentValues.get(0)).getDataset();
+            final List<String> counted = dataset.keys().stream()
+                                                .filter(k -> dataset.get(k) > 0)
+                                                .collect(Collectors.toList());
+            assertEquals(List.of(c[1]), counted, "the bucket " + c[0] + " ms is counted in");
+        }
+    }
+
+    @Test
+    void aPercentileAboveTheLastBoundReadsTheOverflowBucket() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"latency_percentile\"; scope svc; function percentile; value attr(\"lat\")\n"
+            + "            buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }\n"
+            + "} }");
+        for (int i = 0; i < 10; i++) {
+            execute(rule, serverSpan(), new TestSpanInput().attribute("lat", "20000"));
+        }
+        assertEquals(10, sentValues.size());
+        final SumHistogramPercentileFunction minute = (SumHistogramPercentileFunction) sentValues.get(0);
+        for (int i = 1; i < sentValues.size(); i++) {
+            minute.combine((SumHistogramPercentileFunction) sentValues.get(i));
+        }
+        minute.calculate();
+        final DataTable ranks = minute.getValue();
+        assertEquals(5, ranks.keys().size(), "the default ranks: " + ranks);
+        for (final String rank : ranks.keys()) {
+            assertEquals(Long.MAX_VALUE, ranks.get(rank), "every span took 20 s, above the last bound: " + rank);
+        }
     }
 
     @Test
@@ -571,10 +1000,58 @@ class TALExecutionTest {
         sentValues.clear();
         execute(rule, SpanMetadata.builder().service("frontend").endpoint("HTTP GET")
                                   .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET)
-                                  .startTime(1_700_000_000_390L).timestamp(SPAN_END_MILLIS).latency(110)
+                                  .startTime(SPAN_START_MILLIS).timestamp(SPAN_END_MILLIS).latency(110)
                                   .traceId("aabb").spanId("eeff").parentSpanId("ccdd").build(),
             new TestSpanInput());
         assertTrue(sentValues.isEmpty(), "no User edge for a span with a parent: " + sentValues);
+    }
+
+    @Test
+    void theShippedSlowStatementIsKeyedByTraceAndSpan() throws Exception {
+        // A span id is unique only within its trace, and the record id is the JDBC primary key.
+        final ExecutionContext ctx = execute(compileShippedSlowSql(), slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("server.address", "db").attribute("server.port", "5432"));
+        final ShippedSlowStatement record = (ShippedSlowStatement) ctx.outputAsBuilder();
+        assertEquals("aabb-eeff", record.getId());
+        assertEquals("SELECT 1", record.getStatement());
+        assertEquals("db:5432", ctx.getMeta().getService());
+        assertEquals("OTLP_VIRTUAL_DATABASE", ctx.getMeta().getLayer());
+    }
+
+    @Test
+    void theShippedSlowStatementNamesTheDatabaseAsTheTopologyDoes() throws Exception {
+        final TalExpression rule = compileShippedSlowSql();
+        // A database without an address, as an embedded one is, by its system and namespace.
+        assertEquals("h2/mem-db", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("db.system", "h2").attribute("db.name", "mem-db"))
+            .getMeta().getService());
+        // Envoy's spelling of the address.
+        assertEquals("10.0.0.7:5432", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("peer.address", "10.0.0.7:5432"))
+            .getMeta().getService());
+        // An address whose first DNS label is a service that sends spans is that service.
+        filterSpec.getKnownServices().record("orders-db");
+        assertEquals("orders-db", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("server.address", "orders-db.prod.svc")
+            .attribute("server.port", "5432"))
+            .getMeta().getService());
+    }
+
+    private TalExpression compileShippedSlowSql() throws Exception {
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("exec_shipped_slow_sql");
+        generator.setMetricPrefix("tal_exec_test");
+        generator.setInputType(TestSpanInput.class);
+        generator.setOutputType(ShippedSlowStatement.class);
+        generator.setSourceRef(ShippedRules.ref("otlp-slow-sql"));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        return generator.compile(ShippedRules.dsl("otlp-slow-sql"));
+    }
+
+    private static SpanMetadata slowClientSpan() {
+        final SpanMetadata slow = clientSpan();
+        slow.setLatency(500);
+        return slow;
     }
 
     private ExecutionContext run(final String dsl, final SpanMetadata meta, final TestSpanInput input)
@@ -614,7 +1091,7 @@ class TALExecutionTest {
                            .endpoint("HTTP GET")
                            .kind(SpanMetadata.KIND_SERVER)
                            .statusCode(SpanMetadata.STATUS_UNSET)
-                           .startTime(1_700_000_000_390L)
+                           .startTime(SPAN_START_MILLIS)
                            .timestamp(SPAN_END_MILLIS)
                            .latency(110)
                            .traceId("aabb")
@@ -630,7 +1107,7 @@ class TALExecutionTest {
                            .endpoint("GET")
                            .kind(SpanMetadata.KIND_CLIENT)
                            .statusCode(SpanMetadata.STATUS_UNSET)
-                           .startTime(1_700_000_000_390L)
+                           .startTime(SPAN_START_MILLIS)
                            .timestamp(SPAN_END_MILLIS)
                            .latency(20)
                            .traceId("aabb")
@@ -640,14 +1117,7 @@ class TALExecutionTest {
     }
 
     private static String entityIdOf(final AcceptableValue<?> value) throws Exception {
-        final java.lang.reflect.Method getter = value.getClass().getMethod("getEntityId");
+        final Method getter = value.getClass().getMethod("getEntityId");
         return (String) getter.invoke(value);
     }
-
-    /**
-     * Keeps the unused import of {@link ScopeType} honest: the scope a metric registers under is asserted through
-     * the entity id above, which encodes it.
-     */
-    @SuppressWarnings("unused")
-    private static final ScopeType DOCUMENTED_SCOPE = ScopeType.SERVICE;
 }

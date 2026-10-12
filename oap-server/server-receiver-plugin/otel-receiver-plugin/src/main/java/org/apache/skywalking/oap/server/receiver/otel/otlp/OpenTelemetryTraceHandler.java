@@ -30,6 +30,7 @@ import io.opentelemetry.proto.common.v1.KeyValue;
 import io.opentelemetry.proto.resource.v1.Resource;
 import io.opentelemetry.proto.trace.v1.ResourceSpans;
 import io.opentelemetry.proto.trace.v1.ScopeSpans;
+import io.opentelemetry.proto.trace.v1.SpanFlags;
 import io.opentelemetry.proto.trace.v1.Status;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -267,7 +268,7 @@ public class OpenTelemetryTraceHandler
                                 spanTags = new HashMap<>(resourceTags);
                                 spanTags.putAll(injectedTags);
                             }
-                            Span zipkinSpan = convertSpan(span, serviceName, spanTags);
+                            Span zipkinSpan = convertSpan(span, serviceName, spanTags, analysis.isEnforced());
                             result.add(zipkinSpan);
                         }
                     }
@@ -330,12 +331,18 @@ public class OpenTelemetryTraceHandler
     /**
      * The protocol-neutral view a rule reads as {@code meta.*}.
      */
-    private static SpanMetadata spanMetadataOf(final io.opentelemetry.proto.trace.v1.Span span,
+    static SpanMetadata spanMetadataOf(final io.opentelemetry.proto.trace.v1.Span span,
                                                final String serviceName,
                                                final Map<String, String> resourceTags,
                                                final String scopeName,
                                                final String scopeVersion) {
         final String parentSpanId = OTLPValues.hexId(span.getParentSpanId());
+        // A sender that leaves a time out sends 0. The other time, or the arrival time when both are missing, stands
+        // in, rather than metrics in the epoch's minute or a latency of decades.
+        final long startNanos = span.getStartTimeUnixNano() > 0 ? span.getStartTimeUnixNano()
+            : span.getEndTimeUnixNano() > 0 ? span.getEndTimeUnixNano()
+            : TimeUnit.MILLISECONDS.toNanos(System.currentTimeMillis());
+        final long endNanos = span.getEndTimeUnixNano() > 0 ? span.getEndTimeUnixNano() : startNanos;
         return SpanMetadata.builder()
                            .service(serviceName)
                            .serviceInstance(firstPresent(resourceTags, INSTANCE_KEYS))
@@ -344,17 +351,29 @@ public class OpenTelemetryTraceHandler
                            .kind(SpanMetadata.normalizeKind(span.getKind().name()))
                            .statusCode(SpanMetadata.normalizeStatusCode(span.getStatus().getCode().name()))
                            .statusMessage(span.getStatus().getMessage())
-                           .startTime(TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano()))
-                           .timestamp(TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano()))
-                           .latency(SpanMetadata.latencyMillis(
-                               span.getStartTimeUnixNano(), span.getEndTimeUnixNano()))
+                           .startTime(TimeUnit.NANOSECONDS.toMillis(startNanos))
+                           .timestamp(TimeUnit.NANOSECONDS.toMillis(endNanos))
+                           .latency(SpanMetadata.latencyMillis(startNanos, endNanos))
                            .traceId(OTLPValues.hexId(span.getTraceId()))
                            .spanId(OTLPValues.hexId(span.getSpanId()))
                            .parentSpanId(parentSpanId)
                            .root(parentSpanId.isEmpty())
+                           .parentLocation(parentLocation(parentSpanId, span.getFlags()))
                            .scopeName(scopeName)
                            .scopeVersion(scopeVersion)
                            .build();
+    }
+
+    /**
+     * Where the parent ran, from the OTLP span flags: bit 8 says whether bit 9, "the parent is remote", is set at
+     * all. SDKs that predate the bits, and Envoy, leave both clear.
+     */
+    static String parentLocation(final String parentSpanId, final int flags) {
+        if (parentSpanId.isEmpty() || (flags & SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE) == 0) {
+            return SpanMetadata.PARENT_UNKNOWN;
+        }
+        return (flags & SpanFlags.SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK_VALUE) != 0
+            ? SpanMetadata.PARENT_REMOTE : SpanMetadata.PARENT_LOCAL;
     }
 
     private static String firstPresent(final Map<String, String> source, final List<String> keys) {
@@ -375,8 +394,17 @@ public class OpenTelemetryTraceHandler
         return count;
     }
 
-    private Span convertSpan(io.opentelemetry.proto.trace.v1.Span span, String serviceName, Map<String, String> resourceTags) {
+    /**
+     * A span a rule's {@code enforcer {}} kept becomes a Zipkin {@code debug} span, which
+     * {@code SpanForward.getSampledTraces} keeps past its head sampling, as {@link OTLPSpanForward} does for an
+     * enforced span in the native store.
+     */
+    private Span convertSpan(io.opentelemetry.proto.trace.v1.Span span, String serviceName, Map<String, String> resourceTags,
+                             boolean enforced) {
         final Span.Builder spanBuilder = Span.newBuilder();
+        if (enforced) {
+            spanBuilder.debug(true);
+        }
         final Map<String, String> tags = aggregateSpanTags(span.getAttributesList(), resourceTags);
 
         if (span.getTraceId().isEmpty()) {

@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -26,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +87,74 @@ public final class OTLPValues {
             keyValue -> render(keyValue.getValue()),
             (v1, v2) -> v1
         ));
+    }
+
+    /**
+     * The id fields of an OTLP/JSON body: traces, links, log records and exemplars, in the spec's lowerCamelCase and
+     * in the snake_case protobuf's parser also accepts.
+     */
+    private static final Set<String> JSON_ID_FIELDS = Set.of(
+        "traceId", "spanId", "parentSpanId", "trace_id", "span_id", "parent_span_id");
+
+    /**
+     * Rewrite the ids of an OTLP/JSON body from hex to base64, so protobuf's JSON parser reads them. OTLP/JSON
+     * encodes {@code traceId}, {@code spanId} and {@code parentSpanId} as hex, unlike the standard protobuf JSON
+     * mapping, which reads every {@code bytes} field as base64. Hex digits are base64 characters too, so the
+     * unconverted body parses without an error, into ids of the wrong length that match nothing the SDK logged and
+     * nothing a protobuf sender reports for the same trace.
+     *
+     * @param json an OTLP/JSON request body
+     * @return the body with every hex id field in base64; the body unchanged when it is not JSON, for the protobuf
+     * parser to reject
+     */
+    public static String hexIdsToBase64(final String json) {
+        final JsonElement root;
+        try {
+            root = JsonParser.parseString(json);
+        } catch (final JsonParseException e) {
+            return json;
+        }
+        rewriteHexIds(root);
+        return root.toString();
+    }
+
+    private static void rewriteHexIds(final JsonElement element) {
+        if (element.isJsonObject()) {
+            for (final Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+                final JsonElement value = entry.getValue();
+                if (JSON_ID_FIELDS.contains(entry.getKey()) && value.isJsonPrimitive()) {
+                    final byte[] bytes = hexBytes(value.getAsString());
+                    if (bytes != null) {
+                        entry.setValue(new JsonPrimitive(Base64.getEncoder().encodeToString(bytes)));
+                    }
+                } else {
+                    rewriteHexIds(value);
+                }
+            }
+        } else if (element.isJsonArray()) {
+            for (final JsonElement child : element.getAsJsonArray()) {
+                rewriteHexIds(child);
+            }
+        }
+    }
+
+    /**
+     * @return the bytes of an even-length hex string, or null for anything else, which is left for the parser
+     */
+    private static byte[] hexBytes(final String hex) {
+        if (hex.isEmpty() || hex.length() % 2 != 0) {
+            return null;
+        }
+        final byte[] bytes = new byte[hex.length() / 2];
+        for (int i = 0; i < bytes.length; i++) {
+            final int high = Character.digit(hex.charAt(2 * i), 16);
+            final int low = Character.digit(hex.charAt(2 * i + 1), 16);
+            if (high < 0 || low < 0) {
+                return null;
+            }
+            bytes[i] = (byte) (high << 4 | low);
+        }
+        return bytes;
     }
 
     /**

@@ -23,8 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The state one rule's code generation carries: the resolved types, the private methods emitted so far, the local
- * and cached-chain variables, and the channel {@link TALRootResolver#generateInputRootAccess} uses to report the
+ * The state one rule's code generation carries: the resolved types, the local and cached-chain variables, where
+ * in the rule the generator is, and the channel {@link TALRootResolver#generateInputRootAccess} uses to report the
  * static type and null checks of the chain it just emitted.
  *
  * <p>Shared by every DSL; what differs between them lives behind {@link #resolver}.
@@ -33,8 +33,6 @@ public class TALGenCtx {
     public final TALRootResolver resolver;
     public final Class<?> inputType;
     public final Class<?> outputType;
-    public final List<TALPrivateMethod> privateMethods = new ArrayList<>();
-    private final Map<String, Integer> methodCounts = new HashMap<>();
 
     /**
      * Rule's name, emitted as the first argument of every probe call site.
@@ -84,6 +82,18 @@ public class TALGenCtx {
      */
     public final Map<String, String> entityScopeTypes = new HashMap<>();
 
+    /**
+     * How deep the generator is inside an {@code extractor} and inside a {@code sink} or {@code persist} block,
+     * so a block that belongs at the filter level is refused anywhere else.
+     */
+    public int extractorDepth;
+    public int voteDepth;
+
+    /**
+     * The {@code sink} blocks generated, since a rule with an {@code outputType} needs one to write its record.
+     */
+    public int sinkCount;
+
     private int localNameCounter;
 
     public TALGenCtx(final TALRootResolver resolver, final Class<?> inputType, final Class<?> outputType) {
@@ -98,11 +108,6 @@ public class TALGenCtx {
      */
     public String nextLocalName(final String prefix) {
         return prefix + localNameCounter++;
-    }
-
-    public String nextMethodName(final String prefix) {
-        final int count = methodCounts.merge(prefix, 1, Integer::sum);
-        return count == 1 ? "_" + prefix : "_" + prefix + "_" + count;
     }
 
     public void clearExtraLogResult() {
@@ -120,36 +125,5 @@ public class TALGenCtx {
         localVars.clear();
         localVarDecls.setLength(0);
         localVarLvtVars.clear();
-    }
-
-    public Object[] saveProtoVarState() {
-        return new Object[] {
-            new HashMap<>(protoVars),
-            new ArrayList<>(protoLvtVars),
-            protoVarDecls.toString(),
-            protoVarCounter,
-            usedProtoAccess,
-            new HashMap<>(localVars),
-            localVarDecls.toString(),
-            new ArrayList<>(localVarLvtVars)
-        };
-    }
-
-    @SuppressWarnings("unchecked")
-    public void restoreProtoVarState(final Object[] state) {
-        protoVars.clear();
-        protoVars.putAll((Map<String, String>) state[0]);
-        protoLvtVars.clear();
-        protoLvtVars.addAll((List<String[]>) state[1]);
-        protoVarDecls.setLength(0);
-        protoVarDecls.append((String) state[2]);
-        protoVarCounter = (Integer) state[3];
-        usedProtoAccess = (Boolean) state[4];
-        localVars.clear();
-        localVars.putAll((Map<String, TALLocalVar>) state[5]);
-        localVarDecls.setLength(0);
-        localVarDecls.append((String) state[6]);
-        localVarLvtVars.clear();
-        localVarLvtVars.addAll((List<String[]>) state[7]);
     }
 }

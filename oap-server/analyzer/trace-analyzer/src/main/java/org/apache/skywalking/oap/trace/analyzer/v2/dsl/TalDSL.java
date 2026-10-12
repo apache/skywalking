@@ -50,7 +50,7 @@ public class TalDSL {
 
     /**
      * The type this rule's {@code span} root was typed against. The runtime skips a rule whose input type does
-     * not match the object that arrived, which is how OTLP and Zipkin rules coexist in one layer.
+     * not match the object that arrived, so rules for different inputs can share one layer.
      */
     @Getter
     private final Class<?> inputType;

@@ -76,8 +76,7 @@ public final class TALScriptParser {
         final TALParser parser = new TALParser(tokens);
 
         final List<String> errors = new ArrayList<>();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new BaseErrorListener() {
+        final BaseErrorListener collector = new BaseErrorListener() {
             @Override
             public void syntaxError(final Recognizer<?, ?> recognizer,
                                     final Object offendingSymbol,
@@ -87,7 +86,13 @@ public final class TALScriptParser {
                                     final RecognitionException e) {
                 errors.add(line + ":" + charPositionInLine + " " + msg);
             }
-        });
+        };
+        // The lexer reports too: a character no token matches, such as a YAML `#` comment inside the DSL, is
+        // otherwise skipped silently and the text around it compiles as live code.
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(collector);
+        parser.removeErrorListeners();
+        parser.addErrorListener(collector);
 
         final TALParser.RootContext tree = parser.root();
         if (!errors.isEmpty()) {
@@ -241,7 +246,7 @@ public final class TALScriptParser {
             }
         } else {
             tags.put(
-                stripQuotes(ctx.STRING().getText()),
+                unquote(ctx.STRING().getText()),
                 new TagValue(visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast())));
         }
         return new TALScriptModel.TagAssignment(tags);
@@ -254,22 +259,26 @@ public final class TALScriptParser {
         ValueAccess scope = null;
         String function = null;
         ValueAccess value = null;
+        String valueCast = null;
         Condition match = null;
         Condition status = null;
         final Map<String, TagValue> labels = new LinkedHashMap<>();
+        String labelLimit = null;
         List<String> buckets = null;
         List<String> ranks = null;
         ValueAccess timestamp = null;
+        String timestampCast = null;
 
         for (final TALParser.MetricsStatementContext msc : ctx.metricsContent().metricsStatement()) {
             if (msc.metricsNameStatement() != null) {
-                name = resolveValueAsString(msc.metricsNameStatement().valueAccess());
+                name = metricName(msc.metricsNameStatement());
             } else if (msc.metricsScopeStatement() != null) {
                 scope = visitValueAccess(msc.metricsScopeStatement().valueAccess());
             } else if (msc.metricsFunctionStatement() != null) {
                 function = msc.metricsFunctionStatement().anyIdentifier().getText();
             } else if (msc.metricsValueStatement() != null) {
                 value = visitValueAccess(msc.metricsValueStatement().valueAccess());
+                valueCast = extractCastType(msc.metricsValueStatement().typeCast());
             } else if (msc.metricsMatchStatement() != null) {
                 match = visitCondition(msc.metricsMatchStatement().condition());
             } else if (msc.metricsStatusStatement() != null) {
@@ -280,16 +289,20 @@ public final class TALScriptParser {
                         lec.anyIdentifier().getText(),
                         new TagValue(visitValueAccess(lec.valueAccess()), extractCastType(lec.typeCast())));
                 }
+            } else if (msc.metricsLabelLimitStatement() != null) {
+                labelLimit = msc.metricsLabelLimitStatement().NUMBER().getText();
             } else if (msc.metricsBucketsStatement() != null) {
                 buckets = numberListOf(msc.metricsBucketsStatement().numberList());
             } else if (msc.metricsRanksStatement() != null) {
                 ranks = numberListOf(msc.metricsRanksStatement().numberList());
             } else if (msc.metricsTimestampStatement() != null) {
                 timestamp = visitValueAccess(msc.metricsTimestampStatement().valueAccess());
+                timestampCast = extractCastType(msc.metricsTimestampStatement().typeCast());
             }
         }
 
-        return new MetricsBlock(name, scope, function, value, match, status, labels, buckets, ranks, timestamp);
+        return new MetricsBlock(name, scope, function, value, valueCast, match, status, labels, labelLimit, buckets,
+            ranks, timestamp, timestampCast);
     }
 
     private static List<String> numberListOf(final TALParser.NumberListContext ctx) {
@@ -347,18 +360,28 @@ public final class TALScriptParser {
     }
 
     private static SamplerBlock visitSamplerBlock(final TALParser.SamplerBlockContext ctx) {
+        return new SamplerBlock(visitSamplerContent(ctx.samplerContent()));
+    }
+
+    /**
+     * The sampler's statements in the order the rule wrote them: a {@code rateLimit} after an {@code if} only
+     * spends its budget on the spans the {@code if} let through.
+     */
+    private static List<SamplerContent> visitSamplerContent(final TALParser.SamplerContentContext ctx) {
         final List<SamplerContent> contents = new ArrayList<>();
-        for (final TALParser.RateLimitBlockContext rlc : ctx.samplerContent().rateLimitBlock()) {
-            contents.add(visitRateLimitBlock(rlc));
+        for (int i = 0; i < ctx.getChildCount(); i++) {
+            final ParseTree child = ctx.getChild(i);
+            if (child instanceof TALParser.RateLimitBlockContext) {
+                contents.add(visitRateLimitBlock((TALParser.RateLimitBlockContext) child));
+            } else if (child instanceof TALParser.IfStatementContext) {
+                contents.add(visitIfStatement((TALParser.IfStatementContext) child));
+            }
         }
-        for (final TALParser.IfStatementContext isc : ctx.samplerContent().ifStatement()) {
-            contents.add(visitIfStatement(isc));
-        }
-        return new SamplerBlock(contents);
+        return contents;
     }
 
     private static RateLimitBlock visitRateLimitBlock(final TALParser.RateLimitBlockContext rlc) {
-        final String id = stripQuotes(rlc.rateLimitId().getText());
+        final String id = unquote(rlc.rateLimitId().getText());
         final int rpm = parseStrictInt(rlc.rateLimitContent().NUMBER().getText(), "rpm");
         return new RateLimitBlock(id, parseInterpolation(id), rpm);
     }
@@ -405,13 +428,7 @@ public final class TALScriptParser {
         }
         final TALParser.SamplerContentContext sc = ctx.samplerContent();
         if (sc != null) {
-            final List<SamplerContent> samplerItems = new ArrayList<>();
-            for (final TALParser.RateLimitBlockContext rlc : sc.rateLimitBlock()) {
-                samplerItems.add(visitRateLimitBlock(rlc));
-            }
-            for (final TALParser.IfStatementContext isc : sc.ifStatement()) {
-                samplerItems.add(visitIfStatement(isc));
-            }
+            final List<SamplerContent> samplerItems = visitSamplerContent(sc);
             if (!samplerItems.isEmpty()) {
                 stmts.add(new SamplerBlock(samplerItems));
             }
@@ -485,7 +502,7 @@ public final class TALScriptParser {
             final TALParser.ConditionExprContext ctx) {
         if (ctx instanceof TALParser.CondStringContext) {
             return new TALScriptModel.StringConditionValue(
-                stripQuotes(((TALParser.CondStringContext) ctx).STRING().getText()));
+                unquote(((TALParser.CondStringContext) ctx).STRING().getText()));
         }
         if (ctx instanceof TALParser.CondNumberContext) {
             final String numText = ((TALParser.CondNumberContext) ctx).NUMBER().getText();
@@ -493,6 +510,10 @@ public final class TALScriptParser {
         }
         if (ctx instanceof TALParser.CondNullContext) {
             return new TALScriptModel.NullConditionValue();
+        }
+        if (ctx instanceof TALParser.CondBoolContext) {
+            return new TALScriptModel.BoolConditionValue(
+                ((TALParser.CondBoolContext) ctx).boolValue().TRUE() != null);
         }
         if (ctx instanceof TALParser.CondValueAccessContext) {
             final TALParser.CondValueAccessContext va = (TALParser.CondValueAccessContext) ctx;
@@ -508,6 +529,10 @@ public final class TALScriptParser {
                 }
                 if (primary instanceof TALParser.ValueNullContext) {
                     return new TALScriptModel.NullConditionValue();
+                }
+                if (primary instanceof TALParser.ValueBoolContext) {
+                    return new TALScriptModel.BoolConditionValue(
+                        ((TALParser.ValueBoolContext) primary).boolValue().TRUE() != null);
                 }
             }
             return new TALScriptModel.ValueAccessConditionValue(
@@ -617,7 +642,7 @@ public final class TALScriptParser {
             segments.add(((TALParser.ValueIdentifierContext) primary).IDENTIFIER().getText());
         } else if (primary instanceof TALParser.ValueStringContext) {
             stringLiteral = true;
-            segments.add(stripQuotes(((TALParser.ValueStringContext) primary).STRING().getText()));
+            segments.add(unquote(((TALParser.ValueStringContext) primary).STRING().getText()));
         } else if (primary instanceof TALParser.ValueNumberContext) {
             numberLiteral = true;
             segments.add(((TALParser.ValueNumberContext) primary).NUMBER().getText());
@@ -686,7 +711,7 @@ public final class TALScriptParser {
                     visitValueAccess(fac.valueAccess()), extractCastType(fac.typeCast())));
             } else if (fac.STRING() != null) {
                 args.add(new TALScriptModel.FunctionArg(
-                    literalArg(stripQuotes(fac.STRING().getText()), true, false), null));
+                    literalArg(unquote(fac.STRING().getText()), true, false), null));
             } else if (fac.NUMBER() != null) {
                 args.add(new TALScriptModel.FunctionArg(
                     literalArg(fac.NUMBER().getText(), false, true), null));
@@ -719,16 +744,19 @@ public final class TALScriptParser {
             List.of(), null, null);
     }
 
-    private static String resolveValueAsString(final TALParser.ValueAccessContext ctx) {
-        final TALParser.ValueAccessTermContext term = singleTermOf(ctx);
-        if (term == null) {
-            return ctx.getText();
+    /**
+     * A metric's name is part of its storage schema, fixed when the rule loads, so it is a string literal; an
+     * expression would be read as its own source text.
+     */
+    private static String metricName(final TALParser.MetricsNameStatementContext ctx) {
+        final TALParser.ValueAccessTermContext term = singleTermOf(ctx.valueAccess());
+        if (ctx.typeCast() == null && term != null && term.valueAccessSegment().isEmpty()
+            && term.valueAccessPrimary() instanceof TALParser.ValueStringContext) {
+            return unquote(((TALParser.ValueStringContext) term.valueAccessPrimary()).STRING().getText());
         }
-        final TALParser.ValueAccessPrimaryContext primary = term.valueAccessPrimary();
-        if (primary instanceof TALParser.ValueStringContext) {
-            return stripQuotes(((TALParser.ValueStringContext) primary).STRING().getText());
-        }
-        return primary.getText();
+        throw new IllegalArgumentException(
+            "a metric's name is a string literal, got '" + rawTextOf(ctx.valueAccess()) + "' at line "
+                + ctx.getStart().getLine());
     }
 
     /**
@@ -819,6 +847,60 @@ public final class TALScriptParser {
             return ctx.qualifiedName().getText();
         }
         return null;
+    }
+
+    /**
+     * A STRING token's value: the quotes removed and the escapes decoded as Java decodes them, so the token
+     * {@code "a\"b"} is the three characters {@code a"b}.
+     */
+    static String unquote(final String token) {
+        final String body = stripQuotes(token);
+        if (body == null || body.indexOf('\\') < 0) {
+            return body;
+        }
+        final StringBuilder out = new StringBuilder(body.length());
+        for (int i = 0; i < body.length(); i++) {
+            final char c = body.charAt(i);
+            if (c != '\\' || i + 1 >= body.length()) {
+                out.append(c);
+                continue;
+            }
+            final char next = body.charAt(++i);
+            switch (next) {
+                case 'b':
+                    out.append('\b');
+                    break;
+                case 't':
+                    out.append('\t');
+                    break;
+                case 'n':
+                    out.append('\n');
+                    break;
+                case 'f':
+                    out.append('\f');
+                    break;
+                case 'r':
+                    out.append('\r');
+                    break;
+                default:
+                    if (next >= '0' && next <= '7') {
+                        // Octal: up to three digits when the first is 0-3, else two, as the lexer allows.
+                        final int max = next <= '3' ? i + 3 : i + 2;
+                        int end = i + 1;
+                        while (end < body.length() && end < max
+                            && body.charAt(end) >= '0' && body.charAt(end) <= '7') {
+                            end++;
+                        }
+                        out.append((char) Integer.parseInt(body.substring(i, end), 8));
+                        i = end - 1;
+                    } else {
+                        // A quote, a backslash, or any other escaped character stands for itself.
+                        out.append(next);
+                    }
+                    break;
+            }
+        }
+        return out.toString();
     }
 
     static String stripQuotes(final String s) {

@@ -185,9 +185,19 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
     }
 
     public DataTable setMaxValue(DataTable dataTable) {
+        return setMaxValue(dataTable, 0);
+    }
+
+    /**
+     * @param maxDataSize the most keys this table holds; a key beyond it is not added. 0 for no limit
+     */
+    public DataTable setMaxValue(DataTable dataTable, int maxDataSize) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);
             if (current == null) {
+                if (maxDataSize > 0 && data.size() >= maxDataSize) {
+                    return;
+                }
                 current = value;
             } else {
                 if (current < value) {
@@ -200,9 +210,19 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
     }
 
     public DataTable setMinValue(DataTable dataTable) {
+        return setMinValue(dataTable, 0);
+    }
+
+    /**
+     * @param maxDataSize the most keys this table holds; a key beyond it is not added. 0 for no limit
+     */
+    public DataTable setMinValue(DataTable dataTable, int maxDataSize) {
         dataTable.data.forEach((key, value) -> {
             Long current = this.data.get(key);
             if (current == null) {
+                if (maxDataSize > 0 && data.size() >= maxDataSize) {
+                    return;
+                }
                 current = value;
             } else {
                 if (current > value) {

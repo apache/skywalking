@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALDefStatement;
 
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFieldSegment;
@@ -96,7 +97,7 @@ public final class TALDefCodegen {
         final TALValueAccess init = def.getInitializer();
         final String varName = def.getVarName();
         final String javaVar = "_def_" + varName;
-        final boolean alreadyDeclared = genCtx.localVars.containsKey(varName);
+        final TALLocalVar previous = genCtx.localVars.get(varName);
 
         // Determine type and generate initializer expression
         Class<?> resolvedType;
@@ -107,13 +108,13 @@ public final class TALDefCodegen {
             // An entity held in a def has a compile-time scope type, so `scope svc` always has one shape and
             // reassigning the variable with a different constructor is caught here rather than at runtime.
             final String scopeType = TALBlockCodegen.appendEntityConstructor(initExpr, init, genCtx);
-            final String previous = genCtx.entityScopeTypes.put(varName, scopeType);
-            if (previous != null && !previous.equals(scopeType)) {
+            final String previousScope = genCtx.entityScopeTypes.put(varName, scopeType);
+            if (previousScope != null && !previousScope.equals(scopeType)) {
                 throw new IllegalArgumentException(
-                    "def " + varName + " was an entity of scope " + previous
+                    "def " + varName + " was an entity of scope " + previousScope
                         + " and is reassigned as " + scopeType);
             }
-            resolvedType = org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity.class;
+            resolvedType = MeterEntity.class;
         } else if (init.getFunctionCallName() != null
                 && TALCodegenHelper.BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
             // Built-in function: toJson(...), toJsonArray(...)
@@ -170,17 +171,21 @@ public final class TALDefCodegen {
             }
         }
 
-        // Register in local vars for later reference
-        genCtx.localVars.put(varName,
-            new TALLocalVar(javaVar, resolvedType));
-
-        // Emit declaration (placed at method top via localVarDecls) — skip if already declared
-        if (!alreadyDeclared) {
+        // The first def of a name declares the variable, hoisted to the top of the method; a later def of the
+        // same name assigns to it, so its value has to fit the declared type.
+        if (previous == null) {
+            genCtx.localVars.put(varName, new TALLocalVar(javaVar, resolvedType));
+            // Initialized, so a def first assigned inside one branch can still be read after it: the variable is
+            // null on the paths that did not assign it, where Javassist would otherwise reject the read.
             genCtx.localVarDecls.append("  ").append(resolvedType.getName())
-                .append(" ").append(javaVar).append(";\n");
+                .append(" ").append(javaVar).append(" = null;\n");
             genCtx.localVarLvtVars.add(new String[]{
                 javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
             });
+        } else if (!previous.resolvedType.isAssignableFrom(resolvedType)) {
+            throw new IllegalArgumentException(
+                "def " + varName + " holds a " + previous.resolvedType.getSimpleName()
+                    + " and is reassigned a " + resolvedType.getSimpleName());
         }
 
         // Emit assignment in body (at the point where def appears).
@@ -284,6 +289,8 @@ public final class TALDefCodegen {
         String prevExpr = localVar.javaVarName;
         Class<?> currentType = localVar.resolvedType;
         boolean canBeNull = true;
+        // Set when a safe-navigated primitive was already boxed to carry its null.
+        boolean boxed = false;
 
         for (int i = 0; i < chain.size(); i++) {
             final TALValueAccessSegment seg = chain.get(i);
@@ -315,6 +322,7 @@ public final class TALDefCodegen {
                             + boxName + ".valueOf(" + prevExpr + "."
                             + methodName + "(" + args + ")))";
                         currentType = returnType;
+                        boxed = true;
                     } else {
                         prevExpr = "(" + prevExpr + " == null ? null : "
                             + prevExpr + "." + methodName + "(" + args + "))";
@@ -358,6 +366,7 @@ public final class TALDefCodegen {
                             + boxName + ".valueOf(" + prevExpr + "."
                             + getter.getName() + "()))";
                         currentType = returnType;
+                        boxed = true;
                     } else {
                         prevExpr = "(" + prevExpr + " == null ? null : "
                             + prevExpr + "." + getter.getName() + "())";
@@ -394,6 +403,13 @@ public final class TALDefCodegen {
         }
 
         genCtx.lastResolvedType = currentType;
+        if (currentType.isPrimitive() && !boxed && TALCodegenHelper.boxTypeName(currentType) != null) {
+            // Javassist does not autobox, so a primitive leaf such as `.length()` is boxed for the Object contexts
+            // it lands in; the raw form stays available to numeric comparisons and arithmetic.
+            genCtx.lastRawChain = prevExpr;
+            sb.append(TALCodegenHelper.boxTypeName(currentType)).append(".valueOf(").append(prevExpr).append(")");
+            return;
+        }
         sb.append(prevExpr);
     }
 

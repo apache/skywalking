@@ -49,10 +49,11 @@ and it means the same thing whatever the input:
 | `layer` | the resource's `service.layer`, empty when absent; see [Layer](#layer) |
 | `kind` | `SERVER`, `CLIENT`, `PRODUCER`, `CONSUMER`, `INTERNAL` or `UNSPECIFIED` |
 | `statusCode`, `statusMessage` | `UNSET`, `OK` or `ERROR`, and the status message |
-| `startTime`, `timestamp` | the span's start and end, in milliseconds; `timestamp` is the minute bucket the metrics land in |
+| `startTime`, `timestamp` | the span's start and end, in milliseconds; `startTime` is the minute bucket the metrics land in |
 | `latency` | end minus start, in milliseconds |
 | `traceId`, `spanId`, `parentSpanId` | the ids in lowercase hex; `parentSpanId` is empty on a root span |
 | `root` | whether `parentSpanId` is empty |
+| `parentLocation` | where the parent span ran, from the OTLP span flags: `REMOTE` in another process, `LOCAL` in the same one, `UNKNOWN` on a root span or when the sender leaves the flags unset |
 | `scopeName`, `scopeVersion` | the instrumentation scope |
 
 `span` is the wire object itself, `io.opentelemetry.proto.trace.v1.Span`, resolved at compile time: `span.name`,
@@ -96,10 +97,24 @@ Attributes are reached through functions, all null-safe and returning `""` when 
 | `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
 | `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
 | `resolveAlias(address)` | the service an address names, see [Address-named peers](#address-named-peers); the address unchanged when none is known yet |
-| `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none. For a client that names its target only as `url.full` or `http.url` |
+| `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not. For a client that names its target only as `url.full` or `http.url` |
 | `toJson(expr)`, `toJsonArray(expr)` | as in LAL |
 
+`attr`, `hasAttr`, `resource` and `scopeAttr` take any number of keys. A method can follow a function that returns
+a string, `attr("x").trim()`.
+
 A span's attributes are indexed once per span, however many rules and lookups read them.
+
+### Expressions
+
+An expression starts with `span`, `meta`, a `def` variable, a function or a literal; any other first name, such as a
+misspelled `mta.kind`, is a compile error. String literals take Java's escapes, so `"a\"b"` is the three characters
+`a"b`; numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are literals. A numeric field of
+`meta`, such as `meta.latency`, is a number, so `meta.latency + 1` adds.
+
+A `def` is one variable for the whole rule, declared by its first `def` and assigned by the later ones, so each value
+it is given has to fit the type its first value had. A filter-level `def` is in scope inside the `extractor`, and a
+`def` first given a value inside a branch is `null` after it on the paths that did not give it one.
 
 ### Extractor
 
@@ -116,8 +131,10 @@ extractor {
 }
 ```
 
-`abort {}` is allowed anywhere: at filter level and inside `extractor`, `sink` and `persist`. In a `layer: auto`
-rule it means "not mine".
+`abort {}` is allowed anywhere: at filter level and inside `extractor`, `sink` and `persist`, and it stops the whole
+rule, the statements after the block it sits in included. A statement after it in the same block could never run
+and is a compile error. In a `layer: auto` rule it means "not mine". An `extractor`, `sink` or `persist` block may sit
+inside a filter-level `if`, but not inside one another.
 
 ### `metrics`
 
@@ -130,15 +147,26 @@ metrics {
   name "<metric>"                    // literal; stored as <metricPrefix>_<metric>
   scope <entity>                     // an entity constructor, or a `def` holding one
   function <function>                // literal, see the table
-  value <expr>                       // the observation; a number, or a string that parses as one. Not used by percent
+  value <expr> [as <Type>]           // the observation; a number, or a string that parses as one. Not used by percent
   [match <condition>]                // percent only, required: the span counts as a match when true
   [status <condition>]               // apdex only, required: the span counts as successful when true
   [labels k: v, ...]                 // required by the *Labeled functions, forbidden otherwise
-  [buckets [n, n, ...]]              // required by histogram and percentile; ascending, in the unit of `value`
-  [ranks [50, 75, 90, 95, 99]]       // percentile only; this is the default
-  [timestamp <expr>]                 // milliseconds; default meta.timestamp, the span's end
+  [labelLimit n]                     // *Labeled functions only; the label sets one row keeps per minute, 50 by default
+  [buckets [n, n, ...]]              // required by histogram and percentile; whole numbers, ascending, in the unit of `value`
+  [ranks [50, 75, 90, 95, 99]]       // percentile only; whole numbers in 1..100, ascending; this is the default
+  [timestamp <expr> [as <Type>]]     // milliseconds; default meta.startTime, the span's start, as the agent path buckets a call
 }
 ```
+
+A numeric cast on `value` or `timestamp` converts before the number is taken, so `value attr("amount") as Double`
+reads `"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
+for instance, when they agree on its function, scope, buckets and ranks; any difference is a compile error. A label
+value is stored with `|` and `,` replaced by `_`, since those two characters separate the stored labels.
+
+Every label set of a labeled metric is an entry in one stored row per entity per minute, so its labels should take a
+few values, as a status code or a method does, and never a URL, an id or a statement. A row keeps at most
+`labelLimit` label sets, 50 by default as OAL's `labelCount` keeps; once it is full, a new label set is not counted,
+while the label sets it already holds keep counting.
 
 The entity constructors, usable inline in `scope` or in a `def`. Every name passes through the core module's naming
 rules, as a meter entity's does:
@@ -152,7 +180,7 @@ rules, as a meter entity's does:
 | `serviceInstanceRelation(CLIENT \| SERVER, sourceService, sourceInstance, sourceLayer, destService, destInstance, destLayer, componentId)` | a call between two instances |
 
 A `layer` argument is a string expression. A name that is not registered skips the block, with one warning per
-name; a `value` that does not parse as a number skips the block the same way. An entity held in a `def` has one
+name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one warning per metric, and the rule's later blocks still run. The value is read before the block registers its entity, so a skipped block writes no traffic. An entity held in a `def` has one
 shape: reassigning it with a different constructor is a compile error.
 
 The functions are the meter system's, named for what they do to the values of one minute:
@@ -164,26 +192,29 @@ The functions are the meter system's, named for what they do to the values of on
 | `avg` | number | the mean; `value meta.latency` is mean latency |
 | `max`, `min`, `latest` | number | |
 | `percent` | `match` condition | `matches * 10000 / total`, the `core.oal` `percent` scale; `match meta.statusCode != "ERROR"` is the success rate |
-| `apdex` | `value` and `status` | the `core.oal` `apdex`: thresholds from `service-apdex-threshold.yml` looked up by the entity's service name, satisfied under `T`, tolerated under `4T` |
+| `apdex` | `value` and `status` | the `core.oal` `apdex`: thresholds from `service-apdex-threshold.yml` looked up by the entity's service name as stored, after the service name length limit, satisfied under `T`, tolerated under `4T`; a relation scope is a compile error |
 | `sumLabeled`, `avgLabeled`, `maxLabeled`, `minLabeled`, `latestLabeled`, `sumPerMinLabeled` | number, by `labels` | one series per label set; `labels status: attr("http.response.status_code", "http.status_code")` splits a count by status code |
-| `histogram` | number, by `buckets` | the observation counted in the first bucket whose bound is not below it; a value above the last bound lands in the last bucket |
-| `percentile` | number, by `buckets` | the same buckets, reduced to the `ranks` at query time |
+| `histogram` | number, by `buckets` | the observation counted in the first bucket whose bound is not below it, so each bound is its bucket's upper edge, as MAL keys OTel's `le`; a value above the last bound counts in an overflow bucket keyed `9223372036854775807` (`Long.MAX_VALUE`), the key MAL gives OTel's `+Inf` bucket |
+| `percentile` | number, by `buckets` | the same buckets, reduced to the `ranks` when the minute is persisted; a rank reads as the upper edge of the bucket it falls in, and a rank that falls in the overflow bucket reads `9223372036854775807` |
 
 With `cpm`, `percent` and `apdex` a TAL metric named like an agent metric holds the same number in the same unit, so
 an alarm rule or a dashboard widget written for `service_sla` ports to `otlp_service_sla` by renaming the metric.
 
 ### Sink
 
-`sink {}` persists the record the rule builds and needs an `outputType`; without a sink no record is written, and a
-`sink {}` in a rule with no `outputType` is a compile error. Its statements are LAL's: `sampler { rateLimit("<id>")
-{ rpm <n> } }`, shared by id across rules and spans, `dropper {}`, `enforcer {}` and `if`.
+`sink {}` persists the record the rule builds. A rule with an `outputType` needs one, and a `sink {}` in a rule with no
+`outputType` is a compile error. Its statements are LAL's: `sampler { rateLimit("<id>") { rpm <n> } }`, `dropper {}`,
+`enforcer {}` and `if`, run in the order they are written. A `rateLimit` budget is shared by id across every rule
+and span: the first rule to use an id sets its `rpm`, and an id unused for ten minutes is forgotten, which bounds
+the ids a `${...}` placeholder makes. `enforcer {}` keeps the record whatever the rule's samplers say, before it or
+after it; `dropper {}` still drops it.
 
 ### Persist
 
 `persist {}` decides the fate of the span itself, with the same statements as `sink {}`. Storing the incoming span
 is the receiver's default and most rules only want metrics, so a rule without `persist {}` abstains. A rule with
 `persist {}` votes: `dropper {}` and an unsampled `rateLimit` vote drop, `enforcer {}` votes keep and marks the span
-enforced, an empty `persist {}` votes keep. The span is stored when every rule that voted said keep and no span
+enforced, past this rule's samplers before or after it, and an empty `persist {}` votes keep. The span is stored when every rule that voted said keep and no span
 listener vetoed; a drop vote from one rule therefore beats an `enforcer {}` in another, and a rule that aborted did
 not vote.
 
@@ -194,7 +225,9 @@ Two things follow from the span being the unit:
   the trace carries, or accepts partial traces.
 - `enforcer {}` also bypasses the receiver's head sampling. TAL votes before `otlpTraceSampleRate` is applied, and an
   enforced span skips the trace-id check, the way a Zipkin `debug` span does. It does not skip
-  `otlpTraceMaxSpansPerSecond`, which stays the operator's ceiling. The bypass is per span, so at a low sample rate an
+  `otlpTraceMaxSpansPerSecond`, which stays the operator's ceiling. With `otlpTraceStorage: zipkin` the span is stored
+  as a Zipkin `debug` span instead, which the Zipkin receiver keeps past both its `sampleRate` and its
+  `maxSpansPerSecond`. The bypass is per span, so at a low sample rate an
   enforced slow statement is stored while the rest of its trace may not be, and an `enforcer {}` on a broad condition
   turns head sampling off for everything it matches; it belongs behind a condition that is rare by construction, an
   error status or a latency threshold.
@@ -254,3 +287,6 @@ The source of a client edge is always the span's own `service.name`; a span emit
 - `persist {}` is new and decides the span's own fate; `sink {}` keeps LAL's meaning and needs an `outputType`.
 - Statements may be separated by `;` as well as by newlines, so a `metrics {}` block fits on one line.
 - `!` binds tighter than `&&` and `||`, as in Java: `!peer && hasAttr("x")` reads as `(!peer) && hasAttr("x")`.
+- More words are keywords: `persist`, `alias`, `scope`, `function`, `match`, `status`, `labelLimit`, `buckets`,
+  `ranks`, `span`, `meta`, `CLIENT` and `SERVER`. They still work as field names and label keys, `labels status: ...`, but not as a
+  `def` name, so `def status = ...` is a syntax error.

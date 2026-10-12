@@ -21,7 +21,7 @@
 // Covers TAL DSL patterns:
 //   filter { extractor {} sink {} persist {} }
 //   if (meta.kind == "SERVER") { ... }
-//   extractor { layer "OTEL_SERVICE"; def svc = service(meta.service, meta.layer) }
+//   extractor { layer "OTLP_SERVICE"; def svc = service(meta.service, meta.layer) }
 //   metrics { name "service_cpm"; scope svc; function cpm; value 1 }
 //   metrics { name "service_percentile"; scope svc; function percentile; value meta.latency
 //             buckets [10, 25, 50] }
@@ -145,6 +145,7 @@ metricsStatement
     | metricsMatchStatement
     | metricsStatusStatement
     | metricsLabelsStatement
+    | metricsLabelLimitStatement
     | metricsBucketsStatement
     | metricsRanksStatement
     | metricsTimestampStatement
@@ -187,6 +188,11 @@ labelMap
 
 labelEntry
     : anyIdentifier COLON valueAccess typeCast?
+    ;
+
+// The most label sets one row of a labeled metric holds per minute; a new label set beyond it is not counted.
+metricsLabelLimitStatement
+    : LABEL_LIMIT NUMBER
     ;
 
 metricsBucketsStatement
@@ -413,7 +419,7 @@ anyIdentifier
     | SERVICE | INSTANCE | ENDPOINT | LAYER
     | TAG | METRICS | ALIAS
     | NAME | SCOPE | FUNCTION | VALUE | MATCH | STATUS
-    | LABELS | BUCKETS | RANKS | TIMESTAMP
+    | LABELS | LABEL_LIMIT | BUCKETS | RANKS | TIMESTAMP
     | SAMPLER | RATE_LIMIT | RPM | ENFORCER | DROPPER
     | FILTER | EXTRACTOR | SINK | PERSIST | ABORT
     | DEF

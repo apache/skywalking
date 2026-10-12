@@ -158,9 +158,14 @@ public final class TALValueCodegen {
         } else if (cond instanceof TALExprCondition) {
             final String ct = ((TALExprCondition) cond).getCastType();
             final TALValueAccess expr = ((TALExprCondition) cond).getExpr();
+            final String literal = booleanOrNullLiteral(expr);
+            if (literal != null) {
+                sb.append("null".equals(literal) ? "false" : literal);
+                return;
+            }
             // A built-in that already returns boolean is the condition. Wrapping it would hand a primitive to
             // an Object overload, which Javassist compiles without autoboxing and the verifier then rejects.
-            if (ct == null && expr.getFunctionCallName() != null
+            if (ct == null && expr.getFunctionCallName() != null && expr.getChain().isEmpty()
                     && genCtx.resolver.functionReturnType(expr.getFunctionCallName()) == ExprType.BOOLEAN) {
                 generateValueAccess(sb, expr, genCtx);
                 return;
@@ -745,20 +750,51 @@ public final class TALValueCodegen {
 
         // Built-in function calls are TAL's own vocabulary: attr(), resource(), component() and the rest.
         // The resolver claims the name or lets the generic paths below continue.
-        if (value.getFunctionCallName() != null
-                && genCtx.resolver.generateFunctionCall(sb, value, genCtx)) {
-            return;
+        if (value.getFunctionCallName() != null) {
+            final StringBuilder call = new StringBuilder();
+            if (genCtx.resolver.generateFunctionCall(call, value, genCtx)) {
+                final boolean returnsString =
+                    genCtx.resolver.functionReturnType(value.getFunctionCallName()) == ExprType.STRING;
+                if (value.getChain().isEmpty()) {
+                    sb.append(call);
+                    genCtx.lastResolvedType = returnsString ? String.class : null;
+                    return;
+                }
+                // `attr("x").trim()`: the methods after the call are resolved on what it returns.
+                if (!returnsString) {
+                    throw new IllegalArgumentException(
+                        "only a built-in that returns a string can be followed by a method or field; "
+                            + value.getFunctionCallName() + "() does not");
+                }
+                TALDefCodegen.generateDefVarChain(
+                    sb, new TALLocalVar(call.toString(), String.class), value.getChain(), genCtx);
+                return;
+            }
         }
 
         // Handle string/number literals
         if (value.isStringLiteral() && value.getChain().isEmpty()) {
             sb.append("\"").append(DslJavaSourceText.toLiteral(value.getSegments().get(0)))
               .append("\"");
+            genCtx.lastResolvedType = String.class;
+            return;
+        }
+        final String literal = booleanOrNullLiteral(value);
+        if (literal != null) {
+            if ("null".equals(literal)) {
+                sb.append("null");
+            } else {
+                sb.append("Boolean.").append(literal.toUpperCase());
+                genCtx.lastResolvedType = Boolean.class;
+            }
             return;
         }
         if (value.isNumberLiteral() && value.getChain().isEmpty()) {
             final String num = value.getSegments().get(0);
             final NumericLiteral lit = NumericLiteral.parse(num);
+            // The literal's own type, so `def n = 1` declares a number and `n + 2` adds rather than concatenates.
+            genCtx.lastResolvedType = lit.type.primitiveClass;
+            genCtx.lastRawChain = lit.javaText;
             switch (lit.type) {
                 case DOUBLE:
                     sb.append("Double.valueOf(").append(lit.javaText).append(")");
@@ -804,18 +840,27 @@ public final class TALValueCodegen {
             }
         }
 
-        // No matching codegen path — fail at compile time instead of silently
-        // generating null.
-        if (chain.isEmpty()) {
-            final String desc = value.getFunctionCallName() != null
-                ? "function call '" + value.getFunctionCallName() + "(...)'"
-                : "expression '" + value.getSegments() + "'";
-            throw new IllegalArgumentException(
-                "Cannot resolve " + desc + " — no matching codegen path. "
-                    + genCtx.resolver.describeContext());
+        // No matching codegen path — fail at compile time instead of silently generating null. A chain whose
+        // first name is none of the roots is a misspelling such as `mta.kind`, not a field of the input.
+        final String desc = value.getFunctionCallName() != null
+            ? "function call '" + value.getFunctionCallName() + "(...)'"
+            : "'" + value.toPathString() + "'";
+        throw new IllegalArgumentException(
+            "Cannot resolve " + desc + ": an expression starts with span, meta, a def variable, a function or a "
+                + "literal. " + genCtx.resolver.describeContext());
+    }
+
+    /**
+     * @return {@code "true"}, {@code "false"} or {@code "null"} when the expression is just that literal, else null
+     */
+    private static String booleanOrNullLiteral(final TALValueAccess value) {
+        if (value.getSegments().size() != 1 || !value.getChain().isEmpty() || value.isStringLiteral()
+            || value.isNumberLiteral() || value.getFunctionCallName() != null || value.isMetaRef()
+            || value.isInputRef() || value.getParenInner() != null || !value.getConcatParts().isEmpty()) {
+            return null;
         }
-        // A bare chain with no recognized root reads the input root, which is what an unqualified field means.
-        genCtx.resolver.generateInputRootAccess(sb, chain, genCtx);
+        final String text = value.getSegments().get(0);
+        return "true".equals(text) || "false".equals(text) || "null".equals(text) ? text : null;
     }
 
     // ==================== Parenthesized expression ====================
@@ -1145,10 +1190,20 @@ public final class TALValueCodegen {
         }
         // A built-in's return type is the DSL's to declare; without it the expression would fall back to string
         // concatenation and a numeric built-in could not take part in arithmetic.
-        if (part.getFunctionCallName() != null) {
+        if (part.getFunctionCallName() != null && part.getChain().isEmpty()) {
             final ExprType declared = genCtx.resolver.functionReturnType(part.getFunctionCallName());
             if (declared != null) {
                 return declared;
+            }
+        }
+        // meta.* — a numeric field such as meta.latency is a number, so `meta.latency + 1` adds.
+        if (part.isMetaRef() && genCtx.resolver.metaRootType() != null) {
+            final Class<?> primitive = walkProtoChainPrimitiveType(part.getChain(), genCtx.resolver.metaRootType());
+            if (primitive != null) {
+                final ExprType t = exprTypeFromClass(primitive);
+                if (t.isNumeric() || t == ExprType.BOOLEAN) {
+                    return t;
+                }
             }
         }
         // parsed.* — when the rule has a typed inputType (no JSON/YAML/TEXT
@@ -1221,12 +1276,16 @@ public final class TALValueCodegen {
                 return null;
             }
             final String field = ((TALFieldSegment) seg).getName();
-            final String getter = "get" + Character.toUpperCase(field.charAt(0))
-                + field.substring(1);
+            final String suffix = Character.toUpperCase(field.charAt(0)) + field.substring(1);
             try {
-                currentType = currentType.getMethod(getter).getReturnType();
+                currentType = currentType.getMethod("get" + suffix).getReturnType();
             } catch (NoSuchMethodException e) {
-                return null;
+                // A boolean field's accessor is isX(), as meta.root's is.
+                try {
+                    currentType = currentType.getMethod("is" + suffix).getReturnType();
+                } catch (NoSuchMethodException e2) {
+                    return null;
+                }
             }
         }
         return currentType.isPrimitive() ? currentType : null;

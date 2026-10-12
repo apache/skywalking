@@ -41,6 +41,14 @@ class RateLimitingSamplerTest {
     }
 
     @Test
+    void rulesNamingOneIdShareOneBudget() {
+        final RateLimitingSamplers samplers = new RateLimitingSamplers();
+        assertTrue(samplers.of("shared", 1).sample());
+        assertFalse(samplers.of("shared", 5).sample(), "the second rule's rpm does not reset the first one's budget");
+        assertTrue(samplers.of("other", 1).sample());
+    }
+
+    @Test
     void concurrentCallersShareOneBudget() throws Exception {
         final RateLimitingSampler sampler = new RateLimitingSampler(100);
         final AtomicInteger kept = new AtomicInteger();

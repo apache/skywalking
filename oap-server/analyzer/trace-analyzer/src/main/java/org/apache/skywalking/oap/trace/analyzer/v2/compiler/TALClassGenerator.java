@@ -143,6 +143,11 @@ public final class TALClassGenerator {
         genCtx.ruleName = classNameHint == null ? "tal" : classNameHint;
 
         final String executeBody = generateExecuteMethod(model, genCtx);
+        if (outputType != null && genCtx.sinkCount == 0) {
+            throw new IllegalArgumentException(
+                "the rule declares outputType " + outputType.getSimpleName()
+                    + " and needs a sink {} block, which decides whether its record is written");
+        }
         this.metricDeclarations = List.copyOf(dedupeDeclarations(genCtx.metricDeclarations));
 
         final String className = DslClassNaming.allocate(
@@ -151,22 +156,11 @@ public final class TALClassGenerator {
 
         if (log.isDebugEnabled()) {
             log.debug("TAL compile execute():\n{}", executeBody);
-            for (final TALPrivateMethod pm : genCtx.privateMethods) {
-                log.debug("TAL compile private method:\n{}", pm.source);
-            }
         }
 
         final CtClass ctClass = classPool.makeClass(className);
         ctClass.addInterface(classPool.get(EXPRESSION));
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
-
-        final List<CtMethod> privateMethods = new ArrayList<>();
-        for (final TALPrivateMethod pm : genCtx.privateMethods) {
-            final CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
-            ctClass.addMethod(ctMethod);
-            privateMethods.add(ctMethod);
-            DslGeneratedFileWriter.addLocalVariableTable(ctMethod, className, pm.lvtVars);
-        }
 
         final CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
         ctClass.addMethod(execMethod);
@@ -181,6 +175,9 @@ public final class TALClassGenerator {
             }
             execLvt.addAll(genCtx.protoLvtVars);
         }
+        if (outputType != null) {
+            execLvt.add(new String[] {"_o", "L" + outputType.getName().replace('.', '/') + ";"});
+        }
         execLvt.addAll(genCtx.localVarLvtVars);
         DslGeneratedFileWriter.addLocalVariableTable(execMethod, className, execLvt.toArray(new String[0][]));
 
@@ -190,10 +187,6 @@ public final class TALClassGenerator {
         }
         DslGeneratedFileWriter.attachSignatureLine(
             execMethod, DslGeneratedFileWriter.lineOfMethod(sourceText, "execute"));
-        for (final CtMethod pmMethod : privateMethods) {
-            DslGeneratedFileWriter.attachSignatureLine(
-                pmMethod, DslGeneratedFileWriter.lineOfMethod(sourceText, pmMethod.getName()));
-        }
 
         DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
         DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), sourceText);
@@ -214,6 +207,9 @@ public final class TALClassGenerator {
         for (final TALMetricDeclaration declaration : metricDeclarations) {
             meterSystem.create(declaration.fullName, declaration.function,
                 ScopeType.valueOf(declaration.scopeType));
+            if (declaration.labelLimit > 0) {
+                meterSystem.limitLabels(declaration.fullName, declaration.labelLimit);
+            }
         }
     }
 
@@ -248,7 +244,9 @@ public final class TALClassGenerator {
           .append("(ctx, filterSpec);\n");
 
         if (outputType != null) {
-            sb.append("  ctx.setOutput(new ").append(outputType.getName()).append("());\n");
+            final String outName = outputType.getName();
+            sb.append("  ").append(outName).append(" _o = new ").append(outName).append("();\n");
+            sb.append("  ctx.setOutput(_o);\n");
             sb.append("  ctx.outputAsBuilder().bindInput(ctx.getMeta(), ctx.getInput());\n");
         }
 
@@ -279,9 +277,6 @@ public final class TALClassGenerator {
            .append(sourceRef == null ? "<unknown>" : sourceRef.toString()).append('\n');
         out.append("public class ").append(ctClass.getSimpleName())
            .append(" implements ").append(EXPRESSION).append(" {\n");
-        for (final TALPrivateMethod pm : genCtx.privateMethods) {
-            out.append(pm.source).append('\n');
-        }
         out.append(executeBody);
         out.append("}\n");
         return out.toString();

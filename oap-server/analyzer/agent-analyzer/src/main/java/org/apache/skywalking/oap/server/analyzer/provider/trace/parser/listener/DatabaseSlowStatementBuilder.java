@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.database.TopNDatabaseStatement;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
@@ -196,7 +197,8 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder, TALOutput
         dbSlowStat.setId(id);
         dbSlowStat.setTraceId(traceId);
         dbSlowStat.setDatabaseServiceId(IDManager.ServiceID.buildId(serviceName, layer.isNormal()));
-        dbSlowStat.setStatement(statement);
+        // The agent path cuts to maxSlowSQLLength, whose default is this length, in VirtualDatabaseProcessor.
+        dbSlowStat.setStatement(StringUtil.cut(statement, TopNDatabaseStatement.STATEMENT_MAX_LENGTH));
         dbSlowStat.setLatency(latency);
         dbSlowStat.setTimeBucket(timeBucket);
         dbSlowStat.setTimestamp(timestamp);

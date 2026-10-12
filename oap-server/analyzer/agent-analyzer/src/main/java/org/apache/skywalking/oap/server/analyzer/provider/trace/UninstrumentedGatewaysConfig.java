@@ -37,6 +37,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
 import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 import org.apache.skywalking.oap.server.library.util.yaml.ClassFilterConstructor;
 import org.yaml.snakeyaml.Yaml;
@@ -44,7 +45,11 @@ import org.yaml.snakeyaml.Yaml;
 import static java.util.Objects.isNull;
 
 @Slf4j
-public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher {
+/**
+ * The addresses {@code gateways.yml} lists. Also a service of the agent analyzer, so the trace analyzer keeps the same
+ * addresses out of the alias rows it writes.
+ */
+public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher implements Service {
     private final AtomicReference<String> settingsString;
 
     private volatile Map<String, GatewayInstanceInfo> gatewayInstanceKeyedByAddress = Collections.emptyMap();

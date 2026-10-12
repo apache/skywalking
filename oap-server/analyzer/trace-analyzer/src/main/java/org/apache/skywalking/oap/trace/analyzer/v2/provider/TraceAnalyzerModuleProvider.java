@@ -17,12 +17,18 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
+import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
 import org.apache.skywalking.oap.server.core.remote.selector.Selector;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -33,11 +39,13 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.KnownServices;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFactSender;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingWorker;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SeenSpans;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
@@ -52,6 +60,11 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFi
  * other modules is allowed.
  */
 public class TraceAnalyzerModuleProvider extends ModuleProvider {
+    /**
+     * Pairing facts held for the cluster while the sending thread catches up; beyond this they are dropped.
+     */
+    private static final int PAIRING_BUFFER_SIZE = 10_000;
+
     @Getter
     private TraceAnalyzerModuleConfig moduleConfig;
 
@@ -94,6 +107,7 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         }
         this.knownServices = new KnownServices();
         this.registerServiceImplementation(KnownServices.class, this.knownServices);
+        this.registerServiceImplementation(RateLimitingSamplers.class, new RateLimitingSamplers());
         this.spanPairing = new SpanPairing();
         this.registerServiceImplementation(SpanPairing.class, this.spanPairing);
         this.registerServiceImplementation(ITraceAnalyzerService.class,
@@ -106,20 +120,31 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         // Other modules are reachable from here on, so the pairing gets its row writer and its cluster channel
         // before the first rule is compiled against it.
         final ModuleServiceHolder core = getManager().find(CoreModule.NAME).provider();
-        this.spanPairing.setAliasRegistrar(new AliasRegistrar(
-            core.getService(SourceReceiver.class), core.getService(NamingControl.class), this.knownServices));
+        final AliasRegistrar aliasRegistrar = new AliasRegistrar(
+            core.getService(SourceReceiver.class), core.getService(NamingControl.class), this.knownServices);
+        aliasRegistrar.setAliasCache(core.getService(NetworkAddressAliasCache.class));
+        if (getManager().has(AnalyzerModule.NAME)) {
+            aliasRegistrar.setGateways(getManager().find(AnalyzerModule.NAME).provider()
+                                                   .getService(UninstrumentedGatewaysConfig.class)
+                                                   ::isAddressConfiguredAsGateway);
+        }
+        this.spanPairing.setAliasRegistrar(aliasRegistrar);
         core.getService(IWorkerInstanceSetter.class).put(
             PairingWorker.NAME, new PairingWorker(getManager(), this.spanPairing), MetricStreamKind.OAL, PairingFact.class);
         final RemoteClientManager clientManager = core.getService(RemoteClientManager.class);
         final RemoteSenderService sender = core.getService(RemoteSenderService.class);
         final int samplePercent = moduleConfig.getPairingSamplePercent();
+        // Facts leave on the sender's own thread; see PairingFactSender for why the receiver thread never waits.
+        final PairingFactSender factSender = new PairingFactSender(
+            "TAL_PAIRING_FACTS", PAIRING_BUFFER_SIZE,
+            fact -> sender.send(PairingWorker.NAME, fact, Selector.HashCode));
         this.spanPairing.setTransport(fact -> {
-            // One node, or none known yet while the cluster metadata loads: pair here. Otherwise the trace's owner
-            // node, for the sampled share of traces; both halves of a call sample alike since they share the id.
-            if (clientManager.getRemoteClient().size() <= 1) {
+            // Otherwise the trace's owner node, for the sampled share of traces; both halves of a call sample
+            // alike since they share the id.
+            if (pairsLocally(clientManager.getRemoteClient())) {
                 this.spanPairing.receive(fact);
             } else if (fact.sampleBucket() < samplePercent) {
-                sender.send(PairingWorker.NAME, fact, Selector.HashCode);
+                factSender.offer(fact);
             }
         });
         try {
@@ -127,6 +152,16 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load the static TAL rules.", e);
         }
+    }
+
+    /**
+     * @param clients the cluster's nodes as this node sees them
+     * @return whether this node is alone, or knows no node yet while the cluster metadata loads, so the pairs meet
+     * here. A Receiver-role node does not list itself, so a single client that is not this node is its one
+     * Aggregator, where the pairs of every receiver meet.
+     */
+    static boolean pairsLocally(final List<RemoteClient> clients) {
+        return clients.isEmpty() || clients.size() == 1 && clients.get(0).getAddress().isSelf();
     }
 
     @Override
@@ -137,10 +172,13 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
     public String[] requiredModules() {
         // StorageModule must start first so the runtime_rule management table exists by the time TALConfigs
         // consults the override resolvers while loading the static rules.
-        return new String[] {
-            CoreModule.NAME,
-            ConfigurationModule.NAME,
-            StorageModule.NAME
-        };
+        final List<String> required = new ArrayList<>(
+            List.of(CoreModule.NAME, ConfigurationModule.NAME, StorageModule.NAME));
+        // The agent analyzer owns gateways.yml, which the alias guard reads; it is declared only when loaded, so the
+        // guard is simply off with `agent-analyzer.selector: -`. The manager is null only in unit tests.
+        if (getManager() != null && getManager().has(AnalyzerModule.NAME)) {
+            required.add(AnalyzerModule.NAME);
+        }
+        return required.toArray(new String[0]);
     }
 }

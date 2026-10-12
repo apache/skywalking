@@ -72,6 +72,17 @@ public class MaxFunctionTest {
     }
 
     @Test
+    public void testCombine() {
+        final MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        function.accept(meterEntity, SMALL_VALUE);
+        final MaxFunction other = new MaxFunctionInst();
+        other.accept(meterEntity, LARGE_VALUE);
+
+        function.combine(other);
+        assertThat(function.getValue()).isEqualTo(LARGE_VALUE);
+    }
+
+    @Test
     public void testCalculate() {
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);

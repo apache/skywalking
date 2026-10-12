@@ -40,12 +40,16 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
+    /**
+     * The longest statement the column holds; a writer cuts a longer one, as a strict SQL store refuses it.
+     */
+    public static final int STATEMENT_MAX_LENGTH = 2000;
 
     @Setter
     private String id;
     @Getter
     @Setter
-    @Column(name = STATEMENT, length = 2000, storageOnly = true)
+    @Column(name = STATEMENT, length = STATEMENT_MAX_LENGTH, storageOnly = true)
     private String statement;
 
     @Override

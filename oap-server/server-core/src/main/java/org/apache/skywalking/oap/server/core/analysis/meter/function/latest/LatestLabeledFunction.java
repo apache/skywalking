@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -74,13 +75,40 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
         decorate(entity);
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
-        this.value = value;
+        this.value = limited(value, LabeledValueLimits.of(this));
+    }
+
+    private static DataTable limited(final DataTable table, final int limit) {
+        if (limit <= 0 || table.size() <= limit) {
+            return table;
+        }
+        final DataTable kept = new DataTable(limit);
+        for (final String key : table.keys()) {
+            if (kept.size() >= limit) {
+                break;
+            }
+            kept.put(key, table.get(key));
+        }
+        return kept;
     }
 
     @Override
     public final boolean combine(Metrics metrics) {
-        final LatestLabeledFunction latestLabeledFunction = (LatestLabeledFunction) metrics;
-        this.value = latestLabeledFunction.getValue();
+        // Latest per label set: the incoming value wins for the labels it carries, and the labels it does not
+        // carry keep theirs, since a source that reports one label set at a time sends each in its own metric.
+        // A new table, because accept() keeps the caller's table rather than a copy.
+        final DataTable incoming = ((LatestLabeledFunction) metrics).getValue();
+        final int limit = LabeledValueLimits.of(this, metrics);
+        final DataTable merged = new DataTable(value.size() + incoming.size());
+        for (final String key : value.keys()) {
+            merged.put(key, value.get(key));
+        }
+        for (final String key : incoming.keys()) {
+            if (limit <= 0 || merged.hasKey(key) || merged.size() < limit) {
+                merged.put(key, incoming.get(key));
+            }
+        }
+        this.value = merged;
         return true;
     }
 

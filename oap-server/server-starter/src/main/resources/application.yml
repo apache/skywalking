@@ -255,7 +255,7 @@ trace-analyzer:
   selector: ${SW_TRACE_ANALYZER:default}
   default:
     # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
-    # the module, which the OTLP trace receiver requires.
+    # the module loaded.
     talFiles: ${SW_TRACE_TAL_FILES:otlp-default}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
@@ -270,7 +270,8 @@ trace-analyzer:
     # learn a network address alias from the pair; both spans of a call share the trace id, so a pair is never
     # split. An address only has to be learned once, after which every node resolves it from its cache, so a
     # sample is enough: at 25 a new address is learned after about four calls. 100 routes every trace, at one
-    # small message per SERVER span across the cluster. A single node pairs every call and ignores this.
+    # small message per SERVER span called from another process, plus one per CLIENT span whose peer this node
+    # cannot name yet. A single node pairs every call and ignores this.
     pairingSamplePercent: ${SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT:25}
 
 event-analyzer:

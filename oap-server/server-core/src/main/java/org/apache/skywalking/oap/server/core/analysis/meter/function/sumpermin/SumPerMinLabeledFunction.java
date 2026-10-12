@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -76,7 +77,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
         decorate(entity);
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
-        this.total.append(value);
+        this.total.append(value, LabeledValueLimits.of(this));
     }
 
     @Override
@@ -87,7 +88,7 @@ public abstract class SumPerMinLabeledFunction extends Meter implements Acceptab
     @Override
     public boolean combine(Metrics metrics) {
         final SumPerMinLabeledFunction sumPerMinLabeledFunction = (SumPerMinLabeledFunction) metrics;
-        this.total.append(sumPerMinLabeledFunction.getTotal());
+        this.total.append(sumPerMinLabeledFunction.getTotal(), LabeledValueLimits.of(this, sumPerMinLabeledFunction));
         return true;
     }
 

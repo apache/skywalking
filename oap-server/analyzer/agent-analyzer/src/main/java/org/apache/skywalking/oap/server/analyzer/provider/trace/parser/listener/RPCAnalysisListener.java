@@ -198,8 +198,11 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             /*
              * Some agents can not have the upstream real network address, such as https://github.com/apache/skywalking-nginx-lua.
              * Keeping dest instance name as NULL makes no instance relation generate from this exit span.
+             * A row that names no instance, which the trace analyzer writes for an OTLP service without
+             * `service.instance.id`, is stored with the blank placeholder and gets no instance relation either.
              */
-            if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())) {
+            if (!config.shouldIgnorePeerIPDue2Virtual(span.getComponentId())
+                && !Const.BLANK_ENTITY_NAME.equals(instanceIDDefinition.getName())) {
                 sourceBuilder.setDestServiceInstanceName(instanceIDDefinition.getName());
             }
             sourceBuilder.setDestLayer(Layer.GENERAL);

@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -42,6 +44,14 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFi
  */
 @Slf4j
 public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
+    /**
+     * Unknown {@code service.layer} names already warned about. Bounded by the names senders spell; the cap
+     * only guards against a sender that varies the name per span.
+     */
+    private static final Set<String> REPORTED_UNKNOWN_LAYERS = ConcurrentHashMap.newKeySet();
+
+    private static final int REPORTED_UNKNOWN_LAYERS_CAP = 1000;
+
     private final ModuleManager moduleManager;
     private final SpanFilterListener.Factory factory;
     private final KnownServices knownServices;
@@ -83,32 +93,40 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
         if (!factory.hasRules()) {
             return SpanAnalysisResult.CONTINUE;
         }
-        // A retried span changes nothing: no metric, no pairing, no vote. The receiver keeps its own decision.
+        // A retried span is not counted again: no metric, no pairing. It gets the verdict its first delivery got,
+        // so a span a rule dropped stays dropped and an enforced one stays enforced.
         if (!seenSpans.firstSight(meta.getTraceId(), meta.getSpanId())) {
             log.debug("Span {}/{} was analyzed already; skipped", meta.getTraceId(), meta.getSpanId());
-            return SpanAnalysisResult.CONTINUE;
+            return seenSpans.verdictOf(meta.getTraceId(), meta.getSpanId());
         }
         // Recorded before any rule runs, and whether or not one matches: a service that emits spans is a service.
         knownServices.record(meta.getService());
         final Layer layer = resolveLayer(meta);
         if (layer == null && StringUtil.isNotEmpty(meta.getLayer())) {
-            // An unknown layer name is reported once per span rather than silently analyzed by the auto rules,
-            // which would attribute the span to a layer the operator did not ask for.
-            log.warn("Span carries an unknown service.layer '{}'; it is not analyzed", meta.getLayer());
+            // An unknown layer name is not analyzed rather than silently handed to the auto rules, which would
+            // attribute the span to a layer the operator did not ask for. Warned once per name, not per span.
+            if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP
+                && REPORTED_UNKNOWN_LAYERS.add(meta.getLayer())) {
+                log.warn("Spans carry an unknown service.layer '{}'; they are not analyzed", meta.getLayer());
+            }
             return SpanAnalysisResult.CONTINUE;
         }
-        // Before the rules, and whether or not one matches: the callee side of the pairing is a fact of the span,
-        // and its service id carries the flag the resource's layer gives it, which is what its metrics carry too.
-        // SERVER only: a CONSUMER span's parent is the PRODUCER span, and pairing those two would register the
-        // broker's address as an alias of the consumer, pulling every producer's edge off the broker.
-        if (SpanMetadata.KIND_SERVER.equals(meta.getKind()) && StringUtil.isNotEmpty(meta.getParentSpanId())) {
-            spanPairing.serverSeen(meta, MeterEntity.isNormal(layer));
-        }
+        // The callee side of the pairing is a fact of the span, sent whether or not a rule matches. SERVER only: a
+        // CONSUMER span's parent is the PRODUCER span, and pairing those two would register the broker's address
+        // as an alias of the consumer, pulling every producer's edge off the broker.
+        final boolean pairable =
+            SpanMetadata.KIND_SERVER.equals(meta.getKind()) && StringUtil.isNotEmpty(meta.getParentSpanId());
 
         final List<SpanFilterListener.RuleBinding> rules = factory.rulesFor(layer, span);
         if (rules.isEmpty()) {
+            if (pairable) {
+                spanPairing.serverSeen(meta, MeterEntity.isNormal(layer));
+            }
             return SpanAnalysisResult.CONTINUE;
         }
+        // The layer the first rule that ran named, so a learned alias names the same service id the rule's own
+        // `alias` and metrics do; an auto rule names it, and a span's own service.layer is only the fallback.
+        Layer pairingLayer = null;
 
         boolean persist = true;
         boolean enforced = false;
@@ -139,6 +157,9 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             if (ctx.isAborted()) {
                 continue;
             }
+            if (pairingLayer == null) {
+                pairingLayer = resolveLayer(ruleMeta);
+            }
             writeRecord(ctx, ruleMeta, span);
             tags.putAll(ctx.getAdditionalTags());
             if (ctx.isPersistVoted()) {
@@ -147,11 +168,17 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
         }
 
-        return SpanAnalysisResult.builder()
-                                .persist(persist)
-                                .enforced(persist && enforced)
-                                .additionalTags(tags)
-                                .build();
+        if (pairable) {
+            spanPairing.serverSeen(meta, MeterEntity.isNormal(pairingLayer != null ? pairingLayer : layer));
+        }
+
+        final SpanAnalysisResult result = SpanAnalysisResult.builder()
+                                                        .persist(persist)
+                                                        .enforced(persist && enforced)
+                                                        .additionalTags(tags)
+                                                        .build();
+        seenSpans.remember(meta.getTraceId(), meta.getSpanId(), result);
+        return result;
     }
 
     /**
@@ -216,6 +243,7 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
                            .spanId(meta.getSpanId())
                            .parentSpanId(meta.getParentSpanId())
                            .root(meta.isRoot())
+                           .parentLocation(meta.getParentLocation())
                            .scopeName(meta.getScopeName())
                            .scopeVersion(meta.getScopeVersion())
                            .build();

@@ -41,6 +41,8 @@ services:
       SW_STORAGE: elasticsearch
       # Store the OTLP spans as they arrive instead of converting them to Zipkin.
       SW_OTEL_TRACE_STORAGE: otlp
+      # Slow statements are TopN records, written every report period; the default 10 minutes outlasts the verify.
+      SW_CORE_TOPN_REPORT_PERIOD: 1
       SW_TRACEQL: default
       SW_TRACEQL_ENABLE_DATASOURCE_OTLP: "true"
     depends_on:

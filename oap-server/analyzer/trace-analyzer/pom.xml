@@ -43,6 +43,12 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
+        <!-- gateways.yml, which the agent analyzer owns and the alias rows written here must honour too. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>agent-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>configuration-api</artifactId>

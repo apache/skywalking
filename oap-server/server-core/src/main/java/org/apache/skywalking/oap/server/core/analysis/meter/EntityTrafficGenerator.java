@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.Se
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 import static java.util.Objects.requireNonNull;
@@ -49,29 +50,38 @@ public class EntityTrafficGenerator {
      * @param entity the entity a metric was just accepted for
      */
     public static void generate(final MeterEntity entity) {
+        generate(entity, System.currentTimeMillis());
+    }
+
+    /**
+     * @param entity     the entity a metric was just accepted for
+     * @param timeMillis the time the rows are stamped with, so they land in the minute the metric does
+     */
+    public static void generate(final MeterEntity entity, final long timeMillis) {
+        final long minute = TimeBucket.getMinuteTimeBucket(timeMillis);
         if (entity.getDetectPoint() != null) {
             switch (entity.getScopeType()) {
                 case SERVICE_RELATION:
-                    serviceRelationTraffic(entity);
+                    serviceRelationTraffic(entity, minute);
                     break;
                 case PROCESS_RELATION:
-                    processRelationTraffic(entity);
+                    processRelationTraffic(entity, minute);
                     break;
                 case SERVICE_INSTANCE_RELATION:
-                    serviceInstanceRelationTraffic(entity);
+                    serviceInstanceRelationTraffic(entity, minute);
                     break;
                 default:
             }
         } else {
-            toService(requireNonNull(entity.getServiceName()), entity.getLayer());
+            toService(requireNonNull(entity.getServiceName()), entity.getLayer(), minute);
         }
 
         if (StringUtil.isNotEmpty(entity.getInstanceName())) {
             InstanceTraffic instanceTraffic = new InstanceTraffic();
             instanceTraffic.setName(entity.getInstanceName());
             instanceTraffic.setServiceId(entity.serviceId());
-            instanceTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-            instanceTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            instanceTraffic.setTimeBucket(minute);
+            instanceTraffic.setLastPingTimestamp(minute);
             if (entity.getInstanceProperties() != null && !entity.getInstanceProperties().isEmpty()) {
                 final JsonObject properties = new JsonObject();
                 entity.getInstanceProperties().forEach(properties::addProperty);
@@ -83,61 +93,68 @@ public class EntityTrafficGenerator {
             EndpointTraffic endpointTraffic = new EndpointTraffic();
             endpointTraffic.setName(entity.getEndpointName());
             endpointTraffic.setServiceId(entity.serviceId());
-            endpointTraffic.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
-            endpointTraffic.setLastPingTimestamp(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+            endpointTraffic.setTimeBucket(minute);
+            endpointTraffic.setLastPingTimestamp(minute);
             MetricsStreamProcessor.getInstance().in(endpointTraffic);
         }
     }
 
-    private static void toService(final String serviceName, final Layer layer) {
+    private static void toService(final String serviceName, final Layer layer, final long minute) {
         ServiceTraffic s = new ServiceTraffic();
         s.setName(requireNonNull(serviceName));
-        s.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        s.setTimeBucket(minute);
         s.setLayer(layer);
         MetricsStreamProcessor.getInstance().in(s);
     }
 
     /**
-     * Register both ends of a two-layer relation, each in its own layer, so a conjectured peer appears in its
-     * virtual layer's service list the way the agent path's ServiceMeta puts it there. An UNDEFINED end is a
-     * placeholder rather than a service to list, {@code User} above all: the agent path's RPCAnalysisListener
-     * writes no ServiceTraffic for it either, and ServiceTopologyBuilder builds its node from the relation row.
+     * Register the ends of a two-layer relation, each in its own layer: the side that reported the call, and a
+     * conjectured (non-normal) peer on the other side, so a database or a broker appears in its virtual layer's
+     * service list the way the agent path's ServiceMeta puts it there. A normal peer is a service with spans of its
+     * own and registers itself, in its own layer; registering it from here would list an address no service has
+     * claimed yet, and file an agent-instrumented peer under the caller's layer. An UNDEFINED end is a placeholder
+     * rather than a service to list, {@code User} above all: the agent path's RPCAnalysisListener writes no
+     * ServiceTraffic for it either, and ServiceTopologyBuilder builds its node from the relation row.
      */
-    private static void toServiceEnds(final MeterEntity entity) {
-        if (entity.getLayer() != Layer.UNDEFINED) {
-            toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
-        }
-        if (entity.getDestLayer() != Layer.UNDEFINED) {
-            toService(requireNonNull(entity.getDestServiceName()), entity.getDestLayer());
+    private static void toServiceEnds(final MeterEntity entity, final long minute) {
+        final boolean serverSide = entity.getDetectPoint() == DetectPoint.SERVER;
+        toServiceEnd(entity.getSourceServiceName(), entity.getLayer(), !serverSide, minute);
+        toServiceEnd(entity.getDestServiceName(), entity.getDestLayer(), serverSide, minute);
+    }
+
+    private static void toServiceEnd(final String serviceName, final Layer layer, final boolean reporter,
+                                     final long minute) {
+        if (layer != Layer.UNDEFINED && (reporter || !layer.isNormal())) {
+            toService(requireNonNull(serviceName), layer, minute);
         }
     }
 
-    private static void serviceRelationTraffic(final MeterEntity entity) {
+    private static void serviceRelationTraffic(final MeterEntity entity, final long minute) {
         if (entity.getDestLayer() != null) {
-            toServiceEnds(entity);
+            toServiceEnds(entity, minute);
         }
         switch (entity.getDetectPoint()) {
             case SERVER:
                 entity.setServiceName(entity.getDestServiceName());
                 if (entity.getDestLayer() == null) {
-                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer());
+                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer(), minute);
                 }
-                serviceRelationServerSide(entity);
+                serviceRelationServerSide(entity, minute);
                 break;
             case CLIENT:
                 entity.setServiceName(entity.getSourceServiceName());
                 if (entity.getDestLayer() == null) {
-                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
+                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer(), minute);
                 }
-                serviceRelationClientSide(entity);
+                serviceRelationClientSide(entity, minute);
                 break;
             default:
         }
     }
 
-    private static void serviceRelationServerSide(final MeterEntity entity) {
+    private static void serviceRelationServerSide(final MeterEntity entity, final long minute) {
         ServiceRelationServerSideMetrics metrics = new ServiceRelationServerSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setDestServiceId(entity.destServiceId());
         metrics.getComponentIds().add(entity.getComponentId());
@@ -145,9 +162,9 @@ public class EntityTrafficGenerator {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private static void serviceRelationClientSide(final MeterEntity entity) {
+    private static void serviceRelationClientSide(final MeterEntity entity, final long minute) {
         ServiceRelationClientSideMetrics metrics = new ServiceRelationClientSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setDestServiceId(entity.destServiceId());
         metrics.getComponentIds().add(entity.getComponentId());
@@ -155,21 +172,21 @@ public class EntityTrafficGenerator {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private static void processRelationTraffic(final MeterEntity entity) {
+    private static void processRelationTraffic(final MeterEntity entity, final long minute) {
         switch (entity.getDetectPoint()) {
             case SERVER:
-                processRelationServerSide(entity);
+                processRelationServerSide(entity, minute);
                 break;
             case CLIENT:
-                processRelationClientSide(entity);
+                processRelationClientSide(entity, minute);
                 break;
             default:
         }
     }
 
-    private static void processRelationServerSide(final MeterEntity entity) {
+    private static void processRelationServerSide(final MeterEntity entity, final long minute) {
         ProcessRelationServerSideMetrics metrics = new ProcessRelationServerSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setServiceInstanceId(entity.serviceInstanceId());
         metrics.setSourceProcessId(entity.getSourceProcessId());
         metrics.setDestProcessId(entity.getDestProcessId());
@@ -178,9 +195,9 @@ public class EntityTrafficGenerator {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private static void processRelationClientSide(final MeterEntity entity) {
+    private static void processRelationClientSide(final MeterEntity entity, final long minute) {
         ProcessRelationClientSideMetrics metrics = new ProcessRelationClientSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setServiceInstanceId(entity.serviceInstanceId());
         metrics.setSourceProcessId(entity.getSourceProcessId());
         metrics.setDestProcessId(entity.getDestProcessId());
@@ -189,30 +206,30 @@ public class EntityTrafficGenerator {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private static void serviceInstanceRelationTraffic(final MeterEntity entity) {
+    private static void serviceInstanceRelationTraffic(final MeterEntity entity, final long minute) {
         if (entity.getDestLayer() != null) {
-            toServiceEnds(entity);
+            toServiceEnds(entity, minute);
         }
         switch (entity.getDetectPoint()) {
             case SERVER:
                 if (entity.getDestLayer() == null) {
-                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer());
+                    toService(requireNonNull(entity.getDestServiceName()), entity.getLayer(), minute);
                 }
-                serviceInstanceRelationServerSide(entity);
+                serviceInstanceRelationServerSide(entity, minute);
                 break;
             case CLIENT:
                 if (entity.getDestLayer() == null) {
-                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer());
+                    toService(requireNonNull(entity.getSourceServiceName()), entity.getLayer(), minute);
                 }
-                serviceInstanceRelationClientSide(entity);
+                serviceInstanceRelationClientSide(entity, minute);
                 break;
             default:
         }
     }
 
-    private static void serviceInstanceRelationServerSide(final MeterEntity entity) {
+    private static void serviceInstanceRelationServerSide(final MeterEntity entity, final long minute) {
         ServiceInstanceRelationServerSideMetrics metrics = new ServiceInstanceRelationServerSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setSourceServiceInstanceId(entity.sourceServiceInstanceId());
         metrics.setDestServiceId(entity.destServiceId());
@@ -221,9 +238,9 @@ public class EntityTrafficGenerator {
         MetricsStreamProcessor.getInstance().in(metrics);
     }
 
-    private static void serviceInstanceRelationClientSide(final MeterEntity entity) {
+    private static void serviceInstanceRelationClientSide(final MeterEntity entity, final long minute) {
         ServiceInstanceRelationClientSideMetrics metrics = new ServiceInstanceRelationClientSideMetrics();
-        metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        metrics.setTimeBucket(minute);
         metrics.setSourceServiceId(entity.sourceServiceId());
         metrics.setSourceServiceInstanceId(entity.sourceServiceInstanceId());
         metrics.setDestServiceId(entity.destServiceId());

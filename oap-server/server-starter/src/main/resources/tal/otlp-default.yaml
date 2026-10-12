@@ -31,8 +31,12 @@ rules:
     inputType: otlp
     dsl: |
       filter {
-        // Spans with a dedicated analyzer: MetricKit payloads and GenAI calls are handled by their SpanListeners.
+        // Spans with a dedicated analyzer: MetricKit payloads, GenAI calls and an iOS app's URLSession calls are
+        // handled by their SpanListeners.
         if (meta.scopeName == "MetricKit" || hasAttr("gen_ai.provider.name", "gen_ai.system")) {
+          abort {}
+        }
+        if (meta.scopeName == "NSURLSession" && (resource("os.name") == "iOS" || resource("os.name") == "iPadOS")) {
           abort {}
         }
         // A messaging poll is transport bookkeeping, not a request anyone can be measured on. The OpenTelemetry
@@ -42,9 +46,26 @@ rules:
             && attr("messaging.operation.type", "messaging.operation") == "receive") {
           abort {}
         }
+        // A SERVER span whose parent ran in the same process is a framework's view of a request the outer SERVER
+        // span already answered, as Next.js under the Node.js HTTP instrumentation; counting it would count the
+        // request twice. A span whose sender does not say where its parent ran is counted.
+        if (meta.kind == "SERVER" && meta.parentLocation == "LOCAL") {
+          abort {}
+        }
 
         extractor {
           layer "OTLP_SERVICE"
+
+          // Whether the call succeeded, as the agent path counts it: an error status, or an HTTP answer of 400 or
+          // above, which the SkyWalking agents mark as an error and OpenTelemetry leaves UNSET on a server span.
+          def ok = true
+          if (meta.statusCode == "ERROR") {
+            def ok = false
+          }
+          if (hasAttr("http.response.status_code", "http.status_code")
+              && attr("http.response.status_code", "http.status_code") as Integer >= 400) {
+            def ok = false
+          }
 
           // Inbound: SERVER and CONSUMER spans are requests this service answered.
           if (meta.kind == "SERVER" || meta.kind == "CONSUMER") {
@@ -55,23 +76,23 @@ rules:
             def svc = service(meta.service, meta.layer)
             metrics { name "service_cpm";        scope svc; function cpm; value 1 }
             metrics { name "service_resp_time";  scope svc; function avg; value meta.latency }
-            metrics { name "service_sla";        scope svc; function percent; match meta.statusCode != "ERROR" }
-            metrics { name "service_apdex";      scope svc; function apdex; value meta.latency; status meta.statusCode != "ERROR" }
+            metrics { name "service_sla";        scope svc; function percent; match ok }
+            metrics { name "service_apdex";      scope svc; function apdex; value meta.latency; status ok }
             metrics { name "service_percentile"; scope svc; function percentile; value meta.latency
                       buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }
 
             def ep = endpoint(meta.service, meta.endpoint, meta.layer)
             metrics { name "endpoint_cpm";        scope ep; function cpm; value 1 }
             metrics { name "endpoint_resp_time";  scope ep; function avg; value meta.latency }
-            metrics { name "endpoint_sla";        scope ep; function percent; match meta.statusCode != "ERROR" }
+            metrics { name "endpoint_sla";        scope ep; function percent; match ok }
             metrics { name "endpoint_percentile"; scope ep; function percentile; value meta.latency
                       buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }
 
             if (meta.serviceInstance) {
               def inst = instance(meta.service, meta.serviceInstance, meta.layer)
-              metrics { name "instance_cpm";       scope inst; function cpm; value 1 }
-              metrics { name "instance_resp_time"; scope inst; function avg; value meta.latency }
-              metrics { name "instance_sla";       scope inst; function percent; match meta.statusCode != "ERROR" }
+              metrics { name "service_instance_cpm";       scope inst; function cpm; value 1 }
+              metrics { name "service_instance_resp_time"; scope inst; function avg; value meta.latency }
+              metrics { name "service_instance_sla";       scope inst; function percent; match ok }
             }
           }
 
@@ -96,7 +117,12 @@ rules:
           if (meta.kind == "SERVER") {
             def comp = component("http")
             if (hasAttr("rpc.system.name", "rpc.system")) {
-              def comp = component(attr("rpc.system.name", "rpc.system"))
+              def rpcSystem = attr("rpc.system.name", "rpc.system")
+              // component-libraries.yml names Dubbo by its product; the semantic conventions say apache_dubbo.
+              if (rpcSystem == "apache_dubbo") {
+                def rpcSystem = "Dubbo"
+              }
+              def comp = component(rpcSystem)
             }
             // The address a SERVER span reports is the `Host` / `:authority` its caller used, so registering it as
             // an alias lets a CLIENT span's resolveAlias(peer) below land the edge on this service instead of on a
@@ -164,7 +190,11 @@ rules:
               def peerLayer = "OTLP_SERVICE"
               def comp = component("http")
               if (hasAttr("rpc.system.name", "rpc.system")) {
-                def comp = component(attr("rpc.system.name", "rpc.system"))
+                def rpcSystem = attr("rpc.system.name", "rpc.system")
+                if (rpcSystem == "apache_dubbo") {
+                  def rpcSystem = "Dubbo"
+                }
+                def comp = component(rpcSystem)
               }
               if (hasAttr("db.system.name", "db.system")) {
                 def system = attr("db.system.name", "db.system")
@@ -172,7 +202,16 @@ rules:
                 if (system == "redis" || system == "valkey" || system == "memcached") {
                   def peerLayer = "OTLP_VIRTUAL_CACHE"
                 }
-                def comp = component(system)
+                // The catalog's names where the semantic conventions spell a system differently; Valkey speaks
+                // the Redis protocol and is drawn as Redis.
+                def catalogName = system
+                if (system == "mssql" || system == "microsoft.sql_server") {
+                  def catalogName = "SqlServer"
+                }
+                if (system == "valkey") {
+                  def catalogName = "Redis"
+                }
+                def comp = component(catalogName)
               }
               if (hasAttr("messaging.system")) {
                 def peerLayer = "OTLP_VIRTUAL_MQ"
@@ -187,19 +226,19 @@ rules:
                 metrics { name "database_access_cpm";       scope peerSvc; function cpm; value 1 }
                 metrics { name "database_access_resp_time"; scope peerSvc; function avg; value meta.latency }
                 metrics { name "database_access_sla";       scope peerSvc; function percent
-                          match meta.statusCode != "ERROR" }
+                          match ok }
               }
               if (peerLayer == "OTLP_VIRTUAL_CACHE") {
                 metrics { name "cache_access_cpm";       scope peerSvc; function cpm; value 1 }
                 metrics { name "cache_access_resp_time"; scope peerSvc; function avg; value meta.latency }
                 metrics { name "cache_access_sla";       scope peerSvc; function percent
-                          match meta.statusCode != "ERROR" }
+                          match ok }
               }
               if (peerLayer == "OTLP_VIRTUAL_MQ") {
                 metrics { name "mq_access_cpm";       scope peerSvc; function cpm; value 1 }
                 metrics { name "mq_access_resp_time"; scope peerSvc; function avg; value meta.latency }
                 metrics { name "mq_access_sla";       scope peerSvc; function percent
-                          match meta.statusCode != "ERROR" }
+                          match ok }
                 // The queue or topic is an endpoint of its broker, so the virtual layer's list stays one row per
                 // broker while the destinations are still there to rank.
                 if (hasAttr("messaging.destination.name", "messaging.destination")) {
@@ -207,15 +246,15 @@ rules:
                   metrics { name "mq_destination_cpm";       scope dest; function cpm; value 1 }
                   metrics { name "mq_destination_resp_time"; scope dest; function avg; value meta.latency }
                   metrics { name "mq_destination_sla";       scope dest; function percent
-                            match meta.statusCode != "ERROR" }
+                            match ok }
                 }
               }
 
               def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, peerLayer, comp)
               metrics { name "service_relation_client_cpm";       scope edge; function cpm; value 1 }
               metrics { name "service_relation_client_resp_time"; scope edge; function avg; value meta.latency }
-              metrics { name "service_relation_client_sla";       scope edge; function percent
-                        match meta.statusCode != "ERROR" }
+              metrics { name "service_relation_client_call_sla";  scope edge; function percent
+                        match ok }
             }
           }
         }
@@ -236,16 +275,29 @@ rules:
           abort {}
         }
         extractor {
-          layer "VIRTUAL_DATABASE"
-          // The record belongs to the database service, named as the topology names it.
+          layer "OTLP_VIRTUAL_DATABASE"
+          // The record belongs to the database service, named exactly as the otlp-service rule names the peer of
+          // a CLIENT span, so the statement is listed under the node the topology draws. Keep the two in step.
           def peer = attr("service.peer.name", "peer.service")
-          if (!peer) {
-            // The port is optional; without it the bare address is the name, not a name ending in a colon.
+          if (!peer && hasAttr("server.address", "net.peer.name")) {
             def addr = attr("server.address", "net.peer.name")
             def port = attr("server.port", "net.peer.port")
             def peer = addr
             if (port) {
               def peer = addr + ":" + port
+            }
+          }
+          if (!peer && hasAttr("peer.address")) {
+            def peer = attr("peer.address")
+          }
+          if (!peer && hasAttr("url.full", "http.url")) {
+            def peer = urlHost(attr("url.full", "http.url"))
+          }
+          def peer = resolveAlias(peer)
+          if (!peer && hasAttr("db.system.name", "db.system")) {
+            def peer = attr("db.system.name", "db.system")
+            if (hasAttr("db.namespace", "db.name")) {
+              def peer = peer + "/" + attr("db.namespace", "db.name")
             }
           }
           // A statement with no database to file it under would land on a service named `_blank`, where no
@@ -254,7 +306,8 @@ rules:
             abort {}
           }
           service peer
-          id meta.spanId
+          // A span id is unique only within its trace; the agent path keys the record by segment and span.
+          id meta.traceId + "-" + meta.spanId
           statement attr("db.query.text", "db.statement")
           latency meta.latency
         }

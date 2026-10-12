@@ -86,11 +86,13 @@ public class SpanPairing implements Service {
     /**
      * The SERVER side of a call, sent to the trace's owner.
      *
-     * @param meta   a SERVER or CONSUMER span; a root span is ignored
+     * @param meta   a SERVER or CONSUMER span; a root span is ignored, and so is a span whose parent ran in the
+     *               same process, which no other service's CLIENT span can pair with
      * @param normal the {@code normal} flag its service id carries
      */
     public void serverSeen(final SpanMetadata meta, final boolean normal) {
-        if (meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()) {
+        if (meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()
+            || SpanMetadata.PARENT_LOCAL.equals(meta.getParentLocation())) {
             return;
         }
         transport.accept(PairingFact.server(meta, normal));

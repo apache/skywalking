@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  * <p>Layers are persisted by ordinal (int). The ordinal space is partitioned by tier so
  * each registration channel has a non-overlapping range:
  * <ul>
- *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..50} in
+ *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..55} in
  *       use; the rest of the range is reserved for future built-ins. Ordinals already
  *       persisted in storage are frozen forever and must never be reused.</li>
  *   <li>{@code 10_000 – 99_999} — boot-time external layers: {@code layer-extensions.yml},
@@ -310,7 +310,7 @@ public final class Layer {
     /**
      * A service whose spans arrived over OTLP and were analyzed by TAL. Separate from GENERAL because the GENERAL
      * dashboards read the core.oal metrics, which the span analysis does not produce. Conjectured peers of such a
-     * service keep the existing VIRTUAL_* layers, as VIRTUAL_GENAI already does for OTLP spans.
+     * service get the OTLP_VIRTUAL_* layers below, so their lists and dashboards read the TAL metrics.
      */
     public static final Layer OTLP_SERVICE = register("OTLP_SERVICE", 52, true);
 

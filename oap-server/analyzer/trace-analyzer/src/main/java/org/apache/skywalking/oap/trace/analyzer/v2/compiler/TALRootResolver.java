@@ -91,6 +91,14 @@ public interface TALRootResolver {
     boolean isTypedInputActive();
 
     /**
+     * @return the class {@code meta.*} reads, so a numeric field takes part in arithmetic as a number rather than
+     * as text; null when the DSL has no metadata root
+     */
+    default Class<?> metaRootType() {
+        return null;
+    }
+
+    /**
      * @return a short description of the compile context, such as the active parser and input type, quoted in the
      * diagnostic raised when no codegen path matches an expression
      */

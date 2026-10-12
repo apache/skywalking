@@ -13,7 +13,7 @@ trace-analyzer:
   selector: ${SW_TRACE_ANALYZER:default}
   default:
     # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
-    # the module, which the OTLP trace receiver requires.
+    # the module loaded.
     talFiles: ${SW_TRACE_TAL_FILES:otlp-default}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
@@ -28,7 +28,8 @@ trace-analyzer:
     # learn a network address alias from the pair; both spans of a call share the trace id, so a pair is never
     # split. An address only has to be learned once, after which every node resolves it from its cache, so a
     # sample is enough: at 25 a new address is learned after about four calls. 100 routes every trace, at one
-    # small message per SERVER span across the cluster. A single node pairs every call and ignores this.
+    # small message per SERVER span called from another process, plus one per CLIENT span whose peer this node
+    # cannot name yet. A single node pairs every call and ignores this.
     pairingSamplePercent: ${SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT:25}
 ```
 
@@ -64,27 +65,67 @@ Every metric carries the file's `otlp_` prefix. On the service and its edges:
 | Entity | Metrics |
 |---|---|
 | service | `otlp_service_cpm`, `otlp_service_resp_time`, `otlp_service_sla`, `otlp_service_apdex`, `otlp_service_percentile` |
-| instance, when the resource carries `service.instance.id` | `otlp_instance_cpm`, `otlp_instance_resp_time`, `otlp_instance_sla` |
+| instance, when the resource carries `service.instance.id` | `otlp_service_instance_cpm`, `otlp_service_instance_resp_time`, `otlp_service_instance_sla` |
 | endpoint, named `<method> <route>` for HTTP spans and by the span name otherwise | `otlp_endpoint_cpm`, `otlp_endpoint_resp_time`, `otlp_endpoint_sla`, `otlp_endpoint_percentile` |
-| the call a CLIENT or PRODUCER span makes | `otlp_service_relation_client_cpm`, `otlp_service_relation_client_resp_time`, `otlp_service_relation_client_sla` |
+| the call a CLIENT or PRODUCER span makes | `otlp_service_relation_client_cpm`, `otlp_service_relation_client_resp_time`, `otlp_service_relation_client_call_sla` |
 | the call a root SERVER span receives, from the `User` node | `otlp_service_relation_server_cpm` |
 
 On the conjectured peers, from the client's span: `otlp_database_access_cpm`, `_resp_time` and `_sla`, and the
-`otlp_cache_access_*` and `otlp_mq_access_*` counterparts. The names follow the agent metrics of the same shape, so
-an alarm rule or a dashboard widget written for `service_sla` or `database_access_cpm` ports by renaming the
-metric. The `core.oal` metrics are not produced for these services; no dashboard template reads the `otlp_*`
-metrics yet, so query them through [MQE](../../api/metrics-query-expression.md) and reference them in alarm rules.
+`otlp_cache_access_*` and `otlp_mq_access_*` counterparts, with `otlp_mq_destination_*` per queue or topic. The
+`core.oal` metrics are not produced for these services; no dashboard template reads the `otlp_*` metrics yet, so
+query them through [MQE](../../api/metrics-query-expression.md) and reference them in alarm rules.
+
+#### Porting from the agent metrics
+
+Where an agent metric has a TAL counterpart, the TAL metric is the agent metric's name with the `otlp_` prefix and
+holds the same number in the same unit, so an alarm rule or a dashboard widget ports by renaming the metric:
+
+| `core.oal` metric | TAL metric |
+|---|---|
+| `service_cpm`, `service_resp_time`, `service_sla`, `service_apdex`, `service_percentile` | `otlp_service_*` of the same names |
+| `service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla` | `otlp_service_instance_*` of the same names |
+| `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`, `endpoint_percentile` | `otlp_endpoint_*` of the same names |
+| `service_relation_client_cpm`, `service_relation_client_resp_time`, `service_relation_client_call_sla` | `otlp_service_relation_client_*` of the same names |
+| `service_relation_server_cpm` | `otlp_service_relation_server_cpm`, for the `User` edge and the broker-to-consumer edge |
+| `database_access_cpm`, `database_access_resp_time`, `database_access_sla` | `otlp_database_access_*` of the same names |
+| `cache_access_cpm`, `cache_access_resp_time`, `cache_access_sla` | `otlp_cache_access_*` of the same names |
+
+The `otlp_mq_access_*` and `otlp_mq_destination_*` metrics have no `core.oal` counterpart; the agent path's
+`mq_service_*` and `mq_endpoint_*` metrics measure the consuming service rather than the broker. The agent metrics
+without a TAL counterpart are not produced: the relation and instance-relation percentiles, the server-side relation
+metrics other than `cpm`, the endpoint relations, and the cache read and write split.
+
+The numbers follow the agent path's definitions:
+
+- A call fails when its span status is `ERROR` or it answered with an HTTP status of 400 or above, which the
+  SkyWalking agents mark as an error. OpenTelemetry leaves a server's 4xx `UNSET`; the rule still counts it as failed,
+  so `sla` and `apdex` read the same for both paths.
+- A call is counted in the minute its span started, and its service, instance, endpoint and edge are registered in
+  that minute too.
+- Service and endpoint metrics carry their layer, `OTLP_SERVICE` or the peer's virtual layer, as `attr0`, so
+  `top_n(otlp_endpoint_cpm, 10, des, attr0='OTLP_SERVICE')` works as it does for the agent metrics.
 
 The component of an edge, the protocol icon in the topology, comes from `rpc.system.name`, `rpc.system`,
 `db.system.name`, `db.system` or `messaging.system`, looked up in `component-libraries.yml` ignoring case; `grpc`
-finds `GRPC` and `connect_rpc` finds `Connect_RPC`. A system the catalog does not list shows as `Unknown`.
+finds `GRPC` and `connect_rpc` finds `Connect_RPC`. Where the semantic conventions spell a system differently from
+the catalog, the rule maps it first: `apache_dubbo` to `Dubbo`, `mssql` and `microsoft.sql_server` to `SqlServer`,
+and `valkey`, which speaks the Redis protocol, to `Redis`. A system the catalog does not list shows as `Unknown`;
+`jms` is one, since JMS is an API rather than a broker.
+
+An iOS or iPadOS app's `NSURLSession` CLIENT spans are left to the [iOS analyzer](backend-ios-monitoring.md), which
+already turns them into the app's metrics; the rule aborts on them.
 
 A messaging `receive` poll is not a request: the rule drops a CLIENT or CONSUMER span whose `messaging.operation.type` (or the older `messaging.operation`) is `receive`, since the OpenTelemetry Java agent reports a blocking JMS receive as a CONSUMER span lasting the whole wait, which would otherwise count as a ten-second request on every poll. A `process` span, the message actually handled, counts as the consumer's request.
+
+A SERVER span nested under another span of the same process is not a request either: frameworks such as Next.js open their own SERVER span under the one the HTTP instrumentation already opened for the request, and counting both would count the request twice. The rule drops a SERVER span whose OTLP span flags say its parent is local (`meta.parentLocation == "LOCAL"`). A SERVER span whose sender leaves those flags unset, as older SDKs and Envoy do, still counts.
 
 ### Topology
 
 A SERVER span with no parent is a call from the `User` node, which appears in the topology without a service list
-entry. A CLIENT span's peer is named by `service.peer.name`, or its deprecated spelling `peer.service`, when the SDK sets
+entry. A CLIENT span's edge lists its own service and a conjectured database, cache or broker on the other end, but
+not a peer that is a service: that service lists itself from its own spans, in its own layer, so an address no
+service has claimed yet, `cart:7070`, does not appear in the service list, and an agent-instrumented peer stays in
+its agent layer. A CLIENT span's peer is named by `service.peer.name`, or its deprecated spelling `peer.service`, when the SDK sets
 one, else by `server.address` and
 `server.port`, `net.peer.name` and `net.peer.port` on older SDKs, `peer.address` on an Envoy egress span, or the
 host and port of `url.full` or `http.url` when the SDK reports nothing else, as the Python `requests` instrumentation
@@ -92,12 +133,28 @@ does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by the three
 mechanisms described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the
 server's own `alias`, the known-service registry, and the pairing of a call's two spans by the trace context. The
-first calls to a freshly seen address are address-named until the alias row has reached every node's cache, within
-about 10 seconds, and the topology query folds those.
+first calls to a freshly seen address are address-named until the alias row has reached every node's cache: up to
+one persistence period (`core.default.persistentPeriod`, 25 s by default) for the row to be stored, plus the 10 s
+cache reload, so about 35 s. The topology query folds those.
+
+In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs, both paths write the same alias rows, and the
+analyzer keeps two of the agent path's rules. An address listed in the agent analyzer's
+[uninstrumented gateways](uninstrumented-gateways.md) is never registered as an alias; that guard is off when the
+`agent-analyzer` module is not loaded. A row that the agent path keeps writing for a service that sends no OTLP
+spans, an agent-instrumented proxy among them, is not overwritten by the OpenTelemetry service behind it; the row is
+the analyzer's to replace once it has not been written for ten minutes.
 
 In a cluster the pairing routes the facts of a trace to the node that owns it, through the same channel the metrics
-use, so the two spans of a call meet wherever each arrived. `pairingSamplePercent` bounds that traffic: an address
-only has to be learned once, so a sample of the traces is enough, and a single node ignores the setting. While the
+use, so the two spans of a call meet wherever each arrived. In a Receiver/Aggregator deployment the owners are the
+Aggregator nodes, which receive no spans themselves. `pairingSamplePercent` bounds that traffic: an address only has
+to be learned once, so a sample of the traces is enough, and a single node ignores the setting. The facts leave
+through a buffer of their own, never on the thread that received the spans: when a peer node is slow to take them
+and the buffer fills, facts are dropped, which only delays learning an address, rather than holding up ingestion.
+
+Every node loads its own rule files, and a metric is aggregated on whichever nodes its values reach, so every OAP
+node of a cluster, Aggregator nodes included, needs the `trace-analyzer` module with the same `talFiles` and the same
+files under `tal/`. A node without the module cannot receive the pairing facts routed to it; a node with different
+rules declares different metrics, and values for a metric a node never declared are dropped there. While the
 cluster membership changes, a pair in flight can split and that address is learned one call later.
 
 The source of a client edge is the span's own `service.name`, never the service of the span it is nested under. An
@@ -120,8 +177,10 @@ spans do, draws no peer node, and its errors reach no metric, since `service_sla
 ### Records
 
 `otlp-slow-sql` writes a `DatabaseSlowStatement` for a database client span whose latency is 200 ms or more, with the
-statement from `db.query.text` or `db.statement`, under the database node the topology names, and keeps the span
-behind it past the receiver's head sampling. The threshold is in the rule file; the agent path keys it by database
+statement from `db.query.text` or `db.statement` cut to 2,000 characters as the agent path cuts it, keyed by the
+trace and span id. It files the record under the database node the topology names: the rule names the peer with the
+same attributes, fallbacks and alias resolution as `otlp-service`, and the two are kept in step. It also keeps the
+span behind the record past the receiver's head sampling. The threshold is in the rule file; the agent path keys it by database
 type through `slowDBAccessThreshold`, and a deployment edits the rule to match.
 
 ## Turning the analysis off

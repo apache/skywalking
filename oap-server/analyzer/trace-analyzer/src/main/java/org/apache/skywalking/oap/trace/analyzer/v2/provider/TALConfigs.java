@@ -138,13 +138,21 @@ public class TALConfigs {
                     diskBytes.put(ruleName, Files.readAllBytes(f.toPath()));
                     sourceFileName.put(ruleName, f.getName());
                 } catch (final IOException ioe) {
-                    log.debug("Failed to read file {}", f, ioe);
+                    log.warn("TAL rule file {} cannot be read; its rules are not loaded", f, ioe);
                 }
             }
 
             final Map<String, byte[]> merged = useInstalledManager
                 ? RuleSetMerger.merge("tal", diskBytes)
                 : RuleSetMerger.merge("tal", diskBytes, manager);
+            for (final String name : files) {
+                if (!merged.containsKey(name)) {
+                    // Most likely a misspelled talFiles entry; with the default single file it turns the whole
+                    // analysis off, so it is worth more than the INFO count the provider logs.
+                    log.warn("talFiles names '{}', but no {}/{}.yaml or runtime rule of that name exists", name, path,
+                        name);
+                }
+            }
 
             final List<TALConfigs> out = new ArrayList<>(merged.size());
             for (final Map.Entry<String, byte[]> e : merged.entrySet()) {
@@ -156,7 +164,7 @@ public class TALConfigs {
                         out.add(configs);
                     }
                 } catch (final IOException ioe) {
-                    log.debug("Failed to parse TAL rule {}", ruleName, ioe);
+                    log.warn("TAL rule file {} cannot be parsed; its rules are not loaded", ruleName, ioe);
                 }
             }
             return out;

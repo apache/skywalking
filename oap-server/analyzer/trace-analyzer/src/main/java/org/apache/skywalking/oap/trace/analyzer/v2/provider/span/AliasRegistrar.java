@@ -17,8 +17,13 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
+import java.util.function.Predicate;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
@@ -29,12 +34,35 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
  * other than the one it would represent is refused. A proxy that keeps the {@code Host} header hands its own
  * address to the service behind it, and a learned pair carries the same address when a browser dialed the proxy;
  * either way the row would pull every edge to the proxy onto the service behind it.
+ *
+ * <p>In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs the rows are shared with the agent path, so two
+ * of its guards apply here too: an address listed in {@code gateways.yml} is never aliased, and a row the agent path
+ * keeps writing for a service that sends no OTLP spans, such as an agent-instrumented proxy, is not overwritten.
  */
 @Slf4j
 public class AliasRegistrar {
+    /**
+     * How long a row stays the agent path's after its last write: the window the core's alias cache reloads.
+     */
+    private static final long AGENT_ROW_LIVE_MILLIS = 10 * 60_000L;
+    /**
+     * The port {@code gateways.yml} assumes for an instance that names none.
+     */
+    private static final String GATEWAY_DEFAULT_PORT = ":80";
+
     private final SourceReceiver sourceReceiver;
     private final NamingControl namingControl;
     private final KnownServices knownServices;
+    /**
+     * Whether an address is listed in {@code gateways.yml}; absent when the agent analyzer is not loaded.
+     */
+    @Setter
+    private Predicate<String> gateways;
+    /**
+     * The rows already written, by this path or the agent path; absent outside a booted OAP.
+     */
+    @Setter
+    private NetworkAddressAliasCache aliasCache;
 
     public AliasRegistrar(final SourceReceiver sourceReceiver,
                           final NamingControl namingControl,
@@ -53,7 +81,7 @@ public class AliasRegistrar {
      * @param normal          the service id's {@code normal} flag, as its own metrics carry it
      * @param instance        the service instance, or empty
      * @param timestampMillis the span's end, which picks the row's minute bucket
-     * @return whether a row was written; false for an empty address or service, or when the guard refused it
+     * @return whether a row was written; false for an empty address or service, or when a guard refused it
      */
     public boolean register(final String address, final String service, final boolean normal,
                             final String instance, final long timestampMillis) {
@@ -69,6 +97,16 @@ public class AliasRegistrar {
             log.debug("Alias {} for {} skipped: the address names the service {}", address, formatted, named);
             return false;
         }
+        if (isGateway(address)) {
+            log.debug("Alias {} for {} skipped: the address is an uninstrumented gateway", address, formatted);
+            return false;
+        }
+        final String agentOwner = liveAgentOwner(address, IDManager.ServiceID.buildId(formatted, normal),
+            timestampMillis);
+        if (agentOwner != null) {
+            log.debug("Alias {} for {} skipped: the agent path keeps it for {}", address, formatted, agentOwner);
+            return false;
+        }
         final NetworkAddressAliasSetup setup = new NetworkAddressAliasSetup();
         setup.setAddress(address);
         setup.setRepresentService(formatted);
@@ -77,6 +115,32 @@ public class AliasRegistrar {
         setup.setTimeBucket(TimeBucket.getMinuteTimeBucket(timestampMillis));
         sourceReceiver.receive(setup);
         return true;
+    }
+
+    private boolean isGateway(final String address) {
+        if (gateways == null) {
+            return false;
+        }
+        return gateways.test(address)
+            || (hostOf(address).equals(address.trim()) && gateways.test(address.trim() + GATEWAY_DEFAULT_PORT));
+    }
+
+    /**
+     * @return the service a live row maps the address to, when that row is not this path's to replace: it names
+     * another service, one that sends no OTLP spans here, and was written within the cache's reload window. Null
+     * when the address is free to register.
+     */
+    private String liveAgentOwner(final String address, final String serviceId, final long timestampMillis) {
+        if (aliasCache == null) {
+            return null;
+        }
+        final NetworkAddressAlias row = aliasCache.get(address);
+        if (row == null || serviceId.equals(row.getRepresentServiceId())
+            || row.getLastUpdateTimeBucket() < TimeBucket.getMinuteTimeBucket(timestampMillis - AGENT_ROW_LIVE_MILLIS)) {
+            return null;
+        }
+        final String owner = IDManager.ServiceID.analysisId(row.getRepresentServiceId()).getName();
+        return knownServices.contains(owner) ? null : owner;
     }
 
     /**

@@ -48,9 +48,9 @@ class TALShippedRuleCompileTest {
         "otlp_endpoint_resp_time",
         "otlp_endpoint_sla",
         "otlp_endpoint_percentile",
-        "otlp_instance_cpm",
-        "otlp_instance_resp_time",
-        "otlp_instance_sla",
+        "otlp_service_instance_cpm",
+        "otlp_service_instance_resp_time",
+        "otlp_service_instance_sla",
         "otlp_service_relation_server_cpm",
         "otlp_database_access_cpm",
         "otlp_database_access_resp_time",
@@ -64,7 +64,7 @@ class TALShippedRuleCompileTest {
         "otlp_mq_destination_cpm", "otlp_mq_destination_resp_time", "otlp_mq_destination_sla",
         "otlp_service_relation_client_cpm",
         "otlp_service_relation_client_resp_time",
-        "otlp_service_relation_client_sla");
+        "otlp_service_relation_client_call_sla");
 
     @Test
     void compileTheShippedServiceRule() throws Exception {
@@ -101,7 +101,7 @@ class TALShippedRuleCompileTest {
         assertEquals("sumHistogramPercentile", functionOf(generator, "otlp_service_percentile"));
         assertEquals("SERVICE_RELATION", scopeOf(generator, "otlp_service_relation_client_cpm"));
         assertEquals("ENDPOINT", scopeOf(generator, "otlp_endpoint_cpm"));
-        assertEquals("SERVICE_INSTANCE", scopeOf(generator, "otlp_instance_cpm"));
+        assertEquals("SERVICE_INSTANCE", scopeOf(generator, "otlp_service_instance_cpm"));
     }
 
     @Test

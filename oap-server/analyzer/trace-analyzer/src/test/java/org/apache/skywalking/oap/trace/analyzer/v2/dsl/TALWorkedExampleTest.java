@@ -18,7 +18,11 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.StreamDefinition;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.endpoint.EndpointTraffic;
@@ -84,7 +89,8 @@ class TALWorkedExampleTest {
     private static final Logger LOG = LoggerFactory.getLogger(TALWorkedExampleTest.class);
 
     /**
-     * The end of span 1, and the minute bucket every metric of it must land in.
+     * The end of span 1; it started 110 ms earlier, and that start is the minute bucket every metric of it must
+     * land in.
      */
     private static final long SPAN1_END = 1_700_000_000_500L;
 
@@ -110,7 +116,7 @@ class TALWorkedExampleTest {
         mockedProcessor = Mockito.mockStatic(MetricsStreamProcessor.class);
         mockedProcessor.when(MetricsStreamProcessor::getInstance).thenReturn(processor);
         doNothing().when(processor).create(
-            any(), (org.apache.skywalking.oap.server.core.analysis.StreamDefinition) any(), any(), any());
+            any(), (StreamDefinition) any(), any(), any());
         doAnswer(invocation -> {
             traffic.add(invocation.getArgument(0));
             return null;
@@ -199,9 +205,9 @@ class TALWorkedExampleTest {
 
         // Written to a file as well as logged: the table is the point of this test, and a captured log is not
         // readable from a CI run.
-        final java.nio.file.Path dump = java.nio.file.Paths.get("target", "tal-worked-example.txt");
-        java.nio.file.Files.createDirectories(dump.getParent());
-        java.nio.file.Files.write(dump, render().getBytes(StandardCharsets.UTF_8));
+        final Path dump = Paths.get("target", "tal-worked-example.txt");
+        Files.createDirectories(dump.getParent());
+        Files.write(dump, render().getBytes(StandardCharsets.UTF_8));
         LOG.info("worked example written to {}\n{}", dump.toAbsolutePath(), render());
 
         // Span 1: a root SERVER span with no http.route and no instance id — five service metrics, four endpoint
@@ -216,7 +222,7 @@ class TALWorkedExampleTest {
         assertEquals(
             List.of("otlp_database_access_cpm", "otlp_database_access_resp_time", "otlp_database_access_sla",
                 "otlp_service_relation_client_cpm", "otlp_service_relation_client_resp_time",
-                "otlp_service_relation_client_sla"),
+                "otlp_service_relation_client_call_sla"),
             sent.subList(afterSpan3, afterSpan4).stream()
                 .map(TALWorkedExampleTest::metricNameOf).collect(Collectors.toList()));
         assertTrue(traffic.stream().anyMatch(r -> describe(r).contains("pg:5432, OTLP_VIRTUAL_DATABASE")),
@@ -229,9 +235,10 @@ class TALWorkedExampleTest {
                 "otlp_endpoint_percentile", "otlp_service_relation_server_cpm"),
             sent.subList(0, 10).stream().map(TALWorkedExampleTest::metricNameOf).collect(Collectors.toList()));
 
-        // Every metric of span 1 lands in the minute its span ended in, not the wall clock's.
+        // Every metric of span 1 lands in the minute its span started in, as the agent path buckets a call, not
+        // the wall clock's.
         for (final AcceptableValue<?> value : sent.subList(0, 10)) {
-            assertEquals(TimeBucket.getMinuteTimeBucket(SPAN1_END), value.getTimeBucket());
+            assertEquals(TimeBucket.getMinuteTimeBucket(SPAN1_END - 110), value.getTimeBucket());
         }
 
         // The design states span 1's 110 ms lands in bucket 250 of [10,25,50,100,250,...].
@@ -351,7 +358,7 @@ class TALWorkedExampleTest {
     private AcceptableValue<?> sentNamed(final String metric) {
         return sent.stream().filter(v -> metric.equals(metricNameOf(v))).findFirst()
                    .orElseThrow(() -> new AssertionError(metric + " was not emitted; got "
-                       + sent.stream().map(TALWorkedExampleTest::metricNameOf).collect(java.util.stream.Collectors.toList())));
+                       + sent.stream().map(TALWorkedExampleTest::metricNameOf).collect(Collectors.toList())));
     }
 
     private static SpanMetadata consumerSpan(final String name, final int latency) {
@@ -547,7 +554,7 @@ class TALWorkedExampleTest {
         final Map<String, String> out = new LinkedHashMap<>();
         for (Class<?> type = value.getClass(); type != null; type = type.getSuperclass()) {
             for (final Field field : type.getDeclaredFields()) {
-                if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                if (Modifier.isStatic(field.getModifiers())) {
                     continue;
                 }
                 final String name = field.getName();

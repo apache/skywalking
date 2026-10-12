@@ -26,7 +26,8 @@ import lombok.Data;
 public class TALConfig {
     /**
      * The layer value of a rule that decides the layer itself. Such a rule sees the spans whose resource carries
-     * no {@code service.layer}, and its extractor must set {@code layer} or its output is discarded.
+     * no {@code service.layer}, and its extractor must set {@code layer}: a metrics block whose entity has no layer
+     * is skipped, see {@code TalRuntimeHelper.layer}.
      */
     public static final String LAYER_AUTO = "auto";
 
@@ -68,9 +69,8 @@ public class TALConfig {
     private String outputType;
 
     /**
-     * Source YAML file name, set while loading. The middle component of the dsl-debugging
-     * {@code RuleKey (TAL, sourceName, ruleName)}: the boot loader and the runtime-rule applier must produce the
-     * same value for one file or a hot update registers a second binding instead of replacing the static one.
+     * Source YAML file name, set while loading, the middle component of the dsl-debugging
+     * {@code RuleKey (TAL, sourceName, ruleName)}. Rules are read once at start; there is no hot update yet.
      */
     private transient String sourceName;
 

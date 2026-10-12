@@ -21,14 +21,12 @@ import java.util.concurrent.TimeUnit;
 import lombok.Builder;
 import lombok.Data;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
-import zipkin2.Span;
 
 /**
  * The derived, protocol-neutral view of one span that a TAL rule reads as {@code meta.*} and its extractor may
  * overwrite. It is the span's counterpart of {@link org.apache.skywalking.oap.server.core.source.LogMetadata}.
  *
- * <p>Receivers build it from their own wire object: the OTLP receiver from the protobuf span, which this module
- * cannot see (see {@link OTLPSpanReader}), and the Zipkin receiver through {@link #of(Span)}.
+ * <p>The OTLP receiver builds it from the protobuf span, which this module cannot see (see {@link OTLPSpanReader}).
  */
 @Data
 @Builder
@@ -41,17 +39,12 @@ public class SpanMetadata {
     public static final String STATUS_UNSET = "UNSET";
     public static final String STATUS_OK = "OK";
     public static final String STATUS_ERROR = "ERROR";
+    public static final String PARENT_REMOTE = "REMOTE";
+    public static final String PARENT_LOCAL = "LOCAL";
+    public static final String PARENT_UNKNOWN = "UNKNOWN";
 
     private static final String KIND_PREFIX = "SPAN_KIND_";
     private static final String STATUS_PREFIX = "STATUS_CODE_";
-    /**
-     * The name {@code SpanForward} gives a Zipkin span whose local endpoint carries no service name.
-     */
-    private static final String UNKNOWN_SERVICE = "Unknown";
-    /**
-     * The Zipkin convention for a failed span, read by {@link #of(Span)}.
-     */
-    private static final String ZIPKIN_ERROR_TAG = "error";
 
     @Builder.Default
     private String service = "";
@@ -68,11 +61,12 @@ public class SpanMetadata {
     @Builder.Default
     private String statusMessage = "";
     /**
-     * Milliseconds since epoch.
+     * The span's start, in milliseconds since epoch; the default time bucket of every metric the rule emits, as
+     * the agent path buckets a call by its start.
      */
     private long startTime;
     /**
-     * The span's end, in milliseconds since epoch; the default time bucket of every metric the rule emits.
+     * The span's end, in milliseconds since epoch.
      */
     private long timestamp;
     /**
@@ -86,6 +80,13 @@ public class SpanMetadata {
     @Builder.Default
     private String parentSpanId = "";
     private boolean root;
+    /**
+     * Where the parent span ran: {@link #PARENT_REMOTE} in another process, {@link #PARENT_LOCAL} in this one, as
+     * a framework's SERVER span nested under the server span of the same request; {@link #PARENT_UNKNOWN} for a
+     * root span or when the sender does not say.
+     */
+    @Builder.Default
+    private String parentLocation = PARENT_UNKNOWN;
     @Builder.Default
     private String scopeName = "";
     @Builder.Default
@@ -123,33 +124,5 @@ public class SpanMetadata {
     public static int latencyMillis(final long startNanos, final long endNanos) {
         final long millis = TimeUnit.NANOSECONDS.toMillis(Math.max(0L, endNanos - startNanos));
         return (int) Math.min(millis, Integer.MAX_VALUE);
-    }
-
-    /**
-     * The Zipkin adapter. Zipkin carries no resource, no instrumentation scope and no instance identity, so those
-     * fields stay empty and {@code layer: auto} rules are the ones that see the span.
-     *
-     * @param span the span as it arrived over the Zipkin protocol
-     * @return the metadata view of it
-     */
-    public static SpanMetadata of(final Span span) {
-        final long startMillis = TimeUnit.MICROSECONDS.toMillis(span.timestampAsLong());
-        final long durationMillis = TimeUnit.MICROSECONDS.toMillis(span.durationAsLong());
-        final String error = span.tags().get(ZIPKIN_ERROR_TAG);
-        return SpanMetadata.builder()
-                           .service(StringUtil.isEmpty(span.localServiceName()) ? UNKNOWN_SERVICE
-                               : span.localServiceName())
-                           .endpoint(span.name() == null ? "" : span.name())
-                           .kind(span.kind() == null ? KIND_UNSPECIFIED : span.kind().name())
-                           .statusCode(error == null ? STATUS_UNSET : STATUS_ERROR)
-                           .statusMessage(error == null ? "" : error)
-                           .startTime(startMillis)
-                           .timestamp(startMillis + durationMillis)
-                           .latency((int) Math.min(durationMillis, Integer.MAX_VALUE))
-                           .traceId(span.traceId())
-                           .spanId(span.id())
-                           .parentSpanId(span.parentId() == null ? "" : span.parentId())
-                           .root(span.parentId() == null)
-                           .build();
     }
 }

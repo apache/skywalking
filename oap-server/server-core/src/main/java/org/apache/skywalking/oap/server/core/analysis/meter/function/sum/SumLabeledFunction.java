@@ -28,6 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -69,7 +70,7 @@ public abstract class SumLabeledFunction extends Meter implements AcceptableValu
     @Override
     public final boolean combine(Metrics metrics) {
         SumLabeledFunction sumLabeledFunction = (SumLabeledFunction) metrics;
-        this.value.append(sumLabeledFunction.value);
+        this.value.append(sumLabeledFunction.value, LabeledValueLimits.of(this, sumLabeledFunction));
         return true;
     }
 
@@ -181,7 +182,7 @@ public abstract class SumLabeledFunction extends Meter implements AcceptableValu
         decorate(entity);
         this.entityId = entity.id();
         this.serviceId = entity.serviceId();
-        this.value.append(value);
+        this.value.append(value, LabeledValueLimits.of(this));
     }
 
     @Override
