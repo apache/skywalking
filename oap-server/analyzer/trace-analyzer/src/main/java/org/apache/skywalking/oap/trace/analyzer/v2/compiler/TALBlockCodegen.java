@@ -379,8 +379,8 @@ final class TALBlockCodegen {
     // ==================== Metrics ====================
 
     /**
-     * One {@code metrics {}} block becomes the sequence the SWIP specifies: build the entity, register its
-     * traffic once, build the metric, accept the observation and send it in the span's minute bucket.
+     * One {@code metrics {}} block becomes this sequence: build the entity, register its traffic once, build the
+     * metric, accept the observation and send it in the span's minute bucket.
      */
     private static void generateMetricsBlock(final StringBuilder sb,
                                              final TALScriptModel.MetricsBlock block,
@@ -658,8 +658,7 @@ final class TALBlockCodegen {
     }
 
     /**
-     * The shape checks the SWIP lists: every block names a metric, a scope and a function, and each function
-     * takes exactly the clauses it needs.
+     * Every block names a metric, a scope and a function, and each function takes exactly the clauses it needs.
      */
     private static void validate(final TALScriptModel.MetricsBlock block,
                                  final TALMetricFunction function,
