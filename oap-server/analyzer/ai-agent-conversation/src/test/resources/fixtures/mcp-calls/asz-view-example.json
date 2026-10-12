@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "0465bcdcdb729b5e5022b97e10f03c2589937c735debe88956af173df7f612d1"
+    "digest": "2053bd8e2eca0ad406eb9931fd8d8294c46826650c0ee5a57f3fafa9ef37a1b9"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -57,7 +57,7 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "0465bcdcdb729b5e5022b97e10f03c2589937c735debe88956af173df7f612d1",
+      "digest": "2053bd8e2eca0ad406eb9931fd8d8294c46826650c0ee5a57f3fafa9ef37a1b9",
       "previous": null,
       "from_seq": 1,
       "through_seq": 5,
@@ -139,7 +139,7 @@
       "through_time": null
     },
     {
-      "file": "_conversations/720d2f9e-dca7-49be-8c5e-89b667b39a01/rounds/r000001-0465bcdcdb72.sf",
+      "file": "_conversations/720d2f9e-dca7-49be-8c5e-89b667b39a01/rounds/r000001-2053bd8e2eca.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -147,8 +147,8 @@
       "stream": null,
       "run": null,
       "lines": 43,
-      "bytes": 10874,
-      "digest": "2ea12f2b3a05408df1eefc01e2273a681e6f26a37ff6ec92bc950b5bd8a7b8a6",
+      "bytes": 10182,
+      "digest": "3162639cd7bb373d2d547f63b87938e1d85a2f22109238da8d2a4b0801dfe001",
       "from_time": 1767225600000,
       "through_time": 1767225613900
     }
@@ -189,8 +189,6 @@
   "segments": [
     {
       "id": "segment/at_1_2",
-      "state": "open",
-      "committable": false,
       "talks": 2,
       "from": 1767225600000,
       "to": 1767225613900
@@ -206,11 +204,6 @@
       "ref": {
         "seq": 1,
         "row": 2
-      },
-      "attrs": {
-        "loops": 2,
-        "runs": 2,
-        "trigger": "external"
       },
       "label": "check the checkout service and then the payment service",
       "reply": "Checkout is healthy and payment is not.",
@@ -230,9 +223,6 @@
           "ref": {
             "seq": 1,
             "row": 2
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -273,7 +263,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 4,
@@ -329,7 +318,6 @@
                   "attrs": {
                     "mcp_server": "status",
                     "mcp_tool": "lookup",
-                    "name": "mcp__status__lookup",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -373,7 +361,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 7,
@@ -429,7 +416,6 @@
                   "attrs": {
                     "mcp_server": "status",
                     "mcp_tool": "lookup",
-                    "name": "mcp__status__lookup",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -474,7 +460,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 10,
@@ -530,7 +515,6 @@
                   "attrs": {
                     "mcp_server": "status",
                     "mcp_tool": "lookup",
-                    "name": "mcp__status__lookup",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -574,7 +558,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 13,
@@ -628,7 +611,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "mcp__odd__name__twice",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -665,7 +647,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 15,
@@ -704,7 +685,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Agent",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -762,9 +742,6 @@
             "seq": 1,
             "row": 17
           },
-          "attrs": {
-            "trigger": "notification"
-          },
           "children": [
             {
               "id": "notify/1/17",
@@ -806,7 +783,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 18,
@@ -864,11 +840,6 @@
         "seq": 3,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "reply": "Read.",
       "runs": 1,
       "steps": 6,
@@ -887,9 +858,6 @@
           "ref": {
             "seq": 3,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -913,7 +881,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 3,
@@ -969,7 +936,6 @@
                   "attrs": {
                     "mcp_server": "docs",
                     "mcp_tool": "read",
-                    "name": "mcp__docs__read",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -1009,7 +975,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 5,

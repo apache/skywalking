@@ -120,7 +120,7 @@ public class ConversationViewBuilderTest {
         assertNull(node(incomplete, "tool/tool-run-make-build").get("changes"));
 
         final String tampered = new String(Fixtures.bytes(Fixtures.ROUND_FILE), StandardCharsets.UTF_8)
-            .replace("\"trigger\":\"external\"", "\"trigger\":\"exterior\"");
+            .replace("\"reset\":\"none\"", "\"reset\":\"gone\"");
         final Map<String, Object> mismatch = view(
             tampered.getBytes(StandardCharsets.UTF_8), Fixtures.dataFiles(), Collections.emptyList());
         assertEquals("mismatch", ((Map<String, Object>) mismatch.get("summary")).get("state"));
@@ -526,7 +526,7 @@ public class ConversationViewBuilderTest {
         assertEquals(0L, summary.get("provider_bodies"));
         assertEquals(7, summary.get("captured_prompts"));
         final Map<String, Object> attrs = (Map<String, Object>) node(doc, "call/s2-call-fdae022ac306").get("attrs");
-        assertEquals(Arrays.asList("fragments", "\ue000", "\ud800\udc00", "usage", "usage_at", "usage_from"),
+        assertEquals(Arrays.asList("\ue000", "\ud800\udc00", "usage", "usage_at", "usage_from"),
                      new ArrayList<>(attrs.keySet()));
         // the count is a whole number; written any other way, there is none
         final String original = new String(

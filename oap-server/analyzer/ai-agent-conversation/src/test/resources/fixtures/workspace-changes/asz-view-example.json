@@ -7,7 +7,7 @@
   ],
   "head": {
     "round": 1,
-    "digest": "475193a5f44b74117ee7f527bb8e5f29277ef6686dfb8d0e9a07d2e69f34c0ee"
+    "digest": "a0076e9f9c3b27d9d803f99053715ad38a00dfa6a7bbde5331c510aa2cc28208"
   },
   "parser": "v1",
   "policy": "v1+idle=10m0s",
@@ -57,7 +57,7 @@
   "rounds": [
     {
       "round": 1,
-      "digest": "475193a5f44b74117ee7f527bb8e5f29277ef6686dfb8d0e9a07d2e69f34c0ee",
+      "digest": "a0076e9f9c3b27d9d803f99053715ad38a00dfa6a7bbde5331c510aa2cc28208",
       "previous": null,
       "from_seq": 1,
       "through_seq": 5,
@@ -139,7 +139,7 @@
       "through_time": null
     },
     {
-      "file": "_conversations/3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/rounds/r000001-475193a5f44b.sf",
+      "file": "_conversations/3189c1f0-9ec4-4bd2-88dc-8eda88ac6db3/rounds/r000001-a0076e9f9c3b.sf",
       "format": "sf",
       "kind": "round",
       "seq": null,
@@ -147,8 +147,8 @@
       "stream": null,
       "run": null,
       "lines": 37,
-      "bytes": 9123,
-      "digest": "f1485e853a379a1cf8e7fcee2f327f2ed67192c39352ebfa61e5f31ec028f535",
+      "bytes": 8560,
+      "digest": "cdeddd0102a9a0d55cb8f51d0f136374e3250682f1cd1adeaa95f501679a0e61",
       "from_time": 1767225600000,
       "through_time": 1767225609400
     }
@@ -189,8 +189,6 @@
   "segments": [
     {
       "id": "segment/at_1_2",
-      "state": "open",
-      "committable": false,
       "talks": 2,
       "from": 1767225600000,
       "to": 1767225609400
@@ -206,11 +204,6 @@
       "ref": {
         "seq": 1,
         "row": 2
-      },
-      "attrs": {
-        "loops": 2,
-        "runs": 2,
-        "trigger": "external"
       },
       "label": "raise the timeout and add a configuration file",
       "reply": "Done.",
@@ -230,9 +223,6 @@
           "ref": {
             "seq": 1,
             "row": 2
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -273,7 +263,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 4,
@@ -327,7 +316,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Bash",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -370,7 +358,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 7,
@@ -424,7 +411,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Edit",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -464,7 +450,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 9,
@@ -503,7 +488,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Agent",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -561,9 +545,6 @@
             "seq": 1,
             "row": 11
           },
-          "attrs": {
-            "trigger": "notification"
-          },
           "children": [
             {
               "id": "notify/1/11",
@@ -605,7 +586,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 12,
@@ -663,11 +643,6 @@
         "seq": 3,
         "row": 1
       },
-      "attrs": {
-        "loops": 1,
-        "runs": 1,
-        "trigger": "unknown"
-      },
       "reply": "Removed.",
       "runs": 1,
       "steps": 6,
@@ -686,9 +661,6 @@
           "ref": {
             "seq": 3,
             "row": 1
-          },
-          "attrs": {
-            "trigger": "external"
           },
           "children": [
             {
@@ -712,7 +684,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 2,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 3,
@@ -766,7 +737,6 @@
                     }
                   ],
                   "attrs": {
-                    "name": "Bash",
                     "result": "available",
                     "result_join": "exact_unique",
                     "timing": "unavailable"
@@ -805,7 +775,6 @@
                 }
               ],
               "attrs": {
-                "fragments": 1,
                 "usage": "observed_replayable",
                 "usage_at": {
                   "row": 5,
