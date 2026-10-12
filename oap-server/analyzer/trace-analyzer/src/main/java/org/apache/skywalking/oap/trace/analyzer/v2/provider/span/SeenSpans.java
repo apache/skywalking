@@ -52,11 +52,7 @@ public class SeenSpans {
         if (seen == null) {
             return true;
         }
-        final String key = traceId + '/' + spanId;
-        if (seen.getIfPresent(key) != null) {
-            return false;
-        }
-        seen.put(key, Boolean.TRUE);
-        return true;
+        // Atomic, so two deliveries of one retried span racing on different threads still count it once.
+        return seen.asMap().putIfAbsent(traceId + '/' + spanId, Boolean.TRUE) == null;
     }
 }

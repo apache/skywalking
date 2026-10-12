@@ -159,9 +159,9 @@ public class SpanPairing implements Service {
 
     private void learn(final String address, final String service, final boolean normal, final String instance,
                        final long timestampMillis) {
-        learned.put(address, service);
-        if (aliasRegistrar != null) {
-            aliasRegistrar.register(address, service, normal, instance, timestampMillis);
+        // An alias the registrar's guard refuses must not resolve edges on this node either.
+        if (aliasRegistrar == null || aliasRegistrar.register(address, service, normal, instance, timestampMillis)) {
+            learned.put(address, service);
         }
     }
 

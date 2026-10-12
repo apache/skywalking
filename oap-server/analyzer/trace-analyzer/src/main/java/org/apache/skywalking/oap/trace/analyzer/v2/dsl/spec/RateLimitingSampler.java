@@ -17,9 +17,6 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
 /**
  * A per-minute counter: the first {@code rpm} calls in a minute are kept, the rest dropped, and the counter
  * resets when the minute rolls over.
@@ -28,8 +25,8 @@ public class RateLimitingSampler {
     private static final long ONE_MINUTE_MILLIS = 60_000L;
 
     private final int rpm;
-    private final AtomicInteger counter = new AtomicInteger();
-    private final AtomicLong windowStart = new AtomicLong(System.currentTimeMillis());
+    private int counter;
+    private long windowStart = System.currentTimeMillis();
 
     public RateLimitingSampler(final int rpm) {
         this.rpm = rpm;
@@ -38,12 +35,12 @@ public class RateLimitingSampler {
     /**
      * @return whether this call falls inside the current minute's budget
      */
-    public boolean sample() {
+    public synchronized boolean sample() {
         final long now = System.currentTimeMillis();
-        final long start = windowStart.get();
-        if (now - start >= ONE_MINUTE_MILLIS && windowStart.compareAndSet(start, now)) {
-            counter.set(0);
+        if (now - windowStart >= ONE_MINUTE_MILLIS) {
+            windowStart = now;
+            counter = 0;
         }
-        return counter.incrementAndGet() <= rpm;
+        return ++counter <= rpm;
     }
 }

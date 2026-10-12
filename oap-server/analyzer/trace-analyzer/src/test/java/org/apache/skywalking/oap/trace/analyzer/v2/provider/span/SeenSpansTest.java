@@ -17,8 +17,17 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,5 +59,36 @@ class SeenSpansTest {
         // trades a missed duplicate for bounded memory.
         assertTrue(seen.firstSight("t1", "s0"), "the earliest span was evicted");
         assertFalse(seen.firstSight("t1", "s0"), "and is remembered again once re-seen");
+    }
+
+    @Test
+    void concurrentDeliveriesOfOneSpanCountItOnce() throws Exception {
+        final SeenSpans seen = new SeenSpans(60, 100_000);
+        final int threads = 8;
+        final int spans = 2_000;
+        final AtomicInteger firsts = new AtomicInteger();
+        final CountDownLatch start = new CountDownLatch(1);
+        final ExecutorService pool = Executors.newFixedThreadPool(threads);
+        try {
+            final List<Future<?>> done = new ArrayList<>();
+            for (int t = 0; t < threads; t++) {
+                done.add(pool.submit(() -> {
+                    start.await();
+                    for (int i = 0; i < spans; i++) {
+                        if (seen.firstSight("t1", "s" + i)) {
+                            firsts.incrementAndGet();
+                        }
+                    }
+                    return null;
+                }));
+            }
+            start.countDown();
+            for (final Future<?> f : done) {
+                f.get(30, TimeUnit.SECONDS);
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+        assertEquals(spans, firsts.get(), "every span is new to exactly one of the deliveries");
     }
 }

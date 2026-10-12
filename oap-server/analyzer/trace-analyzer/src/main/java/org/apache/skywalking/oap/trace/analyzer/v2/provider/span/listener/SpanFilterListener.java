@@ -31,7 +31,6 @@ import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
-import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -201,10 +200,10 @@ public class SpanFilterListener {
             }
             try {
                 final Class<?> clazz = Class.forName(rule.getOutputType());
-                if (!TALOutputBuilder.class.isAssignableFrom(clazz) && !Source.class.isAssignableFrom(clazz)) {
+                if (!TALOutputBuilder.class.isAssignableFrom(clazz)) {
                     throw new ModuleStartException(
                         "TAL rule " + rule.getName() + " outputType " + rule.getOutputType()
-                            + " is neither a TALOutputBuilder nor a Source");
+                            + " is not a TALOutputBuilder");
                 }
                 return clazz;
             } catch (final ClassNotFoundException e) {

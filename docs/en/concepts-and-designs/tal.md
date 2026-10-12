@@ -209,9 +209,8 @@ statement names the record's service.
 - A `TALOutputBuilder` name, `SlowSQL` for the `DatabaseSlowStatement` record. Its fields are `id`, `statement` and
   `latency`; `traceId`, `timestamp` and `layer` come from `meta`. The record shows on the database's slow-statement
   panel when the record's service is named and layered as the database node in the topology.
-- The fully qualified class name of a `Source` subclass. The sink sets its time bucket from `meta.timestamp` and
-  hands it to the source receiver, so a rule can fill any `core.oal` source. The shipped rules do not use this, and
-  mixing `core.oal` entities with `otlp_*` ones for one fleet counts a service twice.
+- The fully qualified class name of a `TALOutputBuilder` implementation. Any other class, a plain `Source`
+  included, is refused when the rule loads.
 
 ## Address-named peers
 

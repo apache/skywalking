@@ -191,6 +191,10 @@ public class OpenTelemetryTraceHandler
                     continue;
                 }
                 final Map<String, String> resourceTags = OTLPValues.toStringMap(resource.getAttributesList());
+                // TAL's resource() reads the attributes as sent; the Zipkin path below rewrites resourceTags in place
+                // (the service-name fallback key, the scope's otel.library.* tags), so it analyzes a copy taken first.
+                final Map<String, String> analyzedResourceTags = nativeStorage
+                    ? resourceTags : new HashMap<>(resourceTags);
                 // The native path fills the service_name column only and leaves the attributes as sent; the Zipkin
                 // path rewrites the fallback key into an `otlp.service.name.source` tag.
                 final String serviceName = nativeStorage
@@ -222,7 +226,7 @@ public class OpenTelemetryTraceHandler
                             // and before the forward applies head sampling, so metrics count what the SDK sent
                             // rather than what OAP chose to store.
                             final SpanAnalysisResult analysis = analyze(
-                                span, serviceName, resourceTags, scopeTags, scopeName, scopeVersion);
+                                span, serviceName, analyzedResourceTags, scopeTags, scopeName, scopeVersion);
 
                             if (!otlpResult.isShouldPersist() || !analysis.isPersist()) {
                                 continue;

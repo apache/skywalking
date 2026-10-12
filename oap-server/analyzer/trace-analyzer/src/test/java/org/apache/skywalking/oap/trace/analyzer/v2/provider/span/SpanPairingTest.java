@@ -111,6 +111,18 @@ class SpanPairingTest {
     }
 
     @Test
+    void aPairTheGuardRefusesIsNotRemembered() {
+        // The browser dialed the proxy, but the SERVER span that pairs with it is the service behind the proxy:
+        // no row is written, and the node must not resolve the next call to the proxy past it either.
+        known.record("frontend-proxy");
+        pairing.serverSeen(server("frontend", "s3", "s2"), true);
+        assertNull(pairing.clientSeen(client("frontend-web", "s2"), "frontend-proxy:8080"));
+        assertTrue(rows.isEmpty());
+        assertNull(pairing.clientSeen(client("frontend-web", "s9"), "frontend-proxy:8080"),
+            "the refused pair resolves nothing for a later caller");
+    }
+
+    @Test
     void factsTravelToTheTraceOwnerAndBackThroughTheWorker() {
         // A transport that stands in for the cluster: it delivers to another node's pairing, the trace's owner.
         final SpanPairing owner = new SpanPairing();
