@@ -373,6 +373,16 @@ public class MeterSystem implements Service {
     }
 
     /**
+     * Cap the label sets one row of a labeled metric holds, see {@link LabeledValueLimits}.
+     *
+     * @param metricsName the metric, as it was created
+     * @param maxLabels   the most label sets one row holds; 0 or less for no limit
+     */
+    public void limitLabels(final String metricsName, final int maxLabels) {
+        LabeledValueLimits.register(METER_CLASS_PACKAGE + formatName(metricsName), maxLabels);
+    }
+
+    /**
      * Remove a previously-registered metric by name. Symmetric to {@link #create(String, String,
      * ScopeType, Class)} / the pool-aware overload. Used by runtime rule hot-remove (MAL/LAL)
      * to retire a metric class cleanly.
@@ -403,16 +413,6 @@ public class MeterSystem implements Service {
      * @param metricsName the metric name to retire
      * @return {@code true} if a metric was found and removed, {@code false} otherwise
      */
-    /**
-     * Cap the label sets one row of a labeled metric holds, see {@link LabeledValueLimits}.
-     *
-     * @param metricsName the metric, as it was created
-     * @param maxLabels   the most label sets one row holds; 0 or less for no limit
-     */
-    public void limitLabels(final String metricsName, final int maxLabels) {
-        LabeledValueLimits.register(METER_CLASS_PACKAGE + formatName(metricsName), maxLabels);
-    }
-
     public synchronized boolean removeMetric(final String metricsName) {
         return removeMetric(metricsName, StorageManipulationOpt.withSchemaChange());
     }

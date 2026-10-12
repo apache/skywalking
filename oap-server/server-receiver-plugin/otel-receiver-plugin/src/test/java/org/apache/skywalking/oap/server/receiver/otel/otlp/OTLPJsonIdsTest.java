@@ -18,11 +18,7 @@
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
 import com.google.protobuf.util.JsonFormat;
-import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
-import io.opentelemetry.proto.collector.metrics.v1.ExportMetricsServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.logs.v1.LogRecord;
-import io.opentelemetry.proto.metrics.v1.Exemplar;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.junit.jupiter.api.Test;
 
@@ -52,24 +48,10 @@ class OTLPJsonIdsTest {
     }
 
     @Test
-    void logRecordAndExemplarIdsToo() throws Exception {
-        final ExportLogsServiceRequest.Builder logs = ExportLogsServiceRequest.newBuilder();
-        JsonFormat.parser().ignoringUnknownFields().merge(OTLPValues.hexIdsToBase64(
-            "{\"resourceLogs\":[{\"scopeLogs\":[{\"logRecords\":[{\"traceId\":\"" + TRACE_ID + "\",\"spanId\":\""
-                + SPAN_ID + "\"}]}]}]}"), logs);
-        final LogRecord log = logs.getResourceLogs(0).getScopeLogs(0).getLogRecords(0);
-        assertEquals(TRACE_ID, OTLPValues.hexId(log.getTraceId()));
-        assertEquals(SPAN_ID, OTLPValues.hexId(log.getSpanId()));
-
-        final ExportMetricsServiceRequest.Builder metrics = ExportMetricsServiceRequest.newBuilder();
-        JsonFormat.parser().ignoringUnknownFields().merge(OTLPValues.hexIdsToBase64(
-            "{\"resourceMetrics\":[{\"scopeMetrics\":[{\"metrics\":[{\"name\":\"m\",\"sum\":{\"dataPoints\":"
-                + "[{\"asInt\":\"1\",\"exemplars\":[{\"traceId\":\"" + TRACE_ID + "\",\"spanId\":\"" + SPAN_ID
-                + "\"}]}]}}]}]}]}"), metrics);
-        final Exemplar exemplar = metrics.getResourceMetrics(0).getScopeMetrics(0).getMetrics(0).getSum()
-                                         .getDataPoints(0).getExemplars(0);
-        assertEquals(TRACE_ID, OTLPValues.hexId(exemplar.getTraceId()));
-        assertEquals(SPAN_ID, OTLPValues.hexId(exemplar.getSpanId()));
+    void aValueOfAnotherLengthIsLeftForTheParser() {
+        // 12 hex characters is no span id; it is left as written, for the parser to read or reject.
+        final String odd = "{\"spanId\":\"eee19b7ec3c1\"}";
+        assertEquals(odd, OTLPValues.hexIdsToBase64(odd));
     }
 
     @Test

@@ -36,9 +36,13 @@ import org.apache.skywalking.oap.server.library.batchqueue.ThreadPolicy;
  */
 @Slf4j
 public class PairingFactSender {
+    private static final long WARN_INTERVAL_MILLIS = 60_000L;
+
     private final String queueName;
     private final BatchQueue<PairingFact> queue;
     private final AtomicLong dropped = new AtomicLong();
+    private final AtomicLong droppedAtLastWarn = new AtomicLong();
+    private final AtomicLong lastWarnMillis = new AtomicLong(Long.MIN_VALUE / 2);
 
     /**
      * @param queueName  the queue's unique name
@@ -76,9 +80,14 @@ public class PairingFactSender {
         if (queue.produce(fact)) {
             return true;
         }
-        if (dropped.getAndIncrement() == 0) {
-            log.warn("The pairing fact buffer is full, so a peer node is slow to take them; facts are dropped "
-                + "rather than holding up the OTLP receiver, which only delays learning an address");
+        final long total = dropped.incrementAndGet();
+        final long now = System.currentTimeMillis();
+        final long last = lastWarnMillis.get();
+        // At most one line a minute, carrying the count since the previous one, so a sustained drop stays visible.
+        if (now - last >= WARN_INTERVAL_MILLIS && lastWarnMillis.compareAndSet(last, now)) {
+            log.warn("The pairing fact buffer is full, so a peer node is slow to take them; {} facts were dropped "
+                    + "since the last report, {} since start, rather than holding up the OTLP receiver, which only "
+                    + "delays learning an address", total - droppedAtLastWarn.getAndSet(total), total);
         }
         return false;
     }

@@ -32,7 +32,7 @@ cases:
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_sla --service-name=productcatalogservice
     expected: expected/tal-metric-sla-10000.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_endpoint_resp_time --service-name=productcatalogservice --endpoint-name=oteldemo.ProductCatalogService/ListProducts
-    expected: expected/tal-metric-values.yml
+    expected: expected/tal-metric-present.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_relation_client_cpm --service-name=frontend --dest-service-name=productcatalogservice
     expected: expected/tal-metric-values.yml
   # Slow statements: one 500 ms PostgreSQL client span, sent as OTLP/HTTP JSON with fresh ids on every attempt so a

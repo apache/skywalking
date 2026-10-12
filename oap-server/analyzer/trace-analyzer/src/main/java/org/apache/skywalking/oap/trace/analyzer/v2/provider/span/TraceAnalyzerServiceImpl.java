@@ -172,11 +172,14 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             spanPairing.serverSeen(meta, MeterEntity.isNormal(pairingLayer != null ? pairingLayer : layer));
         }
 
-        final SpanAnalysisResult result = SpanAnalysisResult.builder()
-                                                        .persist(persist)
-                                                        .enforced(persist && enforced)
-                                                        .additionalTags(tags)
-                                                        .build();
+        // The common outcome carries nothing span-specific, so the dedup window holds the shared instance.
+        final SpanAnalysisResult result = persist && !enforced && tags.isEmpty()
+            ? SpanAnalysisResult.CONTINUE
+            : SpanAnalysisResult.builder()
+                                .persist(persist)
+                                .enforced(persist && enforced)
+                                .additionalTags(tags)
+                                .build();
         seenSpans.remember(meta.getTraceId(), meta.getSpanId(), result);
         return result;
     }

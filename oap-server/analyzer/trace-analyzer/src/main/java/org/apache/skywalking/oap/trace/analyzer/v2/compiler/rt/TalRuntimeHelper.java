@@ -22,6 +22,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -319,9 +320,9 @@ public class TalRuntimeHelper {
      * address, and {@code frontend-proxy:8080} is the proxy even when the service behind it registered that
      * address. The first DNS label counts too, so a cluster FQDN resolves to the service it starts with.
      *
-     * <p>When neither names it, the span is handed to {@link SpanPairing}: if the SERVER span this call produced
-     * has already been analyzed here, its service is the answer and the alias row is learned from the pair;
-     * otherwise the call waits for that span, and the edge stays address-named this once.
+     * <p>When neither names it, the span is handed to {@link SpanPairing}, whose {@link SpanPairing#clientSeen}
+     * answers with a service an earlier pair named; otherwise the edge stays address-named this once, and the alias
+     * row the pair writes names the calls that follow.
      *
      * @param address the peer as the CLIENT span spelled it
      * @return the represented service's name, or the address
@@ -572,6 +573,172 @@ public class TalRuntimeHelper {
     public String eventAttr(final String name, final String k0, final String k1, final String k2) {
         return eventAttr(name, new String[] {k0, k1, k2});
     }
+    // ==================== Comparisons ====================
+
+    /**
+     * What an {@code as T} answers in a comparison when the value cannot be converted; a comparison with it is false.
+     */
+    private static final Object CAST_FAILED = new Object();
+
+    /**
+     * {@code value as Integer} in a comparison.
+     *
+     * @param value the value to convert
+     * @return the Integer, or a failure marker for a value that is absent or not a whole number of that range
+     */
+    public Object asInteger(final Object value) {
+        final Object number = asNumber(value);
+        if (number instanceof Number) {
+            final double d = ((Number) number).doubleValue();
+            if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
+                return ((Number) number).intValue();
+            }
+        }
+        return CAST_FAILED;
+    }
+
+    /**
+     * {@code value as Long} in a comparison.
+     *
+     * @param value the value to convert
+     * @return the Long, or a failure marker for a value that is absent or not a whole number
+     */
+    public Object asLong(final Object value) {
+        final Object number = asNumber(value);
+        if (number instanceof Long || number instanceof Integer) {
+            return ((Number) number).longValue();
+        }
+        if (number instanceof Double && ((Double) number) == Math.rint((Double) number)) {
+            return ((Double) number).longValue();
+        }
+        return CAST_FAILED;
+    }
+
+    /**
+     * {@code value as Double} in a comparison.
+     *
+     * @param value the value to convert
+     * @return the Double, or a failure marker for a value that is absent or not a number
+     */
+    public Object asDouble(final Object value) {
+        final Object number = asNumber(value);
+        return number instanceof Number ? (Object) ((Number) number).doubleValue() : CAST_FAILED;
+    }
+
+    /**
+     * {@code value as Float} in a comparison.
+     *
+     * @param value the value to convert
+     * @return the Float, or a failure marker for a value that is absent or not a number
+     */
+    public Object asFloat(final Object value) {
+        final Object number = asNumber(value);
+        return number instanceof Number ? (Object) ((Number) number).floatValue() : CAST_FAILED;
+    }
+
+    /**
+     * {@code value as Boolean} in a comparison.
+     *
+     * @param value the value to convert
+     * @return the Boolean, or a failure marker for anything but a Boolean or the text true or false
+     */
+    public Object asBoolean(final Object value) {
+        if (value instanceof Boolean) {
+            return value;
+        }
+        if (value instanceof String) {
+            final String text = ((String) value).trim();
+            if ("true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text)) {
+                return Boolean.valueOf(text);
+            }
+        }
+        return CAST_FAILED;
+    }
+
+    /**
+     * @return a Long or a Double for a number or a text that parses as one, else null
+     */
+    private static Object asNumber(final Object value) {
+        if (value instanceof Long || value instanceof Integer || value instanceof Short || value instanceof Byte) {
+            return ((Number) value).longValue();
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue();
+        }
+        if (value instanceof String) {
+            final String text = ((String) value).trim();
+            if (text.isEmpty()) {
+                return null;
+            }
+            try {
+                return Long.parseLong(text);
+            } catch (final NumberFormatException e) {
+                try {
+                    return Double.parseDouble(text);
+                } catch (final NumberFormatException e2) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * A comparison of two numbers with Java's promotion: as doubles when either is a floating-point number, as
+     * longs otherwise.
+     *
+     * @param left  the left operand
+     * @param right the right operand
+     * @param op    the operator, the ordinal of {@code CompareOp}: ==, !=, &gt;, &lt;, &gt;=, &lt;=
+     * @return the comparison; false when either side is absent or a failed {@code as T}
+     */
+    public boolean compareNumbers(final Object left, final Object right, final int op) {
+        if (!(left instanceof Number) || !(right instanceof Number)) {
+            return false;
+        }
+        final int sign;
+        if (left instanceof Double || left instanceof Float || right instanceof Double || right instanceof Float) {
+            final double l = ((Number) left).doubleValue();
+            final double r = ((Number) right).doubleValue();
+            if (Double.isNaN(l) || Double.isNaN(r)) {
+                return op == 1;
+            }
+            sign = l < r ? -1 : l > r ? 1 : 0;
+        } else {
+            sign = Long.compare(((Number) left).longValue(), ((Number) right).longValue());
+        }
+        switch (op) {
+            case 0:
+                return sign == 0;
+            case 1:
+                return sign != 0;
+            case 2:
+                return sign > 0;
+            case 3:
+                return sign < 0;
+            case 4:
+                return sign >= 0;
+            case 5:
+            default:
+                return sign <= 0;
+        }
+    }
+
+    /**
+     * {@code ==} or {@code !=} of two values of one kind.
+     *
+     * @param left  the left operand
+     * @param right the right operand
+     * @param equal true for {@code ==}
+     * @return whether they are equal, or differ; false when either side is a failed {@code as T}
+     */
+    public boolean sameValue(final Object left, final Object right, final boolean equal) {
+        if (left == CAST_FAILED || right == CAST_FAILED) {
+            return false;
+        }
+        return Objects.equals(left, right) == equal;
+    }
+
     // ==================== Conversions ====================
 
     /**

@@ -44,11 +44,11 @@ import org.yaml.snakeyaml.Yaml;
 
 import static java.util.Objects.isNull;
 
-@Slf4j
 /**
  * The addresses {@code gateways.yml} lists. Also a service of the agent analyzer, so the trace analyzer keeps the same
  * addresses out of the alias rows it writes.
  */
+@Slf4j
 public class UninstrumentedGatewaysConfig extends ConfigChangeWatcher implements Service {
     private final AtomicReference<String> settingsString;
 

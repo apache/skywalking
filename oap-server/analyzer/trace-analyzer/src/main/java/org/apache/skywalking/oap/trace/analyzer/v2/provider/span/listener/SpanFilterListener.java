@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALMetricShapes;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfig;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
@@ -61,14 +62,14 @@ public class SpanFilterListener {
     /**
      * @param layer    the layer a rule was declared for, or null for an auto rule
      * @param ruleName the rule's name
-     * @return the key both the registry and the runtime-rule plugin use
+     * @return the key a rule is registered and suspended under
      */
     public static String ruleKey(final Layer layer, final String ruleName) {
         return layer == null ? AUTO_LAYER_PREFIX + ruleName : layer.name() + "|" + ruleName;
     }
 
     /**
-     * The rule store, registered as a module service so the runtime-rule plugin reaches it by service class.
+     * The rule store, registered as a module service.
      */
     public static class Factory implements Service {
         private final ModuleManager moduleManager;
@@ -76,7 +77,7 @@ public class SpanFilterListener {
 
         /**
          * Compiled rules of each declared layer. Volatile with copy-on-write, so readers see a consistent
-         * snapshot without a lock while a hot update replaces one entry.
+         * snapshot without a lock while a rule is installed.
          */
         private volatile Map<Layer, Map<String, CompiledTAL>> dsls = Collections.emptyMap();
 
@@ -98,6 +99,10 @@ public class SpanFilterListener {
          * Output builders by the short name a rule writes in {@code outputType}.
          */
         private final Map<String, Class<?>> outputBuilders = new HashMap<>();
+        /**
+         * The shape of every metric the rules this factory loaded declare, across files.
+         */
+        private final TALMetricShapes metricShapes = new TALMetricShapes();
 
         public Factory(final ModuleManager moduleManager, final TraceAnalyzerModuleConfig config) {
             this.moduleManager = moduleManager;
@@ -134,8 +139,8 @@ public class SpanFilterListener {
          * Compile one rule, resolving its input and output types first.
          *
          * @param rule              the rule as loaded from YAML
-         * @param pool              a per-file pool for the runtime-rule path, or null
-         * @param targetClassLoader the loader for the runtime-rule path, or null
+         * @param pool              a pool scoped to {@code targetClassLoader}, or null for the default pool
+         * @param targetClassLoader the loader to define the class in, or null for the app loader
          * @return the compiled rule with the coordinates it is stored under
          * @throws ModuleStartException when a type does not resolve or the rule does not compile
          */
@@ -154,7 +159,7 @@ public class SpanFilterListener {
 
             final TalDSL dsl = TalDSL.of(moduleManager, config, rule.getDsl(),
                 provider.inputType(), outputType, rule.getName(), rule.getMetricPrefix(),
-                DslSourceRef.ofRule(rule.getSourcePath(), rule.getLineNo()), pool, targetClassLoader);
+                DslSourceRef.ofRule(rule.getSourcePath(), rule.getLineNo()), metricShapes, pool, targetClassLoader);
             return new CompiledTAL(layer, rule.getName(), dsl, provider);
         }
 
@@ -272,8 +277,7 @@ public class SpanFilterListener {
         }
 
         /**
-         * Take the named rules out of dispatch without discarding them, which is what a runtime-rule
-         * {@code /inactivate} does while the cluster converges.
+         * Take the named rules out of dispatch without discarding them.
          *
          * @param keys the rule keys to suspend
          */
@@ -315,7 +319,7 @@ public class SpanFilterListener {
                     continue;
                 }
                 // The provider the rule was compiled against indexes the span's attributes the way that rule reads
-                // them; it travels with the rule, so a hot update replaces both in one snapshot swap.
+                // them; it travels with the rule, so installing a rule replaces both in one snapshot swap.
                 out.add(new RuleBinding(compiled.dsl, compiled.provider));
             }
             return out;

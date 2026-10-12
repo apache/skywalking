@@ -155,6 +155,17 @@ class SpanPairingTest {
     }
 
     @Test
+    void aSpanResolvedByTwoRulesSendsOneFact() {
+        final List<PairingFact> wire = new ArrayList<>();
+        pairing.setTransport(wire::add);
+        assertNull(pairing.clientSeen(client("frontend", "s2"), "172.19.0.16:3550"));
+        assertNull(pairing.clientSeen(client("frontend", "s2"), "172.19.0.16:3550"), "a second rule on one span");
+        assertEquals(1, wire.size());
+        pairing.clientSeen(client("frontend", "s4"), "172.19.0.16:3550");
+        assertEquals(2, wire.size(), "another call reports its own fact");
+    }
+
+    @Test
     void theSampleIsSpreadOverEveryOwnerNode() {
         // The owner is picked by remoteHashCode() % size. Sampling on the same hash would tie the two: at 50 nodes
         // and 25 percent, every sampled trace has hash % 100 < 25, hence hash % 50 < 25, and nodes 25..49 never

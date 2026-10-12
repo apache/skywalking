@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
+import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALMetricShapes;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 
@@ -36,7 +37,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleC
  * One compiled TAL rule and the state it needs to run: the generated class, the spec it calls into, and the
  * input type it was typed against.
  *
- * <p>Compiled once at startup, or on a runtime-rule push, and reused for every span. Immutable and thread-safe;
+ * <p>Compiled once when the rules load at startup, and reused for every span. Immutable and thread-safe;
  * all per-span state is the {@link ExecutionContext} passed to {@link #evaluate}.
  */
 @Slf4j
@@ -67,26 +68,15 @@ public class TalDSL {
         return failureReported.compareAndSet(false, true);
     }
 
-    public static TalDSL of(final ModuleManager moduleManager,
-                            final TraceAnalyzerModuleConfig config,
-                            final String dsl,
-                            final Class<?> inputType,
-                            final Class<?> outputType,
-                            final String ruleName,
-                            final String metricPrefix,
-                            final DslSourceRef sourceRef) throws ModuleStartException {
-        return of(moduleManager, config, dsl, inputType, outputType, ruleName, metricPrefix, sourceRef,
-            null, null);
-    }
-
     /**
-     * Runtime-rule overload: the generated class is defined in the supplied loader rather than the app loader,
-     * so a pushed rule can be replaced without leaking the previous class.
+     * Compile one rule and create the metrics it declares.
      *
-     * @param pool              a per-file pool already scoped to {@code targetClassLoader}, or null
+     * @param metricShapes      the shapes of the metrics every loaded rule declares; a different shape for a name
+     *                          another rule declared fails this rule
+     * @param pool              a pool scoped to {@code targetClassLoader}, or null for the default pool
      * @param targetClassLoader the loader to define the class in, or null for the app loader
      * @return the compiled rule
-     * @throws ModuleStartException when the rule does not parse, validate or compile
+     * @throws ModuleStartException when the rule does not parse, validate or compile, or conflicts with another
      */
     public static TalDSL of(final ModuleManager moduleManager,
                             final TraceAnalyzerModuleConfig config,
@@ -96,6 +86,7 @@ public class TalDSL {
                             final String ruleName,
                             final String metricPrefix,
                             final DslSourceRef sourceRef,
+                            final TALMetricShapes metricShapes,
                             final ClassPool pool,
                             final ClassLoader targetClassLoader) throws ModuleStartException {
         try {
@@ -109,6 +100,8 @@ public class TalDSL {
             generator.setContent(dsl);
 
             final TalExpression expression = generator.compile(dsl);
+            // Checked against every rule loaded before, across files, before anything is created.
+            metricShapes.claim(sourceRef + "#" + ruleName, generator.getMetricDeclarations());
             // Every metric the rule declares is installed before the rule can see a span, so the storage model
             // exists by the time a value is accepted.
             generator.createMetrics(

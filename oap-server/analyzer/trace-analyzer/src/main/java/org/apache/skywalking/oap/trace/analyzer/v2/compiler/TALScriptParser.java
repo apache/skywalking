@@ -850,8 +850,9 @@ public final class TALScriptParser {
     }
 
     /**
-     * A STRING token's value: the quotes removed and the escapes decoded as Java decodes them, so the token
-     * {@code "a\"b"} is the three characters {@code a"b}.
+     * A STRING token's value, as plain text: the quotes removed, and a backslash escaping only a quote or itself,
+     * so the token {@code "a\"b"} is {@code a"b} and {@code "C:\temp"} keeps its backslash. There are no other
+     * escapes; a literal means what it shows.
      */
     static String unquote(final String token) {
         final String body = stripQuotes(token);
@@ -861,44 +862,15 @@ public final class TALScriptParser {
         final StringBuilder out = new StringBuilder(body.length());
         for (int i = 0; i < body.length(); i++) {
             final char c = body.charAt(i);
-            if (c != '\\' || i + 1 >= body.length()) {
-                out.append(c);
-                continue;
+            if (c == '\\' && i + 1 < body.length()) {
+                final char next = body.charAt(i + 1);
+                if (next == '"' || next == '\'' || next == '\\') {
+                    out.append(next);
+                    i++;
+                    continue;
+                }
             }
-            final char next = body.charAt(++i);
-            switch (next) {
-                case 'b':
-                    out.append('\b');
-                    break;
-                case 't':
-                    out.append('\t');
-                    break;
-                case 'n':
-                    out.append('\n');
-                    break;
-                case 'f':
-                    out.append('\f');
-                    break;
-                case 'r':
-                    out.append('\r');
-                    break;
-                default:
-                    if (next >= '0' && next <= '7') {
-                        // Octal: up to three digits when the first is 0-3, else two, as the lexer allows.
-                        final int max = next <= '3' ? i + 3 : i + 2;
-                        int end = i + 1;
-                        while (end < body.length() && end < max
-                            && body.charAt(end) >= '0' && body.charAt(end) <= '7') {
-                            end++;
-                        }
-                        out.append((char) Integer.parseInt(body.substring(i, end), 8));
-                        i = end - 1;
-                    } else {
-                        // A quote, a backslash, or any other escaped character stands for itself.
-                        out.append(next);
-                    }
-                    break;
-            }
+            out.append(c);
         }
         return out.toString();
     }

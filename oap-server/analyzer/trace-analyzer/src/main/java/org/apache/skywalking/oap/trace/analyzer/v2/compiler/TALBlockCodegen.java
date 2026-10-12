@@ -52,17 +52,6 @@ final class TALBlockCodegen {
     }
 
     /**
-     * The rule's own statements, in the order the DSL wrote them. Everything is generated into one method, so an
-     * {@code abort {}} anywhere returns from it and nothing after it runs, and a filter-level {@code def} is in
-     * scope inside the extractor.
-     */
-    static void generateTopLevel(final StringBuilder sb,
-                                 final List<TALScriptModel.FilterStatement> stmts,
-                                 final TALGenCtx genCtx) {
-        generateStatements(sb, stmts, genCtx, false);
-    }
-
-    /**
      * A {@code sink} or {@code persist} block. An empty one is still a vote: it says keep.
      */
     private static void generateVoteBlock(final StringBuilder sb,
@@ -83,20 +72,14 @@ final class TALBlockCodegen {
         }
         genCtx.voteDepth++;
         sb.append("  {\n");
-        if (stmts.isEmpty()) {
-            sb.append("    filterSpec.").append(inPersist ? "persist" : "sink").append("(ctx);\n");
-        } else {
-            final List<TALScriptModel.FilterStatement> asFilter = new ArrayList<>(stmts.size());
-            for (final TALScriptModel.VoteStatement vs : stmts) {
-                asFilter.add((TALScriptModel.FilterStatement) vs);
-            }
-            if (inPersist) {
-                // A persist block that votes at all has voted keep unless a statement says otherwise, so the
-                // default is recorded before the statements run.
-                sb.append("    filterSpec.persist(ctx);\n");
-            }
-            generateStatements(sb, asFilter, genCtx, inPersist);
+        // A block that runs votes keep unless a statement in it says otherwise: a persist block for the span, a
+        // sink block for the record, which is written only when a sink block ran.
+        sb.append("    filterSpec.").append(inPersist ? "persist" : "sink").append("(ctx);\n");
+        final List<TALScriptModel.FilterStatement> asFilter = new ArrayList<>(stmts.size());
+        for (final TALScriptModel.VoteStatement vs : stmts) {
+            asFilter.add((TALScriptModel.FilterStatement) vs);
         }
+        generateStatements(sb, asFilter, genCtx, inPersist);
         sb.append("  }\n");
         genCtx.voteDepth--;
     }
@@ -175,16 +158,29 @@ final class TALBlockCodegen {
         } else if (stmt instanceof TALScriptModel.MetricsBlock) {
             generateMetricsBlock(sb, (TALScriptModel.MetricsBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.EnforcerStatement) {
+            requireVoteBlock("enforcer {}", genCtx);
             sb.append("  filterSpec.enforcer(h.ctx(), ").append(inPersist).append(");\n");
         } else if (stmt instanceof TALScriptModel.DropperStatement) {
+            requireVoteBlock("dropper {}", genCtx);
             sb.append("  filterSpec.dropper(h.ctx(), ").append(inPersist).append(");\n");
         } else if (stmt instanceof TALScriptModel.SamplerBlock) {
+            requireVoteBlock("sampler {}", genCtx);
             generateSamplerBlock(sb, (TALScriptModel.SamplerBlock) stmt, genCtx, inPersist);
         } else if (stmt instanceof TALScriptModel.IfBlock) {
             generateIfBlock(sb, (TALScriptModel.IfBlock) stmt, genCtx, inPersist);
         } else {
             throw new IllegalArgumentException(
                 "Unsupported TAL statement in codegen: " + stmt.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * The vote statements decide the record or the span, so they mean something only inside the block that says
+     * which; an {@code if} outside one would have them act on a record the rule may not have.
+     */
+    private static void requireVoteBlock(final String statement, final TALGenCtx genCtx) {
+        if (genCtx.voteDepth == 0) {
+            throw new IllegalArgumentException(statement + " belongs inside a sink {} or a persist {} block");
         }
     }
 
@@ -354,9 +350,9 @@ final class TALBlockCodegen {
 
     /**
      * One {@code metrics {}} block becomes this sequence: build the entity, read the observation and the time,
-     * register the entity's traffic once, build the metric, accept the observation and send it in that minute
-     * bucket. The observation is read before any traffic, and a failure anywhere in the block skips only the block:
-     * a value that does not parse costs that metric for that span, not the rule's later blocks.
+     * build the metric, register the entity's traffic once, accept the observation and send it in that minute
+     * bucket. Everything that can fail runs before any traffic, and a failure anywhere in the block skips only the
+     * block: a value that does not parse costs that metric for that span, not the rule's later blocks.
      */
     private static void generateMetricsBlock(final StringBuilder sb,
                                              final TALScriptModel.MetricsBlock block,
@@ -398,11 +394,12 @@ final class TALBlockCodegen {
             sb.append("h.ctx().getMeta().getStartTime()");
         }
         sb.append(";\n");
-        sb.append("      h.traffic(").append(entityVar).append(", ").append(timeVar).append(");\n");
+        // The metric is built before the entity is registered, so a metric that cannot be built leaves no traffic.
         sb.append("      ").append(ACCEPTABLE_VALUE).append(" ").append(valueVar)
           .append(" = h.meterSystem().buildMetrics(\"")
           .append(DslJavaSourceText.toLiteral(fullName)).append("\", ")
           .append(function.valueClass).append(".class);\n");
+        sb.append("      h.traffic(").append(entityVar).append(", ").append(timeVar).append(");\n");
         sb.append("      ").append(valueVar).append(".accept(").append(entityVar).append(", ")
           .append(observationVar).append(");\n");
         sb.append("      h.send(").append(valueVar).append(", ").append(timeVar).append(");\n");
@@ -444,9 +441,6 @@ final class TALBlockCodegen {
                 sb.append("Boolean.valueOf(");
                 TALValueCodegen.generateCondition(sb, block.getStatus(), genCtx);
                 sb.append(").booleanValue())");
-                break;
-            case HISTOGRAM:
-                appendBucketedValues(sb, block, bounds, genCtx);
                 break;
             case PERCENTILE:
                 sb.append("new ").append(PERCENTILE_ARGUMENT).append("(");
@@ -711,11 +705,10 @@ final class TALBlockCodegen {
                 "labels belong to the labeled functions only; metric " + fullName
                     + " uses " + function.meterFunction);
         }
-        final boolean wantsBuckets = function.kind == TALMetricFunction.Kind.HISTOGRAM
-            || function.kind == TALMetricFunction.Kind.PERCENTILE;
+        final boolean wantsBuckets = function.kind == TALMetricFunction.Kind.PERCENTILE;
         if (wantsBuckets == block.getBuckets().isEmpty()) {
             throw new IllegalArgumentException(
-                "buckets belong to histogram and percentile only; metric " + fullName
+                "buckets belong to percentile only; metric " + fullName
                     + " uses " + function.meterFunction);
         }
         if (!block.getRanks().isEmpty() && function.kind != TALMetricFunction.Kind.PERCENTILE) {

@@ -69,9 +69,8 @@ public class OpenTelemetryLogHTTPHandler {
         try {
             final ExportLogsServiceRequest.Builder builder =
                 ExportLogsServiceRequest.newBuilder();
-            // OTLP/JSON spells ids in hex, which protobuf's JSON mapping would read as base64.
             JsonFormat.parser().ignoringUnknownFields().merge(
-                OTLPValues.hexIdsToBase64(request.contentUtf8()), builder);
+                request.contentUtf8(), builder);
             logHandler.processExport(builder.build());
             return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, "{}");
         } catch (InvalidProtocolBufferException e) {

@@ -62,8 +62,8 @@ rules:
           if (meta.statusCode == "ERROR") {
             def ok = false
           }
-          if (hasAttr("http.response.status_code", "http.status_code")
-              && attr("http.response.status_code", "http.status_code") as Integer >= 400) {
+          // A status that is absent, empty or not a number fails the conversion, which makes the comparison false.
+          if (attr("http.response.status_code", "http.status_code") as Double >= 400) {
             def ok = false
           }
 
@@ -268,6 +268,11 @@ rules:
     dsl: |
       filter {
         if (meta.kind != "CLIENT" || !hasAttr("db.query.text", "db.statement")) {
+          abort {}
+        }
+        // A cache command is not a slow statement; the agent path writes those as slow cache accesses.
+        def system = attr("db.system.name", "db.system")
+        if (system == "redis" || system == "valkey" || system == "memcached") {
           abort {}
         }
         // Milliseconds. The agent path keys this by database type (slowDBAccessThreshold); edit per deployment.

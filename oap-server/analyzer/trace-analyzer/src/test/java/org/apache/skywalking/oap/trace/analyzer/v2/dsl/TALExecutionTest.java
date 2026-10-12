@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.apdex.ApdexFunction;
-import org.apache.skywalking.oap.server.core.analysis.meter.function.HistogramFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.sum.SumHistogramPercentileFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -542,10 +541,10 @@ class TALExecutionTest {
         run("filter { extractor {\n"
             + "  layer \"OTLP_SERVICE\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
-            + "  metrics { name \"octal\"; scope svc; function histogram; value attr(\"v\"); buckets [010, 20] }\n"
+            + "  metrics { name \"octal\"; scope svc; function percentile; value attr(\"v\"); buckets [010, 20] }\n"
             + "  metrics { name \"by_route\"; scope svc; function sumLabeled; labels route: attr(\"r\"); value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput().attribute("v", "9").attribute("r", "a|b,c"));
-        final DataTable histogram = ((HistogramFunction) sentValues.get(0)).getDataset();
+        final DataTable histogram = ((SumHistogramPercentileFunction) sentValues.get(0)).getSummation();
         assertEquals(1L, histogram.get("10"), "9 falls under 10, not under an octal 8: " + histogram);
         final String stored = ((DataTable) sentValues.get(1).getClass().getMethod("getValue")
                                                           .invoke(sentValues.get(1))).toStorageData();
@@ -606,13 +605,13 @@ class TALExecutionTest {
     }
 
     @Test
-    void aHistogramCountsAValueInTheFirstBucketNotBelowIt() throws Exception {
+    void aPercentileCountsAValueInTheFirstBucketNotBelowIt() throws Exception {
         // A bound is its bucket's upper edge, as MAL keys OTel's `le`; above the last bound is the overflow bucket,
         // keyed Long.MAX_VALUE like MAL's +Inf.
         final TalExpression rule = compile("filter { extractor {\n"
             + "  layer \"OTLP_SERVICE\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
-            + "  metrics { name \"latency_histogram\"; scope svc; function histogram; value attr(\"lat\")\n"
+            + "  metrics { name \"latency_buckets\"; scope svc; function percentile; value attr(\"lat\")\n"
             + "            buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }\n"
             + "} }");
         final String overflow = String.valueOf(Long.MAX_VALUE);
@@ -623,7 +622,7 @@ class TALExecutionTest {
             sentValues.clear();
             execute(rule, serverSpan(), new TestSpanInput().attribute("lat", c[0]));
             assertEquals(1, sentValues.size(), c[0]);
-            final DataTable dataset = ((HistogramFunction) sentValues.get(0)).getDataset();
+            final DataTable dataset = ((SumHistogramPercentileFunction) sentValues.get(0)).getSummation();
             final List<String> counted = dataset.keys().stream()
                                                 .filter(k -> dataset.get(k) > 0)
                                                 .collect(Collectors.toList());
@@ -1035,6 +1034,110 @@ class TALExecutionTest {
             .attribute("db.statement", "SELECT 1").attribute("server.address", "orders-db.prod.svc")
             .attribute("server.port", "5432"))
             .getMeta().getService());
+    }
+
+    @Test
+    void theShippedSlowStatementLeavesCacheCommandsOut() throws Exception {
+        final ExecutionContext ctx = execute(compileShippedSlowSql(), slowClientSpan(), new TestSpanInput()
+            .attribute("db.system.name", "redis").attribute("db.query.text", "GET cart:42")
+            .attribute("server.address", "redis").attribute("server.port", "6379"));
+        assertTrue(ctx.isAborted(), "a Redis command is a cache access, not a slow statement");
+        assertFalse(ctx.isSinkKept());
+    }
+
+    @Test
+    void aFailedCastMakesItsComparisonFalse() throws Exception {
+        final ExecutionContext ctx = run("filter { extractor {\n"
+            + "  if (attr(\"code\") as Integer >= 400) { tag \"ge\": \"yes\" }\n"
+            + "  if (attr(\"code\") as Integer < 400) { tag \"lt\": \"yes\" }\n"
+            + "  if (!(attr(\"code\") as Integer >= 400)) { tag \"not_ge\": \"yes\" }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("code", "abc"));
+        assertFalse(ctx.getAdditionalTags().containsKey("ge"));
+        assertFalse(ctx.getAdditionalTags().containsKey("lt"));
+        assertEquals("yes", ctx.getAdditionalTags().get("not_ge"));
+    }
+
+    @Test
+    void numbersCompareByValueAcrossTypes() throws Exception {
+        final ExecutionContext ctx = run("filter { extractor {\n"
+            + "  if (meta.latency == 110.0) { tag \"double\": \"yes\" }\n"
+            + "  if (meta.latency < 111L) { tag \"long\": \"yes\" }\n"
+            + "  if (attr(\"code\") as Long == 404) { tag \"cast\": \"yes\" }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("code", "404"));
+        assertEquals("yes", ctx.getAdditionalTags().get("double"));
+        assertEquals("yes", ctx.getAdditionalTags().get("long"));
+        assertEquals("yes", ctx.getAdditionalTags().get("cast"));
+    }
+
+    @Test
+    void aMethodAfterAStringBuiltInKeepsItsType() throws Exception {
+        run("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"length_plus_one\"; scope svc; function sum; value attr(\"x\").length() + 1 }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("x", "abc"));
+        assertEquals(4L, longValueOf(sentValues.get(0)));
+    }
+
+    @Test
+    void aStringLiteralIsPlainText() throws Exception {
+        final ExecutionContext ctx = run("filter { extractor {\n"
+            + "  if (attr(\"path\") == \"C:\\temp\") { tag \"path\": \"yes\" }\n"
+            + "} }", serverSpan(), new TestSpanInput().attribute("path", "C:\\temp"));
+        assertEquals("yes", ctx.getAdditionalTags().get("path"), "a backslash before t stays a backslash");
+    }
+
+    @Test
+    void aRecordIsWrittenOnlyWhenASinkRan() throws Exception {
+        final TalExpression rule = compileWithOutput("filter {\n"
+            + "  extractor { statement \"SELECT 1\" }\n"
+            + "  if (meta.latency > 100) { sink {} }\n"
+            + "}");
+        assertFalse(execute(rule, clientSpan(), new TestSpanInput()).isSinkKept(), "a 20 ms span runs no sink");
+        assertTrue(execute(rule, slowClientSpan(), new TestSpanInput()).isSinkKept());
+    }
+
+    @Test
+    void anEnforcerDoesNotUndoADropper() throws Exception {
+        assertFalse(execute(compileWithOutput("filter {\n"
+            + "  extractor { statement \"SELECT 1\" }\n"
+            + "  sink { if (meta.latency > 0) { dropper {} }\n enforcer {} }\n"
+            + "}"), clientSpan(), new TestSpanInput()).isSinkKept(), "the record");
+        assertFalse(run("filter { persist { dropper {}\n enforcer {} } }", serverSpan(), new TestSpanInput())
+            .isPersist(), "the span, the dropper first");
+        assertFalse(run("filter { persist { enforcer {}\n dropper {} } }", serverSpan(), new TestSpanInput())
+            .isPersist(), "the span, the enforcer first");
+    }
+
+    @Test
+    void aMetricThatCannotBeBuiltRegistersNoTraffic() throws Exception {
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("exec_uncreated");
+        generator.setMetricPrefix("tal_exec_test");
+        generator.setInputType(TestSpanInput.class);
+        generator.setSourceRef(DslSourceRef.ofRule("tal/test.yaml", 1));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        // Compiled without createMetrics, as a metric the meter system refused at boot.
+        final TalExpression rule = generator.compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def svc = service(meta.service, meta.layer)\n"
+            + "  metrics { name \"uncreated_cpm\"; scope svc; function cpm; value 1 }\n"
+            + "} }");
+        final ExecutionContext ctx = execute(rule, serverSpan(), new TestSpanInput());
+        assertFalse(ctx.isAborted(), "the failing block skips itself only");
+        assertTrue(sentValues.isEmpty());
+        assertTrue(traffic.isEmpty(), "no entity is registered for a metric that was not counted: " + traffic);
+    }
+
+    private TalExpression compileWithOutput(final String dsl) throws Exception {
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("exec_out_" + Math.abs(dsl.hashCode()));
+        generator.setMetricPrefix("tal_exec_test");
+        generator.setInputType(TestSpanInput.class);
+        generator.setOutputType(ShippedSlowStatement.class);
+        generator.setSourceRef(DslSourceRef.ofRule("tal/test.yaml", 1));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        return generator.compile(dsl);
     }
 
     private TalExpression compileShippedSlowSql() throws Exception {

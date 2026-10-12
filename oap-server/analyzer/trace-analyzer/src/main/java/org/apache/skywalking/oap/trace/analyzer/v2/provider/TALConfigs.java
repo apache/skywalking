@@ -66,13 +66,12 @@ public class TALConfigs {
     private List<LayerDefinition> layerDefinitions;
 
     /**
-     * Catalog every TAL rule file lives under, both on disk and as a runtime rule.
+     * Catalog every TAL rule file lives under.
      */
     public static final String TAL_CATALOG = "tal/";
 
     /**
-     * Stamps a rule's identity and attribution coordinates from its file name. Both routes that load TAL, this
-     * boot loader and the runtime-rule applier, call this, because the two coordinates are related but not equal.
+     * Stamps a rule's identity and attribution coordinates from its file name; the two are related but not equal.
      *
      * @param config   the rule to stamp
      * @param fileName the rule file's name, with or without a YAML extension

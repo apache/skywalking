@@ -90,14 +90,19 @@ public final class OTLPValues {
     }
 
     /**
-     * The id fields of an OTLP/JSON body: traces, links, log records and exemplars, in the spec's lowerCamelCase and
-     * in the snake_case protobuf's parser also accepts.
+     * The trace id fields of an OTLP/JSON trace body, spans and links, in the spec's lowerCamelCase and in the
+     * snake_case protobuf's parser also accepts; a trace id is 16 bytes, 32 hex characters.
      */
-    private static final Set<String> JSON_ID_FIELDS = Set.of(
-        "traceId", "spanId", "parentSpanId", "trace_id", "span_id", "parent_span_id");
+    private static final Set<String> JSON_TRACE_ID_FIELDS = Set.of("traceId", "trace_id");
 
     /**
-     * Rewrite the ids of an OTLP/JSON body from hex to base64, so protobuf's JSON parser reads them. OTLP/JSON
+     * The span id fields; a span id is 8 bytes, 16 hex characters.
+     */
+    private static final Set<String> JSON_SPAN_ID_FIELDS = Set.of(
+        "spanId", "parentSpanId", "span_id", "parent_span_id");
+
+    /**
+     * Rewrite the ids of an OTLP/JSON trace body from hex to base64, so protobuf's JSON parser reads them. OTLP/JSON
      * encodes {@code traceId}, {@code spanId} and {@code parentSpanId} as hex, unlike the standard protobuf JSON
      * mapping, which reads every {@code bytes} field as base64. Hex digits are base64 characters too, so the
      * unconverted body parses without an error, into ids of the wrong length that match nothing the SDK logged and
@@ -122,8 +127,10 @@ public final class OTLPValues {
         if (element.isJsonObject()) {
             for (final Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
                 final JsonElement value = entry.getValue();
-                if (JSON_ID_FIELDS.contains(entry.getKey()) && value.isJsonPrimitive()) {
-                    final byte[] bytes = hexBytes(value.getAsString());
+                final int idLength = JSON_TRACE_ID_FIELDS.contains(entry.getKey()) ? 32
+                    : JSON_SPAN_ID_FIELDS.contains(entry.getKey()) ? 16 : 0;
+                if (idLength > 0 && value.isJsonPrimitive()) {
+                    final byte[] bytes = hexBytes(value.getAsString(), idLength);
                     if (bytes != null) {
                         entry.setValue(new JsonPrimitive(Base64.getEncoder().encodeToString(bytes)));
                     }
@@ -139,10 +146,10 @@ public final class OTLPValues {
     }
 
     /**
-     * @return the bytes of an even-length hex string, or null for anything else, which is left for the parser
+     * @return the bytes of a hex string of the id's length, or null for anything else, which is left for the parser
      */
-    private static byte[] hexBytes(final String hex) {
-        if (hex.isEmpty() || hex.length() % 2 != 0) {
+    private static byte[] hexBytes(final String hex, final int length) {
+        if (hex.length() != length) {
             return null;
         }
         final byte[] bytes = new byte[hex.length() / 2];

@@ -17,7 +17,9 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
+import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.trace.v1.Span;
+import io.opentelemetry.proto.trace.v1.SpanFlags;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
@@ -56,6 +58,28 @@ class SpanMetadataOfTest {
         assertEquals(START_MILLIS, meta.getStartTime());
         assertEquals(END_MILLIS, meta.getTimestamp());
         assertEquals(110, meta.getLatency());
+    }
+
+    @Test
+    void theParentLocationIsReadFromTheSpanFlags() {
+        final ByteString parent = ByteString.copyFrom(new byte[] {1, 2, 3, 4, 5, 6, 7, 8});
+        final int hasIsRemote = SpanFlags.SPAN_FLAGS_CONTEXT_HAS_IS_REMOTE_MASK_VALUE;
+        final int isRemote = SpanFlags.SPAN_FLAGS_CONTEXT_IS_REMOTE_MASK_VALUE;
+        assertEquals(SpanMetadata.PARENT_LOCAL, metaOf(Span.newBuilder()
+            .setParentSpanId(parent).setFlags(hasIsRemote)).getParentLocation());
+        assertEquals(SpanMetadata.PARENT_REMOTE, metaOf(Span.newBuilder()
+            .setParentSpanId(parent).setFlags(hasIsRemote | isRemote)).getParentLocation());
+        assertEquals(SpanMetadata.PARENT_UNKNOWN, metaOf(Span.newBuilder()
+            .setParentSpanId(parent)).getParentLocation(), "an SDK that predates the bits");
+        assertEquals(SpanMetadata.PARENT_UNKNOWN, metaOf(Span.newBuilder()
+            .setFlags(hasIsRemote)).getParentLocation(), "a root span has no parent");
+    }
+
+    private static SpanMetadata metaOf(final Span.Builder span) {
+        return OpenTelemetryTraceHandler.spanMetadataOf(
+            span.setStartTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(START_MILLIS))
+                .setEndTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(END_MILLIS)).build(),
+            "frontend", Collections.emptyMap(), "", "");
     }
 
     private static SpanMetadata metaOf(final long startNanos, final long endNanos) {

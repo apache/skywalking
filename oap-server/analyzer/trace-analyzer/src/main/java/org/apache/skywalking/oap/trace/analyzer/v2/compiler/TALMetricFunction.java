@@ -33,7 +33,7 @@ final class TALMetricFunction {
      * What the generated code has to build for the function to accept it.
      */
     enum Kind {
-        LONG, BOOLEAN, APDEX, HISTOGRAM, PERCENTILE, LABELED
+        LONG, BOOLEAN, APDEX, PERCENTILE, LABELED
     }
 
     private static final Map<String, TALMetricFunction> REGISTRY = new HashMap<>();
@@ -49,8 +49,6 @@ final class TALMetricFunction {
         register("percent", "percent", Kind.BOOLEAN, "java.lang.Boolean");
         register("apdex", "apdex", Kind.APDEX,
             "org.apache.skywalking.oap.server.core.analysis.meter.function.ApdexArgument");
-        register("histogram", "sumHistogram", Kind.HISTOGRAM,
-            "org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedValues");
         register("percentile", "sumHistogramPercentile", Kind.PERCENTILE,
             "org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument");
         register("sumLabeled", "sumLabeled", Kind.LABELED,

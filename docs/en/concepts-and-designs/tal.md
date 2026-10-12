@@ -108,9 +108,25 @@ A span's attributes are indexed once per span, however many rules and lookups re
 ### Expressions
 
 An expression starts with `span`, `meta`, a `def` variable, a function or a literal; any other first name, such as a
-misspelled `mta.kind`, is a compile error. String literals take Java's escapes, so `"a\"b"` is the three characters
-`a"b`; numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are literals. A numeric field of
-`meta`, such as `meta.latency`, is a number, so `meta.latency + 1` adds.
+misspelled `mta.kind`, is a compile error. A string literal is plain text in `"` or `'`: a backslash escapes only
+the quote, `'` and itself, so `"a\"b"` is the three characters `a"b` and `"C:\temp"` keeps its backslash, and there is
+no `\n` or `\t`. Numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are literals. A numeric field
+of `meta`, such as `meta.latency`, is a number, so `meta.latency + 1` adds.
+
+A comparison is decided by the types of its two sides when the rule compiles. There is no implicit parse and no
+implicit `toString`; `as T` is the only conversion:
+
+| Left and right | Allowed | Compared as |
+|---|---|---|
+| number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long` |
+| boolean and boolean, String and String, two values of one type | `==`, `!=` | equal values |
+| a value that can be absent and `null` | `==`, `!=` | a null check |
+| a value whose type is known only when the rule runs, such as a span attribute's value, and a string literal | `==`, `!=` | equal values |
+| anything else, such as `attr("x") > 400` or `meta.latency == "5"` | | a compile error naming both types |
+
+`attr(...)` returns a String, so `attr("http.response.status_code") as Integer >= 400` orders it as a number. An
+`as T` that cannot convert its value, `"abc" as Integer` or an absent attribute, makes that comparison false
+whatever the operator, so `!(attr("code") as Integer >= 400)` is true for a value that is not a number.
 
 A `def` is one variable for the whole rule, declared by its first `def` and assigned by the later ones, so each value
 it is given has to fit the type its first value had. A filter-level `def` is in scope inside the `extractor`, and a
@@ -152,7 +168,7 @@ metrics {
   [status <condition>]               // apdex only, required: the span counts as successful when true
   [labels k: v, ...]                 // required by the *Labeled functions, forbidden otherwise
   [labelLimit n]                     // *Labeled functions only; the label sets one row keeps per minute, 50 by default
-  [buckets [n, n, ...]]              // required by histogram and percentile; whole numbers, ascending, in the unit of `value`
+  [buckets [n, n, ...]]              // percentile only, required; whole numbers, ascending, in the unit of `value`
   [ranks [50, 75, 90, 95, 99]]       // percentile only; whole numbers in 1..100, ascending; this is the default
   [timestamp <expr> [as <Type>]]     // milliseconds; default meta.startTime, the span's start, as the agent path buckets a call
 }
@@ -160,7 +176,9 @@ metrics {
 
 A numeric cast on `value` or `timestamp` converts before the number is taken, so `value attr("amount") as Double`
 reads `"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
-for instance, when they agree on its function, scope, buckets and ranks; any difference is a compile error. A label
+for instance, when they agree on its function, scope, buckets and ranks; any difference is a compile error. The same
+holds across rules and files, two files sharing a `metricPrefix` included: blocks of one stored name that disagree
+fail the rule that loads second, and so the boot. A label
 value is stored with `|` and `,` replaced by `_`, since those two characters separate the stored labels.
 
 Every label set of a labeled metric is an entry in one stored row per entity per minute, so its labels should take a
@@ -180,7 +198,9 @@ rules, as a meter entity's does:
 | `serviceInstanceRelation(CLIENT \| SERVER, sourceService, sourceInstance, sourceLayer, destService, destInstance, destLayer, componentId)` | a call between two instances |
 
 A `layer` argument is a string expression. A name that is not registered skips the block, with one warning per
-name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one warning per metric, and the rule's later blocks still run. The value is read before the block registers its entity, so a skipped block writes no traffic. An entity held in a `def` has one
+name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one warning per metric, and the rule's later blocks still run. The value is read and the metric built before the
+block registers its entity, so a skipped block, one whose metric the meter system could not create included, writes
+no traffic. An entity held in a `def` has one
 shape: reassigning it with a different constructor is a compile error.
 
 The functions are the meter system's, named for what they do to the values of one minute:
@@ -194,8 +214,7 @@ The functions are the meter system's, named for what they do to the values of on
 | `percent` | `match` condition | `matches * 10000 / total`, the `core.oal` `percent` scale; `match meta.statusCode != "ERROR"` is the success rate |
 | `apdex` | `value` and `status` | the `core.oal` `apdex`: thresholds from `service-apdex-threshold.yml` looked up by the entity's service name as stored, after the service name length limit, satisfied under `T`, tolerated under `4T`; a relation scope is a compile error |
 | `sumLabeled`, `avgLabeled`, `maxLabeled`, `minLabeled`, `latestLabeled`, `sumPerMinLabeled` | number, by `labels` | one series per label set; `labels status: attr("http.response.status_code", "http.status_code")` splits a count by status code |
-| `histogram` | number, by `buckets` | the observation counted in the first bucket whose bound is not below it, so each bound is its bucket's upper edge, as MAL keys OTel's `le`; a value above the last bound counts in an overflow bucket keyed `9223372036854775807` (`Long.MAX_VALUE`), the key MAL gives OTel's `+Inf` bucket |
-| `percentile` | number, by `buckets` | the same buckets, reduced to the `ranks` when the minute is persisted; a rank reads as the upper edge of the bucket it falls in, and a rank that falls in the overflow bucket reads `9223372036854775807` |
+| `percentile` | number, by `buckets` | the observation counted in the first bucket whose bound is not below it, so each bound is its bucket's upper edge, as MAL keys OTel's `le`; a value above the last bound counts in an overflow bucket keyed `9223372036854775807` (`Long.MAX_VALUE`), the key MAL gives OTel's `+Inf` bucket. The buckets are reduced to the `ranks` when the minute is persisted; a rank reads as the upper edge of the bucket it falls in, and a rank that falls in the overflow bucket reads `9223372036854775807` |
 
 With `cpm`, `percent` and `apdex` a TAL metric named like an agent metric holds the same number in the same unit, so
 an alarm rule or a dashboard widget written for `service_sla` ports to `otlp_service_sla` by renaming the metric.
@@ -203,18 +222,22 @@ an alarm rule or a dashboard widget written for `service_sla` ports to `otlp_ser
 ### Sink
 
 `sink {}` persists the record the rule builds. A rule with an `outputType` needs one, and a `sink {}` in a rule with no
-`outputType` is a compile error. Its statements are LAL's: `sampler { rateLimit("<id>") { rpm <n> } }`, `dropper {}`,
-`enforcer {}` and `if`, run in the order they are written. A `rateLimit` budget is shared by id across every rule
-and span: the first rule to use an id sets its `rpm`, and an id unused for ten minutes is forgotten, which bounds
-the ids a `${...}` placeholder makes. `enforcer {}` keeps the record whatever the rule's samplers say, before it or
-after it; `dropper {}` still drops it.
+`outputType` is a compile error. The record is written only when a `sink {}` ran, so `if (c) { sink {} }` writes it
+only for the spans where `c` holds. Its statements are LAL's: `sampler { rateLimit("<id>") { rpm <n> } }`,
+`dropper {}`, `enforcer {}` and `if`, run in the order they are written; they decide a record or a span, so they are a
+compile error anywhere but inside `sink {}` or `persist {}`. A `rateLimit` budget is shared by id across every rule
+and span: the first rule to use an id sets its `rpm`. An id unused for ten minutes is forgotten, and beyond 10,000
+ids the least recently used is forgotten too, which bounds the ids a `${...}` placeholder makes; an id forgotten and
+used again starts with a fresh budget. `enforcer {}` keeps the record whatever the rule's samplers say, before it or
+after it; `dropper {}` drops it whatever an `enforcer {}` says, before it or after it.
 
 ### Persist
 
 `persist {}` decides the fate of the span itself, with the same statements as `sink {}`. Storing the incoming span
 is the receiver's default and most rules only want metrics, so a rule without `persist {}` abstains. A rule with
 `persist {}` votes: `dropper {}` and an unsampled `rateLimit` vote drop, `enforcer {}` votes keep and marks the span
-enforced, past this rule's samplers before or after it, and an empty `persist {}` votes keep. The span is stored when every rule that voted said keep and no span
+enforced, past this rule's samplers before or after it but not past its `dropper {}`, and an empty `persist {}` votes
+keep. The span is stored when every rule that voted said keep and no span
 listener vetoed; a drop vote from one rule therefore beats an `enforcer {}` in another, and a rule that aborted did
 not vote.
 
@@ -258,8 +281,9 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   alias rows travel through storage and the core's alias cache, which reloads every 10 seconds, so the first calls
   to a freshly seen address are still address-named, and the topology query folds those.
 - **`resolveAlias(address)`** on the CLIENT side answers, in this order: a host, or its first DNS label, that is the
-  name of a service this OAP node has seen spans from; the service an alias row names; the service whose SERVER span
-  this CLIENT span is the parent of, when the pairing below has seen it; else the address unchanged.
+  name of a service this OAP node has seen spans from; the service an alias row names; the service an earlier pair
+  named for the address on this node, see the pairing below; else the address unchanged. A CLIENT span whose own
+  pair has not met yet stays address-named; its pair names the calls that follow.
 - **Pairing** resolves the rest from the trace context: a SERVER span's `parentSpanId` is its caller's span id,
   which needs no attribute convention on either side. Every SERVER span with a parent, and every CLIENT span
   whose peer could not be named, becomes a fact; messaging spans take no part, since a CONSUMER span's parent is

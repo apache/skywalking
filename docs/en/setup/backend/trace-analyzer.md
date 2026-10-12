@@ -78,7 +78,8 @@ query them through [MQE](../../api/metrics-query-expression.md) and reference th
 #### Porting from the agent metrics
 
 Where an agent metric has a TAL counterpart, the TAL metric is the agent metric's name with the `otlp_` prefix and
-holds the same number in the same unit, so an alarm rule or a dashboard widget ports by renaming the metric:
+holds the same number in the same unit, so an alarm rule or a dashboard widget ports by renaming the metric, with
+the two exceptions listed after the table:
 
 | `core.oal` metric | TAL metric |
 |---|---|
@@ -90,10 +91,21 @@ holds the same number in the same unit, so an alarm rule or a dashboard widget p
 | `database_access_cpm`, `database_access_resp_time`, `database_access_sla` | `otlp_database_access_*` of the same names |
 | `cache_access_cpm`, `cache_access_resp_time`, `cache_access_sla` | `otlp_cache_access_*` of the same names |
 
+Two metrics read differently:
+
+- `*_percentile`: `core.oal` computes `percentile2(10)`, which floors a latency to 10 ms steps, so a 110 ms p99
+  reads 110. The TAL `percentile` counts a latency in the bucket whose upper edge is the first bound not below it,
+  and a rank reads that edge, so the same p99 reads 250 with the shipped buckets, and a rank above the last bound,
+  10 s, reads `9223372036854775807`. An alarm threshold such as `p99 > 200` needs restating against the buckets.
+- `*_resp_time`: a minute whose mean is above 0 but below 1 ms reads 1, the meter system's `avg`; `core.oal`'s
+  `longAvg` reads 0.
+
 The `otlp_mq_access_*` and `otlp_mq_destination_*` metrics have no `core.oal` counterpart; the agent path's
 `mq_service_*` and `mq_endpoint_*` metrics measure the consuming service rather than the broker. The agent metrics
-without a TAL counterpart are not produced: the relation and instance-relation percentiles, the server-side relation
-metrics other than `cpm`, the endpoint relations, and the cache read and write split.
+without a TAL counterpart are not produced: the relation percentiles, every instance-relation metric
+(`service_instance_relation_*`, since the shipped rule builds no instance relation), the server-side relation metrics
+other than `cpm`, the endpoint relations, `database_access_percentile` and `cache_access_percentile`, and the cache
+read and write split.
 
 The numbers follow the agent path's definitions:
 
@@ -133,6 +145,8 @@ does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by the three
 mechanisms described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the
 server's own `alias`, the known-service registry, and the pairing of a call's two spans by the trace context. The
+registry matches a host, or its first DNS label, against the services this node has seen spans from, so
+`cart.shop.svc.cluster.local:7070` folds onto `cart`. The
 first calls to a freshly seen address are address-named until the alias row has reached every node's cache: up to
 one persistence period (`core.default.persistentPeriod`, 25 s by default) for the row to be stored, plus the 10 s
 cache reload, so about 35 s. The topology query folds those.
@@ -215,3 +229,7 @@ An OTLP exporter retries a batch after a transport timeout, and the OAP may have
 retried span would count a request twice. `dedupWindow` keeps a per-node set of the span ids seen within the
 window and analyzes a span once; it is off by default because it costs memory per span and the OTLP logs path does
 not deduplicate either. The set is per OAP node, so a retry that lands on another node is counted again.
+
+A retry is not analyzed again, and it is stored as the first copy's rules decided: dropped, enforced, or with the
+same tags. A retry that arrives while the first copy is still being analyzed takes the receiver's own decision
+instead, as if no rule had voted; its metrics are still counted once.

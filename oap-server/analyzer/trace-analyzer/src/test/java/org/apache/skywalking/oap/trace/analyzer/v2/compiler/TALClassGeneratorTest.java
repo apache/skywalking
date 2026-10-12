@@ -69,8 +69,6 @@ class TALClassGeneratorTest {
                 + "            status meta.statusCode != \"ERROR\" }\n"
                 + "  metrics { name \"d\"; scope svc; function percentile; value meta.latency;"
                 + "            buckets [10, 25, 50] }\n"
-                + "  metrics { name \"e\"; scope svc; function histogram; value meta.latency;"
-                + "            buckets [10, 25, 50] }\n"
                 + "  metrics { name \"f\"; scope svc; function sumLabeled; value 1;"
                 + "            labels status: attr(\"http.response.status_code\") }\n"
                 + "} }");
@@ -78,7 +76,7 @@ class TALClassGeneratorTest {
                                                 .map(d -> d.function)
                                                 .collect(Collectors.toList());
         assertEquals(
-            List.of("avg", "percent", "apdex", "sumHistogramPercentile", "sumHistogram", "sumLabeled"),
+            List.of("avg", "percent", "apdex", "sumHistogramPercentile", "sumLabeled"),
             functions);
     }
 
@@ -170,7 +168,7 @@ class TALClassGeneratorTest {
         assertCompileFails(
             "filter { extractor { def svc = service(meta.service, meta.layer)\n"
                 + "metrics { name \"x\"; scope svc; function percentile; value meta.latency } } }",
-            "buckets belong to histogram and percentile only");
+            "buckets belong to percentile only");
     }
 
     @Test
@@ -272,9 +270,9 @@ class TALClassGeneratorTest {
             "filter { extractor {\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  if (meta.root) {\n"
-                + "    metrics { name \"h\"; scope svc; function histogram; value meta.latency; buckets [0, 10] }\n"
+                + "    metrics { name \"h\"; scope svc; function percentile; value meta.latency; buckets [0, 10] }\n"
                 + "  } else {\n"
-                + "    metrics { name \"h\"; scope svc; function histogram; value meta.latency; buckets [0, 50] }\n"
+                + "    metrics { name \"h\"; scope svc; function percentile; value meta.latency; buckets [0, 50] }\n"
                 + "  }\n"
                 + "} }"));
         assertTrue(rootMessage(e).contains("declared twice with different shapes"), rootMessage(e));
@@ -306,6 +304,57 @@ class TALClassGeneratorTest {
             + "} }");
         assertEquals(50, generator.getMetricDeclarations().get(0).labelLimit, "OAL's labelCount default");
         assertEquals(200, generator.getMetricDeclarations().get(1).labelLimit);
+    }
+
+    @Test
+    void rejectComparingValuesOfDifferentTypes() {
+        assertCompileFails("filter { if (attr(\"code\") > 400) { abort {} } }",
+            "cannot compare a String with a number");
+        assertCompileFails("filter { if (meta.latency == \"5\") { abort {} } }",
+            "cannot compare a number with a String");
+        assertCompileFails("filter { if (meta.root == 1) { abort {} } }",
+            "cannot compare a boolean with a number");
+    }
+
+    @Test
+    void rejectOrderingValuesThatAreNotNumbers() {
+        assertCompileFails("filter { if (attr(\"a\") > attr(\"b\")) { abort {} } }",
+            "only numbers are ordered");
+        assertCompileFails("filter { if (meta.root >= true) { abort {} } }",
+            "only numbers are ordered");
+    }
+
+    @Test
+    void rejectComparingAValueThatIsNeverAbsentWithNull() {
+        assertCompileFails("filter { if (meta.latency == null) { abort {} } }",
+            "only a value that can be absent compares with null");
+    }
+
+    @Test
+    void rejectAVoteStatementOutsideASinkOrPersistBlock() {
+        assertCompileFails("filter { if (meta.root) { enforcer {} } }",
+            "enforcer {} belongs inside a sink {} or a persist {} block");
+        assertCompileFails("filter { extractor { if (meta.root) { dropper {} } } }",
+            "dropper {} belongs inside a sink {} or a persist {} block");
+    }
+
+    @Test
+    void aMetricDeclaredWithAnotherShapeByAnotherRuleFails() throws Exception {
+        final TALClassGenerator first = generator("shape_a");
+        first.compile(percentile("buckets [10, 20]; ranks [50]"));
+        final TALClassGenerator second = generator("shape_b");
+        second.compile(percentile("buckets [10, 30]; ranks [50]"));
+        final TALClassGenerator same = generator("shape_c");
+        same.compile(percentile("buckets [10, 20]; ranks [50]"));
+
+        final TALMetricShapes shapes = new TALMetricShapes();
+        shapes.claim("a.yaml#a", second.getMetricDeclarations());
+        // A rule loaded again replaces its own claim.
+        shapes.claim("a.yaml#a", first.getMetricDeclarations());
+        shapes.claim("c.yaml#c", same.getMetricDeclarations());
+        final IllegalArgumentException conflict = assertThrows(IllegalArgumentException.class,
+            () -> shapes.claim("b.yaml#b", second.getMetricDeclarations()));
+        assertTrue(conflict.getMessage().contains("otlp_p"), conflict.getMessage());
     }
 
     private static String percentile(final String clauses) {

@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.BinaryOp;
+import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.CompareOp;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALBoolConditionValue;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALComparisonCondition;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALCondition;
@@ -76,71 +77,17 @@ public final class TALValueCodegen {
     // ==================== Conditions ====================
 
     /**
-     * Generates code for an {@code if} condition expression.
+     * Generates code for an {@code if} condition expression: a comparison, a logical combination, a negation, or
+     * a bare expression read for its truth.
      *
-     * <p>TAL examples and their generated code:
-     * <pre>{@code
-     * // Comparison (==, !=):
-     * if (tag("LOG_KIND") == "SLOW_SQL")
-     * → java.util.Objects.equals(h.tagValue("LOG_KIND"), "SLOW_SQL")
-     *
-     * // Numeric comparison (<, >, <=, >=):
-     * if (parsed?.response?.responseCode?.value as Integer < 400)
-     * → ((Type)_p).getResponse().getResponseCode().getValue() < 400L
-     *
-     * // Logical operators:
-     * if (condA && condB)  →  (condA && condB)
-     * if (!cond)           →  !(cond)
-     *
-     * // Expression-as-boolean (truthy check):
-     * if (parsed?.commonProperties?.responseFlags?.toString())
-     * → h.isNotEmpty(h.toString(...))
-     * }</pre>
+     * <p>A comparison is decided by the static types of its two operands, see {@link #generateComparison}. A bare
+     * expression is true when it is present and not empty, or, for a boolean, when it is true.
      */
     public static void generateCondition(final StringBuilder sb,
                                    final TALCondition cond,
                                    final TALGenCtx genCtx) {
         if (cond instanceof TALComparisonCondition) {
-            final TALComparisonCondition cc =
-                (TALComparisonCondition) cond;
-            switch (cc.getOp()) {
-                case EQ:
-                    if (isNumericComparison(cc, genCtx)) {
-                        generateNumericComparison(sb, cc, " == ", genCtx);
-                    } else {
-                        sb.append("java.util.Objects.equals(");
-                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                        sb.append(", ");
-                        generateConditionValue(sb, cc.getRight(), genCtx);
-                        sb.append(")");
-                    }
-                    break;
-                case NEQ:
-                    if (isNumericComparison(cc, genCtx)) {
-                        generateNumericComparison(sb, cc, " != ", genCtx);
-                    } else {
-                        sb.append("!java.util.Objects.equals(");
-                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                        sb.append(", ");
-                        generateConditionValue(sb, cc.getRight(), genCtx);
-                        sb.append(")");
-                    }
-                    break;
-                case GT:
-                    generateNumericComparison(sb, cc, " > ", genCtx);
-                    break;
-                case LT:
-                    generateNumericComparison(sb, cc, " < ", genCtx);
-                    break;
-                case GTE:
-                    generateNumericComparison(sb, cc, " >= ", genCtx);
-                    break;
-                case LTE:
-                    generateNumericComparison(sb, cc, " <= ", genCtx);
-                    break;
-                default:
-                    break;
-            }
+            generateComparison(sb, (TALComparisonCondition) cond, genCtx);
         } else if (cond instanceof TALLogicalCondition) {
             final TALLogicalCondition lc =
                 (TALLogicalCondition) cond;
@@ -178,165 +125,209 @@ public final class TALValueCodegen {
         }
     }
 
-    public static void generateNumericComparison(
-            final StringBuilder sb,
-            final TALComparisonCondition cc,
-            final String op,
-            final TALGenCtx genCtx) {
-        // Decide the primitive comparison type from explicit casts and the
-        // operand shapes — both sides influence the choice via JLS-style
-        // promotion. RHS-side cast is read off ValueAccessConditionValue;
-        // RHS literals contribute via their inferred numeric type.
-        final ExprType lhsType = inferComparisonOperandType(cc.getLeft(), cc.getLeftCast(), genCtx);
-        final ExprType rhsType = inferRightHandType(cc.getRight(), genCtx);
-        final ExprType cmpType = pickComparisonType(lhsType, rhsType);
-        final Class<?> cmpClass = cmpType.primitiveClass;
+    // ==================== Typed comparisons ====================
 
-        // Render the LHS via the shared helper, then capture the null-guard
-        // before the RHS rendering overwrites it. A top-level numeric cast
-        // on the comparison (`tag("a") as Integer < 1.5`) is honoured by
-        // emitOperandRespectingCast so the operand is rendered in the
-        // user's declared primitive, not in the promoted comparison type.
-        genCtx.lastNullChecks = null;
-        final String leftExpr = renderAsPrimitive(
-            cc.getLeft(), cc.getLeftCast(), cmpType, genCtx);
-        final String lhsNullChecks = genCtx.lastNullChecks;
-
-        // Render the RHS into its own buffer so we can read back any null
-        // guards it produced (e.g. from a typed-proto chain like
-        // `parsed?.response?.responseCode?.value`) and apply them at the
-        // outer ternary alongside the LHS guards.
-        genCtx.lastNullChecks = null;
-        final StringBuilder rhsBuf = new StringBuilder();
-        generateConditionValueNumeric(rhsBuf, cc.getRight(), cmpClass, genCtx);
-        final String rhsNullChecks = genCtx.lastNullChecks;
-
-        final String combinedNullChecks = combineNullChecks(lhsNullChecks, rhsNullChecks);
-        if (combinedNullChecks != null) {
-            sb.append("(").append(combinedNullChecks).append(" ? false : ")
-              .append(leftExpr).append(op).append(rhsBuf).append(")");
-        } else {
-            sb.append(leftExpr).append(op).append(rhsBuf);
-        }
+    /**
+     * What a comparison operand is at compile time. A comparison is legal for a pair of kinds only, see
+     * {@link #generateComparison}.
+     */
+    private enum OperandKind {
+        NUMBER, BOOLEAN, STRING, OBJECT, RUNTIME, NULL
     }
 
     /**
-     * Combine LHS / RHS null-guard expressions for a comparison. Either side
-     * may be {@code null} (no guard); the result is the disjunction so the
-     * comparison short-circuits to {@code false} as soon as any participant
-     * is null, mirroring the previous single-side behaviour.
+     * One side of a comparison, rendered as a boxed Java expression.
      */
-    private static String combineNullChecks(final String lhs, final String rhs) {
-        if (lhs == null && rhs == null) {
-            return null;
-        }
-        if (lhs == null) {
-            return rhs;
-        }
-        if (rhs == null) {
-            return lhs;
-        }
-        return lhs + " || " + rhs;
-    }
+    private static final class Operand {
+        private final String expr;
+        private final OperandKind kind;
+        /**
+         * The static class for an {@code OBJECT}, so two objects compare only when they are of one type.
+         */
+        private final Class<?> type;
+        /**
+         * Whether the expression can be null, which a primitive read cannot.
+         */
+        private final boolean nullable;
+        private final boolean stringLiteral;
+        private final String source;
 
-    /**
-     * Decide whether an {@code ==} / {@code !=} comparison should be
-     * routed through numeric primitive comparison rather than
-     * {@code Objects.equals}. True when BOTH sides resolve to a numeric
-     * type (via explicit cast, paren-cast, or AST inference). A numeric
-     * literal RHS is enough on its own — Java promotes the LHS to match.
-     */
-    private static boolean isNumericComparison(
-            final TALComparisonCondition cc,
-            final TALGenCtx genCtx) {
-        if (cc.getRight() instanceof TALNumberConditionValue) {
-            return true;
+        private Operand(final String expr, final OperandKind kind, final Class<?> type, final boolean nullable,
+                        final boolean stringLiteral, final String source) {
+            this.expr = expr;
+            this.kind = kind;
+            this.type = type;
+            this.nullable = nullable;
+            this.stringLiteral = stringLiteral;
+            this.source = source;
         }
-        if (!(cc.getRight() instanceof TALValueAccessConditionValue)) {
-            return false;
-        }
-        final TALValueAccessConditionValue vacv =
-            (TALValueAccessConditionValue) cc.getRight();
-        return numericTypeOrNull(cc.getLeft(), cc.getLeftCast(), genCtx) != null
-            && numericTypeOrNull(vacv.getValue(), vacv.getCastType(), genCtx) != null;
-    }
 
-    /**
-     * Return the operand's numeric {@link ExprType} if and only if it
-     * resolves to one of {@code INT / LONG / FLOAT / DOUBLE} via an
-     * explicit cast or compile-time inference; otherwise {@code null}.
-     * Used by {@link #isNumericComparison} to decide whether {@code ==} /
-     * {@code !=} should compare primitives — note this is strict (no
-     * {@code LONG} fallback like {@link #inferComparisonOperandType}).
-     */
-    private static ExprType numericTypeOrNull(
-            final TALValueAccess value,
-            final String topLevelCast,
-            final TALGenCtx genCtx) {
-        final ExprType fromCast = castToType(topLevelCast);
-        if (fromCast.isNumeric()) {
-            return fromCast;
-        }
-        final ExprType inferred = inferType(value, genCtx);
-        return inferred.isNumeric() ? inferred : null;
-    }
-
-    /**
-     * Read the numeric type the user declared for the left side of a
-     * comparison. Same shape as {@link #numericTypeOrNull} but with a
-     * {@code LONG} fallback for non-numeric inputs — used when the
-     * comparison itself must still pick a primitive home (e.g. an
-     * unbound {@code parsed.x} on the LHS still goes through
-     * {@code h.toLong}).
-     */
-    private static ExprType inferComparisonOperandType(
-            final TALValueAccess value,
-            final String topLevelCast,
-            final TALGenCtx genCtx) {
-        final ExprType numeric = numericTypeOrNull(value, topLevelCast, genCtx);
-        return numeric != null ? numeric : ExprType.LONG;
-    }
-
-    /**
-     * Read the numeric type of a comparison's RHS — literal type for
-     * number literals; declared cast (or inferred type) for value accesses;
-     * otherwise {@link ExprType#UNKNOWN}.
-     */
-    private static ExprType inferRightHandType(
-            final TALConditionValue cv,
-            final TALGenCtx genCtx) {
-        if (cv instanceof TALNumberConditionValue) {
-            final String literal = ((TALNumberConditionValue) cv).getLiteral();
-            return literal != null ? NumericLiteral.parse(literal).type : ExprType.LONG;
-        }
-        if (cv instanceof TALValueAccessConditionValue) {
-            final TALValueAccessConditionValue vacv =
-                (TALValueAccessConditionValue) cv;
-            final ExprType numeric = numericTypeOrNull(vacv.getValue(), vacv.getCastType(), genCtx);
-            if (numeric != null) {
-                return numeric;
+        private String describe() {
+            switch (kind) {
+                case NUMBER:
+                    return "a number";
+                case BOOLEAN:
+                    return "a boolean";
+                case STRING:
+                    return "a String";
+                case OBJECT:
+                    return "a " + type.getSimpleName();
+                case NULL:
+                    return "null";
+                case RUNTIME:
+                default:
+                    return "a value whose type is known only at runtime";
             }
-            return inferType(vacv.getValue(), genCtx);
         }
-        return ExprType.UNKNOWN;
     }
 
     /**
-     * Pick the JLS-promoted primitive type for a comparison given both sides'
-     * inferred types. Numeric sides drive promotion; non-numeric sides default
-     * to {@code LONG} so the comparison still has a primitive home.
+     * A comparison, decided by the static types of its two operands; there is no implicit parse and no implicit
+     * {@code toString}, and {@code as T} is the only conversion.
+     *
+     * <ul>
+     *   <li>number and number: any operator, a primitive comparison with Java's promotion;</li>
+     *   <li>boolean and boolean, String and String, two objects of one type: {@code ==} and {@code !=} through
+     *       {@code Objects.equals};</li>
+     *   <li>a reference and {@code null}: {@code ==} and {@code !=} as a null check;</li>
+     *   <li>a value whose type is known only at runtime and a String literal: {@code ==} and {@code !=};</li>
+     *   <li>anything else: a compile error naming both types.</li>
+     * </ul>
+     *
+     * <p>An {@code as T} operand that cannot be converted makes that comparison false, whatever the operator;
+     * {@code !(x as Integer >= 400)} is therefore true for a value that is not a number.
      */
-    private static ExprType pickComparisonType(final ExprType lhs, final ExprType rhs) {
-        if (lhs.isNumeric() && rhs.isNumeric()) {
-            return promote(lhs, rhs);
+    private static void generateComparison(final StringBuilder sb,
+                                           final TALComparisonCondition cc,
+                                           final TALGenCtx genCtx) {
+        final Operand left = operand(cc.getLeft(), cc.getLeftCast(), genCtx);
+        final Operand right = rightOperand(cc.getRight(), genCtx);
+        final CompareOp op = cc.getOp();
+        final boolean equality = op == CompareOp.EQ || op == CompareOp.NEQ;
+
+        if (left.kind == OperandKind.NULL || right.kind == OperandKind.NULL) {
+            final Operand other = left.kind == OperandKind.NULL ? right : left;
+            if (!equality || other.kind == OperandKind.NULL || !other.nullable) {
+                throw incomparable(left, op, right, "only a value that can be absent compares with null, by == or !=");
+            }
+            sb.append("(").append(other.expr).append(op == CompareOp.EQ ? " == null)" : " != null)");
+            return;
         }
-        if (lhs.isNumeric()) {
-            return lhs;
+        if (left.kind == OperandKind.NUMBER && right.kind == OperandKind.NUMBER) {
+            sb.append("h.compareNumbers(").append(left.expr).append(", ").append(right.expr).append(", ")
+              .append(op.ordinal()).append(")");
+            return;
         }
-        if (rhs.isNumeric()) {
-            return rhs;
+        final boolean sameKind = left.kind == right.kind
+            && (left.kind == OperandKind.BOOLEAN || left.kind == OperandKind.STRING
+                || left.kind == OperandKind.OBJECT && left.type.equals(right.type));
+        final boolean runtimeWithLiteral =
+            left.kind == OperandKind.RUNTIME && right.stringLiteral
+                || right.kind == OperandKind.RUNTIME && left.stringLiteral;
+        if (!sameKind && !runtimeWithLiteral) {
+            throw incomparable(left, op, right, "convert one side with `as T`");
         }
-        return ExprType.LONG;
+        if (!equality) {
+            throw incomparable(left, op, right, "only numbers are ordered; convert with `as T`");
+        }
+        sb.append("h.sameValue(").append(left.expr).append(", ").append(right.expr).append(", ")
+          .append(op == CompareOp.EQ).append(")");
+    }
+
+    private static IllegalArgumentException incomparable(final Operand left, final CompareOp op,
+                                                         final Operand right, final String hint) {
+        return new IllegalArgumentException(
+            "cannot compare " + left.describe() + " with " + right.describe() + " in `" + left.source + " "
+                + symbolOf(op) + " " + right.source + "`: " + hint);
+    }
+
+    private static String symbolOf(final CompareOp op) {
+        switch (op) {
+            case EQ:
+                return "==";
+            case NEQ:
+                return "!=";
+            case GT:
+                return ">";
+            case LT:
+                return "<";
+            case GTE:
+                return ">=";
+            case LTE:
+            default:
+                return "<=";
+        }
+    }
+
+    private static Operand rightOperand(final TALConditionValue cv, final TALGenCtx genCtx) {
+        if (cv instanceof TALStringConditionValue) {
+            final String text = ((TALStringConditionValue) cv).getValue();
+            return new Operand("\"" + DslJavaSourceText.toLiteral(text) + "\"", OperandKind.STRING, String.class,
+                true, true, "\"" + text + "\"");
+        }
+        if (cv instanceof TALNumberConditionValue) {
+            final TALNumberConditionValue ncv = (TALNumberConditionValue) cv;
+            final String literal = ncv.getLiteral() != null ? ncv.getLiteral() : String.valueOf(ncv.getValue());
+            final NumericLiteral parsed = NumericLiteral.parse(literal);
+            return new Operand(parsed.type.wrapperName + ".valueOf(" + parsed.javaText + ")", OperandKind.NUMBER,
+                parsed.type.primitiveClass, false, false, literal);
+        }
+        if (cv instanceof TALBoolConditionValue) {
+            final boolean value = ((TALBoolConditionValue) cv).isValue();
+            return new Operand(value ? "Boolean.TRUE" : "Boolean.FALSE", OperandKind.BOOLEAN, boolean.class,
+                false, false, String.valueOf(value));
+        }
+        if (cv instanceof TALNullConditionValue) {
+            return new Operand("null", OperandKind.NULL, null, true, false, "null");
+        }
+        final TALValueAccessConditionValue vacv = (TALValueAccessConditionValue) cv;
+        return operand(vacv.getValue(), vacv.getCastType(), genCtx);
+    }
+
+    /**
+     * Render one operand boxed and classify it. An {@code as T} converts through a helper that answers a failure
+     * marker instead of throwing, which the comparison helpers read as false.
+     */
+    private static Operand operand(final TALValueAccess value, final String cast, final TALGenCtx genCtx) {
+        final String source = value.toPathString() + (cast == null ? "" : " as " + cast);
+        if (cast == null && value.getParenInner() != null && value.getParenCast() != null
+            && value.getChain().isEmpty() && value.getConcatParts().isEmpty()) {
+            // `(x as Integer)` on its own is the same conversion as `x as Integer`.
+            return operand(value.getParenInner(), value.getParenCast(), genCtx);
+        }
+        final ExprType castType = castToType(cast);
+        if (castType.isNumeric() || castType == ExprType.BOOLEAN) {
+            final StringBuilder inner = new StringBuilder();
+            generateValueAccessObj(inner, value, null, genCtx);
+            final String helper = castType == ExprType.BOOLEAN ? "h.asBoolean(" : "h.as" + castType.wrapperName + "(";
+            return new Operand(helper + inner + ")",
+                castType == ExprType.BOOLEAN ? OperandKind.BOOLEAN : OperandKind.NUMBER,
+                castType == ExprType.BOOLEAN ? Boolean.class : castType.primitiveClass, false, false, source);
+        }
+        if ("null".equals(booleanOrNullLiteral(value))) {
+            return new Operand("null", OperandKind.NULL, null, true, false, source);
+        }
+        final StringBuilder rendered = new StringBuilder();
+        generateValueAccessObj(rendered, value, castType == ExprType.STRING ? "String" : null, genCtx);
+        final Class<?> type = castType == ExprType.STRING ? String.class : genCtx.lastResolvedType;
+        final boolean literal = value.isStringLiteral() && value.getChain().isEmpty() && cast == null;
+        if (type == null || type == Object.class) {
+            return new Operand(rendered.toString(), OperandKind.RUNTIME, null, true, literal, source);
+        }
+        if (type.isPrimitive()) {
+            final String box = TALCodegenHelper.boxTypeName(type);
+            // A primitive read is boxed for the helpers; one read through a null-guarded chain is already boxed.
+            final String expr = genCtx.lastRawChain != null && genCtx.lastNullChecks == null && box != null
+                ? box + ".valueOf(" + genCtx.lastRawChain + ")" : rendered.toString();
+            final boolean guarded = genCtx.lastNullChecks != null;
+            return new Operand(expr, type == boolean.class ? OperandKind.BOOLEAN : OperandKind.NUMBER, type,
+                guarded, false, source);
+        }
+        final OperandKind kind = Number.class.isAssignableFrom(type) ? OperandKind.NUMBER
+            : type == Boolean.class ? OperandKind.BOOLEAN
+            : type == String.class ? OperandKind.STRING
+            : OperandKind.OBJECT;
+        return new Operand(rendered.toString(), kind, type, true, literal, source);
     }
 
     /**
@@ -353,90 +344,7 @@ public final class TALValueCodegen {
     }
 
     /**
-     * Render an operand for a numeric comparison while preserving the user's
-     * declared cast. Two-phase to avoid double-coercion:
-     * <ol>
-     *   <li>Render the operand expression. Typed proto fields, arithmetic
-     *       results, and paren-cast operands already land as a primitive and
-     *       record the type via {@code genCtx.lastResolvedType}.</li>
-     *   <li>If the rendered expression is non-primitive (a boxed/Object)
-     *       and the user declared a numeric cast, wrap it with the matching
-     *       {@code h.toX()} helper so the primitive identity is preserved
-     *       — e.g. {@code tag("a") as Integer < 1.5} renders
-     *       {@code (double) h.toInt(h.tagValue("a")) < 1.5}, not
-     *       {@code h.toDouble(h.tagValue("a")) < 1.5}.</li>
-     * </ol>
-     */
-    private static void emitOperandRespectingCast(
-            final StringBuilder sb,
-            final TALValueAccess value,
-            final String castType,
-            final TALGenCtx genCtx) {
-        final int start = sb.length();
-        generateValueAccessObj(sb, value, castType, genCtx);
-        final Class<?> resolved = genCtx.lastResolvedType;
-        final boolean alreadyPrimitive = resolved != null && resolved.isPrimitive();
-        final ExprType castET = castToType(castType);
-        if (alreadyPrimitive) {
-            // Native primitive. If the user declared a different numeric
-            // type, honour it via a Java primitive cast — e.g.
-            // `((tag("a") as Long) + 1) as Integer` should narrow the long
-            // sum to int rather than silently keep the long value. Read
-            // the primitive form from lastRawChain (sb may hold a boxed
-            // wrapper like `Long.valueOf(...)` that the verifier can't
-            // unbox via a primitive cast). Preserve any null-guard the
-            // inner generator captured (typed-proto safe-nav) so the
-            // outer comparison can still short-circuit on a missing
-            // chain.
-            if (castET.isNumeric()
-                    && exprTypeFromClass(resolved) != castET
-                    && genCtx.lastRawChain != null) {
-                final String preservedNullChecks = genCtx.lastNullChecks;
-                final String primExpr = genCtx.lastRawChain;
-                sb.setLength(start);
-                sb.append("(").append(castET.primitiveKeyword)
-                  .append(") (").append(primExpr).append(")");
-                recordPrimitiveResult(genCtx, castET.primitiveClass, sb, start);
-                genCtx.lastNullChecks = preservedNullChecks;
-            }
-            return;
-        }
-        if (!castET.isNumeric()) {
-            return;
-        }
-        // Wrap with the matching numeric helper. Re-record the primitive
-        // metadata so the comparison emits an unboxed compare.
-        final String inner = sb.substring(start);
-        sb.setLength(start);
-        switch (castET) {
-            case INT:
-                sb.append("h.toInt(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, int.class, sb, start);
-                break;
-            case LONG:
-                sb.append("h.toLong(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, long.class, sb, start);
-                break;
-            case FLOAT:
-                sb.append("h.toFloat(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, float.class, sb, start);
-                break;
-            case DOUBLE:
-                sb.append("h.toDouble(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, double.class, sb, start);
-                break;
-            default:
-                // unreachable — castET.isNumeric() checked above
-                sb.append(inner);
-                break;
-        }
-    }
-
-    /**
-     * Wrap an Object-typed expression in the right {@code h.toX()} helper
-     * for the chosen primitive comparison type. Falls back to
-     * {@code h.toLong} for non-numeric targets so the legacy behaviour is
-     * preserved when this is reached via the comparison fallback path.
+     * Wrap an Object-typed operand of arithmetic in the {@code h.toX()} helper of its numeric type.
      */
     private static String wrapAsPrimitive(final String objectExpr, final ExprType target) {
         final String helper = target.runtimeHelper != null && target.isNumeric()
@@ -444,152 +352,9 @@ public final class TALValueCodegen {
         return helper + "(" + objectExpr + ")";
     }
 
-    public static void generateConditionValue(final StringBuilder sb,
-                                        final TALConditionValue cv,
-                                        final TALGenCtx genCtx) {
-        if (cv instanceof TALStringConditionValue) {
-            sb.append('"')
-              .append(DslJavaSourceText.toLiteral(
-                  ((TALStringConditionValue) cv).getValue()))
-              .append('"');
-        } else if (cv instanceof TALNumberConditionValue) {
-            final double val =
-                ((TALNumberConditionValue) cv).getValue();
-            sb.append("Long.valueOf(").append((long) val).append("L)");
-        } else if (cv instanceof TALBoolConditionValue) {
-            sb.append("Boolean.valueOf(")
-              .append(((TALBoolConditionValue) cv).isValue())
-              .append(")");
-        } else if (cv instanceof TALNullConditionValue) {
-            sb.append("null");
-        } else if (cv instanceof TALValueAccessConditionValue) {
-            generateValueAccessObj(sb,
-                ((TALValueAccessConditionValue) cv).getValue(),
-                null, genCtx);
-        }
-    }
-
-    /**
-     * Render a numeric RHS for a comparison operator. The literal is emitted
-     * in a form compatible with the LHS resolved type so the comparison stays
-     * in the LHS's primitive space — no defensive widening to long.
-     *
-     * <p>Examples (LHS in parens):
-     * <ul>
-     *   <li>(int) {@code < 10000}   → {@code 10000}</li>
-     *   <li>(long) {@code < 10000}  → {@code 10000L}</li>
-     *   <li>(double) {@code < 1.5}  → {@code 1.5d}</li>
-     *   <li>(int) {@code < 1.5}     → {@code 1.5d} — JLS will widen LHS to double</li>
-     * </ul>
-     */
-    public static void generateConditionValueNumeric(
-            final StringBuilder sb,
-            final TALConditionValue cv,
-            final Class<?> lhsType,
-            final TALGenCtx genCtx) {
-        if (cv instanceof TALNumberConditionValue) {
-            final TALNumberConditionValue ncv =
-                (TALNumberConditionValue) cv;
-            final String literal = ncv.getLiteral();
-            if (literal != null) {
-                sb.append(formatNumericLiteralForCompare(literal, lhsType));
-            } else {
-                // Synthesised value (no source text).
-                sb.append(formatDoubleAsLiteral(ncv.getValue(), lhsType));
-            }
-        } else if (cv instanceof TALValueAccessConditionValue) {
-            // RHS value access — emit the LHS-typed primitive form via the
-            // shared helper that picks between widening an already-primitive
-            // raw chain or wrapping a boxed object with h.toX().
-            final TALValueAccessConditionValue vacv =
-                (TALValueAccessConditionValue) cv;
-            sb.append(renderAsPrimitive(vacv.getValue(), vacv.getCastType(),
-                exprTypeFromClass(lhsType), genCtx));
-        } else {
-            sb.append("0L");
-        }
-    }
-
-    /**
-     * Render an operand into Java source representing a primitive of
-     * {@code targetType}. If {@link #emitOperandRespectingCast} produced
-     * an already-primitive expression (typed proto field, arithmetic
-     * result, paren-cast), widen it to the target — otherwise wrap the
-     * boxed object with the matching {@code h.toX()} helper. Shared
-     * between LHS rendering in {@link #generateNumericComparison} and
-     * RHS rendering in {@link #generateConditionValueNumeric}.
-     */
-    private static String renderAsPrimitive(
-            final TALValueAccess value,
-            final String cast,
-            final ExprType targetType,
-            final TALGenCtx genCtx) {
-        final StringBuilder buf = new StringBuilder();
-        emitOperandRespectingCast(buf, value, cast, genCtx);
-        final Class<?> resolved = genCtx.lastResolvedType;
-        if (isNumericPrimitiveClass(resolved) && genCtx.lastRawChain != null) {
-            return widenPrimitiveExpr(genCtx.lastRawChain,
-                exprTypeFromClass(resolved), targetType);
-        }
-        return wrapAsPrimitive(buf.toString(), targetType);
-    }
-
     private static boolean isNumericPrimitiveClass(final Class<?> c) {
         return c == int.class || c == long.class
             || c == float.class || c == double.class;
-    }
-
-    private static String formatNumericLiteralForCompare(final String literal,
-                                                          final Class<?> lhsType) {
-        final NumericLiteral parsed = NumericLiteral.parse(literal);
-        // Honour the user's declared literal type when wider than LHS;
-        // otherwise emit in the LHS form so the compare stays in that space.
-        final ExprType lhsExpr = exprTypeFromClass(lhsType);
-        final ExprType result = parsed.type.compareTo(lhsExpr) > 0 ? parsed.type : lhsExpr;
-        if (result == parsed.type) {
-            return parsed.javaText;
-        }
-        // Widen literal to LHS type via suffix change (no Java cast needed for
-        // numeric literals — the widened form is itself a valid literal).
-        return widenLiteralToType(parsed.javaText, parsed.type, result);
-    }
-
-    private static String widenLiteralToType(final String text,
-                                              final ExprType from,
-                                              final ExprType to) {
-        // Strip trailing suffix (if any) and re-emit in `to`.
-        String body = text;
-        final char last = body.isEmpty() ? 0 : body.charAt(body.length() - 1);
-        if (last == 'L' || last == 'F' || last == 'f' || last == 'd' || last == 'D') {
-            body = body.substring(0, body.length() - 1);
-        }
-        // Java treats `1`, `1.0`, and `1e0` as valid literals. We only need
-        // to append `.0` for INT-shaped bodies (no decimal AND no exponent)
-        // when widening to a fractional type — otherwise the body is
-        // already a valid float/double literal, just with a different suffix.
-        final boolean fractional = body.contains(".")
-            || body.contains("e") || body.contains("E");
-        switch (to) {
-            case LONG:
-                return body + "L";
-            case FLOAT:
-                return (fractional ? body : body + ".0") + "f";
-            case DOUBLE:
-                return fractional ? body : body + ".0";
-            case INT:
-            default:
-                return body;
-        }
-    }
-
-    private static String formatDoubleAsLiteral(final double value, final Class<?> lhsType) {
-        if (lhsType == double.class || lhsType == float.class) {
-            return Double.toString(value) + (lhsType == float.class ? "f" : "");
-        }
-        if (lhsType == long.class) {
-            return ((long) value) + "L";
-        }
-        return Long.toString((long) value);
     }
 
     // ==================== Value access ====================
@@ -753,11 +518,21 @@ public final class TALValueCodegen {
         if (value.getFunctionCallName() != null) {
             final StringBuilder call = new StringBuilder();
             if (genCtx.resolver.generateFunctionCall(call, value, genCtx)) {
-                final boolean returnsString =
-                    genCtx.resolver.functionReturnType(value.getFunctionCallName()) == ExprType.STRING;
+                final ExprType returns = genCtx.resolver.functionReturnType(value.getFunctionCallName());
+                final boolean returnsString = returns == ExprType.STRING;
                 if (value.getChain().isEmpty()) {
                     sb.append(call);
-                    genCtx.lastResolvedType = returnsString ? String.class : null;
+                    // The built-in's declared type, so a comparison or arithmetic around it is typed; a primitive
+                    // result is left raw and its raw form recorded for the callers that box or widen it.
+                    if (returnsString) {
+                        genCtx.lastResolvedType = String.class;
+                    } else if (returns != null && returns.primitiveClass != null) {
+                        genCtx.lastResolvedType = returns.primitiveClass;
+                        genCtx.lastRawChain = call.toString();
+                    } else if (returns == ExprType.BOOLEAN) {
+                        genCtx.lastResolvedType = boolean.class;
+                        genCtx.lastRawChain = call.toString();
+                    }
                     return;
                 }
                 // `attr("x").trim()`: the methods after the call are resolved on what it returns.
@@ -1190,20 +965,26 @@ public final class TALValueCodegen {
         }
         // A built-in's return type is the DSL's to declare; without it the expression would fall back to string
         // concatenation and a numeric built-in could not take part in arithmetic.
-        if (part.getFunctionCallName() != null && part.getChain().isEmpty()) {
+        if (part.getFunctionCallName() != null) {
             final ExprType declared = genCtx.resolver.functionReturnType(part.getFunctionCallName());
-            if (declared != null) {
-                return declared;
+            if (part.getChain().isEmpty()) {
+                if (declared != null) {
+                    return declared;
+                }
+            } else if (declared == ExprType.STRING) {
+                // `attr("x").length()`: the methods after a String built-in are resolved on String.
+                final Class<?> type = walkChainType(part.getChain(), String.class);
+                if (type != null) {
+                    return exprTypeFromClass(type);
+                }
             }
         }
-        // meta.* — a numeric field such as meta.latency is a number, so `meta.latency + 1` adds.
+        // meta.* — a numeric field such as meta.latency is a number, so `meta.latency + 1` adds, and a String
+        // field is a String.
         if (part.isMetaRef() && genCtx.resolver.metaRootType() != null) {
-            final Class<?> primitive = walkProtoChainPrimitiveType(part.getChain(), genCtx.resolver.metaRootType());
-            if (primitive != null) {
-                final ExprType t = exprTypeFromClass(primitive);
-                if (t.isNumeric() || t == ExprType.BOOLEAN) {
-                    return t;
-                }
+            final Class<?> type = walkChainType(part.getChain(), genCtx.resolver.metaRootType());
+            if (type != null) {
+                return exprTypeFromClass(type);
             }
         }
         // parsed.* — when the rule has a typed inputType (no JSON/YAML/TEXT
@@ -1289,6 +1070,42 @@ public final class TALValueCodegen {
             }
         }
         return currentType.isPrimitive() ? currentType : null;
+    }
+
+    /**
+     * The static type a chain of field and method segments reaches from a root type, by reflection; null when a
+     * segment cannot be resolved, or is an index.
+     */
+    private static Class<?> walkChainType(final List<? extends TALValueAccessSegment> chain, final Class<?> rootType) {
+        Class<?> current = rootType;
+        for (final TALValueAccessSegment seg : chain) {
+            Method resolved = null;
+            if (seg instanceof TALFieldSegment) {
+                final String field = ((TALFieldSegment) seg).getName();
+                final String suffix = Character.toUpperCase(field.charAt(0)) + field.substring(1);
+                for (final String prefix : new String[] {"get", "is"}) {
+                    try {
+                        resolved = current.getMethod(prefix + suffix);
+                        break;
+                    } catch (final NoSuchMethodException ignored) {
+                        // try the next accessor form
+                    }
+                }
+            } else if (seg instanceof TALMethodSegment) {
+                final TALMethodSegment ms = (TALMethodSegment) seg;
+                for (final Method m : current.getMethods()) {
+                    if (m.getName().equals(ms.getName()) && m.getParameterCount() == ms.getArguments().size()) {
+                        resolved = m;
+                        break;
+                    }
+                }
+            }
+            if (resolved == null) {
+                return null;
+            }
+            current = resolved.getReturnType();
+        }
+        return current;
     }
 
     private static ExprType castToType(final String cast) {

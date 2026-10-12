@@ -129,7 +129,7 @@ public class FilterSpec {
      * @param ctx this span's state
      */
     public void sink(final ExecutionContext ctx) {
-        // Keeping is the default; the statement exists so a rule can say so explicitly.
+        ctx.runSink();
     }
 
     /**
@@ -184,11 +184,14 @@ public class FilterSpec {
         if (inPersist ? ctx.isEnforced() : ctx.isRecordEnforced()) {
             return;
         }
-        final boolean sampled = samplers.of(id, rpm).sample();
-        if (inPersist) {
-            ctx.votePersist(sampled);
-        } else if (!sampled) {
-            ctx.dropRecord();
+        if (samplers.of(id, rpm).sample()) {
+            if (inPersist) {
+                ctx.votePersist(true);
+            }
+        } else if (inPersist) {
+            ctx.sampleOutSpan();
+        } else {
+            ctx.sampleOutRecord();
         }
     }
 }

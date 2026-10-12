@@ -44,14 +44,14 @@ public class TALSpanRootResolver implements TALRootResolver {
     private static final List<String> STRING_FUNCTIONS = List.of("attr", "resource", "scopeAttr");
 
     /**
-     * The entity constructors, which only {@link TALBlockCodegen} may emit.
-     */
-    /**
      * The most keys the runtime helper has a spelled-out overload for; {@code eventAttr} has one fewer, since its
      * first argument is the event name.
      */
     private static final int MAX_SPELLED_KEYS = 4;
 
+    /**
+     * The entity constructors, which only {@link TALBlockCodegen} may emit.
+     */
     static final List<String> ENTITY_CONSTRUCTORS =
         List.of("service", "instance", "endpoint", "serviceRelation", "serviceInstanceRelation");
 

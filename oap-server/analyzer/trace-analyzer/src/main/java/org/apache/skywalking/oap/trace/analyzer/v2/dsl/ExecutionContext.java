@@ -78,29 +78,43 @@ public class ExecutionContext {
     private boolean aborted;
 
     /**
-     * The rule's vote on the span. A rule without a {@code persist {}} block abstains and leaves this true.
-     */
-    @Getter
-    private boolean persist = true;
-
-    /**
-     * Whether the rule voted at all, which is what separates "keep" from "abstain" when the votes are merged.
+     * Whether the rule voted on the span at all, which is what separates "keep" from "abstain" when the votes are
+     * merged; a rule without a {@code persist {}} block that ran abstains.
      */
     @Getter
     private boolean persistVoted;
 
     /**
-     * Set by an {@code enforcer {}} in a {@code persist {}} block: keep the span past this rule's samplers and
-     * past the receiver's trace-id head sampling.
+     * Set by {@code dropper {}} in a {@code persist {}} block. It wins over everything else in the rule.
+     */
+    private boolean spanDropped;
+
+    /**
+     * Set by a {@code rateLimit} in a {@code persist {}} block that ran out of budget.
+     */
+    private boolean spanSampledOut;
+
+    /**
+     * Set by an {@code enforcer {}} in a {@code persist {}} block: keep the span past this rule's samplers, before
+     * or after it, and past the receiver's trace-id head sampling. A {@code dropper {}} still drops it.
      */
     @Getter
     private boolean enforced;
 
     /**
-     * Whether the record the rule built should be written; only meaningful for a rule with an output type.
+     * Whether a {@code sink {}} block ran; a record is written only then.
      */
-    @Getter
-    private boolean sinkKept = true;
+    private boolean sinkRan;
+
+    /**
+     * Set by {@code dropper {}} in a {@code sink {}} block. It wins over everything else in the rule.
+     */
+    private boolean recordDropped;
+
+    /**
+     * Set by a {@code rateLimit} in a {@code sink {}} block that ran out of budget.
+     */
+    private boolean recordSampledOut;
 
     /**
      * Set by an {@code enforcer {}} in a {@code sink {}} block: keep the record past this rule's samplers.
@@ -147,10 +161,13 @@ public class ExecutionContext {
         this.attributeIndex = null;
         this.scopeAttributeIndex = scopeAttributes;
         this.aborted = false;
-        this.persist = true;
         this.persistVoted = false;
+        this.spanDropped = false;
+        this.spanSampledOut = false;
         this.enforced = false;
-        this.sinkKept = true;
+        this.sinkRan = false;
+        this.recordDropped = false;
+        this.recordSampledOut = false;
         this.recordEnforced = false;
         this.output = null;
         this.additionalTags.clear();
@@ -202,28 +219,66 @@ public class ExecutionContext {
     }
 
     /**
-     * Record a vote on the span's persistence.
+     * Record a vote on the span's persistence: {@code persist {}} running votes keep, {@code dropper {}} votes drop.
      *
      * @param keep whether this statement votes to keep the span
      */
     public void votePersist(final boolean keep) {
         this.persistVoted = true;
-        this.persist = this.persist && keep;
+        if (!keep) {
+            this.spanDropped = true;
+        }
+    }
+
+    /**
+     * A {@code rateLimit} in {@code persist {}} ran out of budget; an {@code enforcer {}} of the rule overrides it.
+     */
+    public void sampleOutSpan() {
+        this.persistVoted = true;
+        this.spanSampledOut = true;
     }
 
     public void enforce() {
         this.persistVoted = true;
         this.enforced = true;
-        this.persist = true;
+    }
+
+    /**
+     * @return the rule's vote on the span: kept unless a {@code dropper {}} dropped it, or a sampler did and no
+     * {@code enforcer {}} kept it
+     */
+    public boolean isPersist() {
+        return !spanDropped && (enforced || !spanSampledOut);
+    }
+
+    /**
+     * A {@code sink {}} block started running, which is what lets the record be written.
+     */
+    public void runSink() {
+        this.sinkRan = true;
     }
 
     public void dropRecord() {
-        this.sinkKept = false;
+        this.recordDropped = true;
+    }
+
+    /**
+     * A {@code rateLimit} in {@code sink {}} ran out of budget; an {@code enforcer {}} of the rule overrides it.
+     */
+    public void sampleOutRecord() {
+        this.recordSampledOut = true;
     }
 
     public void enforceRecord() {
         this.recordEnforced = true;
-        this.sinkKept = true;
+    }
+
+    /**
+     * @return whether the record the rule built is written: only when a {@code sink {}} ran, no {@code dropper {}}
+     * dropped it, and either no sampler dropped it or an {@code enforcer {}} kept it
+     */
+    public boolean isSinkKept() {
+        return sinkRan && !recordDropped && (recordEnforced || !recordSampledOut);
     }
 
     public void addTag(final String key, final String value) {

@@ -66,6 +66,11 @@ public class SpanPairing implements Service {
      * Addresses this node learned, so a caller here resolves them before the row has come back through storage.
      */
     private final Cache<String, String> learned = buffer(LEARNED_TTL_MINUTES, TimeUnit.MINUTES);
+    /**
+     * CLIENT spans already reported, by trace and span id, so a second rule resolving the same span's peer sends
+     * no second fact.
+     */
+    private final Cache<String, Boolean> reported = buffer(TTL_SECONDS, TimeUnit.SECONDS);
 
     /**
      * Where a fact goes: the provider wires the cluster's remote sender; until then, and in tests, this node.
@@ -105,9 +110,10 @@ public class SpanPairing implements Service {
      * @param meta    a CLIENT span; any other kind is ignored. A PRODUCER span's peer is the broker, which answers
      *                with no span of its own, so there is nothing to pair it with
      * @param address the peer as the rule spelled it
-     * @return the callee's service when this node already knows it, from an earlier pair or because it owns the
-     * trace and holds the SERVER span, so the edge resolves on the spot; null otherwise, and the edge stays
-     * address-named this once
+     * @return the callee's service when this node knows it: from an earlier pair, or, when this node pairs alone
+     * and already holds the SERVER span, from this span's own pair. Null otherwise, and the edge stays
+     * address-named this once; in a cluster the fact is matched on the trace's owner after it leaves the sender's
+     * queue, so it names the address only for the calls that follow
      */
     public String clientSeen(final SpanMetadata meta, final String address) {
         if (!SpanMetadata.KIND_CLIENT.equals(meta.getKind())) {
@@ -117,7 +123,9 @@ public class SpanPairing implements Service {
         if (known != null) {
             return known;
         }
-        transport.accept(PairingFact.client(meta, address));
+        if (reported.asMap().putIfAbsent(meta.getTraceId() + ':' + meta.getSpanId(), Boolean.TRUE) == null) {
+            transport.accept(PairingFact.client(meta, address));
+        }
         return learned.getIfPresent(address);
     }
 

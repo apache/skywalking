@@ -117,8 +117,8 @@ public final class TALClassGenerator {
     }
 
     /**
-     * Runtime-rule constructor: the caller supplies a per-file pool already scoped to a per-file loader, so the
-     * generated class is defined there rather than in the OAP app loader.
+     * For a caller that supplies its own pool, scoped to its own loader, so the generated class is defined there
+     * rather than in the OAP app loader.
      *
      * @param classPool         the pool to make the class in
      * @param targetClassLoader the loader to define it in, or null for the app loader
@@ -169,14 +169,15 @@ public final class TALClassGenerator {
         execLvt.add(new String[] {"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"});
         execLvt.add(new String[] {"ctx", "L" + EXEC_CTX.replace('.', '/') + ";"});
         execLvt.add(new String[] {"h", "L" + HELPER.replace('.', '/') + ";"});
+        // In the order execute() declares them, see generateExecuteMethod.
+        if (outputType != null) {
+            execLvt.add(new String[] {"_o", "L" + outputType.getName().replace('.', '/') + ";"});
+        }
         if (genCtx.usedProtoAccess) {
             if (inputType != null) {
                 execLvt.add(new String[] {"_p", "L" + inputType.getName().replace('.', '/') + ";"});
             }
             execLvt.addAll(genCtx.protoLvtVars);
-        }
-        if (outputType != null) {
-            execLvt.add(new String[] {"_o", "L" + outputType.getName().replace('.', '/') + ";"});
         }
         execLvt.addAll(genCtx.localVarLvtVars);
         DslGeneratedFileWriter.addLocalVariableTable(execMethod, className, execLvt.toArray(new String[0][]));
@@ -235,7 +236,9 @@ public final class TALClassGenerator {
         genCtx.resetProtoVars();
 
         final StringBuilder bodyContent = new StringBuilder();
-        TALBlockCodegen.generateTopLevel(bodyContent, model.getStatements(), genCtx);
+        // Everything is generated into one method, so an abort {} anywhere returns from it and nothing after it
+        // runs, and a filter-level def is in scope inside the extractor.
+        TALBlockCodegen.generateStatements(bodyContent, model.getStatements(), genCtx, false);
 
         final StringBuilder sb = new StringBuilder();
         sb.append("public void execute(").append(FILTER_SPEC)

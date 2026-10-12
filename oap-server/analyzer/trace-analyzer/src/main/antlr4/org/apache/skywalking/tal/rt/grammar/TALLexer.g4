@@ -155,10 +155,10 @@ IDENTIFIER
     ;
 
 // Fragments
+// A backslash keeps the next character inside the literal; only \" \' and \\ are escapes, decided when the
+// literal is read, so a string means what it shows.
 fragment EscapeSequence
-    : '\\' [btnfr"'\\]
-    | '\\' ([0-3]? [0-7])? [0-7]
-    | '\\' .
+    : '\\' .
     ;
 
 fragment Digit

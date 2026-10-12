@@ -21,6 +21,8 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javassist.bytecode.ClassFile;
 import javassist.bytecode.SourceFileAttribute;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
@@ -100,9 +102,9 @@ class TALSourceAttributionTest {
         if (!Files.isDirectory(dir)) {
             return;
         }
-        try (java.util.stream.Stream<Path> files = Files.list(dir)) {
+        try (Stream<Path> files = Files.list(dir)) {
             for (final Path file : files.filter(f -> f.getFileName().toString().contains(hint))
-                                        .collect(java.util.stream.Collectors.toList())) {
+                                        .collect(Collectors.toList())) {
                 Files.deleteIfExists(file);
             }
         }
