@@ -241,7 +241,11 @@ public class NotifyHandler implements MetricsNotify {
     }
 
     public void init(AlarmCallback... callbacks) {
-        List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
+        core.start(buildCallbacks(callbacks));
+    }
+
+    List<AlarmCallback> buildCallbacks(final AlarmCallback... callbacks) {
+        final List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher, httpClient, httpTimeout));
         allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
         allCallbacks.add(new SlackhookCallback(alarmRulesWatcher, httpClient, httpTimeout));
@@ -251,6 +255,6 @@ public class NotifyHandler implements MetricsNotify {
         allCallbacks.add(new WeLinkHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
         allCallbacks.add(new PagerDutyHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
         allCallbacks.add(new DiscordHookCallback(alarmRulesWatcher, httpClient, httpTimeout));
-        core.start(allCallbacks);
+        return allCallbacks;
     }
 }

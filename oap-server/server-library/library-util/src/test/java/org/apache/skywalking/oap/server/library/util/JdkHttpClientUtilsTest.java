@@ -26,7 +26,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.Authenticator;
+import java.net.CookieHandler;
 import java.net.InetAddress;
+import java.net.ProxySelector;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
@@ -35,13 +38,21 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Flow;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -116,17 +127,18 @@ public class JdkHttpClientUtilsTest {
     @Test
     public void interruptionCancelsTheBodyAndClosesTheConnection() throws Exception {
         try (RawHttp peer = new RawHttp(RawHttp.Mode.STALL_BODY, 0)) {
+            SubscriptionSignallingClient client = new SubscriptionSignallingClient(newClient());
             AtomicReference<Throwable> failure = new AtomicReference<>();
             Thread caller = new Thread(() -> {
                 try {
-                    send(peer.uri(), Duration.ofSeconds(30));
+                    send(client, peer.uri(), Duration.ofSeconds(30));
                 } catch (Throwable thrown) {
                     failure.set(thrown);
                 }
             });
             caller.start();
-            // Interrupt once the response is under way, so the cancellation hits the body read.
-            assertTrue(peer.awaitResponded(5, TimeUnit.SECONDS));
+            // The body subscriber holds its subscription, so the interruption hits the body read.
+            assertTrue(client.subscribed.await(5, TimeUnit.SECONDS));
             caller.interrupt();
             caller.join(5_000);
             assertInstanceOf(InterruptedException.class, failure.get());
@@ -170,9 +182,120 @@ public class JdkHttpClientUtilsTest {
     }
 
     private static HttpResponse<String> send(URI uri, Duration timeout) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(2)).build();
+        return send(newClient(), uri, timeout);
+    }
+
+    private static HttpResponse<String> send(HttpClient client, URI uri, Duration timeout) throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder(uri).timeout(timeout).GET().build();
         return JdkHttpClientUtils.sendStringWithTimeout(client, request, timeout);
+    }
+
+    private static HttpClient newClient() {
+        return HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(2)).build();
+    }
+
+    /**
+     * A real client that opens {@code subscribed} once the body subscriber passed by
+     * {@link JdkHttpClientUtils} has received its subscription, that is, once the body is being read.
+     */
+    private static final class SubscriptionSignallingClient extends HttpClient {
+        private final HttpClient delegate;
+
+        private final CountDownLatch subscribed = new CountDownLatch(1);
+
+        private SubscriptionSignallingClient(HttpClient delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> handler) {
+            return delegate.sendAsync(request, info -> {
+                HttpResponse.BodySubscriber<T> body = handler.apply(info);
+                return new HttpResponse.BodySubscriber<T>() {
+                    @Override
+                    public CompletionStage<T> getBody() {
+                        return body.getBody();
+                    }
+
+                    @Override
+                    public void onSubscribe(Flow.Subscription subscription) {
+                        body.onSubscribe(subscription);
+                        subscribed.countDown();
+                    }
+
+                    @Override
+                    public void onNext(List<ByteBuffer> item) {
+                        body.onNext(item);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        body.onError(throwable);
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        body.onComplete();
+                    }
+                };
+            });
+        }
+
+        @Override
+        public <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, HttpResponse.BodyHandler<T> handler,
+                                                                HttpResponse.PushPromiseHandler<T> pushPromiseHandler) {
+            return delegate.sendAsync(request, handler, pushPromiseHandler);
+        }
+
+        @Override
+        public <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> handler) throws IOException, InterruptedException {
+            return delegate.send(request, handler);
+        }
+
+        @Override
+        public Optional<CookieHandler> cookieHandler() {
+            return delegate.cookieHandler();
+        }
+
+        @Override
+        public Optional<Duration> connectTimeout() {
+            return delegate.connectTimeout();
+        }
+
+        @Override
+        public Redirect followRedirects() {
+            return delegate.followRedirects();
+        }
+
+        @Override
+        public Optional<ProxySelector> proxy() {
+            return delegate.proxy();
+        }
+
+        @Override
+        public SSLContext sslContext() {
+            return delegate.sslContext();
+        }
+
+        @Override
+        public SSLParameters sslParameters() {
+            return delegate.sslParameters();
+        }
+
+        @Override
+        public Optional<Authenticator> authenticator() {
+            return delegate.authenticator();
+        }
+
+        @Override
+        public Version version() {
+            return delegate.version();
+        }
+
+        @Override
+        public Optional<Executor> executor() {
+            return delegate.executor();
+        }
     }
 
     /**
@@ -187,8 +310,6 @@ public class JdkHttpClientUtilsTest {
 
         private final Thread thread;
 
-        private final CountDownLatch responded = new CountDownLatch(1);
-
         private final CountDownLatch closed = new CountDownLatch(1);
 
         private volatile Socket socket;
@@ -202,10 +323,6 @@ public class JdkHttpClientUtilsTest {
 
         private URI uri() {
             return URI.create("http://127.0.0.1:" + server.getLocalPort() + "/");
-        }
-
-        private boolean awaitResponded(long time, TimeUnit unit) throws InterruptedException {
-            return responded.await(time, unit);
         }
 
         private boolean awaitClosed(long time, TimeUnit unit) throws InterruptedException {
@@ -242,7 +359,6 @@ public class JdkHttpClientUtilsTest {
                 out.write(ascii("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 64\r\nConnection: keep-alive\r\n\r\n"));
                 out.write(ascii("ping"));
                 out.flush();
-                responded.countDown();
                 waitForClose(in);
             } catch (IOException ignored) {
                 closed.countDown();
