@@ -34,6 +34,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -91,7 +93,7 @@ public class DingtalkHookCallbackTest {
         rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
+        DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
@@ -126,7 +128,7 @@ public class DingtalkHookCallbackTest {
         rules.getDingtalkSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher);
+        DingtalkHookCallback dingtalkCallBack = new DingtalkHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);

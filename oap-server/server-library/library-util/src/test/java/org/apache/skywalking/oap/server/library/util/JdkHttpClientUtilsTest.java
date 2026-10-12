@@ -54,9 +54,18 @@ public class JdkHttpClientUtilsTest {
     @Test
     public void rejectsNonPositiveTimeout() {
         HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).build();
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).timeout(Duration.ofSeconds(1)).build();
         assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ZERO));
         assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofMillis(-1)));
+        // Overflows Duration.toNanos(); must not saturate into an effectively unlimited timeout.
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofSeconds(-10_000_000_000L)));
+    }
+
+    @Test
+    public void rejectsRequestWithoutItsOwnTimeout() {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder(URI.create("http://127.0.0.1/")).build();
+        assertThrows(IllegalArgumentException.class, () -> JdkHttpClientUtils.sendStringWithTimeout(client, request, Duration.ofSeconds(1)));
     }
 
     @Test
@@ -94,12 +103,12 @@ public class JdkHttpClientUtilsTest {
 
     @Test
     public void headersAndBodyShareOneDeadline() throws Exception {
-        try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_THEN_STALL, 600)) {
+        try (RawHttp peer = new RawHttp(RawHttp.Mode.DELAY_THEN_STALL, 1_200)) {
             long started = System.nanoTime();
-            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(1)));
+            assertThrows(HttpTimeoutException.class, () -> send(peer.uri(), Duration.ofSeconds(2)));
             long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
-            // A fresh 1s body budget after the 600ms header delay would finish near 1600ms.
-            assertTrue(elapsedMs >= 800 && elapsedMs < 1_500, "elapsedMs=" + elapsedMs);
+            // A fresh 2s body budget after the 1.2s header delay would finish near 3200ms.
+            assertTrue(elapsedMs >= 1_600 && elapsedMs < 2_900, "elapsedMs=" + elapsedMs);
             assertTrue(peer.awaitClosed(3, TimeUnit.SECONDS));
         }
     }
@@ -116,7 +125,8 @@ public class JdkHttpClientUtilsTest {
                 }
             });
             caller.start();
-            assertTrue(peer.awaitAccepted(5, TimeUnit.SECONDS));
+            // Interrupt once the response is under way, so the cancellation hits the body read.
+            assertTrue(peer.awaitResponded(5, TimeUnit.SECONDS));
             caller.interrupt();
             caller.join(5_000);
             assertInstanceOf(InterruptedException.class, failure.get());
@@ -177,7 +187,7 @@ public class JdkHttpClientUtilsTest {
 
         private final Thread thread;
 
-        private final CountDownLatch accepted = new CountDownLatch(1);
+        private final CountDownLatch responded = new CountDownLatch(1);
 
         private final CountDownLatch closed = new CountDownLatch(1);
 
@@ -194,8 +204,8 @@ public class JdkHttpClientUtilsTest {
             return URI.create("http://127.0.0.1:" + server.getLocalPort() + "/");
         }
 
-        private boolean awaitAccepted(long time, TimeUnit unit) throws InterruptedException {
-            return accepted.await(time, unit);
+        private boolean awaitResponded(long time, TimeUnit unit) throws InterruptedException {
+            return responded.await(time, unit);
         }
 
         private boolean awaitClosed(long time, TimeUnit unit) throws InterruptedException {
@@ -206,7 +216,6 @@ public class JdkHttpClientUtilsTest {
             try {
                 socket = server.accept();
                 socket.setTcpNoDelay(true);
-                accepted.countDown();
                 InputStream in = socket.getInputStream();
                 OutputStream out = socket.getOutputStream();
                 if (!drainRequest(in)) {
@@ -233,6 +242,7 @@ public class JdkHttpClientUtilsTest {
                 out.write(ascii("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Length: 64\r\nConnection: keep-alive\r\n\r\n"));
                 out.write(ascii("ping"));
                 out.flush();
+                responded.countDown();
                 waitForClose(in);
             } catch (IOException ignored) {
                 closed.countDown();

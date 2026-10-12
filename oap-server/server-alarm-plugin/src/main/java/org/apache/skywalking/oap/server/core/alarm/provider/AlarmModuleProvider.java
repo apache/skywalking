@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import java.io.FileNotFoundException;
 import java.io.Reader;
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
@@ -39,6 +41,7 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
 
 public class AlarmModuleProvider extends ModuleProvider {
+    private static final long MAX_HTTP_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
 
     private NotifyHandler notifyHandler;
     @Getter
@@ -66,7 +69,6 @@ public class AlarmModuleProvider extends ModuleProvider {
             @Override
             public void onInitialized(final AlarmModuleConfig initialized) {
                 moduleConfig = initialized;
-                HttpAlarmCallback.configure(moduleConfig.getHttpTimeout());
             }
         };
     }
@@ -74,7 +76,9 @@ public class AlarmModuleProvider extends ModuleProvider {
     @Override
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), this, getManager());
-        notifyHandler = new NotifyHandler(alarmRulesWatcher, getManager());
+        final Duration httpTimeout = httpTimeout(moduleConfig.getHttpTimeout());
+        notifyHandler = new NotifyHandler(
+            alarmRulesWatcher, getManager(), HttpAlarmCallback.newHttpClient(httpTimeout), httpTimeout);
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
         this.registerServiceImplementation(AlarmRulesWatcherService.class, alarmRulesWatcher);
         this.registerServiceImplementation(AlarmStatusWatcherService.class, new AlarmStatusWatcher(getManager()));
@@ -103,6 +107,17 @@ public class AlarmModuleProvider extends ModuleProvider {
         Rules rules = reader.readRules();
         alarmRulesWatcher.initConfig(rules);
         notifyHandler.init(new AlarmStandardPersistence(getManager()));
+    }
+
+    /**
+     * The cap keeps the JDK's own timer arithmetic from overflowing: {@code Long.MAX_VALUE} seconds is accepted by
+     * {@code HttpRequest.Builder#timeout} and then fails every send with an {@link ArithmeticException}.
+     */
+    static Duration httpTimeout(final long seconds) {
+        if (seconds <= 0) {
+            return Duration.ofSeconds(AlarmModuleConfig.DEFAULT_HTTP_TIMEOUT_SECONDS);
+        }
+        return Duration.ofSeconds(Math.min(seconds, MAX_HTTP_TIMEOUT_SECONDS));
     }
 
     @Override

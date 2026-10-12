@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.dingtalk;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
@@ -31,9 +30,11 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.http.HttpClient;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,14 @@ import java.util.Map;
  * Use SkyWalking alarm dingtalk webhook API.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class DingtalkHookCallback extends HttpAlarmCallback {
     private final AlarmRulesWatcher alarmRulesWatcher;
+
+    public DingtalkHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
+                                final Duration httpTimeout) {
+        super(httpClient, httpTimeout);
+        this.alarmRulesWatcher = alarmRulesWatcher;
+    }
 
     protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
         Map<String, DingtalkSettings> settingsMap = alarmRulesWatcher.getDingtalkSettings();

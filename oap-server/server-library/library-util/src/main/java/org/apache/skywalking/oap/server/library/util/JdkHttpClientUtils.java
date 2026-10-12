@@ -46,25 +46,34 @@ public final class JdkHttpClientUtils {
      * {@code timeout} is one budget for the entire operation: time spent waiting for the
      * response headers is subtracted from the time left to read the body.
      * {@link HttpRequest.Builder#timeout(Duration)} does not cover body consumption.
+     *
+     * <p>{@code request} must carry its own {@link HttpRequest.Builder#timeout(Duration)}, normally the
+     * same {@code timeout}: on Java 11 cancelling the pending exchange releases the caller but does not
+     * abort a request still waiting for the response headers, only the request's own timeout does.
      */
-    public static HttpResponse<String> sendStringWithTimeout(HttpClient client, HttpRequest request, Duration timeout) throws IOException, InterruptedException {
-        long budgetNanos = budgetNanos(timeout);
-        if (budgetNanos <= 0) {
+    public static HttpResponse<String> sendStringWithTimeout(final HttpClient client,
+                                                             final HttpRequest request,
+                                                             final Duration timeout) throws IOException, InterruptedException {
+        if (timeout.isNegative() || timeout.isZero()) {
             throw new IllegalArgumentException("timeout must be positive");
         }
+        if (request.timeout().isEmpty()) {
+            throw new IllegalArgumentException("request must carry its own timeout");
+        }
+        final long budgetNanos = budgetNanos(timeout);
 
-        CancellableBody handler = new CancellableBody();
-        long started = System.nanoTime();
-        CompletableFuture<HttpResponse<String>> pending = client.sendAsync(request, handler);
+        final CancellableBody handler = new CancellableBody();
+        final long started = System.nanoTime();
+        final CompletableFuture<HttpResponse<String>> pending = client.sendAsync(request, handler);
 
         try {
-            long remaining = budgetNanos - (System.nanoTime() - started);
+            final long remaining = budgetNanos - (System.nanoTime() - started);
             if (remaining <= 0) {
                 throw new TimeoutException();
             }
             return pending.get(remaining, TimeUnit.NANOSECONDS);
         } catch (TimeoutException e) {
-            HttpTimeoutException failure = new HttpTimeoutException("HTTP request timed out");
+            final HttpTimeoutException failure = new HttpTimeoutException("HTTP request timed out");
             failure.initCause(e);
             handler.cancel(failure);
             pending.cancel(true);
@@ -74,7 +83,7 @@ public final class JdkHttpClientUtils {
             pending.cancel(true);
             throw e;
         } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
+            final Throwable cause = e.getCause();
             handler.cancel(cause);
             pending.cancel(true);
             if (cause instanceof IOException) {
@@ -90,11 +99,10 @@ public final class JdkHttpClientUtils {
         }
     }
 
-    private static long budgetNanos(Duration timeout) {
+    private static long budgetNanos(final Duration positiveTimeout) {
         try {
-            return timeout.toNanos();
+            return positiveTimeout.toNanos();
         } catch (ArithmeticException overflow) {
-            // Extremely large timeouts still get a finite upper bound instead of failing the call.
             return Long.MAX_VALUE;
         }
     }
@@ -106,7 +114,7 @@ public final class JdkHttpClientUtils {
     private static final class CancellableBody implements HttpResponse.BodyHandler<String>, HttpResponse.BodySubscriber<String> {
         private static final Flow.Subscription CANCELLED = new Flow.Subscription() {
             @Override
-            public void request(long n) {
+            public void request(final long n) {
             }
 
             @Override
@@ -121,7 +129,7 @@ public final class JdkHttpClientUtils {
         private HttpResponse.BodySubscriber<String> delegate;
 
         @Override
-        public HttpResponse.BodySubscriber<String> apply(HttpResponse.ResponseInfo info) {
+        public HttpResponse.BodySubscriber<String> apply(final HttpResponse.ResponseInfo info) {
             // Preserve the existing response charset handling.
             delegate = HttpResponse.BodyHandlers.ofString().apply(info);
             delegate.getBody().whenComplete((value, error) -> {
@@ -140,7 +148,7 @@ public final class JdkHttpClientUtils {
         }
 
         @Override
-        public void onSubscribe(Flow.Subscription incoming) {
+        public void onSubscribe(final Flow.Subscription incoming) {
             if (subscription.compareAndSet(null, incoming)) {
                 delegate.onSubscribe(incoming);
             } else {
@@ -150,12 +158,12 @@ public final class JdkHttpClientUtils {
         }
 
         @Override
-        public void onNext(List<ByteBuffer> data) {
+        public void onNext(final List<ByteBuffer> data) {
             delegate.onNext(data);
         }
 
         @Override
-        public void onError(Throwable error) {
+        public void onError(final Throwable error) {
             delegate.onError(error);
         }
 
@@ -164,8 +172,8 @@ public final class JdkHttpClientUtils {
             delegate.onComplete();
         }
 
-        void cancel(Throwable failure) {
-            Flow.Subscription previous = subscription.getAndSet(CANCELLED);
+        void cancel(final Throwable failure) {
+            final Flow.Subscription previous = subscription.getAndSet(CANCELLED);
             if (previous != null && previous != CANCELLED) {
                 previous.cancel();
             }

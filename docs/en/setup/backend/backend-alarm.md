@@ -155,20 +155,6 @@ Hooks are a way to send alarm messages to the outside world. SkyWalking supports
 For example, you can configure two Slack hooks, one id is `default` and set `is-default: true` means this hook will apply on all `Alarm Rules` **without config** `hooks`.
 Another id is `custom1` will only apply on the `Alarm Rules` which **with config** `hooks` and include the id `slack.custom1`.
 
-### HTTP delivery timeout
-HTTP-based hooks (WeChat, Feishu, etc.) share one end-to-end delivery deadline. It bounds TCP connect, waiting for the response, and reading the response body. The same value is also applied to `HttpClient.connectTimeout` and `HttpRequest.timeout`.
-Configure it in `config/application.yml` (not in `alarm-settings.yml`):
-
-```yaml
-alarm:
-  default:
-    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12} # seconds
-```
-
-The default is `12` seconds. Values `<= 0` fall back to `12`. Extremely large values are capped so the deadline stays within what `Duration.toNanos()` can represent.
-Rule evaluation windows such as `period` / `silence-period` / `recovery-observation-period` in `alarm-settings.yml` do **not** control this HTTP delivery timeout.
-The gRPC alarm hook does **not** use this setting.
-
 ```yaml
 hooks:
   slack:
@@ -522,6 +508,22 @@ discord:
     - url: https://discordapp.com/api/webhooks/1008166889777414645/8e0Am4Zb-YGbBqqbiiq0jSHPTEEaHa4j1vIC-zSSm231T8ewGxgY0_XUYpY-k1nN4HBl
       username: robot
 ```
+
+### HTTP delivery timeout
+Every HTTP-based hook (Webhook, Slack, WeChat, DingTalk, Feishu, WeLink, PagerDuty and Discord) bounds each HTTP request
+it sends by one deadline, covering connecting, waiting for the response and reading the response body. A hook that sends
+more than one request for an alarm gets the full deadline for each of them, for example WeLink fetching its access token
+before sending the message. The gRPC hook does not use it.
+
+The deadline is set in `config/application.yml`, not in `alarm-settings.yml`, so it does not change dynamically:
+
+```yaml
+alarm:
+  default:
+    httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12} # seconds
+```
+
+The default is `12` seconds. Values `<= 0` fall back to `12`.
 
 ## Update the settings dynamically
 Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),

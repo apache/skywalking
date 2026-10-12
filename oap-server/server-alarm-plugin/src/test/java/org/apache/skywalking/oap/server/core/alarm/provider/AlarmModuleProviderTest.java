@@ -18,8 +18,11 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.ServiceLoader;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
@@ -84,5 +87,31 @@ public class AlarmModuleProviderTest {
             CoreModule.NAME,
             ConfigurationModule.NAME
         }, modules);
+    }
+
+    @Test
+    public void httpTimeoutFallsBackAndIsCapped() {
+        assertEquals(Duration.ofSeconds(5), AlarmModuleProvider.httpTimeout(5));
+        assertEquals(Duration.ofSeconds(12), AlarmModuleProvider.httpTimeout(0));
+        assertEquals(Duration.ofSeconds(12), AlarmModuleProvider.httpTimeout(-3));
+        assertEquals(
+            Duration.ofSeconds(TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE)),
+            AlarmModuleProvider.httpTimeout(Long.MAX_VALUE)
+        );
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void configuredHttpTimeoutReachesTheHttpHooks() throws Exception {
+        final AlarmModuleConfig config = new AlarmModuleConfig();
+        config.setHttpTimeout(3);
+        ((ModuleProvider.ConfigCreator<AlarmModuleConfig>) moduleProvider.newConfigCreator()).onInitialized(config);
+        moduleProvider.prepare();
+
+        // NotifyHandler hands both to every HTTP hook it builds.
+        final NotifyHandler handler = ReflectUtil.getInternalState(moduleProvider, "notifyHandler");
+        assertEquals(Duration.ofSeconds(3), ReflectUtil.getInternalState(handler, "httpTimeout"));
+        final HttpClient client = ReflectUtil.getInternalState(handler, "httpClient");
+        assertEquals(Duration.ofSeconds(3), client.connectTimeout().orElseThrow());
     }
 }

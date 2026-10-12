@@ -31,17 +31,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.net.http.HttpClient;
+import java.net.http.HttpTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HttpAlarmCallbackTest {
@@ -67,6 +71,14 @@ public class HttpAlarmCallbackTest {
     }
 
     private static final class Callback extends HttpAlarmCallback {
+        Callback() {
+            this(Duration.ofSeconds(12));
+        }
+
+        Callback(final Duration timeout) {
+            super(HttpAlarmCallback.newHttpClient(timeout), timeout);
+        }
+
         @Override
         protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) {
         }
@@ -76,6 +88,10 @@ public class HttpAlarmCallbackTest {
                 URI.create("http://127.0.0.1:" + SERVER.getAddress().getPort() + "/status/" + status),
                 "{}", Map.of()
             );
+        }
+
+        String send(final URI uri) throws IOException, InterruptedException {
+            return post(uri, "{}", Map.of());
         }
     }
 
@@ -112,100 +128,6 @@ public class HttpAlarmCallbackTest {
     }
 
     @Test
-    public void httpClientHasConnectTimeout() throws Exception {
-        HttpAlarmCallback.configure(12);
-        final HttpClient client = settingsClient();
-        assertTrue(client.connectTimeout().isPresent());
-        assertEquals(Duration.ofSeconds(12), client.connectTimeout().get());
-    }
-
-    @Test
-    public void configureUpdatesConnectAndRequestTimeout() throws Exception {
-        HttpAlarmCallback.configure(5);
-        try {
-            assertEquals(Duration.ofSeconds(5), settingsTimeout());
-            assertEquals(Duration.ofSeconds(5), settingsClient().connectTimeout().orElseThrow());
-        } finally {
-            HttpAlarmCallback.configure(12);
-        }
-    }
-
-    @Test
-    public void configurePublishesTimeoutAndClientAtomically() throws Exception {
-        final Object before = settings();
-        HttpAlarmCallback.configure(7);
-        try {
-            final Object published = settings();
-            assertTrue(published != before, "configure must publish a new settings snapshot");
-            assertEquals(Duration.ofSeconds(7), settingsTimeout(published));
-            assertEquals(Duration.ofSeconds(7), settingsClient(published).connectTimeout().orElseThrow());
-
-            HttpAlarmCallback.configure(3);
-            final Object next = settings();
-            assertTrue(next != published, "each configure must replace the whole settings snapshot");
-            assertEquals(Duration.ofSeconds(3), settingsTimeout(next));
-            assertEquals(Duration.ofSeconds(3), settingsClient(next).connectTimeout().orElseThrow());
-        } finally {
-            HttpAlarmCallback.configure(12);
-        }
-    }
-
-    @Test
-    public void configureFallsBackWhenTimeoutIsNotPositive() throws Exception {
-        HttpAlarmCallback.configure(0);
-        try {
-            assertEquals(Duration.ofSeconds(12), settingsTimeout());
-            assertEquals(Duration.ofSeconds(12), settingsClient().connectTimeout().orElseThrow());
-
-            HttpAlarmCallback.configure(-3);
-            assertEquals(Duration.ofSeconds(12), settingsTimeout());
-            assertEquals(Duration.ofSeconds(12), settingsClient().connectTimeout().orElseThrow());
-        } finally {
-            HttpAlarmCallback.configure(12);
-        }
-    }
-
-    @Test
-    public void configureCapsExtremeTimeoutSoToNanosDoesNotOverflow() throws Exception {
-        HttpAlarmCallback.configure(Long.MAX_VALUE);
-        try {
-            final Duration timeout = settingsTimeout();
-            final long maxSeconds = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
-            assertEquals(Duration.ofSeconds(maxSeconds), timeout);
-            assertEquals(timeout, settingsClient().connectTimeout().orElseThrow());
-            assertTrue(timeout.toNanos() > 0);
-        } finally {
-            HttpAlarmCallback.configure(12);
-        }
-    }
-
-    private static Object settings() throws Exception {
-        final Field field = HttpAlarmCallback.class.getDeclaredField("SETTINGS");
-        field.setAccessible(true);
-        return field.get(null);
-    }
-
-    private static Duration settingsTimeout() throws Exception {
-        return settingsTimeout(settings());
-    }
-
-    private static Duration settingsTimeout(final Object settings) throws Exception {
-        final Field field = settings.getClass().getDeclaredField("timeout");
-        field.setAccessible(true);
-        return (Duration) field.get(settings);
-    }
-
-    private static HttpClient settingsClient() throws Exception {
-        return settingsClient(settings());
-    }
-
-    private static HttpClient settingsClient(final Object settings) throws Exception {
-        final Field field = settings.getClass().getDeclaredField("client");
-        field.setAccessible(true);
-        return (HttpClient) field.get(settings);
-    }
-
-    @Test
     public void acceptedStatusesAreNotLoggedAsFailure() throws Exception {
         // 202 is what an asynchronous intake API such as PagerDuty's Events API v2 answers with
         for (int status : new int[] {
@@ -229,5 +151,37 @@ public class HttpAlarmCallbackTest {
         assertEquals(1, APPENDER.events.size());
         assertEquals(Level.ERROR, APPENDER.events.get(0).getLevel());
         assertTrue(APPENDER.events.get(0).getMessage().getFormattedMessage().contains("500"));
+    }
+
+    @Test
+    public void stalledResponseBodyTimesOut() throws Exception {
+        // The request's own timeout stops at the response headers, so only the delivery deadline bounds the body.
+        final CountDownLatch release = new CountDownLatch(1);
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        final HttpServer stalling = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        stalling.setExecutor(executor);
+        stalling.createContext("/stall", exchange -> {
+            exchange.sendResponseHeaders(200, 64);
+            exchange.getResponseBody().write("ping".getBytes(StandardCharsets.UTF_8));
+            exchange.getResponseBody().flush();
+            try {
+                release.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            exchange.close();
+        });
+        stalling.start();
+        try {
+            final URI uri = URI.create("http://127.0.0.1:" + stalling.getAddress().getPort() + "/stall");
+            final long started = System.nanoTime();
+            assertThrows(HttpTimeoutException.class, () -> new Callback(Duration.ofSeconds(1)).send(uri));
+            final long elapsedMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - started);
+            assertTrue(elapsedMs < 5_000, "elapsedMs=" + elapsedMs);
+        } finally {
+            release.countDown();
+            stalling.stop(0);
+            executor.shutdownNow();
+        }
     }
 }

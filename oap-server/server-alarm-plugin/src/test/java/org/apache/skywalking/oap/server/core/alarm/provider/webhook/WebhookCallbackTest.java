@@ -36,6 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
+import java.net.http.HttpClient;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -112,7 +114,7 @@ public class WebhookCallbackTest {
         rules.getWebhookSettingsMap().put(setting2.getFormattedName(), setting2);
         setting2.setHeaders(ImmutableMap.of("Authorization", " Bearer bearer_token", "x-company-header", "arbitrary-additional-http-headers"));
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        WebhookCallback webhookCallback = new WebhookCallback(alarmRulesWatcher);
+        WebhookCallback webhookCallback = new WebhookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setId0("1");

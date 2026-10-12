@@ -28,10 +28,12 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 @Getter
 @Setter
 public class AlarmModuleConfig extends ModuleConfig {
+    public static final long DEFAULT_HTTP_TIMEOUT_SECONDS = 12;
+
     /**
-     * End-to-end HTTP delivery deadline (seconds), including TCP connect and reading the response body.
-     * Applied to WeChat / Feishu / etc. HTTP hooks that go through {@code HttpAlarmCallback}.
-     * Values {@code <= 0} fall back to 12 seconds; extremely large values are capped.
+     * Deadline (seconds) of each HTTP request an HTTP-based hook makes, covering connect, waiting for the
+     * response and reading the response body. Values {@code <= 0} fall back to
+     * {@link #DEFAULT_HTTP_TIMEOUT_SECONDS}. The gRPC hook does not use it.
      */
-    private long httpTimeout = 12;
+    private long httpTimeout = DEFAULT_HTTP_TIMEOUT_SECONDS;
 }
