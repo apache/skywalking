@@ -108,7 +108,7 @@ class OTLPSpanForwardTest {
 
         assertTrue(forward.send(resource, "https://opentelemetry.io/schemas/1.26.0", scope, "", span, "checkout",
                                 Map.of("service.name", "checkout", "service.instance.id", "checkout-1"),
-                                Map.of("gen_ai.injected", "yes")
+                                Map.of("gen_ai.injected", "yes"), false
         ));
 
         final List<ISource> sources = received();
@@ -178,7 +178,7 @@ class OTLPSpanForwardTest {
                                 .build();
 
         assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
-                                Map.of("service.name", "checkout"), Map.of()));
+                                Map.of("service.name", "checkout"), Map.of(), false));
 
         // Each configured entry names one scope; a key listed for both is published once per scope.
         final Set<String> autocomplete = received().stream()
@@ -201,7 +201,7 @@ class OTLPSpanForwardTest {
         final Span span = span().addAttributes(string("deployment.environment", "canary")).build();
 
         assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
-                                Map.of(), Map.of()));
+                                Map.of(), Map.of(), false));
 
         assertEquals(Set.of("resource.deployment.environment=prod"), received().stream()
                                                                              .filter(TagAutocomplete.class::isInstance)
@@ -234,7 +234,7 @@ class OTLPSpanForwardTest {
     private boolean send(final OTLPSpanForward forward, final byte[] traceId) {
         return forward.send(
             Resource.getDefaultInstance(), "", InstrumentationScope.getDefaultInstance(), "",
-            span().setTraceId(ByteString.copyFrom(traceId)).build(), "checkout", Map.of(), Map.of()
+            span().setTraceId(ByteString.copyFrom(traceId)).build(), "checkout", Map.of(), Map.of(), false
         );
     }
 

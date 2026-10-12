@@ -52,6 +52,11 @@ public class MeterEntity {
     private String destProcessId;
     private DetectPoint detectPoint;
     private Layer layer;
+    /**
+     * The layer of the destination side of a relation, when the two ends do not share one. Null on every
+     * single-layer entity, where {@link #layer} answers for both ends.
+     */
+    private Layer destLayer;
     private int componentId;
     @Setter
     private String attr0;
@@ -112,16 +117,46 @@ public class MeterEntity {
     }
 
     public String sourceServiceId() {
-        return IDManager.ServiceID.buildId(sourceServiceName, normal());
+        return IDManager.ServiceID.buildId(sourceServiceName, sourceNormal());
     }
 
     public String destServiceId() {
-        return IDManager.ServiceID.buildId(destServiceName, normal());
+        return IDManager.ServiceID.buildId(destServiceName, destNormal());
     }
 
     // MAL may create conjectured services on virtual layers, so nodes and relation endpoints
     // must use the same normal flag when building their IDs.
     private boolean normal() {
+        if (destLayer == null) {
+            return isNormal(layer);
+        }
+        // A two-layer relation's own metric belongs to the callee for a SERVER detect point and to the caller
+        // for a CLIENT one, which is the side EntityTrafficGenerator sets serviceName to.
+        return detectPoint == DetectPoint.SERVER ? destLayer.isNormal() : layer.isNormal();
+    }
+
+    private boolean sourceNormal() {
+        return destLayer == null ? normal() : layer.isNormal();
+    }
+
+    /**
+     * A relation may cross layers: a normal service calling a conjectured database has a normal source and a
+     * VIRTUAL_DATABASE destination, and each side's id must carry its own flag, the way
+     * {@link org.apache.skywalking.oap.server.core.query.input.Entity#buildId()} builds them from {@code normal}
+     * and {@code destNormal} on the query side. A two-layer relation takes each layer's own flag, {@code UNDEFINED}
+     * included, which is how the agent path's {@code ServiceRelation} source builds the same ids: {@code User} is
+     * {@code UNDEFINED} and non-normal there, and {@code ServiceTopologyBuilder} looks it up under that id.
+     */
+    private boolean destNormal() {
+        return destLayer == null ? normal() : destLayer.isNormal();
+    }
+
+    /**
+     * @param layer the layer, or null
+     * @return the {@code normal} flag a single-layer entity's id carries: MAL's entities have no layer, or an
+     * {@code UNDEFINED} one, and are normal services; a virtual layer is conjectured
+     */
+    public static boolean isNormal(final Layer layer) {
         return layer == null || layer == Layer.UNDEFINED || layer.isNormal();
     }
 
@@ -201,6 +236,27 @@ public class MeterEntity {
     }
 
     /**
+     * Create a service-relation level meter entity whose two ends live in different layers, which is what a span
+     * from a normal service to a conjectured peer needs: the source keeps its own layer and the destination is
+     * registered, and its id built, in the peer's virtual layer.
+     */
+    public static MeterEntity newServiceRelation(String sourceServiceName,
+                                                 Layer sourceLayer,
+                                                 String destServiceName,
+                                                 Layer destLayer,
+                                                 DetectPoint detectPoint, int componentId) {
+        final MeterEntity meterEntity = new MeterEntity();
+        meterEntity.scopeType = ScopeType.SERVICE_RELATION;
+        meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
+        meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
+        meterEntity.detectPoint = detectPoint;
+        meterEntity.layer = sourceLayer;
+        meterEntity.destLayer = destLayer;
+        meterEntity.componentId = componentId;
+        return meterEntity;
+    }
+
+    /**
      * Create a service-instance-relation level meter entity. Both sides are identified by their
      * service name + instance name; the relation id collides with agent-sourced instance relations
      * by design (same {@link IDManager.ServiceInstanceID#buildRelationId} format), so MAL-defined and
@@ -219,6 +275,30 @@ public class MeterEntity {
         meterEntity.destInstanceName = NAMING_CONTROL.formatInstanceName(destInstanceName);
         meterEntity.detectPoint = detectPoint;
         meterEntity.layer = layer;
+        meterEntity.componentId = componentId;
+        return meterEntity;
+    }
+
+    /**
+     * Create a service-instance-relation level meter entity whose two ends live in different layers. See
+     * {@link #newServiceRelation(String, Layer, String, Layer, DetectPoint, int)}.
+     */
+    public static MeterEntity newServiceInstanceRelation(String sourceServiceName,
+                                                         String sourceInstanceName,
+                                                         Layer sourceLayer,
+                                                         String destServiceName,
+                                                         String destInstanceName,
+                                                         Layer destLayer,
+                                                         DetectPoint detectPoint, int componentId) {
+        final MeterEntity meterEntity = new MeterEntity();
+        meterEntity.scopeType = ScopeType.SERVICE_INSTANCE_RELATION;
+        meterEntity.sourceServiceName = NAMING_CONTROL.formatServiceName(sourceServiceName);
+        meterEntity.sourceInstanceName = NAMING_CONTROL.formatInstanceName(sourceInstanceName);
+        meterEntity.destServiceName = NAMING_CONTROL.formatServiceName(destServiceName);
+        meterEntity.destInstanceName = NAMING_CONTROL.formatInstanceName(destInstanceName);
+        meterEntity.detectPoint = detectPoint;
+        meterEntity.layer = sourceLayer;
+        meterEntity.destLayer = destLayer;
         meterEntity.componentId = componentId;
         return meterEntity;
     }

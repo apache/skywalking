@@ -385,6 +385,7 @@
                         <exclude>otel-rules/</exclude>
                         <exclude>zabbix-rules/</exclude>
                         <exclude>lal/</exclude>
+                        <exclude>tal/</exclude>
                         <exclude>log-mal-rules/</exclude>
                         <exclude>telegraf-rules/</exclude>
                         <exclude>cilium-rules/</exclude>

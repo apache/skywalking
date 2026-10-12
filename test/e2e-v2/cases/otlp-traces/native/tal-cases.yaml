@@ -1,0 +1,37 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The Trace Analysis Language (TAL) rules run on every span the native OTLP storage accepts: the two demo services
+# must appear as OTLP_SERVICE services, with their metrics, their endpoint, and the topology the client spans draw.
+# The `User` end of the topology is the root span the trigger's curl creates on `frontend`, which carries no trace
+# context; the `frontend -> productcatalogservice` edge is the gRPC client span, named by `net.peer.name:port` and
+# folded onto the callee's own service by the alias the span pairing learned.
+cases:
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_SERVICE
+    expected: expected/tal-services.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=OTLP_SERVICE
+    expected: expected/tal-topology.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --service-name=productcatalogservice
+    expected: expected/tal-endpoints-productcatalogservice.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_cpm --service-name=frontend
+    expected: expected/tal-metric-values.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_cpm --service-name=productcatalogservice
+    expected: expected/tal-metric-values.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_sla --service-name=productcatalogservice
+    expected: expected/tal-metric-sla-10000.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_endpoint_resp_time --service-name=productcatalogservice --endpoint-name=oteldemo.ProductCatalogService/ListProducts
+    expected: expected/tal-metric-values.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_relation_client_cpm --service-name=frontend --dest-service-name=productcatalogservice
+    expected: expected/tal-metric-values.yml

@@ -593,6 +593,11 @@ spring-ldap:
 LDAP:
   id: 180
   languages: Java
+# Connect RPC (connectrpc.com), named as OpenTelemetry spans spell it in `rpc.system`; the OAP's case-insensitive
+# catalog lookup folds this name to `connect_rpc`. Multi-language, so it sits in the shared range.
+Connect_RPC:
+  id: 181
+  languages: Java,Go,Node.js,Kotlin,Swift
 
 # .NET/.NET Core components
 # [3000, 4000) for C#/.NET only

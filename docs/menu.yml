@@ -254,6 +254,8 @@ catalog:
             path: "/en/setup/backend/zipkin-trace"
           - name: "OpenTelemetry Trace"
             path: "/en/setup/backend/otlp-trace"
+          - name: "OpenTelemetry Trace Analysis"
+            path: "/en/setup/backend/trace-analyzer"
       - name: "Metrics"
         catalog:
           - name: "OAL Scripts"
@@ -390,6 +392,8 @@ catalog:
         path: "/en/concepts-and-designs/mal"
       - name: "Analysis Logs"
         path: "/en/concepts-and-designs/lal"
+      - name: "Analysis OpenTelemetry Traces"
+        path: "/en/concepts-and-designs/tal"
       - name: "Runtime Rule Hot-Update"
         path: "/en/concepts-and-designs/runtime-rule-hot-update"
       - name: "Profiling"

@@ -115,3 +115,10 @@ described in [TraceQL Service](../../api/traceql-service.md#otlp-native-trace).
 The status module exposes the same queries with the execution trace for debugging under
 `/debugging/query/otlp/api/search` and `/debugging/query/otlp/api/v2/trace`, see
 [Status APIs](./admin-api/status.md).
+
+## Analysis
+
+Every accepted span also goes through the [Trace Analysis Language](../../concepts-and-designs/tal.md) rules of the
+`trace-analyzer` module, in both storage modes and before the head sampling and the rate limit above. The shipped
+rule file registers the services under the `OTLP_SERVICE` layer with their metrics, topology and slow statements;
+see [OpenTelemetry Trace Analysis](trace-analyzer.md) for the settings and for what it produces.

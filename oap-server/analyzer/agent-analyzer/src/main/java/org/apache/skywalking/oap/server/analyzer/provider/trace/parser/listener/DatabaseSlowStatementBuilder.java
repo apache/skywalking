@@ -32,10 +32,13 @@ import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
+import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 @Slf4j
-public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
+public class DatabaseSlowStatementBuilder implements LALOutputBuilder, TALOutputBuilder {
     public static final String NAME = "SlowSQL";
 
     private static NamingControl NAMING_CONTROL;
@@ -85,12 +88,7 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
     @Override
     public void init(final LogMetadata metadata, final Object input,
                      final ModuleManager moduleManager) {
-        if (!INITIALIZED) {
-            NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
-                                          .provider()
-                                          .getService(NamingControl.class);
-            INITIALIZED = true;
-        }
+        ensureNamingControl(moduleManager);
         // Only populate fields not already set by the LAL extractor.
         if (this.serviceName == null) {
             this.serviceName = metadata.getService();
@@ -111,6 +109,42 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
         }
     }
 
+    /**
+     * The span-side lifecycle. The standard fields come from {@code meta}, which carries whatever the rule's
+     * extractor overwrote, so a TAL rule names the database with {@code service peer} and the layer with
+     * {@code layer "OTLP_VIRTUAL_DATABASE"} exactly as a LAL slow-SQL rule names its own.
+     *
+     * @param meta          the span's metadata view
+     * @param input         the wire span, unread by this builder
+     * @param moduleManager for resolving {@code NamingControl} on the first record
+     */
+    @Override
+    public void init(final SpanMetadata meta, final Object input, final ModuleManager moduleManager) {
+        ensureNamingControl(moduleManager);
+        if (this.serviceName == null) {
+            this.serviceName = meta.getService();
+        }
+        if (StringUtil.isNotEmpty(meta.getLayer())) {
+            // A span's layer is a string until here; an unknown name leaves the default rather than failing the
+            // record, since the id it builds only depends on the layer's normal flag. Layer.nameOf would answer
+            // UNDEFINED for it instead, silently.
+            try {
+                this.layer = Layer.valueOf(meta.getLayer());
+            } catch (final IllegalArgumentException e) {
+                log.warn("SlowSQL record names an unknown layer '{}', keeping {}", meta.getLayer(), this.layer);
+            }
+        }
+        if (this.traceId == null) {
+            this.traceId = meta.getTraceId();
+        }
+        if (this.timestamp == 0) {
+            this.timestamp = meta.getTimestamp();
+        }
+        if (this.timeBucket == 0) {
+            this.timeBucket = TimeBucket.getTimeBucket(this.timestamp, DownSampling.Second);
+        }
+    }
+
     @Override
     public void complete(final SourceReceiver sourceReceiver) {
         if (id == null || latency < 1 || statement == null) {
@@ -126,6 +160,15 @@ public class DatabaseSlowStatementBuilder implements LALOutputBuilder {
         }
         prepare();
         sourceReceiver.receive(toDatabaseSlowStatement());
+    }
+
+    private static void ensureNamingControl(final ModuleManager moduleManager) {
+        if (!INITIALIZED) {
+            NAMING_CONTROL = moduleManager.find(CoreModule.NAME)
+                                          .provider()
+                                          .getService(NamingControl.class);
+            INITIALIZED = true;
+        }
     }
 
     public void prepare() {

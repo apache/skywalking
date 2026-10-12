@@ -70,6 +70,7 @@
                 <include>openapi-definitions/*/*.yaml</include>
                 <include>otel-rules/**</include>
                 <include>lal/*</include>
+                <include>tal/*</include>
                 <include>log-mal-rules/**</include>
                 <include>telegraf-rules/*</include>
                 <include>cilium-rules/*</include>

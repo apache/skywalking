@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.LayerExtensionLoader;
 import org.apache.skywalking.oap.server.core.analysis.StreamAnnotationListener;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.apdex.ApdexFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.ApdexMetrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.analysis.worker.RecordStreamProcessor;
@@ -409,6 +410,8 @@ public class CoreModuleProvider extends ModuleProvider {
         TopNStreamProcessor.getInstance().setTopNWorkerReportCycle(moduleConfig.getTopNReportPeriod());
         apdexThresholdConfig = new ApdexThresholdConfig(this);
         ApdexMetrics.setDICT(apdexThresholdConfig);
+        // TAL's apdex metrics read the same thresholds as OAL's apdex(name, status).
+        ApdexFunction.setDICT(apdexThresholdConfig);
         loggingConfigWatcher = new LoggingConfigWatcher(this);
 
         WatermarkGRPCInterceptor.create();

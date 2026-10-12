@@ -1,0 +1,265 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Trace Analysis Language rules for OTLP spans.
+#
+# This one file is the whole feature: the semantic-convention knowledge, with the current attribute names first
+# and the deprecated spellings older SDKs still emit as fallbacks, and the metric set the OTLP_SERVICE and
+# OTLP_VIRTUAL_* dashboards read. It is written to be edited: add a `metrics {}` block for an attribute your
+# fleet emits, keep the file listed in `talFiles`, and restart the OAP, which reads its rule files at start.
+#
+# Both rules declare `inputType: otlp`, the only input this release ships; a rule names exactly one input.
+
+metricPrefix: otlp
+
+rules:
+  - name: otlp-service
+    # `auto` means: see the spans whose resource carries no `service.layer`, and name the layer yourself.
+    layer: auto
+    inputType: otlp
+    dsl: |
+      filter {
+        // Spans with a dedicated analyzer: MetricKit payloads and GenAI calls are handled by their SpanListeners.
+        if (meta.scopeName == "MetricKit" || hasAttr("gen_ai.provider.name", "gen_ai.system")) {
+          abort {}
+        }
+        // A messaging poll is transport bookkeeping, not a request anyone can be measured on. The OpenTelemetry
+        // Java agent reports a blocking JMS receive as a CONSUMER span as long as the wait, so the kind alone cannot
+        // tell a poll from a handled message; the operation can.
+        if ((meta.kind == "CLIENT" || meta.kind == "CONSUMER")
+            && attr("messaging.operation.type", "messaging.operation") == "receive") {
+          abort {}
+        }
+
+        extractor {
+          layer "OTLP_SERVICE"
+
+          // Inbound: SERVER and CONSUMER spans are requests this service answered.
+          if (meta.kind == "SERVER" || meta.kind == "CONSUMER") {
+            // `{method} {route}` when the framework reports a route; otherwise the span name stays the endpoint.
+            if (hasAttr("http.route")) {
+              endpoint attr("http.request.method", "http.method") + " " + attr("http.route")
+            }
+            def svc = service(meta.service, meta.layer)
+            metrics { name "service_cpm";        scope svc; function cpm; value 1 }
+            metrics { name "service_resp_time";  scope svc; function avg; value meta.latency }
+            metrics { name "service_sla";        scope svc; function percent; match meta.statusCode != "ERROR" }
+            metrics { name "service_apdex";      scope svc; function apdex; value meta.latency; status meta.statusCode != "ERROR" }
+            metrics { name "service_percentile"; scope svc; function percentile; value meta.latency
+                      buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }
+
+            def ep = endpoint(meta.service, meta.endpoint, meta.layer)
+            metrics { name "endpoint_cpm";        scope ep; function cpm; value 1 }
+            metrics { name "endpoint_resp_time";  scope ep; function avg; value meta.latency }
+            metrics { name "endpoint_sla";        scope ep; function percent; match meta.statusCode != "ERROR" }
+            metrics { name "endpoint_percentile"; scope ep; function percentile; value meta.latency
+                      buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }
+
+            if (meta.serviceInstance) {
+              def inst = instance(meta.service, meta.serviceInstance, meta.layer)
+              metrics { name "instance_cpm";       scope inst; function cpm; value 1 }
+              metrics { name "instance_resp_time"; scope inst; function avg; value meta.latency }
+              metrics { name "instance_sla";       scope inst; function percent; match meta.statusCode != "ERROR" }
+            }
+          }
+
+          // A consumer was called by its broker.
+          if (meta.kind == "CONSUMER" && hasAttr("messaging.system")) {
+            def broker = attr("server.address", "net.peer.name")
+            if (broker && hasAttr("server.port", "net.peer.port")) {
+              def broker = broker + ":" + attr("server.port", "net.peer.port")
+            }
+            // A consumer that reports no broker address, as the JMS API gives its clients none, lands on the node
+            // named after the messaging system, the same one the producer side draws below, so one queue has one
+            // broker. The port alone would be a worse name than that.
+            if (!broker) {
+              def broker = attr("messaging.system")
+            }
+            def fromBroker = serviceRelation(SERVER, broker, "OTLP_VIRTUAL_MQ", meta.service, meta.layer,
+                                             component(attr("messaging.system")))
+            metrics { name "service_relation_server_cpm"; scope fromBroker; function cpm; value 1 }
+          }
+
+          // Inbound, SERVER only: what this service was dialed as, and who dialed it.
+          if (meta.kind == "SERVER") {
+            def comp = component("http")
+            if (hasAttr("rpc.system.name", "rpc.system")) {
+              def comp = component(attr("rpc.system.name", "rpc.system"))
+            }
+            // The address a SERVER span reports is the `Host` / `:authority` its caller used, so registering it as
+            // an alias lets a CLIENT span's resolveAlias(peer) below land the edge on this service instead of on a
+            // second node named by the address. A callee that reports no address is only ever reached by name.
+            // An address whose host is another service's name, a proxy's `Host` passed through, is not registered.
+            if (hasAttr("server.address", "net.host.name")) {
+              def addr = attr("server.address", "net.host.name")
+              def port = attr("server.port", "net.host.port")
+              def dialed = addr
+              if (port) {
+                def dialed = addr + ":" + port
+              }
+              alias dialed
+            }
+            // A root span was called from outside the fleet, which the agent path draws as `User`.
+            if (meta.root) {
+              def fromUser = serviceRelation(SERVER, "User", "UNDEFINED", meta.service, meta.layer, comp)
+              metrics { name "service_relation_server_cpm"; scope fromUser; function cpm; value 1 }
+            }
+          }
+
+          // Outbound: CLIENT and PRODUCER spans are calls this service made. The peer decides the edge.
+          if (meta.kind == "CLIENT" || meta.kind == "PRODUCER") {
+            // The peer is named first, because the metrics below are scoped to it. `peer.service` is the
+            // deprecated spelling of `service.peer.name`; SDKs on either side of that rename still emit one of them.
+            def peer = attr("service.peer.name", "peer.service")
+            if (!peer && hasAttr("server.address", "net.peer.name")) {
+              // The port is optional. Without it the node is the bare address, the spelling the callee's own
+              // service name takes, rather than a third one ending in a colon.
+              def addr = attr("server.address", "net.peer.name")
+              def port = attr("server.port", "net.peer.port")
+              def peer = addr
+              if (port) {
+                def peer = addr + ":" + port
+              }
+            }
+            // Envoy, and other instrumentations of OpenTracing descent, name the peer as `peer.address`, host and
+            // port in one string, and report no server.address at all.
+            if (!peer && hasAttr("peer.address")) {
+              def peer = attr("peer.address")
+            }
+            // A client that names its target only as a URL, the Python requests instrumentation among them, still
+            // carries the host and port there.
+            if (!peer && hasAttr("url.full", "http.url")) {
+              def peer = urlHost(attr("url.full", "http.url"))
+            }
+            // A peer whose host names a service, or that some SERVER span registered through `alias`, resolves to
+            // that service, so the edge lands on the callee's own node instead of one named by the address.
+            def peer = resolveAlias(peer)
+            // A peer reached without an address, an embedded database or a broker the JMS API hides, is named
+            // after what the span does know: the database system and its namespace, or the messaging system alone,
+            // with the destination carried as an endpoint of that node below. Neither is an address, so the alias
+            // cache and the pairing have nothing to fold and are not asked. A client span that knows none of these
+            // still names no peer and draws no edge.
+            if (!peer && hasAttr("db.system.name", "db.system")) {
+              def peer = attr("db.system.name", "db.system")
+              if (hasAttr("db.namespace", "db.name")) {
+                def peer = peer + "/" + attr("db.namespace", "db.name")
+              }
+            }
+            if (!peer && hasAttr("messaging.system")) {
+              def peer = attr("messaging.system")
+            }
+            if (peer) {
+              def peerLayer = "OTLP_SERVICE"
+              def comp = component("http")
+              if (hasAttr("rpc.system.name", "rpc.system")) {
+                def comp = component(attr("rpc.system.name", "rpc.system"))
+              }
+              if (hasAttr("db.system.name", "db.system")) {
+                def system = attr("db.system.name", "db.system")
+                def peerLayer = "OTLP_VIRTUAL_DATABASE"
+                if (system == "redis" || system == "valkey" || system == "memcached") {
+                  def peerLayer = "OTLP_VIRTUAL_CACHE"
+                }
+                def comp = component(system)
+              }
+              if (hasAttr("messaging.system")) {
+                def peerLayer = "OTLP_VIRTUAL_MQ"
+                def comp = component(attr("messaging.system"))
+              }
+
+              // A conjectured peer gets metrics of its own, not just a node in the topology, so its layer's service
+              // list has columns to fill. Named after the agent metrics of the same shape, so a widget written for
+              // `database_access_cpm` ports by renaming.
+              def peerSvc = service(peer, peerLayer)
+              if (peerLayer == "OTLP_VIRTUAL_DATABASE") {
+                metrics { name "database_access_cpm";       scope peerSvc; function cpm; value 1 }
+                metrics { name "database_access_resp_time"; scope peerSvc; function avg; value meta.latency }
+                metrics { name "database_access_sla";       scope peerSvc; function percent
+                          match meta.statusCode != "ERROR" }
+              }
+              if (peerLayer == "OTLP_VIRTUAL_CACHE") {
+                metrics { name "cache_access_cpm";       scope peerSvc; function cpm; value 1 }
+                metrics { name "cache_access_resp_time"; scope peerSvc; function avg; value meta.latency }
+                metrics { name "cache_access_sla";       scope peerSvc; function percent
+                          match meta.statusCode != "ERROR" }
+              }
+              if (peerLayer == "OTLP_VIRTUAL_MQ") {
+                metrics { name "mq_access_cpm";       scope peerSvc; function cpm; value 1 }
+                metrics { name "mq_access_resp_time"; scope peerSvc; function avg; value meta.latency }
+                metrics { name "mq_access_sla";       scope peerSvc; function percent
+                          match meta.statusCode != "ERROR" }
+                // The queue or topic is an endpoint of its broker, so the virtual layer's list stays one row per
+                // broker while the destinations are still there to rank.
+                if (hasAttr("messaging.destination.name", "messaging.destination")) {
+                  def dest = endpoint(peer, attr("messaging.destination.name", "messaging.destination"), peerLayer)
+                  metrics { name "mq_destination_cpm";       scope dest; function cpm; value 1 }
+                  metrics { name "mq_destination_resp_time"; scope dest; function avg; value meta.latency }
+                  metrics { name "mq_destination_sla";       scope dest; function percent
+                            match meta.statusCode != "ERROR" }
+                }
+              }
+
+              def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, peerLayer, comp)
+              metrics { name "service_relation_client_cpm";       scope edge; function cpm; value 1 }
+              metrics { name "service_relation_client_resp_time"; scope edge; function avg; value meta.latency }
+              metrics { name "service_relation_client_sla";       scope edge; function percent
+                        match meta.statusCode != "ERROR" }
+            }
+          }
+        }
+        // No outputType and no persist block: this rule writes no record and takes no part in the span's persistence.
+      }
+
+  - name: otlp-slow-sql
+    layer: auto
+    inputType: otlp
+    outputType: SlowSQL
+    dsl: |
+      filter {
+        if (meta.kind != "CLIENT" || !hasAttr("db.query.text", "db.statement")) {
+          abort {}
+        }
+        // Milliseconds. The agent path keys this by database type (slowDBAccessThreshold); edit per deployment.
+        if (meta.latency < 200) {
+          abort {}
+        }
+        extractor {
+          layer "VIRTUAL_DATABASE"
+          // The record belongs to the database service, named as the topology names it.
+          def peer = attr("service.peer.name", "peer.service")
+          if (!peer) {
+            // The port is optional; without it the bare address is the name, not a name ending in a colon.
+            def addr = attr("server.address", "net.peer.name")
+            def port = attr("server.port", "net.peer.port")
+            def peer = addr
+            if (port) {
+              def peer = addr + ":" + port
+            }
+          }
+          // A statement with no database to file it under would land on a service named `_blank`, where no
+          // panel reads it.
+          if (!peer) {
+            abort {}
+          }
+          service peer
+          id meta.spanId
+          statement attr("db.query.text", "db.statement")
+          latency meta.latency
+        }
+        sink {}
+        persist {
+          enforcer {}          // keep the span behind every slow statement, past this rule's samplers and the receiver's head sampling
+        }
+      }

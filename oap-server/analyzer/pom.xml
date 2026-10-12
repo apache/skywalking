@@ -33,6 +33,7 @@
         <module>event-analyzer</module>
         <module>meter-analyzer</module>
         <module>log-analyzer</module>
+        <module>trace-analyzer</module>
         <module>hierarchy</module>
         <module>gen-ai-analyzer</module>
         <module>ai-evaluation</module>

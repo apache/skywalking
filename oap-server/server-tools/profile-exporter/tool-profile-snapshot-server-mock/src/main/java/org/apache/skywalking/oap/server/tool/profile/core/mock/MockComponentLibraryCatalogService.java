@@ -30,6 +30,11 @@ public class MockComponentLibraryCatalogService implements IComponentLibraryCata
     }
 
     @Override
+    public int getComponentIdIgnoreCase(String componentName) {
+        return 0;
+    }
+
+    @Override
     public int getServerIdBasedOnComponent(int componentId) {
         return 0;
     }

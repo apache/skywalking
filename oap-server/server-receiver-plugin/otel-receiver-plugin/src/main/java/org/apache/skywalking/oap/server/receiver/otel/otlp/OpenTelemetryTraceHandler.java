@@ -66,6 +66,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
+import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 
 /**
  * The {@code otlp-traces} handler. Every span goes through the phase-one {@code SpanListener}s, then either is
@@ -78,6 +82,11 @@ public class OpenTelemetryTraceHandler
     extends TraceServiceGrpc.TraceServiceImplBase
     implements Handler {
     public static final String TYPE = "otlp-traces";
+    /**
+     * The resource attributes an instance name is taken from, in the order the OTLP logs handler uses.
+     */
+    private static final List<String> INSTANCE_KEYS = List.of("service.instance.id", "service.instance");
+    private static final String SERVICE_LAYER_KEY = "service.layer";
     private static final String NO_SERVICE_NAME_MESSAGE =
         "resource carries none of service.name, faas.name, k8s.deployment.name, process.executable.name";
 
@@ -86,6 +95,25 @@ public class OpenTelemetryTraceHandler
     private SpanForwardService forwardService;
     private OTLPSpanForward otlpSpanForward;
     private SpanListenerManager spanListenerManager;
+
+    /**
+     * The TAL analyzer, or null when the trace-analyzer module is not loaded, which is the operator's way of
+     * storing OTLP traces without analysis; the provider declares the module only when it is loaded. Resolved on
+     * first use, because the module manager cannot be asked at construction.
+     */
+    private volatile ITraceAnalyzerService traceAnalyzerService;
+
+    private volatile boolean traceAnalyzerResolved;
+
+    private ITraceAnalyzerService traceAnalyzerService() {
+        if (!traceAnalyzerResolved) {
+            traceAnalyzerService = manager.has(TraceAnalyzerModule.NAME)
+                ? manager.find(TraceAnalyzerModule.NAME).provider().getService(ITraceAnalyzerService.class)
+                : null;
+            traceAnalyzerResolved = true;
+        }
+        return traceAnalyzerService;
+    }
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -183,12 +211,40 @@ public class OpenTelemetryTraceHandler
                         if (!nativeStorage) {
                             extractScopeTag(scope, resourceTags);
                         }
+                        final Map<String, String> scopeTags = OTLPValues.toStringMap(scope.getAttributesList());
                         for (io.opentelemetry.proto.trace.v1.Span span : scopeSpans.getSpansList()) {
+                            final OTLPSpanReaderImpl reader = new OTLPSpanReaderImpl(span);
+                            // Phase 1: notify OTLP span listeners before conversion or storage
+                            final SpanListenerResult otlpResult = getSpanListenerManager()
+                                .notifyOTLPPhase(reader, resourceTags, scopeName, scopeVersion);
+
+                            // TAL runs on every span whatever the storage mode and whatever the listeners decided,
+                            // and before the forward applies head sampling, so metrics count what the SDK sent
+                            // rather than what OAP chose to store.
+                            final SpanAnalysisResult analysis = analyze(
+                                span, serviceName, resourceTags, scopeTags, scopeName, scopeVersion);
+
+                            if (!otlpResult.isShouldPersist() || !analysis.isPersist()) {
+                                continue;
+                            }
+
+                            // What the listeners and the rules injected, and only that: the native store appends
+                            // these to the span as attributes, so the resource attributes must not be among them.
+                            // Last writer wins, and a rule's tag is written after a listener's.
+                            final Map<String, String> injectedTags;
+                            if (!otlpResult.getAdditionalTags().isEmpty() || !analysis.getAdditionalTags().isEmpty()) {
+                                injectedTags = new HashMap<>(otlpResult.getAdditionalTags());
+                                injectedTags.putAll(analysis.getAdditionalTags());
+                            } else {
+                                injectedTags = Collections.emptyMap();
+                            }
+
                             if (nativeStorage) {
                                 // The response reports the batch as accepted, so one span's failure must not take the
                                 // rest of the export with it; what is not stored is counted as dropped.
                                 try {
-                                    storeNative(resourceSpans, scopeSpans, span, serviceName, resourceTags);
+                                    storeNative(resourceSpans, scopeSpans, span, serviceName, resourceTags,
+                                                injectedTags, analysis.isEnforced());
                                 } catch (Exception e) {
                                     log.warn("Storing OTLP span {} failed, dropping it: {}",
                                              OTLPValues.hexId(span.getSpanId()), e.getMessage());
@@ -196,26 +252,17 @@ public class OpenTelemetryTraceHandler
                                 }
                                 continue;
                             }
-                            final OTLPSpanReaderImpl reader = new OTLPSpanReaderImpl(span);
-                            // Phase 1: notify OTLP span listeners before conversion or storage
-                            final SpanListenerResult otlpResult = getSpanListenerManager()
-                                .notifyOTLPPhase(reader, resourceTags, scopeName, scopeVersion);
 
-                            // If any listener vetoed persistence, skip conversion and storage
-                            if (!otlpResult.isShouldPersist()) {
-                                continue;
-                            }
-
-                            // Per-span tag copy to avoid leaking listener tags into
-                            // subsequent spans that share the same resourceTags map
+                            // The Zipkin conversion carries the resource attributes as span tags, merged into a
+                            // per-span copy so the injected tags do not leak into the next span that shares the
+                            // resourceTags map.
                             final Map<String, String> spanTags;
-                            if (!otlpResult.getAdditionalTags().isEmpty()) {
-                                spanTags = new HashMap<>(resourceTags);
-                                spanTags.putAll(otlpResult.getAdditionalTags());
-                            } else {
+                            if (injectedTags.isEmpty()) {
                                 spanTags = resourceTags;
+                            } else {
+                                spanTags = new HashMap<>(resourceTags);
+                                spanTags.putAll(injectedTags);
                             }
-
                             Span zipkinSpan = convertSpan(span, serviceName, spanTags);
                             result.add(zipkinSpan);
                         }
@@ -240,6 +287,80 @@ public class OpenTelemetryTraceHandler
                                                                                      .setRejectedSpans(rejectedSpans)
                                                                                      .setErrorMessage(NO_SERVICE_NAME_MESSAGE))
                                          .build();
+    }
+
+
+    /**
+     * Run the TAL rules for one span. A failure here never costs the span: analysis is an addition to the trace
+     * path, so a broken rule leaves storage exactly as it was.
+     *
+     * @param span          the span as it arrived
+     * @param serviceName   the service name resolved from the resource
+     * @param resourceTags  the resource attributes as strings
+     * @param scopeTags     the instrumentation scope's attributes
+     * @param scopeName     the instrumentation scope's name
+     * @param scopeVersion  the instrumentation scope's version
+     * @return the rules' verdict, or {@code CONTINUE} when no rule ran
+     */
+    private SpanAnalysisResult analyze(final io.opentelemetry.proto.trace.v1.Span span,
+                                       final String serviceName,
+                                       final Map<String, String> resourceTags,
+                                       final Map<String, String> scopeTags,
+                                       final String scopeName,
+                                       final String scopeVersion) {
+        final ITraceAnalyzerService analyzer = traceAnalyzerService();
+        if (analyzer == null) {
+            return SpanAnalysisResult.CONTINUE;
+        }
+        try {
+            return analyzer.doAnalysis(
+                spanMetadataOf(span, serviceName, resourceTags, scopeName, scopeVersion),
+                span, resourceTags, scopeTags);
+        } catch (final Exception e) {
+            log.warn("TAL analysis failed for span {}; the span is unaffected",
+                     OTLPValues.hexId(span.getSpanId()), e);
+            return SpanAnalysisResult.CONTINUE;
+        }
+    }
+
+    /**
+     * The protocol-neutral view a rule reads as {@code meta.*}.
+     */
+    private static SpanMetadata spanMetadataOf(final io.opentelemetry.proto.trace.v1.Span span,
+                                               final String serviceName,
+                                               final Map<String, String> resourceTags,
+                                               final String scopeName,
+                                               final String scopeVersion) {
+        final String parentSpanId = OTLPValues.hexId(span.getParentSpanId());
+        return SpanMetadata.builder()
+                           .service(serviceName)
+                           .serviceInstance(firstPresent(resourceTags, INSTANCE_KEYS))
+                           .endpoint(span.getName())
+                           .layer(resourceTags.getOrDefault(SERVICE_LAYER_KEY, ""))
+                           .kind(SpanMetadata.normalizeKind(span.getKind().name()))
+                           .statusCode(SpanMetadata.normalizeStatusCode(span.getStatus().getCode().name()))
+                           .statusMessage(span.getStatus().getMessage())
+                           .startTime(TimeUnit.NANOSECONDS.toMillis(span.getStartTimeUnixNano()))
+                           .timestamp(TimeUnit.NANOSECONDS.toMillis(span.getEndTimeUnixNano()))
+                           .latency(SpanMetadata.latencyMillis(
+                               span.getStartTimeUnixNano(), span.getEndTimeUnixNano()))
+                           .traceId(OTLPValues.hexId(span.getTraceId()))
+                           .spanId(OTLPValues.hexId(span.getSpanId()))
+                           .parentSpanId(parentSpanId)
+                           .root(parentSpanId.isEmpty())
+                           .scopeName(scopeName)
+                           .scopeVersion(scopeVersion)
+                           .build();
+    }
+
+    private static String firstPresent(final Map<String, String> source, final List<String> keys) {
+        for (final String key : keys) {
+            final String value = source.get(key);
+            if (value != null && !value.isEmpty()) {
+                return value;
+            }
+        }
+        return "";
     }
 
     private static long countSpans(final List<ScopeSpans> scopeSpansList) {
@@ -492,33 +613,34 @@ public class OpenTelemetryTraceHandler
     }
 
     /**
-     * The native path for one span: both listener phases, then the store. Exceptions propagate to the caller, which
-     * drops this span only.
+     * Store one span natively. Phase one has already run in the caller's loop, along with the TAL rules, so what
+     * is left here is the native-only phase-two notification and the forward. Exceptions propagate to the caller,
+     * which drops this span only.
+     *
+     * @param injectedTags the tags phase one and the rules injected, which the caller merged; they are appended
+     *                     to the stored span, so the resource attributes are never among them
+     * @param enforced     whether a rule's {@code enforcer {}} kept this span past head sampling
      */
     private void storeNative(final ResourceSpans resourceSpans,
                              final ScopeSpans scopeSpans,
                              final io.opentelemetry.proto.trace.v1.Span span,
                              final String serviceName,
-                             final Map<String, String> resourceTags) {
+                             final Map<String, String> resourceTags,
+                             final Map<String, String> injectedTags,
+                             final boolean enforced) {
         final InstrumentationScope scope = scopeSpans.getScope();
         final OTLPSpanReaderImpl reader = new OTLPSpanReaderImpl(span);
-        // Phase 1: the listeners every OTLP span goes through
-        final SpanListenerResult otlpResult = getSpanListenerManager()
-            .notifyOTLPPhase(reader, resourceTags, scope.getName(), scope.getVersion());
-        if (!otlpResult.isShouldPersist()) {
-            return;
-        }
         // Phase 2 for natively stored spans: no Zipkin span will ever exist for them.
         final SpanListenerResult storedResult = getSpanListenerManager()
             .notifyNativeOTLPPhase(reader, resourceTags, scope.getName(), scope.getVersion());
         if (!storedResult.isShouldPersist()) {
             return;
         }
-        final Map<String, String> injectedTags = new HashMap<>(otlpResult.getAdditionalTags());
-        injectedTags.putAll(storedResult.getAdditionalTags());
+        final Map<String, String> storedTags = new HashMap<>(injectedTags);
+        storedTags.putAll(storedResult.getAdditionalTags());
         if (!otlpSpanForward.send(
             resourceSpans.getResource(), resourceSpans.getSchemaUrl(), scope, scopeSpans.getSchemaUrl(),
-            span, serviceName, resourceTags, injectedTags)) {
+            span, serviceName, resourceTags, storedTags, enforced)) {
             getDroppedSpans().inc(1);
         }
     }

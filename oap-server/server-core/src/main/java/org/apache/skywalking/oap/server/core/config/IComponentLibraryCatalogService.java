@@ -23,6 +23,13 @@ import org.apache.skywalking.oap.server.library.module.Service;
 public interface IComponentLibraryCatalogService extends Service {
     int getComponentId(String componentName);
 
+    /**
+     * @param componentName a component name as a telemetry attribute spells it, {@code grpc} or {@code postgresql}
+     * @return the id of the component whose catalog name matches exactly, else ignoring case, so {@code GRPC} and
+     * {@code PostgreSQL} are found; 0, the Unknown component, when neither does
+     */
+    int getComponentIdIgnoreCase(String componentName);
+
     int getServerIdBasedOnComponent(int componentId);
 
     String getComponentName(int componentId);

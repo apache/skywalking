@@ -47,3 +47,4 @@ verify:
   cases:
     - includes:
         - ../traceql-cases.yaml
+        - ../tal-cases.yaml

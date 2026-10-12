@@ -102,6 +102,8 @@ public class OTLPSpanForward {
      * @param resourceTags   the resource attributes rendered as strings, see {@link OTLPValues#toStringMap}
      * @param additionalTags attributes the span listeners injected; appended to the stored span as strings, the
      *                       only way the stored span differs from the wire span
+     * @param enforced       whether a rule's {@code enforcer {}} kept this span; it skips the trace-id head
+     *                       sampling but still takes a permit from the rate limiter
      * @return false when head sampling or the rate limit dropped the span
      */
     public boolean send(final Resource resource,
@@ -111,8 +113,9 @@ public class OTLPSpanForward {
                         final Span span,
                         final String serviceName,
                         final Map<String, String> resourceTags,
-                        final Map<String, String> additionalTags) {
-        if (!sampled(span)) {
+                        final Map<String, String> additionalTags,
+                        final boolean enforced) {
+        if (!sampled(span, enforced)) {
             return false;
         }
         final Span stored = appendAttributes(span, additionalTags);
@@ -190,12 +193,12 @@ public class OTLPSpanForward {
      * Head sampling on the low 64 bits of the trace id, the arithmetic {@code SpanForward.getSampledTraces} uses,
      * so a trace is kept or dropped as a whole on every OAP node. The rate limit is applied first.
      */
-    private boolean sampled(final Span span) {
+    private boolean sampled(final Span span, final boolean enforced) {
         if (rateLimiter != null && !rateLimiter.tryAcquire()) {
             log.debug("Span dropped due to the maximum spans per second limit: {}", OTLPValues.hexId(span.getSpanId()));
             return false;
         }
-        if (sampleAll) {
+        if (sampleAll || enforced) {
             return true;
         }
         final byte[] traceId = span.getTraceId().toByteArray();

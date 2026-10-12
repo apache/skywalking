@@ -307,6 +307,26 @@ public final class Layer {
      */
     public static final Layer AI_AGENT = register("AI_AGENT", 51, true);
 
+    /**
+     * A service whose spans arrived over OTLP and were analyzed by TAL. Separate from GENERAL because the GENERAL
+     * dashboards read the core.oal metrics, which the span analysis does not produce. Conjectured peers of such a
+     * service keep the existing VIRTUAL_* layers, as VIRTUAL_GENAI already does for OTLP spans.
+     */
+    public static final Layer OTLP_SERVICE = register("OTLP_SERVICE", 52, true);
+
+    /**
+     * A database conjectured from the OTLP spans of its callers. Non-normal, like every conjectured layer: the
+     * normal flag is part of a service id, so a peer registered as normal would stop merging with the node the
+     * agent path conjectures for the same address.
+     */
+    public static final Layer OTLP_VIRTUAL_DATABASE = register("OTLP_VIRTUAL_DATABASE", 53, false);
+
+    /** A cache conjectured from the OTLP spans of its callers. */
+    public static final Layer OTLP_VIRTUAL_CACHE = register("OTLP_VIRTUAL_CACHE", 54, false);
+
+    /** A message broker conjectured from the OTLP spans of its producers and consumers. */
+    public static final Layer OTLP_VIRTUAL_MQ = register("OTLP_VIRTUAL_MQ", 55, false);
+
     private final String name;
     private final int value;
     /**
