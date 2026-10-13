@@ -94,14 +94,12 @@ public class TALConfigs {
     }
 
     /**
-     * Load TAL rules merging the disk allow-list with every
-     * {@link org.apache.skywalking.oap.server.core.rule.ext.RuntimeRuleOverrideResolver} on the classpath, so an
-     * operator's runtime rule overrides a shipped file of the same name in place.
+     * Load the TAL rule files through {@link RuleSetMerger}, as LAL and MAL load theirs. {@code Catalog} has no TAL
+     * entry, so no runtime rule can be created for TAL and the merge returns the files on disk as they are.
      *
      * @param path    the directory the rule files live in
      * @param files   the rule file names without extension
-     * @param manager threaded through to the resolvers so the runtime-rule DB resolver finds its DAO; null from a
-     *                test path with no module context
+     * @param manager threaded through to the merger's resolvers; null from a test path with no module context
      * @return one entry per loaded file
      * @throws Exception when a file cannot be read or a rule cannot be parsed
      */
@@ -148,8 +146,7 @@ public class TALConfigs {
                 if (!merged.containsKey(name)) {
                     // Most likely a misspelled talFiles entry; with the default single file it turns the whole
                     // analysis off, so it is worth more than the INFO count the provider logs.
-                    log.warn("talFiles names '{}', but no {}/{}.yaml or runtime rule of that name exists", name, path,
-                        name);
+                    log.warn("talFiles names '{}', but no {}/{}.yaml exists", name, path, name);
                 }
             }
 

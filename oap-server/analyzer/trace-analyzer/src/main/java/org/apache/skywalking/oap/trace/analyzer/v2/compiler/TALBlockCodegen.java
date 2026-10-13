@@ -74,7 +74,7 @@ final class TALBlockCodegen {
         sb.append("  {\n");
         // A block that runs votes keep unless a statement in it says otherwise: a persist block for the span, a
         // sink block for the record, which is written only when a sink block ran.
-        sb.append("    filterSpec.").append(inPersist ? "persist" : "sink").append("(ctx);\n");
+        sb.append(inPersist ? "    ctx.votePersist(true);\n" : "    ctx.runSink();\n");
         final List<TALScriptModel.FilterStatement> asFilter = new ArrayList<>(stmts.size());
         for (final TALScriptModel.VoteStatement vs : stmts) {
             asFilter.add((TALScriptModel.FilterStatement) vs);

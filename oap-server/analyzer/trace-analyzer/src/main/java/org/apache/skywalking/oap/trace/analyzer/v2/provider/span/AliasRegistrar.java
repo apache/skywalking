@@ -33,8 +33,8 @@ import org.apache.skywalking.oap.server.core.source.SourceReceiver;
  * either way the row would pull every edge to the proxy onto the service behind it.
  *
  * <p>As on the agent path, an address listed in {@code gateways.yml} is never aliased, and otherwise the last write
- * wins. A proxy that passes its callers' address through to the service behind it, instrumented or not, belongs in
- * that file.
+ * wins. An uninstrumented proxy that passes its callers' address through to the service behind it belongs in that
+ * file; one that emits its own spans keeps its address through the service-name check above.
  */
 @Slf4j
 public class AliasRegistrar {

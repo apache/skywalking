@@ -168,8 +168,8 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public String[] requiredModules() {
-        // StorageModule must start first so the runtime_rule management table exists by the time TALConfigs
-        // consults the override resolvers while loading the static rules.
+        // StorageModule must start first: TALConfigs loads through RuleSetMerger, whose runtime-rule resolver reads
+        // the management table. Catalog has no TAL entry, so it finds no TAL rule there.
         final List<String> required = new ArrayList<>(
             List.of(CoreModule.NAME, ConfigurationModule.NAME, StorageModule.NAME));
         // The agent analyzer owns gateways.yml, which the alias guard and the rules' isGateway read; it is declared

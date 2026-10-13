@@ -124,24 +124,6 @@ public class FilterSpec {
     }
 
     /**
-     * An empty {@code sink {}} — keep the record the rule built.
-     *
-     * @param ctx this span's state
-     */
-    public void sink(final ExecutionContext ctx) {
-        ctx.runSink();
-    }
-
-    /**
-     * An empty {@code persist {}} — vote to keep the span.
-     *
-     * @param ctx this span's state
-     */
-    public void persist(final ExecutionContext ctx) {
-        ctx.votePersist(true);
-    }
-
-    /**
      * {@code dropper {}} — vote to drop.
      *
      * @param ctx      this span's state

@@ -68,7 +68,7 @@ Every metric carries the file's `otlp_` prefix. On the service and its edges:
 | instance, when the resource carries `service.instance.id` | `otlp_service_instance_cpm`, `otlp_service_instance_resp_time`, `otlp_service_instance_sla` |
 | endpoint, named `<method> <route>` for HTTP spans and by the span name otherwise | `otlp_endpoint_cpm`, `otlp_endpoint_resp_time`, `otlp_endpoint_sla`, `otlp_endpoint_percentile` |
 | the call a CLIENT or PRODUCER span makes | `otlp_service_relation_client_cpm`, `otlp_service_relation_client_resp_time`, `otlp_service_relation_client_call_sla` |
-| the call a root SERVER span receives, from the `User` node | `otlp_service_relation_server_cpm` |
+| the call a SERVER or CONSUMER span receives: from the `User` node for a root span, from the broker for a consumer, and from the gateway for a span dialed at an [uninstrumented gateway](uninstrumented-gateways.md) | `otlp_service_relation_server_cpm` |
 
 On the conjectured peers, from the client's span: `otlp_database_access_cpm`, `_resp_time` and `_sla`, and the
 `otlp_cache_access_*` and `otlp_mq_access_*` counterparts, with `otlp_mq_destination_*` per queue or topic. The
@@ -87,7 +87,7 @@ the two exceptions listed after the table:
 | `service_instance_cpm`, `service_instance_resp_time`, `service_instance_sla` | `otlp_service_instance_*` of the same names |
 | `endpoint_cpm`, `endpoint_resp_time`, `endpoint_sla`, `endpoint_percentile` | `otlp_endpoint_*` of the same names |
 | `service_relation_client_cpm`, `service_relation_client_resp_time`, `service_relation_client_call_sla` | `otlp_service_relation_client_*` of the same names |
-| `service_relation_server_cpm` | `otlp_service_relation_server_cpm`, for the `User` edge and the broker-to-consumer edge |
+| `service_relation_server_cpm` | `otlp_service_relation_server_cpm`, for the `User` edge, the broker-to-consumer edge and the gateway-to-callee edge |
 | `database_access_cpm`, `database_access_resp_time`, `database_access_sla` | `otlp_database_access_*` of the same names |
 | `cache_access_cpm`, `cache_access_resp_time`, `cache_access_sla` | `otlp_cache_access_*` of the same names |
 
@@ -104,8 +104,9 @@ The `otlp_mq_access_*` and `otlp_mq_destination_*` metrics have no `core.oal` co
 `mq_service_*` and `mq_endpoint_*` metrics measure the consuming service rather than the broker. The agent metrics
 without a TAL counterpart are not produced: the relation percentiles, every instance-relation metric
 (`service_instance_relation_*`, since the shipped rule builds no instance relation), the server-side relation metrics
-other than `cpm`, the endpoint relations, `database_access_percentile` and `cache_access_percentile`, and the cache
-read and write split.
+other than `cpm`, the endpoint relations, `database_access_percentile` and `cache_access_percentile`, the cache
+read and write split, and the consume-side MQ metrics `service_mq_consume_count`, `service_mq_consume_latency` and
+`endpoint_mq_consume_latency`.
 
 The numbers follow the agent path's definitions:
 
@@ -155,11 +156,13 @@ In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs, both paths write
 agent path the last write wins. An address listed in the agent analyzer's [uninstrumented
 gateways](uninstrumented-gateways.md) is never registered as an alias, and the shipped rule draws it the way the agent
 path does, as a `VIRTUAL_GATEWAY` node between the caller and the callee: a CLIENT span that dials it ends its edge on
-the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. A proxy that
-passes its callers' address through to the service behind it belongs in that file, instrumented or not; otherwise that
-service registers the proxy's address as its own. The callee sees the gateway's address only when the gateway passes its
-callers' `Host` through, or sets `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to the
-upstream's, as nginx's `proxy_pass` and Kong do by default, still ends its callers' edges but draws no edge to the
+the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. An uninstrumented
+proxy that passes its callers' address through to the service behind it belongs in that file; otherwise that service
+registers the proxy's address as its own. A proxy that emits its own spans is a service with a node of its own, not a
+gateway: when its callers dial it by its service name, as the OpenTelemetry demo's `frontend-proxy:8080` is dialed, the
+known-service check keeps that address the proxy's. The callee sees the gateway's address only when the gateway passes
+its callers' `Host` through, or sets `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to
+the upstream's, as nginx's `proxy_pass` and Kong do by default, still ends its callers' edges but draws no edge to the
 service behind it. With the `agent-analyzer` module not loaded, no address is a gateway.
 
 In a cluster the pairing routes the facts of a trace to the node that owns it, through the same channel the metrics

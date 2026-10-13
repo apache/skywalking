@@ -255,8 +255,8 @@ public final class TALScriptModel {
          */
         private final String labelLimit;
         /**
-         * Ascending bucket bounds, in the unit of {@code value}; required by {@code histogram} and
-         * {@code percentile}. Kept as the literal text so the compiler preserves the declared numeric type.
+         * Ascending bucket bounds, in the unit of {@code value}; required by {@code percentile}. Kept as the literal
+         * text so the compiler preserves the declared numeric type.
          */
         private final List<String> buckets;
         private final List<String> ranks;

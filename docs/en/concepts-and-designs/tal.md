@@ -122,7 +122,7 @@ implicit `toString`; `as T` is the only conversion:
 | number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long` |
 | boolean and boolean, String and String, two values of one type | `==`, `!=` | equal values |
 | a value that can be absent and `null` | `==`, `!=` | a null check |
-| a value whose type is known only when the rule runs, such as a span attribute's value, and a string literal | `==`, `!=` | equal values |
+| a value whose type is known only when the rule runs, such as `event(...)`, and a string literal | `==`, `!=` | equal values |
 | anything else, such as `attr("x") > 400` or `meta.latency == "5"` | | a compile error naming both types |
 
 `attr(...)` returns a String, so `attr("http.response.status_code") as Integer >= 400` orders it as a number. An
@@ -224,9 +224,10 @@ an alarm rule or a dashboard widget written for `service_sla` ports to `otlp_ser
 
 `sink {}` persists the record the rule builds. A rule with an `outputType` needs one, and a `sink {}` in a rule with no
 `outputType` is a compile error. The record is written only when a `sink {}` ran, so `if (c) { sink {} }` writes it
-only for the spans where `c` holds. Its statements are LAL's: `sampler { rateLimit("<id>") { rpm <n> } }`,
-`dropper {}`, `enforcer {}` and `if`, run in the order they are written; they decide a record or a span, so they are a
-compile error anywhere but inside `sink {}` or `persist {}`. A `rateLimit` budget is shared by id across every rule
+only for the spans where `c` holds. Its statements are spelled as LAL's, `sampler { rateLimit("<id>") { rpm <n> } }`,
+`dropper {}`, `enforcer {}` and `if`, but they vote rather than overwrite one another, see
+[Differences from LAL](#differences-from-lal). They decide a record or a span, so they are a compile error anywhere but
+inside `sink {}` or `persist {}`. A `rateLimit` budget is shared by id across every rule
 and span: the first rule to use an id sets its `rpm`. An id unused for ten minutes is forgotten, and beyond 10,000
 ids the least recently used is forgotten too, which bounds the ids a `${...}` placeholder makes; an id forgotten and
 used again starts with a fresh budget. `enforcer {}` keeps the record whatever the rule's samplers say, before it or
@@ -330,7 +331,11 @@ The source of a client edge is always the span's own `service.name`; a span emit
 - `tag` injects into the stored span, not into a record.
 - `alias` and `resolveAlias` exist, see above.
 - `metrics {}` declares a metric and emits one value; it does not hand a sample to another engine.
-- `persist {}` is new and decides the span's own fate; `sink {}` keeps LAL's meaning and needs an `outputType`.
+- `persist {}` is new and decides the span's own fate. `sink {}` needs an `outputType`.
+- The statements in `sink {}` and `persist {}` vote: `dropper {}` wins over `enforcer {}`, and `enforcer {}` over the
+  samplers, in either order. In LAL every one of them overwrites the decision, so the last to run wins.
+- The record is written once, after the rule has run, when any `sink {}` ran and the votes keep it. A LAL rule writes
+  its output when its `sink {}` block ends.
 - Statements may be separated by `;` as well as by newlines, so a `metrics {}` block fits on one line.
 - `!` binds tighter than `&&` and `||`, as in Java: `!peer && hasAttr("x")` reads as `(!peer) && hasAttr("x")`.
 - More words are keywords: `persist`, `alias`, `scope`, `function`, `match`, `status`, `labelLimit`, `buckets`,

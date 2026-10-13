@@ -37,7 +37,7 @@ public final class TALMetricDeclaration {
      */
     public final String declaredName;
     /**
-     * The histogram or percentile bounds as declared, empty for other functions.
+     * The percentile bounds as declared, empty for other functions.
      */
     public final List<Long> buckets;
     /**

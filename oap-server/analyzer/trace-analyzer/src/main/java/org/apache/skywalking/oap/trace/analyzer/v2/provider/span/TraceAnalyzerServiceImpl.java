@@ -198,7 +198,8 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
     }
 
     /**
-     * Dispatch the record a rule with an {@code outputType} built, unless its sink dropped it.
+     * Dispatch the record a rule with an {@code outputType} built, when a {@code sink {}} of the rule ran and its
+     * votes kept the record.
      */
     private void writeRecord(final ExecutionContext ctx, final SpanMetadata meta, final Object span) {
         final TALOutputBuilder builder = ctx.outputAsBuilder();
