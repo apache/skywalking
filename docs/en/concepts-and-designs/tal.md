@@ -93,7 +93,7 @@ Attributes are reached through functions, all null-safe and returning `""` when 
 | `hasAttr(key, ...)` | whether any of the keys is present on the span |
 | `resource(key, ...)` | the same over the resource attributes: `resource("telemetry.sdk.language")` |
 | `scopeAttr(key, ...)` | the same over the instrumentation scope's attributes |
-| `event(name)` | the first span event with that name, or `null`: `event("exception")?.timeUnixNano` |
+| `event(name)` | the first span event with that name, or `null`: `event("exception") != null` |
 | `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
 | `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
 | `resolveAlias(address)` | the service an address names, see [Address-named peers](#address-named-peers); the address unchanged when none is known yet |
@@ -122,7 +122,7 @@ implicit `toString`; `as T` is the only conversion:
 | number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long` |
 | boolean and boolean, String and String, two values of one type | `==`, `!=` | equal values |
 | a value that can be absent and `null` | `==`, `!=` | a null check |
-| a value whose type is known only when the rule runs, such as `event(...)`, and a string literal | `==`, `!=` | equal values |
+| a value whose type is known only when the rule runs, such as `event(...)`, and a string literal | `==`, `!=` | equal values; an event never equals a string, so compare `event(...)` with `null` |
 | anything else, such as `attr("x") > 400` or `meta.latency == "5"` | | a compile error naming both types |
 
 `attr(...)` returns a String, so `attr("http.response.status_code") as Integer >= 400` orders it as a number. An
@@ -259,10 +259,10 @@ Two things follow from the span being the unit:
 
 ## Output Type
 
-A rule that declares `outputType` builds one record per span and writes it in `sink {}`, the way a LAL rule does.
-Every extractor statement whose name is not a keyword becomes a setter call on the record, validated at compile
-time; the standard fields `service`, `instance`, `endpoint` and `layer` are taken from `meta`, so the `service`
-statement names the record's service.
+A rule that declares `outputType` builds one record per span and writes it after the rule has run, when a `sink {}` ran
+and kept it, see [Sink](#sink). Every extractor statement whose name is not a keyword becomes a setter call on the
+record, validated at compile time; the standard fields `service`, `instance`, `endpoint` and `layer` are taken from
+`meta`, so the `service` statement names the record's service.
 
 - A `TALOutputBuilder` name, `SlowSQL` for the `DatabaseSlowStatement` record. Its fields are `id`, `statement` and
   `latency`; `traceId`, `timestamp` and `layer` come from `meta`. The record shows on the database's slow-statement

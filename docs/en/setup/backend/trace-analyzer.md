@@ -100,13 +100,14 @@ Two metrics read differently:
 - `*_resp_time`: a minute whose mean is above 0 but below 1 ms reads 1, the meter system's `avg`; `core.oal`'s
   `longAvg` reads 0.
 
-The `otlp_mq_access_*` and `otlp_mq_destination_*` metrics have no `core.oal` counterpart; the agent path's
-`mq_service_*` and `mq_endpoint_*` metrics measure the consuming service rather than the broker. The agent metrics
-without a TAL counterpart are not produced: the relation percentiles, every instance-relation metric
-(`service_instance_relation_*`, since the shipped rule builds no instance relation), the server-side relation metrics
-other than `cpm`, the endpoint relations, `database_access_percentile` and `cache_access_percentile`, the cache
-read and write split, and the consume-side MQ metrics `service_mq_consume_count`, `service_mq_consume_latency` and
-`endpoint_mq_consume_latency`.
+The `otlp_mq_access_*` and `otlp_mq_destination_*` metrics have no `core.oal` counterpart. The agent path's
+`mq_service_*` and `mq_endpoint_*` metrics also measure the broker and its topics and queues, but split into produce and
+consume, with the transmission latency as the consume latency; the TAL rule emits its MQ metrics only from CLIENT and
+PRODUCER spans and measures the span's duration. The agent metrics without a TAL counterpart are not produced: the
+relation percentiles, every instance-relation metric (`service_instance_relation_*`, since the shipped rule builds no
+instance relation), the server-side relation metrics other than `cpm`, the endpoint relations,
+`database_access_percentile` and `cache_access_percentile`, the cache read and write split, and the consume-side MQ
+metrics `service_mq_consume_count`, `service_mq_consume_latency` and `endpoint_mq_consume_latency`.
 
 The numbers follow the agent path's definitions:
 
