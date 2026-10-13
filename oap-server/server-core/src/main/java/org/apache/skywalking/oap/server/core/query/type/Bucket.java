@@ -52,6 +52,16 @@ public class Bucket {
         return this;
     }
 
+    public Bucket setMin(long min) {
+        this.min = String.valueOf(min);
+        return this;
+    }
+
+    public Bucket setMax(long max) {
+        this.max = String.valueOf(max);
+        return this;
+    }
+
     public Bucket infiniteMin() {
         this.min = INFINITE_NEGATIVE;
         return this;
@@ -77,6 +87,12 @@ public class Bucket {
         if (isInfiniteMax()) {
             return Integer.MAX_VALUE;
         }
-        return Integer.parseInt(this.max) - Integer.parseInt(this.min);
+        // Bounds are longs; a width beyond an int, as the overflow bucket's is, reads as the widest int.
+        try {
+            final long width = Math.subtractExact(Long.parseLong(this.max), Long.parseLong(this.min));
+            return (int) Math.max(Integer.MIN_VALUE, Math.min(Integer.MAX_VALUE, width));
+        } catch (final ArithmeticException e) {
+            return Integer.MAX_VALUE;
+        }
     }
 }

@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
@@ -125,6 +126,14 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         // CoreModule: the trace handler reaches SourceReceiver, NamingControl and SpanListenerManager through the
         // module manager, which is only legal for a declared dependency.
         final List<String> required = new ArrayList<>(List.of(SharingServerModule.NAME, StorageModule.NAME, CoreModule.NAME));
+        // TraceAnalyzerModule: the trace handler calls ITraceAnalyzerService per span, so the module must start
+        // before this one and every moduleManager.find needs it declared. It is declared only when the operator
+        // loaded it: with `trace-analyzer.selector: -` the handler finds no module and stores the spans without
+        // analysis, see OpenTelemetryTraceHandler.traceAnalyzerService. The manager is null only in unit tests,
+        // where the module is assumed present.
+        if (getManager() == null || getManager().has(TraceAnalyzerModule.NAME)) {
+            required.add(TraceAnalyzerModule.NAME);
+        }
         // The Zipkin mode of otlp-traces hands spans to receiver-zipkin's SpanForwardService; declaring it here makes
         // a boot without that module fail with the module system's own error instead of on the first export, while
         // the native mode keeps not needing it.

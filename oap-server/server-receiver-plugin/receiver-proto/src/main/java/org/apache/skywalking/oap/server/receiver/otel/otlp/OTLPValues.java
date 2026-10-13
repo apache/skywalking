@@ -18,7 +18,11 @@
 
 package org.apache.skywalking.oap.server.receiver.otel.otlp;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.common.v1.AnyValue;
 import io.opentelemetry.proto.common.v1.KeyValue;
@@ -26,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -82,6 +87,81 @@ public final class OTLPValues {
             keyValue -> render(keyValue.getValue()),
             (v1, v2) -> v1
         ));
+    }
+
+    /**
+     * The trace id fields of an OTLP/JSON trace body, spans and links, in the spec's lowerCamelCase and in the
+     * snake_case protobuf's parser also accepts; a trace id is 16 bytes, 32 hex characters.
+     */
+    private static final Set<String> JSON_TRACE_ID_FIELDS = Set.of("traceId", "trace_id");
+
+    /**
+     * The span id fields; a span id is 8 bytes, 16 hex characters.
+     */
+    private static final Set<String> JSON_SPAN_ID_FIELDS = Set.of(
+        "spanId", "parentSpanId", "span_id", "parent_span_id");
+
+    /**
+     * Rewrite the ids of an OTLP/JSON trace body from hex to base64, so protobuf's JSON parser reads them. OTLP/JSON
+     * encodes {@code traceId}, {@code spanId} and {@code parentSpanId} as hex, unlike the standard protobuf JSON
+     * mapping, which reads every {@code bytes} field as base64. Hex digits are base64 characters too, so the
+     * unconverted body parses without an error, into ids of the wrong length that match nothing the SDK logged and
+     * nothing a protobuf sender reports for the same trace.
+     *
+     * @param json an OTLP/JSON request body
+     * @return the body with every hex id field in base64; the body unchanged when it is not JSON, for the protobuf
+     * parser to reject
+     */
+    public static String hexIdsToBase64(final String json) {
+        final JsonElement root;
+        try {
+            root = JsonParser.parseString(json);
+        } catch (final JsonParseException e) {
+            return json;
+        }
+        rewriteHexIds(root);
+        return root.toString();
+    }
+
+    private static void rewriteHexIds(final JsonElement element) {
+        if (element.isJsonObject()) {
+            for (final Map.Entry<String, JsonElement> entry : element.getAsJsonObject().entrySet()) {
+                final JsonElement value = entry.getValue();
+                final int idLength = JSON_TRACE_ID_FIELDS.contains(entry.getKey()) ? 32
+                    : JSON_SPAN_ID_FIELDS.contains(entry.getKey()) ? 16 : 0;
+                if (idLength > 0 && value.isJsonPrimitive()) {
+                    final byte[] bytes = hexBytes(value.getAsString(), idLength);
+                    if (bytes != null) {
+                        entry.setValue(new JsonPrimitive(Base64.getEncoder().encodeToString(bytes)));
+                    }
+                } else {
+                    rewriteHexIds(value);
+                }
+            }
+        } else if (element.isJsonArray()) {
+            for (final JsonElement child : element.getAsJsonArray()) {
+                rewriteHexIds(child);
+            }
+        }
+    }
+
+    /**
+     * @return the bytes of a hex string of the id's length, or null for anything else, which is left for the parser
+     */
+    private static byte[] hexBytes(final String hex, final int length) {
+        if (hex.length() != length) {
+            return null;
+        }
+        final byte[] bytes = new byte[hex.length() / 2];
+        for (int i = 0; i < bytes.length; i++) {
+            final int high = Character.digit(hex.charAt(2 * i), 16);
+            final int low = Character.digit(hex.charAt(2 * i + 1), 16);
+            if (high < 0 || low < 0) {
+                return null;
+            }
+            bytes[i] = (byte) (high << 4 | low);
+        }
+        return bytes;
     }
 
     /**

@@ -254,5 +254,10 @@
   "telemetry.prometheus.sslEnabled": "false",
   "telemetry.prometheus.sslKeyPath": "",
   "telemetry.provider": "prometheus",
+  "trace-analyzer.default.dedupCapacity": "1000000",
+  "trace-analyzer.default.dedupWindow": "0",
+  "trace-analyzer.default.pairingSamplePercent": "25",
+  "trace-analyzer.default.talFiles": "otlp-default",
+  "trace-analyzer.provider": "default",
   "ui-management.provider": "default"
 }

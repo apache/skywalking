@@ -120,6 +120,7 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         // Same instance under both contracts: IMeterProcessService is the ingest-side view
         // (receiver + Kafka fetcher), MalConverterRegistry is the runtime-rule hot-update view.
         this.registerServiceImplementation(MalConverterRegistry.class, processService);
+        this.registerServiceImplementation(UninstrumentedGatewaysConfig.class, uninstrumentedGatewaysConfig);
     }
 
     @Override

@@ -1,0 +1,1030 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend-web"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "@opentelemetry/instrumentation-fetch",
+            "version": "0.222.0"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "af661e42aaf87e52",
+              "name": "GET",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1790586616980000000",
+              "endTimeUnixNano": "1790586616986000000",
+              "attributes": [
+                {
+                  "key": "http.request.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "url.full",
+                  "value": {
+                    "stringValue": "http://frontend-proxy:8080/api/cart?sessionId=b2ee6493-1acf-4ed7-a119-a54823fbe3d4&currencyCode=CHF"
+                  }
+                },
+                {
+                  "key": "demo.synthetic_request",
+                  "value": {
+                    "stringValue": "true"
+                  }
+                },
+                {
+                  "key": "http.response.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                },
+                {
+                  "key": "server.address",
+                  "value": {
+                    "stringValue": "frontend-proxy"
+                  }
+                },
+                {
+                  "key": "server.port",
+                  "value": {
+                    "intValue": "8080"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1790586616980200048",
+                  "name": "fetchStart"
+                },
+                {
+                  "timeUnixNano": "1790586616980200048",
+                  "name": "domainLookupStart"
+                },
+                {
+                  "timeUnixNano": "1790586616980200048",
+                  "name": "domainLookupEnd"
+                },
+                {
+                  "timeUnixNano": "1790586616980200048",
+                  "name": "connectStart"
+                },
+                {
+                  "timeUnixNano": "1790586616980200048",
+                  "name": "connectEnd"
+                },
+                {
+                  "timeUnixNano": "1790586616983200048",
+                  "name": "requestStart"
+                },
+                {
+                  "timeUnixNano": "1790586616985300048",
+                  "name": "responseStart"
+                },
+                {
+                  "timeUnixNano": "1790586616986000048",
+                  "name": "responseEnd"
+                }
+              ],
+              "status": {},
+              "flags": 257
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "2.11.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "next.js",
+            "version": "0.0.1"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "8ca6b094553a4b78",
+              "parentSpanId": "a3742b4865c8dfdd",
+              "name": "executing api route (pages) /api/cart",
+              "kind": "SPAN_KIND_INTERNAL",
+              "startTimeUnixNano": "1790586616983000000",
+              "endTimeUnixNano": "1790586616984250667",
+              "attributes": [
+                {
+                  "key": "next.span_category",
+                  "value": {
+                    "stringValue": "nextjs"
+                  }
+                },
+                {
+                  "key": "next.span_name",
+                  "value": {
+                    "stringValue": "executing api route (pages) /api/cart"
+                  }
+                },
+                {
+                  "key": "next.span_type",
+                  "value": {
+                    "stringValue": "Node.runHandler"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 257
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "2.11.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "@opentelemetry/instrumentation-http",
+            "version": "0.222.0"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "2f4151d22841a7ac",
+              "parentSpanId": "f813c55d12f5c856",
+              "name": "GET /api/cart",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1790586616983000000",
+              "endTimeUnixNano": "1790586616984620041",
+              "attributes": [
+                {
+                  "key": "http.request.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "url.scheme",
+                  "value": {
+                    "stringValue": "http"
+                  }
+                },
+                {
+                  "key": "server.address",
+                  "value": {
+                    "stringValue": "frontend-proxy"
+                  }
+                },
+                {
+                  "key": "network.peer.address",
+                  "value": {
+                    "stringValue": "172.19.0.21"
+                  }
+                },
+                {
+                  "key": "network.peer.port",
+                  "value": {
+                    "intValue": "51718"
+                  }
+                },
+                {
+                  "key": "network.protocol.version",
+                  "value": {
+                    "stringValue": "1.1"
+                  }
+                },
+                {
+                  "key": "url.path",
+                  "value": {
+                    "stringValue": "/api/cart"
+                  }
+                },
+                {
+                  "key": "url.query",
+                  "value": {
+                    "stringValue": "sessionId=b2ee6493-1acf-4ed7-a119-a54823fbe3d4&currencyCode=CHF"
+                  }
+                },
+                {
+                  "key": "client.address",
+                  "value": {
+                    "stringValue": "172.19.0.21"
+                  }
+                },
+                {
+                  "key": "server.port",
+                  "value": {
+                    "intValue": "8080"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/cart"
+                  }
+                },
+                {
+                  "key": "http.response.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                },
+                {
+                  "key": "original_span_name",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 769
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "2.11.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "next.js",
+            "version": "0.0.1"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "a3742b4865c8dfdd",
+              "parentSpanId": "2f4151d22841a7ac",
+              "name": "GET /api/cart",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1790586616983000000",
+              "endTimeUnixNano": "1790586616984490709",
+              "attributes": [
+                {
+                  "key": "next.span_category",
+                  "value": {
+                    "stringValue": "nextjs"
+                  }
+                },
+                {
+                  "key": "next.span_name",
+                  "value": {
+                    "stringValue": "GET /api/cart"
+                  }
+                },
+                {
+                  "key": "next.span_type",
+                  "value": {
+                    "stringValue": "BaseServer.handleRequest"
+                  }
+                },
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "http.target",
+                  "value": {
+                    "stringValue": "/api/cart?sessionId=b2ee6493-1acf-4ed7-a119-a54823fbe3d4&currencyCode=CHF"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                },
+                {
+                  "key": "next.rsc",
+                  "value": {
+                    "boolValue": false
+                  }
+                },
+                {
+                  "key": "next.route",
+                  "value": {
+                    "stringValue": "/api/cart"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/cart"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 257
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "nodejs"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "2.11.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "@opentelemetry/instrumentation-grpc",
+            "version": "0.222.0"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "9b7c80c844129810",
+              "parentSpanId": "8ca6b094553a4b78",
+              "name": "oteldemo.CartService/GetCart",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1790586616983000000",
+              "endTimeUnixNano": "1790586616984082042",
+              "attributes": [
+                {
+                  "key": "rpc.system",
+                  "value": {
+                    "stringValue": "grpc"
+                  }
+                },
+                {
+                  "key": "rpc.method",
+                  "value": {
+                    "stringValue": "GetCart"
+                  }
+                },
+                {
+                  "key": "rpc.service",
+                  "value": {
+                    "stringValue": "oteldemo.CartService"
+                  }
+                },
+                {
+                  "key": "server.address",
+                  "value": {
+                    "stringValue": "cart"
+                  }
+                },
+                {
+                  "key": "server.port",
+                  "value": {
+                    "intValue": "7070"
+                  }
+                },
+                {
+                  "key": "rpc.grpc.status_code",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "original_span_name",
+                  "value": {
+                    "stringValue": "grpc.oteldemo.CartService/GetCart"
+                  }
+                }
+              ],
+              "status": {},
+              "flags": 257
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "envoy"
+            }
+          },
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "b579d07d3ad7ee11d32b105e91a5a39ad24718d7/1.39.1/Clean/RELEASE/BoringSSL"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend-proxy"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "cpp"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "envoy",
+            "version": "b579d07d3ad7ee11d32b105e91a5a39ad24718d7/1.39.1/Clean/RELEASE/BoringSSL"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "d96dbd5649f3c14c",
+              "parentSpanId": "af661e42aaf87e52",
+              "name": "GET",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1790586616983336000",
+              "endTimeUnixNano": "1790586616985189000",
+              "attributes": [
+                {
+                  "key": "node_id",
+                  "value": {
+                    "stringValue": ""
+                  }
+                },
+                {
+                  "key": "zone",
+                  "value": {
+                    "stringValue": ""
+                  }
+                },
+                {
+                  "key": "guid:x-request-id",
+                  "value": {
+                    "stringValue": "19b18f1c-9705-9ff6-86c1-3cf20942f12b"
+                  }
+                },
+                {
+                  "key": "http.url",
+                  "value": {
+                    "stringValue": "http://frontend-proxy:8080/api/cart?sessionId=b2ee6493-1acf-4ed7-a119-a54823fbe3d4&currencyCode=CHF"
+                  }
+                },
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "downstream_cluster",
+                  "value": {
+                    "stringValue": "-"
+                  }
+                },
+                {
+                  "key": "http.protocol",
+                  "value": {
+                    "stringValue": "HTTP/1.1"
+                  }
+                },
+                {
+                  "key": "peer.address",
+                  "value": {
+                    "stringValue": "172.19.0.20"
+                  }
+                },
+                {
+                  "key": "request_size",
+                  "value": {
+                    "stringValue": "0"
+                  }
+                },
+                {
+                  "key": "response_size",
+                  "value": {
+                    "stringValue": "24"
+                  }
+                },
+                {
+                  "key": "component",
+                  "value": {
+                    "stringValue": "proxy"
+                  }
+                },
+                {
+                  "key": "upstream_cluster",
+                  "value": {
+                    "stringValue": "frontend"
+                  }
+                },
+                {
+                  "key": "upstream_cluster.name",
+                  "value": {
+                    "stringValue": "frontend"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "stringValue": "200"
+                  }
+                },
+                {
+                  "key": "response_flags",
+                  "value": {
+                    "stringValue": "-"
+                  }
+                },
+                {
+                  "key": "original_span_name",
+                  "value": {
+                    "stringValue": "ingress"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "critical"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "envoy"
+            }
+          },
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "b579d07d3ad7ee11d32b105e91a5a39ad24718d7/1.39.1/Clean/RELEASE/BoringSSL"
+            }
+          },
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "frontend-proxy"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "cpp"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "envoy",
+            "version": "b579d07d3ad7ee11d32b105e91a5a39ad24718d7/1.39.1/Clean/RELEASE/BoringSSL"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "f813c55d12f5c856",
+              "parentSpanId": "d96dbd5649f3c14c",
+              "name": "router frontend egress",
+              "kind": "SPAN_KIND_CLIENT",
+              "startTimeUnixNano": "1790586616983391000",
+              "endTimeUnixNano": "1790586616985173000",
+              "attributes": [
+                {
+                  "key": "http.protocol",
+                  "value": {
+                    "stringValue": "HTTP/1.1"
+                  }
+                },
+                {
+                  "key": "upstream_address",
+                  "value": {
+                    "stringValue": "172.19.0.19:8080"
+                  }
+                },
+                {
+                  "key": "peer.address",
+                  "value": {
+                    "stringValue": "172.19.0.19:8080"
+                  }
+                },
+                {
+                  "key": "component",
+                  "value": {
+                    "stringValue": "proxy"
+                  }
+                },
+                {
+                  "key": "upstream_cluster",
+                  "value": {
+                    "stringValue": "frontend"
+                  }
+                },
+                {
+                  "key": "upstream_cluster.name",
+                  "value": {
+                    "stringValue": "frontend"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "stringValue": "200"
+                  }
+                },
+                {
+                  "key": "response_flags",
+                  "value": {
+                    "stringValue": "-"
+                  }
+                }
+              ],
+              "status": {}
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.40.0"
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "cart"
+            }
+          },
+          {
+            "key": "service.instance.id",
+            "value": {
+              "stringValue": "15de09fb-117e-44bb-a048-b7640653f154"
+            }
+          },
+          {
+            "key": "service.namespace",
+            "value": {
+              "stringValue": "opentelemetry-demo"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "3.1.0"
+            }
+          },
+          {
+            "key": "service.criticality",
+            "value": {
+              "stringValue": "high"
+            }
+          },
+          {
+            "key": "telemetry.sdk.name",
+            "value": {
+              "stringValue": "opentelemetry"
+            }
+          },
+          {
+            "key": "telemetry.sdk.language",
+            "value": {
+              "stringValue": "dotnet"
+            }
+          },
+          {
+            "key": "telemetry.sdk.version",
+            "value": {
+              "stringValue": "1.19.1"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "Microsoft.AspNetCore"
+          },
+          "spans": [
+            {
+              "traceId": "8ea1b84b9616500487f7e886207a7fbe",
+              "spanId": "b518bc44dbb2cd32",
+              "parentSpanId": "9b7c80c844129810",
+              "name": "POST /oteldemo.CartService/GetCart",
+              "kind": "SPAN_KIND_SERVER",
+              "startTimeUnixNano": "1790586616984620500",
+              "endTimeUnixNano": "1790586616984899400",
+              "attributes": [
+                {
+                  "key": "http.request.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "server.address",
+                  "value": {
+                    "stringValue": "cart"
+                  }
+                },
+                {
+                  "key": "server.port",
+                  "value": {
+                    "intValue": "7070"
+                  }
+                },
+                {
+                  "key": "url.scheme",
+                  "value": {
+                    "stringValue": "http"
+                  }
+                },
+                {
+                  "key": "url.path",
+                  "value": {
+                    "stringValue": "/oteldemo.CartService/GetCart"
+                  }
+                },
+                {
+                  "key": "network.protocol.version",
+                  "value": {
+                    "stringValue": "2"
+                  }
+                },
+                {
+                  "key": "grpc.method",
+                  "value": {
+                    "stringValue": "/oteldemo.CartService/GetCart"
+                  }
+                },
+                {
+                  "key": "demo.cart.items.count",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "grpc.status_code",
+                  "value": {
+                    "stringValue": "0"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/oteldemo.CartService/GetCart"
+                  }
+                },
+                {
+                  "key": "http.response.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "timeUnixNano": "1790586616984667900",
+                  "name": "Fetch cart"
+                }
+              ],
+              "status": {},
+              "flags": 769
+            }
+          ]
+        }
+      ],
+      "schemaUrl": "https://opentelemetry.io/schemas/1.44.0"
+    }
+  ]
+}

@@ -73,6 +73,17 @@ public class MinFunctionTest {
     }
 
     @Test
+    public void testCombine() {
+        final MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        function.accept(meterEntity, LARGE_VALUE);
+        final MinFunction other = new MinFunctionInst();
+        other.accept(meterEntity, SMALL_VALUE);
+
+        function.combine(other);
+        assertThat(function.getValue()).isEqualTo(SMALL_VALUE);
+    }
+
+    @Test
     public void testCalculate() {
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), SMALL_VALUE);
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), LARGE_VALUE);

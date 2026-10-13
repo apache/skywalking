@@ -24,6 +24,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -87,8 +88,8 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
     @Override
     public final boolean combine(Metrics metrics) {
         AvgLabeledFunction longAvgMetrics = (AvgLabeledFunction) metrics;
-        summation.append(longAvgMetrics.summation);
-        count.append(longAvgMetrics.count);
+        summation.append(longAvgMetrics.summation, LabeledValueLimits.of(this, longAvgMetrics));
+        appendCounts(longAvgMetrics.count);
         return true;
     }
 
@@ -219,10 +220,19 @@ public abstract class AvgLabeledFunction extends Meter implements AcceptableValu
         decorate(entity);
         this.entityId = entity.id();
         this.serviceId = entity.serviceId();
-        this.summation.append(value);
+        this.summation.append(value, LabeledValueLimits.of(this));
         DataTable c = new DataTable();
         value.keys().forEach(key -> c.put(key, 1L));
-        this.count.append(c);
+        appendCounts(c);
+    }
+
+    /**
+     * Count only the label sets the summation kept, so a limit leaves the two tables with the same keys.
+     */
+    private void appendCounts(final DataTable counts) {
+        final DataTable kept = new DataTable();
+        counts.keys().stream().filter(summation::hasKey).forEach(key -> kept.put(key, counts.get(key)));
+        count.append(kept);
     }
 
     @Override

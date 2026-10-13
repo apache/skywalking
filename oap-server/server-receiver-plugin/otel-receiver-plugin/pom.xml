@@ -29,6 +29,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- TAL runs on every OTLP span before conversion and storage; see OpenTelemetryTraceHandler. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>trace-analyzer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.skywalking</groupId>
             <artifactId>receiver-proto</artifactId>

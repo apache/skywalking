@@ -66,8 +66,9 @@ public class OpenTelemetryTraceHTTPHandler {
         try {
             final ExportTraceServiceRequest.Builder builder =
                 ExportTraceServiceRequest.newBuilder();
+            // OTLP/JSON spells ids in hex, which protobuf's JSON mapping would read as base64.
             JsonFormat.parser().ignoringUnknownFields().merge(
-                request.contentUtf8(), builder);
+                OTLPValues.hexIdsToBase64(request.contentUtf8()), builder);
             final ExportTraceServiceResponse response = traceHandler.processExport(builder.build());
             // An empty response prints as `{}`, which is what this endpoint always answered before.
             return HttpResponse.of(

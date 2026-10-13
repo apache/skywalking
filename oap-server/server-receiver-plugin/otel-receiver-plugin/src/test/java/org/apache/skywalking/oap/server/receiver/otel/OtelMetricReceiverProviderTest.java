@@ -17,16 +17,38 @@
 
 package org.apache.skywalking.oap.server.receiver.otel;
 
+import java.util.Arrays;
 import java.util.List;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class OtelMetricReceiverProviderTest {
+    @Test
+    void requiresTheTraceAnalyzerOnlyWhenItIsLoaded() {
+        // `trace-analyzer.selector: -` is a legal way to store OTLP traces without analysis: the receiver must not
+        // demand a module the operator removed, and must still order itself after it when it is there.
+        final OtelMetricReceiverProvider provider = new OtelMetricReceiverProvider();
+        provider.newConfigCreator().onInitialized(new OtelMetricReceiverConfig());
+        final ModuleManager manager = mock(ModuleManager.class);
+        provider.setManager(manager);
+
+        when(manager.has(TraceAnalyzerModule.NAME)).thenReturn(false);
+        assertFalse(Arrays.asList(provider.requiredModules()).contains(TraceAnalyzerModule.NAME));
+
+        when(manager.has(TraceAnalyzerModule.NAME)).thenReturn(true);
+        assertTrue(Arrays.asList(provider.requiredModules()).contains(TraceAnalyzerModule.NAME));
+    }
+
     @Test
     void shouldRefuseSearchableTagsWithoutAScope() {
         final OtelMetricReceiverConfig config = new OtelMetricReceiverConfig();

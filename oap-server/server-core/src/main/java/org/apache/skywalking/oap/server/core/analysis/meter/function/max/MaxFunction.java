@@ -84,7 +84,7 @@ public abstract class MaxFunction extends Meter implements AcceptableValue<Long>
     public final boolean combine(Metrics metrics) {
         final MaxFunction maxFunction = (MaxFunction) metrics;
         if (this.value < maxFunction.getValue()) {
-            setValue(value);
+            setValue(maxFunction.getValue());
         }
         return true;
     }

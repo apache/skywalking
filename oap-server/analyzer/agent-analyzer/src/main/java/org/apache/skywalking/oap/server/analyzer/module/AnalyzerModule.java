@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.analyzer.module;
 
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
@@ -37,7 +38,9 @@ public class AnalyzerModule extends ModuleDefine {
             IMeterProcessService.class,
             // Lets the runtime-rule plugin hot-swap a single meter-analyzer-config rule.
             // Resolved by MalRuleEngine via moduleManager.find("agent-analyzer").
-            MalConverterRegistry.class
+            MalConverterRegistry.class,
+            // Read by the trace analyzer, whose alias rows honour the same gateways.
+            UninstrumentedGatewaysConfig.class
         };
     }
 }

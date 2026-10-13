@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTr
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.LabeledValueLimits;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.analysis.metrics.LabeledValueHolder;
@@ -75,13 +76,13 @@ public abstract class MinLabeledFunction extends Meter implements AcceptableValu
         decorate(entity);
         setEntityId(entity.id());
         setServiceId(entity.serviceId());
-        this.value.setMinValue(value);
+        this.value.setMinValue(value, LabeledValueLimits.of(this));
     }
 
     @Override
     public final boolean combine(Metrics metrics) {
         final MinLabeledFunction minLabeledFunction = (MinLabeledFunction) metrics;
-        this.value.setMinValue(minLabeledFunction.getValue());
+        this.value.setMinValue(minLabeledFunction.getValue(), LabeledValueLimits.of(this, minLabeledFunction));
         return true;
     }
 

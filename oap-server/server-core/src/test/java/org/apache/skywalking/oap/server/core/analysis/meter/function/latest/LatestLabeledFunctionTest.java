@@ -76,6 +76,17 @@ public class LatestLabeledFunctionTest {
     }
 
     @Test
+    public void testCombineKeepsTheLabelsTheIncomingValueDoesNotCarry() {
+        final MeterEntity meterEntity = MeterEntity.newService("service-test", Layer.GENERAL);
+        function.accept(meterEntity, new DataTable("200,1|500,1"));
+        final LatestLabeledFunction other = new LatestLabeledFunctionInst();
+        other.accept(meterEntity, new DataTable("500,7"));
+
+        function.combine(other);
+        assertThat(function.getValue()).isEqualTo(new DataTable("200,1|500,7"));
+    }
+
+    @Test
     public void testCalculate() {
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_1);
         function.accept(MeterEntity.newService("service-test", Layer.GENERAL), HTTP_CODE_COUNT_2);

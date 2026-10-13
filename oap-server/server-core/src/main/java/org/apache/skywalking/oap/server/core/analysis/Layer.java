@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  * <p>Layers are persisted by ordinal (int). The ordinal space is partitioned by tier so
  * each registration channel has a non-overlapping range:
  * <ul>
- *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..50} in
+ *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..55} in
  *       use; the rest of the range is reserved for future built-ins. Ordinals already
  *       persisted in storage are frozen forever and must never be reused.</li>
  *   <li>{@code 10_000 – 99_999} — boot-time external layers: {@code layer-extensions.yml},
@@ -306,6 +306,26 @@ public final class Layer {
      * over OTLP logs. The service is the agent runtime; the instance is the sender.
      */
     public static final Layer AI_AGENT = register("AI_AGENT", 51, true);
+
+    /**
+     * A service whose spans arrived over OTLP and were analyzed by TAL. Separate from GENERAL because the GENERAL
+     * dashboards read the core.oal metrics, which the span analysis does not produce. Conjectured peers of such a
+     * service get the OTLP_VIRTUAL_* layers below, so their lists and dashboards read the TAL metrics.
+     */
+    public static final Layer OTLP_SERVICE = register("OTLP_SERVICE", 52, true);
+
+    /**
+     * A database conjectured from the OTLP spans of its callers. Non-normal, like every conjectured layer: the
+     * normal flag is part of a service id, so a peer registered as normal would stop merging with the node the
+     * agent path conjectures for the same address.
+     */
+    public static final Layer OTLP_VIRTUAL_DATABASE = register("OTLP_VIRTUAL_DATABASE", 53, false);
+
+    /** A cache conjectured from the OTLP spans of its callers. */
+    public static final Layer OTLP_VIRTUAL_CACHE = register("OTLP_VIRTUAL_CACHE", 54, false);
+
+    /** A message broker conjectured from the OTLP spans of its producers and consumers. */
+    public static final Layer OTLP_VIRTUAL_MQ = register("OTLP_VIRTUAL_MQ", 55, false);
 
     private final String name;
     private final int value;
