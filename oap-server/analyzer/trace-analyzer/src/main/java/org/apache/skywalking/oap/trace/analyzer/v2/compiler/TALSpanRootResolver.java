@@ -30,8 +30,8 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccess
 
 /**
  * What TAL contributes to {@link TALValueCodegen}: the {@code span} and {@code meta} roots, the attribute
- * functions the semantic conventions are read through, and the two lookups a peer's name goes through,
- * {@code component} and {@code resolveAlias}.
+ * functions the semantic conventions are read through, and the lookups a peer's name goes through,
+ * {@code component}, {@code resolveAlias} and {@code isGateway}.
  *
  * <p>The entity constructors are function calls too, but they are not resolved here: only a {@code def} or a
  * {@code scope} may hold one, so {@link TALBlockCodegen} recognizes them by name where they are legal, and
@@ -93,7 +93,8 @@ public class TALSpanRootResolver implements TALRootResolver {
             sb.append(asArray ? "})" : ")");
             return true;
         }
-        if ("component".equals(name) || "resolveAlias".equals(name) || "urlHost".equals(name)) {
+        if ("component".equals(name) || "resolveAlias".equals(name) || "urlHost".equals(name)
+            || "isGateway".equals(name)) {
             requireKeys(value, name, 1, 1);
             sb.append("h.").append(name).append("(");
             TALValueCodegen.generateStringValueAccess(
@@ -134,7 +135,7 @@ public class TALSpanRootResolver implements TALRootResolver {
         if (STRING_FUNCTIONS.contains(functionName)) {
             return ExprType.STRING;
         }
-        if ("hasAttr".equals(functionName)) {
+        if ("hasAttr".equals(functionName) || "isGateway".equals(functionName)) {
             return ExprType.BOOLEAN;
         }
         if ("eventAttr".equals(functionName) || "resolveAlias".equals(functionName)

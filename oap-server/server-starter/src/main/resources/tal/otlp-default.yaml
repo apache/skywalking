@@ -136,6 +136,13 @@ rules:
                 def dialed = addr + ":" + port
               }
               alias dialed
+              // A callee dialed at an address listed in gateways.yml was reached through that gateway, so the call
+              // comes from the gateway, as the agent path draws it. The address only arrives here when the gateway
+              // passes its callers' Host through; one that rewrites it to the upstream's draws no such edge.
+              if (!meta.root && isGateway(dialed)) {
+                def fromGateway = serviceRelation(SERVER, dialed, "VIRTUAL_GATEWAY", meta.service, meta.layer, comp)
+                metrics { name "service_relation_server_cpm"; scope fromGateway; function cpm; value 1 }
+              }
             }
             // A root span was called from outside the fleet, which the agent path draws as `User`.
             if (meta.root) {
@@ -170,8 +177,11 @@ rules:
               def peer = urlHost(attr("url.full", "http.url"))
             }
             // A peer whose host names a service, or that some SERVER span registered through `alias`, resolves to
-            // that service, so the edge lands on the callee's own node instead of one named by the address.
-            def peer = resolveAlias(peer)
+            // that service, so the edge lands on the callee's own node instead of one named by the address. A peer
+            // listed in gateways.yml stays the gateway's own node, so the call reads caller, gateway, callee.
+            if (!isGateway(peer)) {
+              def peer = resolveAlias(peer)
+            }
             // A peer reached without an address, an embedded database or a broker the JMS API hides, is named
             // after what the span does know: the database system and its namespace, or the messaging system alone,
             // with the destination carried as an endpoint of that node below. Neither is an address, so the alias
@@ -188,6 +198,9 @@ rules:
             }
             if (peer) {
               def peerLayer = "OTLP_SERVICE"
+              if (isGateway(peer)) {
+                def peerLayer = "VIRTUAL_GATEWAY"
+              }
               def comp = component("http")
               if (hasAttr("rpc.system.name", "rpc.system")) {
                 def rpcSystem = attr("rpc.system.name", "rpc.system")

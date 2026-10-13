@@ -341,6 +341,43 @@ class TALExecutionTest {
         }
     }
 
+    @Test
+    void theShippedRuleDrawsAGatewayBetweenTheCallerAndTheCallee() throws Exception {
+        filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
+        final TalExpression rule = compileShipped("otlp-service", "tal_exec_gateway");
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String frontend = IDManager.ServiceID.buildId("frontend", true);
+
+        execute(rule, clientSpan(),
+            new TestSpanInput().attribute("server.address", "ingress").attribute("server.port", "80"));
+        assertEquals(1, traffic.stream().filter(ServiceRelationClientSideMetrics.class::isInstance)
+            .map(ServiceRelationClientSideMetrics.class::cast)
+            .filter(r -> frontend.equals(r.getSourceServiceId()) && gateway.equals(r.getDestServiceId()))
+            .count(), "the caller's edge ends on the gateway: " + traffic);
+        assertTrue(traffic.stream().filter(ServiceTraffic.class::isInstance).map(ServiceTraffic.class::cast)
+            .anyMatch(r -> "ingress:80".equals(r.getName()) && r.getLayer() == Layer.VIRTUAL_GATEWAY),
+            "the gateway is a VIRTUAL_GATEWAY service, as the agent path lists it: " + traffic);
+
+        traffic.clear();
+        final SpanMetadata called = clientSpan();
+        called.setKind(SpanMetadata.KIND_SERVER);
+        execute(rule, called,
+            new TestSpanInput().attribute("server.address", "ingress").attribute("server.port", "80"));
+        assertEquals(1, traffic.stream().filter(ServiceRelationServerSideMetrics.class::isInstance)
+            .map(ServiceRelationServerSideMetrics.class::cast)
+            .filter(r -> gateway.equals(r.getSourceServiceId()) && frontend.equals(r.getDestServiceId()))
+            .count(), "the callee's edge starts from the gateway: " + traffic);
+        assertTrue(received.isEmpty(), "a gateway's address is never an alias: " + received);
+
+        // A root span was not called through the gateway as far as the trace knows; it is User's, as on the agent path.
+        traffic.clear();
+        execute(rule, serverSpan(),
+            new TestSpanInput().attribute("server.address", "ingress").attribute("server.port", "80"));
+        assertEquals(0, traffic.stream().filter(ServiceRelationServerSideMetrics.class::isInstance)
+            .map(ServiceRelationServerSideMetrics.class::cast)
+            .filter(r -> gateway.equals(r.getSourceServiceId())).count(), traffic.toString());
+    }
+
     /**
      * @param metricPrefix a prefix of the calling test's own, for the reason {@link #compile} gives
      */

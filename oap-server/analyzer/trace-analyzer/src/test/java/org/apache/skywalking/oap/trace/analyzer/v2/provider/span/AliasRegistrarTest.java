@@ -20,9 +20,6 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
-import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.ISource;
@@ -37,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * The guards a fleet that mixes SkyWalking agents and OpenTelemetry SDKs needs, since both paths write the same
@@ -73,28 +69,20 @@ class AliasRegistrarTest {
     }
 
     @Test
-    void aRowTheAgentPathKeepsWritingIsNotOverwritten() {
-        // An agent-instrumented proxy owns its address; the OTel service behind it sees the same Host.
-        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
-        when(cache.get("10.0.0.5:80")).thenReturn(row("10.0.0.5:80", "nginx", NOW));
-        when(cache.get("old-proxy:80")).thenReturn(row("old-proxy:80", "old-proxy", NOW - 20 * 60_000L));
-        registrar.setAliasCache(cache);
-
-        assertFalse(registrar.register("10.0.0.5:80", "frontend", true, "", NOW), "the agent's live row stands");
-        assertTrue(registrar.register("10.0.0.5:80", "nginx", true, "", NOW), "the same service may refresh it");
-        assertTrue(registrar.register("old-proxy:80", "frontend", true, "", NOW),
-            "a row nobody wrote for twenty minutes is free");
-
-        known.record("nginx");
-        assertTrue(registrar.register("10.0.0.5:80", "frontend", true, "", NOW),
-            "a service that sends OTLP spans is this path's own row, last writer wins as on the agent path");
+    void theLastWriteWinsAsOnTheAgentPath() {
+        // A pod IP that moved from cart to ad is rewritten, whatever service this node has seen spans from.
+        assertTrue(registrar.register("10.0.0.7:8080", "cart", true, "", NOW));
+        assertTrue(registrar.register("10.0.0.7:8080", "ad", true, "", NOW));
+        assertEquals(2, rows.size(), "both writes go out: " + rows);
+        assertEquals(IDManager.ServiceID.buildId("ad", true), rows.get(1).getRepresentServiceId());
     }
 
-    private static NetworkAddressAlias row(final String address, final String service, final long lastWrite) {
-        final NetworkAddressAlias row = new NetworkAddressAlias();
-        row.setAddress(address);
-        row.setRepresentServiceId(IDManager.ServiceID.buildId(service, true));
-        row.setLastUpdateTimeBucket(TimeBucket.getMinuteTimeBucket(lastWrite));
-        return row;
+    @Test
+    void noAddressIsAGatewayWithoutTheAgentAnalyzer() {
+        assertFalse(registrar.isGateway("ingress:80"));
+        registrar.setGateways("ingress:80"::equals);
+        assertTrue(registrar.isGateway("ingress"));
+        assertFalse(registrar.isGateway(""));
+        assertFalse(registrar.isGateway("frontend:8080"));
     }
 }

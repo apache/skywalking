@@ -25,7 +25,6 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGa
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
-import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
@@ -122,7 +121,6 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         final ModuleServiceHolder core = getManager().find(CoreModule.NAME).provider();
         final AliasRegistrar aliasRegistrar = new AliasRegistrar(
             core.getService(SourceReceiver.class), core.getService(NamingControl.class), this.knownServices);
-        aliasRegistrar.setAliasCache(core.getService(NetworkAddressAliasCache.class));
         if (getManager().has(AnalyzerModule.NAME)) {
             aliasRegistrar.setGateways(getManager().find(AnalyzerModule.NAME).provider()
                                                    .getService(UninstrumentedGatewaysConfig.class)
@@ -174,8 +172,9 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         // consults the override resolvers while loading the static rules.
         final List<String> required = new ArrayList<>(
             List.of(CoreModule.NAME, ConfigurationModule.NAME, StorageModule.NAME));
-        // The agent analyzer owns gateways.yml, which the alias guard reads; it is declared only when loaded, so the
-        // guard is simply off with `agent-analyzer.selector: -`. The manager is null only in unit tests.
+        // The agent analyzer owns gateways.yml, which the alias guard and the rules' isGateway read; it is declared
+        // only when loaded, so no address is a gateway with `agent-analyzer.selector: -`. The manager is null only in
+        // unit tests.
         if (getManager() != null && getManager().has(AnalyzerModule.NAME)) {
             required.add(AnalyzerModule.NAME);
         }

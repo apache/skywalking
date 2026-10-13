@@ -97,6 +97,7 @@ Attributes are reached through functions, all null-safe and returning `""` when 
 | `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
 | `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
 | `resolveAlias(address)` | the service an address names, see [Address-named peers](#address-named-peers); the address unchanged when none is known yet |
+| `isGateway(address)` | whether the address is listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md), matched exactly, a bare host at port 80; always false when the `agent-analyzer` module is not loaded. Its limits are listed under [Address-named peers](#address-named-peers) |
 | `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not. For a client that names its target only as `url.full` or `http.url` |
 | `toJson(expr)`, `toJsonArray(expr)` | as in LAL |
 
@@ -296,6 +297,27 @@ Two guards keep an alias honest. An address whose host names another service is 
 keeps the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's.
 And `resolveAlias` asks the known-service registry before the cache, so a row that did get through cannot redirect
 an edge away from a service that exists under that name.
+
+An address listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) is
+never registered either, by `alias` or by a pair. The shipped rule does not resolve such a peer: when `isGateway` says
+it is one, the gateway stays a `VIRTUAL_GATEWAY` node of its own, as on the agent path, which the caller's edge ends on
+and the callee's edge starts from. `isGateway` has these limits:
+
+- It matches the address exactly as `gateways.yml` lists it, `host:port`, with a bare host tried at port 80, the port
+  the file assumes for an instance that names none. Nothing is resolved or folded the way `resolveAlias` does it: a
+  gateway listed as `ingress:80` is not `ingress.default.svc.cluster.local:80`, `10.0.0.5:80` or `ingress:443`, so
+  every spelling and port the callers dial has to be listed.
+- A peer named by `service.peer.name` is a name, not an address, and is a gateway only if that name is listed as a
+  host at port 80.
+- The callee's SERVER span sees the gateway's address only when the gateway passes its callers' `Host` through, or
+  sets `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to the upstream's still ends
+  its callers' edges, but no edge leaves it; see [Topology](../setup/backend/trace-analyzer.md#topology) in the
+  operator guide. A root SERVER span draws no edge from the gateway either: the trace context says nobody called
+  it, so its call is `User`'s, as on the agent path.
+- The shipped rule draws a listed peer as a gateway for any CLIENT span except a database or messaging one, gRPC
+  included. The agent path does that for HTTP exit spans only.
+- It is always false when the `agent-analyzer` module is not loaded, since that module owns `gateways.yml`. A change
+  made through [dynamic configuration](../setup/backend/dynamic-config.md) applies to the next span.
 
 The source of a client edge is always the span's own `service.name`; a span emitted under a pseudo-service named after a backend, as HotROD's `mysql` spans are, is described under [Topology](../setup/backend/trace-analyzer.md#topology) in the operator guide.
 

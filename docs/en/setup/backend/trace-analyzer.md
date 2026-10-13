@@ -151,12 +151,16 @@ first calls to a freshly seen address are address-named until the alias row has 
 one persistence period (`core.default.persistentPeriod`, 25 s by default) for the row to be stored, plus the 10 s
 cache reload, so about 35 s. The topology query folds those.
 
-In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs, both paths write the same alias rows, and the
-analyzer keeps two of the agent path's rules. An address listed in the agent analyzer's
-[uninstrumented gateways](uninstrumented-gateways.md) is never registered as an alias; that guard is off when the
-`agent-analyzer` module is not loaded. A row that the agent path keeps writing for a service that sends no OTLP
-spans, an agent-instrumented proxy among them, is not overwritten by the OpenTelemetry service behind it; the row is
-the analyzer's to replace once it has not been written for ten minutes.
+In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs, both paths write the same alias rows, and as on the
+agent path the last write wins. An address listed in the agent analyzer's [uninstrumented
+gateways](uninstrumented-gateways.md) is never registered as an alias, and the shipped rule draws it the way the agent
+path does, as a `VIRTUAL_GATEWAY` node between the caller and the callee: a CLIENT span that dials it ends its edge on
+the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. A proxy that
+passes its callers' address through to the service behind it belongs in that file, instrumented or not; otherwise that
+service registers the proxy's address as its own. The callee sees the gateway's address only when the gateway passes its
+callers' `Host` through, or sets `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to the
+upstream's, as nginx's `proxy_pass` and Kong do by default, still ends its callers' edges but draws no edge to the
+service behind it. With the `agent-analyzer` module not loaded, no address is a gateway.
 
 In a cluster the pairing routes the facts of a trace to the node that owns it, through the same channel the metrics
 use, so the two spans of a call meet wherever each arrived. In a Receiver/Aggregator deployment the owners are the

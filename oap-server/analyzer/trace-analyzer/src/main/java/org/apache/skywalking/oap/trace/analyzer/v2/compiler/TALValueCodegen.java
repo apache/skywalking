@@ -289,7 +289,9 @@ public final class TALValueCodegen {
      * marker instead of throwing, which the comparison helpers read as false.
      */
     private static Operand operand(final TALValueAccess value, final String cast, final TALGenCtx genCtx) {
-        final String source = value.toPathString() + (cast == null ? "" : " as " + cast);
+        final String path = value.isStringLiteral() && value.getChain().isEmpty()
+            ? "\"" + value.toPathString() + "\"" : value.toPathString();
+        final String source = path + (cast == null ? "" : " as " + cast);
         if (cast == null && value.getParenInner() != null && value.getParenCast() != null
             && value.getChain().isEmpty() && value.getConcatParts().isEmpty()) {
             // `(x as Integer)` on its own is the same conversion as `x as Integer`.

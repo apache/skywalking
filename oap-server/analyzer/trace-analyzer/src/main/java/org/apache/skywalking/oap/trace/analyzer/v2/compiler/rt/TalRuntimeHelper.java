@@ -343,6 +343,18 @@ public class TalRuntimeHelper {
         return learned != null ? learned : address;
     }
 
+    /**
+     * {@code isGateway(address)} — whether the address is listed in the agent analyzer's {@code gateways.yml}, so a
+     * rule can draw the gateway between a caller and the service behind it as the agent path does. Always false
+     * when the agent analyzer is not loaded.
+     *
+     * @param address {@code host} or {@code host:port}; a bare host is matched at port 80
+     * @return whether the address is an uninstrumented gateway
+     */
+    public boolean isGateway(final String address) {
+        return spec.getAliasRegistrar().isGateway(address);
+    }
+
     private String cachedAlias(final String address) {
         try {
             if (aliasCache == null) {
