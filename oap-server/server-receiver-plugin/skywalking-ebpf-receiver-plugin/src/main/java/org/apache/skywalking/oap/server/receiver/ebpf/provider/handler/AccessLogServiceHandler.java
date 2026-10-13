@@ -521,13 +521,14 @@ public class AccessLogServiceHandler extends EBPFAccessLogServiceGrpc.EBPFAccess
         }
 
         public long parseMinuteTimeBucket(EBPFTimestamp timestamp) {
-            final long seconds = bootTime.getSeconds() + TimeUnit.NANOSECONDS.toSeconds(timestamp.getOffset().getOffset());
-            return TimeBucket.getMinuteTimeBucket(seconds * 1000);
+            return TimeBucket.getMinuteTimeBucket(parseTimestamp(timestamp));
         }
 
+        // bootTime + offset(ns since boot) → epoch millis; do not truncate offset to whole seconds
         public long parseTimestamp(EBPFTimestamp timestamp) {
-            return TimeUnit.SECONDS.toMillis(bootTime.getSeconds() +
-                TimeUnit.NANOSECONDS.toSeconds(timestamp.getOffset().getOffset()));
+            return java.time.Instant.ofEpochSecond(bootTime.getSeconds(), bootTime.getNanos())
+                .plusNanos(timestamp.getOffset().getOffset())
+                .toEpochMilli();
         }
 
         public boolean shouldExcludeNamespace(String namespace) {
