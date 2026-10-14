@@ -54,7 +54,8 @@ public class ProcessRegistry {
         // remove port
         String ip = StringUtils.substringBeforeLast(remoteAddress, ":");
 
-        // find remote through k8s metadata
+        // find remote through k8s metadata, read together and waited for one timeout at most
+        K8sInfoRegistry.getInstance().readPodAndServiceByIP(ip);
         ObjectID metadata = K8sInfoRegistry.getInstance().findPodByIP(ip);
         if (metadata == ObjectID.EMPTY) {
             metadata = K8sInfoRegistry.getInstance().findServiceByIP(ip);

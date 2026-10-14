@@ -22,7 +22,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import org.apache.skywalking.library.kubernetes.ObjectID;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
 import org.apache.skywalking.oap.meter.analyzer.v2.k8s.K8sInfoRegistry;
 
@@ -33,6 +36,16 @@ public enum K8sRetagType implements Retag {
                                 final String newLabelName,
                                 final String existingLabelName,
                                 final String namespaceLabelName) {
+            // The pods are read together, waited for one timeout at most in all; the lookups below do not wait.
+            final Set<ObjectID> pods = new LinkedHashSet<>();
+            Arrays.stream(ss).forEach(sample -> {
+                final String podName = sample.getLabels().get(existingLabelName);
+                final String namespace = sample.getLabels().get(namespaceLabelName);
+                if (!Strings.isNullOrEmpty(podName) && !Strings.isNullOrEmpty(namespace)) {
+                    pods.add(ObjectID.builder().namespace(namespace).name(podName).build());
+                }
+            });
+            K8sInfoRegistry.getInstance().readServicesOfPods(pods);
             return Arrays.stream(ss).map(sample -> {
                 String podName = sample.getLabels().get(existingLabelName);
                 String namespace = sample.getLabels().get(namespaceLabelName);

@@ -61,8 +61,8 @@ public class K8sALSServiceMeshHTTPAnalysis extends AbstractALSAnalyzer {
     @SneakyThrows
     public void init(ModuleManager manager, EnvoyMetricReceiverConfig config) {
         this.config = config;
-        k8sServiceRegistry = new K8SServiceRegistry(config);
-        istioServiceRegistry = new IstioServiceEntryRegistry(config);
+        k8sServiceRegistry = K8SServiceRegistry.sharedFor(config);
+        istioServiceRegistry = IstioServiceEntryRegistry.sharedFor(config);
     }
 
     @Override

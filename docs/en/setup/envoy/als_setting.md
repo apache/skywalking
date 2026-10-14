@@ -84,7 +84,48 @@ result, it stops the loop.
 
 ### `k8s-mesh`
 
-`k8s-mesh` uses the metadata from Kubernetes clusters, hence in this analyzer, OAP needs access roles to `Pod`, `Service`, and `Endpoints`.
+`k8s-mesh` uses the metadata from Kubernetes clusters, hence in this analyzer, OAP needs access roles to `Pod`, `Service`, `Endpoints` and `Node`,
+and to Istio `ServiceEntry` when Istio is installed.
+
+#### How the Kubernetes metadata is read and cached
+
+The metadata is read from the Kubernetes API server in the background, so analyzing an access log never waits for it.
+Two reader lanes run one read at a time each: one for the first reads MAL waits for (see `retagByK8sMeta` in
+[MAL](../../concepts-and-designs/mal.md#retagbyk8smeta)), and one for every other read, including all reads again. A key,
+such as an IP, has one pending read at most, shared by its lookups in either lane. The HTTP and TCP access log analyzers
+share their lookups. An IP seen for the first time is analyzed as unknown while it is read, and the access logs after the
+read are analyzed with what it found.
+
+| Read result | The lookup gets | Read again from the API server | Dropped |
+|---|---|---|---|
+| Data found | the data | in the background, on the first use `k8sMetadataRefreshPeriod` (3 minutes) after it was written | `k8sMetadataCacheTime` (21 minutes) after it was last written |
+| Nothing found, such as for an IP outside the cluster | unknown | on the first use `k8sMetadataNotFoundRetryPeriod` (1 minute) after it was written | the same |
+| A failed read, such as for a 403, a 5xx or the API server not answering | unknown | on the first use `k8sMetadataRefreshPeriod` (3 minutes) after it failed | the same |
+| Not queued, as the lane's queue is full | unknown | on the next lookup | not cached |
+
+- A read again that returns data, the same or not, writes it again. A read again of data that finds nothing or fails does
+  not: the data is kept, read again on the first use `k8sMetadataRefreshPeriod` later, and dropped
+  `k8sMetadataCacheTime` after it was last written, unless a read again finds data. A read again of an entry without
+  data writes what it finds, or that it failed.
+- The lists the reads match against, of all endpoints, services, nodes and ServiceEntries, are read again once three
+  minutes old. A pod not in the endpoints read may be newer than them, so they are read again for it when they are older
+  than `k8sMetadataNotFoundRetryPeriod`. A list read that fails keeps the list read before; with none, the failure is
+  kept, so the reads needing the list fail without reading it. A resource the API server does not serve, such as
+  ServiceEntries without Istio, is an empty list. After a failure or such a 404, the list is not read again for three
+  minutes, even for a pod not in it. Without the nodes, such as without the permission to
+  list them, no IP is taken for a node's.
+- Lookup reads are sent without the Kubernetes client's retries, so a failing read holds the reads queued behind it for
+  a single attempt, up to the client's timeouts, instead of through the client's retries and backoff.
+
+All are set in `core.default`: `k8sMetadataRefreshPeriod` (`SW_CORE_K8S_METADATA_REFRESH_PERIOD`) and
+`k8sMetadataNotFoundRetryPeriod` (`SW_CORE_K8S_METADATA_NOT_FOUND_RETRY_PERIOD`) in minutes; `k8sMetadataCacheTime`
+(`SW_CORE_K8S_METADATA_CACHE_TIME`) per cache, as `als=<minutes>,mal=<minutes>`, `als` for these lookups and `mal` for
+MAL and the eBPF access log; and `k8sMetadataReadQueueSize` (`SW_CORE_K8S_METADATA_READ_QUEUE_SIZE`, no limit by
+default), the most reads waiting at once per lane, as `als=<size>,mal=<size>`, whose refused reads are summarized at WARN.
+
+A failed read, such as for a missing permission, is logged as one ERROR line naming the failing reads a minute after the
+first failure, then every five minutes while it lasts; a resource the API server does not serve is not logged.
+ServiceEntry hostnames that fail to resolve are summarized the same way at WARN.
 
 The [blog](https://skywalking.apache.org/blog/2020-12-03-obs-service-mesh-with-sw-and-als/) illustrates the details of how it works and a step-by-step tutorial to apply it to the `bookinfo` application.
 

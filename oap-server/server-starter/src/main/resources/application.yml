@@ -149,6 +149,22 @@ core:
     maxHeapMemoryUsagePercent: ${SW_CORE_MAX_HEAP_MEMORY_USAGE_PERCENT:96}
     # The long value of the max direct memory usage. The default max value is -1, representing no limit. The unit is in bytes.
     maxDirectMemoryUsage: ${SW_CORE_MAX_DIRECT_MEMORY_USAGE:-1}
+    # How long, in milliseconds, one MAL lookup step of Kubernetes metadata, such as one retagByK8sMeta over the samples of a metric, waits in all
+    # for metadata not read from the API server yet. The rest keeps being read in the background, for the next data. Keep it under the timeout of
+    # the sender, such as the 5 seconds of the OpenTelemetry Collector's OTLP exporter, which sends the data again when it times out.
+    malMetadataReadTimeout: ${SW_CORE_MAL_METADATA_READ_TIMEOUT:2000}
+    # How long, in minutes, cached Kubernetes metadata is kept after it was last written, per cache, as als=<minutes>,mal=<minutes>: als for Envoy ALS,
+    # mal for MAL and the eBPF access log. Each is longer than k8sMetadataRefreshPeriod.
+    k8sMetadataCacheTime: ${SW_CORE_K8S_METADATA_CACHE_TIME:"als=21,mal=21"}
+    # How long, in minutes, cached Kubernetes metadata is used before it is read again from the API server, on its next use, and a failed read waits
+    # before it is retried.
+    k8sMetadataRefreshPeriod: ${SW_CORE_K8S_METADATA_REFRESH_PERIOD:3}
+    # How long, in minutes, a Kubernetes metadata lookup that found nothing, such as for a pod too new for the lists read, is used before it is read
+    # again, on its next use.
+    k8sMetadataNotFoundRetryPeriod: ${SW_CORE_K8S_METADATA_NOT_FOUND_RETRY_PERIOD:1}
+    # The most Kubernetes metadata reads waiting at once per lane, as als=<size>,mal=<size>: als for Envoy ALS, the eBPF access log and every read again,
+    # mal for the MAL lookups, which wait. A lane left out, or -1, has no limit. The waiting reads are of distinct keys, such as IPs.
+    k8sMetadataReadQueueSize: ${SW_CORE_K8S_METADATA_READ_QUEUE_SIZE:""}
 storage:
   selector: ${SW_STORAGE:banyandb}
   banyandb:

@@ -18,134 +18,208 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.k8s;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
-import lombok.SneakyThrows;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesReadFailedException;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.LookupCache;
 import org.apache.skywalking.library.kubernetes.ObjectID;
+import org.apache.skywalking.oap.server.core.config.K8sMetadataReadSettings;
 
-import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Resolves pods and services for MAL and the eBPF access log. No lookup waits: a key not read yet is found by a later
+ * lookup, as it is read in the background. A MAL step waits instead, before its lookups, with
+ * {@link #readServicesOfPods} or {@link #readPodAndServiceByIP}: they queue the reads of all its keys not read yet,
+ * then wait for them up to {@link K8sMetadataReadSettings#getMalReadTimeoutMillis()} in all, so the step waits that
+ * long at most however many keys it has, and whatever happens to their reads meanwhile. The lookups MAL makes queue
+ * their reads in the lane of the reads waited for; those ending in {@code WithoutWait}, for the eBPF access log, in the
+ * other lane.
+ */
 public class K8sInfoRegistry {
     private final static K8sInfoRegistry INSTANCE = new K8sInfoRegistry();
-    private final LoadingCache<ObjectID /* Pod */, ObjectID /* Service */> podServiceMap;
-    private final LoadingCache<String/* podIP */, ObjectID /* Pod */> ipPodMap;
-    private final LoadingCache<String/* serviceIP */, ObjectID /* Service */> ipServiceMap;
+    private final LookupCache<ObjectID /* Pod */, ObjectID /* Service */> podServiceMap;
+    private final LookupCache<String/* podIP */, ObjectID /* Pod */> ipPodMap;
+    private final LookupCache<String/* serviceIP */, ObjectID /* Service */> ipServiceMap;
 
     private K8sInfoRegistry() {
-        ipPodMap = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(3))
-            .build(CacheLoader.from(ip -> KubernetesPods.INSTANCE
-                .findByIP(ip)
-                .map(it -> ObjectID
+        ipPodMap = newCache(ip -> KubernetesPods.INSTANCE
+            .findByIP(ip)
+            .map(it -> ObjectID
+                .builder()
+                .name(it.getMetadata().getName())
+                .namespace(it.getMetadata().getNamespace())
+                .build())
+            .orElse(null));
+        ipServiceMap = newCache(ip -> findServiceByIP(KubernetesServices.INSTANCE.list(), ip)
+            .or(() -> findServiceByIP(
+                KubernetesServices.INSTANCE.list(K8sMetadataReadSettings.getNotFoundRetryPeriod()), ip))
+            .orElse(null));
+        podServiceMap = newCache(this::readServiceOfPod);
+    }
+
+    private static <K> LookupCache<K, ObjectID> newCache(final Function<K, ObjectID> reader) {
+        return new LookupCache<>(
+            reader, K8sMetadataReadSettings.getRefreshPeriod(), K8sMetadataReadSettings.getNotFoundRetryPeriod(),
+            K8sMetadataReadSettings.getMalCacheTime(),
+            K8sMetadataReadSettings::getMalReadQueueSize, K8sMetadataReadSettings::getAlsReadQueueSize
+        );
+    }
+
+    /**
+     * Runs in the background. A pod matching no service in the services read may be of a service newer than them, so
+     * they are read again when they are older than the not-found retry period.
+     *
+     * @return the service selecting the pod, or null when the pod or the service is not found
+     * @throws KubernetesReadFailedException when a read failed
+     */
+    private ObjectID readServiceOfPod(final ObjectID podObjectID) {
+        final Optional<Pod> pod = KubernetesPods.INSTANCE
+            .findByObjectID(
+                ObjectID
                     .builder()
-                    .name(it.getMetadata().getName())
-                    .namespace(it.getMetadata().getNamespace())
-                    .build())
-                .orElse(ObjectID.EMPTY)));
+                    .name(podObjectID.name())
+                    .namespace(podObjectID.namespace())
+                    .build());
 
-        ipServiceMap = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(3))
-            .build(CacheLoader.from(ip -> KubernetesServices.INSTANCE
-                .list()
-                .stream()
-                .filter(it -> it.getSpec() != null)
-                .filter(it -> it.getStatus() != null)
-                .filter(it -> it.getMetadata() != null)
-                .filter(it -> (it.getSpec().getClusterIPs() != null &&
-                    it.getSpec().getClusterIPs().stream()
-                        .anyMatch(clusterIP -> Objects.equals(clusterIP, ip)))
-                    || (it.getStatus().getLoadBalancer() != null &&
-                        it.getStatus().getLoadBalancer().getIngress() != null &&
-                        it.getStatus().getLoadBalancer().getIngress().stream()
-                            .anyMatch(ingress -> Objects.equals(ingress.getIp(), ip))))
-                .map(it -> ObjectID
-                    .builder()
-                    .name(it.getMetadata().getName())
-                    .namespace(it.getMetadata().getNamespace())
-                    .build())
-                .findFirst()
-                .orElse(ObjectID.EMPTY)));
+        if (!pod.isPresent()
+            || pod.get().getMetadata() == null
+            || pod.get().getMetadata().getLabels() == null) {
+            return null;
+        }
 
-        podServiceMap = CacheBuilder.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(3))
-            .build(CacheLoader.from(podObjectID -> {
-                final Optional<Pod> pod = KubernetesPods.INSTANCE
-                    .findByObjectID(
-                        ObjectID
-                            .builder()
-                            .name(podObjectID.name())
-                            .namespace(podObjectID.namespace())
-                            .build());
+        return findServiceOfPod(KubernetesServices.INSTANCE.list(), pod.get())
+            .or(() -> findServiceOfPod(
+                KubernetesServices.INSTANCE.list(K8sMetadataReadSettings.getNotFoundRetryPeriod()), pod.get()))
+            .map(service -> ObjectID
+                .builder()
+                .name(service.getMetadata().getName())
+                .namespace(service.getMetadata().getNamespace())
+                .build())
+            .orElse(null);
+    }
 
-                if (!pod.isPresent()
-                    || pod.get().getMetadata() == null
-                    || pod.get().getMetadata().getLabels() == null) {
-                    return ObjectID.EMPTY;
-                }
+    private Optional<Service> findServiceOfPod(final List<Service> services, final Pod pod) {
+        return services
+            .stream()
+            .filter(it -> it.getMetadata() != null)
+            .filter(it -> Objects.equals(it.getMetadata().getNamespace(), pod.getMetadata().getNamespace()))
+            .filter(it -> it.getSpec() != null)
+            .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
+            .filter(it -> !it.getSpec().getSelector().isEmpty())
+            .filter(it -> {
+                final Map<String, String> labels = pod.getMetadata().getLabels();
+                final Map<String, String> selector = it.getSpec().getSelector();
+                return hasIntersection(selector.entrySet(), labels.entrySet());
+            })
+            .findFirst();
+    }
 
-                final Optional<Service> service = KubernetesServices.INSTANCE
-                    .list()
-                    .stream()
-                    .filter(it -> it.getMetadata() != null)
-                    .filter(it -> Objects.equals(it.getMetadata().getNamespace(), pod.get().getMetadata().getNamespace()))
-                    .filter(it -> it.getSpec() != null)
-                    .filter(it -> requireNonNull(it.getSpec()).getSelector() != null)
-                    .filter(it -> !it.getSpec().getSelector().isEmpty())
-                    .filter(it -> {
-                        final Map<String, String> labels = pod.get().getMetadata().getLabels();
-                        final Map<String, String> selector = it.getSpec().getSelector();
-                        return hasIntersection(selector.entrySet(), labels.entrySet());
-                    })
-                    .findFirst();
-                if (!service.isPresent()) {
-                    return ObjectID.EMPTY;
-                }
-                return ObjectID
-                    .builder()
-                    .name(service.get().getMetadata().getName())
-                    .namespace(service.get().getMetadata().getNamespace())
-                    .build();
-            }));
+    private static Optional<ObjectID> findServiceByIP(final List<Service> services, final String ip) {
+        return services
+            .stream()
+            .filter(it -> it.getSpec() != null)
+            .filter(it -> it.getStatus() != null)
+            .filter(it -> it.getMetadata() != null)
+            .filter(it -> (it.getSpec().getClusterIPs() != null &&
+                it.getSpec().getClusterIPs().stream()
+                    .anyMatch(clusterIP -> Objects.equals(clusterIP, ip)))
+                || (it.getStatus().getLoadBalancer() != null &&
+                    it.getStatus().getLoadBalancer().getIngress() != null &&
+                    it.getStatus().getLoadBalancer().getIngress().stream()
+                        .anyMatch(ingress -> Objects.equals(ingress.getIp(), ip))))
+            .map(it -> ObjectID
+                .builder()
+                .name(it.getMetadata().getName())
+                .namespace(it.getMetadata().getNamespace())
+                .build())
+            .findFirst();
     }
 
     public static K8sInfoRegistry getInstance() {
         return INSTANCE;
     }
 
-    @SneakyThrows
+    /**
+     * Reads the services of the pods not read yet, for the lookups of them that follow: queues all their reads, then
+     * waits for them up to {@link K8sMetadataReadSettings#getMalReadTimeoutMillis()} in all, cached pods not at all.
+     * The steps over the same pods one after another, such as the {@code retagByK8sMeta} of one batch of data, wait for
+     * a pod that long at most in all. The reads not done by then go on in the background.
+     */
+    public void readServicesOfPods(Collection<ObjectID> pods) {
+        final long timeout = K8sMetadataReadSettings.getMalReadTimeoutMillis();
+        pods.forEach(pod -> podServiceMap.queueForWaiting(pod, timeout));
+        final long deadline = deadline(timeout);
+        for (final ObjectID pod : pods) {
+            podServiceMap.awaitRead(pod, timeout, remainingMillis(deadline));
+        }
+    }
+
+    /**
+     * Reads the pod and the service using {@code ip}, if not read yet, for the lookups of them that follow: queues both
+     * reads, then waits for them up to {@link K8sMetadataReadSettings#getMalReadTimeoutMillis()} in all.
+     */
+    public void readPodAndServiceByIP(String ip) {
+        final long timeout = K8sMetadataReadSettings.getMalReadTimeoutMillis();
+        ipPodMap.queueForWaiting(ip, timeout);
+        ipServiceMap.queueForWaiting(ip, timeout);
+        final long deadline = deadline(timeout);
+        ipPodMap.awaitRead(ip, timeout, remainingMillis(deadline));
+        ipServiceMap.awaitRead(ip, timeout, remainingMillis(deadline));
+    }
+
+    private static long deadline(final long timeoutMillis) {
+        return System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+    }
+
+    private static long remainingMillis(final long deadline) {
+        return Math.max(0, TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime()));
+    }
+
     public String findServiceName(String namespace, String podName) {
         return findService(namespace, podName).toString();
     }
 
-    @SneakyThrows
     public ObjectID findService(String namespace, String podName) {
-        return this.podServiceMap.get(
-                ObjectID
-                    .builder()
-                    .name(podName)
-                    .namespace(namespace)
-                    .build());
+        return podServiceMap.find(podObjectID(namespace, podName), 0).orElse(ObjectID.EMPTY);
     }
 
-    @SneakyThrows
     public ObjectID findPodByIP(String ip) {
-        return this.ipPodMap.get(ip);
+        return ipPodMap.find(ip, 0).orElse(ObjectID.EMPTY);
     }
 
-    @SneakyThrows
     public ObjectID findServiceByIP(String ip) {
-        return this.ipServiceMap.get(ip);
+        return ipServiceMap.find(ip, 0).orElse(ObjectID.EMPTY);
+    }
+
+    public ObjectID findServiceWithoutWait(String namespace, String podName) {
+        return podServiceMap.find(podObjectID(namespace, podName)).orElse(ObjectID.EMPTY);
+    }
+
+    public ObjectID findPodByIPWithoutWait(String ip) {
+        return ipPodMap.find(ip).orElse(ObjectID.EMPTY);
+    }
+
+    public ObjectID findServiceByIPWithoutWait(String ip) {
+        return ipServiceMap.find(ip).orElse(ObjectID.EMPTY);
+    }
+
+    private static ObjectID podObjectID(final String namespace, final String podName) {
+        return ObjectID
+            .builder()
+            .name(podName)
+            .namespace(namespace)
+            .build();
     }
 
     private boolean hasIntersection(Collection<?> o, Collection<?> c) {
