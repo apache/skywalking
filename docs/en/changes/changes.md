@@ -42,7 +42,6 @@
 * Fix the OTLP/HTTP JSON trace endpoint reading the hex `traceId`, `spanId` and `parentSpanId` the OTLP/JSON encoding specifies as base64, the protobuf JSON mapping. The bodies parsed without an error into ids of the wrong length, so a trace exported as JSON matched neither the ids its SDK logged nor the same trace exported over gRPC or OTLP/HTTP protobuf.
 * Fix the heatmap query failing on a meter histogram whose bucket bounds exceed an int, such as the `9223372036854775807` key MAL gives an OTel histogram's `+Inf` bucket: the bucket keys are read as longs.
 * Cut the slow statements a LAL `SlowSQL` output writes, as the default `mysql-slowsql`, `pgsql-slowsql` and `redis-slowsql` rules do, to the 2000 characters of the `top_n_database_statement` column, as the agent path already cuts them to `maxSlowSQLLength`. A longer statement was refused by a strict SQL store, and stored whole on Elasticsearch and BanyanDB; it is now cut there too.
-* Make the AI evaluation OpenAI-compatible judge HTTP call honour `request-timeout-seconds` as an end-to-end deadline, including TCP connect and reading the response body. `HttpRequest.timeout` alone stopped when response headers arrived, so a stalled body could block the judge caller indefinitely.
 
 #### UI
 * Add a Virtual GenAI evaluation-record page and evaluation-score chart in Horizon UI, so operators can inspect evaluation result, level, reason, judge model, timestamp, trace linkage, and the `gen_ai_model_evaluation_score_ppm` trend for evaluated records.

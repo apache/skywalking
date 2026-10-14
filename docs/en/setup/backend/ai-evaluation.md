@@ -54,7 +54,7 @@ tasks:
 
 `provider` must currently be `openai`. The endpoint must accept the OpenAI Chat Completions request shape and return a response with `choices[0].message.content`. The API key is sent as a Bearer token.
 
-`request-timeout-seconds` defaults to `30`. It is one end-to-end deadline for the judge HTTP call: TCP connect, waiting for the response, and reading the response body. Extremely large values are capped so the shared nanos budget cannot overflow. `max-retries` defaults to `2` and is limited to `5`; timeout, HTTP 429, and HTTP 5xx responses may be retried. `temperature` must be between `0` and `1`. `max_tokens` must be a positive integer.
+`request-timeout-seconds` defaults to `30`. It is the deadline of each judge HTTP request, covering connecting, waiting for the response and reading the response body; a retry gets a deadline of its own. `max-retries` defaults to `2` and is limited to `5`; timeout, HTTP 429, and HTTP 5xx responses may be retried. `temperature` must be between `0` and `1`. `max_tokens` must be a positive integer.
 
 ## Sampling and queue settings
 

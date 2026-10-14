@@ -52,8 +52,8 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
     private static final Gson GSON = new Gson();
     private static final long DEFAULT_REQUEST_TIMEOUT_SECONDS = 30L;
     /**
-     * Upper bound so {@link Duration#toNanos()} does not overflow when the shared end-to-end
-     * deadline is applied to connect, {@link HttpRequest} timeout, and body consumption.
+     * Keeps the JDK HTTP client's own timer arithmetic from overflowing: {@code Long.MAX_VALUE} seconds is accepted
+     * by {@code HttpRequest.Builder#timeout} and then fails every send.
      */
     private static final long MAX_REQUEST_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
     private static final int DEFAULT_MAX_RETRIES = 2;
@@ -73,18 +73,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
     private final Integer maxTokens;
 
     public OpenAICompatibleProvider(final Properties config) throws ModuleStartException {
-        validate(config);
-        // Same duration for connectTimeout and the end-to-end util budget (including body read).
-        // HttpRequest.timeout alone does not cover body consumption.
-        final Duration timeout = Duration.ofSeconds(getRequestTimeoutSeconds(config));
-        this.httpClient = HttpClient.newBuilder().connectTimeout(timeout).build();
-        this.endpoint = getString(config, "endpoint");
-        this.apiKey = getString(config, "api-key");
-        this.model = getString(config, "model");
-        this.requestTimeout = timeout;
-        this.maxRetries = getMaxRetries(config);
-        this.temperature = getDouble(config, "temperature");
-        this.maxTokens = getInteger(config, "max_tokens");
+        this(newHttpClient(config), config);
     }
 
     OpenAICompatibleProvider(final HttpClient httpClient, final Properties config) throws ModuleStartException {
@@ -99,11 +88,22 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         this.maxTokens = getInteger(config, "max_tokens");
     }
 
+    static HttpClient newHttpClient(final Properties config) throws ModuleStartException {
+        // Validate first, so a non-positive timeout fails as a ModuleStartException, not connectTimeout's
+        // IllegalArgumentException.
+        validate(config);
+        return HttpClient.newBuilder()
+                         .connectTimeout(Duration.ofSeconds(getRequestTimeoutSeconds(config)))
+                         .build();
+    }
+
     @Override
     public JudgeModelResponse judge(final JudgeModelRequest request)
             throws IOException, InterruptedException {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
+                // JdkHttpClientUtils requires it: only the request's own timeout aborts an exchange still waiting
+                // for the response headers.
                 .timeout(requestTimeout)
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
@@ -112,8 +112,6 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         for (int retry = 0; ; retry++) {
             final HttpResponse<String> response;
             try {
-                // requestTimeout is one end-to-end budget, including reading the response body.
-                // HttpRequest.timeout alone does not cover body consumption.
                 response = JdkHttpClientUtils.sendStringWithTimeout(httpClient, httpRequest, requestTimeout);
             } catch (HttpTimeoutException e) {
                 if (retry >= maxRetries) {
@@ -332,7 +330,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         }
     }
 
-    private static long getRequestTimeoutSeconds(final Properties properties) throws ModuleStartException {
+    static long getRequestTimeoutSeconds(final Properties properties) throws ModuleStartException {
         final String value = getString(properties, "request-timeout-seconds");
         if (StringUtil.isBlank(value)) {
             return DEFAULT_REQUEST_TIMEOUT_SECONDS;
