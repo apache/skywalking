@@ -77,7 +77,9 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
 
     @Override
     public TemplateChangeStatus changeTemplate(DashboardSetting setting) {
-        Property newTemplate = applyConfiguration(setting.toEntity());
+        // Write every tag, as ElasticSearch and JDBC replace the whole record: an update
+        // re-enables a disabled template, the only way the API has to do so.
+        Property newTemplate = applyAll(setting.toEntity());
         try {
             this.getClient().apply(newTemplate);
             return TemplateChangeStatus.builder()
@@ -163,24 +165,6 @@ public class BanyanDBUITemplateManagementDAO extends AbstractBanyanDBDAO impleme
                     .setName(UITemplate.INDEX_NAME))
                 .setId(uiTemplate.id().build())
                 .addTags(TagAndValue.newLongTag(UITemplate.DISABLED, uiTemplate.getDisabled()).build())
-                .addTags(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()).build())
-            .build();
-    }
-
-    /**
-     * Partial apply configuration, i.e. configuration tag.
-     *
-     * @param uiTemplate previous UITemplate
-     * @return new property (patch) to be applied
-     */
-    public Property applyConfiguration(UITemplate uiTemplate) {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findManagementMetadata(UITemplate.INDEX_NAME);
-        return Property.newBuilder()
-                .setMetadata(BanyandbCommon.Metadata.newBuilder()
-                    .setGroup(schema.getMetadata().getGroup())
-                    .setName(UITemplate.INDEX_NAME))
-                .setId(uiTemplate.id().build())
-                .addTags(TagAndValue.newStringTag(UITemplate.CONFIGURATION, uiTemplate.getConfiguration()).build())
                 .addTags(TagAndValue.newLongTag(UITemplate.UPDATE_TIME, uiTemplate.getUpdateTime()).build())
             .build();
     }

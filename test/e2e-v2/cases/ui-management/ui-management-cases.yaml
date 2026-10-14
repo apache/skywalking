@@ -16,7 +16,7 @@
 # Dashboard-template CRUD over the admin-server `ui-management` module, driven by
 # `swctl admin ui-template ...` instead of raw curl. The cases walk
 # create -> get -> update -> get -> disable -> list-default vs. list-with-disabled
-# to exercise the full cycle. The client supplies a fixed template id on create so
+# -> update again, which re-enables it, to exercise the full cycle. The client supplies a fixed template id on create so
 # the later steps address it without reading it back.
 
 cases:
@@ -70,3 +70,25 @@ cases:
         admin ui-template list --include-disabled \
         | yq -P '.[] | select(.id == "e2e-tpl-id") | {"disabled": .disabled}'
     expected: expected/template-list-disabled.yml
+
+  # 8. Update the disabled template. An update always leaves the template
+  #    enabled, on every storage: it is how a disabled template comes back.
+  - query: |
+      printf '%s' '{"name":"e2e-tpl","v":3}' > /tmp/uitpl-cfg3.json
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template update --id e2e-tpl-id -f /tmp/uitpl-cfg3.json \
+        | yq -P '{"status": .status, "id": .id}'
+    expected: expected/template-changed.yml
+
+  # 9. Get — the new configuration, and enabled again.
+  - query: |
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template get e2e-tpl-id \
+        | yq -P '{"configuration": .configuration, "disabled": .disabled}'
+    expected: expected/template-reenabled.yml
+
+  # 10. The default list returns it again.
+  - query: |
+      swctl --display json --admin-url=http://${oap_host}:${oap_17128} \
+        admin ui-template list | yq -P '. | length'
+    expected: expected/template-list-one.yml
