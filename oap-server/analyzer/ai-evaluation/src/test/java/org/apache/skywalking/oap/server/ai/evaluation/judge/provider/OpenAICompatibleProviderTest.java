@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -36,7 +39,9 @@ import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
+@Timeout(value = 20, unit = TimeUnit.SECONDS)
 class OpenAICompatibleProviderTest {
     private static final String SUCCESS_RESPONSE =
         "{\"choices\":[{\"message\":{\"content\":\"valid evaluation\"}}]}";
@@ -47,7 +52,40 @@ class OpenAICompatibleProviderTest {
     void tearDown() {
         if (server != null) {
             server.stop(0);
+            server = null;
         }
+    }
+
+    @Test
+    void shouldDefaultRequestTimeoutTo30SecondsAndWireConnectTimeout() throws Exception {
+        final Properties config = validConfig();
+        assertEquals(30L, OpenAICompatibleProvider.getRequestTimeoutSeconds(config));
+        assertEquals(
+            Duration.ofSeconds(30),
+            OpenAICompatibleProvider.newHttpClient(config).connectTimeout().orElseThrow()
+        );
+    }
+
+    @Test
+    void shouldApplyConfiguredRequestTimeoutToConnectTimeout() throws Exception {
+        final Properties config = validConfig();
+        config.setProperty("request-timeout-seconds", "7");
+        assertEquals(7L, OpenAICompatibleProvider.getRequestTimeoutSeconds(config));
+        assertEquals(
+            Duration.ofSeconds(7),
+            OpenAICompatibleProvider.newHttpClient(config).connectTimeout().orElseThrow()
+        );
+    }
+
+    @Test
+    void shouldCapExtremeRequestTimeoutSeconds() throws Exception {
+        final Properties config = validConfig();
+        config.setProperty("request-timeout-seconds", "10000000000");
+        assertEquals(9_223_372_036L, OpenAICompatibleProvider.getRequestTimeoutSeconds(config));
+        assertEquals(
+            Duration.ofSeconds(9_223_372_036L),
+            OpenAICompatibleProvider.newHttpClient(config).connectTimeout().orElseThrow()
+        );
     }
 
     @Test
@@ -170,7 +208,7 @@ class OpenAICompatibleProviderTest {
     }
 
     @Test
-    void shouldClassifyRequestTimeout() throws Exception {
+    void shouldTimeoutWhileWaitingForResponseHeaders() throws Exception {
         startServer(exchange -> {
             try {
                 Thread.sleep(1_500L);
@@ -184,12 +222,57 @@ class OpenAICompatibleProviderTest {
         config.setProperty("max-retries", "0");
         final OpenAICompatibleProvider provider = new OpenAICompatibleProvider(config);
 
+        final long started = System.nanoTime();
         final JudgeModelException exception = assertThrows(
             JudgeModelException.class,
             () -> provider.judge(request())
         );
+        final long elapsedMillis = (System.nanoTime() - started) / 1_000_000L;
 
         assertEquals(JudgeModelException.Reason.TIMEOUT, exception.getReason());
+        assertTrue(
+            elapsedMillis >= 700L && elapsedMillis < 2_500L,
+            "delayed headers should fail near the 1s budget, took " + elapsedMillis + "ms"
+        );
+    }
+
+    @Test
+    void shouldTimeoutWhileReadingStalledResponseBody() throws Exception {
+        final CountDownLatch release = new CountDownLatch(1);
+        startServer(exchange -> {
+            // Advertise more bytes than are sent, then stall the body.
+            exchange.sendResponseHeaders(200, 64);
+            exchange.getResponseBody().write("ping".getBytes(StandardCharsets.UTF_8));
+            exchange.getResponseBody().flush();
+            try {
+                release.await(10, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            exchange.close();
+        });
+        final Properties config = serverConfig();
+        config.setProperty("request-timeout-seconds", "1");
+        config.setProperty("max-retries", "0");
+        final OpenAICompatibleProvider provider = new OpenAICompatibleProvider(config);
+
+        try {
+            final long started = System.nanoTime();
+            final JudgeModelException exception = assertThrows(
+                JudgeModelException.class,
+                () -> provider.judge(request())
+            );
+            final long elapsedMillis = (System.nanoTime() - started) / 1_000_000L;
+
+            assertEquals(JudgeModelException.Reason.TIMEOUT, exception.getReason());
+            assertTrue(
+                elapsedMillis >= 700L && elapsedMillis < 2_500L,
+                "stalled body should fail near the 1s budget, took " + elapsedMillis + "ms"
+            );
+        } finally {
+            // The handler runs on the server's dispatcher thread, which HttpServer.stop in tearDown joins.
+            release.countDown();
+        }
     }
 
     @Test

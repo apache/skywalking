@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -43,12 +44,18 @@ import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelRequest;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelResponse;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
+import org.apache.skywalking.oap.server.library.util.JdkHttpClientUtils;
 import org.apache.skywalking.oap.server.library.util.PropertyPlaceholderHelper;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 public class OpenAICompatibleProvider implements JudgeModelProvider {
     private static final Gson GSON = new Gson();
     private static final long DEFAULT_REQUEST_TIMEOUT_SECONDS = 30L;
+    /**
+     * Keeps the JDK HTTP client's own timer arithmetic from overflowing: {@code Long.MAX_VALUE} seconds is accepted
+     * by {@code HttpRequest.Builder#timeout} and then fails every send.
+     */
+    private static final long MAX_REQUEST_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
     private static final int DEFAULT_MAX_RETRIES = 2;
     private static final int MAX_CONFIGURED_RETRIES = 5;
     private static final long DEFAULT_RETRY_DELAY_MILLIS = 200L;
@@ -66,7 +73,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
     private final Integer maxTokens;
 
     public OpenAICompatibleProvider(final Properties config) throws ModuleStartException {
-        this(HttpClient.newHttpClient(), config);
+        this(newHttpClient(config), config);
     }
 
     OpenAICompatibleProvider(final HttpClient httpClient, final Properties config) throws ModuleStartException {
@@ -81,11 +88,22 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         this.maxTokens = getInteger(config, "max_tokens");
     }
 
+    static HttpClient newHttpClient(final Properties config) throws ModuleStartException {
+        // Validate first, so a non-positive timeout fails as a ModuleStartException, not connectTimeout's
+        // IllegalArgumentException.
+        validate(config);
+        return HttpClient.newBuilder()
+                         .connectTimeout(Duration.ofSeconds(getRequestTimeoutSeconds(config)))
+                         .build();
+    }
+
     @Override
     public JudgeModelResponse judge(final JudgeModelRequest request)
             throws IOException, InterruptedException {
         final HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(endpoint))
+                // JdkHttpClientUtils requires it: only the request's own timeout aborts an exchange still waiting
+                // for the response headers.
                 .timeout(requestTimeout)
                 .header("Authorization", "Bearer " + apiKey)
                 .header("Content-Type", "application/json")
@@ -94,7 +112,7 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         for (int retry = 0; ; retry++) {
             final HttpResponse<String> response;
             try {
-                response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+                response = JdkHttpClientUtils.sendStringWithTimeout(httpClient, httpRequest, requestTimeout);
             } catch (HttpTimeoutException e) {
                 if (retry >= maxRetries) {
                     throw new JudgeModelException(Reason.TIMEOUT, "OpenAI compatible judge API request timed out.", e);
@@ -312,19 +330,24 @@ public class OpenAICompatibleProvider implements JudgeModelProvider {
         }
     }
 
-    private static long getRequestTimeoutSeconds(final Properties properties) throws ModuleStartException {
+    static long getRequestTimeoutSeconds(final Properties properties) throws ModuleStartException {
         final String value = getString(properties, "request-timeout-seconds");
         if (StringUtil.isBlank(value)) {
             return DEFAULT_REQUEST_TIMEOUT_SECONDS;
         }
+        final long parsed;
         try {
-            return Long.parseLong(value);
+            parsed = Long.parseLong(value);
         } catch (NumberFormatException e) {
             throw new ModuleStartException(
                     "AI evaluation judge config [request-timeout-seconds] must be an integer.",
                     e
             );
         }
+        if (parsed > MAX_REQUEST_TIMEOUT_SECONDS) {
+            return MAX_REQUEST_TIMEOUT_SECONDS;
+        }
+        return parsed;
     }
 
     private static int getMaxRetries(final Properties properties) throws ModuleStartException {
