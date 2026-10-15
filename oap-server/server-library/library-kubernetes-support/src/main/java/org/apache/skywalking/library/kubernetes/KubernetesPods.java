@@ -19,61 +19,58 @@
 
 package org.apache.skywalking.library.kubernetes;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import io.fabric8.kubernetes.api.model.Pod;
-import lombok.SneakyThrows;
 
-import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
+/**
+ * Reads pods from the API server on the calling thread, which is the background reader of a {@link LookupCache}.
+ */
 public enum KubernetesPods {
     INSTANCE;
 
-    private final LoadingCache<String, Optional<Pod>> podByIP;
-    private final LoadingCache<ObjectID, Optional<Pod>> podByObjectID;
-
-    @SneakyThrows
-    KubernetesPods() {
-        final CacheBuilder<Object, Object> cacheBuilder =
-            CacheBuilder.newBuilder()
-                        .expireAfterWrite(Duration.ofMinutes(5));
-
-        podByIP = cacheBuilder.build(new CacheLoader<>() {
-            @Override
-            public Optional<Pod> load(String ip) {
-                return SharedKubernetesClient.INSTANCE.get()
-                        .pods()
-                        .inAnyNamespace()
-                        .withField("status.podIP", ip)
-                        .list()
-                        .getItems()
-                        .stream()
-                        .findFirst();
-            }
-        });
-
-        podByObjectID = cacheBuilder.build(new CacheLoader<>() {
-            @Override
-            public Optional<Pod> load(ObjectID objectID) {
-                return Optional.ofNullable(
-                        SharedKubernetesClient.INSTANCE.get()
-                                .pods()
-                                .inNamespace(objectID.namespace())
-                                .withName(objectID.name())
-                                .get());
-            }
-        });
-    }
-
-    @SneakyThrows
+    /**
+     * @throws KubernetesReadFailedException when the pods could not be read
+     */
     public Optional<Pod> findByIP(final String ip) {
-        return podByIP.get(ip);
+        return Optional.ofNullable(KubernetesApiReads.read(
+            "list pods",
+            () -> choosePod(KubernetesApiReads.client()
+                                              .pods()
+                                              .inAnyNamespace()
+                                              .withField("status.podIP", ip)
+                                              .list()
+                                              .getItems()).orElse(null)
+        ));
     }
 
-    @SneakyThrows
+    /**
+     * @throws KubernetesReadFailedException when the pod could not be read
+     */
     public Optional<Pod> findByObjectID(final ObjectID id) {
-        return podByObjectID.get(id);
+        return Optional.ofNullable(KubernetesApiReads.read(
+            "get pods",
+            () -> KubernetesApiReads.client()
+                                    .pods()
+                                    .inNamespace(id.namespace())
+                                    .withName(id.name())
+                                    .get()
+        ));
+    }
+
+    /**
+     * A completed pod keeps its IP after the IP is given to a new pod, so the pod that has not terminated is chosen.
+     */
+    static Optional<Pod> choosePod(final List<Pod> podsUsingSameIP) {
+        return podsUsingSameIP.stream()
+                              .filter(pod -> !isTerminated(pod))
+                              .findFirst()
+                              .or(() -> podsUsingSameIP.stream().findFirst());
+    }
+
+    private static boolean isTerminated(final Pod pod) {
+        final String phase = pod.getStatus() == null ? null : pod.getStatus().getPhase();
+        return "Succeeded".equals(phase) || "Failed".equals(phase);
     }
 }

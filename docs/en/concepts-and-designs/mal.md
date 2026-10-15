@@ -77,6 +77,14 @@ This feature requires authorizing the OAP Server to access K8s's `API Server`.
 
 Add a tag to the sample using `service` as the key, `$serviceName.$namespace` as the value, and according to the given value of the tag key, which represents the name of a pod.
 
+The pods and services are read from the Kubernetes API server in the background and cached, by the rules of
+[how the Kubernetes metadata is read and cached](../setup/envoy/als_setting.md#how-the-kubernetes-metadata-is-read-and-cached),
+with the `mal` cache time. A `retagByK8sMeta` first queues the reads of the pods of its samples not read yet, then waits
+for them up to `core.default.malMetadataReadTimeout` (`SW_CORE_MAL_METADATA_READ_TIMEOUT`, 2000 milliseconds by default)
+in all, however many pods it has. A sample whose pod is not read by then gets an empty service; the read goes on in the
+background, so the next samples of the pod get the service. Keep the timeout under the sender's, such as the
+5 seconds of the OpenTelemetry Collector's OTLP exporter, which sends the data again when it times out.
+
 For example:
 ```
 container_cpu_usage_seconds_total{namespace=default, container=my-nginx, cpu=total, pod=my-nginx-5dc4865748-mbczh} 2

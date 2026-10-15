@@ -18,28 +18,28 @@
 
 package org.apache.skywalking.oap.server.receiver.envoy.als.k8s;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
+import io.fabric8.kubernetes.api.model.Endpoints;
 import io.fabric8.kubernetes.api.model.Node;
 import io.fabric8.kubernetes.api.model.NodeAddress;
 import io.fabric8.kubernetes.api.model.NodeStatus;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.Service;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.library.kubernetes.CachedRead;
+import org.apache.skywalking.library.kubernetes.KubernetesApiReads;
 import org.apache.skywalking.library.kubernetes.KubernetesEndpoints;
 import org.apache.skywalking.library.kubernetes.KubernetesPods;
+import org.apache.skywalking.library.kubernetes.KubernetesReadFailedException;
 import org.apache.skywalking.library.kubernetes.KubernetesServices;
+import org.apache.skywalking.library.kubernetes.LookupCache;
 import org.apache.skywalking.library.kubernetes.ObjectID;
-import org.apache.skywalking.library.kubernetes.SharedKubernetesClient;
+import org.apache.skywalking.oap.server.core.config.K8sMetadataReadSettings;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.envoy.EnvoyMetricReceiverConfig;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,96 +47,122 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
 
+/**
+ * Resolves an IP to the Kubernetes service of its pod. A lookup never waits for the API server: an IP seen for the
+ * first time is unknown while it is read in the background, and is found by the lookups after the read.
+ */
 @Slf4j
 public class K8SServiceRegistry {
+    private static final Map<EnvoyMetricReceiverConfig, K8SServiceRegistry> SHARED = new ConcurrentHashMap<>();
+
     protected final EnvoyMetricReceiverConfig config;
     protected final ServiceNameFormatter serviceNameFormatter;
 
-    protected final LoadingCache<K8SServiceRegistry, Set<String>> nodeIPs;
-    protected final LoadingCache<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
+    protected final CachedRead<Set<String>> nodeIPs;
+    protected final LookupCache<String/* ip */, ServiceMetaInfo> ipServiceMetaInfoMap;
 
-    @SneakyThrows
     public K8SServiceRegistry(final EnvoyMetricReceiverConfig config) {
         this.config = config;
 
         serviceNameFormatter = new ServiceNameFormatter(config.getK8sServiceNameRule());
 
-        final CacheBuilder<Object, Object> cacheBuilder =
-            CacheBuilder.newBuilder()
-                .expireAfterWrite(Duration.ofMinutes(3));
+        nodeIPs = new CachedRead<>(
+            () -> KubernetesApiReads.read(
+                "list nodes",
+                () -> KubernetesApiReads.client()
+                                        .nodes()
+                                        .list()
+                                        .getItems()
+                                        .stream()
+                                        .map(Node::getStatus)
+                                        .map(NodeStatus::getAddresses)
+                                        .flatMap(it -> it.stream().map(NodeAddress::getAddress)
+                                                         .filter(StringUtil::isNotBlank))
+                                        .collect(toSet())
+            ),
+            Collections.emptySet()
+        );
 
-        nodeIPs = cacheBuilder.build(CacheLoader.from(() -> {
-            try {
-                return SharedKubernetesClient.INSTANCE.get()
-                    .nodes()
-                    .list()
-                    .getItems()
-                    .stream()
-                    .map(Node::getStatus)
-                    .map(NodeStatus::getAddresses)
-                    .flatMap(it -> it.stream().map(NodeAddress::getAddress)
-                        .filter(StringUtil::isNotBlank))
-                    .collect(toSet());
-            } catch (Exception e) {
-                log.error("Failed to list Nodes.", e);
-                return Collections.emptySet();
-            }
-        }));
+        ipServiceMetaInfoMap = new LookupCache<>(
+            this::readServiceMetaInfo, K8sMetadataReadSettings.getRefreshPeriod(),
+            K8sMetadataReadSettings.getNotFoundRetryPeriod(), K8sMetadataReadSettings.getAlsCacheTime(),
+            K8sMetadataReadSettings::getMalReadQueueSize, K8sMetadataReadSettings::getAlsReadQueueSize);
+    }
 
-        ipServiceMetaInfoMap = cacheBuilder.build(new CacheLoader<>() {
-            @Override
-            public ServiceMetaInfo load(String ip) {
-                final Optional<Pod> pod = KubernetesPods.INSTANCE.findByIP(ip);
-                if (pod.isEmpty()) {
-                    log.debug("No corresponding Pod for IP: {}", ip);
-                    return config.serviceMetaInfoFactory().unknown();
-                }
+    /**
+     * @return the registry the HTTP and TCP analyzers of {@code config} share, as they look up the same IPs with the
+     * same naming rule
+     */
+    public static K8SServiceRegistry sharedFor(final EnvoyMetricReceiverConfig config) {
+        return SHARED.computeIfAbsent(config, K8SServiceRegistry::new);
+    }
 
-                final Optional<ObjectID> serviceID =
-                    KubernetesEndpoints.INSTANCE
-                        .list()
+    /**
+     * Runs in the background. A pod whose IP is not in the endpoints read may be newer than them, so they are read
+     * again when they are older than the not-found retry period.
+     *
+     * @return the service of the pod using {@code ip}, or null when {@code ip} is a node's or nothing matches
+     * @throws KubernetesReadFailedException when a read failed
+     */
+    protected ServiceMetaInfo readServiceMetaInfo(final String ip) {
+        if (isNode(ip)) {
+            return null;
+        }
+        final Optional<Pod> pod = KubernetesPods.INSTANCE.findByIP(ip);
+        if (pod.isEmpty()) {
+            log.debug("No corresponding Pod for IP: {}", ip);
+            return null;
+        }
+
+        final Optional<ObjectID> serviceID =
+            findServiceID(KubernetesEndpoints.INSTANCE.list(), ip)
+                .or(() -> findServiceID(
+                    KubernetesEndpoints.INSTANCE.list(K8sMetadataReadSettings.getNotFoundRetryPeriod()), ip));
+        if (serviceID.isEmpty()) {
+            log.debug("No corresponding endpoint for IP: {}", ip);
+            return null;
+        }
+
+        final Optional<Service> service =
+            KubernetesServices.INSTANCE.findByID(serviceID.get());
+        if (service.isEmpty()) {
+            log.debug("No service for namespace and name: {}", serviceID.get());
+            return null;
+        }
+        log.debug(
+            "Composing service meta info from service and pod for IP: {}", ip);
+        return composeServiceMetaInfo(service.get(), pod.get());
+    }
+
+    private static Optional<ObjectID> findServiceID(final List<Endpoints> endpointsList, final String ip) {
+        return endpointsList
+                .stream()
+                .filter(endpoints -> endpoints.getMetadata() != null)
+                .filter(endpoints -> endpoints.getSubsets() != null)
+                .map(endpoints -> {
+                    final ObjectMeta metadata = endpoints.getMetadata();
+                    if (endpoints
+                        .getSubsets()
                         .stream()
-                        .filter(endpoints -> endpoints.getMetadata() != null)
-                        .filter(endpoints -> endpoints.getSubsets() != null)
-                        .map(endpoints -> {
-                            final ObjectMeta metadata = endpoints.getMetadata();
-                            if (endpoints
-                                .getSubsets()
-                                .stream()
-                                .filter(subset -> subset.getAddresses() != null)
-                                .flatMap(subset -> subset.getAddresses().stream())
-                                .anyMatch(address -> Objects.equals(ip, address.getIp()))) {
-                                return ObjectID
-                                    .builder()
-                                    .name(metadata.getName())
-                                    .namespace(metadata.getNamespace())
-                                    .build();
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
-                        .findFirst();
-                if (serviceID.isEmpty()) {
-                    log.debug("No corresponding endpoint for IP: {}", ip);
-                    return config.serviceMetaInfoFactory().unknown();
-                }
-
-                final Optional<Service> service =
-                    KubernetesServices.INSTANCE.findByID(serviceID.get());
-                if (service.isEmpty()) {
-                    log.debug("No service for namespace and name: {}", serviceID.get());
-                    return config.serviceMetaInfoFactory().unknown();
-                }
-                log.debug(
-                    "Composing service meta info from service and pod for IP: {}", ip);
-                return composeServiceMetaInfo(service.get(), pod.get());
-            }
-        });
+                        .filter(subset -> subset.getAddresses() != null)
+                        .flatMap(subset -> subset.getAddresses().stream())
+                        .anyMatch(address -> Objects.equals(ip, address.getIp()))) {
+                        return ObjectID
+                            .builder()
+                            .name(metadata.getName())
+                            .namespace(metadata.getNamespace())
+                            .build();
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .findFirst();
     }
 
     protected List<ServiceMetaInfo.KeyValue> transformLabelsToTags(final ObjectMeta podMeta) {
@@ -153,12 +179,14 @@ public class K8SServiceRegistry {
             .collect(Collectors.toCollection(() -> tags));
     }
 
-    @SneakyThrows
+    /**
+     * Never waits: an IP not read yet is unknown, and is read in the background for the next lookups.
+     */
     public ServiceMetaInfo findService(final String ip) {
-        if (isNode(ip)) {
+        if (ip == null) {
             return config.serviceMetaInfoFactory().unknown();
         }
-        return ipServiceMetaInfoMap.get(ip);
+        return ipServiceMetaInfoMap.find(ip).orElseGet(() -> config.serviceMetaInfoFactory().unknown());
     }
 
     protected ServiceMetaInfo composeServiceMetaInfo(final Service service, final Pod pod) {
@@ -184,8 +212,16 @@ public class K8SServiceRegistry {
         return serviceMetaInfo;
     }
 
-    @SneakyThrows
+    /**
+     * Reads the nodes on the calling thread when they are not read yet or were read
+     * {@link CachedRead#LIST_REFRESH_PERIOD} ago or longer.
+     */
     public boolean isNode(final String ip) {
-        return nodeIPs.get(this).contains(ip);
+        try {
+            return nodeIPs.get(CachedRead.LIST_REFRESH_PERIOD).contains(ip);
+        } catch (final KubernetesReadFailedException e) {
+            // Without the nodes, such as without the permission to list them, no IP is taken for a node's.
+            return false;
+        }
     }
 }

@@ -253,6 +253,48 @@ public class CoreModuleConfig extends ModuleConfig {
     @Getter
     private long maxDirectMemoryUsage = -1;
 
+    /**
+     * How long, in milliseconds, one MAL lookup step of Kubernetes metadata, such as one {@code retagByK8sMeta} over the
+     * samples of a metric, or the naming of one process, waits in all for metadata not read from the API server yet.
+     * The metadata keeps being read in the background after it, for the next data.
+     */
+    @Getter
+    private long malMetadataReadTimeout = 2000;
+
+    /**
+     * The most Kubernetes metadata reads waiting at once, per lane, as {@code als=<size>,mal=<size>}: {@code als} for
+     * Envoy ALS, the eBPF access log and every read again, {@code mal} for the MAL lookups, which wait. A lane left out,
+     * or set to -1, has no limit. The waiting reads are of distinct keys, such as the IPs seen by the lookups.
+     * <p>
+     * An Object, not a String: the config loader turns a bare number into an Integer, which a String field refuses
+     * before the value is checked, with an error not showing the form.
+     */
+    @Getter
+    private Object k8sMetadataReadQueueSize = "";
+
+    /**
+     * How long, in minutes, cached Kubernetes metadata is kept after it was last written, per cache, as
+     * {@code als=<minutes>,mal=<minutes>}: {@code als} for Envoy ALS, {@code mal} for MAL and the eBPF access log. A
+     * cache left out keeps it 21 minutes. Each is longer than {@link #k8sMetadataRefreshPeriod}. An Object, as
+     * {@link #k8sMetadataReadQueueSize} is.
+     */
+    @Getter
+    private Object k8sMetadataCacheTime = "als=21,mal=21";
+
+    /**
+     * How long, in minutes, cached Kubernetes metadata is used before it is read again from the API server, on its next
+     * use, and a failed read waits before it is retried.
+     */
+    @Getter
+    private int k8sMetadataRefreshPeriod = 3;
+
+    /**
+     * How long, in minutes, a lookup that found nothing, such as for a pod too new for the lists read, is used before
+     * it is read again, on its next use.
+     */
+    @Getter
+    private int k8sMetadataNotFoundRetryPeriod = 1;
+
     public CoreModuleConfig() {
         this.downsampling = new ArrayList<>();
     }

@@ -19,46 +19,38 @@
 
 package org.apache.skywalking.library.kubernetes;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import io.fabric8.istio.api.networking.v1beta1.ServiceEntry;
-import io.fabric8.istio.client.DefaultIstioClient;
-import lombok.SneakyThrows;
-import org.slf4j.LoggerFactory;
+import io.fabric8.istio.client.IstioClient;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Reads the Istio ServiceEntries of the cluster on the calling thread, which is the background reader of a
+ * {@link LookupCache}, once they are {@link CachedRead#LIST_REFRESH_PERIOD} old.
+ */
 public enum IstioServiceEntries {
     INSTANCE;
 
-    private final LoadingCache<IstioServiceEntries, List<ServiceEntry>> serviceEntries;
+    private final CachedRead<List<ServiceEntry>> serviceEntries = new CachedRead<>(
+        () -> KubernetesApiReads.read(
+            "list serviceentries",
+            () -> KubernetesApiReads.client()
+                                    .adapt(IstioClient.class)
+                                    .v1beta1()
+                                    .serviceEntries()
+                                    .inAnyNamespace()
+                                    .list()
+                                    .getItems()
+        ),
+        Collections.emptyList()
+    );
 
-    @SneakyThrows
-    IstioServiceEntries() {
-        final CacheBuilder<Object, Object> cacheBuilder =
-            CacheBuilder.newBuilder()
-                .expireAfterWrite(Duration.ofMinutes(3));
-
-        serviceEntries = cacheBuilder.build(CacheLoader.from(() -> {
-            try (final var istioClient = new DefaultIstioClient()) {
-                return istioClient
-                    .v1beta1()
-                    .serviceEntries()
-                    .inAnyNamespace()
-                    .list()
-                    .getItems();
-            } catch (Exception e) {
-                LoggerFactory.getLogger(getClass()).error("Failed to list Endpoints.", e);
-                return Collections.emptyList();
-            }
-        }));
-    }
-
-    @SneakyThrows
+    /**
+     * @return the ServiceEntries, none when the API server does not serve them, as Istio is not installed
+     * @throws KubernetesReadFailedException when the ServiceEntries could not be read
+     */
     public List<ServiceEntry> list() {
-        return serviceEntries.get(this);
+        return serviceEntries.get(CachedRead.LIST_REFRESH_PERIOD);
     }
 }

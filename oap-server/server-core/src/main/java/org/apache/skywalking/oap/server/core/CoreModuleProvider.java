@@ -52,6 +52,7 @@ import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.K8sMetadataReadSettings;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
@@ -193,6 +194,15 @@ public class CoreModuleProvider extends ModuleProvider {
 
         if (moduleConfig.isActiveExtraModelColumns()) {
             DefaultScopeDefine.activeExtraModelColumns();
+        }
+        try {
+            K8sMetadataReadSettings.set(
+                moduleConfig.getMalMetadataReadTimeout(), moduleConfig.getK8sMetadataReadQueueSize(),
+                moduleConfig.getK8sMetadataCacheTime(), moduleConfig.getK8sMetadataRefreshPeriod(),
+                moduleConfig.getK8sMetadataNotFoundRetryPeriod()
+            );
+        } catch (final IllegalArgumentException e) {
+            throw new ModuleStartException(e.getMessage(), e);
         }
         endpointNameGrouping = new EndpointNameGrouping();
         final NamingControl namingControl = new NamingControl(
