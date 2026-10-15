@@ -115,8 +115,9 @@ enum State {
                 ctx.labelvalue.append('\n');
             } else if (c == '"') {
                 ctx.labelvalue.append('"');
+            } else {
+                ctx.labelvalue.append('\\').append(c);
             }
-            ctx.labelvalue.append('\\').append(c);
             return LABEL_VALUE;
         }
     },
