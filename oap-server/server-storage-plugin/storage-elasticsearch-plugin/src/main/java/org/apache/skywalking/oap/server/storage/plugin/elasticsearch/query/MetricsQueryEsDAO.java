@@ -53,7 +53,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IMetricsQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
 
 public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
@@ -191,7 +190,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             ));
             search.query(query);
         }
-        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+        final SearchResponse response = getClient().search(() -> TimeSeriesUtils.metricsIndexNames(
             IndexController.LogicIndicesRegister.getPhysicalTableName(metricName),
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), search.build());
@@ -258,7 +257,7 @@ public class MetricsQueryEsDAO extends EsDAO implements IMetricsQueryDAO {
             ));
         }
         search.query(query);
-        final SearchResponse response = getClient().search(new TimeRangeIndexNameGenerator(
+        final SearchResponse response = getClient().search(() -> TimeSeriesUtils.metricsIndexNames(
             physicalIndex,
             duration.getStartTimeBucketInSec(),
             duration.getEndTimeBucketInSec()), search.build());

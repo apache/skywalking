@@ -63,6 +63,17 @@ public class TimeSeriesUtils {
      * @return Concrete index name for super dataset index
      */
     public static String[] superDatasetIndexNames(String indexName, long startSecondTB, long endSecondTB) {
+        return timeRangeIndexNames(indexName, startSecondTB, endSecondTB, SUPER_DATASET_DAY_STEP);
+    }
+
+    /**
+     * @return Concrete index names for metrics index
+     */
+    public static String[] metricsIndexNames(String indexName, long startSecondTB, long endSecondTB) {
+        return timeRangeIndexNames(indexName, startSecondTB, endSecondTB, DAY_STEP);
+    }
+
+    private static String[] timeRangeIndexNames(String indexName, long startSecondTB, long endSecondTB, int dayStep) {
         if (startSecondTB == 0 || endSecondTB == 0) {
             return new String[] {indexName};
         }
@@ -76,7 +87,7 @@ public class TimeSeriesUtils {
             return new String[] {indexName};
         } else {
             return timeRanges.stream()
-                             .map(item -> indexName + Const.LINE + compressDateTime(item, SUPER_DATASET_DAY_STEP))
+                             .map(item -> indexName + Const.LINE + compressDateTime(item, dayStep))
                              .distinct()
                              .toArray(String[]::new);
         }
