@@ -82,7 +82,8 @@ public class InstanceTraffic extends Metrics {
     @Override
     public boolean combine(final Metrics metrics) {
         final InstanceTraffic instanceTraffic = (InstanceTraffic) metrics;
-        this.lastPingTimestamp = instanceTraffic.getLastPingTimestamp();
+        // Several sources feed one instance, and a late one may carry an older minute.
+        this.lastPingTimestamp = Math.max(this.lastPingTimestamp, instanceTraffic.getLastPingTimestamp());
         if (instanceTraffic.getProperties() != null && instanceTraffic.getProperties().size() > 0) {
             if (this.properties == null) {
                 this.properties = new JsonObject();
