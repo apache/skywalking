@@ -38,6 +38,11 @@ public class ElasticSearchScroller<T> {
     final ElasticSearchClient client;
     final Search search;
     final String index;
+    /**
+     * When set, the scroll searches these indices instead of {@link #index}, see
+     * {@link ElasticSearchClient#search(String[], Search, SearchParams)}.
+     */
+    final String[] indices;
     @Builder.Default
     final int queryMaxSize = 0;
     @Builder.Default
@@ -50,7 +55,9 @@ public class ElasticSearchScroller<T> {
 
         params.scroll(SCROLL_CONTEXT_RETENTION);
 
-        var response = client.search(index, search, params);
+        var response = indices != null
+            ? client.search(indices, search, params)
+            : client.search(index, search, params);
 
         try {
             while (true) {

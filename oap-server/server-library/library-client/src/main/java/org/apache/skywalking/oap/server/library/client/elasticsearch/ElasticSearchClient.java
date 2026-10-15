@@ -33,7 +33,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
@@ -290,19 +289,28 @@ public class ElasticSearchClient implements Client, HealthCheckable {
         return es.get().templates().delete(indexName);
     }
 
-    public SearchResponse search(Supplier<String[]> indices, Search search) {
-        final String[] indexNames =
-            Arrays.stream(indices.get())
+    public SearchResponse search(final String[] indexNames, final Search search) {
+        return search(indexNames, search, new SearchParams());
+    }
+
+    /**
+     * Searches several indices, each named without the namespace, which is added here to every name. Some of
+     * the indices may not exist, such as days without data in a time range, so the search skips them instead
+     * of failing. The search also sends the given params, such as routing and scroll, which are left unchanged.
+     */
+    public SearchResponse search(final String[] indexNames, final Search search, final SearchParams params) {
+        final String[] namespacedNames =
+            Arrays.stream(indexNames)
                   .map(indexNameConverter)
                   .toArray(String[]::new);
-        final SearchParams params = new SearchParams()
+        final SearchParams skipMissingParams = params.copy()
             .allowNoIndices(true)
             .ignoreUnavailable(true)
             .expandWildcards("open");
         return es.get().search(
             search,
-            params,
-            indexNames);
+            skipMissingParams,
+            namespacedNames);
     }
 
     public SearchResponse search(String indexName, Search search) {

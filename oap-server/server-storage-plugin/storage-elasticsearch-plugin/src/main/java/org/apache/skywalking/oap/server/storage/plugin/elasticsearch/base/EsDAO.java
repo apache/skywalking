@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.Documents;
@@ -42,17 +41,17 @@ public abstract class EsDAO extends AbstractDAO<ElasticSearchClient> {
         super(client);
     }
 
-    protected SearchResponse searchDebuggable(Supplier<String[]> indices, Search search) {
+    protected SearchResponse searchDebuggable(final String[] indexNames, final Search search) {
         DebuggingTraceContext traceContext = DebuggingTraceContext.TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
             StringBuilder builder = new StringBuilder();
             if (traceContext != null) {
                 span = traceContext.createSpan("Query Elasticsearch: search");
-                builder.append("Condition: ").append("indices: ").append(Arrays.toString(indices.get()));
+                builder.append("Condition: ").append("indices: ").append(Arrays.toString(indexNames));
                 span.setMsg(builder.toString());
             }
-            SearchResponse response = getClient().search(indices, search);
+            SearchResponse response = getClient().search(indexNames, search);
             if (traceContext != null && traceContext.isDumpStorageRsp()) {
                 builder.append("\n").append(" Response: ").append(new Gson().toJson(response));
                 span.setMsg(builder.toString());

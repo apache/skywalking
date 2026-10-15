@@ -78,6 +78,15 @@ public final class SearchParams implements Iterable<Map.Entry<String, Object>> {
         return this;
     }
 
+    /**
+     * @return a new instance with the same params, which can be changed without changing this one
+     */
+    public SearchParams copy() {
+        final SearchParams copy = new SearchParams();
+        copy.params.putAll(params);
+        return copy;
+    }
+
     @Override
     public Iterator<Entry<String, Object>> iterator() {
         return params.entrySet().iterator();

@@ -41,7 +41,8 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 
 /**
  * Both models are super datasets, so each has its own index family; the queries are term filters on the
@@ -113,10 +114,7 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
             }
         }
         final SearchResponse response = searchDebuggable(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME),
-                startSecondTB, endSecondTB
-            ),
+            IndexNames.rangeIndices(IndexFamily.of(AIAgentSessionFlowRecord.INDEX_NAME), duration),
             search.build()
         );
         return rounds(response, includeBody);
@@ -141,8 +139,7 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
                                            .size(1);
         search.source(AIAgentSessionFlowRecord.ROUND);
         final SearchResponse response = searchDebuggable(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME), 0, 0),
+            new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME)},
             search.build()
         );
         long head = 0;
@@ -178,8 +175,7 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
                                            .size(RESULT_WINDOW);
         // every index of the family: the rounds of a long conversation span days
         final SearchResponse response = searchDebuggable(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME), 0, 0),
+            new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME)},
             search.build()
         );
         return rounds(response, true);
@@ -243,19 +239,15 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
         query.must(Query.range(AIAgentSessionDataRecord.TIMESTAMP).gte(fromTimestamp).lte(toTimestamp));
         // a range with no start names every index of the family, as the round reads do; expanded day by day it
         // would name every day since 1970, and the request line would be longer than Elasticsearch accepts
-        final long startSecondTB = fromTimestamp <= 0 ? 0 : TimeBucket.getRecordTimeBucket(fromTimestamp);
-        final long endSecondTB = fromTimestamp <= 0 ? 0 : TimeBucket.getRecordTimeBucket(toTimestamp);
+        final String[] indices = fromTimestamp <= 0
+            ? new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionDataRecord.INDEX_NAME)}
+            : IndexNames.rangeIndicesBetweenTimestamps(
+                IndexFamily.of(AIAgentSessionDataRecord.INDEX_NAME), fromTimestamp, toTimestamp);
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(AIAgentSessionDataRecord.SEQ, Sort.Order.ASC)
                                            .size(RESULT_WINDOW);
-        final SearchResponse response = searchDebuggable(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionDataRecord.INDEX_NAME),
-                startSecondTB, endSecondTB
-            ),
-            search.build()
-        );
+        final SearchResponse response = searchDebuggable(indices, search.build());
         final List<AIAgentSessionDataRecord> files = new ArrayList<>();
         for (final SearchHit hit : response.getHits().getHits()) {
             final Map<String, Object> source = hit.getSource();

@@ -51,6 +51,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -388,6 +389,40 @@ public class ElasticSearchIT {
         Assertions.assertTrue(client.deleteByIndexName(index));
         Assertions.assertFalse(client.isExistsIndex(timeSeriesIndexName));
         client.deleteTemplate(indexName);
+
+        client.shutdown();
+        server.stop();
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("versions")
+    public void scrollOverSeveralIndices(final ElasticsearchContainer server,
+                                         final String namespace) {
+        server.start();
+
+        final ElasticSearchClient client = new ElasticSearchClient(
+            moduleManager,
+            server.getHttpHostAddress(),
+            "http", "", "", "", "", "test", "test",
+            indexNameConverter(namespace), 500, 6000,
+            0, 15
+        );
+        client.connect();
+
+        final String indexName = "test_scroll_over_several_indices";
+        client.forceInsert(indexName + "-20200807", "first", ImmutableMap.of("user", "sw", "day", "20200807"));
+        client.forceInsert(indexName + "-20200810", "second", ImmutableMap.of("user", "sw", "day", "20200810"));
+
+        // The middle day has no index. Each name gets the namespace, and the missing one is skipped.
+        final var scroller = ElasticSearchScroller
+            .<String>builder()
+            .client(client)
+            .search(Search.builder().size(10).query(Query.term("user", "sw")).build())
+            .indices(new String[] {indexName + "-20200807", indexName + "-20200809", indexName + "-20200810"})
+            .resultConverter(hit -> (String) hit.getSource().get("day"))
+            .build();
+        Assertions.assertEquals(
+            new HashSet<>(Arrays.asList("20200807", "20200810")), new HashSet<>(scroller.scroll()));
 
         client.shutdown();
         server.stop();

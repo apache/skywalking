@@ -37,7 +37,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.B
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.otlp.OTLPServiceRelationTraffic;
 import org.apache.skywalking.oap.server.core.otlp.OTLPServiceSpanTraffic;
@@ -55,8 +54,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RoutingUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 /**
  * Reads {@code otlp_span} on Elasticsearch: a terms aggregation on {@code trace_id} selects the traces, then the
@@ -128,20 +128,17 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
     public List<SpanWrapper> queryTraceById(final String traceId, @Nullable final Duration duration) {
         final String physicalIndex = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPSpanRecord.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool().must(Query.term(OTLPSpanRecord.TRACE_ID, traceId));
-        final String index;
-        if (duration != null && duration.getStartTimestamp() > 0 && duration.getEndTimestamp() > 0) {
+        final boolean inRange = duration != null && duration.getStartTimestamp() > 0 && duration.getEndTimestamp() > 0;
+        if (inRange) {
             query.must(Query.range(OTLPSpanRecord.START_TIME)
                             .gte(duration.getStartTimestamp())
                             .lte(duration.getEndTimestamp()));
-            // One comma-separated index expression: the scroller takes a single index name.
-            index = String.join(",", new TimeRangeIndexNameGenerator(
-                physicalIndex,
-                TimeBucket.getRecordTimeBucket(duration.getStartTimestamp()),
-                TimeBucket.getRecordTimeBucket(duration.getEndTimestamp())
-            ).get());
-        } else {
-            index = physicalIndex;
         }
+        // The day indices go to the client as an array, so the namespace is added to each of them, and the
+        // days without an index are skipped.
+        final String[] indices = inRange ? IndexNames.rangeIndicesBetweenTimestamps(
+            IndexFamily.of(OTLPSpanRecord.INDEX_NAME), duration.getStartTimestamp(), duration.getEndTimestamp()
+        ) : null;
         final SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
         final SearchParams params = new SearchParams();
         RoutingUtils.addRoutingValueToSearchParam(params, traceId);
@@ -149,11 +146,12 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
             .<SpanWrapper>builder()
             .client(getClient())
             .search(search.build())
-            .index(index)
+            .index(physicalIndex)
+            .indices(indices)
             .params(params)
             .resultConverter(searchHit -> toSpanWrapper(searchHit.getSource()))
             .build();
-        return scrollDebuggable(scroller, index, params);
+        return scrollDebuggable(scroller, indices != null ? String.join(",", indices) : physicalIndex, params);
     }
 
     @Override
@@ -221,10 +219,8 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
         final SearchBuilder search = Search.builder().query(query).aggregation(traceIdAggregation);
         final SearchResponse traceIdResponse;
         if (duration != null && duration.getStartTimestamp() > 0 && duration.getEndTimestamp() > 0) {
-            traceIdResponse = searchDebuggable(new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPSpanRecord.INDEX_NAME),
-                TimeBucket.getRecordTimeBucket(duration.getStartTimestamp()),
-                TimeBucket.getRecordTimeBucket(duration.getEndTimestamp())
+            traceIdResponse = searchDebuggable(IndexNames.rangeIndicesBetweenTimestamps(
+                IndexFamily.of(OTLPSpanRecord.INDEX_NAME), duration.getStartTimestamp(), duration.getEndTimestamp()
             ), search.build());
         } else {
             traceIdResponse = searchDebuggable(

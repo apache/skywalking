@@ -50,8 +50,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RoutingUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 import static java.util.Objects.nonNull;
 
@@ -149,11 +150,7 @@ public class TraceQueryEsDAO extends EsDAO implements ITraceQueryDAO {
         search.size(limit).from(from);
 
         final SearchResponse response = searchDebuggable(
-            new TimeRangeIndexNameGenerator(
-                IndexController.LogicIndicesRegister.getPhysicalTableName(SegmentRecord.INDEX_NAME),
-                startSecondTB,
-                endSecondTB
-            ), search.build());
+            IndexNames.rangeIndices(IndexFamily.of(SegmentRecord.INDEX_NAME), duration), search.build());
         final TraceBrief traceBrief = new TraceBrief();
 
         for (SearchHit searchHit : response.getHits().getHits()) {

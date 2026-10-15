@@ -82,7 +82,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.Histor
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.StorageEsInstaller;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.cache.NetworkAddressAliasEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AggregationQueryEsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AlarmQueryEsDAO;
@@ -166,13 +166,7 @@ public class StorageModuleElasticsearchProvider extends ModuleProvider {
         } else {
             config.setNamespace(config.getNamespace().toLowerCase());
         }
-        if (config.getDayStep() > 1) {
-            TimeSeriesUtils.setDAY_STEP(config.getDayStep());
-            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getDayStep());
-        }
-        if (config.getSuperDatasetDayStep() > 0) {
-            TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(config.getSuperDatasetDayStep());
-        }
+        IndexNames.configure(config.getDayStep(), config.getSuperDatasetDayStep());
 
         if (!StringUtil.isEmpty(config.getSecretsManagementFile())) {
             MultipleFilesChangeMonitor monitor = new MultipleFilesChangeMonitor(
