@@ -19,7 +19,6 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.util.Collections;
-import java.util.function.Supplier;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -27,7 +26,7 @@ import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.TopNCondition;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,20 +48,17 @@ class AggregationQueryEsDAOTest {
 
     @BeforeEach
     void setUp() {
-        TimeSeriesUtils.setDAY_STEP(3);
-        TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
+        IndexNames.configure(3, 1);
     }
 
     @AfterEach
     void tearDown() {
-        TimeSeriesUtils.setDAY_STEP(1);
-        TimeSeriesUtils.setSUPER_DATASET_DAY_STEP(1);
+        IndexNames.configure(1, -1);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void sortMetrics_shouldSearchTheIndexRolledByDayStep() {
-        when(client.search(any(Supplier.class), any(Search.class))).thenReturn(new SearchResponse());
+        when(client.search(any(String[].class), any(Search.class))).thenReturn(new SearchResponse());
 
         final TopNCondition condition = new TopNCondition();
         condition.setName("service_resp_time");
@@ -75,10 +71,10 @@ class AggregationQueryEsDAOTest {
 
         new AggregationQueryEsDAO(client).sortMetrics(condition, "value", duration, Collections.emptyList());
 
-        final ArgumentCaptor<Supplier<String[]>> indices = ArgumentCaptor.forClass(Supplier.class);
+        final ArgumentCaptor<String[]> indices = ArgumentCaptor.forClass(String[].class);
         verify(client).search(indices.capture(), any(Search.class));
         // With dayStep 3, the minutes of 2020-08-09 are written to the index of 2020-08-07,
-        // see TimeSeriesUtilsTest#testIndexRolling.
-        assertThat(indices.getValue().get()).containsExactly("service_resp_time-20200807");
+        // see IndexNamesTest#writeIndex_rollsMetricsAndRecordsByDayStepAndSuperDatasetsBySuperDatasetDayStep.
+        assertThat(indices.getValue()).containsExactly("service_resp_time-20200807");
     }
 }

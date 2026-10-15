@@ -58,7 +58,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         if (model.isTimeRelativeID()) {
             metrics.forEach(metric -> {
                 // Try to use with timestamp index name(write index),
-                String indexName = TimeSeriesUtils.writeIndexName(model, metric.getTimeBucket());
+                String indexName = IndexNames.writeIndex(model, metric.getTimeBucket());
                 groupIndices.computeIfAbsent(indexName, v -> new ArrayList<>()).add(metric);
             });
 
@@ -102,7 +102,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
-        String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
+        String modelName = IndexNames.writeIndex(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         return new MetricIndexRequestWrapper(getClient().prepareInsert(modelName, id, builder), callback);
     }
@@ -113,7 +113,7 @@ public class MetricsEsDAO extends EsDAO implements IMetricsDAO {
         storageBuilder.entity2Storage(metrics, toStorage);
         Map<String, Object> builder =
             IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
-        String modelName = TimeSeriesUtils.writeIndexName(model, metrics.getTimeBucket());
+        String modelName = IndexNames.writeIndex(model, metrics.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, metrics.id().build());
         return new MetricIndexUpdateWrapper(getClient().prepareUpdate(modelName, id, builder), callback);
     }

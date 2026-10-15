@@ -30,7 +30,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.B
 import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.TermsAggregationBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
-import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.IZipkinQueryDAO;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinServiceRelationTraffic;
@@ -44,8 +43,9 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.RoutingUtils;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
@@ -201,11 +201,13 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
                        .order(BucketOrder.aggregation(ZipkinSpanRecord.TIMESTAMP_MILLIS, false));
 
         SearchBuilder search = Search.builder().query(query).aggregation(traceIdAggregation);
-        SearchResponse traceIdResponse = searchDebuggable(new TimeRangeIndexNameGenerator(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME),
-            TimeBucket.getRecordTimeBucket(startTimeMillis),
-            TimeBucket.getRecordTimeBucket(endTimeMillis)
-        ), search.build());
+        // Day indices are listed only for the range the time filter above uses. A lookback that reaches back
+        // to 1970 would otherwise list one index per day since then.
+        final String[] indices = startTimeMillis > 0 && endTimeMillis > 0
+            ? IndexNames.rangeIndicesBetweenTimestamps(
+                IndexFamily.of(ZipkinSpanRecord.INDEX_NAME), startTimeMillis, endTimeMillis)
+            : new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME)};
+        SearchResponse traceIdResponse = searchDebuggable(indices, search.build());
         Set<String> traceIds = new HashSet<>();
         if (Objects.nonNull(traceIdResponse.getAggregations())) {
             final Map<String, Object> idTerms =

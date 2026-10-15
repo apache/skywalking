@@ -39,7 +39,8 @@ import org.apache.skywalking.oap.server.core.storage.query.IGenAIEvaluationRecor
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
@@ -134,11 +135,8 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
                                            .size(limit)
                                            .from(from);
 
-        final SearchResponse response = searchDebuggable(new TimeRangeIndexNameGenerator(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(GenAIEvaluationRecord.INDEX_NAME),
-            startSecondTB,
-            endSecondTB
-        ), search.build());
+        final SearchResponse response = searchDebuggable(
+            IndexNames.rangeIndices(IndexFamily.of(GenAIEvaluationRecord.INDEX_NAME), duration), search.build());
 
         final GenAIEvaluationRecords records = new GenAIEvaluationRecords();
         for (SearchHit searchHit : response.getHits().getHits()) {

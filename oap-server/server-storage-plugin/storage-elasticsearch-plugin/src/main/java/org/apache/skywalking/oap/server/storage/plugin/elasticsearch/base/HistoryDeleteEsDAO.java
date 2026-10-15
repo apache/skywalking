@@ -64,7 +64,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
             return;
         }
 
-        String latestIndex = TimeSeriesUtils.latestWriteIndexName(model);
+        String latestIndex = IndexNames.latestIndex(IndexFamily.of(model), System.currentTimeMillis());
         if (!client.isExistsIndex(latestIndex)) {
             try {
                 client.createIndex(latestIndex);
@@ -91,7 +91,7 @@ public class HistoryDeleteEsDAO extends EsDAO implements IHistoryDeleteDAO {
 
         List<String> prepareDeleteIndexes = new ArrayList<>();
         for (String index : indices) {
-            long timeSeries = TimeSeriesUtils.isolateTimeFromIndexName(index);
+            long timeSeries = IndexNames.indexStartDay(index);
             if (deadline >= timeSeries) {
                 prepareDeleteIndexes.add(index);
             }

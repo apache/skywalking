@@ -147,6 +147,16 @@ public class StorageEsInstaller extends ModelInstaller {
         return installInfo;
     }
 
+    /**
+     * Registers the model's physical table, the local state reads translate a model name with. A node that
+     * applies a model without a schema change, such as a peer reinstalling a bundled rule, never calls
+     * {@link #isExists}, which registers it on every other path.
+     */
+    @Override
+    protected void populateLocalCacheOnly(final Model model, final StorageManipulationOpt opt) {
+        IndexController.LogicIndicesRegister.registerRelation(model, IndexController.INSTANCE.getTableName(model));
+    }
+
     @Override
     public void createTable(Model model) throws StorageException {
         if (model.isTimeSeries()) {
@@ -198,7 +208,7 @@ public class StorageEsInstaller extends ModelInstaller {
         String tableName = IndexController.INSTANCE.getTableName(model);
         Map<String, Object> settings = createSetting(model);
         Mappings mapping = createMapping(model);
-        String indexName = TimeSeriesUtils.latestWriteIndexName(model);
+        String indexName = IndexNames.latestIndex(IndexFamily.of(model), System.currentTimeMillis());
         try {
             boolean shouldUpdateTemplate = !esClient.isExistsTemplate(tableName);
             shouldUpdateTemplate = shouldUpdateTemplate

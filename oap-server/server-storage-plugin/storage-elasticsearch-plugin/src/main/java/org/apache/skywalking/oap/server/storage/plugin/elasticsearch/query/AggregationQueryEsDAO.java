@@ -40,7 +40,8 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeSeriesUtils;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,10 +117,8 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
                        .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                        .build());
 
-        final SearchResponse response = searchDebuggable(() -> TimeSeriesUtils.metricsIndexNames(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(condition.getName()),
-            duration.getStartTimeBucketInSec(),
-            duration.getEndTimeBucketInSec()), search.build());
+        final SearchResponse response = searchDebuggable(
+            IndexNames.rangeIndices(IndexFamily.of(condition.getName()), duration), search.build());
 
         final List<SelectedRecord> topNList = new ArrayList<>();
         if (Objects.nonNull(response.getAggregations())) {

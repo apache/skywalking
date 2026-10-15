@@ -44,8 +44,9 @@ import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSear
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexFamily;
+import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexNames;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.TimeRangeIndexNameGenerator;
 
 import static java.util.Objects.nonNull;
 import static org.apache.skywalking.oap.server.library.util.StringUtil.isNotEmpty;
@@ -145,11 +146,8 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
                   .size(limit)
                   .from(from);
 
-        SearchResponse response = searchDebuggable(new TimeRangeIndexNameGenerator(
-            IndexController.LogicIndicesRegister.getPhysicalTableName(LogRecord.INDEX_NAME),
-            startSecondTB,
-            endSecondTB
-        ), search.build());
+        SearchResponse response = searchDebuggable(
+            IndexNames.rangeIndices(IndexFamily.of(LogRecord.INDEX_NAME), duration), search.build());
 
         Logs logs = new Logs();
 

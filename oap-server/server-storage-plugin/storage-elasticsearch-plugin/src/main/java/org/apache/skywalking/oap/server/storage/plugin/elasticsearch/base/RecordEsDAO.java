@@ -43,7 +43,7 @@ public class RecordEsDAO extends EsDAO implements IRecordDAO {
         final ElasticSearchConverter.ToStorage toStorage = new ElasticSearchConverter.ToStorage(model.getName());
         storageBuilder.entity2Storage(record, toStorage);
         Map<String, Object> builder = IndexController.INSTANCE.appendTableColumn(model, toStorage.obtain());
-        String modelName = TimeSeriesUtils.writeIndexName(model, record.getTimeBucket());
+        String modelName = IndexNames.writeIndex(model, record.getTimeBucket());
         String id = IndexController.INSTANCE.generateDocId(model, record.id().build());
         Optional<String> routingValue = RoutingUtils.getRoutingValue(model, toStorage);
         return getClient().prepareInsert(modelName, id, routingValue, builder);
