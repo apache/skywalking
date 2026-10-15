@@ -114,7 +114,7 @@ public class MultipleFilesChangeMonitor {
 
         boolean isChanged = false;
         for (final WatchedFile watchedFile : watchedFiles) {
-            isChanged = isChanged || watchedFile.detectContentChanged();
+            isChanged = watchedFile.detectContentChanged() || isChanged;
         }
         if (isChanged) {
             List<byte[]> contents = new ArrayList<>(watchedFiles.size());
@@ -233,6 +233,7 @@ public class MultipleFilesChangeMonitor {
                 } else {
                     // File has been deleted. Reset the modified timestamp.
                     lastModifiedTimestamp = 0;
+                    fileContent = null;
                     return true;
                 }
             } else {
