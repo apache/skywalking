@@ -29,7 +29,7 @@ public class ConnectUtils {
 
     public static List<Address> parse(String connectString) throws ConnectStringParseException {
         connectString = connectString == null ? "" : connectString.trim();
-        connectString = connectString.startsWith(",") ? connectString.replace(",", "") : connectString;
+        connectString = connectString.replaceFirst("^,+", "");
 
         if (Strings.isNullOrEmpty(connectString)) {
             throw new ConnectStringParseException("ConnectString cannot be null or empty.");
