@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class ResourceUtils {
         if (url == null) {
             throw new FileNotFoundException("path not found: " + path);
         }
-        return Arrays.stream(Objects.requireNonNull(new File(url.getPath()).listFiles(), "No files in " + path))
+        return Arrays.stream(Objects.requireNonNull(resourceFile(url).listFiles(), "No files in " + path))
                      .filter(File::isFile).toArray(File[]::new);
     }
 
@@ -68,7 +69,7 @@ public class ResourceUtils {
             throw new FileNotFoundException("path not found: " + directoryPath);
         }
         List<File> fileList = new ArrayList<>();
-        return getDirectoryFilesRecursive(url.getPath(), fileList, maxDepth);
+        return getDirectoryFilesRecursive(resourceFile(url).getPath(), fileList, maxDepth);
     }
 
     private static List<File> getDirectoryFilesRecursive(String directoryPath, List<File> fileList, int maxDepth) {
@@ -93,6 +94,14 @@ public class ResourceUtils {
     }
 
     public static Path getPath(String path) {
-        return new File(Objects.requireNonNull(ResourceUtils.class.getClassLoader().getResource(path)).getPath()).toPath();
+        return resourceFile(Objects.requireNonNull(ResourceUtils.class.getClassLoader().getResource(path))).toPath();
+    }
+
+    private static File resourceFile(final URL url) {
+        try {
+            return new File(url.toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid resource URI: " + url, e);
+        }
     }
 }
