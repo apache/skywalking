@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.formatAsLong;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseInternalErrorCode;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseTLS;
+import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.toNanos;
 
 /**
  * Adapt {@link HTTPAccessLogEntry} objects to {@link TCPServiceMeshMetric} builders.
@@ -86,10 +87,10 @@ public class TCPLogEntry2MetricsAdapter {
         final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
-        final long internalRequestLatencyNanos = properties.getTimeToFirstUpstreamTxByte().getNanos();
+        final long internalRequestLatencyNanos = toNanos(properties.getTimeToFirstUpstreamTxByte());
         final long internalResponseLatencyNanos =
-            properties.getTimeToLastDownstreamTxByte().getNanos()
-                - properties.getTimeToFirstUpstreamRxByte().getNanos();
+            toNanos(properties.getTimeToLastDownstreamTxByte())
+                - toNanos(properties.getTimeToFirstUpstreamRxByte());
 
         final TCPServiceMeshMetric.Builder builder =
             TCPServiceMeshMetric
