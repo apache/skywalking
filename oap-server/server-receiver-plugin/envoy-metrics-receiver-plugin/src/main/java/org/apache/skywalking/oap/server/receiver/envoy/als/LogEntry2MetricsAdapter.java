@@ -105,9 +105,13 @@ public class LogEntry2MetricsAdapter {
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
         final long internalRequestLatencyNanos = toNanos(properties.getTimeToFirstUpstreamTxByte());
+        // Envoy leaves out a timing that never happened, and an absent Duration reads as zero, so the
+        // difference would be the whole wait or negative.
         final long internalResponseLatencyNanos =
-            toNanos(properties.getTimeToFirstDownstreamTxByte())
-                - toNanos(properties.getTimeToFirstUpstreamRxByte());
+            properties.hasTimeToFirstUpstreamRxByte() && properties.hasTimeToFirstDownstreamTxByte()
+                ? toNanos(properties.getTimeToFirstDownstreamTxByte())
+                    - toNanos(properties.getTimeToFirstUpstreamRxByte())
+                : 0;
 
         final HTTPServiceMeshMetric.Builder builder =
             HTTPServiceMeshMetric

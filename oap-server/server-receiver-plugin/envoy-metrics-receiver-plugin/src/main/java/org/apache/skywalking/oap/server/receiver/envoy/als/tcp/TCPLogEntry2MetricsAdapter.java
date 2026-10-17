@@ -88,9 +88,12 @@ public class TCPLogEntry2MetricsAdapter {
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
         final long internalRequestLatencyNanos = toNanos(properties.getTimeToFirstUpstreamTxByte());
+        // An absent timing reads as zero, see LogEntry2MetricsAdapter#adaptCommonPart.
         final long internalResponseLatencyNanos =
-            toNanos(properties.getTimeToLastDownstreamTxByte())
-                - toNanos(properties.getTimeToFirstUpstreamRxByte());
+            properties.hasTimeToFirstUpstreamRxByte() && properties.hasTimeToLastDownstreamTxByte()
+                ? toNanos(properties.getTimeToLastDownstreamTxByte())
+                    - toNanos(properties.getTimeToFirstUpstreamRxByte())
+                : 0;
 
         final TCPServiceMeshMetric.Builder builder =
             TCPServiceMeshMetric

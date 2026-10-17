@@ -41,6 +41,22 @@ public class LogEntry2MetricsAdapterTest {
         .setTimeToLastDownstreamTxByte(Duration.newBuilder().setSeconds(3).setNanos(100_000_000))
         .build();
 
+    // An upstream timeout: the request went upstream at 2ms, no response came back, and Envoy sent its own 504 at 15s.
+    private static final AccessLogCommon UPSTREAM_TIMEOUT = AccessLogCommon.newBuilder()
+        .setStartTime(Timestamp.newBuilder().setSeconds(1700000000))
+        .setTimeToFirstUpstreamTxByte(Duration.newBuilder().setNanos(2_000_000))
+        .setTimeToFirstDownstreamTxByte(Duration.newBuilder().setSeconds(15).setNanos(2_000_000))
+        .setTimeToLastDownstreamTxByte(Duration.newBuilder().setSeconds(15).setNanos(2_000_000))
+        .build();
+
+    // The upstream answered at 2.9s and nothing has been sent back yet, as in the log Envoy flushes once an HTTP tunnel
+    // is established, and in TCP proxy logs, which carry no downstream byte timings.
+    private static final AccessLogCommon NO_DOWNSTREAM_TX = AccessLogCommon.newBuilder()
+        .setStartTime(Timestamp.newBuilder().setSeconds(1700000000))
+        .setTimeToFirstUpstreamTxByte(Duration.newBuilder().setSeconds(1).setNanos(500_000_000))
+        .setTimeToFirstUpstreamRxByte(Duration.newBuilder().setSeconds(2).setNanos(900_000_000))
+        .build();
+
     @Test
     public void testHTTPInternalLatencyCountsWholeSeconds() {
         final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder().setCommonProperties(COMMON).build();
@@ -52,6 +68,26 @@ public class LogEntry2MetricsAdapterTest {
     }
 
     @Test
+    public void testHTTPInternalResponseLatencyWithoutUpstreamResponse() {
+        final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder().setCommonProperties(UPSTREAM_TIMEOUT).build();
+        final HTTPServiceMeshMetric.Builder metrics =
+            new LogEntry2MetricsAdapter(entry, null, null).adaptToDownstreamMetrics();
+
+        assertEquals(2_000_000L, metrics.getInternalRequestLatencyNanos());
+        assertEquals(0L, metrics.getInternalResponseLatencyNanos());
+    }
+
+    @Test
+    public void testHTTPInternalResponseLatencyWithoutDownstreamResponse() {
+        final HTTPAccessLogEntry entry = HTTPAccessLogEntry.newBuilder().setCommonProperties(NO_DOWNSTREAM_TX).build();
+        final HTTPServiceMeshMetric.Builder metrics =
+            new LogEntry2MetricsAdapter(entry, null, null).adaptToDownstreamMetrics();
+
+        assertEquals(1_500_000_000L, metrics.getInternalRequestLatencyNanos());
+        assertEquals(0L, metrics.getInternalResponseLatencyNanos());
+    }
+
+    @Test
     public void testTCPInternalLatencyCountsWholeSeconds() {
         final TCPAccessLogEntry entry = TCPAccessLogEntry.newBuilder().setCommonProperties(COMMON).build();
         final TCPServiceMeshMetric.Builder metrics =
@@ -59,5 +95,15 @@ public class LogEntry2MetricsAdapterTest {
 
         assertEquals(1_500_000_000L, metrics.getInternalRequestLatencyNanos());
         assertEquals(200_000_000L, metrics.getInternalResponseLatencyNanos());
+    }
+
+    @Test
+    public void testTCPInternalResponseLatencyWithoutDownstreamResponse() {
+        final TCPAccessLogEntry entry = TCPAccessLogEntry.newBuilder().setCommonProperties(NO_DOWNSTREAM_TX).build();
+        final TCPServiceMeshMetric.Builder metrics =
+            new TCPLogEntry2MetricsAdapter(entry, null, null).adaptToDownstreamMetrics();
+
+        assertEquals(1_500_000_000L, metrics.getInternalRequestLatencyNanos());
+        assertEquals(0L, metrics.getInternalResponseLatencyNanos());
     }
 }
