@@ -59,6 +59,8 @@ Supported operators:
 - String matching: `like %...`, `like ...%`, `like %...%` (e.g., `name like "serv%"`)
 - Tag matching: `contain`, `not contain` (e.g., `tags contain "http.method:GET"`) 
 
+With `>`, `>=`, `<` and `<=`, a number is compared in the type of a `long` or `double` field, and with `==` in the type of a `long` field, e.g. `filter(sideCar.internalRequestLatencyNanos >= 0)`.
+
 ## Aggregation Function
 The default functions are provided by the SkyWalking OAP core, and it is possible to implement additional functions. 
 

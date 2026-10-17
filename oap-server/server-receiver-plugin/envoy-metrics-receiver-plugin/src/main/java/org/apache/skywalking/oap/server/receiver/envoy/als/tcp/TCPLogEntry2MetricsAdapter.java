@@ -29,6 +29,7 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.servicemesh.v3.TCPServiceMeshMetric;
 import org.apache.skywalking.oap.server.receiver.envoy.als.ServiceMetaInfo;
 
+import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.UNKNOWN_INTERNAL_LATENCY;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.formatAsLong;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseInternalErrorCode;
 import static org.apache.skywalking.oap.server.receiver.envoy.als.LogEntry2MetricsAdapter.parseTLS;
@@ -87,13 +88,17 @@ public class TCPLogEntry2MetricsAdapter {
         final ConnectionProperties connectionProperties = entry.getConnectionProperties();
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
-        final long internalRequestLatencyNanos = toNanos(properties.getTimeToFirstUpstreamTxByte());
-        // An absent timing reads as zero, see LogEntry2MetricsAdapter#adaptCommonPart.
+        // The attempt count here is the TCP proxy's connect attempts. See LogEntry2MetricsAdapter#adaptCommonPart
+        // for why a retried request's internal request latency is unknown, and why an absent timing reads as zero.
+        final long internalRequestLatencyNanos =
+            properties.hasTimeToFirstUpstreamTxByte() && properties.getUpstreamRequestAttemptCount() <= 1
+                ? toNanos(properties.getTimeToFirstUpstreamTxByte())
+                : UNKNOWN_INTERNAL_LATENCY;
         final long internalResponseLatencyNanos =
             properties.hasTimeToFirstUpstreamRxByte() && properties.hasTimeToLastDownstreamTxByte()
                 ? toNanos(properties.getTimeToLastDownstreamTxByte())
                     - toNanos(properties.getTimeToFirstUpstreamRxByte())
-                : 0;
+                : UNKNOWN_INTERNAL_LATENCY;
 
         final TCPServiceMeshMetric.Builder builder =
             TCPServiceMeshMetric
