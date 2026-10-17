@@ -28,6 +28,7 @@ import io.envoyproxy.envoy.data.accesslog.v3.TLSProperties;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.apache.skywalking.apm.network.common.v3.DetectPoint;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
@@ -103,10 +104,14 @@ public class LogEntry2MetricsAdapter {
         final Protocol protocol = requestProtocol(entry.getRequest());
         final String tlsMode = parseTLS(properties.getTlsProperties());
         final String internalErrorCode = parseInternalErrorCode(properties.getResponseFlags());
-        final long internalRequestLatencyNanos = properties.getTimeToFirstUpstreamTxByte().getNanos();
+        final long internalRequestLatencyNanos = toNanos(properties.getTimeToFirstUpstreamTxByte());
+        // Envoy leaves out a timing that never happened, and an absent Duration reads as zero, so the
+        // difference would be the whole wait or negative.
         final long internalResponseLatencyNanos =
-            properties.getTimeToFirstDownstreamTxByte().getNanos()
-                - properties.getTimeToFirstUpstreamRxByte().getNanos();
+            properties.hasTimeToFirstUpstreamRxByte() && properties.hasTimeToFirstDownstreamTxByte()
+                ? toNanos(properties.getTimeToFirstDownstreamTxByte())
+                    - toNanos(properties.getTimeToFirstUpstreamRxByte())
+                : 0;
 
         final HTTPServiceMeshMetric.Builder builder =
             HTTPServiceMeshMetric
@@ -171,6 +176,10 @@ public class LogEntry2MetricsAdapter {
 
     public static long formatAsLong(final Duration duration) {
         return Instant.ofEpochSecond(duration.getSeconds(), duration.getNanos()).toEpochMilli();
+    }
+
+    public static long toNanos(final Duration duration) {
+        return TimeUnit.SECONDS.toNanos(duration.getSeconds()) + duration.getNanos();
     }
 
     public static Protocol requestProtocol(final HTTPRequestProperties request) {
