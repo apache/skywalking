@@ -24,3 +24,10 @@ The Apache Software Foundation (http://www.apache.org/).
 The original idea and initial implementation of the maven-wrapper module is derived 
 from the Gradle Wrapper which was written originally by Hans Dockter and Adam Murdoch.
 Copyright 2007 the original author or authors.
+-----------------------------------------------------------------------
+This product contains proto files from the Envoy Project:
+
+Envoy
+Copyright The Envoy Project Authors
+
+Licensed under Apache License 2.0.  See LICENSE for terms.
