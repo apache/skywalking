@@ -248,6 +248,10 @@ public final class ConversationFold {
      * Record order: by the record a node stands on, its seq, its row and its block, a node that names no block before
      * one that names one; then by id. A node with a reference comes before one without. The order is total, so a sort
      * never finds it contradicting itself, even among siblings that mix both kinds of reference at one record.
+     *
+     * <p>A history.change card stands at its call's first record and comes just before that call: at one position it
+     * is ordered by the id of the call it names, which shares the card's key, and before it. By its own id alone,
+     * {@code call/} would come first.
      */
     public static int compare(final SessionFlowRound.Node a, final SessionFlowRound.Node b) {
         final Ref ap = a.getRef();
@@ -260,8 +264,30 @@ public final class ConversationFold {
             if (byPosition != 0) {
                 return byPosition;
             }
+            final int byKey = CodePointOrder.compare(tieKey(a), tieKey(b));
+            if (byKey != 0) {
+                return byKey;
+            }
+            final boolean ac = HISTORY_CHANGE.equals(a.getKind());
+            if (ac != HISTORY_CHANGE.equals(b.getKind())) {
+                return ac ? -1 : 1;
+            }
         }
         return CodePointOrder.compare(a.getId(), b.getId());
+    }
+
+    private static final String HISTORY_CHANGE = "history.change";
+
+    /**
+     * What orders a node among nodes at one position: its own id, or for a history.change card, the id of the call it
+     * stands before.
+     */
+    private static String tieKey(final SessionFlowRound.Node n) {
+        final String id = n.getId() == null ? "" : n.getId();
+        if (!HISTORY_CHANGE.equals(n.getKind())) {
+            return id;
+        }
+        return "call/" + (id.startsWith("history/") ? id.substring("history/".length()) : id);
     }
 
     private static final Comparator<Ref> POSITION = Comparator.comparingLong(Ref::getSeq)

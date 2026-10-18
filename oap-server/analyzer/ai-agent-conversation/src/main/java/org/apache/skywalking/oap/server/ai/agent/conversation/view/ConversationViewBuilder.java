@@ -1771,6 +1771,9 @@ public final class ConversationViewBuilder {
             case "epoch":
             case "talk":
             case "run":
+            // A card says what two requests' histories hold, from its attributes; the record it stands at is its
+            // call's.
+            case "history.change":
                 return false;
             default:
                 return true;
