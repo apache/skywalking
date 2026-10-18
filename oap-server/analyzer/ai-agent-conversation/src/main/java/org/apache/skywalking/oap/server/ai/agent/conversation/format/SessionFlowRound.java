@@ -153,7 +153,12 @@ public final class SessionFlowRound {
         for (final String line : rawLines) {
             lineNo++;
             if (line.isEmpty()) {
-                continue;
+                // the newline that ends the last line leaves one empty string after it; an empty line anywhere
+                // else is a line that does not decode, as Session Flow says, and the round is refused
+                if (lineNo == rawLines.length) {
+                    continue;
+                }
+                throw new IllegalArgumentException("line " + lineNo + " is empty");
             }
             final JsonElement frame = Schema.parse(line);
             if (frame == null || !frame.isJsonObject()) {

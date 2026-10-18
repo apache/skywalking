@@ -326,6 +326,24 @@ public class ConversationViewBuilderTest {
     }
 
     /**
+     * A session whose id holds "%" and "/" has the node the Sessionizer writes for it, session/s%25foo%2Fbar: each
+     * part of an id writes "%" as "%25" and "/" as "%2F". The document finds that node, so it takes the session's time
+     * range and its provider bodies from it, and lists the one session the rounds carry, never a second one read back
+     * out of the node's id. The round is one asz wrote with its own round writer.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void aSessionIdThatHoldsAnEscapeIsFoundByItsNode() throws Exception {
+        final Map<String, Object> doc = view(Fixtures.bytes("escaped-session/r000001-71d916485e42.sf"),
+                                             Collections.emptyMap(), Collections.emptyList());
+        assertEquals(Collections.singletonList("s%foo/bar"), doc.get("sessions"));
+        final Map<String, Object> summary = (Map<String, Object>) doc.get("summary");
+        assertEquals(3L, summary.get("provider_bodies"));
+        assertEquals(1767225600000L, summary.get("from"));
+        assertEquals(1767225607000L, summary.get("to"));
+    }
+
+    /**
      * The Sessionizer's history-forget scenario: the last call's history changed, so a history.change card stands
      * before it. The document equals the Sessionizer's. The card stands at its call's first record, under the same
      * parent and just before the call, and carries no content of that record: its attributes say what changed.
