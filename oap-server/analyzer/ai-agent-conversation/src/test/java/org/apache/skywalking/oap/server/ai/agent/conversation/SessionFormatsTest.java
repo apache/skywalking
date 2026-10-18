@@ -227,6 +227,26 @@ public class SessionFormatsTest {
     }
 
     /**
+     * An empty line is a line that does not decode, as Session Flow says, so a round holding one anywhere is refused:
+     * before the header, between frames, or after the commit. The newline that ends the last line leaves nothing
+     * after it, and is no empty line.
+     */
+    @Test
+    public void anEmptyLineIsRefused() throws Exception {
+        final String round = new String(Fixtures.bytes(Fixtures.ROUND_FILE), StandardCharsets.UTF_8);
+        assertTrue(round.endsWith("\n") && !round.endsWith("\n\n"));
+        SessionFlowRound.parse(round.getBytes(StandardCharsets.UTF_8));
+        final int afterHeader = round.indexOf('\n') + 1;
+        for (final String changed : new String[] {
+            "\n" + round,
+            round.substring(0, afterHeader) + "\n" + round.substring(afterHeader),
+            round + "\n",
+        }) {
+            assertThrows(IllegalArgumentException.class, () -> SessionFlowRound.parse(changed.getBytes(StandardCharsets.UTF_8)));
+        }
+    }
+
+    /**
      * A frame decodes only when every field Session Flow lists has the type it gives: a string, an integer, a boolean,
      * an object or a list of references. A frame with a field of another type makes the round refused, even where the
      * value would not change what the round says. Sequences, rows and rounds count from 1, so a negative one is refused

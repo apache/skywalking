@@ -259,30 +259,22 @@ public final class ConversationViewBuilder {
     }
 
     /**
-     * The conversation's own session first, then every other session node the fold holds, by node id, as the
-     * Sessionizer lists them.
+     * The session the conversation's rounds carry, as the Sessionizer lists it: a fold takes only rounds of round 1's
+     * session, so a session is read from the round headers, never back out of a node id.
      */
     private List<String> sessions() {
         final List<String> out = new ArrayList<>();
         out.add(nullToEmpty(fold.getSession()));
-        final List<String> others = new ArrayList<>();
-        for (final SessionFlowRound.Node n : fold.nodesOfKind("session")) {
-            final String id = n.getId();
-            final String s = id.startsWith("session/") ? id.substring("session/".length()) : id;
-            if (!s.equals(fold.getSession()) && !others.contains(s)) {
-                others.add(s);
-            }
-        }
-        others.sort(CodePointOrder.ORDER);
-        out.addAll(others);
         return out;
     }
 
     /**
-     * The id of the session node, as the Sessionizer joins ids: a slash inside a part becomes an underscore.
+     * The id of the session node, as the Sessionizer writes a part of an id: "%" as "%25" and "/" as "%2F", and an
+     * empty part left out.
      */
     private String sessionNodeId() {
-        return "session/" + nullToEmpty(fold.getSession()).replace('/', '_');
+        final String session = nullToEmpty(fold.getSession());
+        return session.isEmpty() ? "session" : "session/" + session.replace("%", "%25").replace("/", "%2F");
     }
 
     private int stepNodes() {
