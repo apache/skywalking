@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -322,6 +323,63 @@ public class ConversationViewBuilderTest {
             Map.of("role", "response", "ref", Map.of("seq", 4L, "row", 2L))), first.get("provider_bodies"));
         // a subagent's calls join in its own stream, from the same file
         assertEquals(2, ((List<?>) node(doc, "call/searcher-s1-call-fdae022ac306").get("provider_bodies")).size());
+    }
+
+    /**
+     * The Sessionizer's history-forget scenario: the last call's history changed, so a history.change card stands
+     * before it. The document equals the Sessionizer's. The card stands at its call's first record, under the same
+     * parent and just before the call, and carries no content of that record: its attributes say what changed.
+     */
+    @Test
+    @SuppressWarnings("unchecked")
+    public void aChangedHistoryDrawsItsCardAsTheSessionizerDoes() throws Exception {
+        final Map<String, Object> doc = view(
+            Fixtures.bytes(Fixtures.HISTORY_FORGET_DIR + Fixtures.HISTORY_FORGET_ROUND_FILE),
+            Fixtures.historyForgetDataFiles(), Collections.emptyList());
+        final JsonElement expected = JsonParser.parseString(new String(
+            Fixtures.bytes(Fixtures.HISTORY_FORGET_DIR + Fixtures.VIEW_EXAMPLE_JSON), StandardCharsets.UTF_8));
+        final JsonElement actual = GSON.toJsonTree(doc);
+        assertEquals(expected, actual);
+        assertEquals(GSON.toJson(expected), GSON.toJson(actual));
+
+        final String call = "call/s9-call-2d0e5ed6b2ef";
+        final Map<String, Object> card = node(doc, "history/s9-call-2d0e5ed6b2ef");
+        assertEquals(node(doc, call).get("ref"), card.get("ref"));
+        for (final String key : new String[] {"text", "state", "bytes", "flags", "dropped"}) {
+            assertFalse(card.containsKey(key), "the card carries " + key);
+        }
+        final Map<String, Object> attrs = (Map<String, Object>) card.get("attrs");
+        assertEquals(call, attrs.get("to_call"));
+        assertEquals("unavailable", attrs.get("cause"));
+        final List<Map<String, Object>> siblings = (List<Map<String, Object>>) parentOf(doc, card).get("children");
+        int at = -1;
+        for (int i = 0; i < siblings.size(); i++) {
+            if (card.get("id").equals(siblings.get(i).get("id"))) {
+                at = i;
+            }
+        }
+        assertEquals(call, siblings.get(at + 1).get("id"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> parentOf(final Map<String, Object> doc, final Map<String, Object> child) {
+        final List<Map<String, Object>> roots = new ArrayList<>((List<Map<String, Object>>) doc.get("talks"));
+        roots.addAll((List<Map<String, Object>>) doc.get("loose"));
+        final ArrayDeque<Map<String, Object>> todo = new ArrayDeque<>(roots);
+        while (!todo.isEmpty()) {
+            final Map<String, Object> n = todo.pop();
+            final List<Map<String, Object>> children = (List<Map<String, Object>>) n.get("children");
+            if (children == null) {
+                continue;
+            }
+            for (final Map<String, Object> c : children) {
+                if (c == child) {
+                    return n;
+                }
+                todo.push(c);
+            }
+        }
+        throw new AssertionError("no parent of " + child.get("id"));
     }
 
     /**

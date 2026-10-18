@@ -86,7 +86,8 @@ read, `from_seq` to `through_seq`, and its input digest chains the digest of eve
 tell when a file is missing or changed. A node of a round points at the record it stands on by `seq`, `row` and
 `block`: the file; the record in it, counted from 1 without the header, so row 1 is the file's second line; and, when
 the node stands on one part of the record, the part, counted from 0. The document takes a step's text and time from
-that record.
+that record. A `history.change` step, which the Sessionizer draws where a model call's history changed, takes only its
+time: it stands on its call's first record and comes just before the call, and what it says is in its `attrs`.
 
 A file's kind is on its first line, the header, and so are its stream or run and its collected time `at`. The OAP
 names the file from the header as the Sessionizer does: a prefix for its kind, the stamp from `at`, and the seq, such

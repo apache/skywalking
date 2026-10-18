@@ -1,0 +1,746 @@
+{
+  "format": "asz.view",
+  "version": "1.0",
+  "conversation": "5c9d8f2c-3d7a-4e93-8042-37270bc84c03",
+  "sessions": [
+    "5c9d8f2c-3d7a-4e93-8042-37270bc84c03"
+  ],
+  "head": {
+    "round": 1,
+    "digest": "9511df04f75c2f649bcafb3a95d2db3f7f749fd0f72d479f42e80b56b29bb918"
+  },
+  "parser": "v1",
+  "policy": "v1+idle=10m0s",
+  "summary": {
+    "title": "a history trimmed with no mark",
+    "state": "verified",
+    "problems": [],
+    "talks": 4,
+    "steps": 13,
+    "streams": 1,
+    "segments": 1,
+    "rounds": 1,
+    "unresolved": 0,
+    "changes": 0,
+    "provider_bodies": 8,
+    "captured_prompts": 4,
+    "from": 1767225600000,
+    "to": 1767225607000,
+    "kinds": {
+      "epoch": 1,
+      "history.change": 1,
+      "llm.call": 4,
+      "message.assistant": 4,
+      "message.external": 4,
+      "run": 4,
+      "segment": 1,
+      "session": 1,
+      "stream": 1,
+      "talk": 4
+    },
+    "relation_types": {
+      "in_segment": 4
+    },
+    "quality": {
+      "exact_unique": 4
+    },
+    "withheld": {}
+  },
+  "rounds": [
+    {
+      "round": 1,
+      "digest": "9511df04f75c2f649bcafb3a95d2db3f7f749fd0f72d479f42e80b56b29bb918",
+      "previous": null,
+      "from_seq": 1,
+      "through_seq": 2,
+      "input_digest": "2d411de23ae277904431aa8b9cac5a8636f86ae36ceae831cc982d24a9b6510e",
+      "from_time": 1767225600000,
+      "through_time": 1767225607000,
+      "verified": true
+    }
+  ],
+  "files": [
+    {
+      "file": "5c9d8f2c-3d7a-4e93-8042-37270bc84c03/streams/main/transcript-20260101T000000.000000000Z-000001.sd",
+      "format": "sd",
+      "kind": "transcript",
+      "seq": 1,
+      "round": null,
+      "stream": "main",
+      "run": null,
+      "lines": 11,
+      "bytes": 3132,
+      "digest": "2bdbe0bd36d3fe0203cb7b77d1ea636e42d6ba7536e8e988f6295aefaf4589fb",
+      "from_time": 1767225600000,
+      "through_time": 1767225607000
+    },
+    {
+      "file": "5c9d8f2c-3d7a-4e93-8042-37270bc84c03/provider_body/provider_body-20260101T000000.000000000Z-000002.sd",
+      "format": "sd",
+      "kind": "provider_body",
+      "seq": 2,
+      "round": null,
+      "stream": null,
+      "run": null,
+      "lines": 10,
+      "bytes": 19588,
+      "digest": "731ec4b7f5332a7c09aaaaac5f9076efa1ad495143f93b137557d98db309ca31",
+      "from_time": null,
+      "through_time": null
+    },
+    {
+      "file": "_conversations/5c9d8f2c-3d7a-4e93-8042-37270bc84c03/rounds/r000001-9511df04f75c.sf",
+      "format": "sf",
+      "kind": "round",
+      "seq": null,
+      "round": 1,
+      "stream": null,
+      "run": null,
+      "lines": 31,
+      "bytes": 7282,
+      "digest": "212f18c2027136f5141088677817b9e0f8d019f351aa11887fbedfe229eccf03",
+      "from_time": 1767225600000,
+      "through_time": 1767225607000
+    }
+  ],
+  "streams": [
+    {
+      "id": "stream/main",
+      "name": "main",
+      "role": "main",
+      "label": "",
+      "parent": "",
+      "records": 9,
+      "steps": 13,
+      "talk": "talk/main/s1-cycle",
+      "named_by": "",
+      "opened_by": []
+    }
+  ],
+  "segments": [
+    {
+      "id": "segment/at_1_2",
+      "talks": 4,
+      "from": 1767225600000,
+      "to": 1767225607000
+    }
+  ],
+  "talks": [
+    {
+      "id": "talk/main/s1-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225600000,
+      "ref": {
+        "seq": 1,
+        "row": 2
+      },
+      "label": "what is the timeout?",
+      "reply": "It is 30 seconds.",
+      "runs": 1,
+      "steps": 3,
+      "from": 1767225600000,
+      "to": 1767225601000,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s1-cycle/s1-cycle",
+          "kind": "run",
+          "parent": "talk/main/s1-cycle",
+          "stream": "main",
+          "at": 1767225600000,
+          "ref": {
+            "seq": 1,
+            "row": 2
+          },
+          "children": [
+            {
+              "id": "input/1/2",
+              "kind": "message.external",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225600000,
+              "ref": {
+                "seq": 1,
+                "row": 2
+              },
+              "text": "what is the timeout?",
+              "state": "available",
+              "bytes": 20,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s2-call-2d0e5ed6b2ef",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s1-cycle/s1-cycle",
+              "stream": "main",
+              "at": 1767225601000,
+              "ref": {
+                "seq": 1,
+                "row": 3
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 3
+                }
+              ],
+              "attrs": {
+                "history": "first",
+                "history_messages": 1,
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 3,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 1
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 2
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/3:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s2-call-2d0e5ed6b2ef",
+                  "stream": "main",
+                  "at": 1767225601000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 3,
+                    "block": 0
+                  },
+                  "text": "It is 30 seconds.",
+                  "state": "available",
+                  "bytes": 17,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/main/s3-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225602000,
+      "ref": {
+        "seq": 1,
+        "row": 4
+      },
+      "label": "and the retries?",
+      "reply": "There are 3 retries.",
+      "runs": 1,
+      "steps": 3,
+      "from": 1767225602000,
+      "to": 1767225603000,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s3-cycle/s3-cycle",
+          "kind": "run",
+          "parent": "talk/main/s3-cycle",
+          "stream": "main",
+          "at": 1767225602000,
+          "ref": {
+            "seq": 1,
+            "row": 4
+          },
+          "children": [
+            {
+              "id": "input/1/4",
+              "kind": "message.external",
+              "parent": "run/talk_main_s3-cycle/s3-cycle",
+              "stream": "main",
+              "at": 1767225602000,
+              "ref": {
+                "seq": 1,
+                "row": 4
+              },
+              "text": "and the retries?",
+              "state": "available",
+              "bytes": 16,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s4-call-2d0e5ed6b2ef",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s3-cycle/s3-cycle",
+              "stream": "main",
+              "at": 1767225603000,
+              "ref": {
+                "seq": 1,
+                "row": 5
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 5
+                }
+              ],
+              "attrs": {
+                "history": "kept",
+                "history_from": "call/s2-call-2d0e5ed6b2ef",
+                "history_messages": 3,
+                "history_reply": "back",
+                "system_changed": "no",
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 5,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 3
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 4
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/5:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s4-call-2d0e5ed6b2ef",
+                  "stream": "main",
+                  "at": 1767225603000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 5,
+                    "block": 0
+                  },
+                  "text": "There are 3 retries.",
+                  "state": "available",
+                  "bytes": 20,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/main/s5-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225604000,
+      "ref": {
+        "seq": 1,
+        "row": 6
+      },
+      "label": "and the backoff?",
+      "reply": "It doubles each time.",
+      "runs": 1,
+      "steps": 3,
+      "from": 1767225604000,
+      "to": 1767225605000,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s5-cycle/s5-cycle",
+          "kind": "run",
+          "parent": "talk/main/s5-cycle",
+          "stream": "main",
+          "at": 1767225604000,
+          "ref": {
+            "seq": 1,
+            "row": 6
+          },
+          "children": [
+            {
+              "id": "input/1/6",
+              "kind": "message.external",
+              "parent": "run/talk_main_s5-cycle/s5-cycle",
+              "stream": "main",
+              "at": 1767225604000,
+              "ref": {
+                "seq": 1,
+                "row": 6
+              },
+              "text": "and the backoff?",
+              "state": "available",
+              "bytes": 16,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "call/s6-call-2d0e5ed6b2ef",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s5-cycle/s5-cycle",
+              "stream": "main",
+              "at": 1767225605000,
+              "ref": {
+                "seq": 1,
+                "row": 7
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 7
+                }
+              ],
+              "attrs": {
+                "history": "kept",
+                "history_from": "call/s4-call-2d0e5ed6b2ef",
+                "history_messages": 5,
+                "history_reply": "back",
+                "system_changed": "no",
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 7,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 5
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 6
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/7:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s6-call-2d0e5ed6b2ef",
+                  "stream": "main",
+                  "at": 1767225605000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 7,
+                    "block": 0
+                  },
+                  "text": "It doubles each time.",
+                  "state": "available",
+                  "bytes": 21,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    },
+    {
+      "id": "talk/main/s8-cycle",
+      "kind": "talk",
+      "parent": "epoch/main/0",
+      "stream": "main",
+      "at": 1767225606000,
+      "ref": {
+        "seq": 1,
+        "row": 8
+      },
+      "label": "summarise the three",
+      "reply": "30 seconds, 3 retries, doubling backoff.",
+      "runs": 1,
+      "steps": 4,
+      "from": 1767225606000,
+      "to": 1767225607000,
+      "segment": "segment/at_1_2",
+      "children": [
+        {
+          "id": "run/talk_main_s8-cycle/s8-cycle",
+          "kind": "run",
+          "parent": "talk/main/s8-cycle",
+          "stream": "main",
+          "at": 1767225606000,
+          "ref": {
+            "seq": 1,
+            "row": 8
+          },
+          "children": [
+            {
+              "id": "input/1/8",
+              "kind": "message.external",
+              "parent": "run/talk_main_s8-cycle/s8-cycle",
+              "stream": "main",
+              "at": 1767225606000,
+              "ref": {
+                "seq": 1,
+                "row": 8
+              },
+              "text": "summarise the three",
+              "state": "available",
+              "bytes": 19,
+              "flags": [
+                "external_input"
+              ]
+            },
+            {
+              "id": "history/s9-call-2d0e5ed6b2ef",
+              "kind": "history.change",
+              "parent": "run/talk_main_s8-cycle/s8-cycle",
+              "stream": "main",
+              "at": 1767225607000,
+              "ref": {
+                "seq": 1,
+                "row": 9
+              },
+              "refs": [
+                {
+                  "seq": 2,
+                  "row": 5
+                },
+                {
+                  "seq": 2,
+                  "row": 7
+                }
+              ],
+              "attrs": {
+                "added": 2,
+                "cause": "unavailable",
+                "changed": 0,
+                "dropped": 2,
+                "from_call": "call/s6-call-2d0e5ed6b2ef",
+                "kept": 3,
+                "order_changed": "no",
+                "reply": "back",
+                "system_changed": "no",
+                "to_call": "call/s9-call-2d0e5ed6b2ef"
+              }
+            },
+            {
+              "id": "call/s9-call-2d0e5ed6b2ef",
+              "kind": "llm.call",
+              "parent": "run/talk_main_s8-cycle/s8-cycle",
+              "stream": "main",
+              "at": 1767225607000,
+              "ref": {
+                "seq": 1,
+                "row": 9
+              },
+              "refs": [
+                {
+                  "seq": 1,
+                  "row": 9
+                }
+              ],
+              "attrs": {
+                "history": "changed",
+                "history_from": "call/s6-call-2d0e5ed6b2ef",
+                "history_messages": 5,
+                "history_reply": "back",
+                "system_changed": "no",
+                "usage": "observed_replayable",
+                "usage_at": {
+                  "row": 9,
+                  "seq": 1
+                },
+                "usage_from": "last_fragment_in_line_order"
+              },
+              "usage": {
+                "in": 2,
+                "out": 40,
+                "cache_read": 900,
+                "cache_write": 100
+              },
+              "provider_bodies": [
+                {
+                  "role": "request",
+                  "ref": {
+                    "seq": 2,
+                    "row": 7
+                  }
+                },
+                {
+                  "role": "response",
+                  "ref": {
+                    "seq": 2,
+                    "row": 8
+                  }
+                }
+              ],
+              "children": [
+                {
+                  "id": "msg/1/9:0",
+                  "kind": "message.assistant",
+                  "parent": "call/s9-call-2d0e5ed6b2ef",
+                  "stream": "main",
+                  "at": 1767225607000,
+                  "ref": {
+                    "seq": 1,
+                    "row": 9,
+                    "block": 0
+                  },
+                  "text": "30 seconds, 3 retries, doubling backoff.",
+                  "state": "available",
+                  "bytes": 40,
+                  "flags": [
+                    "finished"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "type": "in_segment",
+          "other": "segment/at_1_2",
+          "dir": "out",
+          "quality": "exact_unique",
+          "via": "activity window"
+        }
+      ]
+    }
+  ],
+  "loose": [],
+  "relations": [
+    {
+      "id": "rel/in_segment/talk_main_s1-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s1-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 2
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s3-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s3-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 4
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s5-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s5-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 6
+        }
+      ]
+    },
+    {
+      "id": "rel/in_segment/talk_main_s8-cycle/segment_at_1_2",
+      "type": "in_segment",
+      "from": "talk/main/s8-cycle",
+      "to": "segment/at_1_2",
+      "quality": "exact_unique",
+      "via": "activity window",
+      "evidence": [
+        {
+          "seq": 1,
+          "row": 8
+        }
+      ]
+    }
+  ],
+  "unresolved": [],
+  "workspace_changes": [],
+  "tool_executions": []
+}
