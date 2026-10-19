@@ -42,4 +42,6 @@ verify:
   cases:
     - includes:
         - ./otlp-virtual-genai.yaml
+        - ./evaluation-storage.yaml
+        - ./evaluation-span-lookup.yaml
 

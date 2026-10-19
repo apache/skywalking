@@ -178,13 +178,20 @@ public class SpanAIEvaluationStrategy implements AIEvaluationStrategy {
             return false;
         }
 
-        if (context.getTraceRefType() == GenAITraceRefType.SKYWALKING_NATIVE) {
-            if (StringUtil.isBlank(context.getSegmentId()) || context.getSpanIndex() == null) {
+        switch (context.getTraceRefType()) {
+            case SKYWALKING_NATIVE:
+                if (StringUtil.isBlank(context.getSegmentId()) || context.getSpanIndex() == null) {
+                    return false;
+                }
+                break;
+            case OTLP:
+            case ZIPKIN:
+                if (StringUtil.isBlank(context.getSpanId())) {
+                    return false;
+                }
+                break;
+            default:
                 return false;
-            }
-        } else if (context.getTraceRefType() != GenAITraceRefType.OTLP
-            || StringUtil.isBlank(context.getSpanId())) {
-            return false;
         }
 
         final String inputMessages = context.getTags().get(GenAISemanticAttributes.INPUT_MESSAGES);

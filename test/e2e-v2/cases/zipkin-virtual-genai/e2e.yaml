@@ -42,3 +42,4 @@ verify:
   cases:
     - includes:
         - ./zipkin-virtual-genai.yaml
+        - ./evaluation-storage.yaml

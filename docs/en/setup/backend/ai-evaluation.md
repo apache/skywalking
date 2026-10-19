@@ -98,6 +98,16 @@ Evaluation records are available through the `queryGenAIEvaluationRecord` GraphQ
 
 The metric value is PPM. Divide it by `1000000` when displaying the original score.
 
+The trace reference's `type` names the store holding the judged span, so a client reads the trace from the right place:
+
+| `type` | Spans | Addressed by | Read through |
+|---|---|---|---|
+| `SKYWALKING_NATIVE` | Received from SkyWalking agents | `traceId`, `segmentId` and `spanIndex` | The SkyWalking trace query |
+| `OTLP` | Received over OTLP with `receiver-otel` `otlpTraceStorage: otlp`, the default | `traceId` and `spanId` | The TraceQL OTLP datasource |
+| `ZIPKIN` | Received by `receiver-zipkin`, or over OTLP with `otlpTraceStorage: zipkin` | `traceId` and `spanId` | The Zipkin query API |
+
+One OAP can hold both `OTLP` and `ZIPKIN` spans at once, since `receiver-zipkin` runs independently of `otlpTraceStorage`. The type is decided when a span is received, so changing `otlpTraceStorage` later does not change the records already written.
+
 ## Operational considerations
 
 Evaluation runs asynchronously after a GenAI span is sampled. A slow or unavailable judge affects evaluation throughput, not trace ingestion, but it can fill the local queue and increase dropped-evaluation counters. Monitor the `ai_evaluation_dropped_count` and `ai_evaluation_error_count` telemetry metrics when tuning the queue or judge settings.

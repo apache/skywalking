@@ -30,7 +30,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluati
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
-import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
@@ -112,18 +111,27 @@ public class GenAIEvaluationRecordQueryEsDAO extends EsDAO implements IGenAIEval
         if (nonNull(relatedTrace)) {
             if (nonNull(relatedTrace.getType())) {
                 query.must(Query.term(GenAIEvaluationRecord.REF_TYPE, relatedTrace.getType().name()));
+                switch (relatedTrace.getType()) {
+                    case SKYWALKING_NATIVE:
+                        if (isNotEmpty(relatedTrace.getSegmentId())) {
+                            query.must(Query.term(GenAIEvaluationRecord.SEGMENT_ID, relatedTrace.getSegmentId()));
+                        }
+                        if (nonNull(relatedTrace.getSpanIndex())) {
+                            query.must(Query.term(GenAIEvaluationRecord.SPAN_INDEX, relatedTrace.getSpanIndex()));
+                        }
+                        break;
+                    case OTLP:
+                    case ZIPKIN:
+                        if (isNotEmpty(relatedTrace.getSpanId())) {
+                            query.must(Query.term(GenAIEvaluationRecord.SPAN_ID, relatedTrace.getSpanId()));
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported relatedTrace.type: " + relatedTrace.getType());
+                }
             }
             if (isNotEmpty(relatedTrace.getTraceId())) {
                 query.must(Query.term(GenAIEvaluationRecord.TRACE_ID, relatedTrace.getTraceId()));
-            }
-            if (isNotEmpty(relatedTrace.getSegmentId())) {
-                query.must(Query.term(GenAIEvaluationRecord.SEGMENT_ID, relatedTrace.getSegmentId()));
-            }
-            if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())
-                && isNotEmpty(relatedTrace.getSpanId())) {
-                query.must(Query.term(GenAIEvaluationRecord.SPAN_ID, relatedTrace.getSpanId()));
-            } else if (nonNull(relatedTrace.getSpanIndex())) {
-                query.must(Query.term(GenAIEvaluationRecord.SPAN_INDEX, relatedTrace.getSpanIndex()));
             }
         }
         final SearchBuilder search = Search.builder()
