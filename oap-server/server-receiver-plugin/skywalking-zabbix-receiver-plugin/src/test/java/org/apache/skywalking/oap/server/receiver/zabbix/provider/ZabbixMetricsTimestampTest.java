@@ -26,10 +26,8 @@ public class ZabbixMetricsTimestampTest {
 
     @Test
     public void sampleTimeKeepsMillisecondsFromNs() {
-        // clock=1609588563, ns=87682907 -> 87ms within that second. ns-only leftover is dropped.
         assertEquals(1_609_588_563_087L, ZabbixMetrics.sampleTimeMillis(1_609_588_563L, 87_682_907L));
         assertEquals(1_609_588_563_000L, ZabbixMetrics.sampleTimeMillis(1_609_588_563L, 0L));
-        // Truncate toward zero at the millisecond boundaries. 999999999ns stays in the same second.
         assertEquals(1_609_588_563_000L, ZabbixMetrics.sampleTimeMillis(1_609_588_563L, 999_999L));
         assertEquals(1_609_588_563_001L, ZabbixMetrics.sampleTimeMillis(1_609_588_563L, 1_000_000L));
         assertEquals(1_609_588_563_999L, ZabbixMetrics.sampleTimeMillis(1_609_588_563L, 999_999_999L));

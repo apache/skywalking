@@ -62,15 +62,6 @@ import static com.google.common.collect.ImmutableMap.toImmutableMap;
 @Slf4j
 public class ZabbixMetrics {
 
-    /**
-     * Sample time in milliseconds. {@code clockSeconds} is the Unix second and {@code nanos} is the
-     * nanoseconds within that second. Meter samples are milliseconds, so the sub-millisecond part of
-     * {@code nanos} is dropped.
-     */
-    static long sampleTimeMillis(final long clockSeconds, final long nanos) {
-        return TimeUnit.SECONDS.toMillis(clockSeconds) + TimeUnit.NANOSECONDS.toMillis(nanos);
-    }
-
     private final List<ZabbixConfig> originalConfigs;
 
     /**
@@ -127,6 +118,15 @@ public class ZabbixMetrics {
                     allServices.add(instanceGroup);
                     return instanceGroup;
                 }).appendMetrics(c)));
+    }
+
+    /**
+     * Sample time in milliseconds. {@code clockSeconds} is the Unix second and {@code nanos} is the
+     * nanoseconds within that second. Meter samples are milliseconds, so the sub-millisecond part of
+     * {@code nanos} is dropped.
+     */
+    static long sampleTimeMillis(final long clockSeconds, final long nanos) {
+        return TimeUnit.SECONDS.toMillis(clockSeconds) + TimeUnit.NANOSECONDS.toMillis(nanos);
     }
 
     /**
