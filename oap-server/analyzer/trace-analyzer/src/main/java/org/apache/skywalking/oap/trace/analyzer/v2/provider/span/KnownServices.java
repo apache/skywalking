@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
 import com.google.common.cache.Cache;
+import com.google.common.base.Ticker;
 import com.google.common.cache.CacheBuilder;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.Const;
@@ -43,29 +44,48 @@ public class KnownServices implements Service {
      */
     private static final String AMBIGUOUS = "";
 
-    private final Cache<String, Boolean> names = CacheBuilder.newBuilder()
-                                                             .maximumSize(MAX_NAMES)
-                                                             .expireAfterAccess(1, TimeUnit.DAYS)
-                                                             .build();
+    private final Cache<String, Boolean> names;
 
-    private final Cache<String, String> byShortName = CacheBuilder.newBuilder()
-                                                                  .maximumSize(MAX_NAMES)
-                                                                  .expireAfterAccess(1, TimeUnit.DAYS)
-                                                                  .build();
+    private final Cache<String, String> byShortName;
+
+    public KnownServices() {
+        this(Ticker.systemTicker());
+    }
+
+    KnownServices(final Ticker ticker) {
+        names = CacheBuilder.newBuilder()
+                            .ticker(ticker)
+                            .maximumSize(MAX_NAMES)
+                            .expireAfterAccess(1, TimeUnit.DAYS)
+                            .build();
+        byShortName = CacheBuilder.newBuilder()
+                                  .ticker(ticker)
+                                  .maximumSize(MAX_NAMES)
+                                  .expireAfterAccess(1, TimeUnit.DAYS)
+                                  .build();
+    }
 
     /**
      * @param name a service that just emitted a span; empty names are ignored
      */
     public void record(final String name) {
-        if (name == null || name.isEmpty() || names.getIfPresent(name) != null) {
+        if (name == null || name.isEmpty()) {
             return;
         }
-        names.put(name, Boolean.TRUE);
+        if (names.getIfPresent(name) == null) {
+            names.put(name, Boolean.TRUE);
+        }
         final int split = name.indexOf(Const.DOUBLE_COLONS_SPLIT);
-        if (split > 0 && split + Const.DOUBLE_COLONS_SPLIT.length() < name.length()) {
-            final String shortName = name.substring(split + Const.DOUBLE_COLONS_SPLIT.length());
-            final String seen = byShortName.getIfPresent(shortName);
-            byShortName.put(shortName, seen == null || seen.equals(name) ? name : AMBIGUOUS);
+        if (split <= 0 || split + Const.DOUBLE_COLONS_SPLIT.length() >= name.length()) {
+            return;
+        }
+        final String shortName = name.substring(split + Const.DOUBLE_COLONS_SPLIT.length());
+        // Read on every span, not only a service's first: the read keeps the short name alive as long as its
+        // service emits, and a short name that expired or was evicted while the full name stayed is put back.
+        final String seen = byShortName.getIfPresent(shortName);
+        if (seen == null || !(seen.equals(name) || AMBIGUOUS.equals(seen))) {
+            // Atomic, so two groups' first spans racing on one short name still leave it ambiguous.
+            byShortName.asMap().merge(shortName, name, (earlier, current) -> earlier.equals(current) ? earlier : AMBIGUOUS);
         }
     }
 

@@ -17,11 +17,18 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
+import com.google.common.base.Ticker;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class KnownServicesTest {
     private final KnownServices known = new KnownServices();
@@ -61,5 +68,65 @@ class KnownServicesTest {
         known.record("shop::");
         assertNull(known.nameOf(""));
         assertEquals("shop::", known.nameOf("shop::"));
+    }
+
+    @Test
+    void aShortNameStaysWhileItsServiceEmitsWithoutLookups() {
+        final AtomicLong nanos = new AtomicLong();
+        final KnownServices ticking = new KnownServices(new Ticker() {
+            @Override
+            public long read() {
+                return nanos.get();
+            }
+        });
+        ticking.record("shop::cart");
+        for (int hour = 0; hour < 48; hour++) {
+            nanos.addAndGet(TimeUnit.HOURS.toNanos(1));
+            ticking.record("shop::cart");
+        }
+        assertEquals("shop::cart", ticking.nameOf("cart"), "spans alone must keep the short name alive");
+
+        nanos.addAndGet(TimeUnit.HOURS.toNanos(25));
+        assertNull(ticking.nameOf("cart"), "a day with neither spans nor lookups forgets it");
+        ticking.record("shop::cart");
+        assertEquals("shop::cart", ticking.nameOf("cart"));
+    }
+
+    @Test
+    void aSharedShortNameStaysAmbiguousAcrossLaterSpans() {
+        known.record("shop::cart");
+        known.record("outlet::cart");
+        known.record("shop::cart");
+        known.record("outlet::cart");
+        assertNull(known.nameOf("cart"));
+    }
+
+    @Test
+    void groupsRacingOnOneShortNameLeaveItAmbiguous() throws InterruptedException {
+        final ExecutorService pool = Executors.newFixedThreadPool(2);
+        try {
+            for (int round = 0; round < 500; round++) {
+                final KnownServices racing = new KnownServices();
+                final CountDownLatch start = new CountDownLatch(1);
+                final CountDownLatch done = new CountDownLatch(2);
+                for (final String name : new String[] {"shop::cart", "outlet::cart"}) {
+                    pool.execute(() -> {
+                        try {
+                            start.await();
+                            racing.record(name);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        } finally {
+                            done.countDown();
+                        }
+                    });
+                }
+                start.countDown();
+                assertTrue(done.await(10, TimeUnit.SECONDS));
+                assertNull(racing.nameOf("cart"), "round " + round);
+            }
+        } finally {
+            pool.shutdownNow();
+        }
     }
 }
