@@ -42,4 +42,5 @@ verify:
   cases:
     - includes:
         - ./virtual-genai.yaml
+        - ./evaluation-storage.yaml
 

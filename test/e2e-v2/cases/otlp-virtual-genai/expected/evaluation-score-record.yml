@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-traceType: OTLP
+traceType: ZIPKIN
 hasTraceId: true
 hasSpanId: true
 taskName: Faithfulness

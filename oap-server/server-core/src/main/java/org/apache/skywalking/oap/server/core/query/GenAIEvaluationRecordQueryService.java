@@ -20,7 +20,6 @@ package org.apache.skywalking.oap.server.core.query;
 
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
-import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
@@ -148,17 +147,24 @@ public class GenAIEvaluationRecordQueryService implements Service {
         }
         final boolean hasSegmentId = relatedTrace.getSegmentId() != null && !relatedTrace.getSegmentId().isEmpty();
         final boolean hasSpanId = relatedTrace.getSpanId() != null && !relatedTrace.getSpanId().isEmpty();
-        if (GenAITraceRefType.SKYWALKING_NATIVE.equals(relatedTrace.getType())) {
-            if (hasSpanId) {
-                throw new IllegalArgumentException("Native relatedTrace cannot contain spanId");
-            }
-            if (relatedTrace.getSpanIndex() != null && !hasSegmentId) {
-                throw new IllegalArgumentException("Native relatedTrace.spanIndex requires segmentId");
-            }
-        } else if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())) {
-            if (hasSegmentId || relatedTrace.getSpanIndex() != null) {
-                throw new IllegalArgumentException("OTLP relatedTrace cannot contain segmentId or spanIndex");
-            }
+        switch (relatedTrace.getType()) {
+            case SKYWALKING_NATIVE:
+                if (hasSpanId) {
+                    throw new IllegalArgumentException("Native relatedTrace cannot contain spanId");
+                }
+                if (relatedTrace.getSpanIndex() != null && !hasSegmentId) {
+                    throw new IllegalArgumentException("Native relatedTrace.spanIndex requires segmentId");
+                }
+                break;
+            case OTLP:
+            case ZIPKIN:
+                if (hasSegmentId || relatedTrace.getSpanIndex() != null) {
+                    throw new IllegalArgumentException(
+                        relatedTrace.getType() + " relatedTrace cannot contain segmentId or spanIndex");
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported relatedTrace.type: " + relatedTrace.getType());
         }
     }
 
