@@ -97,6 +97,7 @@ Attributes are reached through functions, all null-safe and returning `""` when 
 | `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
 | `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
 | `resolveAlias(address)` | the service an address names, see [Address-named peers](#address-named-peers); the address unchanged when none is known yet |
+| `aliasOf(address)` | the same answer as `resolveAlias`, but empty when none is known yet, so a rule can draw an address no service answers at as a conjectured node, see [Address-named peers](#address-named-peers) |
 | `isGateway(address)` | whether the address is listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md), matched exactly, a bare host at port 80; always false when the `agent-analyzer` module is not loaded. Its limits are listed under [Address-named peers](#address-named-peers) |
 | `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not. For a client that names its target only as `url.full` or `http.url` |
 | `toJson(expr)`, `toJsonArray(expr)` | as in LAL |
@@ -293,6 +294,13 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   routed to the node that owns the trace, so the two halves meet wherever each arrived. A match learns the alias and
   writes the row for every node. Facts wait 60 seconds for their other half; a callee that never reports, an
   uninstrumented service or a dropped trace context, leaves its caller address-named, which is the honest answer.
+
+The shipped rule resolves with `aliasOf`, and draws a peer it dialed by address and could not name as a conjectured
+node in the `UNDEFINED` layer, as the agent path draws an exit span's unknown peer. The topology query folds a
+conjectured node into the service its address alias names once the row lands, so those first calls join the callee's
+node. It folds nothing else: a node that is a service keeps its own name even when the name equals some alias
+address, as an OTLP `frontend` does while an agent has registered the host `frontend` for `agent::frontend`. A rule
+that still writes an address-named peer in a normal layer, through `resolveAlias`, keeps that address node.
 
 Two guards keep an alias honest. An address whose host names another service is never registered: a proxy that
 keeps the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's.

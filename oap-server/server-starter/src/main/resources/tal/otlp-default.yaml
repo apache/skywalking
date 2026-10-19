@@ -156,6 +156,8 @@ rules:
             // The peer is named first, because the metrics below are scoped to it. `peer.service` is the
             // deprecated spelling of `service.peer.name`; SDKs on either side of that rename still emit one of them.
             def peer = attr("service.peer.name", "peer.service")
+            // Set when the peer is the address the span dialed, rather than a service name the span declared.
+            def dialed = ""
             if (!peer && hasAttr("server.address", "net.peer.name")) {
               // The port is optional. Without it the node is the bare address, the spelling the callee's own
               // service name takes, rather than a third one ending in a colon.
@@ -165,22 +167,35 @@ rules:
               if (port) {
                 def peer = addr + ":" + port
               }
+              def dialed = peer
             }
             // Envoy, and other instrumentations of OpenTracing descent, name the peer as `peer.address`, host and
             // port in one string, and report no server.address at all.
             if (!peer && hasAttr("peer.address")) {
               def peer = attr("peer.address")
+              def dialed = peer
             }
             // A client that names its target only as a URL, the Python requests instrumentation among them, still
             // carries the host and port there.
             if (!peer && hasAttr("url.full", "http.url")) {
               def peer = urlHost(attr("url.full", "http.url"))
+              def dialed = peer
             }
             // A peer whose host names a service, or that some SERVER span registered through `alias`, resolves to
             // that service, so the edge lands on the callee's own node instead of one named by the address. A peer
             // listed in gateways.yml stays the gateway's own node, so the call reads caller, gateway, callee.
+            // An address nothing names yet is drawn as a conjectured node, as the agent path draws one: the
+            // topology folds a conjectured node into the service its address alias names once the alias lands,
+            // and never renames a service that has spans of its own.
+            def unresolved = ""
             if (!isGateway(peer)) {
-              def peer = resolveAlias(peer)
+              def named = aliasOf(peer)
+              if (named) {
+                def peer = named
+              }
+              if (!named && dialed) {
+                def unresolved = peer
+              }
             }
             // A peer reached without an address, an embedded database or a broker the JMS API hides, is named
             // after what the span does know: the database system and its namespace, or the messaging system alone,
@@ -198,6 +213,9 @@ rules:
             }
             if (peer) {
               def peerLayer = "OTLP_SERVICE"
+              if (unresolved) {
+                def peerLayer = "UNDEFINED"
+              }
               if (isGateway(peer)) {
                 def peerLayer = "VIRTUAL_GATEWAY"
               }

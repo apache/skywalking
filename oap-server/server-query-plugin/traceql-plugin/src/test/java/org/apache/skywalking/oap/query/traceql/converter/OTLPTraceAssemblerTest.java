@@ -330,6 +330,32 @@ class OTLPTraceAssemblerTest {
         assertEquals(error, response.getTrace().getResourceSpans(0).getScopeSpans(0).getSpans(0).getStatus());
     }
 
+    @Test
+    void shouldSearchAndNameTheServicesTheSpansWereStoredUnder() throws Exception {
+        // The receiver grouped both services: the resources say frontend and checkout, the store shop::*.
+        final Span root = span(ROOT_SPAN_ID, ByteString.EMPTY, "GET /", 1_000_000L, 4_000_000L).build();
+        final Span child = span(CHILD_SPAN_ID, ROOT_SPAN_ID, "Charge", 2_000_000L, 3_000_000L).build();
+        final List<SpanWrapper> wrappers = Arrays.asList(
+            wrapper(stored(FRONTEND, HTTP_SCOPE, root), "shop::frontend"),
+            wrapper(stored(CHECKOUT, GRPC_SCOPE, child), "shop::checkout"));
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+        condition.setServiceName("shop::checkout");
+
+        final SearchResponse response = OTLPTraceAssembler.toSearchResponse(
+            Collections.singletonList(OTLPTraceAssembler.decode(wrappers)),
+            Collections.singletonList(OTLPTraceAssembler.storedServices(wrappers)),
+            Set.of(), new OTLPSpanMatcher(condition), 0);
+
+        assertEquals(1, response.getTraces().size(), "the trace the storage matched is listed, not dropped");
+        final SearchResponse.Trace trace = response.getTraces().get(0);
+        assertEquals("shop::frontend", trace.getRootServiceName());
+        assertEquals(1, trace.getSpanSets().get(0).getMatched(), "only checkout's span matched");
+    }
+
+    private static SpanWrapper wrapper(final ResourceSpans spans, final String service) {
+        return SpanWrapper.newBuilder().setSource(Source.OTLP).setSpan(spans.toByteString()).setService(service).build();
+    }
+
     private static Resource resource(final String serviceName) {
         return Resource.newBuilder()
                        .addAttributes(KeyValue.newBuilder()

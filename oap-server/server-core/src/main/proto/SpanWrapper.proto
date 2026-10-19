@@ -26,6 +26,9 @@ option java_multiple_files = true;
 message SpanWrapper {
     bytes span = 1;
     Source source = 2;
+    // OTLP only: the service the span was stored under, which the receiver may have grouped from a resource
+    // attribute and so is not always the span's service.name. Empty for a span stored before this field existed.
+    string service = 3;
 }
 
 enum Source {

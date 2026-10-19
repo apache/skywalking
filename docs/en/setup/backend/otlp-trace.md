@@ -91,6 +91,39 @@ The service name is taken from the resource attributes in this order: `service.n
 carries none of these keys is rejected and reported in the OTLP `partial_success` response, it is never stored as an
 anonymous span.
 
+### Service group
+
+`otlpServiceGroupKeys` (`SW_OTEL_RECEIVER_OTLP_SERVICE_GROUP`) groups OTLP services in OAP's `group::name` convention,
+the one `agent::` names follow, from a resource attribute. It lists attribute keys, comma separated, in order of
+preference; the first key a resource carries a value for is the group, and the keys after it are not read:
+
+```yaml
+receiver-otel:
+  default:
+    otlpServiceGroupKeys: service.namespace,k8s.namespace.name
+```
+
+| Resource attributes | Service in OAP |
+|---|---|
+| `service.name=cart`, `service.namespace=opentelemetry-demo`, `k8s.namespace.name=otel-demo` | `opentelemetry-demo::cart` |
+| `service.name=billing`, `k8s.namespace.name=finance` | `finance::billing` |
+| `service.name=legacy` | `legacy` |
+
+The grouped name is the service everywhere OAP names one: the [trace analysis](trace-analyzer.md), its metrics,
+instances, endpoints and topology; the stored span, in both storage modes, so a TraceQL search names the service as
+the layer does, `{resource.service.name="opentelemetry-demo::cart"}`; and the OTLP logs, which are filed under it.
+The resource attributes stay as sent, `service.name` and the grouping attribute among them, so
+`{resource.service.namespace="opentelemetry-demo"}` still finds the group's traces. A caller that dials the host
+`cart` still reaches `opentelemetry-demo::cart`, since the trace analyzer matches a host against a grouped service's
+short name; a short name two groups share, `shop::cart` and `outlet::cart`, matches neither, and those calls are
+named through the alias rows and the pairing instead.
+
+Pick an attribute that holds one low-cardinality value per service, such as `service.namespace`,
+`deployment.environment.name` or `k8s.namespace.name`; a value that changes per pod or per request splits a service
+into many, and a service whose spans carry the attribute only some of the time is split into its grouped and its
+plain name. A `service.name` the SDK grouped already, `shop::cart`, is kept, and a value that holds `::` itself groups
+nothing. Empty, the default, groups nothing.
+
 ### What is stored
 
 Every span is stored as a single-span `ResourceSpans` message, so the query returns the exact resource,

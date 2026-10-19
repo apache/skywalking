@@ -114,21 +114,19 @@ public class AliasRegistrar {
 
     /**
      * @param host a host name
-     * @return the known service the host names, by the whole host or by its first DNS label; null when neither
-     * has emitted spans
+     * @return the known service the host names, by the whole host or by its first DNS label, a grouped service
+     * by its short name; null when neither has emitted spans
      */
     public String serviceNamedBy(final String host) {
         if (host == null || host.isEmpty()) {
             return null;
         }
-        if (knownServices.contains(host)) {
-            return host;
+        final String named = knownServices.nameOf(host);
+        if (named != null) {
+            return named;
         }
         final int dot = host.indexOf('.');
-        if (dot > 0 && knownServices.contains(host.substring(0, dot))) {
-            return host.substring(0, dot);
-        }
-        return null;
+        return dot > 0 ? knownServices.nameOf(host.substring(0, dot)) : null;
     }
 
     /**

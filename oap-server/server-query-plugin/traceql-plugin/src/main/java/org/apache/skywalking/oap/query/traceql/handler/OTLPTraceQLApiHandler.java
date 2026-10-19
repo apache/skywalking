@@ -174,11 +174,13 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
 
             final List<List<SpanWrapper>> wrapped = queryService.queryTraces(condition);
             final List<List<ResourceSpans>> traces = new ArrayList<>(wrapped.size());
+            final List<List<String>> services = new ArrayList<>(wrapped.size());
             for (final List<SpanWrapper> trace : wrapped) {
                 traces.add(OTLPTraceAssembler.decode(trace));
+                services.add(OTLPTraceAssembler.storedServices(trace));
             }
             final SearchResponse response = OTLPTraceAssembler.toSearchResponse(
-                traces, allowedTags, new OTLPSpanMatcher(condition, namingControl), spansPerSpanSet(spss));
+                traces, services, allowedTags, new OTLPSpanMatcher(condition, namingControl), spansPerSpanSet(spss));
             return successResponse(response);
         } catch (IllegalExpressionException | IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
@@ -293,7 +295,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         try {
             final Sample sample = sample(filter.getParams(), duration);
             return tagNamesV2(scope, limit, requested -> SCOPE_INTRINSIC.equals(requested)
-                ? INTRINSIC_TAG_NAMES : OTLPTraceAssembler.tagNames(sample.traces, sample.matcher, requested));
+                ? INTRINSIC_TAG_NAMES : OTLPTraceAssembler.tagNames(sample.traces, sample.services, sample.matcher, requested));
         } catch (IllegalArgumentException e) {
             return badRequestResponse(e.getMessage());
         }
@@ -333,18 +335,26 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         condition.setLimit(TAG_FILTER_SAMPLE_TRACES);
         applyTraceQL(params, condition);
         final List<List<ResourceSpans>> traces = new ArrayList<>();
+        final List<List<String>> services = new ArrayList<>();
         for (final List<SpanWrapper> trace : queryService.queryTraces(condition)) {
             traces.add(OTLPTraceAssembler.decode(trace));
+            services.add(OTLPTraceAssembler.storedServices(trace));
         }
-        return new Sample(traces, new OTLPSpanMatcher(condition, namingControl));
+        return new Sample(traces, services, new OTLPSpanMatcher(condition, namingControl));
     }
 
     private static final class Sample {
         private final List<List<ResourceSpans>> traces;
+        /**
+         * Per trace, the services its spans were stored under, aligned with {@link #traces}.
+         */
+        private final List<List<String>> services;
         private final OTLPSpanMatcher matcher;
 
-        private Sample(final List<List<ResourceSpans>> traces, final OTLPSpanMatcher matcher) {
+        private Sample(final List<List<ResourceSpans>> traces, final List<List<String>> services,
+                       final OTLPSpanMatcher matcher) {
             this.traces = traces;
+            this.services = services;
             this.matcher = matcher;
         }
     }
@@ -374,7 +384,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                 final Sample sample = sample(filter.getParams(), duration);
                 final Set<String> values = new LinkedHashSet<>();
                 for (final String attributeTag : attributeTags) {
-                    values.addAll(OTLPTraceAssembler.tagValues(sample.traces, sample.matcher, attributeTag));
+                    values.addAll(OTLPTraceAssembler.tagValues(sample.traces, sample.services, sample.matcher, attributeTag));
                 }
                 return successResponse(stringValues(values, limit));
             } catch (IllegalArgumentException e) {

@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.MockModuleManager;
 import org.apache.skywalking.oap.server.core.MockModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -152,6 +153,77 @@ public class ServiceTopologyBuilderTest {
             Assertions.assertEquals(2, call.getSourceComponents().size());
             Assertions.assertEquals(List.of("mtls", "http"), call.getTargetComponents());
         }
+    }
+
+    @SneakyThrows
+    @Test
+    public void testRealDestNamedLikeAnAliasAddressKeepsItsNode() {
+        // An agent reached `agent::frontend` at the bare host `frontend`; an OTLP service is also named `frontend`.
+        final String agentFrontend = IDManager.ServiceID.buildId("agent::frontend", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("frontend", agentFrontend);
+        final String proxy = IDManager.ServiceID.buildId("frontend-proxy", true);
+        final String frontend = IDManager.ServiceID.buildId("frontend", true);
+
+        final Topology topology = builder.build(List.of(clientCall(proxy, frontend)), new ArrayList<>());
+
+        Assertions.assertEquals(1, topology.getCalls().size());
+        Assertions.assertEquals(frontend, topology.getCalls().get(0).getTarget());
+        Assertions.assertTrue(topology.getNodes().stream().noneMatch(n -> n.getId().equals(agentFrontend)));
+    }
+
+    @SneakyThrows
+    @Test
+    public void testConjecturedAddressMergesIntoTheServiceItsAliasNames() {
+        // A call recorded before the address's alias existed names the address itself, as a conjectured node.
+        final String songs = IDManager.ServiceID.buildId("songs", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("10.0.0.7:8080", songs);
+        final String gateway = IDManager.ServiceID.buildId("gateway", true);
+        final String address = IDManager.ServiceID.buildId("10.0.0.7:8080", false);
+
+        final Topology topology = builder.build(List.of(clientCall(gateway, address)), new ArrayList<>());
+
+        Assertions.assertEquals(1, topology.getCalls().size());
+        Assertions.assertEquals(songs, topology.getCalls().get(0).getTarget());
+        Assertions.assertTrue(topology.getNodes().stream().noneMatch(n -> n.getId().equals(address)));
+    }
+
+    private ServiceTopologyBuilder builderWithAlias(final String address,
+                                                    final String representServiceId) throws Exception {
+        final NetworkAddressAlias alias = new NetworkAddressAlias();
+        alias.setAddress(address);
+        alias.setRepresentServiceId(representServiceId);
+        final NetworkAddressAliasCache aliasCache = Mockito.mock(NetworkAddressAliasCache.class);
+        when(aliasCache.get(address)).thenReturn(alias);
+        final ModuleManager manager = new MockModuleManager() {
+            @Override
+            protected void init() {
+                register(CoreModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(
+                            IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
+                        registerServiceImplementation(NetworkAddressAliasCache.class, aliasCache);
+                    }
+                });
+            }
+        };
+        final ServiceTopologyBuilder builder = new ServiceTopologyBuilder(manager);
+        final Field metadataQueryServiceField = ServiceTopologyBuilder.class.getDeclaredField("metadataQueryService");
+        metadataQueryServiceField.setAccessible(true);
+        metadataQueryServiceField.set(builder, metadataQueryService);
+        return builder;
+    }
+
+    private static Call.CallDetail clientCall(final String sourceServiceId, final String destServiceId) {
+        final Call.CallDetail call = new Call.CallDetail();
+        call.buildFromServiceRelation(
+            IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(sourceServiceId, destServiceId)),
+            // http
+            49,
+            DetectPoint.CLIENT
+        );
+        return call;
     }
 
     private Service getSvrA() {

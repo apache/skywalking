@@ -302,6 +302,7 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
         final OTLPSpanRecord record = new OTLPSpanRecord();
         record.setTraceId(resultSet.getString(OTLPSpanRecord.TRACE_ID));
         record.setSpanId(resultSet.getString(OTLPSpanRecord.SPAN_ID));
+        record.setServiceName(resultSet.getString(OTLPSpanRecord.SERVICE_NAME));
         final String dataBinaryBase64 = resultSet.getString(OTLPSpanRecord.DATA_BINARY);
         if (!Strings.isNullOrEmpty(dataBinaryBase64)) {
             record.setDataBinary(Base64.getDecoder().decode(dataBinaryBase64));

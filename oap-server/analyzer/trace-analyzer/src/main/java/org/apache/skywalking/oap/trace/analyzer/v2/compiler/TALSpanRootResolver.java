@@ -93,8 +93,8 @@ public class TALSpanRootResolver implements TALRootResolver {
             sb.append(asArray ? "})" : ")");
             return true;
         }
-        if ("component".equals(name) || "resolveAlias".equals(name) || "urlHost".equals(name)
-            || "isGateway".equals(name)) {
+        if ("component".equals(name) || "resolveAlias".equals(name) || "aliasOf".equals(name)
+            || "urlHost".equals(name) || "isGateway".equals(name)) {
             requireKeys(value, name, 1, 1);
             sb.append("h.").append(name).append("(");
             TALValueCodegen.generateStringValueAccess(
@@ -139,7 +139,7 @@ public class TALSpanRootResolver implements TALRootResolver {
             return ExprType.BOOLEAN;
         }
         if ("eventAttr".equals(functionName) || "resolveAlias".equals(functionName)
-            || "urlHost".equals(functionName)) {
+            || "aliasOf".equals(functionName) || "urlHost".equals(functionName)) {
             return ExprType.STRING;
         }
         if ("component".equals(functionName)) {

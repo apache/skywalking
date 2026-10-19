@@ -140,6 +140,21 @@ class OTLPSpanMatcherTest {
         assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN));
     }
 
+    @Test
+    void shouldCompareTheServiceTheSpanWasStoredUnder() {
+        // The receiver grouped the service: the resource says checkout-deploy, the store says shop::checkout-deploy.
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+        condition.setServiceName("shop::checkout-deploy");
+        assertTrue(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN, "shop::checkout-deploy"));
+        assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN, ""),
+            "a span stored without its service resolves it from the resource, as before");
+
+        condition.setServiceName("checkout-deploy");
+        assertFalse(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN, "shop::checkout-deploy"),
+            "the stored service is the service the search names, not the resource's");
+        assertTrue(new OTLPSpanMatcher(condition).matches(RESOURCE, SCOPE, SPAN, ""));
+    }
+
     private static KeyValue string(final String key, final String value) {
         return KeyValue.newBuilder().setKey(key).setValue(AnyValue.newBuilder().setStringValue(value)).build();
     }

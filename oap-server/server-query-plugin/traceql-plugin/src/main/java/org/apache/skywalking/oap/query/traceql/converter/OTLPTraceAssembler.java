@@ -96,8 +96,19 @@ public final class OTLPTraceAssembler {
     public static List<String> tagNames(final List<List<ResourceSpans>> traces,
                                         final OTLPSpanMatcher matcher,
                                         final String scope) {
+        return tagNames(traces, null, matcher, scope);
+    }
+
+    /**
+     * @param services per trace, the services its spans were stored under, aligned with the trace as
+     *                 {@link #storedServices} gives them; null resolves every service from the resource
+     */
+    public static List<String> tagNames(final List<List<ResourceSpans>> traces,
+                                        final List<List<String>> services,
+                                        final OTLPSpanMatcher matcher,
+                                        final String scope) {
         final Set<String> keys = new LinkedHashSet<>();
-        for (final StoredSpan stored : matched(traces, matcher)) {
+        for (final StoredSpan stored : matched(traces, services, matcher)) {
             if (SCOPE_RESOURCE.equals(scope)) {
                 for (final KeyValue attribute : stored.resource.getAttributesList()) {
                     keys.add(attribute.getKey());
@@ -121,7 +132,18 @@ public final class OTLPTraceAssembler {
     public static List<String> tagValues(final List<List<ResourceSpans>> traces,
                                          final OTLPSpanMatcher matcher,
                                          final String tag) {
-        final List<StoredSpan> spans = matched(traces, matcher);
+        return tagValues(traces, null, matcher, tag);
+    }
+
+    /**
+     * @param services per trace, the services its spans were stored under, see {@link #storedServices}; null
+     *                 resolves every service from the resource
+     */
+    public static List<String> tagValues(final List<List<ResourceSpans>> traces,
+                                         final List<List<String>> services,
+                                         final OTLPSpanMatcher matcher,
+                                         final String tag) {
+        final List<StoredSpan> spans = matched(traces, services, matcher);
         final Set<String> values = new LinkedHashSet<>();
         for (final StoredSpan stored : spans) {
             final String value = tagValue(stored, tag);
@@ -172,11 +194,13 @@ public final class OTLPTraceAssembler {
         }
     }
 
-    private static List<StoredSpan> matched(final List<List<ResourceSpans>> traces, final OTLPSpanMatcher matcher) {
+    private static List<StoredSpan> matched(final List<List<ResourceSpans>> traces,
+                                            final List<List<String>> services,
+                                            final OTLPSpanMatcher matcher) {
         final List<StoredSpan> spans = new ArrayList<>();
-        for (final List<ResourceSpans> trace : traces) {
-            for (final StoredSpan stored : flatten(trace)) {
-                if (matcher == null || matcher.matches(stored.resource, stored.scope, stored.span)) {
+        for (int i = 0; i < traces.size(); i++) {
+            for (final StoredSpan stored : flatten(traces.get(i), services == null ? null : services.get(i))) {
+                if (matcher == null || stored.matches(matcher)) {
                     spans.add(stored);
                 }
             }
@@ -188,6 +212,20 @@ public final class OTLPTraceAssembler {
      * Decode stored wrappers. A wrapper of another {@link Source} is skipped: the store holds OTLP only, so one
      * would be a bug elsewhere, not a reason to fail a read.
      */
+    /**
+     * The service each OTLP wrapper was stored under, in the order {@link #decode} returns the spans; empty for a
+     * wrapper stored before it carried one.
+     */
+    public static List<String> storedServices(final List<SpanWrapper> wrappers) {
+        final List<String> services = new ArrayList<>(wrappers.size());
+        for (final SpanWrapper wrapper : wrappers) {
+            if (wrapper.getSource() == Source.OTLP) {
+                services.add(wrapper.getService());
+            }
+        }
+        return services;
+    }
+
     public static List<ResourceSpans> decode(final List<SpanWrapper> wrappers) throws InvalidProtocolBufferException {
         final List<ResourceSpans> spans = new ArrayList<>(wrappers.size());
         for (final SpanWrapper wrapper : wrappers) {
@@ -276,16 +314,28 @@ public final class OTLPTraceAssembler {
                                                   final Set<String> allowedTags,
                                                   final OTLPSpanMatcher matcher,
                                                   final int spansPerSpanSet) {
+        return toSearchResponse(traces, null, allowedTags, matcher, spansPerSpanSet);
+    }
+
+    /**
+     * @param services per trace, the services its spans were stored under, see {@link #storedServices}; null
+     *                 resolves every service from the resource
+     */
+    public static SearchResponse toSearchResponse(final List<List<ResourceSpans>> traces,
+                                                  final List<List<String>> services,
+                                                  final Set<String> allowedTags,
+                                                  final OTLPSpanMatcher matcher,
+                                                  final int spansPerSpanSet) {
         final SearchResponse response = new SearchResponse();
         final List<List<StoredSpan>> all = new ArrayList<>();
         final List<List<StoredSpan>> matched = new ArrayList<>();
-        for (final List<ResourceSpans> trace : traces) {
-            final List<StoredSpan> spans = flatten(trace);
+        for (int i = 0; i < traces.size(); i++) {
+            final List<StoredSpan> spans = flatten(traces.get(i), services == null ? null : services.get(i));
             if (spans.isEmpty()) {
                 continue;
             }
             final List<StoredSpan> matching = matcher == null ? spans : spans.stream()
-                .filter(s -> matcher.matches(s.resource, s.scope, s.span))
+                .filter(s -> s.matches(matcher))
                 .collect(Collectors.toList());
             // The storage matched this trace on the same conditions, so an empty result means the two evaluations
             // disagree; the trace is left out rather than listed with spans the query excluded (#14093).
@@ -426,12 +476,18 @@ public final class OTLPTraceAssembler {
         }
     }
 
-    private static List<StoredSpan> flatten(final List<ResourceSpans> trace) {
+    /**
+     * @param services the services the trace's single-span messages were stored under, aligned with them; null
+     *                 when unknown
+     */
+    private static List<StoredSpan> flatten(final List<ResourceSpans> trace, final List<String> services) {
         final List<StoredSpan> spans = new ArrayList<>();
-        for (final ResourceSpans resourceSpans : trace) {
+        for (int i = 0; i < trace.size(); i++) {
+            final ResourceSpans resourceSpans = trace.get(i);
+            final String service = services == null || i >= services.size() ? "" : services.get(i);
             for (final ScopeSpans scopeSpans : resourceSpans.getScopeSpansList()) {
                 for (final Span span : scopeSpans.getSpansList()) {
-                    spans.add(new StoredSpan(resourceSpans.getResource(), scopeSpans.getScope(), span));
+                    spans.add(new StoredSpan(resourceSpans.getResource(), scopeSpans.getScope(), span, service));
                 }
             }
         }
@@ -477,12 +533,23 @@ public final class OTLPTraceAssembler {
         private final Resource resource;
         private final InstrumentationScope scope;
         private final Span span;
+        /**
+         * The service the span was stored under; empty when the wrapper carried none.
+         */
+        private final String storedService;
 
         /**
-         * The service name the receiver stored, resolved from the same resource keys in the same order.
+         * The service name the receiver stored: the one the wrapper carries, which a service group may have
+         * changed, else resolved from the same resource keys in the same order.
          */
         String serviceName() {
-            return OTLPSpanMatcher.attribute(resource.getAttributesList(), OTLPSpanRecord.SERVICE_NAME_RESOURCE_KEYS);
+            return storedService.isEmpty()
+                ? OTLPSpanMatcher.attribute(resource.getAttributesList(), OTLPSpanRecord.SERVICE_NAME_RESOURCE_KEYS)
+                : storedService;
+        }
+
+        boolean matches(final OTLPSpanMatcher matcher) {
+            return matcher.matches(resource, scope, span, storedService);
         }
 
         /**

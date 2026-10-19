@@ -93,6 +93,10 @@ public class OpenTelemetryTraceHandler
 
     private ModuleManager manager;
     private OtelMetricReceiverConfig config;
+    /**
+     * {@code receiver-otel.otlpServiceGroupKeys}, split once; empty groups nothing.
+     */
+    private List<String> serviceGroupKeys = Collections.emptyList();
     private SpanForwardService forwardService;
     private OTLPSpanForward otlpSpanForward;
     private SpanListenerManager spanListenerManager;
@@ -138,6 +142,7 @@ public class OpenTelemetryTraceHandler
     public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
         this.manager = manager;
         this.config = config;
+        this.serviceGroupKeys = config.getOtlpServiceGroupKeys();
     }
 
     @Override
@@ -207,6 +212,10 @@ public class OpenTelemetryTraceHandler
                     }
                     continue;
                 }
+                // The service the analysis names and the store files the span under; the resource attributes,
+                // service.name among them, stay as sent.
+                final String groupedServiceName = OTLPServiceGroup.apply(
+                    serviceName, analyzedResourceTags, serviceGroupKeys);
 
                 try {
                     for (ScopeSpans scopeSpans : scopeSpansList) {
@@ -227,7 +236,7 @@ public class OpenTelemetryTraceHandler
                             // and before the forward applies head sampling, so metrics count what the SDK sent
                             // rather than what OAP chose to store.
                             final SpanAnalysisResult analysis = analyze(
-                                span, serviceName, analyzedResourceTags, scopeTags, scopeName, scopeVersion);
+                                span, groupedServiceName, analyzedResourceTags, scopeTags, scopeName, scopeVersion);
 
                             if (!otlpResult.isShouldPersist() || !analysis.isPersist()) {
                                 continue;
@@ -248,7 +257,7 @@ public class OpenTelemetryTraceHandler
                                 // The response reports the batch as accepted, so one span's failure must not take the
                                 // rest of the export with it; what is not stored is counted as dropped.
                                 try {
-                                    storeNative(resourceSpans, scopeSpans, span, serviceName, resourceTags,
+                                    storeNative(resourceSpans, scopeSpans, span, groupedServiceName, resourceTags,
                                                 injectedTags, analysis.isEnforced());
                                 } catch (Exception e) {
                                     log.warn("Storing OTLP span {} failed, dropping it: {}",
@@ -268,7 +277,7 @@ public class OpenTelemetryTraceHandler
                                 spanTags = new HashMap<>(resourceTags);
                                 spanTags.putAll(injectedTags);
                             }
-                            Span zipkinSpan = convertSpan(span, serviceName, spanTags, analysis.isEnforced());
+                            Span zipkinSpan = convertSpan(span, groupedServiceName, spanTags, analysis.isEnforced());
                             result.add(zipkinSpan);
                         }
                     }

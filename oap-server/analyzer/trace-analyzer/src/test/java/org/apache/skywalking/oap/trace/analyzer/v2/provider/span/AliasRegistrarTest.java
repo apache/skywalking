@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -75,6 +76,25 @@ class AliasRegistrarTest {
         assertTrue(registrar.register("10.0.0.7:8080", "ad", true, "", NOW));
         assertEquals(2, rows.size(), "both writes go out: " + rows);
         assertEquals(IDManager.ServiceID.buildId("ad", true), rows.get(1).getRepresentServiceId());
+    }
+
+    @Test
+    void aGroupedServiceIsNamedByTheHostItsCallersDial() {
+        known.record("shop::cart");
+        known.record("shop::frontend-proxy");
+        assertEquals("shop::cart", registrar.serviceNamedBy("cart"));
+        assertEquals("shop::cart", registrar.serviceNamedBy("cart.shop.svc.cluster.local"));
+        assertEquals("shop::cart", registrar.serviceNamedBy("shop::cart"));
+        assertNull(registrar.serviceNamedBy("payment"));
+    }
+
+    @Test
+    void theProxyGuardHoldsForGroupedServices() {
+        // frontend behind an Envoy that keeps the Host header reports the proxy's address as its own.
+        known.record("shop::frontend-proxy");
+        assertFalse(registrar.register("frontend-proxy:8080", "shop::frontend", true, "", NOW));
+        assertTrue(registrar.register("frontend-proxy:8080", "shop::frontend-proxy", true, "", NOW));
+        assertEquals(1, rows.size(), "only the proxy's own registration: " + rows);
     }
 
     @Test

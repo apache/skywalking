@@ -100,9 +100,12 @@ class ServiceTopologyBuilder {
             String targetServiceId = clientCall.getTarget();
 
             /*
-             * Use the alias name to make topology relationship accurate.
+             * Use the alias name to make topology relationship accurate. Only a conjectured node is named by the
+             * address it was dialed at; a real service whose name happens to equal some alias address, such as an
+             * OTLP service called `frontend` while an agent registered the host `frontend` for another service,
+             * keeps its own node.
              */
-            if (networkAddressAliasCache.get(destService.getName()) != null) {
+            if (!destService.isReal() && networkAddressAliasCache.get(destService.getName()) != null) {
                 /*
                  * If alias exists, mean this network address is representing a real service.
                  */
