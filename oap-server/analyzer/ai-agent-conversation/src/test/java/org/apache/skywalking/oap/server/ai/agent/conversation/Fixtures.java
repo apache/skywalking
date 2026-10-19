@@ -124,6 +124,17 @@ public final class Fixtures {
     };
     public static final String LANGCHAIN_SUBAGENT_ROUND_FILE = "r000001-90fcf565d8f9.sf";
 
+    /**
+     * The Sessionizer's history-forget scenario: an application trims the history it sends, so the last call's history
+     * changed and a history.change card stands before it.
+     */
+    public static final String HISTORY_FORGET_DIR = "history-forget/";
+    public static final String[] HISTORY_FORGET_DATA_FILES = {
+        "transcript-20260101T000000.000000000Z-000001.sd",
+        "provider_body-20260101T000000.000000000Z-000002.sd",
+    };
+    public static final String HISTORY_FORGET_ROUND_FILE = "r000001-9511df04f75c.sf";
+
     public static final String PROMPT_SNAPSHOT_WITHHELD_DIR = "prompt-snapshot-withheld/";
     public static final String PROMPT_SNAPSHOT_WITHHELD_SESSION = "5499bcd9-30f3-4748-8723-1a9b615f93c9";
     public static final String[] PROMPT_SNAPSHOT_WITHHELD_DATA_FILES = {
@@ -179,6 +190,10 @@ public final class Fixtures {
 
     public static Map<Long, SessionDataFile> langchainSubagentDataFiles() throws IOException {
         return dataFiles(LANGCHAIN_SUBAGENT_DIR, LANGCHAIN_SUBAGENT_DATA_FILES);
+    }
+
+    public static Map<Long, SessionDataFile> historyForgetDataFiles() throws IOException {
+        return dataFiles(HISTORY_FORGET_DIR, HISTORY_FORGET_DATA_FILES);
     }
 
     public static Map<Long, SessionDataFile> promptSnapshotWithheldDataFiles() throws IOException {

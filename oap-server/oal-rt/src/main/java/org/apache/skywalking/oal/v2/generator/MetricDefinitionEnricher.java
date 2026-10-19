@@ -116,7 +116,8 @@ public class MetricDefinitionEnricher {
         CodeGenModel.SerializeFieldsV2 serializeFields = generateSerializeFields(fieldsFromSource, persistentFields);
 
         // 7. Convert filter expressions to template format
-        List<CodeGenModel.FilterExpressionV2> filterExpressions = convertFilters(metric.getFilters());
+        List<CodeGenModel.FilterExpressionV2> filterExpressions =
+            convertFilters(metric.getFilters(), metric.getSource().getName());
 
         // 8. Build CodeGenModel
         return CodeGenModel.builder()
@@ -267,7 +268,7 @@ public class MetricDefinitionEnricher {
                         FilterExpression filterExpr = funcArg.asExpression();
                         String matcherClass = getMatcherClassName(filterExpr);
                         String left = buildFilterLeft(filterExpr);
-                        String right = buildFilterRight(filterExpr);
+                        String right = buildFilterRight(filterExpr, metric.getSource().getName());
                         // Add as FilterExpressionV2 object for template access
                         argsExpressions.add(CodeGenModel.FilterExpressionV2.builder()
                             .expressionObject(matcherClass)
@@ -397,10 +398,10 @@ public class MetricDefinitionEnricher {
     /**
      * Build right side of filter expression.
      */
-    private String buildFilterRight(FilterExpression filterExpr) {
+    private String buildFilterRight(FilterExpression filterExpr, String sourceName) {
         FilterValue value = filterExpr.getValue();
         if (value.isNumber()) {
-            return String.valueOf(value.asNumber());
+            return buildNumberLiteral(value.asNumber(), resolveAttributeType(sourceName, filterExpr.getFieldName()));
         } else if (value.isString()) {
             return "\"" + value.asString() + "\"";
         } else if (value.isBoolean()) {
@@ -445,6 +446,53 @@ public class MetricDefinitionEnricher {
             return sb.toString();
         }
         throw new IllegalArgumentException("Unknown filter value type: " + value);
+    }
+
+    /**
+     * Render a whole number as a literal of the long or double attribute it is compared with. Each comparison matcher
+     * has one overload per type, such as {@code match(long, long)}, and Javassist does not widen an argument, so a bare
+     * {@code 0} against a long attribute would look for {@code match(long, int)}. The literal itself carries the type,
+     * {@code 0L} or {@code 0.0}: Javassist reads the number inside a cast such as {@code (long)(3000000000)} as an int
+     * and overflows it. Any other attribute or number keeps the literal as written.
+     */
+    static String buildNumberLiteral(Number number, Class<?> attributeType) {
+        boolean wholeNumber = number instanceof Long || number instanceof Integer;
+        if (wholeNumber && attributeType == long.class) {
+            return number + "L";
+        }
+        if (wholeNumber && attributeType == double.class) {
+            return number + ".0";
+        }
+        return String.valueOf(number);
+    }
+
+    /**
+     * Resolve the type of the source attribute a filter compares, following nested getters such as
+     * {@code sideCar.internalRequestLatencyNanos}.
+     *
+     * @return the attribute type, or null when it cannot be resolved, as for a map expression.
+     */
+    private Class<?> resolveAttributeType(String sourceName, String fieldName) {
+        if (isMapExpression(fieldName)) {
+            return null;
+        }
+        try {
+            Class<?> type = Class.forName(sourcePackage + sourceName);
+            for (String attribute : fieldName.split("\\.")) {
+                type = findAccessor(type, attribute).getReturnType();
+            }
+            return type;
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    private static Method findAccessor(Class<?> type, String attribute) throws NoSuchMethodException {
+        try {
+            return type.getMethod(ClassMethodUtil.toGetMethod(attribute));
+        } catch (NoSuchMethodException e) {
+            return type.getMethod(ClassMethodUtil.toIsMethod(attribute));
+        }
     }
 
     /**
@@ -575,12 +623,12 @@ public class MetricDefinitionEnricher {
     /**
      * Convert filter expressions to template-ready format.
      */
-    private List<CodeGenModel.FilterExpressionV2> convertFilters(List<FilterExpression> filters) {
+    private List<CodeGenModel.FilterExpressionV2> convertFilters(List<FilterExpression> filters, String sourceName) {
         List<CodeGenModel.FilterExpressionV2> result = new ArrayList<>();
         for (FilterExpression filter : filters) {
             String matcherClass = getMatcherClassName(filter);
             String left = buildFilterLeft(filter);
-            String right = buildFilterRight(filter);
+            String right = buildFilterRight(filter, sourceName);
             // Verbatim ANTLR slice from the parser — e.g.
             // "filter(detectPoint == DetectPoint.SERVER)". Used as the
             // captured filter record's sourceText so the UI matches against

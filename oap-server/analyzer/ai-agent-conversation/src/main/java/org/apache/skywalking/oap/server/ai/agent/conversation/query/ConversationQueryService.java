@@ -26,12 +26,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -499,27 +497,23 @@ public class ConversationQueryService implements IConversationQueryService {
         final long to = rangeEnd(chain.fold.getSessionThroughTime(), headRow.getTimestamp());
         log.debug("files of conversation {} read over {}..{} for seq 1..{}, from the range of round {}",
                   conversation, from, to, throughSeq, chain.fold.getRound());
-        final Set<String> sessions = new LinkedHashSet<>();
-        if (StringUtil.isNotEmpty(chain.fold.getSession())) {
-            sessions.add(chain.fold.getSession());
+        // the session the rounds carry: a fold takes only rounds of round 1's session, and a session node's id is
+        // the session escaped, never the session itself
+        final String session = chain.fold.getSession();
+        if (StringUtil.isEmpty(session)) {
+            return chain;
         }
-        for (final SessionFlowRound.Node n : chain.fold.nodesOfKind("session")) {
-            final String id = n.getId();
-            sessions.add(id.startsWith("session/") ? id.substring("session/".length()) : id);
-        }
-        for (final String session : sessions) {
-            for (final AIAgentSessionDataRecord f : readFiles(serviceId, serviceInstanceId, session, from, to, 1, throughSeq, coldStage, alive)) {
-                if (chain.files.containsKey(f.getSeq())) {
-                    // the same file under two senders; the chain check judges the copy that was kept
-                    continue;
-                }
-                try {
-                    chain.files.put(f.getSeq(), SessionDataFile.parse(f.getBody()));
-                } catch (final RuntimeException e) {
-                    // a file that does not read contributes no records, and the chain check names it as missing
-                    chain.problems.add("file seq " + f.getSeq() + " of session " + session + " cannot be decoded: "
-                                           + e.getMessage());
-                }
+        for (final AIAgentSessionDataRecord f : readFiles(serviceId, serviceInstanceId, session, from, to, 1, throughSeq, coldStage, alive)) {
+            if (chain.files.containsKey(f.getSeq())) {
+                // the same file under two senders; the chain check judges the copy that was kept
+                continue;
+            }
+            try {
+                chain.files.put(f.getSeq(), SessionDataFile.parse(f.getBody()));
+            } catch (final RuntimeException e) {
+                // a file that does not read contributes no records, and the chain check names it as missing
+                chain.problems.add("file seq " + f.getSeq() + " of session " + session + " cannot be decoded: "
+                                       + e.getMessage());
             }
         }
         return chain;

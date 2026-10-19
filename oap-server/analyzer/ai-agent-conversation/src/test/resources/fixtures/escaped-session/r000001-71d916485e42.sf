@@ -1,0 +1,3 @@
+{"t":"header","schema":"sf/1","conversation":"s%foo/bar","session":"s%foo/bar","round":1,"from_seq":1,"through_seq":0,"input_digest":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","parser":"asz-test/1","policy":"test","session_from_time":"2026-01-01T00:00:00Z","session_through_time":"2026-01-01T00:00:07Z","talks":0,"steps":0,"streams":0,"segments":0,"unresolved":0}
+{"t":"node","id":"session/s%25foo%2Fbar","revision":1,"kind":"session","attrs":{"from_time":"2026-01-01T00:00:00Z","provider_bodies_landed":3,"through_time":"2026-01-01T00:00:07Z"}}
+{"t":"commit","digest":"71d916485e4278a3e9232a38b4e6f4f70b781e742c53eecd3998d9a7104c528c","counts":{"nodes":1,"relations":0,"unresolved":0}}
