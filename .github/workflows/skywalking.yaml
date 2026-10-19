@@ -707,6 +707,8 @@ jobs:
             config: test/e2e-v2/cases/otlp-virtual-genai/native/e2e.yaml
           - name: Zipkin Virtual GenAI
             config: test/e2e-v2/cases/zipkin-virtual-genai/e2e.yaml
+          - name: Mixed Virtual GenAI
+            config: test/e2e-v2/cases/mixed-virtual-genai/e2e.yaml
           - name: iOS Monitoring
             config: test/e2e-v2/cases/ios/e2e.yaml
           - name: WeChat Mini Program Monitoring

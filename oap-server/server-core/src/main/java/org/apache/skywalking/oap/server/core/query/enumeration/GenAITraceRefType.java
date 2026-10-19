@@ -18,7 +18,20 @@
 
 package org.apache.skywalking.oap.server.core.query.enumeration;
 
+/**
+ * The store holding the span a GenAI evaluation was produced from, which also sets how the span is addressed.
+ */
 public enum GenAITraceRefType {
+    /**
+     * SkyWalking native segments, received from SkyWalking agents.
+     */
     SKYWALKING_NATIVE,
-    OTLP
+    /**
+     * OTLP spans stored as received, with receiver-otel {@code otlpTraceStorage: otlp}.
+     */
+    OTLP,
+    /**
+     * Spans received by receiver-zipkin, or OTLP spans converted with receiver-otel {@code otlpTraceStorage: zipkin}.
+     */
+    ZIPKIN
 }

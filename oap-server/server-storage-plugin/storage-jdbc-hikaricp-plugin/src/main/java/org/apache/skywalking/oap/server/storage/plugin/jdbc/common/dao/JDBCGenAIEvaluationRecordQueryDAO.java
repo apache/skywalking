@@ -28,7 +28,6 @@ import lombok.SneakyThrows;
 import org.apache.skywalking.oap.server.core.analysis.manual.genai.GenAIEvaluationRecord;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationRecordSortBy;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAIEvaluationValueType;
-import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.GenAITraceScopeCondition;
@@ -242,22 +241,31 @@ public class JDBCGenAIEvaluationRecordQueryDAO implements IGenAIEvaluationRecord
             if (nonNull(relatedTrace.getType())) {
                 sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.REF_TYPE)).append(" = ?");
                 parameters.add(relatedTrace.getType().name());
+                switch (relatedTrace.getType()) {
+                    case SKYWALKING_NATIVE:
+                        if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
+                            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SEGMENT_ID)).append(" = ?");
+                            parameters.add(relatedTrace.getSegmentId());
+                        }
+                        if (nonNull(relatedTrace.getSpanIndex())) {
+                            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_INDEX)).append(" = ?");
+                            parameters.add(relatedTrace.getSpanIndex());
+                        }
+                        break;
+                    case OTLP:
+                    case ZIPKIN:
+                        if (StringUtil.isNotEmpty(relatedTrace.getSpanId())) {
+                            sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_ID)).append(" = ?");
+                            parameters.add(relatedTrace.getSpanId());
+                        }
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unsupported relatedTrace.type: " + relatedTrace.getType());
+                }
             }
             if (StringUtil.isNotEmpty(relatedTrace.getTraceId())) {
                 sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.TRACE_ID)).append(" = ?");
                 parameters.add(relatedTrace.getTraceId());
-            }
-            if (StringUtil.isNotEmpty(relatedTrace.getSegmentId())) {
-                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SEGMENT_ID)).append(" = ?");
-                parameters.add(relatedTrace.getSegmentId());
-            }
-            if (GenAITraceRefType.OTLP.equals(relatedTrace.getType())
-                && StringUtil.isNotEmpty(relatedTrace.getSpanId())) {
-                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_ID)).append(" = ?");
-                parameters.add(relatedTrace.getSpanId());
-            } else if (nonNull(relatedTrace.getSpanIndex())) {
-                sql.append(" and ").append(storageColumn(GenAIEvaluationRecord.SPAN_INDEX)).append(" = ?");
-                parameters.add(relatedTrace.getSpanIndex());
             }
         }
         final boolean sortByScore = GenAIEvaluationRecordSortBy.SCORE_VALUE.equals(sortBy);
