@@ -79,6 +79,7 @@ public class IOSHTTPSpanListener implements SpanListener {
 
     @Override
     public SpanListenerResult onOTLPSpan(final OTLPSpanReader span,
+                                         final String groupedServiceName,
                                          final Map<String, String> resourceAttributes,
                                          final String scopeName,
                                          final String scopeVersion) {
@@ -114,7 +115,8 @@ public class IOSHTTPSpanListener implements SpanListener {
             return SpanListenerResult.CONTINUE;
         }
 
-        final String serviceName = namingControl.formatServiceName(rawServiceName);
+        // The service the span is stored under, which a service group may have changed from the resource's.
+        final String serviceName = namingControl.formatServiceName(groupedServiceName);
         final String rawInstanceName = resourceAttributes.getOrDefault("service.version", "");
         final String instanceName = namingControl.formatInstanceName(rawInstanceName);
         final String endpointName = namingControl.formatEndpointName(serviceName, domain);

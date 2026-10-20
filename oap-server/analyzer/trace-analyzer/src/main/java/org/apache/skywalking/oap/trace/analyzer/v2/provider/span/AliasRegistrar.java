@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 import java.util.function.Predicate;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
@@ -80,10 +81,28 @@ public class AliasRegistrar {
         if (formatted == null || formatted.isEmpty()) {
             return false;
         }
-        final String named = serviceNamedBy(hostOf(address));
+        final String host = hostOf(address);
+        final String named = serviceNamedBy(host, service);
         if (named != null && !named.equals(service) && !named.equals(formatted)) {
             log.debug("Alias {} for {} skipped: the address names the service {}", address, formatted, named);
             return false;
+        }
+        if (named == null) {
+            // Any group's service by the host's first label, however many groups share it and whether or not the host
+            // is qualified, makes the address that service's, a proxy's that keeps the Host header. The callee's own
+            // short name excepted, taken from the unformatted name since the naming rules may cut a long one while
+            // spans record its short name uncut: another group's cart is the same workload deployed elsewhere, and
+            // refusing on it would keep the callee's address from ever being registered.
+            // The whole host counts too, for a short name that holds a dot itself, edge.proxy of infra::edge.proxy.
+            final String own = shortNameOf(service);
+            final String label = firstLabelOf(host);
+            final String shortName = !label.equals(own) && knownServices.hasShortName(label) ? label
+                : !host.equals(label) && !host.equals(own) && knownServices.hasShortName(host) ? host : null;
+            if (shortName != null) {
+                log.debug("Alias {} for {} skipped: the address names a grouped service {}",
+                          address, formatted, shortName);
+                return false;
+            }
         }
         if (isGateway(address)) {
             log.debug("Alias {} for {} skipped: the address is an uninstrumented gateway", address, formatted);
@@ -113,20 +132,82 @@ public class AliasRegistrar {
     }
 
     /**
-     * @param host a host name
-     * @return the known service the host names, by the whole host or by its first DNS label, a grouped service
-     * by its short name; null when neither has emitted spans
+     * The known service a host names for this caller, resolved as Kubernetes DNS resolves a Service name: a host
+     * qualified with a group, {@code cart.outlet} or {@code cart.outlet.svc.cluster.local}, names
+     * {@code outlet::cart}; a bare host names the service of that name in the caller's own group, so {@code cart}
+     * dialed by {@code shop::frontend} is {@code shop::cart}; else the whole host, or its first DNS label, is an
+     * ungrouped service's name. A qualified host is never resolved in the caller's group by its first label, since it
+     * says which group it means; only a service of the caller's group named exactly the whole host, a short name that
+     * holds a dot such as {@code checkout.api}, matches it there. Only a service that has emitted spans to this node, or was read from storage when it started, see
+     * {@link KnownServices#recordStored}, is ever named.
+     *
+     * @param host   a host name
+     * @param caller the service on this side: the CLIENT span's service naming its peer, or the SERVER span's own
+     *               service registering the address it was dialed at
+     * @return the service the host names; null when none does, which leaves it to the alias cache, then to
+     * {@link #serviceByShortName}
      */
-    public String serviceNamedBy(final String host) {
+    public String serviceNamedBy(final String host, final String caller) {
         if (host == null || host.isEmpty()) {
             return null;
         }
-        final String named = knownServices.nameOf(host);
-        if (named != null) {
-            return named;
+        final String first = firstLabelOf(host);
+        final boolean qualified = first.length() < host.length();
+        if (knownServices.hasGroupedServices()) {
+            if (qualified) {
+                final int next = host.indexOf('.', first.length() + 1);
+                final String second = host.substring(first.length() + 1, next > 0 ? next : host.length());
+                final String named = second + Const.DOUBLE_COLONS_SPLIT + first;
+                if (!second.isEmpty() && knownServices.contains(named)) {
+                    return named;
+                }
+            }
+            // The whole host in the caller's own group: a bare host as Kubernetes resolves it, and a short name that
+            // holds a dot itself, checkout.api of shop::checkout.api. A qualified host names a service of the
+            // caller's group this way only when one is called exactly that, never by its first label.
+            final String group = KnownServices.groupOf(caller);
+            if (group != null && knownServices.contains(group + Const.DOUBLE_COLONS_SPLIT + host)) {
+                return group + Const.DOUBLE_COLONS_SPLIT + host;
+            }
         }
+        if (knownServices.contains(host)) {
+            return host;
+        }
+        return qualified && knownServices.contains(first) ? first : null;
+    }
+
+    /**
+     * The guess {@link #serviceNamedBy} does not make: the one grouped service, in any group, whose short name the
+     * whole host is. Ranked last, since a node that has seen only one group's {@code cart} would name it for every
+     * group's callers. A qualified host is never guessed by its first label: {@code cart.outlet} says its group, and
+     * another group's {@code cart} is the wrong answer even when it is the only one known. The short name must equal
+     * the whole host: {@code cart} is the one {@code x::cart}, and {@code checkout.api} the one
+     * {@code shop::checkout.api}.
+     *
+     * @param host a host name
+     * @return that service; null when no group, or more than one, has a service whose short name is the whole host
+     */
+    public String serviceByShortName(final String host) {
+        if (host == null || host.isEmpty()) {
+            return null;
+        }
+        return knownServices.nameOf(host);
+    }
+
+    /**
+     * @return the host up to its first dot, the whole host when it has none
+     */
+    private static String firstLabelOf(final String host) {
         final int dot = host.indexOf('.');
-        return dot > 0 ? knownServices.nameOf(host.substring(0, dot)) : null;
+        return dot > 0 ? host.substring(0, dot) : host;
+    }
+
+    /**
+     * @return the short name of a grouped service, else the name itself
+     */
+    private static String shortNameOf(final String service) {
+        final String shortName = KnownServices.shortNameOf(service);
+        return shortName != null ? shortName : service;
     }
 
     /**

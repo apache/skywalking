@@ -230,7 +230,7 @@ public class OpenTelemetryTraceHandler
                             final OTLPSpanReaderImpl reader = new OTLPSpanReaderImpl(span);
                             // Phase 1: notify OTLP span listeners before conversion or storage
                             final SpanListenerResult otlpResult = getSpanListenerManager()
-                                .notifyOTLPPhase(reader, resourceTags, scopeName, scopeVersion);
+                                .notifyOTLPPhase(reader, groupedServiceName, resourceTags, scopeName, scopeVersion);
 
                             // TAL runs on every span whatever the storage mode and whatever the listeners decided,
                             // and before the forward applies head sampling, so metrics count what the SDK sent
@@ -673,7 +673,7 @@ public class OpenTelemetryTraceHandler
         final OTLPSpanReaderImpl reader = new OTLPSpanReaderImpl(span);
         // Phase 2 for natively stored spans: no Zipkin span will ever exist for them.
         final SpanListenerResult storedResult = getSpanListenerManager()
-            .notifyNativeOTLPPhase(reader, resourceTags, scope.getName(), scope.getVersion());
+            .notifyNativeOTLPPhase(reader, serviceName, resourceTags, scope.getName(), scope.getVersion());
         if (!storedResult.isShouldPersist()) {
             return;
         }

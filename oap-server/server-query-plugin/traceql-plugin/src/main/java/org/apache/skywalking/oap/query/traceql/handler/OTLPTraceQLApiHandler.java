@@ -127,7 +127,7 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         if (wrappers.isEmpty()) {
             return HttpResponse.of(HttpStatus.NOT_FOUND);
         }
-        final TraceByIDResponse response = OTLPTraceAssembler.assemble(OTLPTraceAssembler.decode(wrappers));
+        final TraceByIDResponse response = OTLPTraceAssembler.assemble(OTLPTraceAssembler.decodeAsStored(wrappers));
         if (accept.isPresent() && accept.get().contains("application/protobuf")) {
             return buildProtobufHttpResponse(response);
         }

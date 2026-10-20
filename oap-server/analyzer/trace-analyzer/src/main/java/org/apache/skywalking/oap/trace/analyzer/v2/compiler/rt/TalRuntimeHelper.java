@@ -318,11 +318,14 @@ public class TalRuntimeHelper {
      * <p>A host that names a service this OAP has seen spans from is that service, before the cache is asked:
      * {@code product-catalog:3550} is {@code product-catalog} even when its SERVER spans report some other
      * address, and {@code frontend-proxy:8080} is the proxy even when the service behind it registered that
-     * address. The first DNS label counts too, so a cluster FQDN resolves to the service it starts with.
+     * address. The first DNS label counts too, so a cluster FQDN resolves to the service it starts with. A grouped
+     * service is named as Kubernetes DNS resolves a Service: {@code cart.outlet} is {@code outlet::cart}, and a
+     * bare {@code cart} is the caller's own group's (see {@link AliasRegistrar#serviceNamedBy}). Another group's
+     * {@code cart} is only a guess, asked last.
      *
-     * <p>When neither names it, the span is handed to {@link SpanPairing}, whose {@link SpanPairing#clientSeen}
-     * answers with a service an earlier pair named; otherwise the edge stays address-named this once, and the alias
-     * row the pair writes names the calls that follow.
+     * <p>When none names it, the span is handed to {@link SpanPairing}, whose {@link SpanPairing#clientSeen}
+     * answers with a service an earlier pair named; otherwise, short of another group's service of the same short
+     * name, the edge stays address-named this once, and the alias row the pair writes names the calls that follow.
      *
      * @param address the peer as the CLIENT span spelled it
      * @return the represented service's name, or the address
@@ -345,7 +348,9 @@ public class TalRuntimeHelper {
         if (address == null || address.isEmpty()) {
             return "";
         }
-        final String named = spec.getAliasRegistrar().serviceNamedBy(AliasRegistrar.hostOf(address));
+        final AliasRegistrar registrar = spec.getAliasRegistrar();
+        final String host = AliasRegistrar.hostOf(address);
+        final String named = registrar.serviceNamedBy(host, ctx.getMeta().getService());
         if (named != null) {
             return named;
         }
@@ -353,8 +358,14 @@ public class TalRuntimeHelper {
         if (cached != null) {
             return cached;
         }
+        // Pairing before the guess: clientSeen is also what reports this call's fact, so the pair can learn the
+        // address and write its row for the calls that follow.
         final String learned = spec.getSpanPairing().clientSeen(ctx.getMeta(), address);
-        return learned != null ? learned : "";
+        if (learned != null) {
+            return learned;
+        }
+        final String guessed = registrar.serviceByShortName(host);
+        return guessed != null ? guessed : "";
     }
 
     /**

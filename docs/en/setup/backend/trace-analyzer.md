@@ -147,8 +147,9 @@ does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by the three
 mechanisms described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the
 server's own `alias`, the known-service registry, and the pairing of a call's two spans by the trace context. The
-registry matches a host, or its first DNS label, against the services this node has seen spans from, so
-`cart.shop.svc.cluster.local:7070` folds onto `cart`. The
+registry matches a host, or its first DNS label, against the services this node has seen spans from, or read from
+storage when it started, so `cart.shop.svc.cluster.local:7070` folds onto `cart`. With [OTLP service grouping](otlp-trace.md), a grouped host
+resolves in the caller's own group, or in the group its second DNS label names. The
 first calls to a freshly seen address are address-named until the alias row has reached every node's cache: up to
 one persistence period (`core.default.persistentPeriod`, 25 s by default) for the row to be stored, plus the 10 s
 cache reload, so about 35 s. Those calls are drawn as a conjectured node named by the address, and the topology query folds it onto the service once the row lands.

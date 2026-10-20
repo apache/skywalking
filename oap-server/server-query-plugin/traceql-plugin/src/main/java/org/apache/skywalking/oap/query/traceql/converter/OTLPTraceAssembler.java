@@ -209,10 +209,6 @@ public final class OTLPTraceAssembler {
     }
 
     /**
-     * Decode stored wrappers. A wrapper of another {@link Source} is skipped: the store holds OTLP only, so one
-     * would be a bug elsewhere, not a reason to fail a read.
-     */
-    /**
      * The service each OTLP wrapper was stored under, in the order {@link #decode} returns the spans; empty for a
      * wrapper stored before it carried one.
      */
@@ -226,6 +222,47 @@ public final class OTLPTraceAssembler {
         return services;
     }
 
+    /**
+     * Decode stored wrappers, each resource's {@code service.name} set, in its place, to the service the span was
+     * stored under: grouped, and through the core's naming rules, the service the search and the topology name. The
+     * other resource attributes stay as sent. A wrapper stored without a service keeps its resource as it is.
+     */
+    public static List<ResourceSpans> decodeAsStored(final List<SpanWrapper> wrappers)
+        throws InvalidProtocolBufferException {
+        final List<ResourceSpans> spans = decode(wrappers);
+        final List<String> services = storedServices(wrappers);
+        for (int i = 0; i < spans.size(); i++) {
+            final String service = services.get(i);
+            final ResourceSpans message = spans.get(i);
+            if (service.isEmpty()
+                || service.equals(OTLPSpanMatcher.attribute(message.getResource().getAttributesList(), List.of(SERVICE_NAME)))) {
+                continue;
+            }
+            final KeyValue named = KeyValue.newBuilder()
+                                           .setKey(SERVICE_NAME)
+                                           .setValue(AnyValue.newBuilder().setStringValue(service))
+                                           .build();
+            final Resource.Builder resource = message.getResource().toBuilder();
+            boolean replaced = false;
+            for (int a = 0; a < resource.getAttributesCount(); a++) {
+                if (SERVICE_NAME.equals(resource.getAttributes(a).getKey())) {
+                    resource.setAttributes(a, named);
+                    replaced = true;
+                    break;
+                }
+            }
+            if (!replaced) {
+                resource.addAttributes(named);
+            }
+            spans.set(i, message.toBuilder().setResource(resource).build());
+        }
+        return spans;
+    }
+
+    /**
+     * Decode stored wrappers. A wrapper of another {@link Source} is skipped: the store holds OTLP only, so one
+     * would be a bug elsewhere, not a reason to fail a read.
+     */
     public static List<ResourceSpans> decode(final List<SpanWrapper> wrappers) throws InvalidProtocolBufferException {
         final List<ResourceSpans> spans = new ArrayList<>(wrappers.size());
         for (final SpanWrapper wrapper : wrappers) {
@@ -445,7 +482,9 @@ public final class OTLPTraceAssembler {
                     // The span status as a fixed attribute, so a trace list can show failures without opening each
                     // trace: Tempo's search span has no status field of its own (#14093).
                     value.setStringValue(statusSpelling(stored.span));
-                } else if (SERVICE_NAME.equals(key) && !attributes.containsKey(SERVICE_NAME)) {
+                } else if (SERVICE_NAME.equals(key)) {
+                    // The stored service, not the resource's: a service group changes it, and a client compares it
+                    // with the service it searched for.
                     value.setStringValue(stored.serviceName());
                 } else if (!attributes.containsKey(key)) {
                     value.setStringValue("");

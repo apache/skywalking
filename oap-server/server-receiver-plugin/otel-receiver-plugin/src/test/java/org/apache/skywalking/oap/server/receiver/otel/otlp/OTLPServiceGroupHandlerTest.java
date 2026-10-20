@@ -52,6 +52,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -105,6 +107,29 @@ class OTLPServiceGroupHandlerTest {
         assertEquals("cart", resourceTags.getValue().get("service.name"), "the attribute stays as sent");
     }
 
+    @Test
+    void theSpanListenersSeeTheGroupedServiceAndTheAttributesAsSent() throws Exception {
+        final OpenTelemetryTraceHandler handler = handler("service.namespace", new ArrayList<>(), true);
+        final OTLPSpanForward forward = mock(OTLPSpanForward.class);
+        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(true);
+        final Field forwardField = OpenTelemetryTraceHandler.class.getDeclaredField("otlpSpanForward");
+        forwardField.setAccessible(true);
+        forwardField.set(handler, forward);
+        final SpanListenerManager listeners = mock(SpanListenerManager.class);
+        when(listeners.notifyOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
+        when(listeners.notifyNativeOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
+        final Field listenersField = OpenTelemetryTraceHandler.class.getDeclaredField("spanListenerManager");
+        listenersField.setAccessible(true);
+        listenersField.set(handler, listeners);
+
+        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")));
+
+        verify(listeners).notifyOTLPPhase(
+            any(), eq("opentelemetry-demo::cart"), argThat(tags -> "cart".equals(tags.get("service.name"))), any(), any());
+        verify(listeners).notifyNativeOTLPPhase(
+            any(), eq("opentelemetry-demo::cart"), argThat(tags -> "cart".equals(tags.get("service.name"))), any(), any());
+    }
+
     private static OpenTelemetryTraceHandler handler(final String groupKeys, final List<SpanMetadata> analyzed,
                                                      final boolean persist) {
         final ITraceAnalyzerService analyzer = mock(ITraceAnalyzerService.class);
@@ -124,8 +149,8 @@ class OTLPServiceGroupHandlerTest {
         when(manager.has(TraceAnalyzerModule.NAME)).thenReturn(true);
         provide(manager, TraceAnalyzerModule.NAME, ITraceAnalyzerService.class, analyzer);
         final SpanListenerManager listeners = mock(SpanListenerManager.class);
-        when(listeners.notifyOTLPPhase(any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
-        when(listeners.notifyNativeOTLPPhase(any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
+        when(listeners.notifyOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
+        when(listeners.notifyNativeOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
         provide(manager, CoreModule.NAME, SpanListenerManager.class, listeners);
         provide(manager, TelemetryModule.NAME, MetricsCreator.class, metricsCreator);
 

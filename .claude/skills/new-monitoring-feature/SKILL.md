@@ -144,10 +144,13 @@ Use when: the data arrives on the SW native wire (language agents — Java, Pyth
 public interface SpanListener {
     String[] requiredModules();
     void init(ModuleManager moduleManager);
-    SpanListenerResult onOTLPSpan(OTLPSpanReader span, Map<String,String> resourceAttributes,
+    SpanListenerResult onOTLPSpan(OTLPSpanReader span, String serviceName, Map<String,String> resourceAttributes,
                                   String scopeName, String scopeVersion);
 }
 ```
+
+Name the service by `serviceName`, not the resource's `service.name`: it is the service the span is analyzed and
+stored under, which `receiver-otel.otlpServiceGroupKeys` may have grouped (`shop::cart` for `service.name=cart`).
 
 Register in `META-INF/services/org.apache.skywalking.oap.server.core.trace.SpanListener`. Reference implementations:
 - `oap-server/analyzer/ios-analyzer/src/main/java/.../IOSHTTPSpanListener.java` — OTel Swift URLSession → OAL (Service / ServiceInstance / Endpoint)
