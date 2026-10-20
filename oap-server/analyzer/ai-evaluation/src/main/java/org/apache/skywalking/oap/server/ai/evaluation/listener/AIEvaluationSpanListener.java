@@ -83,7 +83,8 @@ public class AIEvaluationSpanListener implements SpanListener {
         if (!shouldSample(span.getTraceId())) {
             return SpanListenerResult.CONTINUE;
         }
-        sample(span.getTraceId(),
+        sample(GenAITraceRefType.ZIPKIN,
+                span.getTraceId(),
                 span.getSpanId(),
                 span.getLocalEndpointServiceName(),
                 span.getName(),
@@ -123,7 +124,8 @@ public class AIEvaluationSpanListener implements SpanListener {
         if (!shouldSample(span.traceId())) {
             return SpanListenerResult.CONTINUE;
         }
-        sample(span.traceId(),
+        sample(GenAITraceRefType.OTLP,
+                span.traceId(),
                 span.spanId(),
                 // Through the naming rules, as the stored span's service is, so the record joins back to it.
                 namingControl.formatServiceName(serviceName),
@@ -135,7 +137,8 @@ public class AIEvaluationSpanListener implements SpanListener {
         return SpanListenerResult.CONTINUE;
     }
 
-    private void sample(final String traceId,
+    private void sample(final GenAITraceRefType traceRefType,
+                        final String traceId,
                         final String spanId,
                         final String serviceName,
                         final String operationName,
@@ -146,7 +149,7 @@ public class AIEvaluationSpanListener implements SpanListener {
         final GenAIContextResolver.Result genAIContext = GenAIContextResolver.resolve(tags);
         evaluationService.sample(AIEvaluationContext.builder()
                 .traceId(traceId)
-                .traceRefType(GenAITraceRefType.OTLP)
+                .traceRefType(traceRefType)
                 .spanId(spanId)
                 .serviceName(serviceName)
                 .operationName(operationName)

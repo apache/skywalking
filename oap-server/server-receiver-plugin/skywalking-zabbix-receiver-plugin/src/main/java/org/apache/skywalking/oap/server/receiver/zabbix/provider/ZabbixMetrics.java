@@ -121,6 +121,15 @@ public class ZabbixMetrics {
     }
 
     /**
+     * Sample time in milliseconds. {@code clockSeconds} is the Unix second and {@code nanos} is the
+     * nanoseconds within that second. Meter samples are milliseconds, so the sub-millisecond part of
+     * {@code nanos} is dropped.
+     */
+    static long sampleTimeMillis(final long clockSeconds, final long nanos) {
+        return TimeUnit.SECONDS.toMillis(clockSeconds) + TimeUnit.NANOSECONDS.toMillis(nanos);
+    }
+
+    /**
      * Metrics convert to meter system statics
      */
     @Builder
@@ -272,7 +281,7 @@ public class ZabbixMetrics {
             }
 
             return builder.hostName(data.getHost())
-                .timestamp(TimeUnit.SECONDS.toMillis(data.getClock()))
+                .timestamp(sampleTimeMillis(data.getClock(), data.getNs()))
                 .value(Double.parseDouble(data.getValue()))
                 .build();
         }

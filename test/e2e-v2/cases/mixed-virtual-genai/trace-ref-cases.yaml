@@ -1,0 +1,33 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cases:
+  # The judge evaluated spans from all three trace stores of this one OAP.
+  - query: |
+      START=$(date -u -v-1H '+%Y-%m-%d %H%M' 2>/dev/null || date -u -d '1 hour ago' '+%Y-%m-%d %H%M')
+      END=$(date -u '+%Y-%m-%d %H%M')
+      curl -s -X POST http://${oap_host}:${oap_12800}/graphql \
+        -H 'Content-Type: application/json' \
+        -d '{"query":"query ($condition: GenAIEvaluationRecordQueryCondition!) { queryGenAIEvaluationRecord(condition: $condition) { genAIEvaluationRecordList { traceRef { type } } } }","variables":{"condition":{"providerId":"b3BlbmFp.0","taskName":"Faithfulness","valueType":"SCORE","queryDuration":{"start":"'"$START"'","end":"'"$END"'","step":"MINUTE"},"paging":{"pageNum":1,"pageSize":50}}}}' \
+        | yq -P '[.data.queryGenAIEvaluationRecord.genAIEvaluationRecordList[].traceRef.type] | unique | sort'
+    expected: expected/trace-ref-types.yml
+
+  # For each source, its newest record, the record its relatedTrace finds, and the stores holding its trace.
+  - query: bash test/e2e-v2/cases/mixed-virtual-genai/check-trace-ref.sh SKYWALKING_NATIVE e2e-spring-ai
+    expected: expected/trace-ref-skywalking-native.yml
+  - query: bash test/e2e-v2/cases/mixed-virtual-genai/check-trace-ref.sh OTLP e2e-openai-otlp
+    expected: expected/trace-ref-otlp.yml
+  - query: bash test/e2e-v2/cases/mixed-virtual-genai/check-trace-ref.sh ZIPKIN e2e-openai-zipkin
+    expected: expected/trace-ref-zipkin.yml

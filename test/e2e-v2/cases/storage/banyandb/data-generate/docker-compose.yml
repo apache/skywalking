@@ -34,6 +34,10 @@ services:
       service: oap
     environment:
       SW_STORAGE: banyandb
+      # The mockers send records MINUS_DAYS (3) in the past, past the default 3-day recordDataTTL that
+      # RecordStreamProcessor drops on receipt. Only this generator OAP accepts them; the stages case
+      # runs with the default TTL and reads them from the files mounted on its cold node.
+      SW_CORE_RECORD_DATA_TTL: 5
       SW_STORAGE_BANYANDB_RECORDS_TTL_DAYS: 5
       SW_STORAGE_BANYANDB_TRACE_TTL_DAYS: 5
       SW_STORAGE_BANYANDB_ZIPKIN_TRACE_TTL_DAYS: 5
