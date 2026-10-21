@@ -168,8 +168,8 @@ class ShippedRuleOverRecordedTraceTest {
         report.append("=== PASS 1: cold ===\n");
         runAll(rule, spans);
         assertEquals(List.of(
-                "frontend-web -> frontend-proxy:8080 (virtual) [49]",
-                "frontend -> cart:7070 (virtual) [23]",
+                "frontend-web -> frontend-proxy:8080 [49]",
+                "frontend -> cart:7070 [23]",
                 "frontend-proxy -> frontend [49]"),
             clientEdges(), "the browser and frontend dial peers nobody has named yet; Envoy's IP-dialed callee "
                 + "is named on the spot because frontend's SERVER span, its child, was analyzed first");

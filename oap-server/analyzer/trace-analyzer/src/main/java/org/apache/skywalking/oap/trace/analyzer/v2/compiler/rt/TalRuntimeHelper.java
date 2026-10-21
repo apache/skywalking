@@ -313,7 +313,7 @@ public class TalRuntimeHelper {
      * {@link #alias}, or the address unchanged when none did. Read from the core's {@link NetworkAddressAliasCache},
      * which {@code CacheUpdateTimer} reloads from storage every 10 seconds, so the first edges to a freshly seen
      * address stay address-named until its row lands; {@code ServiceTopologyBuilder} merges those at query time
-     * through the same cache, as long as the rule draws them as conjectured nodes (see {@link #aliasOf}).
+     * through the same cache.
      *
      * <p>A host that names a service this OAP has seen spans from is that service, before the cache is asked:
      * {@code product-catalog:3550} is {@code product-catalog} even when its SERVER spans report some other
@@ -331,22 +331,8 @@ public class TalRuntimeHelper {
      * @return the represented service's name, or the address
      */
     public String resolveAlias(final String address) {
-        final String resolved = aliasOf(address);
-        return resolved.isEmpty() ? (address == null ? "" : address) : resolved;
-    }
-
-    /**
-     * {@code aliasOf(address)} — the service the address resolves to, the same way and in the same order as
-     * {@link #resolveAlias}, but empty when nothing names it, so a rule can tell an address no service answers
-     * at yet from a service name. A peer left address-named should be drawn as a conjectured node: the topology
-     * query folds only conjectured nodes into the service their address alias names.
-     *
-     * @param address the peer as the CLIENT span spelled it
-     * @return the represented service's name, or empty
-     */
-    public String aliasOf(final String address) {
         if (address == null || address.isEmpty()) {
-            return "";
+            return address == null ? "" : address;
         }
         final AliasRegistrar registrar = spec.getAliasRegistrar();
         final String host = AliasRegistrar.hostOf(address);
@@ -365,7 +351,7 @@ public class TalRuntimeHelper {
             return learned;
         }
         final String guessed = registrar.serviceByShortName(host);
-        return guessed != null ? guessed : "";
+        return guessed != null ? guessed : address;
     }
 
     /**

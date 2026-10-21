@@ -957,60 +957,13 @@ class TALExecutionTest {
     }
 
     @Test
-    void aliasOfIsEmptyForAnAddressNothingNamesSoTheRuleCanDrawItConjectured() throws Exception {
-        filterSpec.getKnownServices().record("product-catalog");
-        final NetworkAddressAlias row = new NetworkAddressAlias();
-        row.setAddress("10.0.0.7:8080");
-        row.setRepresentServiceId(IDManager.ServiceID.buildId("songs", true));
-        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
-        Mockito.when(cache.get("10.0.0.7:8080")).thenReturn(row);
-        Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
-
-        final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = attr(\"server.address\") + \":\" + attr(\"server.port\")\n"
-            + "  def peerLayer = \"OTLP_SERVICE\"\n"
-            + "  def named = aliasOf(peer)\n"
-            + "  if (named) {\n"
-            + "    def peer = named\n"
-            + "  }\n"
-            + "  if (!named) {\n"
-            + "    def peerLayer = \"UNDEFINED\"\n"
-            + "  }\n"
-            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, peerLayer, component(\"http\"))\n"
-            + "  metrics { name \"alias_of_rel_cpm\"; scope edge; function cpm; value 1 }\n"
-            + "} }");
-        execute(rule, clientSpan(), new TestSpanInput()
-            .attribute("server.address", "product-catalog").attribute("server.port", "3550"));
-        execute(rule, clientSpan(), new TestSpanInput()
-            .attribute("server.address", "10.0.0.7").attribute("server.port", "8080"));
-        execute(rule, clientSpan(), new TestSpanInput()
-            .attribute("server.address", "pg").attribute("server.port", "5432"));
-
-        assertEquals(3, sentValues.size());
-        final String frontend = IDManager.ServiceID.buildId("frontend", true);
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                frontend, IDManager.ServiceID.buildId("product-catalog", true))),
-            entityIdOf(sentValues.get(0)), "a host that names a service is that service");
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                frontend, IDManager.ServiceID.buildId("songs", true))),
-            entityIdOf(sentValues.get(1)), "an address with an alias row is the service the row names");
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                frontend, IDManager.ServiceID.buildId("pg:5432", false))),
-            entityIdOf(sentValues.get(2)), "an address nothing names is a conjectured node, not a service");
-    }
-
-    @Test
-    void aliasOfNamesAHostInTheCallersOwnGroupBeforeTheAddressRow() throws Exception {
+    void resolveAliasNamesAHostInTheCallersOwnGroupBeforeTheAddressRow() throws Exception {
         // One application in two namespaces: both carts registered `cart:7070`, and outlet's row was written last.
         filterSpec.getKnownServices().record("shop::cart");
         filterSpec.getKnownServices().record("outlet::cart");
         aliasRow("cart:7070", "outlet::cart");
 
-        final TalExpression rule = aliasOfRule("group_rel_cpm");
+        final TalExpression rule = resolveAliasRule("group_rel_cpm");
         execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
         execute(rule, clientSpanOf("outlet::frontend"), dialing("cart", "7070"));
         execute(rule, clientSpanOf("shop::frontend"), dialing("cart.outlet.svc.cluster.local", "7070"));
@@ -1027,12 +980,12 @@ class TALExecutionTest {
     }
 
     @Test
-    void aliasOfAsksTheAddressRowBeforeAnotherGroupsServiceOfTheSameShortName() throws Exception {
+    void resolveAliasAsksTheAddressRowBeforeAnotherGroupsServiceOfTheSameShortName() throws Exception {
         // This node has seen only outlet's cart; shop's cart registered the address its frontend dials.
         filterSpec.getKnownServices().record("outlet::cart");
         aliasRow("cart:7070", "shop::cart");
 
-        final TalExpression rule = aliasOfRule("guess_rel_cpm");
+        final TalExpression rule = resolveAliasRule("guess_rel_cpm");
         execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
         execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7071"));
 
@@ -1284,10 +1237,10 @@ class TALExecutionTest {
         Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
     }
 
-    private TalExpression aliasOfRule(final String metric) throws Exception {
+    private TalExpression resolveAliasRule(final String metric) throws Exception {
         return compile("filter { extractor {\n"
             + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = aliasOf(attr(\"server.address\") + \":\" + attr(\"server.port\"))\n"
+            + "  def peer = resolveAlias(attr(\"server.address\") + \":\" + attr(\"server.port\"))\n"
             + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
             + "             component(\"grpc\"))\n"
             + "  metrics { name \"" + metric + "\"; scope edge; function cpm; value 1 }\n"
