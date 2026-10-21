@@ -151,31 +151,31 @@ expected:
           type: request
           service_name: 'APISIX::APISIX'
           node: 
-          le: '1000000'
+          le: '1000'
         value: 25.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: 
-          le: '100000'
+          le: '100'
         value: 10.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: 
-          le: '250000'
+          le: '250'
         value: 15.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: 
-          le: '500000'
+          le: '500'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: 
-          le: '50000'
+          le: '50'
         value: 5.0
   meter_apisix_sv_bandwidth_matched:
     entities:
@@ -209,31 +209,31 @@ expected:
           type: request
           service_name: 'APISIX::APISIX'
           node: test-node
-          le: '1000000'
+          le: '1000'
         value: 50.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: test-node
-          le: '100000'
+          le: '100'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: test-node
-          le: '250000'
+          le: '250'
         value: 30.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: test-node
-          le: '500000'
+          le: '500'
         value: 40.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: test-node
-          le: '50000'
+          le: '50'
         value: 10.0
   meter_apisix_instance_shared_dict_capacity_bytes:
     entities:
@@ -335,31 +335,31 @@ expected:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '1000000'
+          le: '1000'
         value: 50.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '100000'
+          le: '100'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '250000'
+          le: '250'
         value: 30.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '500000'
+          le: '500'
         value: 40.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '50000'
+          le: '50'
         value: 10.0
   meter_apisix_instance_bandwidth_unmatched:
     entities:
@@ -393,31 +393,31 @@ expected:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '1000000'
+          le: '1000'
         value: 25.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '100000'
+          le: '100'
         value: 10.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '250000'
+          le: '250'
         value: 15.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '500000'
+          le: '500'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           service_instance_id: 
-          le: '50000'
+          le: '50'
         value: 5.0
   meter_apisix_endpoint_http_status:
     entities:
@@ -457,35 +457,35 @@ expected:
           service_name: 'APISIX::APISIX'
           route: route/test-route
           node: test-node
-          le: '1000000'
+          le: '1000'
         value: 50.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           route: route/test-route
           node: test-node
-          le: '100000'
+          le: '100'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           route: route/test-route
           node: test-node
-          le: '250000'
+          le: '250'
         value: 30.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           route: route/test-route
           node: test-node
-          le: '500000'
+          le: '500'
         value: 40.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           route: route/test-route
           node: test-node
-          le: '50000'
+          le: '50'
         value: 10.0
   meter_apisix_endpoint_http_status_2:
     entities:
@@ -522,29 +522,29 @@ expected:
           type: request
           service_name: 'APISIX::APISIX'
           node: upstream/test-node
-          le: '1000000'
+          le: '1000'
         value: 50.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: upstream/test-node
-          le: '100000'
+          le: '100'
         value: 20.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: upstream/test-node
-          le: '250000'
+          le: '250'
         value: 30.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: upstream/test-node
-          le: '500000'
+          le: '500'
         value: 40.0
       - labels:
           type: request
           service_name: 'APISIX::APISIX'
           node: upstream/test-node
-          le: '50000'
+          le: '50'
         value: 10.0
