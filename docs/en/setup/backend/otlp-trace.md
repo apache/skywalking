@@ -146,9 +146,15 @@ two groups share, `shop::cart` and `outlet::cart`, may land on either group's se
 caller, such as a browser app without the grouping attribute, or when the Kubernetes Service name differs from
 `service.name`. An OAP node also records, when it starts, the OTLP services storage already holds, so a restart does
 not forget a callee that emits only now and then, such as a feature flag service; a stored service that sends no span
-to the node is forgotten again a day after it was read. A service first seen on another node, or a node whose read of
-the stored services failed, names a grouped callee by the address row, else by the pairing, else by the step 6 guess,
-until the callee's spans reach it. The group has no cluster part either: the namespace `shop` of two Kubernetes
+to the node is forgotten again a day after it was read. A client's peer is expected to name one target. When services
+of two groups are reached at the same address, such as a bare `cart:7070` dialed in both namespaces, and the node
+cannot name the callee in the caller's own group, the call is named by the address row when there is one, which may
+name either group's service, as on the agent path, and otherwise by the pairing or the step 6 guess. A node that never
+receives the callee's spans, for example one the collectors are not connected to over their long-lived gRPC
+connections, stays in that state once the day the startup read covers has passed. To pin which TAL rules analyze such
+spans, set their resource's `service.layer` to a registered layer name and declare TAL rules for that layer. Only
+those rules run; the shipped `layer: auto` rules do not. An unknown layer name is logged and its spans are not
+analyzed. See [Layer](../../concepts-and-designs/tal.md#layer). The group has no cluster part either: the namespace `shop` of two Kubernetes
 clusters groups both clusters' `cart` as one `shop::cart`.
 
 The guard that keeps a proxy's address its own works on short names too: an address whose first DNS label, or whose

@@ -152,10 +152,10 @@ storage when it started, so `cart.shop.svc.cluster.local:7070` folds onto `cart`
 resolves in the caller's own group, or in the group its second DNS label names. The
 first calls to a freshly seen address are address-named until the alias row has reached every node's cache: up to
 one persistence period (`core.default.persistentPeriod`, 25 s by default) for the row to be stored, plus the 10 s
-cache reload, so about 35 s. Those calls are drawn as a conjectured node named by the address, and the topology query folds it onto the service once the row lands.
+cache reload, so about 35 s. Those calls are drawn to a node named by the address, which no service is registered under, and the topology query folds it onto the service once the row lands.
 
 In a fleet that mixes SkyWalking agents and OpenTelemetry SDKs, both paths write the same alias rows, and as on the
-agent path the last write wins. The topology query folds only a node that is not a registered service, so a service named like some alias address keeps its own node: an OTLP service `frontend` is not drawn as `agent::frontend` because an agent registered the host `frontend` for `agent::frontend`. An address listed in the agent analyzer's [uninstrumented
+agent path the last write wins. The topology query folds a node that is not a registered service, or a self-call whose alias names another service; other registered nodes keep their own names, so a service named like some alias address keeps its own node: an OTLP service `frontend` is not drawn as `agent::frontend` because an agent registered the host `frontend` for `agent::frontend`. An address listed in the agent analyzer's [uninstrumented
 gateways](uninstrumented-gateways.md) is never registered as an alias, and the shipped rule draws it the way the agent
 path does, as a `VIRTUAL_GATEWAY` node between the caller and the callee: a CLIENT span that dials it ends its edge on
 the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. An uninstrumented

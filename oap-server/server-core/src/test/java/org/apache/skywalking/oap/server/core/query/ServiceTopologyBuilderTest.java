@@ -175,8 +175,8 @@ public class ServiceTopologyBuilderTest {
     @SneakyThrows
     @Test
     public void testUnregisteredAddressMergesIntoTheServiceItsAliasNames() {
-        // A call recorded before the address's alias existed names the address itself: conjectured for a database
-        // peer, real for an agent's HTTP or RPC peer, and registered as a service either way never.
+        // A call recorded before the address's alias existed names the address itself. An unregistered
+        // address-named destination folds through its alias, whether its id is real or conjectured.
         final String songs = IDManager.ServiceID.buildId("songs", true);
         final ServiceTopologyBuilder builder = builderWithAlias("10.0.0.7:8080", songs);
         final String gateway = IDManager.ServiceID.buildId("gateway", true);

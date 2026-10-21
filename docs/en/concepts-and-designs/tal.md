@@ -43,7 +43,7 @@ and it means the same thing whatever the input:
 
 | `meta` field | Source on an OTLP span |
 |---|---|
-| `service` | the resource's `service.name`; the receiver's fallbacks are described in [OpenTelemetry Trace Format](../setup/backend/otlp-trace.md#service-name) |
+| `service` | the service name the receiver resolved: the resource's `service.name`, or the fallbacks in [Service name](../setup/backend/otlp-trace.md#service-name), in the `group::name` form when [service grouping](../setup/backend/otlp-trace.md#service-group) applies |
 | `serviceInstance` | the resource's `service.instance.id` |
 | `endpoint` | the span's name, until a rule sets it |
 | `layer` | the resource's `service.layer`, empty when absent; see [Layer](#layer) |
@@ -298,9 +298,10 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   uninstrumented service or a dropped trace context, leaves its caller address-named, which is the honest answer.
 
 The topology query folds an address-named node into the service its address alias names once the row lands, so
-those first calls join the callee's node. It folds only a node that is not a registered service: a service keeps its
-own name even when the name equals some alias address, as an OTLP `frontend` does while an agent has registered the
-host `frontend` for `agent::frontend`.
+those first calls join the callee's node. It folds a node that is not a registered service, or a self-call whose
+alias names another service, the shape a caller that dials its downstream by its own service name records until the
+downstream's alias lands. Other registered nodes keep their own names even when the name equals some alias address,
+as an OTLP `frontend` does while an agent has registered the host `frontend` for `agent::frontend`.
 
 Two guards keep an alias honest. An address whose host names another service is never registered: a proxy that keeps
 the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's. With
