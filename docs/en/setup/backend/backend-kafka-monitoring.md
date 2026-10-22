@@ -13,7 +13,7 @@ Kafka entity as a `Service` in OAP and on the `Layer: KAFKA`.
 
 ## Setup
 
-1. Setup [prometheus_JMX_Exporter](https://github.com/prometheus/jmx_exporter). This is an example for JMX Exporter configuration [kafka-2_0_0.yml](https://raw.githubusercontent.com/prometheus/jmx_exporter/91622ad478015364444e5d63475d1673c09e6268/examples/kafka-2_0_0.yml).
+1. Setup [prometheus_JMX_Exporter](https://github.com/prometheus/jmx_exporter). This is an example for JMX Exporter configuration [kafka-2_0_0.yml](https://raw.githubusercontent.com/prometheus/jmx_exporter/91622ad478015364444e5d63475d1673c09e6268/examples/kafka-2_0_0.yml). That config exports Kafka `*TimeMs` histograms as Count plus percentile gauges with a `quantile` label (it does not export `*_sum`). The broker latency panels below (`request_queue_time_ms`, `remote_time_ms`, `response_queue_time_ms`, `response_send_time_ms`) read the `quantile="0.50"` series from that export.
 2. Set up [OpenTelemetry Collector](https://opentelemetry.io/docs/collector/getting-started/#kubernetes). The example
    for OpenTelemetry Collector configuration, refer
    to [here](../../../../test/e2e-v2/cases/kafka/kafka-monitoring/otel-collector-config.yaml).
@@ -58,10 +58,10 @@ the OAP. In each cluster, the kafka brokers are represented as `Instance`.
 | Purgatory Size                    | Count     | meter_kafka_broker_purgatory_size                     | Size of purgatory for Produce and Fetch operations            | Prometheus JMX Exporter       |
 | Garbage Collector Count           | Count/sec | meter_kafka_broker_garbage_collector_count            | Rate of garbage collection cycles                             | Prometheus JMX Exporter       |
 | Requests Per Second               | Req/sec   | meter_kafka_broker_requests_per_second                | Rate of requests to the broker                                | Prometheus JMX Exporter       |
-| Request Queue Time                | ms        | meter_kafka_broker_request_queue_time_ms              | Average time a request spends in the request queue            | Prometheus JMX Exporter       |
-| Remote Time                       | ms        | meter_kafka_broker_remote_time_ms                     | Average time taken for a remote operation                     | Prometheus JMX Exporter       |
-| Response Queue Time               | ms        | meter_kafka_broker_response_queue_time_ms             | Average time a response spends in the response queue          | Prometheus JMX Exporter       |
-| Response Send Time                | ms        | meter_kafka_broker_response_send_time_ms              | Average time taken to send a response                         | Prometheus JMX Exporter       |
+| Request Queue Time                | ms        | meter_kafka_broker_request_queue_time_ms              | 50th percentile time a request spends in the request queue    | Prometheus JMX Exporter       |
+| Remote Time                       | ms        | meter_kafka_broker_remote_time_ms                     | 50th percentile time taken for a remote operation             | Prometheus JMX Exporter       |
+| Response Queue Time               | ms        | meter_kafka_broker_response_queue_time_ms             | 50th percentile time a response spends in the response queue  | Prometheus JMX Exporter       |
+| Response Send Time                | ms        | meter_kafka_broker_response_send_time_ms              | 50th percentile time taken to send a response                 | Prometheus JMX Exporter       |
 | Network Processor Avg Idle        | %         | meter_kafka_broker_network_processor_avg_idle_percent | Percentage of idle time for the network processor             | Prometheus JMX Exporter       |
 | Topic Messages In Total           | Count     | meter_kafka_broker_topic_messages_in_total            | Total number of messages per topic                            | Prometheus JMX Exporter       |
 | Topic Bytes Out Per Second        | Bytes/sec | meter_kafka_broker_topic_bytesout_per_second          | Rate of outgoing bytes per topic                              | Prometheus JMX Exporter       |

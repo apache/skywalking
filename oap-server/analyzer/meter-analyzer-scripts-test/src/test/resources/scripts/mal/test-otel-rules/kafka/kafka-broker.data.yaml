@@ -112,30 +112,59 @@ input:
         broker: test-broker
         request: Produce
       value: 100.0
-  kafka_network_requestmetrics_requestqueuetimems_count:
+  kafka_network_requestmetrics_requestqueuetimems:
     - labels:
         cluster: test-cluster
         broker: test-broker
         request: Produce
-      value: 100.0
-  kafka_network_requestmetrics_remotetimems_count:
+        quantile: "0.50"
+      value: 25.0
+    # Other quantiles must not leak into the p50 rules.
     - labels:
         cluster: test-cluster
         broker: test-broker
         request: Produce
-      value: 100.0
-  kafka_network_requestmetrics_responsequeuetimems_count:
+        quantile: "0.99"
+      value: 999.0
+  kafka_network_requestmetrics_remotetimems:
     - labels:
         cluster: test-cluster
         broker: test-broker
         request: Produce
-      value: 100.0
-  kafka_network_requestmetrics_responsesendtimems_count:
+        quantile: "0.50"
+      value: 25.0
     - labels:
         cluster: test-cluster
         broker: test-broker
         request: Produce
-      value: 100.0
+        quantile: "0.99"
+      value: 999.0
+  kafka_network_requestmetrics_responsequeuetimems:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        request: Produce
+        quantile: "0.50"
+      value: 25.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        request: Produce
+        quantile: "0.99"
+      value: 999.0
+  kafka_network_requestmetrics_responsesendtimems:
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        request: Produce
+        quantile: "0.50"
+      value: 25.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        request: Produce
+        quantile: "0.99"
+      value: 999.0
   kafka_network_socketserver_networkprocessoravgidlepercent:
     - labels:
         cluster: test-cluster

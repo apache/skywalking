@@ -85,16 +85,16 @@ metricsRules:
     exp: kafka_network_requestmetrics_requests_total.tagMatch("request", "FetchConsumer|Produce|Fetch").sum(['cluster','broker','request']).rate('PT1M')
 
   - name: request_queue_time_ms
-    exp: kafka_network_requestmetrics_requestqueuetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_requestqueuetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: remote_time_ms
-    exp: kafka_network_requestmetrics_remotetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_remotetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: response_queue_time_ms
-    exp: kafka_network_requestmetrics_responsequeuetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_responsequeuetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: response_send_time_ms
-    exp: kafka_network_requestmetrics_responsesendtimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_responsesendtimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: network_processor_avg_idle_percent
     exp: (kafka_network_socketserver_networkprocessoravgidlepercent * 100).sum(['cluster','broker']).rate('PT1M')
