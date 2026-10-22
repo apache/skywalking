@@ -957,6 +957,46 @@ class TALExecutionTest {
     }
 
     @Test
+    void resolveAliasNamesAHostInTheCallersOwnGroupBeforeTheAddressRow() throws Exception {
+        // One application in two namespaces: both carts registered `cart:7070`, and outlet's row was written last.
+        filterSpec.getKnownServices().record("shop::cart");
+        filterSpec.getKnownServices().record("outlet::cart");
+        aliasRow("cart:7070", "outlet::cart");
+
+        final TalExpression rule = resolveAliasRule("group_rel_cpm");
+        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
+        execute(rule, clientSpanOf("outlet::frontend"), dialing("cart", "7070"));
+        execute(rule, clientSpanOf("shop::frontend"), dialing("cart.outlet.svc.cluster.local", "7070"));
+        execute(rule, clientSpanOf("frontend-web"), dialing("cart", "7070"));
+
+        assertEquals(List.of(
+                relation("shop::frontend", "shop::cart"),
+                relation("outlet::frontend", "outlet::cart"),
+                relation("shop::frontend", "outlet::cart"),
+                relation("frontend-web", "outlet::cart")),
+            entityIds(),
+            "each frontend reaches its own namespace's cart, a qualified host the namespace it names, and an "
+                + "ungrouped caller is left to the address row");
+    }
+
+    @Test
+    void resolveAliasAsksTheAddressRowBeforeAnotherGroupsServiceOfTheSameShortName() throws Exception {
+        // This node has seen only outlet's cart; shop's cart registered the address its frontend dials.
+        filterSpec.getKnownServices().record("outlet::cart");
+        aliasRow("cart:7070", "shop::cart");
+
+        final TalExpression rule = resolveAliasRule("guess_rel_cpm");
+        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
+        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7071"));
+
+        assertEquals(List.of(
+                relation("shop::frontend", "shop::cart"),
+                relation("shop::frontend", "outlet::cart")),
+            entityIds(),
+            "the row names the address; the one cart this node knows is only the guess for an address with none");
+    }
+
+    @Test
     void resolveAliasLearnsTheCalleeFromTheServerSpanItCalled() throws Exception {
         // The Go callee reports its IP and the caller dials a name nobody's spans are named by, so neither the
         // host rule nor the cache can name the peer; the trace context can.
@@ -1186,6 +1226,48 @@ class TALExecutionTest {
         generator.setSourceRef(ShippedRules.ref("otlp-slow-sql"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
         return generator.compile(ShippedRules.dsl("otlp-slow-sql"));
+    }
+
+    private void aliasRow(final String address, final String service) {
+        final NetworkAddressAlias row = new NetworkAddressAlias();
+        row.setAddress(address);
+        row.setRepresentServiceId(IDManager.ServiceID.buildId(service, true));
+        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
+        Mockito.when(cache.get(address)).thenReturn(row);
+        Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
+    }
+
+    private TalExpression resolveAliasRule(final String metric) throws Exception {
+        return compile("filter { extractor {\n"
+            + "  layer \"OTLP_SERVICE\"\n"
+            + "  def peer = resolveAlias(attr(\"server.address\") + \":\" + attr(\"server.port\"))\n"
+            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
+            + "             component(\"grpc\"))\n"
+            + "  metrics { name \"" + metric + "\"; scope edge; function cpm; value 1 }\n"
+            + "} }");
+    }
+
+    private static SpanMetadata clientSpanOf(final String service) {
+        final SpanMetadata meta = clientSpan();
+        meta.setService(service);
+        return meta;
+    }
+
+    private static TestSpanInput dialing(final String host, final String port) {
+        return new TestSpanInput().attribute("server.address", host).attribute("server.port", port);
+    }
+
+    private static String relation(final String source, final String dest) {
+        return IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
+            IDManager.ServiceID.buildId(source, true), IDManager.ServiceID.buildId(dest, true)));
+    }
+
+    private List<String> entityIds() throws Exception {
+        final List<String> ids = new ArrayList<>();
+        for (final AcceptableValue<?> value : sentValues) {
+            ids.add(entityIdOf(value));
+        }
+        return ids;
     }
 
     private static SpanMetadata slowClientSpan() {

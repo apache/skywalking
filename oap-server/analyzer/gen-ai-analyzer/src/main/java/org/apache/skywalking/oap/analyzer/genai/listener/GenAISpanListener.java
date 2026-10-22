@@ -73,6 +73,7 @@ public class GenAISpanListener implements SpanListener {
 
     @Override
     public SpanListenerResult onNativeOTLPSpan(final OTLPSpanReader span,
+                                               final String serviceName,
                                                final Map<String, String> resourceAttributes,
                                                final String scopeName,
                                                final String scopeVersion) {

@@ -104,6 +104,21 @@ class ZipkinOTLPConverterTest {
     }
 
     @Test
+    void shouldListTheLocalServiceAsServiceNameOverTheResourceTag() {
+        // The OTLP conversion stored a grouped local service and kept the resource's own service.name as a tag.
+        final Span cart = span("0000000000000001", null, "shop::cart", "getcart", 1_000L, 4_000L, "service.name", "cart");
+
+        final SearchResponse response = ZipkinOTLPConverter.convertToSearchResponse(
+            Collections.singletonList(Collections.singletonList(cart)), Set.of(), null, 0);
+
+        final SearchResponse.Span listed = response.getTraces().get(0).getSpanSets().get(0).getSpans().get(0);
+        assertEquals(Collections.singletonList("shop::cart"), listed.getAttributes().stream()
+                                                                  .filter(a -> "service.name".equals(a.getKey()))
+                                                                  .map(a -> a.getValue().getStringValue())
+                                                                  .collect(Collectors.toList()));
+    }
+
+    @Test
     void shouldListEverySpanWithoutAMatcher() {
         final Span root = span("0000000000000001", null, "frontend", "get /", 1_000L, 4_000L);
         final Span child = span("0000000000000002", "0000000000000001", "checkout", "charge", 2_000L, 1_000L);

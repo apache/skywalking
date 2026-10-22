@@ -484,6 +484,12 @@ receiver-otel:
     #   otlp:   store the native OTLP span in `otlp_span`, served by the TraceQL `/otlp` datasource
     #   zipkin: convert to Zipkin v2 and hand them to receiver-zipkin (needs receiver-zipkin and query-zipkin)
     otlpTraceStorage: ${SW_OTEL_TRACE_STORAGE:otlp}
+    # Resource attribute keys, comma separated, in order of preference: the first one a resource carries groups its
+    # service, so `cart` with `service.namespace=shop` is the service `shop::cart` of the group `shop` in the trace
+    # analysis, the stored spans and the logs; the resource attributes stay as sent. A caller that dials the host
+    # `cart` still reaches `shop::cart`. Use an attribute that holds one low-cardinality value per service, such as
+    # `service.namespace`, `deployment.environment.name` or `k8s.namespace.name`. Empty, the default, groups nothing.
+    otlpServiceGroupKeys: ${SW_OTEL_RECEIVER_OTLP_SERVICE_GROUP:""}
     # `otlp` mode only. Attribute keys offered by tag autocomplete (TraceQL /api/v2/search/tags), each written with its
     # TraceQL scope, `resource.<key>` or `span.<key>`; an entry without a scope fails the boot. List low-cardinality
     # attributes only: every distinct value is stored once per day. Every resource and span attribute is indexed for

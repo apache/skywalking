@@ -23,7 +23,8 @@ import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.ai.evaluation.AIEvaluationModule;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
 import org.apache.skywalking.oap.server.ai.evaluation.service.IAIEvaluationService;
-import org.apache.skywalking.oap.server.core.otlp.OTLPSpanRecord;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.trace.SpanListener;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
@@ -53,11 +54,13 @@ public class AIEvaluationSpanListener implements SpanListener {
     };
 
     private IAIEvaluationService evaluationService;
+    private NamingControl namingControl;
 
     @Override
     public String[] requiredModules() {
         return new String[]{
-                AIEvaluationModule.NAME
+                AIEvaluationModule.NAME,
+                CoreModule.NAME
         };
     }
 
@@ -66,6 +69,9 @@ public class AIEvaluationSpanListener implements SpanListener {
         evaluationService = moduleManager.find(AIEvaluationModule.NAME)
                 .provider()
                 .getService(IAIEvaluationService.class);
+        namingControl = moduleManager.find(CoreModule.NAME)
+                .provider()
+                .getService(NamingControl.class);
     }
 
     @Override
@@ -96,6 +102,7 @@ public class AIEvaluationSpanListener implements SpanListener {
      */
     @Override
     public SpanListenerResult onNativeOTLPSpan(final OTLPSpanReader span,
+                                               final String serviceName,
                                                final Map<String, String> resourceAttributes,
                                                final String scopeName,
                                                final String scopeVersion) {
@@ -120,27 +127,14 @@ public class AIEvaluationSpanListener implements SpanListener {
         sample(GenAITraceRefType.OTLP,
                 span.traceId(),
                 span.spanId(),
-                resolveServiceName(resourceAttributes),
+                // Through the naming rules, as the stored span's service is, so the record joins back to it.
+                namingControl.formatServiceName(serviceName),
                 span.spanName(),
                 TimeUnit.NANOSECONDS.toMillis(span.startTimeNanos()),
                 TimeUnit.NANOSECONDS.toMillis(span.endTimeNanos()),
                 tags,
                 error);
         return SpanListenerResult.CONTINUE;
-    }
-
-    /**
-     * The service the span is stored under: the same resource keys, in the same order, the OTLP receiver resolves
-     * {@code service_name} from, so the evaluation record joins back to the trace's service.
-     */
-    private static String resolveServiceName(final Map<String, String> resourceAttributes) {
-        for (final String key : OTLPSpanRecord.SERVICE_NAME_RESOURCE_KEYS) {
-            final String value = resourceAttributes.get(key);
-            if (StringUtil.isNotEmpty(value)) {
-                return value;
-            }
-        }
-        return "";
     }
 
     private void sample(final GenAITraceRefType traceRefType,

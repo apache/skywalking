@@ -71,7 +71,17 @@ public final class OTLPSpanMatcher {
     }
 
     public boolean matches(final Resource resource, final InstrumentationScope scope, final Span span) {
-        final String serviceName = formatServiceName(
+        return matches(resource, scope, span, "");
+    }
+
+    /**
+     * @param storedService the service the span was stored under, which the search matched and the receiver may
+     *                      have grouped, see {@code receiver-otel.otlpServiceGroupKeys}; empty for a span stored
+     *                      without it, whose service is resolved from the resource as the receiver did
+     */
+    public boolean matches(final Resource resource, final InstrumentationScope scope, final Span span,
+                           final String storedService) {
+        final String serviceName = StringUtil.isNotEmpty(storedService) ? storedService : formatServiceName(
             attribute(resource.getAttributesList(), OTLPSpanRecord.SERVICE_NAME_RESOURCE_KEYS));
         if (differs(condition.getServiceName(), serviceName)
             || differs(condition.getServiceInstance(), attribute(resource.getAttributesList(), OTLPSpanRecord.SERVICE_INSTANCE_RESOURCE_KEYS))

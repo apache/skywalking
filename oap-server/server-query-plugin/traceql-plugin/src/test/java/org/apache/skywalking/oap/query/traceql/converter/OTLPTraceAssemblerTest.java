@@ -330,6 +330,77 @@ class OTLPTraceAssemblerTest {
         assertEquals(error, response.getTrace().getResourceSpans(0).getScopeSpans(0).getSpans(0).getStatus());
     }
 
+    @Test
+    void shouldSearchAndNameTheServicesTheSpansWereStoredUnder() throws Exception {
+        // The receiver grouped both services: the resources say frontend and checkout, the store shop::*.
+        final Span root = span(ROOT_SPAN_ID, ByteString.EMPTY, "GET /", 1_000_000L, 4_000_000L).build();
+        final Span child = span(CHILD_SPAN_ID, ROOT_SPAN_ID, "Charge", 2_000_000L, 3_000_000L).build();
+        final List<SpanWrapper> wrappers = Arrays.asList(
+            wrapper(stored(FRONTEND, HTTP_SCOPE, root), "shop::frontend"),
+            wrapper(stored(CHECKOUT, GRPC_SCOPE, child), "shop::checkout"));
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+        condition.setServiceName("shop::checkout");
+
+        final SearchResponse response = OTLPTraceAssembler.toSearchResponse(
+            Collections.singletonList(OTLPTraceAssembler.decode(wrappers)),
+            Collections.singletonList(OTLPTraceAssembler.storedServices(wrappers)),
+            Set.of(), new OTLPSpanMatcher(condition), 0);
+
+        assertEquals(1, response.getTraces().size(), "the trace the storage matched is listed, not dropped");
+        final SearchResponse.Trace trace = response.getTraces().get(0);
+        assertEquals("shop::frontend", trace.getRootServiceName());
+        assertEquals(1, trace.getSpanSets().get(0).getMatched(), "only checkout's span matched");
+    }
+
+    @Test
+    void shouldListTheStoredServiceAsEachSpansServiceName() throws Exception {
+        final Span child = span(CHILD_SPAN_ID, ROOT_SPAN_ID, "Charge", 2_000_000L, 3_000_000L).build();
+        final List<SpanWrapper> wrappers = Collections.singletonList(
+            wrapper(stored(CHECKOUT, GRPC_SCOPE, child), "shop::checkout"));
+        final OTLPTraceQueryCondition condition = new OTLPTraceQueryCondition();
+        condition.setServiceName("shop::checkout");
+
+        final SearchResponse response = OTLPTraceAssembler.toSearchResponse(
+            Collections.singletonList(OTLPTraceAssembler.decode(wrappers)),
+            Collections.singletonList(OTLPTraceAssembler.storedServices(wrappers)),
+            Set.of(), new OTLPSpanMatcher(condition), 0);
+
+        final SearchResponse.Span listed = response.getTraces().get(0).getSpanSets().get(0).getSpans().get(0);
+        assertEquals(List.of("shop::checkout"), listed.getAttributes().stream()
+                                                      .filter(a -> "service.name".equals(a.getKey()))
+                                                      .map(a -> a.getValue().getStringValue())
+                                                      .collect(Collectors.toList()),
+            "the service searched for, not the resource's checkout");
+    }
+
+    @Test
+    void shouldNameEachResourceByItsStoredServiceAndKeepItsOtherAttributes() throws Exception {
+        final Resource shopCart = resource("cart").toBuilder()
+                                                  .addAttributes(KeyValue.newBuilder()
+                                                                         .setKey("k8s.namespace.name")
+                                                                         .setValue(AnyValue.newBuilder().setStringValue("shop")))
+                                                  .build();
+        final Span span = span(ROOT_SPAN_ID, ByteString.EMPTY, "GetCart", 1_000_000L, 2_000_000L).build();
+        final List<SpanWrapper> wrappers = Arrays.asList(
+            wrapper(stored(shopCart, GRPC_SCOPE, span), "shop::cart"),
+            wrapper(stored(FRONTEND, HTTP_SCOPE, span), ""));
+
+        final List<ResourceSpans> decoded = OTLPTraceAssembler.decodeAsStored(wrappers);
+
+        assertEquals(Arrays.asList(
+                KeyValue.newBuilder().setKey("service.name")
+                        .setValue(AnyValue.newBuilder().setStringValue("shop::cart")).build(),
+                KeyValue.newBuilder().setKey("k8s.namespace.name")
+                        .setValue(AnyValue.newBuilder().setStringValue("shop")).build()),
+            decoded.get(0).getResource().getAttributesList(), "service.name replaced in its place");
+        assertEquals(FRONTEND, decoded.get(1).getResource(), "a span stored without a service keeps its resource");
+        assertEquals(span, decoded.get(0).getScopeSpans(0).getSpans(0));
+    }
+
+    private static SpanWrapper wrapper(final ResourceSpans spans, final String service) {
+        return SpanWrapper.newBuilder().setSource(Source.OTLP).setSpan(spans.toByteString()).setService(service).build();
+    }
+
     private static Resource resource(final String serviceName) {
         return Resource.newBuilder()
                        .addAttributes(KeyValue.newBuilder()

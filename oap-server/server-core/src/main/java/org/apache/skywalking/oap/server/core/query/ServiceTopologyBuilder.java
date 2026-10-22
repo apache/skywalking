@@ -85,6 +85,7 @@ class ServiceTopologyBuilder {
         }
     }
 
+    @SneakyThrows
     Topology build(List<Call.CallDetail> serviceRelationClientCalls, List<Call.CallDetail> serviceRelationServerCalls) {
 
         Map<String, Node> nodes = new HashMap<>();
@@ -100,13 +101,22 @@ class ServiceTopologyBuilder {
             String targetServiceId = clientCall.getTarget();
 
             /*
-             * Use the alias name to make topology relationship accurate.
+             * Use the alias name to make topology relationship accurate. Only a destination no service is registered
+             * under is named by the address it was dialed at: the agent path stores an unresolved HTTP or RPC peer
+             * with a real id yet never registers it. A registered service whose name happens to equal some alias
+             * address, such as an OTLP service called `frontend` while an agent registered the host `frontend` for
+             * another service, keeps its own node. A self-call is folded too when the alias names another service:
+             * a caller that dials its downstream by its own service name, as the nginx-lua agent's
+             * `tracer:start(upstream)` may, records itself as the destination until the downstream's alias lands.
              */
-            if (networkAddressAliasCache.get(destService.getName()) != null) {
+            final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
+            if (networkAddressAlias != null
+                && (getMetadataQueryService().getService(targetServiceId) == null
+                || (targetServiceId.equals(sourceServiceId)
+                && !networkAddressAlias.getRepresentServiceId().equals(sourceServiceId)))) {
                 /*
                  * If alias exists, mean this network address is representing a real service.
                  */
-                final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
                 destService = IDManager.ServiceID.analysisId(
                     networkAddressAlias.getRepresentServiceId());
                 targetServiceId = IDManager.ServiceID.buildId(destService.getName(), true);

@@ -221,10 +221,15 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
 
     @Override
     public SpanWrapper getSpanWrapper() {
-        return SpanWrapper.newBuilder()
-                          .setSpan(ByteString.copyFrom(dataBinary))
-                          .setSource(Source.OTLP)
-                          .build();
+        final SpanWrapper.Builder wrapper = SpanWrapper.newBuilder()
+                                                       .setSpan(ByteString.copyFrom(dataBinary))
+                                                       .setSource(Source.OTLP);
+        // The service the search matched; the span's own service.name may differ, see receiver-otel's
+        // otlpServiceGroupKeys.
+        if (serviceName != null) {
+            wrapper.setService(serviceName);
+        }
+        return wrapper.build();
     }
 
     public static class Builder implements StorageBuilder<OTLPSpanRecord> {

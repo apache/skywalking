@@ -30,6 +30,7 @@ import org.apache.skywalking.oap.server.core.MockModuleManager;
 import org.apache.skywalking.oap.server.core.MockModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.ComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
@@ -152,6 +153,122 @@ public class ServiceTopologyBuilderTest {
             Assertions.assertEquals(2, call.getSourceComponents().size());
             Assertions.assertEquals(List.of("mtls", "http"), call.getTargetComponents());
         }
+    }
+
+    @SneakyThrows
+    @Test
+    public void testRegisteredDestNamedLikeAnAliasAddressKeepsItsNode() {
+        // An agent reached `agent::frontend` at the bare host `frontend`; an OTLP service is also named `frontend`.
+        final String agentFrontend = IDManager.ServiceID.buildId("agent::frontend", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("frontend", agentFrontend);
+        final String proxy = IDManager.ServiceID.buildId("frontend-proxy", true);
+        final String frontend = IDManager.ServiceID.buildId("frontend", true);
+        when(metadataQueryService.getService(frontend)).thenReturn(registeredService(frontend, "frontend"));
+
+        final Topology topology = builder.build(List.of(clientCall(proxy, frontend)), new ArrayList<>());
+
+        Assertions.assertEquals(1, topology.getCalls().size());
+        Assertions.assertEquals(frontend, topology.getCalls().get(0).getTarget());
+        Assertions.assertTrue(topology.getNodes().stream().noneMatch(n -> n.getId().equals(agentFrontend)));
+    }
+
+    @SneakyThrows
+    @Test
+    public void testUnregisteredAddressMergesIntoTheServiceItsAliasNames() {
+        // A call recorded before the address's alias existed names the address itself. An unregistered
+        // address-named destination folds through its alias, whether its id is real or conjectured.
+        final String songs = IDManager.ServiceID.buildId("songs", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("10.0.0.7:8080", songs);
+        final String gateway = IDManager.ServiceID.buildId("gateway", true);
+        for (final boolean real : new boolean[] {false, true}) {
+            final String address = IDManager.ServiceID.buildId("10.0.0.7:8080", real);
+
+            final Topology topology = builder.build(List.of(clientCall(gateway, address)), new ArrayList<>());
+
+            Assertions.assertEquals(1, topology.getCalls().size());
+            Assertions.assertEquals(songs, topology.getCalls().get(0).getTarget());
+            Assertions.assertTrue(topology.getNodes().stream().noneMatch(n -> n.getId().equals(address)));
+        }
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSelfCallDialedByTheCallersOwnNameMergesIntoTheServiceItsAliasNames() {
+        // nginx, service `User_Service_Name`, names its upstream by its own service name; the downstream registered
+        // that name as its alias, but the first calls were recorded before the alias landed.
+        final String nginx = IDManager.ServiceID.buildId("User_Service_Name", true);
+        final String end = IDManager.ServiceID.buildId("end-provider", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("User_Service_Name", end);
+        when(metadataQueryService.getService(nginx)).thenReturn(registeredService(nginx, "User_Service_Name"));
+
+        final Topology topology = builder.build(
+            List.of(clientCall(nginx, nginx), clientCall(nginx, end)), new ArrayList<>());
+
+        Assertions.assertEquals(1, topology.getCalls().size(), "the self-call is the call to the downstream");
+        Assertions.assertEquals(nginx, topology.getCalls().get(0).getSource());
+        Assertions.assertEquals(end, topology.getCalls().get(0).getTarget());
+    }
+
+    @SneakyThrows
+    @Test
+    public void testSelfCallWhoseAliasNamesItselfKeepsItsLoop() {
+        // `cart` calls its own host `cart`, which its own server spans registered.
+        final String cart = IDManager.ServiceID.buildId("cart", true);
+        final ServiceTopologyBuilder builder = builderWithAlias("cart", cart);
+        when(metadataQueryService.getService(cart)).thenReturn(registeredService(cart, "cart"));
+
+        final Topology topology = builder.build(List.of(clientCall(cart, cart)), new ArrayList<>());
+
+        Assertions.assertEquals(1, topology.getCalls().size());
+        Assertions.assertEquals(cart, topology.getCalls().get(0).getSource());
+        Assertions.assertEquals(cart, topology.getCalls().get(0).getTarget());
+    }
+
+    private static Service registeredService(final String id, final String name) {
+        final Service service = new Service();
+        service.setId(id);
+        service.setName(name);
+        service.getLayers().add(Layer.GENERAL.name());
+        return service;
+    }
+
+    private ServiceTopologyBuilder builderWithAlias(final String address,
+                                                    final String representServiceId) throws Exception {
+        final NetworkAddressAlias alias = new NetworkAddressAlias();
+        alias.setAddress(address);
+        alias.setRepresentServiceId(representServiceId);
+        final NetworkAddressAliasCache aliasCache = Mockito.mock(NetworkAddressAliasCache.class);
+        when(aliasCache.get(address)).thenReturn(alias);
+        final ModuleManager manager = new MockModuleManager() {
+            @Override
+            protected void init() {
+                register(CoreModule.NAME, () -> new MockModuleProvider() {
+                    @Override
+                    protected void register() {
+                        registerServiceImplementation(
+                            IComponentLibraryCatalogService.class, new ComponentLibraryCatalogService());
+                        registerServiceImplementation(NetworkAddressAliasCache.class, aliasCache);
+                    }
+                });
+            }
+        };
+        final ServiceTopologyBuilder builder = new ServiceTopologyBuilder(manager);
+        final Field metadataQueryServiceField = ServiceTopologyBuilder.class.getDeclaredField("metadataQueryService");
+        metadataQueryServiceField.setAccessible(true);
+        metadataQueryServiceField.set(builder, metadataQueryService);
+        return builder;
+    }
+
+    private static Call.CallDetail clientCall(final String sourceServiceId, final String destServiceId) {
+        final Call.CallDetail call = new Call.CallDetail();
+        call.buildFromServiceRelation(
+            IDManager.ServiceID.buildRelationId(
+                new IDManager.ServiceID.ServiceRelationDefine(sourceServiceId, destServiceId)),
+            // http
+            49,
+            DetectPoint.CLIENT
+        );
+        return call;
     }
 
     private Service getSvrA() {

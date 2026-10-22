@@ -106,10 +106,11 @@ public class SpanListenerManager implements Service {
      * @return merged result. If any listener vetoes persistence, {@code shouldPersist} is false.
      */
     public SpanListenerResult notifyOTLPPhase(final OTLPSpanReader span,
+                                              final String serviceName,
                                               final Map<String, String> resourceAttributes,
                                               final String scopeName,
                                               final String scopeVersion) {
-        return merge(listener -> listener.onOTLPSpan(span, resourceAttributes, scopeName, scopeVersion));
+        return merge(listener -> listener.onOTLPSpan(span, serviceName, resourceAttributes, scopeName, scopeVersion));
     }
 
     /**
@@ -117,10 +118,12 @@ public class SpanListenerManager implements Service {
      * {@link #notifyOTLPPhase} merges: any veto drops the span, tags merge last-writer-wins.
      */
     public SpanListenerResult notifyNativeOTLPPhase(final OTLPSpanReader span,
+                                                    final String serviceName,
                                                     final Map<String, String> resourceAttributes,
                                                     final String scopeName,
                                                     final String scopeVersion) {
-        return merge(listener -> listener.onNativeOTLPSpan(span, resourceAttributes, scopeName, scopeVersion));
+        return merge(listener -> listener.onNativeOTLPSpan(
+            span, serviceName, resourceAttributes, scopeName, scopeVersion));
     }
 
     /**

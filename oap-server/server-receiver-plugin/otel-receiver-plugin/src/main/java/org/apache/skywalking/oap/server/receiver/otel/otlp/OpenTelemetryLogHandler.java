@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,11 @@ public class OpenTelemetryLogHandler
     private ModuleManager manager;
 
     private ILogAnalyzerService logAnalyzerService;
+
+    /**
+     * {@code receiver-otel.otlpServiceGroupKeys}, split once; empty groups nothing.
+     */
+    private List<String> serviceGroupKeys = Collections.emptyList();
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -78,6 +84,7 @@ public class OpenTelemetryLogHandler
     @Override
     public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
         this.manager = manager;
+        this.serviceGroupKeys = config.getOtlpServiceGroupKeys();
     }
 
     @Override
@@ -117,7 +124,8 @@ public class OpenTelemetryLogHandler
                 .getAttributesList().stream()
                 .map(it -> Map.entry(it.getKey(), buildTagValue(it)))
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
-            final var service = attributes.get("service.name");
+            // Filed under the grouped name, so the logs belong to the service the trace analysis names.
+            final var service = OTLPServiceGroup.apply(attributes.get("service.name"), attributes, serviceGroupKeys);
             if (Strings.isNullOrEmpty(service)) {
                 log.warn("No service name found in resource attributes, discarding the log");
                 return;

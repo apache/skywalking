@@ -43,7 +43,7 @@ and it means the same thing whatever the input:
 
 | `meta` field | Source on an OTLP span |
 |---|---|
-| `service` | the resource's `service.name`; the receiver's fallbacks are described in [OpenTelemetry Trace Format](../setup/backend/otlp-trace.md#service-name) |
+| `service` | the service name the receiver resolved: the resource's `service.name`, or the fallbacks in [Service name](../setup/backend/otlp-trace.md#service-name), in the `group::name` form when [service grouping](../setup/backend/otlp-trace.md#service-group) applies |
 | `serviceInstance` | the resource's `service.instance.id` |
 | `endpoint` | the span's name, until a rule sets it |
 | `layer` | the resource's `service.layer`, empty when absent; see [Layer](#layer) |
@@ -282,10 +282,13 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   `server.address` and `server.port` are the `Host` the caller sent, so the caller's `resolveAlias` finds it. The
   alias rows travel through storage and the core's alias cache, which reloads every 10 seconds, so the first calls
   to a freshly seen address are still address-named, and the topology query folds those.
-- **`resolveAlias(address)`** on the CLIENT side answers, in this order: a host, or its first DNS label, that is the
-  name of a service this OAP node has seen spans from; the service an alias row names; the service an earlier pair
-  named for the address on this node, see the pairing below; else the address unchanged. A CLIENT span whose own
-  pair has not met yet stays address-named; its pair names the calls that follow.
+- **`resolveAlias(address)`** on the CLIENT side answers, in this order, from the services this OAP node has seen
+  spans from, or read from storage when it started: for a qualified host, the grouped service of the group its
+  second DNS label names (`cart.outlet` is `outlet::cart`); the service of the caller's own group named exactly the
+  host (`cart` from `shop::frontend` is `shop::cart`); a host, or its first DNS label, that is an ungrouped
+  service's name; the service an alias row names; the service an earlier pair named for the address on this node,
+  see the pairing below; the one grouped service of any group whose short name the whole host is; else the address
+  unchanged. A CLIENT span whose own pair has not met yet stays address-named; its pair names the calls that follow.
 - **Pairing** resolves the rest from the trace context: a SERVER span's `parentSpanId` is its caller's span id,
   which needs no attribute convention on either side. Every SERVER span with a parent, and every CLIENT span
   whose peer could not be named, becomes a fact; messaging spans take no part, since a CONSUMER span's parent is
@@ -294,10 +297,22 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   writes the row for every node. Facts wait 60 seconds for their other half; a callee that never reports, an
   uninstrumented service or a dropped trace context, leaves its caller address-named, which is the honest answer.
 
-Two guards keep an alias honest. An address whose host names another service is never registered: a proxy that
-keeps the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's.
-And `resolveAlias` asks the known-service registry before the cache, so a row that did get through cannot redirect
-an edge away from a service that exists under that name.
+The topology query folds an address-named node into the service its address alias names once the row lands, so
+those first calls join the callee's node. It folds a node that is not a registered service, or a self-call whose
+alias names another service, the shape a caller that dials its downstream by its own service name records until the
+downstream's alias lands. Other registered nodes keep their own names even when the name equals some alias address,
+as an OTLP `frontend` does while an agent has registered the host `frontend` for `agent::frontend`.
+
+Two guards keep an alias honest. An address whose host names another service is never registered: a proxy that keeps
+the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's. With
+service grouping the host's first DNS label counts too: an address whose first label is the short name of any
+group's service that emitted, or was read from storage, within a day, other than the registering service's own, is
+refused, and so is one whose whole host is such a short name, `edge.proxy:8080` of `infra::edge.proxy`, so
+`frontend-proxy.ingress:8080` stays `infra::frontend-proxy`'s even when the group is not the namespace, and two
+groups' proxies of one name guard it as one does. A host outside the cluster whose first label happens to be such a
+name, `api.example.com` while `shop::api` exists, is refused the same way and its callers stay address-named, as an
+ungrouped `api` already did. And `resolveAlias` asks the known-service registry before the cache, so a row that did
+get through cannot redirect an edge away from a service that exists under that name.
 
 An address listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) is
 never registered either, by `alias` or by a pair. The shipped rule does not resolve such a peer: when `isGateway` says

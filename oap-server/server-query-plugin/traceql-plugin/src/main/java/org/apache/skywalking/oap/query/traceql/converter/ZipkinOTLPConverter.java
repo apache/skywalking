@@ -509,14 +509,16 @@ public class ZipkinOTLPConverter {
 
         // Build attribute map for this span
         Map<String, String> spanAttrMap = new HashMap<>();
-        if (zipkinSpan.localServiceName() != null) {
-            spanAttrMap.put(SERVICE_NAME, zipkinSpan.localServiceName());
-        }
         if (zipkinSpan.kind() != null) {
             spanAttrMap.put(SPAN_KIND, convertZipkinKindToOtlp(zipkinSpan.kind()).name());
         }
         if (zipkinSpan.tags() != null) {
             spanAttrMap.putAll(zipkinSpan.tags());
+        }
+        // After the tags: the OTLP conversion keeps the resource's `service.name` as a tag, and the local service
+        // is the one stored, which a service group changes.
+        if (zipkinSpan.localServiceName() != null) {
+            spanAttrMap.put(SERVICE_NAME, zipkinSpan.localServiceName());
         }
         // The span status as a fixed attribute, Zipkin's error convention: an "error" tag, whatever its value (#14093).
         spanAttrMap.put(STATUS, zipkinSpan.tags() != null && zipkinSpan.tags().containsKey(ERROR) ? ERROR : "unset");

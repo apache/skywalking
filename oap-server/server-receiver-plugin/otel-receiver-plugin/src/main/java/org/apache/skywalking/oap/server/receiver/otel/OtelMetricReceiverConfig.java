@@ -80,6 +80,19 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
     @Setter
     private int otlpTraceMaxSpansPerSecond = 0;
 
+    /**
+     * Resource attribute keys, comma separated, in order of preference: the first one a resource carries groups its
+     * service, so {@code cart} with {@code service.namespace=shop} is the service {@code shop::cart} of the group
+     * {@code shop} in the trace analysis, the stored spans and the logs, while the resource attributes stay as sent.
+     * Empty, the default, groups nothing.
+     */
+    @Setter
+    private String otlpServiceGroupKeys;
+
+    public List<String> getOtlpServiceGroupKeys() {
+        return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(otlpServiceGroupKeys));
+    }
+
     public List<String> getEnabledHandlers() {
         return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(enabledHandlers));
     }

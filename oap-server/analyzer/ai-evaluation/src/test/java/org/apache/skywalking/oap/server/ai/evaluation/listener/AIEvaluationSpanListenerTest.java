@@ -24,6 +24,9 @@ import java.util.Map;
 import org.apache.skywalking.oap.server.ai.evaluation.AIEvaluationModule;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
 import org.apache.skywalking.oap.server.ai.evaluation.service.IAIEvaluationService;
+import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
 import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
@@ -59,6 +62,12 @@ class AIEvaluationSpanListenerTest {
         when(module.provider()).thenReturn(provider);
         final ModuleManager moduleManager = mock(ModuleManager.class);
         when(moduleManager.find(AIEvaluationModule.NAME)).thenReturn(module);
+        final ModuleServiceHolder coreProvider = mock(ModuleServiceHolder.class);
+        when(coreProvider.getService(NamingControl.class))
+            .thenReturn(new NamingControl(70, 100, 100, new EndpointNameGrouping()));
+        final ModuleProviderHolder core = mock(ModuleProviderHolder.class);
+        when(core.provider()).thenReturn(coreProvider);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(core);
         listener = new AIEvaluationSpanListener();
         listener.init(moduleManager);
     }
@@ -123,11 +132,13 @@ class AIEvaluationSpanListenerTest {
             }
         };
 
-        listener.onNativeOTLPSpan(span, Collections.emptyMap(), "opentelemetry.instrumentation.openai_v2", "2.0");
+        listener.onNativeOTLPSpan(span, "shop::chatbot", Collections.emptyMap(),
+                                  "opentelemetry.instrumentation.openai_v2", "2.0");
 
         final AIEvaluationContext context = sampledContext();
         assertEquals(GenAITraceRefType.OTLP, context.getTraceRefType());
         assertEquals(SPAN_ID, context.getSpanId());
+        assertEquals("shop::chatbot", context.getServiceName(), "the grouped service the span is stored under");
     }
 
     private AIEvaluationContext sampledContext() {
