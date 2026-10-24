@@ -106,7 +106,7 @@ metricsRules:
     exp: kafka_server_brokertopicmetrics_bytesout_total.sum(['cluster','broker','topic']).rate('PT1M')
 
   - name: topic_bytesin_per_second
-    exp: kafka_server_brokertopicmetrics_bytesout_total.sum(['cluster','broker','topic']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_bytesin_total.sum(['cluster','broker','topic']).rate('PT1M')
 
   - name: topic_fetch_requests_per_second
     exp: kafka_server_brokertopicmetrics_totalfetchrequests_total.sum(['cluster','broker','topic']).rate('PT1M')
