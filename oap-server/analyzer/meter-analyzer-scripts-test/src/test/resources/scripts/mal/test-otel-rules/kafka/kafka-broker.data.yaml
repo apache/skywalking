@@ -33,22 +33,51 @@ input:
         area: heap
       value: 100.0
   kafka_server_brokertopicmetrics_messagesin_total:
+    # Kafka's all-topics total (no `topic` label) beside the per-topic series, as the JMX exporter exports them.
     - labels:
         cluster: test-cluster
         broker: test-broker
-        topic: test-topic
+      value: 400.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-a
+      value: 300.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-b
       value: 100.0
   kafka_server_brokertopicmetrics_bytesin_total:
     - labels:
         cluster: test-cluster
         broker: test-broker
-      value: 100.0
+      value: 8000.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-a
+      value: 6000.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-b
+      value: 2000.0
   kafka_server_brokertopicmetrics_bytesout_total:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        topic: test-topic
-      value: 100.0
+      value: 4800.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-a
+      value: 3600.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-b
+      value: 1200.0
   kafka_server_brokertopicmetrics_replicationbytesin_total:
     - labels:
         cluster: test-cluster
@@ -58,7 +87,7 @@ input:
     - labels:
         cluster: test-cluster
         broker: test-broker
-      value: 100.0
+      value: 300.0
   kafka_server_replicamanager_underreplicatedpartitions:
     - labels:
         cluster: test-cluster
@@ -88,7 +117,7 @@ input:
     - labels:
         cluster: test-cluster
         broker: test-broker
-      value: 100.0
+      value: 200.0
   kafka_server_replicafetchermanager_maxlag:
     - labels:
         cluster: test-cluster
@@ -166,22 +195,41 @@ input:
         quantile: "0.99"
       value: 999.0
   kafka_network_socketserver_networkprocessoravgidlepercent:
+    # A 0..1 ratio gauge, not a counter.
     - labels:
         cluster: test-cluster
         broker: test-broker
-      value: 100.0
+      value: 0.75
   kafka_server_brokertopicmetrics_totalfetchrequests_total:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        topic: test-topic
-      value: 100.0
+      value: 2400.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-a
+      value: 1600.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-b
+      value: 800.0
   kafka_server_brokertopicmetrics_totalproducerequests_total:
     - labels:
         cluster: test-cluster
         broker: test-broker
-        topic: test-topic
-      value: 100.0
+      value: 1200.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-a
+      value: 800.0
+    - labels:
+        cluster: test-cluster
+        broker: test-broker
+        topic: topic-b
+      value: 400.0
 expected:
   meter_kafka_broker_cpu_time_total:
     entities:
@@ -216,7 +264,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 25.0
+        value: 100.0
   meter_kafka_broker_bytes_in_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -227,7 +275,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 25.0
+        value: 2000.0
   meter_kafka_broker_bytes_out_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -238,7 +286,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 25.0
+        value: 1200.0
   meter_kafka_broker_replication_bytes_in_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -260,7 +308,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 25.0
+        value: 75.0
   meter_kafka_broker_under_replicated_partitions:
     entities:
       - scope: SERVICE_INSTANCE
@@ -326,7 +374,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 25.0
+        value: 50.0
   meter_kafka_broker_max_lag:
     entities:
       - scope: SERVICE_INSTANCE
@@ -432,7 +480,7 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-        value: 2500.0
+        value: 75.0
   meter_kafka_broker_topic_messages_in_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -443,7 +491,12 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-          topic: test-topic
+          topic: topic-a
+        value: 300.0
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          topic: topic-b
         value: 100.0
   meter_kafka_broker_topic_bytesout_per_second:
     entities:
@@ -455,8 +508,13 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-          topic: test-topic
-        value: 25.0
+          topic: topic-a
+        value: 900.0
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          topic: topic-b
+        value: 300.0
   meter_kafka_broker_topic_bytesin_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -467,8 +525,13 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-          topic: test-topic
-        value: 25.0
+          topic: topic-a
+        value: 1500.0
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          topic: topic-b
+        value: 500.0
   meter_kafka_broker_topic_fetch_requests_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -479,8 +542,13 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-          topic: test-topic
-        value: 25.0
+          topic: topic-a
+        value: 400.0
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          topic: topic-b
+        value: 200.0
   meter_kafka_broker_topic_produce_requests_per_second:
     entities:
       - scope: SERVICE_INSTANCE
@@ -491,5 +559,10 @@ expected:
       - labels:
           broker: test-broker
           cluster: 'kafka::test-cluster'
-          topic: test-topic
-        value: 25.0
+          topic: topic-a
+        value: 200.0
+      - labels:
+          broker: test-broker
+          cluster: 'kafka::test-cluster'
+          topic: topic-b
+        value: 100.0
