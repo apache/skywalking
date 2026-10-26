@@ -18,8 +18,8 @@ OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL
 An application without it still has its traces stored and searchable, see [OpenTelemetry Trace
 Format](otlp-trace.md), and a call to it from an analyzed application is drawn to the address the caller dialed.
 The OAP logs one INFO line per such service, `Spans of service '…' carry no service.layer, so they are stored but not
-analyzed`, so empty dashboards point at the cause, unless a `layer: auto` rule is installed for such spans; a service
-whose `service.layer` is a registered layer with no rule, such as `OTLP_MESH`, has opted out and is not logged.
+analyzed`, so empty dashboards point at the cause; a service whose `service.layer` is a registered layer with no
+rule, such as `OTLP_MESH`, has opted out and is not logged.
 
 ## Configuration
 
@@ -296,8 +296,8 @@ spans behind them, without registering any service or metric.
 An OTLP exporter retries a batch after a transport timeout, and the OAP may have accepted the first attempt, so a
 retried span would count a request twice. `dedupWindow` keeps a per-node set of the ids of the spans some rule ran on
 within the window and analyzes such a span once; it is off by default because it costs memory per span and the OTLP
-logs path does not deduplicate either. A span no rule runs on, one on a layer no rule is declared for or one without a
-layer when no `layer: auto` rule is installed, takes no entry, so size `dedupCapacity` by the analyzed spans alone,
+logs path does not deduplicate either. A span no rule runs on, one without a registered layer or on a layer no rule is
+declared for, takes no entry, so size `dedupCapacity` by the analyzed spans alone,
 the `OTLP_GENERAL` ones with the shipped rules. The set is per OAP node, so a retry that lands on another node is
 counted again.
 

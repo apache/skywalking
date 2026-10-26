@@ -35,7 +35,7 @@ public class TraceAnalyzerModule extends ModuleDefine {
     public Class[] services() {
         return new Class[] {
             ITraceAnalyzerService.class,
-            // TAL rule store — keyed by (Layer, ruleName), plus the `layer: auto` set. Each entry is a compiled
+            // TAL rule store — keyed by (Layer, ruleName). Each entry is a compiled
             // TAL rule that decides what a span is, extracts its identity, declares its metrics and votes on the
             // span's persistence. addOrReplace / remove mutate it after boot, reusing the compile helper the
             // startup path uses; no runtime-rule catalog drives them yet, so today the rules are the files read at start.

@@ -404,9 +404,8 @@ class TALExecutionTest {
     }
 
     @Test
-    void anAutoRuleThatNamesNoLayerWritesNothing() throws Exception {
-        // `layer: auto` hands the rule spans without a service.layer; forgetting `layer` in the extractor used to
-        // file the service under UNDEFINED.
+    void aRuleWhoseEntityHasNoLayerWritesNothing() throws Exception {
+        // An entity built without a layer is dropped, not filed under UNDEFINED.
         run("filter { extractor {\n"
             + "  metrics { name \"no_layer_cpm\"; scope service(meta.service, meta.layer); function cpm; value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput());

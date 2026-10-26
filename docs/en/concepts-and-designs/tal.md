@@ -26,7 +26,7 @@ layerDefinitions:      # optional, the same contract as LAL and MAL: registered 
     normal: true
 rules:
   - name: otlp-general # unique within its layer
-    layer: OTLP_GENERAL # a registered layer name, or `auto`
+    layer: OTLP_GENERAL # a registered layer name
     inputType: otlp    # optional; the only input this release ships, and the default
     outputType: SlowSQL # optional; the record the rule writes, see Output Type
     dsl: |
@@ -63,18 +63,16 @@ proto enums in conditions.
 ## Layer
 
 A span whose resource carries `service.layer` is evaluated by the rules declared for that layer, and by nothing
-else. A span whose resource carries a layer name that is not registered is logged and not analyzed. A span without
-`service.layer` is evaluated by the `layer: auto` rules; an auto rule that does not `abort {}` has claimed the span
-and must set `layer` in its extractor. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules
-are declared for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`,
-and put their conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the
-setup doc](../setup/backend/trace-analyzer.md#layers); no shipped rule is `auto`, so a span without `service.layer` is
-stored and not analyzed.
+else. A span whose resource carries a layer name that is not registered is logged and not analyzed, and so is a span
+without `service.layer`. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules are declared
+for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`, and put their
+conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup
+doc](../setup/backend/trace-analyzer.md#layers).
 
-The layer an auto rule sets names the service in the analysis, its metrics, topology and service list, but not in the
-stored span or the TraceQL service catalog: those keep the layer the span carried, `UNDEFINED` here, see [the TraceQL
-service catalog](../api/traceql-service.md). A layer's TraceQL picker narrowed by `service.layer` leaves such a service
-out, so a sender that the dashboards should show under a layer is better given that `service.layer` itself.
+Unlike LAL, TAL has no `layer: auto`, and a rule that declares it stops the OAP from starting. A rule that picked the
+layer from the span itself would name the service under a layer that its stored spans and the [TraceQL service
+catalog](../api/traceql-service.md) do not carry. A sender that cannot be changed gets its `service.layer` from the
+OpenTelemetry Collector instead, with a `resource` processor that inserts it.
 
 A span no rule claims, one every rule aborted or one on a layer no rule is declared for, is no service in the
 topology: its service is not added to the services the host lookups name, and it sends no pairing fact, see
@@ -162,7 +160,7 @@ extractor {
 
 `abort {}` is allowed anywhere: at filter level and inside `extractor`, `sink` and `persist`, and it stops the whole
 rule, the statements after the block it sits in included. A statement after it in the same block could never run
-and is a compile error. In a `layer: auto` rule it means "not mine". An `extractor`, `sink` or `persist` block may sit
+and is a compile error. An `extractor`, `sink` or `persist` block may sit
 inside a filter-level `if`, but not inside one another.
 
 ### `metrics`
@@ -354,7 +352,8 @@ The source of a client edge is always the span's own `service.name`; a span emit
 - No parser blocks. `text {}`, `json {}` and `yaml {}` give a log body structure; a span is already structured.
 - No `traceId`, `segmentId`, `spanId` or `timestamp` statements. The identifiers are facts of the span, readable as
   `meta.traceId` and friends.
-- `abort {}` is allowed anywhere, and a `layer: auto` rule uses it to decline a span.
+- `abort {}` is allowed anywhere.
+- No `layer: auto`. A rule is declared for a registered layer, and sees only the spans that carry it.
 - `tag` injects into the stored span, not into a record.
 - `alias` and `resolveAlias` exist, see above.
 - `metrics {}` declares a metric and emits one value; it does not hand a sample to another engine.

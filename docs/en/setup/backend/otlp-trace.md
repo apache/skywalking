@@ -154,7 +154,7 @@ name either group's service, as on the agent path, and otherwise by the pairing 
 receives the callee's spans, for example one the collectors are not connected to over their long-lived gRPC
 connections, stays in that state once the day the startup read covers has passed. To pin which TAL rules analyze such
 spans, set their resource's `service.layer` to a registered layer name and declare TAL rules for that layer. Only
-those rules run; the shipped `layer: auto` rules do not. An unknown layer name is logged and its spans are not
+those rules run. An unknown layer name is logged and its spans are not
 analyzed. See [Layer](../../concepts-and-designs/tal.md#layer). The group has no cluster part either: the namespace `shop` of two Kubernetes
 clusters groups both clusters' `cart` as one `shop::cart`.
 

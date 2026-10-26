@@ -25,13 +25,6 @@ import lombok.Data;
 @Data
 public class TALConfig {
     /**
-     * The layer value of a rule that decides the layer itself. Such a rule sees the spans whose resource carries
-     * no {@code service.layer}, and its extractor must set {@code layer}: a metrics block whose entity has no layer
-     * is skipped, see {@code TalRuntimeHelper.layer}.
-     */
-    public static final String LAYER_AUTO = "auto";
-
-    /**
      * The input kind a rule reads when it names none: the OTLP span.
      */
     public static final String DEFAULT_INPUT_TYPE = "otlp";

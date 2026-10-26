@@ -192,16 +192,15 @@ public class TalRuntimeHelper {
     /**
      * @param name a layer name, from a literal or an expression
      * @return the layer; null when the name is empty or not registered, which {@link #layerResolved} turns into
-     * skipping the metrics block. An empty name is a `layer: auto` rule whose extractor named no layer, whose output
-     * is dropped rather than filed under a layer nobody chose. {@code Layer.nameOf} is not used because it answers
+     * skipping the metrics block. An empty name, from a layer expression that gave none, drops the output rather than
+     * filing it under a layer nobody chose. {@code Layer.nameOf} is not used because it answers
      * {@code UNDEFINED} for an unknown name, and {@code UNDEFINED} is a layer a rule names on purpose, for the
      * {@code User} end of a relation.
      */
     public Layer layer(final String name) {
         if (name == null || name.isEmpty()) {
             if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP && REPORTED_UNKNOWN_LAYERS.add("")) {
-                log.warn("A TAL rule built an entity with no layer; its metrics blocks are skipped. A `layer: auto` "
-                    + "rule names the layer in its extractor");
+                log.warn("A TAL rule built an entity with no layer; its metrics blocks are skipped");
             }
             return null;
         }

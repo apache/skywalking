@@ -875,8 +875,6 @@ it in full with the services stored with that layer, which leaves out the servic
 mesh sidecars under `OTLP_MESH`, and those that set none; `UNDEFINED` lists the services that set no registered
 layer. The stored span carries the same value as its `service.layer` resource attribute, `UNDEFINED` in place of
 an unregistered or absent one, so a search on the layer finds the traces of the services the catalog lists under it.
-Both take the layer the span carried, not one a `layer: auto` TAL rule assigned to a span that carried none: such a
-service is listed under `UNDEFINED` here while its metrics are under the rule's layer.
 The unscoped `{ .service.layer = "OTLP_GENERAL" }` also matches a span attribute of that name, so it is
 answered from the sample below. Without a layer condition every service is listed. A
 `q` narrower than a service name, for

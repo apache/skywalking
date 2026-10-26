@@ -53,8 +53,8 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
     private static final int REPORTED_UNKNOWN_LAYERS_CAP = 1000;
 
     /**
-     * Services already reported for sending spans no rule sees, having no {@code service.layer} while no
-     * {@code layer: auto} rule is installed. Bounded the same way.
+     * Services already reported for sending spans without a {@code service.layer}, which no rule sees. Bounded the
+     * same way.
      */
     private static final Set<String> REPORTED_UNLAYERED_SERVICES = ConcurrentHashMap.newKeySet();
 
@@ -99,13 +99,25 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
         if (!factory.hasRules()) {
             return SpanAnalysisResult.CONTINUE;
         }
+        // A span is analyzed by the rules of the layer its resource names, and by nothing else: one without a
+        // registered layer is stored, not analyzed. Each is reported once, per name or per service, not per span.
         final Layer layer = resolveLayer(meta);
-        if (layer == null && StringUtil.isNotEmpty(meta.getLayer())) {
-            // An unknown layer name is not analyzed rather than silently handed to the auto rules, which would
-            // attribute the span to a layer the operator did not ask for. Warned once per name, not per span.
-            if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP
-                && REPORTED_UNKNOWN_LAYERS.add(meta.getLayer())) {
-                log.warn("Spans carry an unknown service.layer '{}'; they are not analyzed", meta.getLayer());
+        if (layer == null) {
+            if (StringUtil.isNotEmpty(meta.getLayer())) {
+                if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP
+                    && REPORTED_UNKNOWN_LAYERS.add(meta.getLayer())) {
+                    log.warn("Spans carry an unknown service.layer '{}'; they are not analyzed", meta.getLayer());
+                }
+            } else if (meta.getService() != null
+                // Looked up before the bounded add, since every span of such a service passes here.
+                && !REPORTED_UNLAYERED_SERVICES.contains(meta.getService())
+                && REPORTED_UNLAYERED_SERVICES.size() < REPORTED_UNKNOWN_LAYERS_CAP
+                && REPORTED_UNLAYERED_SERVICES.add(meta.getService())) {
+                // Silent otherwise: an application that never set the layer shows up as empty dashboards only.
+                log.info("Spans of service '{}' carry no service.layer, so they are stored but not analyzed. Set "
+                    + "service.layer on its resource to a layer the TAL rules are declared for, OTLP_GENERAL with "
+                    + "the shipped rules, e.g. OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL, to analyze "
+                    + "them.", meta.getService());
             }
             return SpanAnalysisResult.CONTINUE;
         }
@@ -117,19 +129,7 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
         final List<SpanFilterListener.RuleBinding> rules = factory.rulesFor(layer, span);
         if (rules.isEmpty()) {
-            // Silent otherwise: the shipped rules analyze only OTLP_GENERAL spans, so an application that never set
-            // the layer shows up as empty dashboards and nothing else. A layer with no rule is a deliberate opt-out,
-            // and an auto rule that is suspended, or reads another input, was declared. Looked up before the bounded
-            // add, since every span of such a service passes here.
-            if (layer == null && !factory.hasAutoRules() && meta.getService() != null
-                && !REPORTED_UNLAYERED_SERVICES.contains(meta.getService())
-                && REPORTED_UNLAYERED_SERVICES.size() < REPORTED_UNKNOWN_LAYERS_CAP
-                && REPORTED_UNLAYERED_SERVICES.add(meta.getService())) {
-                log.info("Spans of service '{}' carry no service.layer, so they are stored but not analyzed: no TAL "
-                    + "rule is declared for spans without a layer. Set service.layer on its resource to a layer the "
-                    + "TAL rules are declared for, OTLP_GENERAL with the shipped rules, e.g. "
-                    + "OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL, to analyze them.", meta.getService());
-            }
+            // A layer with no rule, as OTLP_MESH, is a deliberate opt-out.
             return SpanAnalysisResult.CONTINUE;
         }
         // A retried span is not counted again: no metric, no pairing. It gets the verdict its first delivery got,
@@ -141,7 +141,7 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             return seenSpans.verdictOf(meta.getTraceId(), meta.getSpanId());
         }
         // The layer the first rule that ran named, so a learned alias names the same service id the rule's own
-        // `alias` and metrics do; an auto rule names it, and a span's own service.layer is only the fallback.
+        // `alias` and metrics do; a rule's extractor may name another layer than the span's, which is the fallback.
         Layer pairingLayer = null;
         // Whether a rule ran to the end without `abort {}`. A span no rule claims, an Envoy sidecar's under a
         // proxy filter or one on a layer with no rule, is no service in the topology: it neither names its service
@@ -240,8 +240,8 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     /**
      * @param meta the span's layer name as the receiver read it
-     * @return the layer; null when the span carries none, which the auto rules serve, and when the name is not
-     * registered, which {@link #doAnalysis} reports. {@code Layer.nameOf} is not used here because it answers
+     * @return the layer; null when the span carries none or the name is not registered, neither of which a rule
+     * serves, as {@link #doAnalysis} reports. {@code Layer.nameOf} is not used here because it answers
      * {@code UNDEFINED} for an unknown name, which no rule serves either, but silently.
      */
     private static Layer resolveLayer(final SpanMetadata meta) {

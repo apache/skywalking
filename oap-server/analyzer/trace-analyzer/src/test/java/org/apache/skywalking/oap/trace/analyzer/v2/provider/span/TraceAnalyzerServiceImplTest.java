@@ -243,7 +243,7 @@ class TraceAnalyzerServiceImplTest {
 
     @Test
     void aSpanEveryRuleAbortsNeitherPairsNorNamesItsService() {
-        // An auto rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, over an Envoy sidecar's
+        // A rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, over an Envoy sidecar's
         // inbound span: the span is no service in the topology.
         final KnownServices known = new KnownServices();
         final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
@@ -294,6 +294,22 @@ class TraceAnalyzerServiceImplTest {
 
         assertEquals(1, pairingFacts.size());
         assertTrue(known.contains("frontend"));
+    }
+
+    @Test
+    void aSpanWithoutALayerReachesNoRule() {
+        // No `layer: auto`: a span is analyzed by the rules of the layer it carries, and one carrying none by none.
+        final int[] runs = {0};
+        given(rule(ctx -> runs[0]++));
+        final SpanMetadata meta = spanMetadata();
+        meta.setLayer("");
+
+        final SpanAnalysisResult result = service.doAnalysis(
+            meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertEquals(0, runs[0]);
+        assertTrue(result.isPersist(), "the span is still stored");
+        Mockito.verify(factory, Mockito.never()).rulesFor(any(), any());
     }
 
     private TraceAnalyzerServiceImpl analyzerWith(final KnownServices known) {
