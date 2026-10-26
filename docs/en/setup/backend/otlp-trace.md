@@ -5,7 +5,7 @@ The handler stores them in one of two ways, selected by `receiver-otel.default.o
 
 | `otlpTraceStorage` | What is stored                                                                                                   | Query API                                                                                  |
 |--------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| `otlp` (default)   | The span exactly as it arrived, with its resource and instrumentation scope, in the `otlp_span` record.          | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
+| `otlp` (default)   | The span as it arrived, with its resource and instrumentation scope, in the `otlp_span` record; only the resource's `service.layer` is set to the registered layer, `UNDEFINED` otherwise. | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
 | `zipkin`           | Spans converted to Zipkin v2 and handed to the Zipkin receiver, the only mode of earlier releases. Follows the [Zipkin Exporter](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) conversion rules. | [Zipkin query API](./zipkin-trace.md#zipkin-query), Lens UI, and the TraceQL `/zipkin` datasource. |
 
 Span listeners such as the GenAI analyzer and AI evaluation run in both modes. In `otlp` mode they read the
@@ -113,7 +113,8 @@ The grouped name is the service everywhere OAP names one: the [trace analysis](t
 instances, endpoints and topology; the stored span, in both storage modes, so a TraceQL search names the service as
 the layer does, `{resource.service.name="opentelemetry-demo::cart"}`; and the OTLP logs, which are filed under it.
 The resource attributes are stored as sent, `service.name` and the grouping attribute among them, so
-`{resource.service.namespace="opentelemetry-demo"}` still finds the group's traces. A query names each span's
+`{resource.service.namespace="opentelemetry-demo"}` still finds the group's traces; only `service.layer` is stored as
+the registered layer it names, `UNDEFINED` otherwise, as the [service catalog](../../api/traceql-service.md) files it. A query names each span's
 service by the grouped name: a search lists it as the span's `service.name`, and a trace fetched by id carries it as
 its resource's `service.name`, the other resource attributes as sent. In the `zipkin` storage mode the stored service
 is lower case, since Zipkin lowercases every service name, so a group value with capitals, `service.namespace=Shop`,
@@ -199,5 +200,7 @@ The status module exposes the same queries with the execution trace for debuggin
 
 Every accepted span also goes through the [Trace Analysis Language](../../concepts-and-designs/tal.md) rules of the
 `trace-analyzer` module, in both storage modes and before the head sampling and the rate limit above. The shipped
-rule file registers the services under the `OTLP_SERVICE` layer with their metrics, topology and slow statements;
-see [OpenTelemetry Trace Analysis](trace-analyzer.md) for the settings and for what it produces.
+rule file analyzes the spans whose resource carries `service.layer=OTLP_GENERAL`, and registers their services under
+that layer with their metrics, topology and slow statements; every other span is only stored. See [OpenTelemetry
+Trace Analysis](trace-analyzer.md#enabling-the-analysis-for-an-application) for how an application enables it, the
+settings, and what it produces.

@@ -37,7 +37,7 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    private String talFiles = "otlp-default";
+    private String talFiles = "otlp-general";
 
     /**
      * Seconds. Spans seen within this window are analyzed once, so an exporter retrying a batch after a transport

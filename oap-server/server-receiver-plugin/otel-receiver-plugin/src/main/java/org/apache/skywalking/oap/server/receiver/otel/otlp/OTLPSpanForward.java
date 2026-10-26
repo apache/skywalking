@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
@@ -95,13 +96,15 @@ public class OTLPSpanForward {
     /**
      * Index and store one span.
      *
-     * @param resource       the span's resource, stored verbatim
+     * @param resource       the span's resource as stored: the caller has set its {@code service.layer} to the
+     *                       catalog's, see {@link #withCatalogLayer}, the one way it differs from the wire resource
      * @param scope          the span's instrumentation scope, stored verbatim
      * @param span           the span exactly as received
      * @param serviceName    the service name resolved from the resource, not yet formatted
-     * @param resourceTags   the resource attributes rendered as strings, see {@link OTLPValues#toStringMap}
+     * @param resourceTags   the resource attributes rendered as strings as received, see
+     *                       {@link OTLPValues#toStringMap}
      * @param additionalTags attributes the span listeners injected; appended to the stored span as strings, the
-     *                       only way the stored span differs from the wire span
+     *                       one way the stored span itself differs from the wire span
      * @param enforced       whether a rule's {@code enforcer {}} kept this span; it skips the trace-id head
      *                       sampling but still takes a permit from the rate limiter
      * @return false when head sampling or the rate limit dropped the span
@@ -170,6 +173,7 @@ public class OTLPSpanForward {
 
         final OTLPService service = new OTLPService();
         service.setServiceName(formattedServiceName);
+        service.setLayer(storedLayerOf(resource));
         service.setTimeBucket(minuteTimeBucket);
         getReceiver().receive(service);
 
@@ -187,6 +191,65 @@ public class OTLPSpanForward {
             getReceiver().receive(relation);
         }
         return true;
+    }
+
+    /**
+     * @return the resource's {@code service.layer} when it is a registered layer, else {@code UNDEFINED}: matched
+     * exactly, as the trace analyzer routes it to a layer's rules, and a client cannot add layers to the catalog. It
+     * is the layer the span carries, not one a {@code layer: auto} rule assigned to a span that carries none.
+     */
+    static String catalogLayerOf(final Map<String, String> resourceTags) {
+        final String layer = resourceTags.get(OpenTelemetryTraceHandler.SERVICE_LAYER_KEY);
+        return layer == null ? Layer.UNDEFINED.name() : Layer.nameOf(layer).name();
+    }
+
+    /**
+     * @return the layer the stored resource carries, which {@link #withCatalogLayer} set, so the catalog row and the
+     * stored span name one layer
+     */
+    private static String storedLayerOf(final Resource resource) {
+        for (final KeyValue attribute : resource.getAttributesList()) {
+            if (OpenTelemetryTraceHandler.SERVICE_LAYER_KEY.equals(attribute.getKey())) {
+                return Layer.nameOf(attribute.getValue().getStringValue()).name();
+            }
+        }
+        return Layer.UNDEFINED.name();
+    }
+
+    /**
+     * @return the resource with one {@code service.layer}, the given layer, in place of the first it carried and
+     * with any repeat of the key dropped, or added when absent, so a search on the stored span's layer finds the
+     * spans of the services the catalog lists under it; the resource itself when it already carries just that layer
+     */
+    static Resource withCatalogLayer(final Resource resource, final String layer) {
+        final AnyValue value = AnyValue.newBuilder().setStringValue(layer).build();
+        int found = 0;
+        boolean agrees = false;
+        for (final KeyValue attribute : resource.getAttributesList()) {
+            if (OpenTelemetryTraceHandler.SERVICE_LAYER_KEY.equals(attribute.getKey())) {
+                agrees = found == 0 && value.equals(attribute.getValue());
+                found++;
+            }
+        }
+        if (found == 1 && agrees) {
+            return resource;
+        }
+        final Resource.Builder stored = resource.toBuilder().clearAttributes();
+        boolean written = false;
+        for (final KeyValue attribute : resource.getAttributesList()) {
+            if (!OpenTelemetryTraceHandler.SERVICE_LAYER_KEY.equals(attribute.getKey())) {
+                stored.addAttributes(attribute);
+            } else if (!written) {
+                stored.addAttributes(attribute.toBuilder().setValue(value));
+                written = true;
+            }
+        }
+        if (!written) {
+            stored.addAttributes(KeyValue.newBuilder()
+                                         .setKey(OpenTelemetryTraceHandler.SERVICE_LAYER_KEY)
+                                         .setValue(value));
+        }
+        return stored.build();
     }
 
     /**

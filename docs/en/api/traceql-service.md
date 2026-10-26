@@ -868,8 +868,18 @@ values from the span-name catalog of the service given in `q`, `remote.service` 
 other `resource.` and `span.` keys from the tag autocomplete index of that scope, both scopes for an unscoped `.key`;
 `limit` caps every value list. The three catalogs list every name the
 storage retains and ignore `start` and `end`: a catalog row is written once, when its name is first seen, so a time
-window would hide every name older than it; the autocomplete index and the sample below honor the window. A `q`
-narrower than a service name, for
+window would hide every name older than it; the autocomplete index and the sample below honor the window. The service
+catalog keeps each name with the `service.layer` its resource carried when that is a registered layer, `UNDEFINED`
+otherwise, so a `q` whose only condition is the layer, `{ resource.service.layer = "OTLP_GENERAL" }`, is answered from
+it in full with the services stored with that layer, which leaves out the services of another layer, such as service
+mesh sidecars under `OTLP_MESH`, and those that set none; `UNDEFINED` lists the services that set no registered
+layer. The stored span carries the same value as its `service.layer` resource attribute, `UNDEFINED` in place of
+an unregistered or absent one, so a search on the layer finds the traces of the services the catalog lists under it.
+Both take the layer the span carried, not one a `layer: auto` TAL rule assigned to a span that carried none: such a
+service is listed under `UNDEFINED` here while its metrics are under the rule's layer.
+The unscoped `{ .service.layer = "OTLP_GENERAL" }` also matches a span attribute of that name, so it is
+answered from the sample below. Without a layer condition every service is listed. A
+`q` narrower than a service name, for
 instance `{ resource.service.name = "frontend" && kind = client }`, switches both endpoints to a sample: the newest 50
 matching traces are read and the names or values are taken from the spans in them that match the filter, which is
 how Grafana's dependent dropdowns narrow down. Every attribute is indexed, so every key such a sample offers is

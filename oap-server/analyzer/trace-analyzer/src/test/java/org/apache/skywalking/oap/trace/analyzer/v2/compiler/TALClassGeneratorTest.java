@@ -45,7 +45,7 @@ class TALClassGeneratorTest {
         final TALClassGenerator generator = generator("svc_metric");
         final TalExpression expression = generator.compile(
             "filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  metrics { name \"service_cpm\"; scope svc; function cpm; value 1 }\n"
                 + "} }");
@@ -106,7 +106,7 @@ class TALClassGeneratorTest {
         final TALClassGenerator generator = generator("votes");
         assertNotNull(generator.compile(
             "filter {\n"
-                + "  extractor { layer \"OTLP_SERVICE\" }\n"
+                + "  extractor { layer \"OTLP_GENERAL\" }\n"
                 + "  persist { enforcer {} }\n"
                 + "}"));
     }
@@ -251,7 +251,7 @@ class TALClassGeneratorTest {
 
     @Test
     void rejectAStatementAfterAbort() {
-        assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_SERVICE\"\n} }",
+        assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_GENERAL\"\n} }",
             "abort {} ends its block");
     }
 

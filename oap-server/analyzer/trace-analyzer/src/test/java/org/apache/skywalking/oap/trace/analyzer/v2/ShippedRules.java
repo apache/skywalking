@@ -25,7 +25,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfig;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
 
 /**
- * The shipped {@code tal/otlp-default.yaml}, read from {@code server-starter}'s resources.
+ * The shipped {@code tal/otlp-general.yaml}, read from {@code server-starter}'s resources.
  *
  * <p>Every test that needs a shipped rule comes through here rather than through a copy in test resources. A
  * copy would let the tests pass against text an OAP no longer boots with, which is the failure a test of the
@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
  */
 public final class ShippedRules {
     private static final String RELATIVE_PATH =
-        "oap-server/server-starter/src/main/resources/tal/otlp-default.yaml";
+        "oap-server/server-starter/src/main/resources/tal/otlp-general.yaml";
 
     private ShippedRules() {
     }
@@ -60,7 +60,7 @@ public final class ShippedRules {
      * @throws Exception when it cannot be read or parsed
      */
     public static TALConfigs configs() throws Exception {
-        return TALConfigs.parse("otlp-default", Files.readAllBytes(file()), "otlp-default.yaml");
+        return TALConfigs.parse("otlp-general", Files.readAllBytes(file()), "otlp-general.yaml");
     }
 
     /**

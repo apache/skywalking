@@ -80,7 +80,7 @@ import static org.mockito.Mockito.spy;
 
 /**
  * The worked example of the design, run for real: the OpenTelemetry Demo's three spans of one
- * {@code GET /api/products} through the shipped {@code otlp-service} rule.
+ * {@code GET /api/products} through the shipped {@code otlp-general} rule.
  *
  * <p>The assertions are the numbers the design commits to. The rendered table is logged so the data a rule
  * actually produces can be read rather than inferred.
@@ -322,7 +322,7 @@ class TALWorkedExampleTest {
                                .attribute("db.connection_string", "h2:mem:"));
         assertEquals(MeterEntity.newService("h2/mem-db", Layer.OTLP_VIRTUAL_DATABASE).id(),
                      entityIdOf(sentNamed("noaddr_database_access_cpm")), "the database is named by system and namespace");
-        assertEquals(MeterEntity.newServiceRelation("songs", Layer.OTLP_SERVICE, "h2/mem-db",
+        assertEquals(MeterEntity.newServiceRelation("songs", Layer.OTLP_GENERAL, "h2/mem-db",
                                                     Layer.OTLP_VIRTUAL_DATABASE, DetectPoint.CLIENT, 0).id(),
                      entityIdOf(sentNamed("noaddr_service_relation_client_cpm")), "and the edge lands on it");
 
@@ -345,7 +345,7 @@ class TALWorkedExampleTest {
             new TestSpanInput().attribute("messaging.system", "jms")
                                .attribute("messaging.destination.name", "queue-songs-ping")
                                .attribute("messaging.operation", "process"));
-        assertEquals(MeterEntity.newServiceRelation("jms", Layer.OTLP_VIRTUAL_MQ, "songs", Layer.OTLP_SERVICE,
+        assertEquals(MeterEntity.newServiceRelation("jms", Layer.OTLP_VIRTUAL_MQ, "songs", Layer.OTLP_GENERAL,
                                                     DetectPoint.SERVER, 0).id(),
                      entityIdOf(sentNamed("noaddr_service_relation_server_cpm")),
                      "a handled message is a call from that same broker");
@@ -460,9 +460,9 @@ class TALWorkedExampleTest {
         generator.setClassNameHint(classNameHint);
         generator.setMetricPrefix(metricPrefix);
         generator.setInputType(TestSpanInput.class);
-        generator.setSourceRef(ShippedRules.ref("otlp-service"));
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-        final TalExpression expression = generator.compile(ShippedRules.dsl("otlp-service"));
+        final TalExpression expression = generator.compile(ShippedRules.dsl("otlp-general"));
         generator.createMetrics(meterSystem);
         return expression;
     }

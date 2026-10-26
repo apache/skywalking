@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The shipped rules from {@code tal/otlp-default.yaml}, compiled end to end. They are the hardest input the
+ * The shipped rules from {@code tal/otlp-general.yaml}, compiled end to end. They are the hardest input the
  * language has to take, so a regression anywhere in the grammar, the parser or the codegen shows up here.
  */
 class TALShippedRuleCompileTest {
@@ -69,12 +69,12 @@ class TALShippedRuleCompileTest {
     @Test
     void compileTheShippedServiceRule() throws Exception {
         final TALClassGenerator generator = new TALClassGenerator();
-        generator.setClassNameHint("otlp_service");
+        generator.setClassNameHint("otlp_general");
         generator.setMetricPrefix("otlp");
-        generator.setSourceRef(ShippedRules.ref("otlp-service"));
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
 
-        final TalExpression expression = generator.compile(ShippedRules.dsl("otlp-service"));
+        final TalExpression expression = generator.compile(ShippedRules.dsl("otlp-general"));
         assertNotNull(expression);
 
         final List<String> names = generator.getMetricDeclarations().stream()
@@ -88,9 +88,9 @@ class TALShippedRuleCompileTest {
         final TALClassGenerator generator = new TALClassGenerator();
         generator.setClassNameHint("otlp_service_functions");
         generator.setMetricPrefix("otlp");
-        generator.setSourceRef(ShippedRules.ref("otlp-service"));
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-        generator.compile(ShippedRules.dsl("otlp-service"));
+        generator.compile(ShippedRules.dsl("otlp-general"));
 
         // cpm maps to sumPerMin, which is the same arithmetic CPMMetrics does for the agent metrics, so the
         // values are comparable with service_cpm.

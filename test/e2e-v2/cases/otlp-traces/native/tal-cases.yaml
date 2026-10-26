@@ -14,14 +14,14 @@
 # limitations under the License.
 
 # The Trace Analysis Language (TAL) rules run on every span the native OTLP storage accepts: the two demo services
-# must appear as OTLP_SERVICE services, with their metrics, their endpoint, and the topology the client spans draw.
+# must appear as OTLP_GENERAL services, with their metrics, their endpoint, and the topology the client spans draw.
 # The `User` end of the topology is the root span the trigger's curl creates on `frontend`, which carries no trace
 # context; the `frontend -> productcatalogservice` edge is the gRPC client span, named by `net.peer.name:port` and
 # folded onto the callee's own service by the alias the span pairing learned.
 cases:
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_SERVICE
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_GENERAL
     expected: expected/tal-services.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=OTLP_SERVICE
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=OTLP_GENERAL
     expected: expected/tal-topology.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --service-name=productcatalogservice
     expected: expected/tal-endpoints-productcatalogservice.yml

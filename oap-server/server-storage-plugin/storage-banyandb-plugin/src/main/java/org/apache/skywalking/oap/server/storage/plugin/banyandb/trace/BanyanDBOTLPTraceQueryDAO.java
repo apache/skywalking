@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.storage.query.IOTLPTraceQueryDAO;
 import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.AbstractBanyanDBDAO;
@@ -53,7 +54,9 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Condition
  */
 public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IOTLPTraceQueryDAO {
     private static final int QUERY_MAX_SIZE = Integer.MAX_VALUE;
-    private static final Set<String> SERVICE_TRAFFIC_TAGS = ImmutableSet.of(OTLPServiceTraffic.SERVICE_NAME);
+    private static final Set<String> SERVICE_TRAFFIC_TAGS = ImmutableSet.of(
+        OTLPServiceTraffic.SERVICE_NAME, OTLPServiceTraffic.LAYER);
+    private static final OTLPServiceTraffic.Builder SERVICE_TRAFFIC_BUILDER = new OTLPServiceTraffic.Builder();
     private static final Set<String> SPAN_TRAFFIC_TAGS = ImmutableSet.of(OTLPServiceSpanTraffic.SPAN_NAME);
     private static final Set<String> RELATION_TRAFFIC_TAGS = ImmutableSet.of(OTLPServiceRelationTraffic.PEER_SERVICE);
 
@@ -62,16 +65,21 @@ public class BanyanDBOTLPTraceQueryDAO extends AbstractBanyanDBDAO implements IO
     }
 
     @Override
-    public List<String> getServiceNames() throws IOException {
+    public List<OTLPServiceTraffic> getServices(@Nullable final String layer) throws IOException {
         final MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(
             OTLPServiceTraffic.INDEX_NAME, DownSampling.Minute);
-        // No time range on the catalogs, see IOTLPTraceQueryDAO#getServiceNames.
+        // No time range on the catalogs, see IOTLPTraceQueryDAO#getServices.
+        final Conditions where = Conditions.create();
+        if (layer != null) {
+            where.eq(OTLPServiceTraffic.LAYER, layer);
+        }
+        // After every condition: Conditions appends each one at the end of the query text, past a LIMIT already set.
+        where.limit(QUERY_MAX_SIZE);
         final MeasureQueryResponse resp = queryDebuggable(
-            false, schema, SERVICE_TRAFFIC_TAGS, Collections.emptySet(), null,
-            Conditions.create().limit(QUERY_MAX_SIZE));
-        final List<String> services = new ArrayList<>();
+            false, schema, SERVICE_TRAFFIC_TAGS, Collections.emptySet(), null, where);
+        final List<OTLPServiceTraffic> services = new ArrayList<>();
         for (final DataPoint dataPoint : resp.getDataPoints()) {
-            services.add(dataPoint.getTagValue(OTLPServiceTraffic.SERVICE_NAME));
+            services.add(SERVICE_TRAFFIC_BUILDER.storage2Entity(new BanyanDBConverter.StorageToMeasure(schema, dataPoint)));
         }
         return services;
     }

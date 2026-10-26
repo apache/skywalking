@@ -232,13 +232,83 @@ class TraceAnalyzerServiceImplTest {
     void theCalleeIsPairedUnderTheLayerTheRuleNamed() {
         // The span declares a conjectured layer, the rule files it under a normal one: the alias the pair learns
         // has to name the service id the rule's own metrics and alias name.
-        given(rule(ctx -> ctx.getMeta().setLayer(Layer.OTLP_SERVICE.name())));
+        given(rule(ctx -> ctx.getMeta().setLayer(Layer.OTLP_GENERAL.name())));
         final SpanMetadata meta = spanMetadata();
         meta.setLayer(Layer.VIRTUAL_DATABASE.name());
         meta.setParentSpanId("s0");
         service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         assertEquals(1, pairingFacts.size());
-        assertTrue(pairingFacts.get(0).isNormal(), "OTLP_SERVICE is normal; the span's own VIRTUAL_DATABASE is not");
+        assertTrue(pairingFacts.get(0).isNormal(), "OTLP_GENERAL is normal; the span's own VIRTUAL_DATABASE is not");
+    }
+
+    @Test
+    void aSpanEveryRuleAbortsNeitherPairsNorNamesItsService() {
+        // An auto rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, over an Envoy sidecar's
+        // inbound span: the span is no service in the topology.
+        final KnownServices known = new KnownServices();
+        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
+        given(rule(ExecutionContext::abort), rule(ExecutionContext::abort));
+
+        analyzer.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertTrue(pairingFacts.isEmpty(), "no pairing fact for a span no rule claimed: " + pairingFacts);
+        assertFalse(known.contains("frontend"), "nor is its service named to the host lookups");
+    }
+
+    @Test
+    void aSpanOnALayerWithNoRuleNeitherPairsNorNamesItsService() {
+        // service.layer=MESH_DP, a registered layer the operator declared no rule for, to keep the sidecars out.
+        final KnownServices known = new KnownServices();
+        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
+        given();
+        final SpanMetadata meta = pairableSpan();
+        meta.setLayer(Layer.MESH_DP.name());
+
+        analyzer.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertTrue(pairingFacts.isEmpty(), "no pairing fact for a span no rule claimed: " + pairingFacts);
+        assertFalse(known.contains("frontend"));
+    }
+
+    @Test
+    void aSpanOnAnUnknownLayerDoesNotNameItsService() {
+        final KnownServices known = new KnownServices();
+        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
+        given(rule(ctx -> { }));
+        final SpanMetadata meta = pairableSpan();
+        meta.setLayer("OTLP_SERVCE");
+
+        analyzer.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertFalse(known.contains("frontend"));
+    }
+
+    @Test
+    void oneRuleClaimingTheSpanPairsItAndNamesItsService() {
+        // The first rule is not this span's, the second claims it.
+        final KnownServices known = new KnownServices();
+        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
+        given(rule(ExecutionContext::abort), rule(ctx -> { }));
+
+        analyzer.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertEquals(1, pairingFacts.size());
+        assertTrue(known.contains("frontend"));
+    }
+
+    private TraceAnalyzerServiceImpl analyzerWith(final KnownServices known) {
+        final SpanPairing pairing = new SpanPairing();
+        pairing.setTransport(pairingFacts::add);
+        return new TraceAnalyzerServiceImpl(mock(ModuleManager.class), factory, known, pairing, new SeenSpans(0, 1));
+    }
+
+    /**
+     * A SERVER span whose caller ran in another process, the span the pairing would send a fact for.
+     */
+    private static SpanMetadata pairableSpan() {
+        final SpanMetadata meta = spanMetadata();
+        meta.setParentSpanId("s0");
+        return meta;
     }
 
     private SpanAnalysisResult analyze() {
@@ -276,7 +346,7 @@ class TraceAnalyzerServiceImplTest {
                            .endpoint("HTTP GET")
                            .kind(SpanMetadata.KIND_SERVER)
                            .statusCode(SpanMetadata.STATUS_UNSET)
-                           .layer(Layer.OTLP_SERVICE.name())
+                           .layer(Layer.OTLP_GENERAL.name())
                            .latency(110)
                            .timestamp(1_700_000_000_500L)
                            .traceId("t1")

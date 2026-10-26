@@ -19,8 +19,12 @@
 package org.apache.skywalking.oap.server.core.query;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
+import org.apache.skywalking.oap.server.core.otlp.OTLPServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.OTLPTraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
@@ -54,8 +58,17 @@ public class OTLPTraceQueryService {
         return queryDAO;
     }
 
-    public List<String> getServiceNames() throws IOException {
-        return getQueryDAO().getServiceNames();
+    /**
+     * @param layer a {@code resource.service.layer}, or null for no condition
+     * @return the stored service names, each once; with a layer, those stored with it, {@code UNDEFINED} for the
+     * services whose resource sets none
+     */
+    public List<String> getServiceNames(@Nullable final String layer) throws IOException {
+        final Set<String> names = new LinkedHashSet<>();
+        for (final OTLPServiceTraffic service : getQueryDAO().getServices(layer)) {
+            names.add(service.getServiceName());
+        }
+        return new ArrayList<>(names);
     }
 
     public List<String> getSpanNames(final String serviceName) throws IOException {

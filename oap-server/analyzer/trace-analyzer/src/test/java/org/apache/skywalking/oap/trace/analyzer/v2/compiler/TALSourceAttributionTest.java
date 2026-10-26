@@ -47,7 +47,7 @@ class TALSourceAttributionTest {
 
     @Test
     void theServiceRuleReportsItsOwnLine() throws Exception {
-        assertAttribution("otlp-service");
+        assertAttribution("otlp-general");
     }
 
     @Test
@@ -79,14 +79,14 @@ class TALSourceAttributionTest {
         assertNotNull(generator.compile(rule.getDsl()));
 
         // The generated class is named {yamlFile}_L{line}_{hint}; the line has to be the rule's own.
-        final String expectedSimpleName = "otlp_default_L" + rule.getLineNo() + "_" + hint;
+        final String expectedSimpleName = "otlp_general_L" + rule.getLineNo() + "_" + hint;
         final Path classFile = DslClassOutput.unitTestDir("tal").toPath()
                                              .resolve(expectedSimpleName + ".class");
         assertTrue(Files.isRegularFile(classFile),
             "no class was written as " + expectedSimpleName + "; the line in the name is not the rule's");
 
         assertEquals(
-            "(tal/otlp-default.yaml:" + rule.getLineNo() + ")" + expectedSimpleName + ".java",
+            "(tal/otlp-general.yaml:" + rule.getLineNo() + ")" + expectedSimpleName + ".java",
             sourceFileOf(classFile),
             "the SourceFile attribute is what a stack frame prints for " + ruleName);
     }

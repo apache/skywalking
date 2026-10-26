@@ -57,7 +57,7 @@ class SpanFilterListenerFactoryTest {
             new SpanFilterListener.Factory(mock(ModuleManager.class), new TraceAnalyzerModuleConfig());
         final TALConfig rule = new TALConfig();
         rule.setName("plain-source");
-        rule.setLayer("OTLP_SERVICE");
+        rule.setLayer("OTLP_GENERAL");
         rule.setInputType("otlp");
         rule.setOutputType(DatabaseAccess.class.getName());
         rule.setDsl("filter { }");

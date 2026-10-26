@@ -221,7 +221,7 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
     static int recordStoredServices(final MetadataQueryService metadata,
                                     final KnownServices knownServices) throws IOException {
         int recorded = 0;
-        for (final Service service : metadata.listServices(Layer.OTLP_SERVICE.name(), null)) {
+        for (final Service service : metadata.listServices(Layer.OTLP_GENERAL.name(), null)) {
             if (service.isNormal()) {
                 knownServices.recordStored(service.getName());
                 recorded++;

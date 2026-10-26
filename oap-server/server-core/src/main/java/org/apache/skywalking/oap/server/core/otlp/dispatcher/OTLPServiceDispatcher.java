@@ -28,6 +28,7 @@ public class OTLPServiceDispatcher implements SourceDispatcher<OTLPService> {
     public void dispatch(final OTLPService source) {
         final OTLPServiceTraffic traffic = new OTLPServiceTraffic();
         traffic.setServiceName(source.getServiceName());
+        traffic.setLayer(source.getLayer());
         traffic.setTimeBucket(source.getTimeBucket());
         MetricsStreamProcessor.getInstance().in(traffic);
     }

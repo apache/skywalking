@@ -272,15 +272,16 @@ trace-analyzer:
   default:
     # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
     # the module loaded.
-    talFiles: ${SW_TRACE_TAL_FILES:otlp-default}
+    talFiles: ${SW_TRACE_TAL_FILES:otlp-general}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
     # arrival as new, which is what OTLP logs do today. Set it longer than the exporter's retry budget; the OTLP
     # SDKs give up after about 30 s. The set is per OAP node: a retry that reaches another node is counted again.
     dedupWindow: ${SW_TRACE_TAL_DEDUP_WINDOW:0}
     # The most (traceId, spanId) pairs the set holds on this node while dedupWindow is above 0; ignored at 0.
-    # Size it as spans per second on this node times dedupWindow, with headroom: once full, the oldest entries
-    # drop before they expire and a late retry of one of them is counted. About 150 bytes per entry.
+    # Only a span some rule runs on takes an entry, not one on a layer no rule is declared for. Size it as such
+    # spans per second on this node times dedupWindow, with headroom: once full, the oldest entries drop before
+    # they expire and a late retry of one of them is counted. About 150 bytes per entry.
     dedupCapacity: ${SW_TRACE_TAL_DEDUP_CAPACITY:1000000}
     # In a cluster, the percentage of traces whose client and server spans are routed to the trace's owner node to
     # learn a network address alias from the pair; both spans of a call share the trace id, so a pair is never

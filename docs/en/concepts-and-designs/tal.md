@@ -25,8 +25,8 @@ layerDefinitions:      # optional, the same contract as LAL and MAL: registered 
     ordinal: 1000
     normal: true
 rules:
-  - name: otlp-service # unique within its layer
-    layer: auto        # a registered layer name, or `auto`
+  - name: otlp-general # unique within its layer
+    layer: OTLP_GENERAL # a registered layer name, or `auto`
     inputType: otlp    # optional; the only input this release ships, and the default
     outputType: SlowSQL # optional; the record the rule writes, see Output Type
     dsl: |
@@ -65,9 +65,21 @@ proto enums in conditions.
 A span whose resource carries `service.layer` is evaluated by the rules declared for that layer, and by nothing
 else. A span whose resource carries a layer name that is not registered is logged and not analyzed. A span without
 `service.layer` is evaluated by the `layer: auto` rules; an auto rule that does not `abort {}` has claimed the span
-and must set `layer` in its extractor. There is no fallback to `GENERAL`, which is the agent layer: the shipped rule
-puts OpenTelemetry services under `OTLP_SERVICE` and their conjectured peers under `OTLP_VIRTUAL_DATABASE`,
-`OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup doc](../setup/backend/trace-analyzer.md#layers).
+and must set `layer` in its extractor. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules
+are declared for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`,
+and put their conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the
+setup doc](../setup/backend/trace-analyzer.md#layers); no shipped rule is `auto`, so a span without `service.layer` is
+stored and not analyzed.
+
+The layer an auto rule sets names the service in the analysis, its metrics, topology and service list, but not in the
+stored span or the TraceQL service catalog: those keep the layer the span carried, `UNDEFINED` here, see [the TraceQL
+service catalog](../api/traceql-service.md). A layer's TraceQL picker narrowed by `service.layer` leaves such a service
+out, so a sender that the dashboards should show under a layer is better given that `service.layer` itself.
+
+A span no rule claims, one every rule aborted or one on a layer no rule is declared for, is no service in the
+topology: its service is not added to the services the host lookups name, and it sends no pairing fact, see
+[Address-named peers](#address-named-peers). An Envoy sidecar's spans, unclaimed, therefore keep the sidecar's name
+from taking the addresses its application is dialed at, and spare the cluster the pairing traffic.
 
 Rules for one layer run in file order, each with its own copy of `meta`, so a rule that overwrites `service` for its
 record does not change what the next rule reads. Each rule decides independently.
@@ -282,16 +294,16 @@ in the topology. Three mechanisms fold the address onto the service, and the shi
   `server.address` and `server.port` are the `Host` the caller sent, so the caller's `resolveAlias` finds it. The
   alias rows travel through storage and the core's alias cache, which reloads every 10 seconds, so the first calls
   to a freshly seen address are still address-named, and the topology query folds those.
-- **`resolveAlias(address)`** on the CLIENT side answers, in this order, from the services this OAP node has seen
-  spans from, or read from storage when it started: for a qualified host, the grouped service of the group its
+- **`resolveAlias(address)`** on the CLIENT side answers, in this order, from the services this OAP node has analyzed
+  spans of, or read from storage when it started: for a qualified host, the grouped service of the group its
   second DNS label names (`cart.outlet` is `outlet::cart`); the service of the caller's own group named exactly the
   host (`cart` from `shop::frontend` is `shop::cart`); a host, or its first DNS label, that is an ungrouped
   service's name; the service an alias row names; the service an earlier pair named for the address on this node,
   see the pairing below; the one grouped service of any group whose short name the whole host is; else the address
   unchanged. A CLIENT span whose own pair has not met yet stays address-named; its pair names the calls that follow.
 - **Pairing** resolves the rest from the trace context: a SERVER span's `parentSpanId` is its caller's span id,
-  which needs no attribute convention on either side. Every SERVER span with a parent, and every CLIENT span
-  whose peer could not be named, becomes a fact; messaging spans take no part, since a CONSUMER span's parent is
+  which needs no attribute convention on either side. Every SERVER span with a remote parent that a rule claimed,
+  and every CLIENT span whose peer could not be named, becomes a fact; messaging spans take no part, since a CONSUMER span's parent is
   the PRODUCER span and pairing them would alias the broker's address to the consumer. In a cluster the facts of one trace are
   routed to the node that owns the trace, so the two halves meet wherever each arrived. A match learns the alias and
   writes the row for every node. Facts wait 60 seconds for their other half; a callee that never reports, an

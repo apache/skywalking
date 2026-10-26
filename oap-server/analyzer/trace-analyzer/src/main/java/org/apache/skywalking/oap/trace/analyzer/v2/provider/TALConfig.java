@@ -75,7 +75,7 @@ public class TALConfig {
     private transient String sourceName;
 
     /**
-     * Catalog-qualified path to the rule file, {@code tal/otlp-default.yaml}, which a generated class names in its
+     * Catalog-qualified path to the rule file, {@code tal/otlp-general.yaml}, which a generated class names in its
      * {@code SourceFile}.
      */
     private transient String sourcePath;

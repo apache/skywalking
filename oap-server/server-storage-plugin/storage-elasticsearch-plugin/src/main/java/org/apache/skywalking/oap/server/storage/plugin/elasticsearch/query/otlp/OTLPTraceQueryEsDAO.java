@@ -66,26 +66,30 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.Routin
 public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
     private static final int NAME_QUERY_MAX_SIZE = 10000;
     private static final int SCROLLING_BATCH_SIZE = 5000;
+    private static final OTLPServiceTraffic.Builder SERVICE_TRAFFIC_BUILDER = new OTLPServiceTraffic.Builder();
 
     public OTLPTraceQueryEsDAO(final ElasticSearchClient client) {
         super(client);
     }
 
     @Override
-    public List<String> getServiceNames() {
+    public List<OTLPServiceTraffic> getServices(@Nullable final String layer) {
         final String index = IndexController.LogicIndicesRegister.getPhysicalTableName(OTLPServiceTraffic.INDEX_NAME);
         final BoolQueryBuilder query = Query.bool();
+        if (layer != null) {
+            query.must(Query.term(OTLPServiceTraffic.LAYER, layer));
+        }
         if (IndexController.LogicIndicesRegister.isMergedTable(OTLPServiceTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, OTLPServiceTraffic.INDEX_NAME));
         }
         final SearchBuilder search = Search.builder().query(query).size(SCROLLING_BATCH_SIZE);
         final var scroller = ElasticSearchScroller
-            .<String>builder()
+            .<OTLPServiceTraffic>builder()
             .client(getClient())
             .search(search.build())
             .index(index)
-            .resultConverter(hit -> new OTLPServiceTraffic.Builder().storage2Entity(
-                new ElasticSearchConverter.ToEntity(OTLPServiceTraffic.INDEX_NAME, hit.getSource())).getServiceName())
+            .resultConverter(hit -> SERVICE_TRAFFIC_BUILDER.storage2Entity(
+                new ElasticSearchConverter.ToEntity(OTLPServiceTraffic.INDEX_NAME, hit.getSource())))
             .build();
         return scroller.scroll();
     }

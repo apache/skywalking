@@ -52,7 +52,7 @@ class TraceAnalyzerModuleProviderTest {
     void aRestartedNodeKnowsTheStoredServicesBeforeTheyEmitAgain() throws Exception {
         // Neither flagd has emitted since the restart; the stored services still name them.
         final MetadataQueryService metadata = mock(MetadataQueryService.class);
-        when(metadata.listServices("OTLP_SERVICE", null)).thenReturn(List.of(
+        when(metadata.listServices("OTLP_GENERAL", null)).thenReturn(List.of(
             service("shop::flagd", true), service("outlet::flagd", true), service("cart", true),
             service("10.0.0.7:8080", false)));
         final KnownServices known = new KnownServices();

@@ -268,11 +268,11 @@ class TALScriptParserTest {
     @Test
     void statementsCarryTheirSourceLine() {
         final TALScriptModel model = TALScriptParser.parse(
-            "filter {\n  extractor {\n    layer \"OTLP_SERVICE\"\n  }\n}");
+            "filter {\n  extractor {\n    layer \"OTLP_GENERAL\"\n  }\n}");
         final TALScriptModel.FieldAssignment layer = (TALScriptModel.FieldAssignment)
             ((ExtractorBlock) model.getStatements().get(0)).getStatements().get(0);
         assertEquals(3, layer.getSourceLine());
-        assertEquals("layer \"OTLP_SERVICE\"", layer.getSourceText());
+        assertEquals("layer \"OTLP_GENERAL\"", layer.getSourceText());
     }
 
     private static MetricsBlock firstMetrics(final TALScriptModel model) {

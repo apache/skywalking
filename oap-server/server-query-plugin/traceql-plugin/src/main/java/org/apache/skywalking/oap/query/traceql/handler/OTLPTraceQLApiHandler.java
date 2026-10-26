@@ -84,6 +84,10 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
     private static final String SPAN_OTEL_SCOPE_NAME = SPAN_PREFIX + OTEL_SCOPE_NAME;
     private static final String RESOURCE_SERVICE_INSTANCE_ID = SCOPE_RESOURCE + Const.POINT + SERVICE_INSTANCE_ID;
     private static final String PEER_SERVICE = "peer.service";
+    /**
+     * The tags whose values the service catalog answers.
+     */
+    private static final Set<String> SERVICE_NAME_TAGS = Set.of(RESOURCE_SERVICE_NAME, RESOURCE_SERVICE, SERVICE_NAME);
     private static final int DEFAULT_LIMIT = 20;
 
     private final OTLPTraceQueryService queryService;
@@ -359,6 +363,22 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         }
     }
 
+    /**
+     * @return the layer of a filter whose only condition is {@code resource.service.layer}; null for no filter or any
+     * other one. The unscoped {@code .service.layer} is left to the sample, since a span attribute of that name
+     * answers it too, which the catalog cannot see.
+     */
+    private static String onlyServiceLayer(final TraceQLParseResult filter) {
+        if (filter == null || hasConditionBesidesTags(filter.getParams())) {
+            return null;
+        }
+        final Map<String, String> tags = filter.getParams().getTags();
+        if (tags == null || tags.size() != 1) {
+            return null;
+        }
+        return tags.get(RESOURCE_SERVICE_LAYER);
+    }
+
     @Override
     protected HttpResponse searchTagValuesImpl(final String tagName,
                                                final Optional<String> query,
@@ -376,10 +396,14 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
         if (filter != null && filter.hasError()) {
             return badRequestResponse(filter.getErrorInfo());
         }
+        final String serviceLayer = onlyServiceLayer(filter);
+        final boolean serviceNameTag = SERVICE_NAME_TAGS.contains(tag);
         // Anything narrower than a service name is answered from a sample of matching traces; the service-scoped
-        // catalogs below are exact and complete, so they keep answering the common service-only case.
+        // catalogs below are exact and complete, so they keep answering the common service-only case, and the
+        // service catalog answers a layer-only filter too, since each of its rows carries the layer.
         if (filter != null && hasFilter(filter.getParams()) && !isEnumIntrinsic(tag)
-            && !(onlyServiceName(filter.getParams()) && (NAME.equals(tag) || RESOURCE_REMOTE_SERVICE.equals(tag)))) {
+            && !(onlyServiceName(filter.getParams()) && (NAME.equals(tag) || RESOURCE_REMOTE_SERVICE.equals(tag)))
+            && !(serviceLayer != null && serviceNameTag)) {
             try {
                 final Sample sample = sample(filter.getParams(), duration);
                 final Set<String> values = new LinkedHashSet<>();
@@ -391,11 +415,10 @@ public class OTLPTraceQLApiHandler extends TraceQLApiHandler {
                 return badRequestResponse(e.getMessage());
             }
         }
+        if (serviceNameTag) {
+            return successResponse(stringValues(queryService.getServiceNames(serviceLayer), limit));
+        }
         switch (tag) {
-            case RESOURCE_SERVICE_NAME:
-            case RESOURCE_SERVICE:
-            case SERVICE_NAME:
-                return successResponse(stringValues(queryService.getServiceNames(), limit));
             case RESOURCE_SERVICE_INSTANCE_ID:
             case RESOURCE_INSTANCE:
                 return successResponse(stringValues(tagAutoCompleteQueryService.queryTagAutocompleteValues(

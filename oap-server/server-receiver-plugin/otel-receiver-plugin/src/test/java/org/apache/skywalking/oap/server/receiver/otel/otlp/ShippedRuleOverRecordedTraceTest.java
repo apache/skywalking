@@ -80,7 +80,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 /**
- * The shipped {@code otlp-service} rule over a trace recorded from the OpenTelemetry Demo, one {@code GET /api/cart}
+ * The shipped {@code otlp-general} rule over a trace recorded from the OpenTelemetry Demo, one {@code GET /api/cart}
  * through {@code frontend-web}, {@code frontend-proxy}, {@code frontend} and {@code cart}, fed as the receiver
  * feeds it: the real {@code otlp} input type, resource and scope attributes as string maps, and
  * {@link SpanMetadata} built the way {@code OpenTelemetryTraceHandler} builds it.
@@ -93,7 +93,7 @@ import static org.mockito.Mockito.spy;
  */
 class ShippedRuleOverRecordedTraceTest {
     private static final String FIXTURE = "tal/otlp-trace-get-api-cart.json";
-    private static final Path RULES = Paths.get("../../server-starter/src/main/resources/tal/otlp-default.yaml");
+    private static final Path RULES = Paths.get("../../server-starter/src/main/resources/tal/otlp-general.yaml");
 
     private ModuleServiceHolder coreProvider;
     private MeterSystem meterSystem;
@@ -262,7 +262,7 @@ class ShippedRuleOverRecordedTraceTest {
         final Map<String, Object> doc = new Yaml().load(Files.newInputStream(RULES));
         String dsl = null;
         for (final Object r : (List<?>) doc.get("rules")) {
-            if ("otlp-service".equals(((Map<?, ?>) r).get("name"))) {
+            if ("otlp-general".equals(((Map<?, ?>) r).get("name"))) {
                 dsl = String.valueOf(((Map<?, ?>) r).get("dsl"));
             }
         }
@@ -270,7 +270,7 @@ class ShippedRuleOverRecordedTraceTest {
         generator.setClassNameHint("recorded_trace");
         generator.setMetricPrefix(String.valueOf(doc.get("metricPrefix")));
         generator.setInputType(Span.class);
-        generator.setSourceRef(DslSourceRef.ofRule("tal/otlp-default.yaml", 29));
+        generator.setSourceRef(DslSourceRef.ofRule("tal/otlp-general.yaml", 29));
         final TalExpression expression = generator.compile(dsl);
         generator.createMetrics(meterSystem);
         return expression;

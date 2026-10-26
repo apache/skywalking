@@ -22,6 +22,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
@@ -34,30 +35,46 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 
 /**
- * The service-name catalog of natively stored OTLP spans, one row per {@code resource.service.name}. Feeds the
- * TraceQL {@code resource.service.name} value list.
+ * The service-name catalog of natively stored OTLP spans, one row per {@code resource.service.name} and the
+ * {@code resource.service.layer} it arrived with, {@code UNDEFINED} when the resource carries no registered layer. Feeds the TraceQL
+ * {@code resource.service.name} value list, which a {@code resource.service.layer} condition narrows. The layer is
+ * part of the row, not an attribute of the name: rows are insert-only, so a service that later starts setting a
+ * layer gains a second row instead of keeping the first one's for good.
  */
 @Stream(name = OTLPServiceTraffic.INDEX_NAME, scopeId = DefaultScopeDefine.OTLP_SERVICE,
     builder = OTLPServiceTraffic.Builder.class, processor = MetricsStreamProcessor.class)
 @MetricsExtension(supportDownSampling = false, supportUpdate = false)
 @EqualsAndHashCode(of = {
-    "serviceName"
+    "serviceName",
+    "layer"
 })
 @BanyanDB.IndexMode
 public class OTLPServiceTraffic extends Metrics {
     public static final String INDEX_NAME = "otlp_service_traffic";
     public static final String SERVICE_NAME = "service_name";
+    /**
+     * Neither {@code layer} nor {@code service_layer}: the metrics share one Elasticsearch index unless logic
+     * sharding is on, where {@code service_traffic} and the hierarchy relations already hold those columns as
+     * {@link Layer} values, not strings.
+     */
+    public static final String LAYER = "otlp_service_layer";
 
     @Setter
     @Getter
     @Column(name = SERVICE_NAME)
     private String serviceName = Const.EMPTY_STRING;
 
+    @Setter
+    @Getter
+    @Column(name = LAYER)
+    private String layer = Layer.UNDEFINED.name();
+
     @Override
     protected StorageID id0() {
-        return new StorageID().append(SERVICE_NAME, serviceName);
+        return new StorageID().append(SERVICE_NAME, serviceName).append(LAYER, layer);
     }
 
     @Override
@@ -87,6 +104,7 @@ public class OTLPServiceTraffic extends Metrics {
     @Override
     public void deserialize(final RemoteData remoteData) {
         setServiceName(remoteData.getDataStrings(0));
+        setLayer(remoteData.getDataStrings(1));
         setTimeBucket(remoteData.getDataLongs(0));
     }
 
@@ -94,6 +112,7 @@ public class OTLPServiceTraffic extends Metrics {
     public RemoteData.Builder serialize() {
         final RemoteData.Builder remoteBuilder = RemoteData.newBuilder();
         remoteBuilder.addDataStrings(getServiceName());
+        remoteBuilder.addDataStrings(getLayer());
         remoteBuilder.addDataLongs(getTimeBucket());
         return remoteBuilder;
     }
@@ -103,6 +122,9 @@ public class OTLPServiceTraffic extends Metrics {
         public OTLPServiceTraffic storage2Entity(final Convert2Entity converter) {
             final OTLPServiceTraffic traffic = new OTLPServiceTraffic();
             traffic.setServiceName((String) converter.get(SERVICE_NAME));
+            // Every row is written with a layer; a storage reads a missing one as null (Elasticsearch) or "" (BanyanDB).
+            final String layer = (String) converter.get(LAYER);
+            traffic.setLayer(StringUtil.isEmpty(layer) ? Layer.UNDEFINED.name() : layer);
             traffic.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             return traffic;
         }
@@ -110,6 +132,7 @@ public class OTLPServiceTraffic extends Metrics {
         @Override
         public void entity2Storage(final OTLPServiceTraffic storageData, final Convert2Storage converter) {
             converter.accept(SERVICE_NAME, storageData.getServiceName());
+            converter.accept(LAYER, storageData.getLayer());
             converter.accept(TIME_BUCKET, storageData.getTimeBucket());
         }
     }

@@ -21,7 +21,7 @@
 // Covers TAL DSL patterns:
 //   filter { extractor {} sink {} persist {} }
 //   if (meta.kind == "SERVER") { ... }
-//   extractor { layer "OTLP_SERVICE"; def svc = service(meta.service, meta.layer) }
+//   extractor { layer "OTLP_GENERAL"; def svc = service(meta.service, meta.layer) }
 //   metrics { name "service_cpm"; scope svc; function cpm; value 1 }
 //   metrics { name "service_percentile"; scope svc; function percentile; value meta.latency
 //             buckets [10, 25, 50] }

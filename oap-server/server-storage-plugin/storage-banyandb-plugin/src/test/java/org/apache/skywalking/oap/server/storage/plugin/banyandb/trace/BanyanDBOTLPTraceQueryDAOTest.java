@@ -44,7 +44,7 @@ public class BanyanDBOTLPTraceQueryDAOTest {
     public void shouldReadTheNameCatalogsWithoutATimeRange() throws IOException {
         final CapturingDAO dao = new CapturingDAO();
 
-        dao.getServiceNames();
+        dao.getServices(null);
         dao.getSpanNames("frontend");
         dao.getPeerServiceNames("frontend");
 

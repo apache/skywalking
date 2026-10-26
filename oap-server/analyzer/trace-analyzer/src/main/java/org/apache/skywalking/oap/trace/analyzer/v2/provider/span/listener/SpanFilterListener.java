@@ -249,6 +249,14 @@ public class SpanFilterListener {
             return !dsls.isEmpty() || !autoDsls.isEmpty();
         }
 
+        /**
+         * @return whether a {@code layer: auto} rule is installed, the kind that analyzes the spans without a layer,
+         * suspended or not
+         */
+        public boolean hasAutoRules() {
+            return !autoDsls.isEmpty();
+        }
+
         public TalDSL find(final Layer layer, final String ruleName) {
             final CompiledTAL compiled = layer == null
                 ? autoDsls.get(ruleName) : dsls.getOrDefault(layer, Collections.emptyMap()).get(ruleName);

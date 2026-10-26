@@ -3,8 +3,23 @@
 The `trace-analyzer` module runs the [Trace Analysis Language (TAL)](../../concepts-and-designs/tal.md) rules over
 every span the [OpenTelemetry trace receiver](otlp-trace.md) accepts, in both of its storage modes, and before the
 receiver's head sampling and rate limit, so the metrics count what the SDKs sent rather than what the OAP chose to
-store. With the defaults nothing needs to be enabled: once an OpenTelemetry SDK exports traces, its services, their
-metrics, their topology and their slow statements appear.
+store. The shipped rules analyze the applications that ask for it, by setting their resource's `service.layer` to
+`OTLP_GENERAL`; their services, metrics, topology and slow statements then appear. Every other span, one with no
+`service.layer`, a service mesh sidecar's, or any other source's, is stored and can be queried, but is not analyzed.
+
+## Enabling the analysis for an application
+
+Set the layer through the SDK's resource attributes, alongside any others the application already sets:
+
+```shell
+OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL
+```
+
+An application without it still has its traces stored and searchable, see [OpenTelemetry Trace
+Format](otlp-trace.md), and a call to it from an analyzed application is drawn to the address the caller dialed.
+The OAP logs one INFO line per such service, `Spans of service '…' carry no service.layer, so they are stored but not
+analyzed`, so empty dashboards point at the cause, unless a `layer: auto` rule is installed for such spans; a service
+whose `service.layer` is a registered layer with no rule, such as `OTLP_MESH`, has opted out and is not logged.
 
 ## Configuration
 
@@ -14,15 +29,16 @@ trace-analyzer:
   default:
     # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
     # the module loaded.
-    talFiles: ${SW_TRACE_TAL_FILES:otlp-default}
+    talFiles: ${SW_TRACE_TAL_FILES:otlp-general}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
     # arrival as new. Set it longer than the exporter's retry budget; the OTLP SDKs give up after about 30 s. The
     # set is per OAP node: a retry that reaches another node is counted again.
     dedupWindow: ${SW_TRACE_TAL_DEDUP_WINDOW:0}
     # The most (traceId, spanId) pairs the set holds on this node while dedupWindow is above 0; ignored at 0.
-    # Size it as spans per second on this node times dedupWindow, with headroom: once full, the oldest entries
-    # drop before they expire and a late retry of one of them is counted. About 150 bytes per entry.
+    # Only a span some rule runs on takes an entry, not one on a layer no rule is declared for. Size it as such
+    # spans per second on this node times dedupWindow, with headroom: once full, the oldest entries drop before
+    # they expire and a late retry of one of them is counted. About 150 bytes per entry.
     dedupCapacity: ${SW_TRACE_TAL_DEDUP_CAPACITY:1000000}
     # In a cluster, the percentage of traces whose client and server spans are routed to the trace's owner node to
     # learn a network address alias from the pair; both spans of a call share the trace id, so a pair is never
@@ -39,16 +55,16 @@ or that names a layer that is not registered, stops the OAP from starting with a
 
 ## What the shipped rule file produces
 
-`tal/otlp-default.yaml` holds two rules. `otlp-service` claims every span whose resource carries no `service.layer`,
-except the GenAI spans the GenAI analyzer already handles, and `otlp-slow-sql` writes a slow statement record for a
-database client span above 200 ms. Both read the OpenTelemetry semantic conventions with the current attribute
+`tal/otlp-general.yaml` holds two rules, both declared for the `OTLP_GENERAL` layer. `otlp-general` claims every
+span whose resource carries `service.layer=OTLP_GENERAL`, except the GenAI spans the GenAI analyzer already handles,
+and `otlp-slow-sql` writes a slow statement record for a database client span above 200 ms. Both read the OpenTelemetry semantic conventions with the current attribute
 names first and the deprecated spellings older SDKs still emit as fallbacks.
 
 ### Layers
 
 | Layer | Holds | Registered by |
 |---|---|---|
-| `OTLP_SERVICE` | a service whose spans arrived over OTLP | every span's `service.name` |
+| `OTLP_GENERAL` | a service whose spans arrived over OTLP with `service.layer=OTLP_GENERAL` | the `service.name` of a span the rule claims |
 | `OTLP_VIRTUAL_DATABASE` | a database a client span names through `db.system.name` or `db.system` | the client's span |
 | `OTLP_VIRTUAL_CACHE` | a cache, the same way, for `redis`, `memcached` and the other cache systems | the client's span |
 | `OTLP_VIRTUAL_MQ` | a broker a producer or consumer span names through `messaging.system` | the producer's or consumer's span |
@@ -57,6 +73,49 @@ The layers are separate from the agent path's `GENERAL` and `VIRTUAL_*` layers b
 different engine under different names. A service id is its name plus the `normal` flag, not the layer, so a
 service that reports both agent segments and OTLP spans is one entity listed under both layers, and a database
 reached from both paths is one node.
+
+### Service mesh sidecars
+
+A sidecar's spans repeat the calls its application's own spans already describe, and name the workload the mesh's
+way, Istio's Envoy as `<service>.<namespace>`. They carry no `OTLP_GENERAL`, so they are stored, and searchable with
+TraceQL, but not analyzed: they register no service, no metrics and no topology. A span no rule claims also does not
+count as a service when a peer's host is resolved, so the sidecar's name `cart.shop` does not take the calls the
+application dials at `cart.shop:7070`, and it sends no pairing fact, see [Layer](../../concepts-and-designs/tal.md#layer).
+
+To label them, set the sidecars' resource `service.layer` to `OTLP_MESH`, a layer no shipped rule is declared for, and
+search them with `{resource.service.layer="OTLP_MESH"}`. On Istio, the OpenTelemetry tracing provider's environment
+resource detector reads `OTEL_RESOURCE_ATTRIBUTES` from the proxy, which `proxyMetadata` sets:
+
+```yaml
+meshConfig:
+  enableTracing: true
+  defaultConfig:
+    proxyMetadata:
+      OTEL_RESOURCE_ATTRIBUTES: service.layer=OTLP_MESH
+  extensionProviders:
+    - name: skywalking
+      opentelemetry:
+        service: oap.skywalking.svc.cluster.local
+        port: 11800
+        resourceDetectors:
+          environment: {}
+```
+
+The provider traces nothing until a `Telemetry` resource selects it, here for the whole mesh from Istio's root
+namespace:
+
+```yaml
+apiVersion: telemetry.istio.io/v1
+kind: Telemetry
+metadata:
+  name: mesh-tracing
+  namespace: istio-system
+spec:
+  tracing:
+    - providers:
+        - name: skywalking
+      randomSamplingPercentage: 100
+```
 
 ### Metrics
 
@@ -116,8 +175,8 @@ The numbers follow the agent path's definitions:
   so `sla` and `apdex` read the same for both paths.
 - A call is counted in the minute its span started, and its service, instance, endpoint and edge are registered in
   that minute too.
-- Service and endpoint metrics carry their layer, `OTLP_SERVICE` or the peer's virtual layer, as `attr0`, so
-  `top_n(otlp_endpoint_cpm, 10, des, attr0='OTLP_SERVICE')` works as it does for the agent metrics.
+- Service and endpoint metrics carry their layer, `OTLP_GENERAL` or the peer's virtual layer, as `attr0`, so
+  `top_n(otlp_endpoint_cpm, 10, des, attr0='OTLP_GENERAL')` works as it does for the agent metrics.
 
 The component of an edge, the protocol icon in the topology, comes from `rpc.system.name`, `rpc.system`,
 `db.system.name`, `db.system` or `messaging.system`, looked up in `component-libraries.yml` ignoring case; `grpc`
@@ -147,7 +206,7 @@ does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by the three
 mechanisms described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the
 server's own `alias`, the known-service registry, and the pairing of a call's two spans by the trace context. The
-registry matches a host, or its first DNS label, against the services this node has seen spans from, or read from
+registry matches a host, or its first DNS label, against the services this node has analyzed spans of, or read from
 storage when it started, so `cart.shop.svc.cluster.local:7070` folds onto `cart`. With [OTLP service grouping](otlp-trace.md), a grouped host
 resolves in the caller's own group, or in the group its second DNS label names. The
 first calls to a freshly seen address are address-named until the alias row has reached every node's cache: up to
@@ -183,7 +242,7 @@ cluster membership changes, a pair in flight can split and that address is learn
 The source of a client edge is the span's own `service.name`, never the service of the span it is nested under. An
 application that emits its database or cache spans from a tracer named after the backend, as Jaeger's HotROD demo
 does with `mysql` and `redis-manual`, therefore gets an edge from that pseudo-service to the peer, `mysql → mysql`,
-and a `mysql` entry in `OTLP_SERVICE` with no server metrics, while the service that made the call, `customer`,
+and a `mysql` entry in `OTLP_GENERAL` with no server metrics, while the service that made the call, `customer`,
 shows no edge to the database at all. The analyzer does not attribute a client span to its parent's service: the
 child is exported before its parent ends, so the parent is unknown when the child's metrics are written, and
 aggregated metrics cannot be moved afterwards. Instrumentations that wrap a driver emit the client span under the
@@ -202,7 +261,7 @@ spans do, draws no peer node, and its errors reach no metric, since `service_sla
 `otlp-slow-sql` writes a `DatabaseSlowStatement` for a database client span whose latency is 200 ms or more, with the
 statement from `db.query.text` or `db.statement` cut to 2,000 characters as the agent path cuts it, keyed by the
 trace and span id. It files the record under the database node the topology names: the rule names the peer with the
-same attributes, fallbacks and alias resolution as `otlp-service`, and the two are kept in step. It also keeps the
+same attributes, fallbacks and alias resolution as `otlp-general`, and the two are kept in step. It also keeps the
 span behind the record past the receiver's head sampling. The threshold is in the rule file; the agent path keys it by database
 type through `slowDBAccessThreshold`, and a deployment edits the rule to match.
 
@@ -235,10 +294,14 @@ spans behind them, without registering any service or metric.
 ## Deduplication
 
 An OTLP exporter retries a batch after a transport timeout, and the OAP may have accepted the first attempt, so a
-retried span would count a request twice. `dedupWindow` keeps a per-node set of the span ids seen within the
-window and analyzes a span once; it is off by default because it costs memory per span and the OTLP logs path does
-not deduplicate either. The set is per OAP node, so a retry that lands on another node is counted again.
+retried span would count a request twice. `dedupWindow` keeps a per-node set of the ids of the spans some rule ran on
+within the window and analyzes such a span once; it is off by default because it costs memory per span and the OTLP
+logs path does not deduplicate either. A span no rule runs on, one on a layer no rule is declared for or one without a
+layer when no `layer: auto` rule is installed, takes no entry, so size `dedupCapacity` by the analyzed spans alone,
+the `OTLP_GENERAL` ones with the shipped rules. The set is per OAP node, so a retry that lands on another node is
+counted again.
 
 A retry is not analyzed again, and it is stored as the first copy's rules decided: dropped, enforced, or with the
-same tags. A retry that arrives while the first copy is still being analyzed takes the receiver's own decision
+same tags, as long as those rules are still installed; once they are removed, a retry is stored as the receiver
+decides. A retry that arrives while the first copy is still being analyzed takes the receiver's own decision
 instead, as if no rule had voted; its metrics are still counted once.

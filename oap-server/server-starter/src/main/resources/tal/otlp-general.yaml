@@ -16,18 +16,21 @@
 # Trace Analysis Language rules for OTLP spans.
 #
 # This one file is the whole feature: the semantic-convention knowledge, with the current attribute names first
-# and the deprecated spellings older SDKs still emit as fallbacks, and the metric set the OTLP_SERVICE and
+# and the deprecated spellings older SDKs still emit as fallbacks, and the metric set the OTLP_GENERAL and
 # OTLP_VIRTUAL_* dashboards read. It is written to be edited: add a `metrics {}` block for an attribute your
 # fleet emits, keep the file listed in `talFiles`, and restart the OAP, which reads its rule files at start.
 #
 # Both rules declare `inputType: otlp`, the only input this release ships; a rule names exactly one input.
+#
+# Both rules are declared for the OTLP_GENERAL layer, so they see only the spans whose resource carries
+# `service.layer=OTLP_GENERAL`, which an application sets through `OTEL_RESOURCE_ATTRIBUTES`. Any other span, a
+# service mesh sidecar's or one with no `service.layer` at all, is stored and can be queried, but is not analyzed.
 
 metricPrefix: otlp
 
 rules:
-  - name: otlp-service
-    # `auto` means: see the spans whose resource carries no `service.layer`, and name the layer yourself.
-    layer: auto
+  - name: otlp-general
+    layer: OTLP_GENERAL
     inputType: otlp
     dsl: |
       filter {
@@ -54,7 +57,7 @@ rules:
         }
 
         extractor {
-          layer "OTLP_SERVICE"
+          layer "OTLP_GENERAL"
 
           // Whether the call succeeded, as the agent path counts it: an error status, or an HTTP answer of 400 or
           // above, which the SkyWalking agents mark as an error and OpenTelemetry leaves UNSET on a server span.
@@ -197,7 +200,7 @@ rules:
               def peer = attr("messaging.system")
             }
             if (peer) {
-              def peerLayer = "OTLP_SERVICE"
+              def peerLayer = "OTLP_GENERAL"
               if (isGateway(peer)) {
                 def peerLayer = "VIRTUAL_GATEWAY"
               }
@@ -275,7 +278,7 @@ rules:
       }
 
   - name: otlp-slow-sql
-    layer: auto
+    layer: OTLP_GENERAL
     inputType: otlp
     outputType: SlowSQL
     dsl: |
@@ -294,7 +297,7 @@ rules:
         }
         extractor {
           layer "OTLP_VIRTUAL_DATABASE"
-          // The record belongs to the database service, named exactly as the otlp-service rule names the peer of
+          // The record belongs to the database service, named exactly as the otlp-general rule names the peer of
           // a CLIENT span, so the statement is listed under the node the topology draws. Keep the two in step.
           def peer = attr("service.peer.name", "peer.service")
           if (!peer && hasAttr("server.address", "net.peer.name")) {
