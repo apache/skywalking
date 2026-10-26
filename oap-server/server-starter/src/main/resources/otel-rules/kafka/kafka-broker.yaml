@@ -39,14 +39,17 @@ metricsRules:
   - name: memory_usage_percentage
     exp: (jvm_memory_bytes_used * 100).tagMatch("area", "heap").sum(['cluster', 'broker', 'area']) / (jvm_memory_bytes_max).tagMatch("area", "heap").sum(['cluster', 'broker', 'area'])
 
+  # The BrokerTopicMetrics message, byte and request meters are exported per topic and again as the all-topics
+  # total without a `topic` label; Kafka marks both on every event. Broker rules read only the total, topic rules
+  # exclude it.
   - name: messages_per_second
-    exp: kafka_server_brokertopicmetrics_messagesin_total.sum(['cluster', 'broker']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_messagesin_total.tagEqual('topic', '').sum(['cluster', 'broker']).rate('PT1M')
 
   - name: bytes_in_per_second
-    exp: kafka_server_brokertopicmetrics_bytesin_total.sum(['cluster', 'broker']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_bytesin_total.tagEqual('topic', '').sum(['cluster', 'broker']).rate('PT1M')
 
   - name: bytes_out_per_second
-    exp: kafka_server_brokertopicmetrics_bytesout_total.sum(['cluster', 'broker']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_bytesout_total.tagEqual('topic', '').sum(['cluster', 'broker']).rate('PT1M')
 
   - name: replication_bytes_in_per_second
     exp: kafka_server_brokertopicmetrics_replicationbytesin_total.sum(['cluster', 'broker']).rate('PT1M')
@@ -85,34 +88,34 @@ metricsRules:
     exp: kafka_network_requestmetrics_requests_total.tagMatch("request", "FetchConsumer|Produce|Fetch").sum(['cluster','broker','request']).rate('PT1M')
 
   - name: request_queue_time_ms
-    exp: kafka_network_requestmetrics_requestqueuetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_requestqueuetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: remote_time_ms
-    exp: kafka_network_requestmetrics_remotetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_remotetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: response_queue_time_ms
-    exp: kafka_network_requestmetrics_responsequeuetimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_responsequeuetimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: response_send_time_ms
-    exp: kafka_network_requestmetrics_responsesendtimems_count.tagMatch("request", "Produce|FetchConsumer|FetchFollower").sum(['cluster','broker','request']).rate('PT1M')
+    exp: kafka_network_requestmetrics_responsesendtimems.tagMatch("request", "Produce|FetchConsumer|FetchFollower").tagEqual("quantile", "0.50").sum(['cluster','broker','request'])
 
   - name: network_processor_avg_idle_percent
-    exp: (kafka_network_socketserver_networkprocessoravgidlepercent * 100).sum(['cluster','broker']).rate('PT1M')
+    exp: (kafka_network_socketserver_networkprocessoravgidlepercent * 100).sum(['cluster','broker'])
 
   - name: topic_messages_in_total
-    exp: kafka_server_brokertopicmetrics_messagesin_total.sum(['cluster','broker','topic'])
+    exp: kafka_server_brokertopicmetrics_messagesin_total.tagNotEqual('topic', '').sum(['cluster','broker','topic'])
 
   - name: topic_bytesout_per_second
-    exp: kafka_server_brokertopicmetrics_bytesout_total.sum(['cluster','broker','topic']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_bytesout_total.tagNotEqual('topic', '').sum(['cluster','broker','topic']).rate('PT1M')
 
   - name: topic_bytesin_per_second
-    exp: kafka_server_brokertopicmetrics_bytesout_total.sum(['cluster','broker','topic']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_bytesin_total.tagNotEqual('topic', '').sum(['cluster','broker','topic']).rate('PT1M')
 
   - name: topic_fetch_requests_per_second
-    exp: kafka_server_brokertopicmetrics_totalfetchrequests_total.sum(['cluster','broker','topic']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_totalfetchrequests_total.tagNotEqual('topic', '').sum(['cluster','broker','topic']).rate('PT1M')
 
   - name: topic_produce_requests_per_second
-    exp: kafka_server_brokertopicmetrics_totalproducerequests_total.sum(['cluster','broker','topic']).rate('PT1M')
+    exp: kafka_server_brokertopicmetrics_totalproducerequests_total.tagNotEqual('topic', '').sum(['cluster','broker','topic']).rate('PT1M')
 
 
 

@@ -124,7 +124,7 @@ public class PprofServiceHandler extends PprofTaskGrpc.PprofTaskImplBase impleme
         logRecord.setInstanceId(instanceId);
         logRecord.setOperationType(operationType.getCode());
         logRecord.setOperationTime(System.currentTimeMillis());
-        long timestamp = task.getCreateTime() + TimeUnit.SECONDS.toMillis(task.getDuration());
+        long timestamp = task.getCreateTime() + TimeUnit.MINUTES.toMillis(task.getDuration());
         logRecord.setTimestamp(timestamp);
         logRecord.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
         RecordStreamProcessor.getInstance().in(logRecord);

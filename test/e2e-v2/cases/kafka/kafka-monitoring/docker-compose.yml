@@ -96,7 +96,10 @@ services:
     command:
       - bash
       - -c
+      # Two partitions with two replicas: the create fails until both brokers have registered, and each broker then
+      # leads one partition, so broker1 always carries per-topic perftest metrics.
       - >
+        until kafka-topics.sh --create --if-not-exists --topic perftest --partitions 2 --replication-factor 2 --zookeeper zookeeper:2181; do sleep 5; done &&
         kafka-producer-perf-test.sh --topic perftest --num-records 100000 --record-size 100 --throughput 500 --producer-props bootstrap.servers=broker1:9092,broker2:9093
 
   kafka-consumer-perf-test:
@@ -108,8 +111,11 @@ services:
     command:
       - bash
       - -c
+      # Subscribing before the producer creates perftest would auto-create it with one partition. The default 10s
+      # --timeout between records can lapse while the new partitions elect leaders.
       - >
-        kafka-consumer-perf-test.sh --broker-list broker1:9092,broker2:9093 --topic perftest --messages 100000
+        until kafka-topics.sh --describe --topic perftest --zookeeper zookeeper:2181 | grep -q "PartitionCount: 2"; do sleep 5; done &&
+        kafka-consumer-perf-test.sh --broker-list broker1:9092,broker2:9093 --topic perftest --messages 100000 --timeout 60000
 
   otel-collector:
     image: otel/opentelemetry-collector:${OTEL_COLLECTOR_VERSION}

@@ -31,7 +31,7 @@ env:
 jobs:
   build:
     if: github.repository == 'apache/skywalking'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write
