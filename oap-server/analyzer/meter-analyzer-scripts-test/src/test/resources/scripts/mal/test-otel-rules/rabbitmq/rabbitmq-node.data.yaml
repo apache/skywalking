@@ -121,6 +121,21 @@ input:
         usage: carriers_size
         kind: mbcs_pool
       value: 100.0
+    # Distinct from mbcs to catch copy-paste.
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: blocks_size
+        kind: sbcs
+      value: 200.0
+    - labels:
+        cluster: test-cluster
+        node: test-node
+        alloc: test-value
+        usage: carriers_size
+        kind: sbcs
+      value: 200.0
   rabbitmq_process_resident_memory_bytes:
     - labels:
         cluster: test-cluster
@@ -258,7 +273,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 300.0
+        value: 500.0
   meter_rabbitmq_node_allocated_unused_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -280,7 +295,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 300.0
+        value: 500.0
   meter_rabbitmq_node_process_resident_memory_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -303,7 +318,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 300.0
+        value: 500.0
   meter_rabbitmq_node_allocated_multiblock_used:
     entities:
       - scope: SERVICE_INSTANCE
@@ -363,7 +378,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 100.0
+        value: 200.0
   meter_rabbitmq_node_allocated_singleblock_unused:
     entities:
       - scope: SERVICE_INSTANCE
@@ -375,4 +390,4 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 100.0
+        value: 200.0

@@ -55,16 +55,15 @@ input:
         host: test-value
         2: pused
       value: 100.0
-  vfs_fs_inode:
-    - labels:
-        1: test-value
-        host: test-value
-        2: pused
-      value: 100.0
   vfs_fs_size:
     - labels:
         1: test-value
-        2: test-value
+        2: used
+        host: test-value
+      value: 40.0
+    - labels:
+        1: test-value
+        2: total
         host: test-value
       value: 100.0
   vfs_dev_read:
@@ -184,7 +183,7 @@ expected:
       - labels:
           1: test-value
           host: test-value
-        value: 100.0
+        value: 40.0
   meter_vm_vfs_fs_size:
     entities:
       - scope: SERVICE
@@ -193,7 +192,12 @@ expected:
     samples:
       - labels:
           1: test-value
-          2: test-value
+          2: used
+          host: test-value
+        value: 40.0
+      - labels:
+          1: test-value
+          2: total
           host: test-value
         value: 100.0
   meter_vm_disk_read:

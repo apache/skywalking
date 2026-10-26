@@ -36,15 +36,12 @@ requiredZabbixItemKeys:
   - system.cpu.util[,user]
   # memory
   - vm.memory.size[available]
-  - vm.memory.size[pavailable]
   - vm.memory.size[total]
-  - vm.memory.size[pavailable]
   # swap
   - system.swap.size[,free]
   - system.swap.size[,total]
   - system.swap.size[,pused]
   # file
-  - vfs.fs.inode[/,pused]
   - vfs.fs.size[/,total]
   - vfs.fs.size[/,used]
   - vfs.dev.read[,ops,avg1]
@@ -78,7 +75,7 @@ metrics:
     exp: system_swap_size.tagEqual('2', 'pused')
   # file
   - name: filesystem_percentage
-    exp: vfs_fs_inode.tagEqual('2', 'pused').avg(['1', 'host'])
+    exp: vfs_fs_size.tagEqual('2', 'used').avg(['1', 'host']) / vfs_fs_size.tagEqual('2', 'total').avg(['1', 'host']) * 100
   - name: vfs_fs_size
     exp: vfs_fs_size.avg(['1', '2', 'host'])
   - name: disk_read
