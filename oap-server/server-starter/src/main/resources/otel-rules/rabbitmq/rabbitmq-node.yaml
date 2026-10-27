@@ -75,6 +75,6 @@ metricsRules:
   - name: allocated_multiblock_pool_unused
     exp: erlang_vm_allocators.tagEqual('usage' , 'carriers_size' , 'kind', 'mbcs_pool').sum(['cluster', 'node', 'alloc'])
   - name: allocated_singleblock_used
-    exp: erlang_vm_allocators.tagEqual('usage' , 'blocks_size' , 'kind', 'mbcs').sum(['cluster', 'node', 'alloc'])
+    exp: erlang_vm_allocators.tagEqual('usage' , 'blocks_size' , 'kind', 'sbcs').sum(['cluster', 'node', 'alloc'])
   - name: allocated_singleblock_unused
-    exp: erlang_vm_allocators.tagEqual('usage' , 'carriers_size' , 'kind', 'mbcs').sum(['cluster', 'node', 'alloc'])
+    exp: erlang_vm_allocators.tagEqual('usage' , 'carriers_size' , 'kind', 'sbcs').sum(['cluster', 'node', 'alloc']) - erlang_vm_allocators.tagEqual('usage' , 'blocks_size' , 'kind', 'sbcs').sum(['cluster', 'node', 'alloc'])

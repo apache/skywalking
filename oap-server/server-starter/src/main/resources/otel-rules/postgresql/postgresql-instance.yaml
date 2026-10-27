@@ -84,7 +84,7 @@ metricsRules:
   - name: instance_cache_hit_rate
     exp: (pg_stat_database_blks_hit*100 / (pg_stat_database_blks_read + pg_stat_database_blks_hit)).sum(['datname','host_name','service_instance_id'])
   - name: instance_temporary_files_rate
-    exp: pg_stat_database_temp_bytes.sum(['datname','host_name','service_instance_id']).rate('PT1M')
+    exp: pg_stat_database_temp_files.sum(['datname','host_name','service_instance_id']).rate('PT1M')
 
   ## checkpoint
   - name: instance_checkpoint_write_time_rate

@@ -38,7 +38,7 @@ PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each 
 | Conflicts Trend |      | meter_pg_conflicts_rate | The trend of the number of queries canceled due to conflicts with recovery in this database | postgres-exporter|
 | Deadlock Trend |      | meter_pg_deadlocks_rate | The trend of the number of deadlocks detected in this database | postgres-exporter|
 | Cache Hit Rate |   %   | meter_pg_cache_hit_rate | The rate of cache hit | postgres-exporter|
-| Temporary Files Trend |      | meter_pg_temporary_files_rate | The rate of total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting | postgres-exporter|
+| Temporary Files Trend |      | meter_pg_temporary_files_rate | The rate of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the `log_temp_files` setting | postgres-exporter|
 | Checkpoint Stat Trend |      | meter_pg_checkpoint_write_time_rate </br> meter_pg_checkpoint_sync_time_rate </br> meter_pg_checkpoint_req_rate </br>meter_pg_checkpoint_timed_rate | The trend of checkpoint stat | postgres-exporter|
 | Active Sessions |      | meter_pg_active_sessions | The number of connections which state is active  | postgres-exporter|
 | Idle Sessions |      | meter_pg_idle_sessions | The number of connections which state is idle,idle in transaction or idle in transaction (aborted)  | postgres-exporter|

@@ -76,7 +76,7 @@ input:
         service_instance_id: test-instance
         host_name: test-host
       value: 100.0
-  pg_stat_database_temp_bytes:
+  pg_stat_database_temp_files:
     - labels:
         service_instance_id: test-instance
         host_name: test-host
