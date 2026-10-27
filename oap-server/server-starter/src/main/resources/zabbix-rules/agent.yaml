@@ -44,6 +44,7 @@ requiredZabbixItemKeys:
   # file
   - vfs.fs.size[/,total]
   - vfs.fs.size[/,used]
+  - vfs.fs.size[/,pused]
   - vfs.dev.read[,ops,avg1]
   - vfs.dev.write[,ops,avg1]
 
@@ -75,9 +76,9 @@ metrics:
     exp: system_swap_size.tagEqual('2', 'pused')
   # file
   - name: filesystem_percentage
-    exp: vfs_fs_size.tagEqual('2', 'used').avg(['1', 'host']) / vfs_fs_size.tagEqual('2', 'total').avg(['1', 'host']) * 100
+    exp: vfs_fs_size.tagEqual('2', 'pused').avg(['1', 'host'])
   - name: vfs_fs_size
-    exp: vfs_fs_size.avg(['1', '2', 'host'])
+    exp: vfs_fs_size.tagNotEqual('2', 'pused').avg(['1', '2', 'host'])
   - name: disk_read
     # `* 1024` is for adapting to `divide 1024` by the VM UI template configuration, which converts `byte`->`kb` because of OTEL/Prometheus Node exporter.
     exp: vfs_dev_read * 1024

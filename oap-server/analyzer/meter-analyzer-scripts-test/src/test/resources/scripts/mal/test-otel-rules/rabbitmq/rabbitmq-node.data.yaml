@@ -128,7 +128,7 @@ input:
         alloc: test-value
         usage: blocks_size
         kind: sbcs
-      value: 200.0
+      value: 150.0
     - labels:
         cluster: test-cluster
         node: test-node
@@ -251,7 +251,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 10000.0
+        value: 9000.0
   meter_rabbitmq_node_allocated_unused_percent:
     entities:
       - scope: SERVICE_INSTANCE
@@ -262,7 +262,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 1000.0
   meter_rabbitmq_node_allocated_used_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -273,7 +273,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 500.0
+        value: 450.0
   meter_rabbitmq_node_allocated_unused_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -284,7 +284,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 50.0
   meter_rabbitmq_node_allocated_total_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -378,7 +378,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 200.0
+        value: 150.0
   meter_rabbitmq_node_allocated_singleblock_unused:
     entities:
       - scope: SERVICE_INSTANCE
@@ -390,4 +390,4 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 200.0
+        value: 50.0
