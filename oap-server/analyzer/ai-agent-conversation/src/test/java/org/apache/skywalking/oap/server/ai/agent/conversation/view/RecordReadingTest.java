@@ -19,6 +19,8 @@
 package org.apache.skywalking.oap.server.ai.agent.conversation.view;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.skywalking.oap.server.ai.agent.conversation.format.SessionDataFile;
 import org.junit.jupiter.api.Test;
 
@@ -88,12 +90,36 @@ public class RecordReadingTest {
         }
     }
 
+    /**
+     * A step on one part reads that part alone: a tool call that shares a record with the agent's text reads as its
+     * arguments, never as that text, and a queued command kept as data beside other text reads as its own prompt.
+     */
+    @Test
+    public void aStepOnAPartReadsThatPart() {
+        final String args = "{\"command\":\"kubectl logs api-7f9c\"}";
+        final Map<String, Object> call = new HashMap<>();
+        ConversationViewBuilder.fill(call, new HashMap<>(), withParts(
+            "{\"k\":\"text\",\"text\":\"I will look at the logs first.\"}",
+            "{\"k\":\"call\",\"name\":\"Bash\",\"data\":" + args + "}"), 1L);
+        assertEquals(args, call.get("text"));
+        final Map<String, Object> queued = new HashMap<>();
+        ConversationViewBuilder.fill(queued, new HashMap<>(), withParts(
+            "{\"k\":\"text\",\"text\":\"unrelated prose\"}",
+            "{\"k\":\"data\",\"data\":{\"type\":\"queued_command\",\"prompt\":[{\"type\":\"text\",\"text\":\"restart the worker\"}]}}"),
+            1L);
+        assertEquals("restart the worker", queued.get("text"));
+    }
+
     private static SessionDataFile.Record record(final String... data) {
-        final StringBuilder line = new StringBuilder("{\"ord\":1,\"off\":0,\"sha\":\"0\",\"bytes\":1,\"parts\":[");
+        final String[] parts = new String[data.length];
         for (int i = 0; i < data.length; i++) {
-            line.append(i == 0 ? "" : ",").append("{\"k\":\"data\",\"data\":").append(data[i]).append('}');
+            parts[i] = "{\"k\":\"data\",\"data\":" + data[i] + "}";
         }
-        line.append("]}");
+        return withParts(parts);
+    }
+
+    private static SessionDataFile.Record withParts(final String... parts) {
+        final String line = "{\"ord\":1,\"off\":0,\"sha\":\"0\",\"bytes\":1,\"parts\":[" + String.join(",", parts) + "]}";
         final String file = HEADER + "\n" + line + "\n";
         return SessionDataFile.parse(file.getBytes(StandardCharsets.UTF_8)).getRecords().get(0);
     }
