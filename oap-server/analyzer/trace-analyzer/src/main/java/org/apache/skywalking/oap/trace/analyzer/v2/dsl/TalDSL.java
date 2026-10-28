@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALMetricShapes;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 
 /**
@@ -111,6 +112,16 @@ public class TalDSL {
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to compile TAL rule " + ruleName, e);
         }
+    }
+
+    /**
+     * Compose the alias address of a matched call with this rule's {@code buildNetworkAlias} expression.
+     *
+     * @param caller the caller half of the call
+     * @return the address; null when the rule declares no {@code buildNetworkAlias}
+     */
+    public String networkAliasAddress(final PairingFact caller) {
+        return expression.networkAliasAddress(filterSpec, new ExecutionContext(), caller);
     }
 
     /**

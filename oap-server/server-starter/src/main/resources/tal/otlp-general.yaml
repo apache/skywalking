@@ -127,18 +127,21 @@ rules:
               }
               def comp = component(rpcSystem)
             }
-            // The address a SERVER span reports is the `Host` / `:authority` its caller used, so registering it as
-            // an alias lets a CLIENT span's resolveAlias(peer) below land the edge on this service instead of on a
-            // second node named by the address. A callee that reports no address is only ever reached by name.
-            // An address whose host is another service's name, a proxy's `Host` passed through, is not registered.
+            // This span is the callee half of its call: the trace's owner matches it with the CLIENT span whose
+            // spanId is this span's parentSpanId, and files the alias under the caller and the peer that caller
+            // prepared, so the caller's resolveNetworkAlias below lands its edge on this service. Only that match
+            // pairs the two, never an address this span reports, which a proxy keeping `Host` would make the
+            // proxy's.
+            buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer)
             if (hasAttr("server.address", "net.host.name")) {
               def addr = attr("server.address", "net.host.name")
               def port = attr("server.port", "net.host.port")
-              def dialed = addr
+              // A Host without a port, as nginx's `$host` passes it, is port 80, the port gateways.yml assumes and
+              // the one the caller's span names, so the gateway is one node between the caller and the callee.
+              def dialed = addr + ":80"
               if (port) {
                 def dialed = addr + ":" + port
               }
-              alias dialed
               // A callee dialed at an address listed in gateways.yml was reached through that gateway, so the call
               // comes from the gateway, as the agent path draws it. The address only arrives here when the gateway
               // passes its callers' Host through; one that rewrites it to the upstream's draws no such edge.
@@ -179,11 +182,21 @@ rules:
             if (!peer && hasAttr("url.full", "http.url")) {
               def peer = urlHost(attr("url.full", "http.url"))
             }
-            // A peer whose host names a service, or that some SERVER span registered through `alias`, resolves to
-            // that service, so the edge lands on the callee's own node instead of one named by the address. A peer
-            // listed in gateways.yml stays the gateway's own node, so the call reads caller, gateway, callee.
-            if (!isGateway(peer)) {
-              def peer = resolveAlias(peer)
+            // A gateway dialed without a port is port 80, the port gateways.yml assumes and the one the callee's side
+            // names it by, so the gateway is one node between the caller and the callee.
+            if (peer && isGateway(peer + ":80")) {
+              def peer = peer + ":80"
+            }
+            // A CLIENT span to a peer that answers with a SERVER span of its own sends its half of the call, so the
+            // trace's owner can build the alias, and a pair learned for this caller and peer names the callee, so
+            // the edge lands on its own node; until then the peer keeps its name, and the topology folds the edge
+            // once the alias is built. A database, a cache or a broker answers with no SERVER span, so no alias is
+            // ever built for it and its peer stays as named. A peer listed in gateways.yml stays the gateway's own
+            // node, so the call reads caller, gateway, callee.
+            if (peer && meta.kind == "CLIENT" && !isGateway(peer)
+                && !hasAttr("db.system.name", "db.system") && !hasAttr("messaging.system")) {
+              prepareNetworkAlias peer
+              def peer = resolveNetworkAlias(callerScopedAddress(meta.service, peer))
             }
             // A peer reached without an address, an embedded database or a broker the JMS API hides, is named
             // after what the span does know: the database system and its namespace, or the messaging system alone,
@@ -298,7 +311,8 @@ rules:
         extractor {
           layer "OTLP_VIRTUAL_DATABASE"
           // The record belongs to the database service, named exactly as the otlp-general rule names the peer of
-          // a CLIENT span, so the statement is listed under the node the topology draws. Keep the two in step.
+          // a CLIENT span, so the statement is listed under the node the topology draws. Keep the two in step. A
+          // database answers with no SERVER span, so no network alias is built for it and its peer is not resolved.
           def peer = attr("service.peer.name", "peer.service")
           if (!peer && hasAttr("server.address", "net.peer.name")) {
             def addr = attr("server.address", "net.peer.name")
@@ -314,7 +328,6 @@ rules:
           if (!peer && hasAttr("url.full", "http.url")) {
             def peer = urlHost(attr("url.full", "http.url"))
           }
-          def peer = resolveAlias(peer)
           if (!peer && hasAttr("db.system.name", "db.system")) {
             def peer = attr("db.system.name", "db.system")
             if (hasAttr("db.namespace", "db.name")) {

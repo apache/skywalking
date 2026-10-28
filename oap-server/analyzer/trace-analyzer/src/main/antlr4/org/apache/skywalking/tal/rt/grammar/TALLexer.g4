@@ -35,7 +35,8 @@ ENDPOINT:       'endpoint';
 LAYER:          'layer';
 TAG:            'tag';
 METRICS:        'metrics';
-ALIAS:          'alias';
+PREPARE_NETWORK_ALIAS: 'prepareNetworkAlias';
+BUILD_NETWORK_ALIAS:   'buildNetworkAlias';
 
 // Keywords - metrics block
 NAME:           'name';

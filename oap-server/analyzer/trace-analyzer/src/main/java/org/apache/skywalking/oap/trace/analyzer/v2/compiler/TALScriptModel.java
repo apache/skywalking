@@ -173,22 +173,25 @@ public final class TALScriptModel {
     }
 
     /**
-     * {@code alias <address>} — register the address as an alias of the span's service; the runtime helper's
-     * {@code alias} says what that means.
+     * {@code prepareNetworkAlias <peer>} — send a CLIENT span's half of the call; {@code buildNetworkAlias <address>}
+     * — mark a SERVER span as the callee half, whose address expression reads the matched caller half as
+     * {@code pairing.*} on the trace's owner. The runtime helper's methods of the same names say what each does.
      */
     @Getter
-    public static final class AliasStatement implements ExtractorStatement, FilterStatement {
-        private final ValueAccess address;
+    public static final class NetworkAliasStatement implements ExtractorStatement, FilterStatement {
+        private final ValueAccess value;
         private final String castType;
+        private final boolean build;
         private int sourceLine;
         private String sourceText = "";
 
-        public AliasStatement(final ValueAccess address, final String castType) {
-            this.address = address;
+        public NetworkAliasStatement(final ValueAccess value, final String castType, final boolean build) {
+            this.value = value;
             this.castType = castType;
+            this.build = build;
         }
 
-        public AliasStatement withSource(final int line, final String text) {
+        public NetworkAliasStatement withSource(final int line, final String text) {
             this.sourceLine = line;
             this.sourceText = text == null ? "" : text;
             return this;

@@ -130,8 +130,12 @@ public final class TALScriptParser {
         if (ctx.defStatement() != null) {
             return visitDefStatement(ctx.defStatement());
         }
-        if (ctx.aliasStatement() != null) {
-            return visitAliasStatement(ctx.aliasStatement())
+        if (ctx.prepareNetworkAliasStatement() != null) {
+            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement())
+                .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
+        }
+        if (ctx.buildNetworkAliasStatement() != null) {
+            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement())
                 .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
         }
         return visitIfStatement(ctx.ifStatement());
@@ -175,8 +179,11 @@ public final class TALScriptParser {
         if (ctx.tagStatement() != null) {
             return visitTagStatement(ctx.tagStatement()).withSource(sourceLine, sourceText);
         }
-        if (ctx.aliasStatement() != null) {
-            return visitAliasStatement(ctx.aliasStatement()).withSource(sourceLine, sourceText);
+        if (ctx.prepareNetworkAliasStatement() != null) {
+            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement()).withSource(sourceLine, sourceText);
+        }
+        if (ctx.buildNetworkAliasStatement() != null) {
+            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement()).withSource(sourceLine, sourceText);
         }
         if (ctx.metricsBlock() != null) {
             return visitMetricsBlock(ctx.metricsBlock()).withSource(sourceLine, sourceText);
@@ -230,9 +237,16 @@ public final class TALScriptParser {
             extractCastType(ctx.typeCast()));
     }
 
-    private static TALScriptModel.AliasStatement visitAliasStatement(final TALParser.AliasStatementContext ctx) {
-        return new TALScriptModel.AliasStatement(
-            visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast()));
+    private static TALScriptModel.NetworkAliasStatement visitPrepareNetworkAlias(
+        final TALParser.PrepareNetworkAliasStatementContext ctx) {
+        return new TALScriptModel.NetworkAliasStatement(
+            visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast()), false);
+    }
+
+    private static TALScriptModel.NetworkAliasStatement visitBuildNetworkAlias(
+        final TALParser.BuildNetworkAliasStatementContext ctx) {
+        return new TALScriptModel.NetworkAliasStatement(
+            visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast()), true);
     }
 
     private static TALScriptModel.TagAssignment visitTagStatement(final TALParser.TagStatementContext ctx) {

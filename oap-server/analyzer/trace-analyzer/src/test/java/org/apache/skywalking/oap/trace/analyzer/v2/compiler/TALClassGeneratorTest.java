@@ -250,6 +250,39 @@ class TALClassGeneratorTest {
     }
 
     @Test
+    void rejectABuildNetworkAliasThatReadsMoreThanTheCallerHalf() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(meta.service, pairing.peer)\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer");
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias attr(\"server.address\")\n"
+                + "} }",
+            "not attr(...)");
+    }
+
+    @Test
+    void rejectABuildNetworkAliasThatReadsAPerCallField() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.spanId)\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer, not 'pairing.spanId'");
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias pairing.peer.length\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer");
+    }
+
+    @Test
+    void rejectASecondBuildNetworkAlias() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer)\n"
+                + "  buildNetworkAlias pairing.peer\n"
+                + "} }",
+            "a rule declares buildNetworkAlias once");
+    }
+
+    @Test
     void rejectAStatementAfterAbort() {
         assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_GENERAL\"\n} }",
             "abort {} ends its block");

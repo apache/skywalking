@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -40,13 +41,12 @@ import org.apache.skywalking.oap.server.core.analysis.meter.function.BucketedVal
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
+import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
-import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 
 /**
@@ -252,27 +252,75 @@ public class TalRuntimeHelper {
     // ==================== Network address aliases ====================
 
     /**
-     * {@code alias <address>} — register the address this span was dialed at as an alias of the span's service,
-     * the row the agent path writes from the {@code sw8} header's peer address. OTLP propagates no such header,
-     * so the address is whatever the rule read, normally {@code server.address:server.port} of a SERVER span,
-     * which the HTTP semantic conventions fill from the {@code Host} or {@code :authority} the caller sent.
+     * {@code prepareNetworkAlias <peer>} — send this CLIENT span's half of the call to the trace's owner, where the
+     * SERVER span it called composes the alias. Any other kind is ignored. Not sent while the shipped composition of
+     * this caller and peer was built or rebuilt in the last {@value SpanPairing#LEARNED_TTL_MINUTES} minutes, by this
+     * node or by another one through storage, so a learned pair costs a few calls that often: that keeps its row
+     * current and lets it follow the address to another service. A rule that composes its alias otherwise only sends
+     * more facts.
      *
-     * <p>The represented service's id carries the {@code normal} flag of {@code meta.layer} as
-     * {@code service(meta.service, meta.layer)} builds it, so a {@link #resolveAlias} hit names the same entity
-     * the SERVER span's own metrics went to. The row reaches {@link NetworkAddressAliasCache} through storage and
-     * the core's cache timer, not directly.
-     *
-     * <p>An address whose host names another service is not registered. A proxy that keeps the {@code Host}
-     * header hands its own address to the service behind it, which would otherwise claim it and pull every edge
-     * to the proxy onto itself; {@link AliasRegistrar} applies that guard.
-     *
-     * @param address the address as the caller spelled it; an empty one registers nothing
+     * @param peer the peer as the rule named it
      */
-    public void alias(final String address) {
-        final SpanMetadata meta = ctx.getMeta();
-        final Layer serviceLayer = StringUtil.isEmpty(meta.getLayer()) ? null : layer(meta.getLayer());
-        spec.getAliasRegistrar().register(address, meta.getService(), MeterEntity.isNormal(serviceLayer),
-            meta.getServiceInstance(), meta.getTimestamp());
+    public void prepareNetworkAlias(final String peer) {
+        if (peer == null || peer.isEmpty() || !SpanMetadata.KIND_CLIENT.equals(ctx.getMeta().getKind())) {
+            return;
+        }
+        final String address = callerScopedAddress(ctx.getMeta().getService(), peer);
+        if (spec.getSpanPairing().learnedService(address) != null) {
+            return;
+        }
+        final NetworkAddressAlias stored = storedAlias(address);
+        if (stored != null && stored.getLastUpdateTimeBucket() >= TimeBucket.getMinuteTimeBucket(
+            System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(SpanPairing.LEARNED_TTL_MINUTES))) {
+            return;
+        }
+        spec.getSpanPairing().clientSeen(ctx.getMeta(), peer);
+    }
+
+    /**
+     * {@code callerScopedAddress(service, peer)} — the address an alias is filed under: the caller and the peer it
+     * dialed, both as the naming rules format a service name, which is how the service id and the address node name
+     * them, so the topology fold rebuilds the same address from an edge.
+     *
+     * @param service the caller
+     * @param peer    the peer it dialed
+     * @return {@code service->peer}
+     */
+    public String callerScopedAddress(final String service, final String peer) {
+        final NamingControl naming = spec.getNamingControl();
+        return IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(
+            naming.formatServiceName(service == null ? "" : service), naming.formatServiceName(peer == null ? "" : peer));
+    }
+
+    /**
+     * {@code resolveNetworkAlias(address)} — the service an alias address names: one this node built in the last ten
+     * minutes, then one loaded from storage.
+     *
+     * @param address the alias address, as {@code callerScopedAddress} composes it
+     * @return the represented service's name; otherwise the peer part of a caller-scoped address, so an unlearned
+     * peer keeps its own name, or the address unchanged
+     */
+    public String resolveNetworkAlias(final String address) {
+        if (address == null || address.isEmpty()) {
+            return address == null ? "" : address;
+        }
+        final String learned = spec.getSpanPairing().learnedService(address);
+        if (learned != null) {
+            return learned;
+        }
+        final NetworkAddressAlias stored = storedAlias(address);
+        if (stored != null) {
+            return IDManager.ServiceID.analysisId(stored.getRepresentServiceId()).getName();
+        }
+        // The peer is whatever follows this span's own caller, since a peer named by peer.service may hold `->`
+        // itself; an address composed for another caller is cut at its first separator.
+        final String ownPrefix = callerScopedAddress(ctx.getMeta().getService(), "");
+        if (address.startsWith(ownPrefix)) {
+            return address.substring(ownPrefix.length());
+        }
+        final int separator = address.indexOf(IDManager.NetworkAddressAliasDefine.CALLER_SCOPE_SEPARATOR);
+        return separator < 0 ? address
+            : address.substring(separator + IDManager.NetworkAddressAliasDefine.CALLER_SCOPE_SEPARATOR.length());
     }
 
     /**
@@ -308,52 +356,6 @@ public class TalRuntimeHelper {
     }
 
     /**
-     * {@code resolveAlias(address)} — the service some SERVER span registered the address for through
-     * {@link #alias}, or the address unchanged when none did. Read from the core's {@link NetworkAddressAliasCache},
-     * which {@code CacheUpdateTimer} reloads from storage every 10 seconds, so the first edges to a freshly seen
-     * address stay address-named until its row lands; {@code ServiceTopologyBuilder} merges those at query time
-     * through the same cache.
-     *
-     * <p>A host that names a service this OAP has seen spans from is that service, before the cache is asked:
-     * {@code product-catalog:3550} is {@code product-catalog} even when its SERVER spans report some other
-     * address, and {@code frontend-proxy:8080} is the proxy even when the service behind it registered that
-     * address. The first DNS label counts too, so a cluster FQDN resolves to the service it starts with. A grouped
-     * service is named as Kubernetes DNS resolves a Service: {@code cart.outlet} is {@code outlet::cart}, and a
-     * bare {@code cart} is the caller's own group's (see {@link AliasRegistrar#serviceNamedBy}). Another group's
-     * {@code cart} is only a guess, asked last.
-     *
-     * <p>When none names it, the span is handed to {@link SpanPairing}, whose {@link SpanPairing#clientSeen}
-     * answers with a service an earlier pair named; otherwise, short of another group's service of the same short
-     * name, the edge stays address-named this once, and the alias row the pair writes names the calls that follow.
-     *
-     * @param address the peer as the CLIENT span spelled it
-     * @return the represented service's name, or the address
-     */
-    public String resolveAlias(final String address) {
-        if (address == null || address.isEmpty()) {
-            return address == null ? "" : address;
-        }
-        final AliasRegistrar registrar = spec.getAliasRegistrar();
-        final String host = AliasRegistrar.hostOf(address);
-        final String named = registrar.serviceNamedBy(host, ctx.getMeta().getService());
-        if (named != null) {
-            return named;
-        }
-        final String cached = cachedAlias(address);
-        if (cached != null) {
-            return cached;
-        }
-        // Pairing before the guess: clientSeen is also what reports this call's fact, so the pair can learn the
-        // address and write its row for the calls that follow.
-        final String learned = spec.getSpanPairing().clientSeen(ctx.getMeta(), address);
-        if (learned != null) {
-            return learned;
-        }
-        final String guessed = registrar.serviceByShortName(host);
-        return guessed != null ? guessed : address;
-    }
-
-    /**
      * {@code isGateway(address)} — whether the address is listed in the agent analyzer's {@code gateways.yml}, so a
      * rule can draw the gateway between a caller and the service behind it as the agent path does. Always false
      * when the agent analyzer is not loaded.
@@ -365,7 +367,7 @@ public class TalRuntimeHelper {
         return spec.getAliasRegistrar().isGateway(address);
     }
 
-    private String cachedAlias(final String address) {
+    private NetworkAddressAlias storedAlias(final String address) {
         try {
             if (aliasCache == null) {
                 aliasCache = spec.getModuleManager()
@@ -373,8 +375,7 @@ public class TalRuntimeHelper {
                                  .provider()
                                  .getService(NetworkAddressAliasCache.class);
             }
-            final NetworkAddressAlias alias = aliasCache.get(address);
-            return alias == null ? null : IDManager.ServiceID.analysisId(alias.getRepresentServiceId()).getName();
+            return aliasCache.get(address);
         } catch (final Exception e) {
             log.debug("Network address alias lookup failed for {} in a TAL rule", address, e);
             return null;

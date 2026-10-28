@@ -60,7 +60,6 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     private final ModuleManager moduleManager;
     private final SpanFilterListener.Factory factory;
-    private final KnownServices knownServices;
     private final SpanPairing spanPairing;
     private final SeenSpans seenSpans;
 
@@ -72,12 +71,10 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     public TraceAnalyzerServiceImpl(final ModuleManager moduleManager,
                                     final SpanFilterListener.Factory factory,
-                                    final KnownServices knownServices,
                                     final SpanPairing spanPairing,
                                     final SeenSpans seenSpans) {
         this.moduleManager = moduleManager;
         this.factory = factory;
-        this.knownServices = knownServices;
         this.spanPairing = spanPairing;
         this.seenSpans = seenSpans;
     }
@@ -121,12 +118,6 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
             return SpanAnalysisResult.CONTINUE;
         }
-        // The callee side of the pairing, sent once a rule claims the span. SERVER only: a CONSUMER span's parent
-        // is the PRODUCER span, and pairing those two would register the broker's address as an alias of the
-        // consumer, pulling every producer's edge off the broker.
-        final boolean pairable =
-            SpanMetadata.KIND_SERVER.equals(meta.getKind()) && StringUtil.isNotEmpty(meta.getParentSpanId());
-
         final List<SpanFilterListener.RuleBinding> rules = factory.rulesFor(layer, span);
         if (rules.isEmpty()) {
             // A layer with no rule, as OTLP_MESH, is a deliberate opt-out.
@@ -140,13 +131,13 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             log.debug("Span {}/{} was analyzed already; skipped", meta.getTraceId(), meta.getSpanId());
             return seenSpans.verdictOf(meta.getTraceId(), meta.getSpanId());
         }
-        // The layer the first rule that ran named, so a learned alias names the same service id the rule's own
-        // `alias` and metrics do; a rule's extractor may name another layer than the span's, which is the fallback.
-        Layer pairingLayer = null;
-        // Whether a rule ran to the end without `abort {}`. A span no rule claims, an Envoy sidecar's under a
-        // proxy filter or one on a layer with no rule, is no service in the topology: it neither names its service
-        // to the host lookups nor pairs, which would only route its facts to the trace owner to expire there.
-        boolean claimed = false;
+        // The first rule that ran to the end, without `abort {}`, and asked for a network alias with
+        // buildNetworkAlias; the callee half of the pairing carries its key, so the trace's owner composes the
+        // alias address with that rule's expression. The half names the service as that rule left it, and the layer
+        // its extractor named gives the alias the service id the rule's own metrics use; the span's own layer is the
+        // fallback.
+        String aliasRule = null;
+        SpanMetadata aliasMeta = null;
 
         boolean persist = true;
         boolean enforced = false;
@@ -177,9 +168,9 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             if (ctx.isAborted()) {
                 continue;
             }
-            claimed = true;
-            if (pairingLayer == null) {
-                pairingLayer = resolveLayer(ruleMeta);
+            if (aliasRule == null && ctx.isNetworkAliasRequested()) {
+                aliasRule = binding.dsl.getRuleName();
+                aliasMeta = ruleMeta;
             }
             writeRecord(ctx, ruleMeta, span);
             tags.putAll(ctx.getAdditionalTags());
@@ -189,11 +180,10 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
         }
 
-        if (claimed) {
-            knownServices.record(meta.getService());
-            if (pairable) {
-                spanPairing.serverSeen(meta, MeterEntity.isNormal(pairingLayer != null ? pairingLayer : layer));
-            }
+        if (aliasRule != null) {
+            final Layer aliasLayer = resolveLayer(aliasMeta);
+            spanPairing.serverSeen(aliasMeta, MeterEntity.isNormal(aliasLayer != null ? aliasLayer : layer),
+                layer.name(), aliasRule);
         }
 
         // The common outcome carries nothing span-specific, so the dedup window holds the shared instance.

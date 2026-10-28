@@ -19,58 +19,69 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.util.concurrent.Striped;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.analysis.IDManager;
+import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Pairs a CLIENT span with the SERVER span it called, to learn the callee's name for an address nothing else
- * names: a peer the caller dialed by IP, or one the callee reports under another spelling or not at all. The
- * trace context says which two spans were one call, {@code parentSpanId} of the SERVER span is the CLIENT span's
- * id, and that needs no attribute convention on either side.
+ * Builds a network address alias from one call: a CLIENT span and the SERVER span whose {@code parentSpanId} is that
+ * CLIENT span's {@code spanId}, in the same trace. That match is the only thing that pairs two spans; names,
+ * addresses and attributes never do. A proxy, a load balancer or a {@code Host} header kept end to end therefore
+ * cannot move an alias onto the wrong service: each hop is learned from its own two spans.
  *
  * <p>The two spans arrive in separate batches, in either order, and in a cluster at different nodes. Each half is
- * therefore sent as a {@link PairingFact} through the {@link #transport} to the node that owns the trace, chosen by
- * the trace id's hash the way a metric is routed to the node that aggregates it; a single node sends to itself.
- * The owner keeps two buffers of 60 seconds: callers whose peer could not be named, keyed by their own span id,
- * and callees, keyed by their parent span id. A match writes the alias row through {@link AliasRegistrar}, after
- * which every node resolves the address from its cache, and remembers the answer locally so the owner's own next
- * calls do not wait for the cache timer. Root spans have nothing to pair with and are not kept.
+ * sent as a {@link PairingFact} through the {@link #transport} to the node that owns the trace, chosen by the trace
+ * id's hash the way a metric is routed to the node that aggregates it; a single node sends to itself. The owner keeps
+ * two buffers of 60 seconds: callers keyed by their own span id, and callees keyed by their parent span id. A match
+ * builds the row under the address the callee's rule composes from the caller half, writes it through
+ * {@link AliasRegistrar}, and remembers it locally so this node's next calls do not wait for the cache timer.
  */
+@Slf4j
 public class SpanPairing implements Service {
     static final long TTL_SECONDS = 60L;
     static final long MAX_ENTRIES = 200_000L;
-    static final long LEARNED_TTL_MINUTES = 10L;
+    public static final long LEARNED_TTL_MINUTES = 10L;
+    static final long SEND_INTERVAL_SECONDS = 30L;
+    private static final long WARN_INTERVAL_MILLIS = 60_000L;
 
-    @RequiredArgsConstructor
-    static final class Caller {
-        final String address;
-        final String service;
-    }
-
-    @RequiredArgsConstructor
-    static final class Callee {
-        final String service;
-        final boolean normal;
-        final String instance;
-        final long timestampMillis;
-    }
-
-    private final Cache<String, Caller> callers = buffer(TTL_SECONDS, TimeUnit.SECONDS);
-    private final Cache<String, Callee> callees = buffer(TTL_SECONDS, TimeUnit.SECONDS);
+    private final Cache<String, PairingFact> callers = buffer(TTL_SECONDS, TimeUnit.SECONDS);
+    private final Cache<String, PairingFact> callees = buffer(TTL_SECONDS, TimeUnit.SECONDS);
     /**
-     * Addresses this node learned, so a caller here resolves them before the row has come back through storage.
+     * Alias addresses this node built, to the service each names, so a caller here resolves them before the row has
+     * come back through storage.
      */
     private final Cache<String, String> learned = buffer(LEARNED_TTL_MINUTES, TimeUnit.MINUTES);
     /**
-     * CLIENT spans already reported, by trace and span id, so a second rule resolving the same span's peer sends
-     * no second fact.
+     * CLIENT spans already reported, by trace and span id, so a second rule preparing the same span sends no second
+     * fact.
      */
     private final Cache<String, Boolean> reported = buffer(TTL_SECONDS, TimeUnit.SECONDS);
+    /**
+     * Caller + peer pairs this node sent a caller half for in the last {@value #SEND_INTERVAL_SECONDS} seconds. A
+     * peer that never answers with a SERVER span, an external API or an uninstrumented service, is never learned, so
+     * without this its every call would send a half that waits out the buffer unmatched.
+     */
+    private final Cache<String, Boolean> recentlySent = buffer(SEND_INTERVAL_SECONDS, TimeUnit.SECONDS);
+
+    /**
+     * Both halves of one call can arrive at once on two receiver threads; matching under the key's lock keeps them
+     * from both missing the other and waiting out the buffer unmatched.
+     */
+    private final Striped<Lock> keyLocks = Striped.lock(64);
+
+    private final DroppedPairs tooLong = new DroppedPairs();
+    private final DroppedPairs uncomposed = new DroppedPairs();
 
     /**
      * Where a fact goes: the provider wires the cluster's remote sender; until then, and in tests, this node.
@@ -78,54 +89,86 @@ public class SpanPairing implements Service {
     @Setter
     private Consumer<PairingFact> transport = this::receive;
     /**
-     * Where a learned row goes; set by the provider once the core's services are reachable.
+     * Whether a fact is paired at all: the provider samples a share of the traces in a cluster; until then, and in
+     * tests, every one.
+     */
+    @Setter
+    private Predicate<PairingFact> sampled = fact -> true;
+    /**
+     * Where a built row goes; set by the provider once the core's services are reachable.
      */
     @Getter
     @Setter
     private AliasRegistrar aliasRegistrar;
+    /**
+     * The alias address the callee's rule composes from a matched pair, (caller, callee) to the address, null when
+     * the rule is gone; the provider runs the rule's {@code buildNetworkAlias} expression. Until then, and in tests,
+     * the shipped composition.
+     */
+    @Setter
+    private BiFunction<PairingFact, PairingFact, String> addressComposer =
+        (caller, callee) -> IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(
+            caller.getService(), caller.getPeer());
 
     private static <T> Cache<String, T> buffer(final long ttl, final TimeUnit unit) {
         return CacheBuilder.newBuilder().maximumSize(MAX_ENTRIES).expireAfterWrite(ttl, unit).build();
     }
 
     /**
-     * The SERVER side of a call, sent to the trace's owner.
+     * The callee half of a call, sent to the trace's owner.
      *
-     * @param meta   a SERVER or CONSUMER span; a root span is ignored, and so is a span whose parent ran in the
-     *               same process, which no other service's CLIENT span can pair with
-     * @param normal the {@code normal} flag its service id carries
+     * @param meta      a SERVER span; any other kind is ignored, and so is a root span and one whose parent ran in
+     *                  the same process, which no other service's CLIENT span is the parent of. A CONSUMER span's
+     *                  parent is the PRODUCER span, and an alias would move every producer's edge off the broker
+     * @param normal    the {@code normal} flag its service id carries
+     * @param ruleLayer the layer of the rule whose {@code buildNetworkAlias} the span ran
+     * @param ruleName  that rule's name
      */
-    public void serverSeen(final SpanMetadata meta, final boolean normal) {
-        if (meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()
+    public void serverSeen(final SpanMetadata meta, final boolean normal,
+                           final String ruleLayer, final String ruleName) {
+        if (!SpanMetadata.KIND_SERVER.equals(meta.getKind())
+            || meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()
             || SpanMetadata.PARENT_LOCAL.equals(meta.getParentLocation())) {
             return;
         }
-        transport.accept(PairingFact.server(meta, normal));
+        final PairingFact fact = PairingFact.server(meta, normal, ruleLayer, ruleName);
+        if (sampled.test(fact)) {
+            transport.accept(fact);
+        }
     }
 
     /**
-     * The CLIENT side of a call, for a peer the host rule and the alias cache could not name, sent to the
-     * trace's owner.
+     * The caller half of a call, sent to the trace's owner.
      *
-     * @param meta    a CLIENT span; any other kind is ignored. A PRODUCER span's peer is the broker, which answers
-     *                with no span of its own, so there is nothing to pair it with
-     * @param address the peer as the rule spelled it
-     * @return the callee's service when this node knows it: from an earlier pair, or, when this node pairs alone
-     * and already holds the SERVER span, from this span's own pair. Null otherwise, and the edge stays
-     * address-named this once; in a cluster the fact is matched on the trace's owner after it leaves the sender's
-     * queue, so it names the address only for the calls that follow
+     * @param meta a CLIENT span; any other kind is ignored. A PRODUCER span's peer is the broker, which answers with
+     *             no span of its own, so there is nothing to pair it with
+     * @param peer the peer as the rule spelled it
      */
-    public String clientSeen(final SpanMetadata meta, final String address) {
-        if (!SpanMetadata.KIND_CLIENT.equals(meta.getKind())) {
-            return null;
+    public void clientSeen(final SpanMetadata meta, final String peer) {
+        if (!SpanMetadata.KIND_CLIENT.equals(meta.getKind()) || peer == null || peer.isEmpty()) {
+            return;
         }
-        final String known = learned.getIfPresent(address);
-        if (known != null) {
-            return known;
+        final String spanKey = meta.getTraceId() + ':' + meta.getSpanId();
+        final PairingFact fact = PairingFact.client(meta, peer);
+        // A span already reported sends nothing, so it must not take its peer's slot either: that pair would then
+        // lose its every interval to the span's first peer. Only a sampled call takes the slot, so the call that is
+        // sent is one its callee's half can meet.
+        if (reported.getIfPresent(spanKey) != null || !sampled.test(fact)
+            || recentlySent.asMap().putIfAbsent(
+                IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(meta.getService(), peer), Boolean.TRUE)
+                != null) {
+            return;
         }
-        if (reported.asMap().putIfAbsent(meta.getTraceId() + ':' + meta.getSpanId(), Boolean.TRUE) == null) {
-            transport.accept(PairingFact.client(meta, address));
+        if (reported.asMap().putIfAbsent(spanKey, Boolean.TRUE) == null) {
+            transport.accept(fact);
         }
+    }
+
+    /**
+     * @param address an alias address
+     * @return the service this node built it for in the last {@value #LEARNED_TTL_MINUTES} minutes, else null
+     */
+    public String learnedService(final String address) {
         return learned.getIfPresent(address);
     }
 
@@ -135,47 +178,123 @@ public class SpanPairing implements Service {
      * @param fact either half of a call
      */
     public void receive(final PairingFact fact) {
+        final String key = key(fact.getTraceId(), fact.isServer() ? fact.getParentSpanId() : fact.getSpanId());
+        final Cache<String, PairingFact> own = fact.isServer() ? callees : callers;
+        final Cache<String, PairingFact> other = fact.isServer() ? callers : callees;
+        final PairingFact match;
+        final Lock lock = keyLocks.get(key);
+        lock.lock();
+        try {
+            match = other.getIfPresent(key);
+            if (match == null) {
+                own.put(key, fact);
+                return;
+            }
+            other.invalidate(key);
+        } finally {
+            lock.unlock();
+        }
         if (fact.isServer()) {
-            pairServer(fact);
+            build(match, fact);
         } else {
-            pairClient(fact);
+            build(fact, match);
         }
     }
 
-    private void pairServer(final PairingFact fact) {
-        final String key = key(fact.getTraceId(), fact.getParentSpanId());
-        callees.put(key, new Callee(fact.getService(), fact.isNormal(), fact.getInstance(), fact.getTimestampMillis()));
-        final Caller caller = callers.getIfPresent(key);
-        if (caller == null) {
+    /**
+     * @return the pairs whose composed address did not fit the alias column, since start
+     */
+    public long tooLong() {
+        return tooLong.total();
+    }
+
+    /**
+     * @return the pairs whose callee's rule composed no address, being missing on this node or failing, since start
+     */
+    public long uncomposed() {
+        return uncomposed.total();
+    }
+
+    private void build(final PairingFact caller, final PairingFact callee) {
+        // An uninstrumented gateway keeps its own node, as on the agent path. A call to another replica of the caller
+        // is built like any other: the row is the caller's own, so it draws the call as the loop it is.
+        if (aliasRegistrar != null && aliasRegistrar.isGateway(caller.getPeer())) {
             return;
         }
-        callers.invalidate(key);
-        if (!caller.service.equals(fact.getService())) {
-            learn(caller.address, fact.getService(), fact.isNormal(), fact.getInstance(), fact.getTimestampMillis());
-        }
-    }
-
-    private void pairClient(final PairingFact fact) {
-        final String key = key(fact.getTraceId(), fact.getSpanId());
-        final Callee callee = callees.getIfPresent(key);
-        if (callee == null) {
-            callers.put(key, new Caller(fact.getAddress(), fact.getService()));
+        final String address;
+        try {
+            address = addressComposer.apply(caller, callee);
+        } catch (final RuntimeException e) {
+            reportUncomposed(callee, e);
             return;
         }
-        if (!callee.service.equals(fact.getService())) {
-            learn(fact.getAddress(), callee.service, callee.normal, callee.instance, callee.timestampMillis);
+        if (address == null || address.isEmpty()) {
+            reportUncomposed(callee, null);
+            return;
+        }
+        if (address.length() > NetworkAddressAlias.ADDRESS_MAX_LENGTH) {
+            reportTooLong(address);
+            return;
+        }
+        if (aliasRegistrar == null
+            || aliasRegistrar.register(address, callee.getService(), callee.isNormal(), System.currentTimeMillis())) {
+            learned.put(address, callee.getService());
         }
     }
 
-    private void learn(final String address, final String service, final boolean normal, final String instance,
-                       final long timestampMillis) {
-        // An alias the registrar's guard refuses must not resolve edges on this node either.
-        if (aliasRegistrar == null || aliasRegistrar.register(address, service, normal, instance, timestampMillis)) {
-            learned.put(address, service);
+    /**
+     * The callee's rule is looked up on this node, the trace's owner, which may not load it, as an Aggregator with
+     * other {@code talFiles} or a rule removed here only.
+     */
+    private void reportUncomposed(final PairingFact callee, final RuntimeException failure) {
+        final long sinceLastWarn = uncomposed.count();
+        if (sinceLastWarn > 0) {
+            log.warn("{} network aliases were not built since the last report, {} since start, because the callee's "
+                    + "rule composed no address on this node, the trace's owner; their callers stay address-named. "
+                    + "Latest: rule {} of layer {}, missing here, failing or composing an empty address",
+                sinceLastWarn, uncomposed.total(), callee.getRuleName(), callee.getRuleLayer(), failure);
+        } else if (failure != null && log.isDebugEnabled()) {
+            log.debug("Rule {} failed to compose a network alias address", callee.getRuleName(), failure);
+        }
+    }
+
+    private void reportTooLong(final String address) {
+        final long sinceLastWarn = tooLong.count();
+        if (sinceLastWarn > 0) {
+            log.warn("{} network alias addresses were longer than the {} characters the alias column holds since the "
+                    + "last report, {} since start, and were not built; their callers stay address-named. Latest: {}",
+                sinceLastWarn, NetworkAddressAlias.ADDRESS_MAX_LENGTH, tooLong.total(), address);
         }
     }
 
     private static String key(final String traceId, final String spanId) {
         return traceId + '/' + spanId;
+    }
+
+    /**
+     * Pairs dropped for one reason, reported at most once a minute with the count since the previous report, so a
+     * sustained cause stays visible without a line per call.
+     */
+    private static final class DroppedPairs {
+        private final AtomicLong total = new AtomicLong();
+        private final AtomicLong totalAtLastWarn = new AtomicLong();
+        private final AtomicLong lastWarnMillis = new AtomicLong(Long.MIN_VALUE / 2);
+
+        /**
+         * @return the drops since the previous report when one is due now, this one included; otherwise 0
+         */
+        long count() {
+            final long now = System.currentTimeMillis();
+            final long current = total.incrementAndGet();
+            final long last = lastWarnMillis.get();
+            if (now - last >= WARN_INTERVAL_MILLIS && lastWarnMillis.compareAndSet(last, now)) {
+                return current - totalAtLastWarn.getAndSet(current);
+            }
+            return 0L;
+        }
+
+        long total() {
+            return total.get();
+        }
     }
 }

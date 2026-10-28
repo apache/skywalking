@@ -27,7 +27,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.KnownServices;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 
@@ -48,19 +47,13 @@ public class FilterSpec {
     @Getter
     private final SourceReceiver sourceReceiver;
     /**
-     * The service names seen on spans; the module's shared registry in production, a fresh one for a caller
-     * that builds the spec from the services it holds.
-     */
-    @Getter
-    private final KnownServices knownServices;
-    /**
      * The call pairs waiting for their other half; the module's shared buffers in production, fresh ones for a
      * caller that builds the spec from the services it holds.
      */
     @Getter
     private final SpanPairing spanPairing;
     /**
-     * Where the rule's {@code alias} statement and a learned pair both write their rows.
+     * Where a built pair writes its row, and which addresses are uninstrumented gateways.
      */
     @Getter
     private final AliasRegistrar aliasRegistrar;
@@ -76,7 +69,6 @@ public class FilterSpec {
             moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class),
             moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class),
             moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class),
-            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(KnownServices.class),
             moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(SpanPairing.class),
             moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(RateLimitingSamplers.class));
     }
@@ -96,7 +88,7 @@ public class FilterSpec {
                       final MeterSystem meterSystem,
                       final NamingControl namingControl,
                       final SourceReceiver sourceReceiver) {
-        this(moduleManager, config, meterSystem, namingControl, sourceReceiver, new KnownServices(), new SpanPairing(),
+        this(moduleManager, config, meterSystem, namingControl, sourceReceiver, new SpanPairing(),
             new RateLimitingSamplers());
     }
 
@@ -105,7 +97,6 @@ public class FilterSpec {
                        final MeterSystem meterSystem,
                        final NamingControl namingControl,
                        final SourceReceiver sourceReceiver,
-                       final KnownServices knownServices,
                        final SpanPairing spanPairing,
                        final RateLimitingSamplers samplers) {
         this.moduleManager = moduleManager;
@@ -113,12 +104,11 @@ public class FilterSpec {
         this.meterSystem = meterSystem;
         this.namingControl = namingControl;
         this.sourceReceiver = sourceReceiver;
-        this.knownServices = knownServices;
         this.spanPairing = spanPairing;
         this.samplers = samplers;
-        // The module's registrar carries the guards that need a booted OAP; a spec built without one makes its own.
+        // The module's registrar knows gateways.yml, which needs a booted OAP; a spec built without one makes its own.
         if (spanPairing.getAliasRegistrar() == null) {
-            spanPairing.setAliasRegistrar(new AliasRegistrar(sourceReceiver, namingControl, knownServices));
+            spanPairing.setAliasRegistrar(new AliasRegistrar(sourceReceiver, namingControl));
         }
         this.aliasRegistrar = spanPairing.getAliasRegistrar();
     }

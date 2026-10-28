@@ -94,6 +94,12 @@ public class TALGenCtx {
      */
     public int sinkCount;
 
+    /**
+     * The rule's {@code buildNetworkAlias}, whose address expression becomes the generated
+     * {@code networkAliasAddress} method; null when the rule builds no alias.
+     */
+    public TALScriptModel.NetworkAliasStatement networkAliasBuild;
+
     private int localNameCounter;
 
     public TALGenCtx(final TALRootResolver resolver, final Class<?> inputType, final Class<?> outputType) {

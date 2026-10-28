@@ -57,7 +57,8 @@ filterStatement
     | ifStatement
     | abortBlock
     | defStatement
-    | aliasStatement
+    | prepareNetworkAliasStatement
+    | buildNetworkAliasStatement
     ;
 
 abortBlock
@@ -81,7 +82,8 @@ extractorStatement
     | endpointStatement
     | layerStatement
     | tagStatement
-    | aliasStatement
+    | prepareNetworkAliasStatement
+    | buildNetworkAliasStatement
     | metricsBlock
     | ifStatement
     | abortBlock
@@ -121,10 +123,16 @@ tagMap
     : anyIdentifier COLON valueAccess typeCast? (COMMA anyIdentifier COLON valueAccess typeCast?)*
     ;
 
-// `alias <address>` registers the address this span was dialed at as an alias of meta.service, the row a
-// later CLIENT span's resolveAlias(peer) reads to land its edge on this service instead of an address-named node.
-aliasStatement
-    : ALIAS valueAccess typeCast?
+// A network alias is built from one call only: a CLIENT span and the SERVER span whose parentSpanId is that CLIENT
+// span's spanId. `prepareNetworkAlias <peer>` sends a CLIENT span's half, the peer it dialed, to the trace's owner;
+// `buildNetworkAlias <address>` marks a SERVER span as the callee half, and the owner evaluates the address, which
+// reads the matched caller half as `pairing.*`, to file the row the callers' resolveNetworkAlias(...) reads.
+prepareNetworkAliasStatement
+    : PREPARE_NETWORK_ALIAS valueAccess typeCast?
+    ;
+
+buildNetworkAliasStatement
+    : BUILD_NETWORK_ALIAS valueAccess typeCast?
     ;
 
 // ==================== Metrics block ====================
@@ -417,7 +425,7 @@ qualifiedName
 anyIdentifier
     : IDENTIFIER
     | SERVICE | INSTANCE | ENDPOINT | LAYER
-    | TAG | METRICS | ALIAS
+    | TAG | METRICS | PREPARE_NETWORK_ALIAS | BUILD_NETWORK_ALIAS
     | NAME | SCOPE | FUNCTION | VALUE | MATCH | STATUS
     | LABELS | LABEL_LIMIT | BUCKETS | RANKS | TIMESTAMP
     | SAMPLER | RATE_LIMIT | RPM | ENFORCER | DROPPER

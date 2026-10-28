@@ -51,10 +51,14 @@ public class NetworkAddressAlias extends Metrics {
     public static final String REPRESENT_SERVICE_ID = "represent_service_id";
     public static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
     public static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
+    /**
+     * The {@code address} column's length, which an alias address must fit.
+     */
+    public static final int ADDRESS_MAX_LENGTH = 200;
 
     @Setter
     @Getter
-    @Column(name = ADDRESS)
+    @Column(name = ADDRESS, length = ADDRESS_MAX_LENGTH)
     private String address;
     @Setter
     @Getter

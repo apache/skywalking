@@ -283,12 +283,12 @@ trace-analyzer:
     # spans per second on this node times dedupWindow, with headroom: once full, the oldest entries drop before
     # they expire and a late retry of one of them is counted. About 150 bytes per entry.
     dedupCapacity: ${SW_TRACE_TAL_DEDUP_CAPACITY:1000000}
-    # In a cluster, the percentage of traces whose client and server spans are routed to the trace's owner node to
-    # learn a network address alias from the pair; both spans of a call share the trace id, so a pair is never
-    # split. An address only has to be learned once, after which every node resolves it from its cache, so a
-    # sample is enough: at 25 a new address is learned after about four calls. 100 routes every trace, at one
-    # small message per SERVER span called from another process, plus one per CLIENT span whose peer this node
-    # cannot name yet. A single node pairs every call and ignores this.
+    # The percentage of traces whose client and server spans are paired to learn a network address alias, on the
+    # trace's owner node in a cluster and on the node itself when it is alone; both spans of a call share the trace
+    # id, so a pair is never split. A caller + peer pair only has to be learned once, after which every node
+    # resolves it from its cache, so a sample is enough: at 25 a new caller + peer pair is learned after about four
+    # calls. 100 pairs every trace, at one small message per SERVER span whose rule builds an alias, plus at most
+    # one per caller + peer pair every 30 seconds while the pair is not learned; 0 pairs none.
     pairingSamplePercent: ${SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT:25}
 
 event-analyzer:

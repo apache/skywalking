@@ -1,0 +1,157 @@
+# OpenTelemetry Trace Analysis Practices
+
+The [trace analysis](trace-analyzer.md) names a peer that a CLIENT span reaches by address, `cart:7070` or
+`172.19.0.19:8080`, after the service that answered, by pairing the two spans of one call: the callee's SERVER span
+names the caller's CLIENT span as its parent. The alias it learns is keyed by the caller and the address it dialed,
+`frontend->cart:7070`. The mechanism is described under [Address-named
+peers](../../concepts-and-designs/tal.md#address-named-peers). This page shows how it behaves in common deployments,
+and what to change when it does not draw what you expect.
+
+## Callers dial a Kubernetes Service
+
+`frontend` dials `cart:7070`, the Kubernetes Service in front of the `cart` pods, which report
+`service.name=cart`. The first calls are drawn as `frontend → cart:7070`. Once one of them is paired, after about
+four calls at the default `pairingSamplePercent` of 25, the row `frontend->cart:7070 → cart` is written and the edge lands on `cart`. The calls recorded before then keep their
+metrics under the `frontend → cart:7070` relation; the topology folds that node onto `cart`.
+
+A second caller, `checkout`, dialing the same `cart:7070`, is learned on its own: its first calls are drawn to the
+address too. The name `cart` is never guessed from the host, so a Service named differently from the pods'
+`service.name` works the same way.
+
+## The same application in two namespaces
+
+With [OTLP service grouping](otlp-trace.md) by namespace, `shop::frontend` and `outlet::frontend` both dial
+`cart:7070`, each reaching the `cart` of its own namespace. The rows are `shop::frontend->cart:7070 → shop::cart` and
+`outlet::frontend->cart:7070 → outlet::cart`: the caller in the key keeps them apart, whatever the grouping attribute
+is.
+
+## Proxies, gateways and canaries: which setup
+
+| In front of the callee | Do | Topology |
+|---|---|---|
+| A proxy or gateway that traces itself, as Envoy or an instrumented nginx | give its spans `service.layer=OTLP_GENERAL` | `caller → proxy → callee`, each hop learned from its own spans, see [A proxy that emits spans](#a-proxy-that-emits-spans) |
+| A gateway that does not trace, with one backend behind each address | list it in [uninstrumented gateways](uninstrumented-gateways.md) | `caller → [gateway] → callee`, see [A load balancer or gateway that does not trace](#a-load-balancer-or-gateway-that-does-not-trace) |
+| A gateway that does not trace and routes one address to several backends, by path, blue/green or weight | not supported: [instrument the gateway](#instrumenting-a-gateway) | as for a proxy that traces itself |
+| A canary chosen by a header on the caller's request | the header rule in your copy of `otlp-general.yaml` | `a → b` and `a → b-canary`, see [A canary routed by an HTTP header](#a-canary-routed-by-an-http-header) |
+
+## A proxy that emits spans
+
+The OpenTelemetry Demo's browser calls `frontend-proxy:8080`, an Envoy that traces itself, which forwards to
+`frontend` at `172.19.0.19:8080` and keeps the `Host` header, so `frontend`'s SERVER span reports
+`server.address=frontend-proxy`. Each hop is learned from its own two spans:
+
+| Caller span | Callee span | Row |
+|---|---|---|
+| `frontend-web` CLIENT to `frontend-proxy:8080` | `frontend-proxy` SERVER | `frontend-web->frontend-proxy:8080 → frontend-proxy` |
+| `frontend-proxy` CLIENT to `172.19.0.19:8080` | `frontend` SERVER | `frontend-proxy->172.19.0.19:8080 → frontend` |
+
+The address `frontend` reports is never used, so the proxy keeps its own node. The proxy's spans need
+`service.layer=OTLP_GENERAL` too: an unanalyzed proxy sends no pairing fact, and its callers stay address-named.
+
+## A load balancer or gateway that does not trace
+
+An ingress, a cloud load balancer or an nginx without tracing emits no spans, so the callee's SERVER span names the
+caller's CLIENT span as its parent while the caller dialed the gateway's address. Without more, the pair would name
+the gateway's address after the service behind it, and every service behind it would take the address in turn. List
+the gateway in [uninstrumented gateways](uninstrumented-gateways.md): its address is never aliased, the caller's edge
+ends on a `VIRTUAL_GATEWAY` node, and the callee's edge starts from it when the gateway passes its callers' `Host`
+through.
+
+List the address the callers dial, as their CLIENT spans report it, in `config/gateways.yml`:
+
+```yaml
+gateways:
+  - name: shop-ingress
+    instances:
+      - host: shop-ingress.ingress.svc   # as the callers' server.address or peer.address names it
+        port: 80
+```
+
+- The match is exact: a caller that dials `shop-ingress` and another that dials `shop-ingress.ingress.svc` need both
+  listed. A host without a port is matched at port 80.
+- The callee's edge from the gateway is drawn from the address the callee reports it was dialed at, its
+  `server.address` and `server.port`, which an HTTP server takes from the `Host` header. Keep the callers' `Host` on
+  the way through; for nginx, `proxy_set_header Host $host;`, since `proxy_pass` otherwise sends the upstream's own
+  name. A gateway that rewrites `Host` still ends its callers' edges, but the services behind it draw no edge from
+  it. A `Host` without a port, as `$host` passes it, is read as port 80, the port the file assumes, so a gateway
+  listening elsewhere, such as HTTPS on 443, draws the edge to the services behind it only when the `Host` it
+  passes carries the port.
+- The file belongs to the agent analyzer; with the `agent-analyzer` module not loaded, no address is a gateway. See
+  [uninstrumented gateways](uninstrumented-gateways.md) for the format and for changing it at runtime.
+
+A gateway that does not trace and routes one address to several backends, by path, by a blue/green switch or by
+weight, is not supported. Each backend answers calls its callers made to the same gateway address, so the pairs cannot
+tell from the caller which backend a call reached. Instrument the gateway instead: it then dials each backend at the
+backend's own address, and each hop is learned from its own spans, as for [a proxy that emits
+spans](#a-proxy-that-emits-spans).
+
+## Instrumenting a gateway
+
+A gateway that traces itself is analyzed like any service, and each hop through it is learned from its own two spans.
+Whatever the gateway, check that:
+
+- **It exports its spans over OTLP, with `service.layer=OTLP_GENERAL` on their resource.** If the gateway cannot set
+  resource attributes, insert it in the OpenTelemetry Collector it exports through, with a `resource` processor that
+  uses `action: insert`, so a service that set its own layer keeps it. Without the layer its spans are stored but
+  not analyzed, it sends no pairing fact, and its callers stay address-named.
+- **It continues the caller's trace and passes the trace context to the backend**, as W3C `traceparent`. The pairing
+  matches a SERVER span with the CLIENT span that is its parent; a gateway that starts a new trace, or does not
+  forward the context, leaves both of its hops unpaired.
+- **It reports a SERVER span for the request it receives and a CLIENT span for each call it makes to a backend.**
+  The SERVER span pairs with the caller; the CLIENT span pairs with the backend. A gateway that reports one span per
+  request pairs only one of the two hops.
+- **Its CLIENT span names the backend it dialed**, in `server.address` and `server.port`, in `peer.address` as Envoy
+  reports it, or in `url.full`. That address keys the row, so a blue and a green backend dialed at their own
+  addresses are two rows, `gateway->10.0.1.5:8080` and `gateway->10.0.2.7:8080`, each naming its own service.
+
+The OpenTelemetry Demo's `frontend-proxy`, an Envoy that traces itself, does all four, see [A proxy that emits
+spans](#a-proxy-that-emits-spans). Its spans get `service.layer` from the demo's Collector.
+
+Do not also list an instrumented gateway in `gateways.yml`: its address would never be aliased, and its callers'
+edges would end on a `VIRTUAL_GATEWAY` node instead of on the gateway's own service.
+
+## A canary routed by an HTTP header
+
+`a` calls `b:8080`, and a router sends the requests carrying `x-canary: v2` to `b-canary`, which reports
+`service.name=b-canary`, and the others to `b`. Both answer calls `a` made to the same address, so both pairs write
+the row `a->b:8080`, and the last write wins: the edge flips between `b` and `b-canary`.
+
+Make the version part of the peer, in the CLIENT block of your own copy of `otlp-general.yaml`, right after the peer
+is named and before `prepareNetworkAlias`:
+
+```text
+if (peer && attr("http.request.header.x-canary") == "v2") {
+  def peer = peer + "(v2)"
+}
+```
+
+The canary's calls are then `a->b:8080(v2) → b-canary`, the others `a->b:8080 → b`, and each edge lands on its own
+service. The SERVER block, `buildNetworkAlias` and the topology fold stay as they are, since the version travels in
+the peer the caller prepared.
+
+- The header has to be on the caller's CLIENT span, which the SDKs capture only when asked, for example
+  `OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS=x-canary` for the OpenTelemetry Java agent. The attribute
+  is `http.request.header.x-canary`.
+- Match the values you route on. Appending any header value as it comes makes a new peer, and a new pair to learn,
+  per value.
+- A split by weight, or by anything the caller's span does not carry, such as a header the router or gateway sets
+  itself, cannot be told apart from the caller. Report
+  the canary under the same `service.name` with its own `service.instance.id` or `service.version` instead, so its
+  calls are `b`'s and the instances tell the versions apart.
+- Rules for one layer all run, so list your file in `talFiles` (`SW_TRACE_TAL_FILES`) in place of `otlp-general`,
+  not beside it, or every span is counted twice.
+
+## Service mesh sidecars that trace
+
+When the applications and their sidecars both export spans, the trace reads `a` CLIENT, `a`'s sidecar, `b`'s sidecar,
+`b` SERVER. `b`'s SERVER span names its sidecar's span as its parent, not `a`'s CLIENT span, so no pair of analyzed
+spans meets and the edge stays address-named. Labelling the sidecars' spans `service.layer=OTLP_MESH` keeps them out
+of the analysis but not out of the trace, so it does not help here. Trace each hop once: either the applications,
+with the sidecars' tracing off and the trace context passed through, or the mesh alone, whose topology the [service
+mesh](../envoy/als_setting.md) analysis draws from access logs.
+
+## Agent-instrumented callers
+
+A SkyWalking agent calling an OTLP service by address writes no caller-scoped row, and the OTLP service registers no
+plain-address row for it, so that edge stays drawn to the address. An OTLP caller of an agent-instrumented service is
+folded at query time by the plain row the agent registers.

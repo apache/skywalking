@@ -102,7 +102,7 @@ class TALWorkedExampleTest {
     private final List<AcceptableValue<?>> sent = new ArrayList<>();
     private final List<Metrics> traffic = new ArrayList<>();
     /**
-     * The alias rows the SERVER spans registered, prepared as the dispatcher would before storing them.
+     * The alias rows the span pairs built, prepared as the dispatcher would before storing them.
      */
     private final List<NetworkAddressAliasSetup> aliases = new ArrayList<>();
 
@@ -163,7 +163,7 @@ class TALWorkedExampleTest {
 
     /**
      * The alias rows reach {@link NetworkAddressAliasCache} through storage and the core's 10-second cache timer,
-     * neither of which runs here; this is the reload, with the rows the SERVER spans registered.
+     * neither of which runs here; this is the reload, with the rows the span pairs built.
      */
     private static void reloadAliasCache(final ModuleServiceHolder coreProvider,
                                          final List<NetworkAddressAliasSetup> aliases) {
@@ -197,9 +197,8 @@ class TALWorkedExampleTest {
         final int afterSpan3 = sent.size();
         runSpan4(rule);
         final int afterSpan4 = sent.size();
-        // The next request from frontend, once the alias rows spans 1 and 3 registered have reached the cache. By
-        // then productcatalogservice has emitted a span too, so the host of `productcatalogservice:3550` names a
-        // known service and resolves on its own; the cache is what covers a spelling that is not the name.
+        // The next request from frontend, once the alias row the pair of spans 2 and 3 built has reached the cache;
+        // the node that paired them knows it already, the others learn it from the cache.
         reloadAliasCache(coreProvider, aliases);
         runSpan2(rule);
 
@@ -253,20 +252,19 @@ class TALWorkedExampleTest {
         assertTrue(traffic.stream().noneMatch(r -> describe(r).startsWith("ServiceTraffic{User,")),
             "no ServiceTraffic for User: " + traffic);
         // The first call names the peer by the address it dialed, under the deprecated spelling the demo emits:
-        // productcatalogservice has not emitted a span yet, and the alias it registers reaches the cache through
-        // storage, not before this span was analyzed.
+        // the SERVER span it called has not arrived yet, so nothing has been learned for frontend and this address.
         assertTrue(entityOf(sent.get(afterSpan1)).contains("productcatalogservice:3550"),
             "the first client edge names the peer by its address: " + entityOf(sent.get(afterSpan1)));
-        // The SERVER spans registered what they were dialed as, each for its own service. Span 3 also pairs with
-        // span 2, the waiting client, and learns the same address a second time; one row per address results.
+        // Span 3 pairs with span 2, the waiting client, by its parent span id: one row, keyed by the caller and the
+        // address it dialed. The root span 1 has no caller half, and the database call names no SERVER span.
         assertEquals(
-            List.of("frontend:8080 -> frontend", "productcatalogservice:3550 -> productcatalogservice"),
-            aliases.stream().map(a -> a.getAddress() + " -> " + serviceName(a.getRepresentServiceId()))
-                   .distinct().collect(Collectors.toList()));
+            List.of("frontend->productcatalogservice:3550 = productcatalogservice"),
+            aliases.stream().map(a -> a.getAddress() + " = " + serviceName(a.getRepresentServiceId()))
+                   .collect(Collectors.toList()));
         // Once the alias row is in the cache, the same call lands on the callee's own node.
         assertEquals(3, sent.size() - afterSpan4, "the resolved call emits the client relation blocks");
         assertEquals("frontend -> productcatalogservice", entityOf(sent.get(afterSpan4)),
-            "the resolved client edge names the service that registered the address");
+            "the resolved client edge names the service the pair learned");
         assertTrue(traffic.stream().anyMatch(r -> describe(r).startsWith(
                 "ServiceRelationClientSide{frontend -> productcatalogservice, components")),
             "the resolved edge is a relation row of its own: " + traffic);
@@ -349,6 +347,82 @@ class TALWorkedExampleTest {
                                                     DetectPoint.SERVER, 0).id(),
                      entityIdOf(sentNamed("noaddr_service_relation_server_cpm")),
                      "a handled message is a call from that same broker");
+    }
+
+    @Test
+    void theCanaryRecipeOfThePracticesDocLandsEachCallOnItsOwnService() throws Exception {
+        // docs/en/setup/backend/trace-analyzer-practices.md, "A canary routed by an HTTP header": the snippet goes
+        // into a copy of otlp-general.yaml right after the peer is named and before prepareNetworkAlias.
+        final String anchor = "// A CLIENT span to a peer that answers with a SERVER span of its own";
+        final String shipped = ShippedRules.dsl("otlp-general");
+        final int at = shipped.indexOf(anchor);
+        assertTrue(at > 0 && shipped.indexOf(anchor, at + 1) < 0, "the CLIENT block's alias step moved");
+        final int lineStart = shipped.lastIndexOf('\n', at) + 1;
+        final String indent = shipped.substring(lineStart, at);
+        final String canary = shipped.substring(0, lineStart)
+            + indent + "if (peer && attr(\"http.request.header.x-canary\") == \"v2\") {\n"
+            + indent + "  def peer = peer + \"(v2)\"\n"
+            + indent + "}\n"
+            + shipped.substring(lineStart);
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("canary_example");
+        generator.setMetricPrefix("canary");
+        generator.setInputType(TestSpanInput.class);
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        final TalExpression rule = generator.compile(canary);
+        generator.createMetrics(meterSystem);
+
+        // One call routed to the canary by its header, one to b; both dial b:8080.
+        runCanaryCall(rule, "c1", "v2", "b-canary");
+        runCanaryCall(rule, "c2", null, "b");
+        assertEquals(List.of("a->b:8080(v2) = b-canary", "a->b:8080 = b"),
+            aliases.stream().map(row -> row.getAddress() + " = " + serviceName(row.getRepresentServiceId()))
+                   .collect(Collectors.toList()));
+
+        reloadAliasCache(coreProvider, aliases);
+        sent.clear();
+        runCanaryCall(rule, "c3", "v2", null);
+        runCanaryCall(rule, "c4", null, null);
+        assertEquals(List.of(
+                MeterEntity.newServiceRelation("a", Layer.OTLP_GENERAL, "b-canary", Layer.OTLP_GENERAL,
+                                               DetectPoint.CLIENT, 49).id(),
+                MeterEntity.newServiceRelation("a", Layer.OTLP_GENERAL, "b", Layer.OTLP_GENERAL,
+                                               DetectPoint.CLIENT, 49).id()),
+            sent.stream().filter(v -> "canary_service_relation_client_cpm".equals(metricNameOf(v)))
+                .map(v -> {
+                    try {
+                        return entityIdOf(v);
+                    } catch (final Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(Collectors.toList()),
+            "each call's edge lands on the service its header routed it to");
+    }
+
+    /**
+     * {@code a} calls {@code b:8080}; when {@code callee} is given, the SERVER span that answered follows.
+     */
+    private void runCanaryCall(final TalExpression rule, final String spanId, final String canaryHeader,
+                               final String callee) {
+        final TestSpanInput client = new TestSpanInput().attribute("server.address", "b")
+                                                        .attribute("server.port", "8080");
+        if (canaryHeader != null) {
+            client.attribute("http.request.header.x-canary", canaryHeader);
+        }
+        run(rule, SpanMetadata.builder()
+                              .service("a").endpoint("GET /items")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(3)
+                              .startTime(SPAN1_END - 10).timestamp(SPAN1_END - 7)
+                              .traceId("t-" + spanId).spanId(spanId).parentSpanId("p").build(), client);
+        if (callee != null) {
+            run(rule, SpanMetadata.builder()
+                                  .service(callee).endpoint("GET /items")
+                                  .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+                                  .startTime(SPAN1_END - 9).timestamp(SPAN1_END - 7)
+                                  .traceId("t-" + spanId).spanId("s-" + spanId).parentSpanId(spanId).build(),
+                new TestSpanInput().attribute("server.address", "b").attribute("server.port", "8080"));
+        }
     }
 
     private static String entityIdOf(final AcceptableValue<?> value) throws Exception {
@@ -435,16 +509,17 @@ class TALWorkedExampleTest {
     }
 
     private void run(final TalExpression rule, final SpanMetadata meta, final TestSpanInput input) {
-        // What TraceAnalyzerServiceImpl does before any rule runs: a service that emits spans is a service, and a
-        // SERVER span is the callee half of a pair.
-        filterSpec.getKnownServices().record(meta.getService());
-        if (SpanMetadata.KIND_SERVER.equals(meta.getKind())) {
-            filterSpec.getSpanPairing().serverSeen(meta, true);
-        }
         final ExecutionContext ctx = new ExecutionContext();
         ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
         ctx.init(meta, input, Collections.emptyMap(), Collections.emptyMap());
         rule.execute(filterSpec, ctx);
+        // What TraceAnalyzerServiceImpl does after the rules ran: a SERVER span whose rule asked for an alias is the
+        // callee half of a pair, and the trace's owner composes the address with that rule's buildNetworkAlias.
+        if (!ctx.isAborted() && ctx.isNetworkAliasRequested()) {
+            filterSpec.getSpanPairing().setAddressComposer(
+                (caller, callee) -> rule.networkAliasAddress(filterSpec, new ExecutionContext(), caller));
+            filterSpec.getSpanPairing().serverSeen(meta, true, "OTLP_GENERAL", "otlp-general");
+        }
     }
 
     private TalExpression compileShippedRule() throws Exception {

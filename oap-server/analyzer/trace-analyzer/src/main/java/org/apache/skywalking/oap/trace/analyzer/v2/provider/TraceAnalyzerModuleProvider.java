@@ -17,10 +17,8 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
@@ -30,8 +28,6 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricStreamKind;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.remote.RemoteSenderService;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClientManager;
@@ -44,11 +40,11 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.KnownServices;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFactSender;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingWorker;
@@ -66,8 +62,6 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFi
  */
 @Slf4j
 public class TraceAnalyzerModuleProvider extends ModuleProvider {
-    private static final int STORED_SERVICES_ATTEMPTS = 10;
-    private static final long STORED_SERVICES_RETRY_SECONDS = 30L;
     /**
      * Pairing facts held for the cluster while the sending thread catches up; beyond this they are dropped.
      */
@@ -77,7 +71,6 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
     private TraceAnalyzerModuleConfig moduleConfig;
 
     private SpanFilterListener.Factory factory;
-    private KnownServices knownServices;
     private SpanPairing spanPairing;
 
     @Override
@@ -113,13 +106,11 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to create the TAL rule factory.", e);
         }
-        this.knownServices = new KnownServices();
-        this.registerServiceImplementation(KnownServices.class, this.knownServices);
         this.registerServiceImplementation(RateLimitingSamplers.class, new RateLimitingSamplers());
         this.spanPairing = new SpanPairing();
         this.registerServiceImplementation(SpanPairing.class, this.spanPairing);
         this.registerServiceImplementation(ITraceAnalyzerService.class,
-            new TraceAnalyzerServiceImpl(getManager(), this.factory, this.knownServices, this.spanPairing,
+            new TraceAnalyzerServiceImpl(getManager(), this.factory, this.spanPairing,
                 new SeenSpans(moduleConfig.getDedupWindow(), moduleConfig.getDedupCapacity())));
     }
 
@@ -129,13 +120,18 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         // before the first rule is compiled against it.
         final ModuleServiceHolder core = getManager().find(CoreModule.NAME).provider();
         final AliasRegistrar aliasRegistrar = new AliasRegistrar(
-            core.getService(SourceReceiver.class), core.getService(NamingControl.class), this.knownServices);
+            core.getService(SourceReceiver.class), core.getService(NamingControl.class));
         if (getManager().has(AnalyzerModule.NAME)) {
             aliasRegistrar.setGateways(getManager().find(AnalyzerModule.NAME).provider()
                                                    .getService(UninstrumentedGatewaysConfig.class)
                                                    ::isAddressConfiguredAsGateway);
         }
         this.spanPairing.setAliasRegistrar(aliasRegistrar);
+        // A matched pair is built under the address its callee's rule composes, by that rule's buildNetworkAlias.
+        this.spanPairing.setAddressComposer((caller, callee) -> {
+            final TalDSL rule = factory.find(Layer.nameOf(callee.getRuleLayer()), callee.getRuleName());
+            return rule == null ? null : rule.networkAliasAddress(caller);
+        });
         core.getService(IWorkerInstanceSetter.class).put(
             PairingWorker.NAME, new PairingWorker(getManager(), this.spanPairing), MetricStreamKind.OAL, PairingFact.class);
         final RemoteClientManager clientManager = core.getService(RemoteClientManager.class);
@@ -145,12 +141,13 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         final PairingFactSender factSender = new PairingFactSender(
             "TAL_PAIRING_FACTS", PAIRING_BUFFER_SIZE,
             fact -> sender.send(PairingWorker.NAME, fact, Selector.HashCode));
+        // A share of the traces is paired, on a single node as in a cluster, so the one setting bounds the waiting
+        // halves everywhere; both halves of a call sample alike since they share the id.
+        this.spanPairing.setSampled(fact -> fact.sampleBucket() < samplePercent);
         this.spanPairing.setTransport(fact -> {
-            // Otherwise the trace's owner node, for the sampled share of traces; both halves of a call sample
-            // alike since they share the id.
             if (pairsLocally(clientManager.getRemoteClient())) {
                 this.spanPairing.receive(fact);
-            } else if (fact.sampleBucket() < samplePercent) {
+            } else {
                 factSender.offer(fact);
             }
         });
@@ -173,61 +170,6 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
 
     @Override
     public void notifyAfterCompleted() throws ServiceNotProvidedException {
-        // Without rules nothing reads the names, see TraceAnalyzerServiceImpl#doAnalysis.
-        if (!factory.hasRules()) {
-            return;
-        }
-        // Off the boot thread: the read only shortens the window in which a callee is unknown, so a slow or failed
-        // read must not hold up the start, and the spans fill the names in either way.
-        final MetadataQueryService metadata = getManager().find(CoreModule.NAME).provider()
-                                                          .getService(MetadataQueryService.class);
-        final Thread loader = new Thread(() -> {
-            // About five minutes of attempts: storage may not answer yet right after the start, a cold BanyanDB longer.
-            for (int attempt = 1; attempt <= STORED_SERVICES_ATTEMPTS; attempt++) {
-                try {
-                    log.info("TAL known services: {} recorded from storage",
-                             recordStoredServices(metadata, knownServices));
-                    return;
-                } catch (final Exception e) {
-                    if (attempt == STORED_SERVICES_ATTEMPTS) {
-                        log.warn("TAL known services: reading the stored services failed; spans will record them", e);
-                        return;
-                    }
-                    log.info("TAL known services: reading the stored services failed, attempt {} of {}: {}",
-                             attempt, STORED_SERVICES_ATTEMPTS, e.getMessage());
-                }
-                try {
-                    TimeUnit.SECONDS.sleep(STORED_SERVICES_RETRY_SECONDS);
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
-                }
-            }
-        }, "TAL-known-services-loader");
-        loader.setDaemon(true);
-        loader.start();
-    }
-
-    /**
-     * Record the services storage already holds, so a restarted node names a callee that has not emitted since,
-     * a feature flag service read now and then, by its own name instead of by an address row another group wrote.
-     * Only real services of the layer TAL files a span under by default: conjectured, address-named nodes are
-     * stored as services too, and are no service a host could name. A service a rule or {@code service.layer} files
-     * under another layer is not read, and is known again from its next span. A stored name counts for a day after
-     * the read, see {@link KnownServices#recordStored}.
-     *
-     * @return how many services were recorded
-     */
-    static int recordStoredServices(final MetadataQueryService metadata,
-                                    final KnownServices knownServices) throws IOException {
-        int recorded = 0;
-        for (final Service service : metadata.listServices(Layer.OTLP_GENERAL.name(), null)) {
-            if (service.isNormal()) {
-                knownServices.recordStored(service.getName());
-                recorded++;
-            }
-        }
-        return recorded;
     }
 
     @Override
@@ -236,7 +178,7 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         // the management table. Catalog has no TAL entry, so it finds no TAL rule there.
         final List<String> required = new ArrayList<>(
             List.of(CoreModule.NAME, ConfigurationModule.NAME, StorageModule.NAME));
-        // The agent analyzer owns gateways.yml, which the alias guard and the rules' isGateway read; it is declared
+        // The agent analyzer owns gateways.yml, which the pairing and the rules' isGateway read; it is declared
         // only when loaded, so no address is a gateway with `agent-analyzer.selector: -`. The manager is null only in
         // unit tests.
         if (getManager() != null && getManager().has(AnalyzerModule.NAME)) {

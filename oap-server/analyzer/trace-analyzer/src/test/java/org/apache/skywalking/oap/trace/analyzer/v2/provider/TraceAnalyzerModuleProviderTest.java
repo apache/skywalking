@@ -18,15 +18,10 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.provider;
 
 import java.util.List;
-import org.apache.skywalking.oap.server.core.analysis.IDManager;
-import org.apache.skywalking.oap.server.core.query.MetadataQueryService;
-import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.remote.client.Address;
 import org.apache.skywalking.oap.server.core.remote.client.RemoteClient;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.KnownServices;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -46,30 +41,5 @@ class TraceAnalyzerModuleProviderTest {
         final RemoteClient client = mock(RemoteClient.class);
         when(client.getAddress()).thenReturn(new Address("10.0.0.1", 11800, self));
         return client;
-    }
-
-    @Test
-    void aRestartedNodeKnowsTheStoredServicesBeforeTheyEmitAgain() throws Exception {
-        // Neither flagd has emitted since the restart; the stored services still name them.
-        final MetadataQueryService metadata = mock(MetadataQueryService.class);
-        when(metadata.listServices("OTLP_GENERAL", null)).thenReturn(List.of(
-            service("shop::flagd", true), service("outlet::flagd", true), service("cart", true),
-            service("10.0.0.7:8080", false)));
-        final KnownServices known = new KnownServices();
-
-        assertEquals(3, TraceAnalyzerModuleProvider.recordStoredServices(metadata, known));
-
-        assertTrue(known.contains("shop::flagd"));
-        assertTrue(known.contains("outlet::flagd"));
-        assertTrue(known.contains("cart"));
-        assertFalse(known.contains("10.0.0.7:8080"), "a conjectured, address-named node is no service");
-        assertTrue(known.hasGroupedServices());
-    }
-
-    private static Service service(final String name, final boolean normal) {
-        final Service service = new Service();
-        service.setId(IDManager.ServiceID.buildId(name, normal));
-        service.setName(name);
-        return service;
     }
 }

@@ -59,7 +59,7 @@ class TraceAnalyzerServiceImplTest {
         Mockito.when(factory.hasRules()).thenReturn(true);
         final SpanPairing pairing = new SpanPairing();
         pairing.setTransport(pairingFacts::add);
-        service = new TraceAnalyzerServiceImpl(mock(ModuleManager.class), factory, new KnownServices(), pairing,
+        service = new TraceAnalyzerServiceImpl(mock(ModuleManager.class), factory, pairing,
             new SeenSpans(0, 1));
     }
 
@@ -126,7 +126,7 @@ class TraceAnalyzerServiceImplTest {
         final int[] runs = {0};
         given(rule(ctx -> runs[0]++));
         final TraceAnalyzerServiceImpl deduping = new TraceAnalyzerServiceImpl(
-            mock(ModuleManager.class), factory, new KnownServices(), new SpanPairing(), new SeenSpans(60, 1000));
+            mock(ModuleManager.class), factory, new SpanPairing(), new SeenSpans(60, 1000));
         deduping.doAnalysis(spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         final SpanAnalysisResult retry = deduping.doAnalysis(
             spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
@@ -219,7 +219,7 @@ class TraceAnalyzerServiceImplTest {
     void aRetriedSpanGetsTheVerdictOfItsFirstDelivery() {
         given(rule(ctx -> ctx.votePersist(false)));
         final TraceAnalyzerServiceImpl deduping = new TraceAnalyzerServiceImpl(
-            mock(ModuleManager.class), factory, new KnownServices(), new SpanPairing(), new SeenSpans(60, 1000));
+            mock(ModuleManager.class), factory, new SpanPairing(), new SeenSpans(60, 1000));
         final SpanAnalysisResult first = deduping.doAnalysis(
             spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         final SpanAnalysisResult retry = deduping.doAnalysis(
@@ -230,70 +230,92 @@ class TraceAnalyzerServiceImplTest {
 
     @Test
     void theCalleeIsPairedUnderTheLayerTheRuleNamed() {
-        // The span declares a conjectured layer, the rule files it under a normal one: the alias the pair learns
-        // has to name the service id the rule's own metrics and alias name.
-        given(rule(ctx -> ctx.getMeta().setLayer(Layer.OTLP_GENERAL.name())));
-        final SpanMetadata meta = spanMetadata();
+        // The span declares a conjectured layer, the rule files it under a normal one: the alias the pair builds
+        // has to name the service id the rule's own metrics name.
+        given(rule("otlp-general", ctx -> {
+            ctx.getMeta().setLayer(Layer.OTLP_GENERAL.name());
+            ctx.requestNetworkAlias();
+        }));
+        final SpanMetadata meta = pairableSpan();
         meta.setLayer(Layer.VIRTUAL_DATABASE.name());
-        meta.setParentSpanId("s0");
         service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         assertEquals(1, pairingFacts.size());
         assertTrue(pairingFacts.get(0).isNormal(), "OTLP_GENERAL is normal; the span's own VIRTUAL_DATABASE is not");
+        assertEquals(Layer.VIRTUAL_DATABASE.name(), pairingFacts.get(0).getRuleLayer(), "the layer it is routed by");
+        assertEquals("otlp-general", pairingFacts.get(0).getRuleName());
     }
 
     @Test
-    void aSpanEveryRuleAbortsNeitherPairsNorNamesItsService() {
-        // A rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, over an Envoy sidecar's
-        // inbound span: the span is no service in the topology.
-        final KnownServices known = new KnownServices();
-        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
-        given(rule(ExecutionContext::abort), rule(ExecutionContext::abort));
+    void theCalleeIsPairedUnderTheServiceTheRuleNamed() {
+        // The rule files the span under another service: the alias has to name the service its metrics land on.
+        given(rule("otlp-general", ctx -> {
+            ctx.getMeta().setService("shop::" + ctx.getMeta().getService());
+            ctx.requestNetworkAlias();
+        }));
+        final SpanMetadata meta = pairableSpan();
+        final String original = meta.getService();
+        service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(1, pairingFacts.size());
+        assertEquals("shop::" + original, pairingFacts.get(0).getService());
+    }
 
-        analyzer.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+    @Test
+    void aSpanEveryRuleAbortsSendsNoPairingFact() {
+        // A rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, after it asked for an alias.
+        given(rule("a", ctx -> {
+            ctx.requestNetworkAlias();
+            ctx.abort();
+        }), rule("b", ExecutionContext::abort));
+
+        service.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
 
         assertTrue(pairingFacts.isEmpty(), "no pairing fact for a span no rule claimed: " + pairingFacts);
-        assertFalse(known.contains("frontend"), "nor is its service named to the host lookups");
     }
 
     @Test
-    void aSpanOnALayerWithNoRuleNeitherPairsNorNamesItsService() {
+    void aClaimedSpanWhoseRulesBuildNoAliasSendsNoPairingFact() {
+        given(rule("metrics-only", ctx -> { }));
+
+        service.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+
+        assertTrue(pairingFacts.isEmpty(), pairingFacts.toString());
+    }
+
+    @Test
+    void aSpanOnALayerWithNoRuleSendsNoPairingFact() {
         // service.layer=MESH_DP, a registered layer the operator declared no rule for, to keep the sidecars out.
-        final KnownServices known = new KnownServices();
-        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
         given();
         final SpanMetadata meta = pairableSpan();
         meta.setLayer(Layer.MESH_DP.name());
 
-        analyzer.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
 
         assertTrue(pairingFacts.isEmpty(), "no pairing fact for a span no rule claimed: " + pairingFacts);
-        assertFalse(known.contains("frontend"));
     }
 
     @Test
-    void aSpanOnAnUnknownLayerDoesNotNameItsService() {
-        final KnownServices known = new KnownServices();
-        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
-        given(rule(ctx -> { }));
+    void aSpanOnAnUnknownLayerSendsNoPairingFact() {
+        given(rule("otlp-general", ExecutionContext::requestNetworkAlias));
         final SpanMetadata meta = pairableSpan();
         meta.setLayer("OTLP_SERVCE");
 
-        analyzer.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
 
-        assertFalse(known.contains("frontend"));
+        assertTrue(pairingFacts.isEmpty(), pairingFacts.toString());
     }
 
     @Test
-    void oneRuleClaimingTheSpanPairsItAndNamesItsService() {
-        // The first rule is not this span's, the second claims it.
-        final KnownServices known = new KnownServices();
-        final TraceAnalyzerServiceImpl analyzer = analyzerWith(known);
-        given(rule(ExecutionContext::abort), rule(ctx -> { }));
+    void theFirstClaimingRuleThatAsksForAnAliasNamesTheFact() {
+        // The first rule is not this span's, the second claims it without an alias, the third builds one.
+        given(rule("not-mine", ctx -> {
+            ctx.requestNetworkAlias();
+            ctx.abort();
+        }), rule("kpis", ctx -> { }), rule("aliases", ExecutionContext::requestNetworkAlias));
 
-        analyzer.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        service.doAnalysis(pairableSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
 
         assertEquals(1, pairingFacts.size());
-        assertTrue(known.contains("frontend"));
+        assertEquals("aliases", pairingFacts.get(0).getRuleName());
     }
 
     @Test
@@ -310,12 +332,6 @@ class TraceAnalyzerServiceImplTest {
         assertEquals(0, runs[0]);
         assertTrue(result.isPersist(), "the span is still stored");
         Mockito.verify(factory, Mockito.never()).rulesFor(any(), any());
-    }
-
-    private TraceAnalyzerServiceImpl analyzerWith(final KnownServices known) {
-        final SpanPairing pairing = new SpanPairing();
-        pairing.setTransport(pairingFacts::add);
-        return new TraceAnalyzerServiceImpl(mock(ModuleManager.class), factory, known, pairing, new SeenSpans(0, 1));
     }
 
     /**
@@ -344,6 +360,12 @@ class TraceAnalyzerServiceImplTest {
      */
     private static SpanFilterListener.RuleBinding rule(final Consumer<ExecutionContext> body) {
         return rule(body, new TestSpanSourceTypeProvider());
+    }
+
+    private static SpanFilterListener.RuleBinding rule(final String name, final Consumer<ExecutionContext> body) {
+        final SpanFilterListener.RuleBinding binding = rule(body, new TestSpanSourceTypeProvider());
+        Mockito.when(binding.dsl.getRuleName()).thenReturn(name);
+        return binding;
     }
 
     private static SpanFilterListener.RuleBinding rule(final Consumer<ExecutionContext> body,
