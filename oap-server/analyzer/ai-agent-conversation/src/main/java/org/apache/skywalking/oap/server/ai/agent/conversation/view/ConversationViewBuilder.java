@@ -1139,8 +1139,8 @@ public final class ConversationViewBuilder {
         }
     }
 
-    private static void fill(final Map<String, Object> content, final Map<String, Object> tool,
-                             final SessionDataFile.Record rec, @Nullable final Long block) {
+    static void fill(final Map<String, Object> content, final Map<String, Object> tool,
+                     final SessionDataFile.Record rec, @Nullable final Long block) {
         final SessionDataFile.Part p = partAt(rec, block);
         if (p == null) {
             final String text = clip(readable(rec));
@@ -1165,12 +1165,10 @@ public final class ConversationViewBuilder {
         if (StringUtil.isNotEmpty(p.getText())) {
             content.put("text", clip(p.getText()));
         } else if (data != null) {
-            final String t = readable(rec);
-            if (!t.isEmpty() && !t.equals(data.trim())) {
-                content.put("text", clip(t));
-            } else {
-                content.put("text", clip(data));
-            }
+            // a queued command reads as the prompt inside this part's own data, and any other data reads as itself: a
+            // tool call that shares a record with the agent's text reads as its arguments, never as that text
+            final String prompt = queuedPrompt(data);
+            content.put("text", clip(prompt != null ? prompt : data));
         }
     }
 

@@ -154,7 +154,7 @@ input:
         service_instance_id: test-instance
         mode: user
       value: 100.0
-  pg_stat_database_temp_bytes:
+  pg_stat_database_temp_files:
     - labels:
         datname: test-value
         host_name: test-host
