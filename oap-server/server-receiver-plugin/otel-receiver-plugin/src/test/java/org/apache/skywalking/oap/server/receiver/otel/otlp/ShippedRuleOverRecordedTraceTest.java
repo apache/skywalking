@@ -164,15 +164,15 @@ class ShippedRuleOverRecordedTraceTest {
             spans.stream().map(s -> s.meta.getService() + " " + s.meta.getKind()).collect(Collectors.toList()),
             "the spans in start order, as the receiver would analyze them");
 
-        // ---- Pass 1: cold. No pair is learned yet, no alias row is in the cache.
+        // ---- Pass 1: cold. No alias row is in the cache yet.
         report.append("=== PASS 1: cold ===\n");
         runAll(rule, spans);
         assertEquals(List.of(
                 "frontend-web -> frontend-proxy:8080 [49]",
                 "frontend -> cart:7070 [23]",
-                "frontend-proxy -> frontend [49]"),
-            clientEdges(), "the browser and frontend dial peers whose SERVER spans have not arrived yet; Envoy's "
-                + "IP-dialed callee is named on the spot because frontend's SERVER span, its child, was analyzed first");
+                "frontend-proxy -> 172.19.0.19:8080 [49]"),
+            clientEdges(), "a peer is named only once its row reaches the alias cache, so the cold pass keeps every "
+                + "peer's address");
         assertTrue(serverEdges().isEmpty(), "no root SERVER span, so no User edge: " + serverEdges());
         // Each hop is learned from its own two spans. frontend's SERVER span reports the proxy's address,
         // frontend-proxy:8080, as its server.address; it is never registered, since its caller is Envoy's CLIENT
@@ -184,7 +184,7 @@ class ShippedRuleOverRecordedTraceTest {
             aliasRows());
         assertMetricCounts(spans);
 
-        // ---- Pass 2: warm. Every pair is learned and the alias rows are in the cache.
+        // ---- Pass 2: warm. The alias rows the first pass built are in the cache.
         loadAliasCache();
         sent.clear();
         traffic.clear();
@@ -196,8 +196,12 @@ class ShippedRuleOverRecordedTraceTest {
                 "frontend -> cart [23]",
                 "frontend-proxy -> frontend [49]"),
             clientEdges(), "every edge lands on the service that answered it, the proxy hop included");
-        assertTrue(aliasRows().isEmpty(), "a learned pair sends no client half, so nothing is built again: "
-            + aliasRows());
+        // Every matched pair is pushed again; NetworkAddressAlias#combine skips the write of an unchanged mapping.
+        assertEquals(List.of(
+                "frontend-web->frontend-proxy:8080 = frontend-proxy",
+                "frontend-proxy->172.19.0.19:8080 = frontend",
+                "frontend->cart:7070 = cart"),
+            aliasRows());
         assertMetricCounts(spans);
     }
 
@@ -226,8 +230,12 @@ class ShippedRuleOverRecordedTraceTest {
             ctx.setSourceTypeProvider(new OtlpTALSourceTypeProvider());
             ctx.init(s.meta, s.span, s.resourceTags, s.scopeTags);
             rule.execute(filterSpec, ctx);
-            // What TraceAnalyzerServiceImpl does after the rules ran: the SERVER span of a rule that asked for an
-            // alias is the callee half of a pair, composed on the trace's owner by that rule's buildNetworkAlias.
+            // What TraceAnalyzerServiceImpl does after the rules ran: the CLIENT span of a rule that named its peer is
+            // the caller half of a pair, the SERVER span of a rule that asked for an alias the callee half, composed
+            // on the trace's owner by that rule's buildNetworkAlias.
+            if (!ctx.isAborted() && ctx.getNetworkAliasPeer() != null) {
+                filterSpec.getSpanPairing().clientSeen(s.meta, ctx.getNetworkAliasPeer());
+            }
             if (!ctx.isAborted() && ctx.isNetworkAliasRequested()) {
                 filterSpec.getSpanPairing().setAddressComposer(
                     (caller, callee) -> rule.networkAliasAddress(filterSpec, new ExecutionContext(), caller));

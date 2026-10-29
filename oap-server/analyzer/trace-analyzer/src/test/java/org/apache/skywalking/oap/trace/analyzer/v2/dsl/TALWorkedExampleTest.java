@@ -360,7 +360,7 @@ class TALWorkedExampleTest {
         final int lineStart = shipped.lastIndexOf('\n', at) + 1;
         final String indent = shipped.substring(lineStart, at);
         final String canary = shipped.substring(0, lineStart)
-            + indent + "if (peer && attr(\"http.request.header.x-canary\") == \"v2\") {\n"
+            + indent + "if (peer && !isGateway(peer) && attr(\"http.request.header.x-canary\") == \"v2\") {\n"
             + indent + "  def peer = peer + \"(v2)\"\n"
             + indent + "}\n"
             + shipped.substring(lineStart);
@@ -398,6 +398,85 @@ class TALWorkedExampleTest {
                     }
                 }).collect(Collectors.toList()),
             "each call's edge lands on the service its header routed it to");
+
+        // A canary call through a gateway listed in gateways.yml keeps the gateway's address, so it ends on the
+        // gateway node as the other calls do, and nothing names the gateway after a backend.
+        filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
+        sent.clear();
+        aliases.clear();
+        run(rule, SpanMetadata.builder()
+                              .service("a").endpoint("GET /items")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(3)
+                              .startTime(SPAN1_END - 10).timestamp(SPAN1_END - 7)
+                              .traceId("t-c5").spanId("c5").parentSpanId("p").build(),
+            new TestSpanInput().attribute("server.address", "ingress").attribute("server.port", "80")
+                               .attribute("http.request.header.x-canary", "v2"));
+        assertEquals(List.of(
+                MeterEntity.newServiceRelation("a", Layer.OTLP_GENERAL, "ingress:80", Layer.VIRTUAL_GATEWAY,
+                                               DetectPoint.CLIENT, 49).id()),
+            sent.stream().filter(v -> "canary_service_relation_client_cpm".equals(metricNameOf(v)))
+                .map(v -> {
+                    try {
+                        return entityIdOf(v);
+                    } catch (final Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(Collectors.toList()),
+            "the canary's call through the gateway ends on the gateway node");
+        assertTrue(aliases.isEmpty(), "a gateway's address is never an alias: " + aliases);
+    }
+
+    @Test
+    void theGatewayCanaryRecipeTagsOnlyTheGatewaysOwnCalls() throws Exception {
+        // trace-analyzer-practices.md, "A canary": a traced gateway dials both versions at one address, a router
+        // behind it splitting them; the rule puts the version on the gateway's own CLIENT spans only.
+        final String anchor = "// A CLIENT span to a peer that answers with a SERVER span of its own";
+        final String shipped = ShippedRules.dsl("otlp-general");
+        final int at = shipped.indexOf(anchor);
+        assertTrue(at > 0 && shipped.indexOf(anchor, at + 1) < 0, "the CLIENT block's alias step moved");
+        final int lineStart = shipped.lastIndexOf('\n', at) + 1;
+        final String indent = shipped.substring(lineStart, at);
+        final String gatewayCanary = shipped.substring(0, lineStart)
+            + indent + "if (peer && meta.service == \"edge\" && attr(\"http.request.header.x-canary\") == \"v2\") {\n"
+            + indent + "  def peer = peer + \"(v2)\"\n"
+            + indent + "}\n"
+            + shipped.substring(lineStart);
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("gateway_canary_example");
+        generator.setMetricPrefix("gwcanary");
+        generator.setInputType(TestSpanInput.class);
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        final TalExpression rule = generator.compile(gatewayCanary);
+        generator.createMetrics(meterSystem);
+
+        runCall(rule, "edge", "g1", "v2", "b-canary");
+        runCall(rule, "edge", "g2", null, "b");
+        // Another caller sending the header is not the gateway: its peer stays as dialed.
+        runCall(rule, "a", "g3", "v2", "b");
+        assertEquals(List.of("edge->b:8080(v2) = b-canary", "edge->b:8080 = b", "a->b:8080 = b"),
+            aliases.stream().map(row -> row.getAddress() + " = " + serviceName(row.getRepresentServiceId()))
+                   .collect(Collectors.toList()));
+    }
+
+    private void runCall(final TalExpression rule, final String caller, final String spanId,
+                         final String canaryHeader, final String callee) {
+        final TestSpanInput client = new TestSpanInput().attribute("server.address", "b")
+                                                        .attribute("server.port", "8080");
+        if (canaryHeader != null) {
+            client.attribute("http.request.header.x-canary", canaryHeader);
+        }
+        run(rule, SpanMetadata.builder()
+                              .service(caller).endpoint("GET /items")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(3)
+                              .startTime(SPAN1_END - 10).timestamp(SPAN1_END - 7)
+                              .traceId("t-" + spanId).spanId(spanId).parentSpanId("p").build(), client);
+        run(rule, SpanMetadata.builder()
+                              .service(callee).endpoint("GET /items")
+                              .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+                              .startTime(SPAN1_END - 9).timestamp(SPAN1_END - 7)
+                              .traceId("t-" + spanId).spanId("s-" + spanId).parentSpanId(spanId).build(),
+            new TestSpanInput().attribute("server.address", "b").attribute("server.port", "8080"));
     }
 
     /**
@@ -513,8 +592,12 @@ class TALWorkedExampleTest {
         ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
         ctx.init(meta, input, Collections.emptyMap(), Collections.emptyMap());
         rule.execute(filterSpec, ctx);
-        // What TraceAnalyzerServiceImpl does after the rules ran: a SERVER span whose rule asked for an alias is the
-        // callee half of a pair, and the trace's owner composes the address with that rule's buildNetworkAlias.
+        // What TraceAnalyzerServiceImpl does after the rules ran: a CLIENT span whose rule named its peer is the caller
+        // half of a pair, a SERVER span whose rule asked for an alias the callee half, and the trace's owner composes
+        // the address with that rule's buildNetworkAlias.
+        if (!ctx.isAborted() && ctx.getNetworkAliasPeer() != null) {
+            filterSpec.getSpanPairing().clientSeen(meta, ctx.getNetworkAliasPeer());
+        }
         if (!ctx.isAborted() && ctx.isNetworkAliasRequested()) {
             filterSpec.getSpanPairing().setAddressComposer(
                 (caller, callee) -> rule.networkAliasAddress(filterSpec, new ExecutionContext(), caller));

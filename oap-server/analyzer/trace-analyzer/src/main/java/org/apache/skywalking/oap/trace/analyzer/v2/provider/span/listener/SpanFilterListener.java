@@ -47,9 +47,8 @@ import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider;
  * The registry of compiled TAL rules, keyed by {@code (Layer, ruleName)}.
  *
  * <p>A span whose resource carries {@code service.layer} is evaluated by the rules declared for that layer and by
- * nothing else; a span without a registered one is not analyzed. Unlike LAL there is no {@code layer: auto}: a
- * rule that picked the layer itself would name the service under a layer its spans and the OTLP service catalog
- * do not carry. There is no fallback to {@code GENERAL}, which is the agent layer.
+ * nothing else; a span without a registered one is not analyzed. There is no fallback to {@code GENERAL}, which is
+ * the agent layer.
  */
 @Slf4j
 public class SpanFilterListener {
@@ -162,12 +161,6 @@ public class SpanFilterListener {
         private static Layer resolveLayer(final TALConfig rule) throws ModuleStartException {
             if (StringUtil.isEmpty(rule.getLayer())) {
                 throw new ModuleStartException("TAL rule " + rule.getName() + " declares no layer");
-            }
-            if ("auto".equals(rule.getLayer())) {
-                throw new ModuleStartException(
-                    "TAL rule " + rule.getName() + " declares layer 'auto', which TAL does not support: a span is "
-                        + "analyzed by the rules of the layer its resource's service.layer names. Declare the rule "
-                        + "for that layer, and set service.layer on the senders, or insert it in the collector");
             }
             try {
                 return Layer.valueOf(rule.getLayer());

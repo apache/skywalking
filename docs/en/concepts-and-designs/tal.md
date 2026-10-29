@@ -69,14 +69,12 @@ for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `servi
 conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup
 doc](../setup/backend/trace-analyzer.md#layers).
 
-Unlike LAL, TAL has no `layer: auto`, and a rule that declares it stops the OAP from starting. A rule that picked the
-layer from the span itself would name the service under a layer that its stored spans and the [TraceQL service
-catalog](../api/traceql-service.md) do not carry. A sender that cannot be changed gets its `service.layer` from the
-OpenTelemetry Collector instead, with a `resource` processor that inserts it.
+A sender that cannot be changed gets its `service.layer` from the OpenTelemetry Collector instead, with a `resource`
+processor that inserts it.
 
 A span no rule claims, one every rule aborted or one on a layer no rule is declared for, sends no pairing fact, see
 [Address-named peers](#address-named-peers). An Envoy sidecar's spans, unclaimed, therefore never become the callee
-of an alias, and spare the cluster the pairing traffic.
+of an alias or the caller of one, and spare the cluster the pairing traffic.
 
 Rules for one layer run in file order, each with its own copy of `meta`, so a rule that overwrites `service` for its
 record does not change what the next rule reads. Each rule decides independently.
@@ -308,15 +306,13 @@ filter {
 
 - **`prepareNetworkAlias <peer>`** sends a CLIENT span's half of the call, its service and the peer, to the trace's
   owner. Any other kind, PRODUCER included, is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing
-  them would name the broker's address after the consumer. A peer whose `callerScopedAddress(meta.service, peer)` row
-  was built or rebuilt in the last ten minutes, by this node or by another one through the alias cache, sends nothing.
-  A learned pair is therefore paired again for a few calls every ten minutes, which keeps its row current and lets it
-  follow the address to another service; a rule whose `buildNetworkAlias` composes another address is never found
-  learned, so it keeps sending its half. A node sends at most one half per caller and peer every 30 seconds, counting only the calls the
-  cluster samples, so a peer that never answers with a SERVER span, an external API or an uninstrumented service,
-  costs one message per 30 seconds rather than one per call. The half is sent when the statement runs: an
-  `abort {}` later in the rule does not take it back, so put `prepareNetworkAlias` after the rule's `abort {}`
-  checks, as the shipped rule does.
+  them would name the broker's address after the consumer. Every call in the sampled share of traces sends its half,
+  and every pair that meets pushes its row; the row decides whether storage writes it, at once when the mapping
+  changed and once per five minutes when it did not, so an address that moves to another service is followed at its
+  next sampled call. A peer that never answers with a SERVER span, an external API or an uninstrumented service,
+  costs one message per sampled call, which waits out the buffer unmatched. The statement only names the peer: the
+  half is sent once the span's rules have run, by the first rule that was not aborted, as the callee half is, so an
+  `abort {}` anywhere in the rule withdraws it and a span sends at most one.
 - **`buildNetworkAlias <address>`** marks a SERVER span with a remote parent as the callee half. The expression is
   not evaluated on the span: it runs on the trace's owner when the two halves match, and reads the caller half only,
   through `pairing`, a variable that exists only in this expression and is never declared with `def`:
@@ -334,16 +330,16 @@ filter {
 - **`callerScopedAddress(service, peer)`** is `service->peer`, both parts formatted as the service names are. The
   alias row is keyed by it, so one address dialed by two callers can name two services, as two namespaces' frontends
   that both dial `cart:7070` reach their own carts.
-- **`resolveNetworkAlias(address)`** answers the service the row names, from this node's pairs first, then from the
-  core's alias cache, which reloads every 10 seconds; when none is learned yet it answers the peer part, so the
-  edge stays address-named.
+- **`resolveNetworkAlias(address)`** answers the service the row names, from the core's alias cache, which reloads
+  every 10 seconds; when no row is there yet it answers the peer part, so the edge stays address-named until the row
+  has been stored and reloaded, about 35 seconds after the first pair.
 
 In a cluster the facts of one trace are routed to the node that owns the trace, so the two halves meet wherever each
 arrived; a share of the traces, `pairingSamplePercent`, is paired, see [the setup
 doc](../setup/backend/trace-analyzer.md#topology). Facts wait 60 seconds for their other half. A row is built for
 every matched pair except one whose peer is a gateway; a call to another replica of the caller is drawn as a loop; an address longer than the alias
 column's 200 characters is counted and logged, not built, and so is a pair whose callee's rule is missing on the
-owner or fails to compose the address. The row names no instance, and the last pair built wins.
+owner or fails to compose the address. The row names no instance, and the last pair written wins.
 
 What the pairing costs, and what it cannot see:
 
@@ -398,7 +394,6 @@ The source of a client edge is always the span's own `service.name`; a span emit
 - No `traceId`, `segmentId`, `spanId` or `timestamp` statements. The identifiers are facts of the span, readable as
   `meta.traceId` and friends.
 - `abort {}` is allowed anywhere.
-- No `layer: auto`. A rule is declared for a registered layer, and sees only the spans that carry it.
 - `tag` injects into the stored span, not into a record.
 - `prepareNetworkAlias`, `buildNetworkAlias`, `callerScopedAddress` and `resolveNetworkAlias` exist, see above.
 - `metrics {}` declares a metric and emits one value; it does not hand a sample to another engine.

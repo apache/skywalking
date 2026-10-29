@@ -84,6 +84,13 @@ public class ExecutionContext {
     private boolean networkAliasRequested;
 
     /**
+     * Set by {@code prepareNetworkAlias}: the peer this CLIENT span dialed, the caller half of a call. Sent once the
+     * rules have run, by the first rule that was not aborted, as the callee half is.
+     */
+    @Getter
+    private String networkAliasPeer;
+
+    /**
      * Whether the rule voted on the span at all, which is what separates "keep" from "abstain" when the votes are
      * merged; a rule without a {@code persist {}} block that ran abstains.
      */
@@ -168,6 +175,7 @@ public class ExecutionContext {
         this.scopeAttributeIndex = scopeAttributes;
         this.aborted = false;
         this.networkAliasRequested = false;
+        this.networkAliasPeer = null;
         this.persistVoted = false;
         this.spanDropped = false;
         this.spanSampledOut = false;
@@ -232,6 +240,18 @@ public class ExecutionContext {
      */
     public void requestNetworkAlias() {
         this.networkAliasRequested = true;
+    }
+
+    /**
+     * {@code prepareNetworkAlias <peer>} — mark this CLIENT span as the caller half of a call to the peer. The first
+     * peer a rule names is kept; an empty one names none.
+     *
+     * @param peer the peer as the rule named it
+     */
+    public void prepareNetworkAlias(final String peer) {
+        if (networkAliasPeer == null && peer != null && !peer.isEmpty()) {
+            this.networkAliasPeer = peer;
+        }
     }
 
     /**

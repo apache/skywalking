@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.otlp;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,9 +74,17 @@ public class OTLPServiceTraffic extends Metrics {
     @Column(name = LAYER)
     private String layer = Layer.UNDEFINED.name();
 
+    /**
+     * The service name is Base64-encoded in the id: the fragments are joined with {@code _}, which a service name may
+     * hold and a layer name does, so {@code cart} in {@code OTLP_GENERAL} and {@code cart_OTLP} in {@code GENERAL}
+     * would otherwise share {@code cart_OTLP_GENERAL}. Base64 holds no {@code _}, so the first one ends the name.
+     */
     @Override
     protected StorageID id0() {
-        return new StorageID().append(SERVICE_NAME, serviceName).append(LAYER, layer);
+        return new StorageID().append(
+            SERVICE_NAME, Base64.getEncoder().encodeToString(
+                (serviceName == null ? "" : serviceName).getBytes(StandardCharsets.UTF_8)))
+                              .append(LAYER, layer);
     }
 
     @Override

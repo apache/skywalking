@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
@@ -44,10 +43,8 @@ import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
-import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 
 /**
  * Every {@code h.*} call the generated rule class makes. One instance per execution, holding the context so the
@@ -252,32 +249,6 @@ public class TalRuntimeHelper {
     // ==================== Network address aliases ====================
 
     /**
-     * {@code prepareNetworkAlias <peer>} — send this CLIENT span's half of the call to the trace's owner, where the
-     * SERVER span it called composes the alias. Any other kind is ignored. Not sent while the shipped composition of
-     * this caller and peer was built or rebuilt in the last {@value SpanPairing#LEARNED_TTL_MINUTES} minutes, by this
-     * node or by another one through storage, so a learned pair costs a few calls that often: that keeps its row
-     * current and lets it follow the address to another service. A rule that composes its alias otherwise only sends
-     * more facts.
-     *
-     * @param peer the peer as the rule named it
-     */
-    public void prepareNetworkAlias(final String peer) {
-        if (peer == null || peer.isEmpty() || !SpanMetadata.KIND_CLIENT.equals(ctx.getMeta().getKind())) {
-            return;
-        }
-        final String address = callerScopedAddress(ctx.getMeta().getService(), peer);
-        if (spec.getSpanPairing().learnedService(address) != null) {
-            return;
-        }
-        final NetworkAddressAlias stored = storedAlias(address);
-        if (stored != null && stored.getLastUpdateTimeBucket() >= TimeBucket.getMinuteTimeBucket(
-            System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(SpanPairing.LEARNED_TTL_MINUTES))) {
-            return;
-        }
-        spec.getSpanPairing().clientSeen(ctx.getMeta(), peer);
-    }
-
-    /**
      * {@code callerScopedAddress(service, peer)} — the address an alias is filed under: the caller and the peer it
      * dialed, both as the naming rules format a service name, which is how the service id and the address node name
      * them, so the topology fold rebuilds the same address from an edge.
@@ -293,8 +264,7 @@ public class TalRuntimeHelper {
     }
 
     /**
-     * {@code resolveNetworkAlias(address)} — the service an alias address names: one this node built in the last ten
-     * minutes, then one loaded from storage.
+     * {@code resolveNetworkAlias(address)} — the service an alias address names, as the core's alias cache holds it.
      *
      * @param address the alias address, as {@code callerScopedAddress} composes it
      * @return the represented service's name; otherwise the peer part of a caller-scoped address, so an unlearned
@@ -303,10 +273,6 @@ public class TalRuntimeHelper {
     public String resolveNetworkAlias(final String address) {
         if (address == null || address.isEmpty()) {
             return address == null ? "" : address;
-        }
-        final String learned = spec.getSpanPairing().learnedService(address);
-        if (learned != null) {
-            return learned;
         }
         final NetworkAddressAlias stored = storedAlias(address);
         if (stored != null) {

@@ -138,6 +138,10 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
         // fallback.
         String aliasRule = null;
         SpanMetadata aliasMeta = null;
+        // The first rule that ran to the end and named the peer with prepareNetworkAlias sends the caller half, once
+        // per span, as the callee half is chosen; an aborted rule sends neither.
+        String clientPeer = null;
+        SpanMetadata clientMeta = null;
 
         boolean persist = true;
         boolean enforced = false;
@@ -172,6 +176,10 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
                 aliasRule = binding.dsl.getRuleName();
                 aliasMeta = ruleMeta;
             }
+            if (clientPeer == null && ctx.getNetworkAliasPeer() != null) {
+                clientPeer = ctx.getNetworkAliasPeer();
+                clientMeta = ruleMeta;
+            }
             writeRecord(ctx, ruleMeta, span);
             tags.putAll(ctx.getAdditionalTags());
             if (ctx.isPersistVoted()) {
@@ -180,6 +188,9 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
         }
 
+        if (clientPeer != null) {
+            spanPairing.clientSeen(clientMeta, clientPeer);
+        }
         if (aliasRule != null) {
             final Layer aliasLayer = resolveLayer(aliasMeta);
             spanPairing.serverSeen(aliasMeta, MeterEntity.isNormal(aliasLayer != null ? aliasLayer : layer),

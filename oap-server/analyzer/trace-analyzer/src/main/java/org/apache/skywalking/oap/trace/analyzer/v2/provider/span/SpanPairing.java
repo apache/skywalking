@@ -44,35 +44,18 @@ import org.apache.skywalking.oap.server.library.module.Service;
  * sent as a {@link PairingFact} through the {@link #transport} to the node that owns the trace, chosen by the trace
  * id's hash the way a metric is routed to the node that aggregates it; a single node sends to itself. The owner keeps
  * two buffers of 60 seconds: callers keyed by their own span id, and callees keyed by their parent span id. A match
- * builds the row under the address the callee's rule composes from the caller half, writes it through
- * {@link AliasRegistrar}, and remembers it locally so this node's next calls do not wait for the cache timer.
+ * pushes the row under the address the callee's rule composes from the caller half through {@link AliasRegistrar};
+ * {@code NetworkAddressAlias#combine} decides whether storage writes it, so an unchanged mapping is written once per
+ * refresh interval and a changed one at the next flush.
  */
 @Slf4j
 public class SpanPairing implements Service {
     static final long TTL_SECONDS = 60L;
     static final long MAX_ENTRIES = 200_000L;
-    public static final long LEARNED_TTL_MINUTES = 10L;
-    static final long SEND_INTERVAL_SECONDS = 30L;
     private static final long WARN_INTERVAL_MILLIS = 60_000L;
 
     private final Cache<String, PairingFact> callers = buffer(TTL_SECONDS, TimeUnit.SECONDS);
     private final Cache<String, PairingFact> callees = buffer(TTL_SECONDS, TimeUnit.SECONDS);
-    /**
-     * Alias addresses this node built, to the service each names, so a caller here resolves them before the row has
-     * come back through storage.
-     */
-    private final Cache<String, String> learned = buffer(LEARNED_TTL_MINUTES, TimeUnit.MINUTES);
-    /**
-     * CLIENT spans already reported, by trace and span id, so a second rule preparing the same span sends no second
-     * fact.
-     */
-    private final Cache<String, Boolean> reported = buffer(TTL_SECONDS, TimeUnit.SECONDS);
-    /**
-     * Caller + peer pairs this node sent a caller half for in the last {@value #SEND_INTERVAL_SECONDS} seconds. A
-     * peer that never answers with a SERVER span, an external API or an uninstrumented service, is never learned, so
-     * without this its every call would send a half that waits out the buffer unmatched.
-     */
-    private final Cache<String, Boolean> recentlySent = buffer(SEND_INTERVAL_SECONDS, TimeUnit.SECONDS);
 
     /**
      * Both halves of one call can arrive at once on two receiver threads; matching under the key's lock keeps them
@@ -89,8 +72,8 @@ public class SpanPairing implements Service {
     @Setter
     private Consumer<PairingFact> transport = this::receive;
     /**
-     * Whether a fact is paired at all: the provider samples a share of the traces in a cluster; until then, and in
-     * tests, every one.
+     * Whether a fact is paired at all: the provider samples a share of the traces; until then, and in tests, every
+     * one.
      */
     @Setter
     private Predicate<PairingFact> sampled = fact -> true;
@@ -138,7 +121,8 @@ public class SpanPairing implements Service {
     }
 
     /**
-     * The caller half of a call, sent to the trace's owner.
+     * The caller half of a call, sent to the trace's owner for every sampled call; the pair it meets is pushed every
+     * time, and the alias row decides whether to write it.
      *
      * @param meta a CLIENT span; any other kind is ignored. A PRODUCER span's peer is the broker, which answers with
      *             no span of its own, so there is nothing to pair it with
@@ -148,28 +132,10 @@ public class SpanPairing implements Service {
         if (!SpanMetadata.KIND_CLIENT.equals(meta.getKind()) || peer == null || peer.isEmpty()) {
             return;
         }
-        final String spanKey = meta.getTraceId() + ':' + meta.getSpanId();
         final PairingFact fact = PairingFact.client(meta, peer);
-        // A span already reported sends nothing, so it must not take its peer's slot either: that pair would then
-        // lose its every interval to the span's first peer. Only a sampled call takes the slot, so the call that is
-        // sent is one its callee's half can meet.
-        if (reported.getIfPresent(spanKey) != null || !sampled.test(fact)
-            || recentlySent.asMap().putIfAbsent(
-                IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(meta.getService(), peer), Boolean.TRUE)
-                != null) {
-            return;
-        }
-        if (reported.asMap().putIfAbsent(spanKey, Boolean.TRUE) == null) {
+        if (sampled.test(fact)) {
             transport.accept(fact);
         }
-    }
-
-    /**
-     * @param address an alias address
-     * @return the service this node built it for in the last {@value #LEARNED_TTL_MINUTES} minutes, else null
-     */
-    public String learnedService(final String address) {
-        return learned.getIfPresent(address);
     }
 
     /**
@@ -236,9 +202,8 @@ public class SpanPairing implements Service {
             reportTooLong(address);
             return;
         }
-        if (aliasRegistrar == null
-            || aliasRegistrar.register(address, callee.getService(), callee.isNormal(), System.currentTimeMillis())) {
-            learned.put(address, callee.getService());
+        if (aliasRegistrar != null) {
+            aliasRegistrar.register(address, callee.getService(), callee.isNormal(), System.currentTimeMillis());
         }
     }
 

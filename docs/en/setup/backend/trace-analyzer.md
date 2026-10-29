@@ -44,8 +44,8 @@ trace-analyzer:
     # trace's owner node in a cluster and on the node itself when it is alone; both spans of a call share the trace
     # id, so a pair is never split. A caller + peer pair only has to be learned once, after which every node
     # resolves it from its cache, so a sample is enough: at 25 a new caller + peer pair is learned after about four
-    # calls. 100 pairs every trace, at one small message per SERVER span whose rule builds an alias, plus at most
-    # one per caller + peer pair every 30 seconds while the pair is not learned; 0 pairs none.
+    # calls. 100 pairs every trace, at one small message per CLIENT span that prepares an alias and one per SERVER
+    # span whose rule builds one; 0 pairs none.
     pairingSamplePercent: ${SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT:25}
 ```
 
@@ -228,8 +228,10 @@ path does, as a `VIRTUAL_GATEWAY` node between the caller and the callee: a CLIE
 the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. An
 uninstrumented proxy in front of a service belongs in that file; otherwise, when it passes the trace context on, the
 callee's SERVER span pairs with the caller's CLIENT span and the proxy's address is named after the service behind
-it, and when it does not, its callers stay address-named. An uninstrumented gateway that routes one address to
-several backends, by path, blue/green or weight, is not supported: instrument it. A proxy that emits its own spans is a service with a node of its own,
+it, and when it does not, its callers stay address-named. A listed gateway that routes by host, or by path to
+distinct services, draws an edge from the gateway to each of them; left out of the file, its address would be named
+after one service after another. A gateway that does not trace and splits one address between versions of a service,
+by blue/green, weight or header, is not supported: instrument it. A proxy that emits its own spans is a service with a node of its own,
 not a gateway: each hop through it is learned from its own two spans, so the OpenTelemetry demo's
 `frontend-web->frontend-proxy:8080` names `frontend-proxy`, and `frontend-proxy->172.19.0.19:8080` names `frontend`.
 The callee sees the gateway's address only when the gateway passes its callers' `Host` through, or sets
@@ -245,16 +247,17 @@ only has to be learned once, so a sample of the traces is enough. The facts leav
 on the thread that received the spans: when a peer node is slow to take them and the buffer fills, facts are dropped,
 which only delays learning a pair, rather than holding up ingestion.
 
-The owner keeps the halves waiting for their other half in two buffers, one for callers and one for callees, each
-holding up to 200,000 halves for 60 seconds. A SERVER span cannot tell whether its caller + peer pair is learned
-already, since it does not know the address its caller dialed, so every sampled SERVER span whose rule builds an alias
-sends its half, while a caller sends at most one per pair every 30 seconds, and none while the pair's row is fresh.
-Above about 3,300 sampled SERVER spans per second on one owner, 200,000 over 60 seconds, the callee buffer is full
-and drops its oldest halves before they expire, so a callee half waits less than the time its caller half takes to
-arrive, an SDK's export interval and the Collector's batching included, and new pairs take longer to learn. Pairs
-already learned keep resolving from their rows. Lower `pairingSamplePercent`, which cuts the waiting halves in
-proportion while every live pair is still matched many times in ten minutes, or spread the owners over more nodes.
-The same holds for a single node, which pairs the same share of the traces.
+Every sampled call sends both halves, and every pair that meets pushes its alias row; the row is written to storage
+at once when its mapping changed and once per five minutes when it did not, so the pairing costs one small message per
+sampled CLIENT and SERVER span and an unchanged alias about twelve writes an hour. The owner keeps the halves waiting for
+their other half in two buffers, one for callers and one for callees, each holding up to 200,000 halves for 60
+seconds; a caller half to a peer that never answers, an external API, waits out its 60 seconds. Above about 3,300
+sampled halves per second of one kind on one owner, 200,000 over 60 seconds, a buffer is full and drops its oldest
+halves before they expire, so a half waits less than the time its other half takes to arrive, an SDK's export
+interval and the Collector's batching included, and new pairs take longer to learn. Rows already written keep
+resolving. Lower `pairingSamplePercent`, which cuts the waiting halves in proportion while every live pair is still
+matched many times in ten minutes, or spread the owners over more nodes. The same holds for a single node, which
+pairs the same share of the traces.
 
 Every node loads its own rule files, and a metric is aggregated on whichever nodes its values reach, so every OAP
 node of a cluster, Aggregator nodes included, needs the `trace-analyzer` module with the same `talFiles` and the same

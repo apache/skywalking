@@ -50,6 +50,12 @@ public class OTLPServiceTrafficTest {
     }
 
     @Test
+    public void aServiceNameHoldingTheSeparatorDoesNotShareAnotherPairsId() {
+        assertNotEquals(traffic("cart", "OTLP_GENERAL").id().build(), traffic("cart_OTLP", "GENERAL").id().build());
+        assertNotEquals(traffic("cart", "MESH_DP").id().build(), traffic("cart_MESH", "DP").id().build());
+    }
+
+    @Test
     public void theLayerTravelsToTheNodeThatOwnsTheRow() {
         final OTLPServiceTraffic sent = traffic("otel-demo::cart", "OTLP_GENERAL");
         sent.setTimeBucket(202610230850L);

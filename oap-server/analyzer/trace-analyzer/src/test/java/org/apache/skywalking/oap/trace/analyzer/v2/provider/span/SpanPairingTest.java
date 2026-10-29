@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -70,7 +70,6 @@ class SpanPairingTest {
         assertEquals(1, rows.size());
         assertEquals("frontend->172.19.0.16:3550", rows.get(0).getAddress());
         assertEquals(IDManager.ServiceID.buildId("product-catalog", true), rows.get(0).getRepresentServiceId());
-        assertEquals("product-catalog", pairing.learnedService("frontend->172.19.0.16:3550"));
     }
 
     @Test
@@ -108,8 +107,11 @@ class SpanPairingTest {
         serverSeen(server("shop::cart", "s3", "s2"));
         pairing.clientSeen(client("outlet::frontend", "s4"), "cart:7070");
         serverSeen(server("outlet::cart", "s5", "s4"));
-        assertEquals("shop::cart", pairing.learnedService("shop::frontend->cart:7070"));
-        assertEquals("outlet::cart", pairing.learnedService("outlet::frontend->cart:7070"));
+        assertEquals(2, rows.size());
+        assertEquals("shop::frontend->cart:7070", rows.get(0).getAddress());
+        assertEquals(IDManager.ServiceID.buildId("shop::cart", true), rows.get(0).getRepresentServiceId());
+        assertEquals("outlet::frontend->cart:7070", rows.get(1).getAddress());
+        assertEquals(IDManager.ServiceID.buildId("outlet::cart", true), rows.get(1).getRepresentServiceId());
     }
 
     @Test
@@ -156,7 +158,6 @@ class SpanPairingTest {
         serverSeen(server("cart", "s3", "s2"));
         assertTrue(rows.isEmpty());
         assertEquals(1, pairing.tooLong());
-        assertNull(pairing.learnedService("frontend->" + peer));
     }
 
     @Test
@@ -203,20 +204,6 @@ class SpanPairingTest {
         assertEquals(wire.get(0).remoteHashCode(), wire.get(1).remoteHashCode(), "both halves hash to one owner");
         assertEquals(1, rows.size(), "the owner paired them and wrote the row");
         assertEquals("frontend->172.19.0.16:3550", rows.get(0).getAddress());
-        assertNull(pairing.learnedService("frontend->172.19.0.16:3550"), "the sender learns it from the row");
-        assertEquals("product-catalog", owner.learnedService("frontend->172.19.0.16:3550"));
-    }
-
-    @Test
-    void aSpanPreparedByTwoRulesSendsOneFact() {
-        final List<PairingFact> wire = new ArrayList<>();
-        pairing.setTransport(wire::add);
-        pairing.clientSeen(client("frontend", "s2"), "172.19.0.16:3550");
-        // A second rule names the same span's peer differently, so only the per-span dedup can stop it.
-        pairing.clientSeen(client("frontend", "s2"), "productcatalog:3550");
-        assertEquals(1, wire.size(), "a second rule on one span");
-        pairing.clientSeen(client("frontend", "s4"), "cart:7070");
-        assertEquals(2, wire.size(), "another call reports its own fact");
     }
 
     @Test
@@ -268,40 +255,15 @@ class SpanPairingTest {
     }
 
     @Test
-    void aPairSendsOneCallerHalfPerInterval() {
-        // A peer that never answers, an external API, would otherwise send a half on every call.
-        final List<PairingFact> wire = new ArrayList<>();
-        pairing.setTransport(wire::add);
-        pairing.clientSeen(client("frontend", "s2"), "api.example.com:443");
-        pairing.clientSeen(client("frontend", "s4"), "api.example.com:443");
-        assertEquals(1, wire.size(), "the second call of the pair waits for the next interval");
-        pairing.clientSeen(client("frontend", "s6"), "cart:7070");
-        pairing.clientSeen(client("checkout", "s8"), "api.example.com:443");
-        assertEquals(3, wire.size(), "another peer, or another caller, is a pair of its own");
-    }
-
-    @Test
-    void aSecondPeerOfAReportedSpanKeepsItsSlot() {
-        final List<PairingFact> wire = new ArrayList<>();
-        pairing.setTransport(wire::add);
-        // Two rules name one span's peer differently; the span is reported once, by the first.
-        pairing.clientSeen(client("frontend", "s2"), "172.19.0.16:3550");
-        pairing.clientSeen(client("frontend", "s2"), "productcatalog:3550");
-        // The second peer's next call is still sent.
-        pairing.clientSeen(client("frontend", "s4"), "productcatalog:3550");
-        assertEquals(List.of("172.19.0.16:3550", "productcatalog:3550"),
-            wire.stream().map(PairingFact::getPeer).collect(Collectors.toList()));
-    }
-
-    @Test
-    void anUnsampledCallDoesNotTakeThePairsSlot() {
+    void anUnsampledCallSendsNothing() {
         final List<PairingFact> wire = new ArrayList<>();
         pairing.setTransport(wire::add);
         pairing.setSampled(fact -> !"s2".equals(fact.getSpanId()));
         pairing.clientSeen(client("frontend", "s2"), "cart:7070");
         pairing.clientSeen(client("frontend", "s4"), "cart:7070");
-        assertEquals(1, wire.size());
-        assertEquals("s4", wire.get(0).getSpanId(), "the first sampled call is the one sent");
+        pairing.clientSeen(client("frontend", "s6"), "cart:7070");
+        assertEquals(List.of("s4", "s6"), wire.stream().map(PairingFact::getSpanId).collect(Collectors.toList()),
+            "every sampled call sends its half, the same pair's included");
     }
 
     @Test
@@ -320,7 +282,17 @@ class SpanPairingTest {
 
     @Test
     void bothHalvesArrivingAtOnceStillMatch() throws Exception {
+        final List<String> built = Collections.synchronizedList(new ArrayList<>());
+        final SourceReceiver receiver = mock(SourceReceiver.class);
+        doAnswer(inv -> {
+            final ISource source = inv.getArgument(0);
+            source.prepare();
+            built.add(((NetworkAddressAliasSetup) source).getAddress());
+            return null;
+        }).when(receiver).receive(any());
         final SpanPairing concurrent = new SpanPairing();
+        concurrent.setAliasRegistrar(
+            new AliasRegistrar(receiver, new NamingControl(70, 70, 150, new EndpointNameGrouping())));
         final int calls = 5_000;
         final CyclicBarrier start = new CyclicBarrier(2);
         final Thread callers = new Thread(() -> {
@@ -337,9 +309,8 @@ class SpanPairingTest {
                 .traceId("t" + i).spanId("s").parentSpanId("c").build(), true, LAYER, RULE);
         }
         callers.join();
-        for (int i = 0; i < calls; i++) {
-            assertEquals("b", concurrent.learnedService("a->b-" + i + ":80"), "call " + i);
-        }
+        assertEquals(calls, built.size(), "no call paired twice");
+        assertEquals(calls, new HashSet<>(built).size(), "every call paired");
     }
 
     private static void await(final CyclicBarrier barrier) {

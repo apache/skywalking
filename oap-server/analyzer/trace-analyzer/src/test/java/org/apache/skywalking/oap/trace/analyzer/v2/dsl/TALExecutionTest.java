@@ -881,24 +881,16 @@ class TALExecutionTest {
     }
 
     @Test
-    void prepareNetworkAliasPairsAgainOnceTheStoredRowIsNoLongerRebuilt() throws Exception {
+    void aFreshRowDoesNotStopTheHalfThatFindsAChangedMapping() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
             + "  layer \"OTLP_GENERAL\"\n"
             + "  prepareNetworkAlias attr(\"peer.address\")\n"
             + "} }");
-        final long now = System.currentTimeMillis();
-
-        // Rebuilt by some node within the last ten minutes: the caller's half is not sent, so no pair is built.
-        aliasRow("frontend->cart:7070", "cart", TimeBucket.getMinuteTimeBucket(now));
+        // The row was written a minute ago and names cart; the address now answers as cart-v2.
+        aliasRow("frontend->cart:7070", "cart", TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
         execute(rule, clientSpanIn("t1", "c1"), new TestSpanInput().attribute("peer.address", "cart:7070"));
-        filterSpec.getSpanPairing().serverSeen(serverSpanIn("t1", "s1", "c1", "cart"), true, "OTLP_GENERAL", "test");
-        assertTrue(received.isEmpty());
-
-        // Older: the pair is built again, so the row keeps current and can follow the address to another service.
-        aliasRow("frontend->cart:7070", "cart", TimeBucket.getMinuteTimeBucket(now - 11 * 60_000L));
-        execute(rule, clientSpanIn("t2", "c2"), new TestSpanInput().attribute("peer.address", "cart:7070"));
-        filterSpec.getSpanPairing().serverSeen(serverSpanIn("t2", "s2", "c2", "cart-v2"), true, "OTLP_GENERAL", "test");
-        assertEquals(1, received.size());
+        filterSpec.getSpanPairing().serverSeen(serverSpanIn("t1", "s1", "c1", "cart-v2"), true, "OTLP_GENERAL", "test");
+        assertEquals(1, received.size(), "every sampled call is paired; the alias row decides whether it is written");
         assertEquals(IDManager.ServiceID.buildId("cart-v2", true),
             ((NetworkAddressAliasSetup) received.get(0)).getRepresentServiceId());
     }
@@ -926,7 +918,7 @@ class TALExecutionTest {
     }
 
     @Test
-    void prepareNetworkAliasLooksNothingUpForASpanThatIsNotAClient() throws Exception {
+    void prepareNetworkAliasLooksNothingUp() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
             + "  layer \"OTLP_GENERAL\"\n"
             + "  prepareNetworkAlias attr(\"peer.address\")\n"
@@ -934,9 +926,8 @@ class TALExecutionTest {
         final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
         Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
         execute(rule, serverSpan(), new TestSpanInput().attribute("peer.address", "cart:7070"));
-        Mockito.verifyNoInteractions(cache);
         execute(rule, clientSpan(), new TestSpanInput().attribute("peer.address", "cart:7070"));
-        Mockito.verify(cache).get("frontend->cart:7070");
+        Mockito.verifyNoInteractions(cache);
     }
 
     @Test
@@ -1001,18 +992,26 @@ class TALExecutionTest {
         assertEquals(IDManager.ServiceID.buildId("frontend", true),
             ((NetworkAddressAliasSetup) received.get(0)).getRepresentServiceId());
 
-        // The next request resolves on the spot and sends no fact.
+        // The row reaches the callers through storage and the alias cache: until the cache reloads, the next request
+        // still names the peer; after it, the callee.
         final SpanMetadata egress2 = SpanMetadata.builder().service("frontend-proxy").endpoint("router frontend egress")
             .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
             .startTime(SPAN_END_MILLIS - 2).timestamp(SPAN_END_MILLIS).traceId("ccdd").spanId("f001").parentSpanId("f000").build();
         execute(rule, egress2, new TestSpanInput().attribute("peer.address", "172.19.0.19:8080"));
-        assertEquals(relation("frontend-proxy", "frontend"), entityIdOf(sentValues.get(1)),
-            "the learned pair lands the edge on the callee");
+        assertEquals(relation("frontend-proxy", "172.19.0.19:8080"), entityIdOf(sentValues.get(1)),
+            "before the cache reload the edge keeps the peer's address");
+        aliasRow("frontend-proxy->172.19.0.19:8080", "frontend");
+        final SpanMetadata egress3 = SpanMetadata.builder().service("frontend-proxy").endpoint("router frontend egress")
+            .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+            .startTime(SPAN_END_MILLIS - 2).timestamp(SPAN_END_MILLIS).traceId("eeff").spanId("g001").parentSpanId("g000").build();
+        execute(rule, egress3, new TestSpanInput().attribute("peer.address", "172.19.0.19:8080"));
+        assertEquals(relation("frontend-proxy", "frontend"), entityIdOf(sentValues.get(2)),
+            "after it the edge lands on the callee");
         filterSpec.getSpanPairing().serverSeen(SpanMetadata.builder().service("frontend").endpoint("GET /api/cart")
             .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
             .startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS).traceId("ccdd").spanId("f002").parentSpanId("f001")
             .build(), true, "OTLP_GENERAL", "test");
-        assertEquals(1, received.size(), "a learned pair sends no client half, so nothing is built again");
+        assertEquals(2, received.size(), "every sampled pair is pushed again; NetworkAddressAlias#combine decides the write");
     }
 
     @Test
@@ -1279,6 +1278,10 @@ class TALExecutionTest {
         ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
         ctx.init(meta, input, Collections.emptyMap(), Collections.emptyMap());
         expression.execute(filterSpec, ctx);
+        // What TraceAnalyzerServiceImpl does once the rules ran: a rule that was not aborted sends the caller half.
+        if (!ctx.isAborted() && ctx.getNetworkAliasPeer() != null) {
+            filterSpec.getSpanPairing().clientSeen(meta, ctx.getNetworkAliasPeer());
+        }
         return ctx;
     }
 

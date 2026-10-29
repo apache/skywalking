@@ -61,7 +61,7 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
     /**
      * The percentage of traces, by trace id, whose call pairs are paired, on the trace's owner node in a cluster and
      * on the node itself when it is alone, so an address is learned from a sample of its calls; both halves of a call
-     * share the id, so a pair is never split. An address is learned once and then resolved from every node's cache,
+     * share the id, so a pair is never split. An address is written once and then resolved from every node's cache,
      * which is why a sample is enough. 100 pairs every call, 0 none. An int because the module config loader sets no
      * double fields.
      */

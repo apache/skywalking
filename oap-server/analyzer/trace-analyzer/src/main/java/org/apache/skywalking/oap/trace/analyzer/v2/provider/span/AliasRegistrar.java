@@ -55,9 +55,10 @@ public class AliasRegistrar {
      * @param address         the alias address
      * @param service         the service it represents, unformatted
      * @param normal          the service id's {@code normal} flag, as its own metrics carry it
-     * @param writtenAtMillis when the row is written, which picks its minute bucket: the callers' nodes read the
-     *                        bucket as when the pair was last confirmed, so it is this node's clock, not the span's
-     * @return whether a row was written; false for an empty address or service
+     * @param writtenAtMillis when the row is pushed, which picks its retention time bucket; the update bucket the
+     *                        alias cache reloads by is the minute OAP receives it, set by the dispatcher
+     * @return whether a row was pushed to the alias stream, false for an empty address or service; whether storage
+     * writes it is {@code NetworkAddressAlias#combine}'s decision
      */
     public boolean register(final String address, final String service, final boolean normal,
                             final long writtenAtMillis) {

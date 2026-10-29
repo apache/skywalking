@@ -287,8 +287,8 @@ trace-analyzer:
     # trace's owner node in a cluster and on the node itself when it is alone; both spans of a call share the trace
     # id, so a pair is never split. A caller + peer pair only has to be learned once, after which every node
     # resolves it from its cache, so a sample is enough: at 25 a new caller + peer pair is learned after about four
-    # calls. 100 pairs every trace, at one small message per SERVER span whose rule builds an alias, plus at most
-    # one per caller + peer pair every 30 seconds while the pair is not learned; 0 pairs none.
+    # calls. 100 pairs every trace, at one small message per CLIENT span that prepares an alias and one per SERVER
+    # span whose rule builds one; 0 pairs none.
     pairingSamplePercent: ${SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT:25}
 
 event-analyzer:

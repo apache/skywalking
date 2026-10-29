@@ -50,21 +50,6 @@ class SpanFilterListenerFactoryTest {
     }
 
     @Test
-    void aRuleOnLayerAutoIsRefused() {
-        // TAL routes a span by the layer it carries only; LAL's `auto` is not carried over.
-        final SpanFilterListener.Factory factory =
-            new SpanFilterListener.Factory(mock(ModuleManager.class), new TraceAnalyzerModuleConfig());
-        final TALConfig rule = new TALConfig();
-        rule.setName("picks-its-layer");
-        rule.setLayer("auto");
-        rule.setDsl("filter { }");
-
-        final ModuleStartException refused = assertThrows(ModuleStartException.class, () -> factory.compile(rule));
-        assertTrue(refused.getMessage().contains("picks-its-layer") && refused.getMessage().contains("'auto'")
-            && refused.getMessage().contains("service.layer"), refused.getMessage());
-    }
-
-    @Test
     void aRuleWithNoLayerIsRefused() {
         final SpanFilterListener.Factory factory =
             new SpanFilterListener.Factory(mock(ModuleManager.class), new TraceAnalyzerModuleConfig());

@@ -195,8 +195,7 @@ public class OTLPSpanForward {
 
     /**
      * @return the resource's {@code service.layer} when it is a registered layer, else {@code UNDEFINED}: matched
-     * exactly, as the trace analyzer routes it to a layer's rules, and a client cannot add layers to the catalog. It
-     * is the layer the span carries, not one a {@code layer: auto} rule assigned to a span that carries none.
+     * exactly, as the trace analyzer routes it to a layer's rules, and a client cannot add layers to the catalog.
      */
     static String catalogLayerOf(final Map<String, String> resourceTags) {
         final String layer = resourceTags.get(OpenTelemetryTraceHandler.SERVICE_LAYER_KEY);

@@ -260,6 +260,31 @@ class TraceAnalyzerServiceImplTest {
     }
 
     @Test
+    void aClientRuleThatAbortsAfterNamingItsPeerSendsNoCallerHalf() {
+        // prepareNetworkAlias, then a filter that turns the span away: nothing has left yet, so nothing pairs.
+        given(rule("prepares-then-aborts", ctx -> {
+            ctx.prepareNetworkAlias("cart:7070");
+            ctx.abort();
+        }));
+        service.doAnalysis(pairableClientSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertTrue(pairingFacts.isEmpty(), pairingFacts.toString());
+    }
+
+    @Test
+    void theFirstClaimingRuleThatNamesAPeerSendsTheOneCallerHalf() {
+        // Two rules name the same span's peer differently; the span sends one half, the first claiming rule's, as
+        // the callee half is chosen.
+        given(rule("not-mine", ctx -> {
+            ctx.prepareNetworkAlias("ignored:1");
+            ctx.abort();
+        }), rule("first", ctx -> ctx.prepareNetworkAlias("172.19.0.16:3550")),
+            rule("second", ctx -> ctx.prepareNetworkAlias("productcatalog:3550")));
+        service.doAnalysis(pairableClientSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(1, pairingFacts.size(), pairingFacts.toString());
+        assertEquals("172.19.0.16:3550", pairingFacts.get(0).getPeer());
+    }
+
+    @Test
     void aSpanEveryRuleAbortsSendsNoPairingFact() {
         // A rule's proxy filter, `if (attr("component") == "proxy") { abort {} }`, after it asked for an alias.
         given(rule("a", ctx -> {
@@ -320,7 +345,7 @@ class TraceAnalyzerServiceImplTest {
 
     @Test
     void aSpanWithoutALayerReachesNoRule() {
-        // No `layer: auto`: a span is analyzed by the rules of the layer it carries, and one carrying none by none.
+        // A span is analyzed by the rules of the layer it carries, and one carrying none by none.
         final int[] runs = {0};
         given(rule(ctx -> runs[0]++));
         final SpanMetadata meta = spanMetadata();
@@ -337,6 +362,12 @@ class TraceAnalyzerServiceImplTest {
     /**
      * A SERVER span whose caller ran in another process, the span the pairing would send a fact for.
      */
+    private static SpanMetadata pairableClientSpan() {
+        final SpanMetadata meta = pairableSpan();
+        meta.setKind(SpanMetadata.KIND_CLIENT);
+        return meta;
+    }
+
     private static SpanMetadata pairableSpan() {
         final SpanMetadata meta = spanMetadata();
         meta.setParentSpanId("s0");

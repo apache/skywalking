@@ -303,7 +303,9 @@ final class TALBlockCodegen {
                                                       final TALScriptModel.NetworkAliasStatement stmt,
                                                       final TALGenCtx genCtx) {
         if (!stmt.isBuild()) {
-            sb.append("  h.prepareNetworkAlias(");
+            // Recorded only: TraceAnalyzerServiceImpl sends the caller half once the rules have run, so a rule that
+            // aborts later sends none.
+            sb.append("  h.ctx().prepareNetworkAlias(");
             TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
             sb.append(");\n");
             return;

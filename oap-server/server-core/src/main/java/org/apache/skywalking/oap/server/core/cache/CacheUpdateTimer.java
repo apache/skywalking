@@ -108,7 +108,7 @@ public enum CacheUpdateTimer {
              */
             loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 60 * 24 * ttl);
         } else {
-            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - 60_000L * 10);
+            loadStartTime = TimeBucket.getMinuteTimeBucket(System.currentTimeMillis() - NetworkAddressAlias.RELOAD_WINDOW_MILLIS);
         }
         List<NetworkAddressAlias> addressInventories = networkAddressAliasDAO.loadLastUpdate(loadStartTime);
 
