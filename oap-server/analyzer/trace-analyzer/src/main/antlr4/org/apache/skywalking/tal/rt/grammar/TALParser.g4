@@ -123,8 +123,9 @@ tagMap
     : anyIdentifier COLON valueAccess typeCast? (COMMA anyIdentifier COLON valueAccess typeCast?)*
     ;
 
-// A network alias is built from one call only: a CLIENT span and the SERVER span whose parentSpanId is that CLIENT
-// span's spanId. `prepareNetworkAlias <peer>` sends a CLIENT span's half, the peer it dialed, to the trace's owner;
+// A network alias is built from one call only: the caller's span and the SERVER span whose parentSpanId is that
+// span's spanId. `prepareNetworkAlias <peer>` sends the caller's half, the peer it dialed, to the trace's owner, from
+// a CLIENT span or from a SERVER span that passed its own context on;
 // `buildNetworkAlias <address>` marks a SERVER span as the callee half, and the owner evaluates the address, which
 // reads the matched caller half as `pairing.*`, to file the row the callers' resolveNetworkAlias(...) reads.
 prepareNetworkAliasStatement

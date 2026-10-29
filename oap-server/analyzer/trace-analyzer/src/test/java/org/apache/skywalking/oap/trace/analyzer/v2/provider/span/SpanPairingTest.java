@@ -101,6 +101,35 @@ class SpanPairingTest {
     }
 
     @Test
+    void aProxyThatReportsOneSpanPairsBothHopsFromIt() {
+        // nginx's OpenTelemetry modules report one SERVER span and pass its own context upstream: the span is the
+        // callee of the caller's CLIENT span and the parent of the upstream's SERVER span, so it sends both halves.
+        final SpanMetadata nginx = server("nginx", "s3", "s2");
+        serverSeen(nginx);
+        pairing.clientSeen(nginx, "10.0.3.4:8080");
+        assertTrue(rows.isEmpty(), "a span's two halves never meet: one is keyed by its id, the other by its parent");
+
+        pairing.clientSeen(client("frontend", "s2"), "nginx:80");
+        serverSeen(server("cart", "s4", "s3"));
+        assertEquals(2, rows.size(), rows.toString());
+        assertEquals("frontend->nginx:80", rows.get(0).getAddress());
+        assertEquals(IDManager.ServiceID.buildId("nginx", true), rows.get(0).getRepresentServiceId());
+        assertEquals("nginx->10.0.3.4:8080", rows.get(1).getAddress());
+        assertEquals(IDManager.ServiceID.buildId("cart", true), rows.get(1).getRepresentServiceId());
+    }
+
+    @Test
+    void anEdgeProxysRootSpanStillPairsWithItsUpstream() {
+        // An nginx facing browsers gets no trace context and, sampling on its own, starts the trace: its span sends
+        // no callee half, and is still the upstream's parent.
+        pairing.clientSeen(server("nginx", "e1", ""), "10.0.3.5:8080");
+        serverSeen(server("ad", "e2", "e1"));
+        assertEquals(1, rows.size(), rows.toString());
+        assertEquals("nginx->10.0.3.5:8080", rows.get(0).getAddress());
+        assertEquals(IDManager.ServiceID.buildId("ad", true), rows.get(0).getRepresentServiceId());
+    }
+
+    @Test
     void oneAddressDialedByTwoCallersNamesTwoServices() {
         // cart:7070 is shop::cart from the shop namespace and outlet::cart from the outlet one.
         pairing.clientSeen(client("shop::frontend", "s2"), "cart:7070");
@@ -161,7 +190,7 @@ class SpanPairingTest {
     }
 
     @Test
-    void rootConsumerAndNonClientSpansSendNoFact() {
+    void rootServerConsumerAndProducerSpansSendNoFact() {
         final List<PairingFact> wire = new ArrayList<>();
         pairing.setTransport(wire::add);
         pairing.serverSeen(server("frontend", "s1", ""), true, LAYER, RULE);
@@ -169,7 +198,6 @@ class SpanPairingTest {
         final SpanMetadata consumer = server("billing", "s5", "s4");
         consumer.setKind(SpanMetadata.KIND_CONSUMER);
         pairing.serverSeen(consumer, true, LAYER, RULE);
-        pairing.clientSeen(server("frontend", "s1", ""), "x:1");
         final SpanMetadata producer = client("orders", "s6");
         producer.setKind(SpanMetadata.KIND_PRODUCER);
         pairing.clientSeen(producer, "kafka:9092");

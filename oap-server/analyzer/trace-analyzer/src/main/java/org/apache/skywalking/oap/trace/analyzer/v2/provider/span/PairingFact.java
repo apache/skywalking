@@ -24,10 +24,11 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 
 /**
- * One half of a call, as {@link SpanPairing} needs it. The caller half is a CLIENT span's service and the peer it
- * dialed, under its own span id; the callee half is a SERVER span's service, under its parent span id, with the key
- * of the rule whose {@code buildNetworkAlias} composes the alias address from the caller half. Routed to the node
- * that owns the trace by {@link #remoteHashCode()}, so both halves of every call meet on one node.
+ * One half of a call, as {@link SpanPairing} needs it. The caller half is the calling span's service and the peer it
+ * dialed, under its own span id, from a CLIENT span or a SERVER span that passed its own context on; the callee half
+ * is a SERVER span's service, under its parent span id, with the key of the rule whose {@code buildNetworkAlias}
+ * composes the alias address from the caller half. Routed to the node that owns the trace by
+ * {@link #remoteHashCode()}, so both halves of every call meet on one node.
  */
 @Getter
 public class PairingFact extends StreamData {
@@ -74,7 +75,7 @@ public class PairingFact extends StreamData {
     }
 
     /**
-     * @param meta a CLIENT span
+     * @param meta the calling span: a CLIENT span, or a SERVER span that passed its own context to the peer
      * @param peer the peer its rule prepared
      * @return the caller half of the call
      */

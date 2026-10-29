@@ -208,7 +208,7 @@ host and port of `url.full` or `http.url` when the SDK reports nothing else, as 
 does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by strict span pairing,
 described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the callee's SERVER
-span names the CLIENT span that called it as its parent, and the pair writes a network address alias keyed by the
+span names the caller's span that called it as its parent, and the pair writes a network address alias keyed by the
 caller and the peer, `frontend->cart:7070`, for the callee's service. No host is matched against service names or
 DNS, so an alias needs both spans of a call analyzed. Each caller and peer is learned on its own, about four calls
 at the default `pairingSamplePercent`; the calls before then are drawn to a node named by the address, which no

@@ -173,10 +173,10 @@ public final class TALScriptModel {
     }
 
     /**
-     * {@code prepareNetworkAlias <peer>} — mark a CLIENT span as the caller half of the call; {@code buildNetworkAlias
-     * <address>} — mark a SERVER span as the callee half, whose address expression reads the matched caller half as
-     * {@code pairing.*} on the trace's owner. Both halves are sent once the span's rules have run; the
-     * {@code ExecutionContext} methods of the same names say what each records.
+     * {@code prepareNetworkAlias <peer>} — mark a span as the caller half of the call, paired with the SERVER span
+     * whose parent it is; {@code buildNetworkAlias <address>} — mark a SERVER span as the callee half, whose address
+     * expression reads the matched caller half as {@code pairing.*} on the trace's owner. Both halves are sent once
+     * the span's rules have run; the {@code ExecutionContext} methods of the same names say what each records.
      */
     @Getter
     public static final class NetworkAliasStatement implements ExtractorStatement, FilterStatement {

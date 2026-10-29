@@ -84,8 +84,9 @@ public class ExecutionContext {
     private boolean networkAliasRequested;
 
     /**
-     * Set by {@code prepareNetworkAlias}: the peer this CLIENT span dialed, the caller half of a call. Sent once the
-     * rules have run, by the first rule that was not aborted, as the callee half is.
+     * Set by {@code prepareNetworkAlias}: the peer this span dialed, the caller half of a call, which pairs with the
+     * SERVER span whose parent is this span. Sent once the rules have run, by the first rule that was not aborted, as
+     * the callee half is.
      */
     @Getter
     private String networkAliasPeer;
@@ -243,8 +244,9 @@ public class ExecutionContext {
     }
 
     /**
-     * {@code prepareNetworkAlias <peer>} — mark this CLIENT span as the caller half of a call to the peer. The first
-     * peer a rule names is kept; an empty one names none.
+     * {@code prepareNetworkAlias <peer>} — mark this span as the caller half of a call to the peer: a CLIENT span, or
+     * a SERVER span that passed its own context to the peer. The first peer a rule names is kept; an empty one names
+     * none.
      *
      * @param peer the peer as the rule named it
      */

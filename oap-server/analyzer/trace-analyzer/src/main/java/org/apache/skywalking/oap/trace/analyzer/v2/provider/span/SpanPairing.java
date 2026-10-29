@@ -35,10 +35,11 @@ import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.Service;
 
 /**
- * Builds a network address alias from one call: a CLIENT span and the SERVER span whose {@code parentSpanId} is that
- * CLIENT span's {@code spanId}, in the same trace. That match is the only thing that pairs two spans; names,
- * addresses and attributes never do. A proxy, a load balancer or a {@code Host} header kept end to end therefore
- * cannot move an alias onto the wrong service: each hop is learned from its own two spans.
+ * Builds a network address alias from one call: the caller's span and the SERVER span whose {@code parentSpanId} is
+ * that span's {@code spanId}, in the same trace. The caller's span is a CLIENT span, or a SERVER span that passed its
+ * own context on, as a proxy reporting one span per request does. That match is the only thing that pairs two spans;
+ * names, addresses and attributes never do. A proxy, a load balancer or a {@code Host} header kept end to end
+ * therefore cannot move an alias onto the wrong service: each hop is learned from its own caller and callee.
  *
  * <p>The two spans arrive in separate batches, in either order, and in a cluster at different nodes. Each half is
  * sent as a {@link PairingFact} through the {@link #transport} to the node that owns the trace, chosen by the trace
@@ -121,15 +122,21 @@ public class SpanPairing implements Service {
     }
 
     /**
-     * The caller half of a call, sent to the trace's owner for every sampled call; the pair it meets is pushed every
-     * time, and the alias row decides whether to write it.
+     * The caller half of a call, keyed by the span's own id, so it pairs with the callee half of the SERVER span whose
+     * parent that span is. Sent to the trace's owner for every sampled call; the pair it meets is pushed every time,
+     * and the alias row decides whether to write it.
      *
-     * @param meta a CLIENT span; any other kind is ignored. A PRODUCER span's peer is the broker, which answers with
-     *             no span of its own, so there is nothing to pair it with
+     * @param meta the span that dialed the peer: a CLIENT span, or a SERVER span that passed its own context to the
+     *             peer, as a proxy reporting one span per request does. Such a SERVER span may also send its callee
+     *             half, keyed by its parent, for the hop from its caller, while this caller half, keyed by its own
+     *             id, is for the hop to its upstream. Any other kind is ignored: a PRODUCER span's peer is the
+     *             broker, which answers with no span of its own, so there is nothing to pair it with
      * @param peer the peer as the rule spelled it
      */
     public void clientSeen(final SpanMetadata meta, final String peer) {
-        if (!SpanMetadata.KIND_CLIENT.equals(meta.getKind()) || peer == null || peer.isEmpty()) {
+        final String kind = meta.getKind();
+        if ((!SpanMetadata.KIND_CLIENT.equals(kind) && !SpanMetadata.KIND_SERVER.equals(kind))
+            || peer == null || peer.isEmpty()) {
             return;
         }
         final PairingFact fact = PairingFact.client(meta, peer);

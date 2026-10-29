@@ -285,9 +285,9 @@ A CLIENT span names its peer by what it dialed, `server.address` and `server.por
 `service.name`; nothing on the OTLP wire ties the two, since the trace context carries no address. Without help, a
 fleet that does not set `service.peer.name` gets `product-catalog:3550` beside `product-catalog` in the service list and
 in the topology. TAL folds the address onto the service from the trace context alone, by strict span pairing: a
-SERVER span's `parentSpanId` is the span id of the CLIENT span that called it, so the two spans of one call name the
-caller, the address it dialed and the service that answered. Nothing is inferred from a host name, a DNS label or a
-Kubernetes namespace.
+SERVER span's `parentSpanId` is the span id of the caller's span that made the call, so the caller's half and the
+callee's half of one call name the caller, the address it dialed and the service that answered. Nothing is inferred
+from a host name, a DNS label or a Kubernetes namespace.
 
 ```text
 filter {
@@ -304,9 +304,11 @@ filter {
 }
 ```
 
-- **`prepareNetworkAlias <peer>`** sends a CLIENT span's half of the call, its service and the peer, to the trace's
-  owner. A SERVER span sends one too when its rule names the upstream it proxied to, for a proxy that reports one
-  span per request, see [OpenTelemetry Trace Analysis
+- **`prepareNetworkAlias <peer>`** sends the caller half of a call, the span's service and the peer, to the trace's
+  owner. The half is keyed by the span's own id, so it pairs with the callee half of the SERVER span whose parent that
+  span is. A CLIENT span sends it, and so may a SERVER span that passed its own context to the upstream, as a proxy
+  reporting one span per request does: such a span sends its callee half for the hop from its caller, when it has one,
+  and a caller half for the hop to its upstream, see [OpenTelemetry Trace Analysis
   Practices](../setup/backend/trace-analyzer-practices.md#a-proxy-that-reports-one-span-per-request). A PRODUCER or
   CONSUMER span is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing them would name the broker's
   address after the consumer. Every call in the sampled share of traces sends its half,
@@ -315,7 +317,7 @@ filter {
   next sampled call. A peer that never answers with a SERVER span, an external API or an uninstrumented service,
   costs one message per sampled call, which waits out the buffer unmatched. The statement only names the peer: the
   half is sent once the span's rules have run, by the first rule that was not aborted, as the callee half is, so an
-  `abort {}` anywhere in the rule withdraws it and a span sends at most one.
+  `abort {}` anywhere in the rule withdraws it and a span sends at most one caller half.
 - **`buildNetworkAlias <address>`** marks a SERVER span with a remote parent as the callee half. The expression is
   not evaluated on the span: it runs on the trace's owner when the two halves match, and reads the caller half only,
   through `pairing`, a variable that exists only in this expression and is never declared with `def`:
@@ -325,8 +327,8 @@ filter {
   that claims the span and asks for an alias names the fact.
 
   > **Warning:** keep the address `callerScopedAddress(pairing.service, pairing.peer)`, as the shipped rule does.
-  > `prepareNetworkAlias`'s check, `resolveNetworkAlias(callerScopedAddress(...))` and the topology query all look
-  > the row up by `service->peer`, so any other address is built but never read. An address without the caller,
+  > `resolveNetworkAlias(callerScopedAddress(...))` and the topology query both look the row up by
+  > `service->peer`, so any other address is built but never read. An address without the caller,
   > such as `buildNetworkAlias pairing.peer`, is worse: it is the plain-address form the agent analyzer writes and
   > the topology query falls back to for every caller, so it overwrites the agent's alias of that address, the last
   > write winning, and hands a proxy's address to whichever service last answered behind it.

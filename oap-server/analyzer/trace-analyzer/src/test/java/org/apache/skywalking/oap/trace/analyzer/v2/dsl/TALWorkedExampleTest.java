@@ -479,6 +479,97 @@ class TALWorkedExampleTest {
             new TestSpanInput().attribute("server.address", "b").attribute("server.port", "8080"));
     }
 
+    @Test
+    void theOneSpanProxyRecipeLearnsBothHopsFromNginxsServerSpan() throws Exception {
+        // trace-analyzer-practices.md, "A proxy that reports one span per request": a rule in the SERVER block sends
+        // a caller half from nginx's one SERVER span, naming the upstream the nginx config put on the span.
+        final String anchor = "// A root span was called from outside the fleet";
+        final String shipped = ShippedRules.dsl("otlp-general");
+        final int at = shipped.indexOf(anchor);
+        assertTrue(at > 0 && shipped.indexOf(anchor, at + 1) < 0, "the SERVER block's root step moved");
+        final int lineStart = shipped.lastIndexOf('\n', at) + 1;
+        final String indent = shipped.substring(lineStart, at);
+        final String proxy = shipped.substring(0, lineStart)
+            + indent + "if (meta.kind == \"SERVER\" && meta.service == \"nginx\") {\n"
+            + indent + "  def upstream = attr(\"upstream.address\")\n"
+            + indent + "  if (upstream) {\n"
+            + indent + "    prepareNetworkAlias upstream\n"
+            + indent + "    def upstream = resolveNetworkAlias(callerScopedAddress(meta.service, upstream))\n"
+            + indent + "    def proxied = serviceRelation(CLIENT, meta.service, meta.layer, upstream, \"OTLP_GENERAL\","
+            + " component(\"http\"))\n"
+            + indent + "    metrics { name \"service_relation_client_cpm\"; scope proxied; function cpm; value 1 }\n"
+            + indent + "    metrics { name \"service_relation_client_resp_time\"; scope proxied; function avg;"
+            + " value meta.latency }\n"
+            + indent + "    metrics { name \"service_relation_client_call_sla\"; scope proxied; function percent\n"
+            + indent + "              match ok }\n"
+            + indent + "  }\n"
+            + indent + "}\n"
+            + shipped.substring(lineStart);
+        final TALClassGenerator generator = new TALClassGenerator();
+        generator.setClassNameHint("one_span_proxy_example");
+        generator.setMetricPrefix("proxy");
+        generator.setInputType(TestSpanInput.class);
+        generator.setSourceRef(ShippedRules.ref("otlp-general"));
+        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
+        final TalExpression rule = generator.compile(proxy);
+        generator.createMetrics(meterSystem);
+
+        runProxiedCall(rule, "n1", "10.0.3.4:8080", "cart");
+        assertEquals(List.of("frontend->nginx:80 = nginx", "nginx->10.0.3.4:8080 = cart"),
+            aliases.stream().map(row -> row.getAddress() + " = " + serviceName(row.getRepresentServiceId()))
+                   .collect(Collectors.toList()));
+
+        reloadAliasCache(coreProvider, aliases);
+        sent.clear();
+        runProxiedCall(rule, "n2", "10.0.3.4:8080", null);
+        // A request nginx answers itself carries no upstream, so its span draws no call.
+        runProxiedCall(rule, "n3", "", null);
+        assertEquals(List.of(
+                MeterEntity.newServiceRelation("frontend", Layer.OTLP_GENERAL, "nginx", Layer.OTLP_GENERAL,
+                                               DetectPoint.CLIENT, 49).id(),
+                MeterEntity.newServiceRelation("nginx", Layer.OTLP_GENERAL, "cart", Layer.OTLP_GENERAL,
+                                               DetectPoint.CLIENT, 49).id(),
+                MeterEntity.newServiceRelation("frontend", Layer.OTLP_GENERAL, "nginx", Layer.OTLP_GENERAL,
+                                               DetectPoint.CLIENT, 49).id()),
+            sent.stream().filter(v -> "proxy_service_relation_client_cpm".equals(metricNameOf(v)))
+                .map(v -> {
+                    try {
+                        return entityIdOf(v);
+                    } catch (final Exception e) {
+                        throw new IllegalStateException(e);
+                    }
+                }).collect(Collectors.toList()),
+            "frontend's edge lands on nginx, and nginx's on the upstream that answered");
+    }
+
+    /**
+     * {@code frontend} calls {@code nginx:80}; nginx's one SERVER span names {@code upstream}, empty for a request it
+     * answers itself; when {@code callee} is given, the upstream's SERVER span, a child of nginx's, follows.
+     */
+    private void runProxiedCall(final TalExpression rule, final String spanId, final String upstream,
+                                final String callee) {
+        run(rule, SpanMetadata.builder()
+                              .service("frontend").endpoint("GET /cart")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(4)
+                              .startTime(SPAN1_END - 10).timestamp(SPAN1_END - 6)
+                              .traceId("t-" + spanId).spanId("c-" + spanId).parentSpanId("p").build(),
+            new TestSpanInput().attribute("server.address", "nginx").attribute("server.port", "80"));
+        run(rule, SpanMetadata.builder()
+                              .service("nginx").endpoint("/cart")
+                              .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(3)
+                              .startTime(SPAN1_END - 9).timestamp(SPAN1_END - 6)
+                              .traceId("t-" + spanId).spanId(spanId).parentSpanId("c-" + spanId).build(),
+            new TestSpanInput().attribute("net.host.name", "nginx").attribute("upstream.address", upstream));
+        if (callee != null) {
+            run(rule, SpanMetadata.builder()
+                                  .service(callee).endpoint("GET /cart")
+                                  .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+                                  .startTime(SPAN1_END - 8).timestamp(SPAN1_END - 6)
+                                  .traceId("t-" + spanId).spanId("s-" + spanId).parentSpanId(spanId).build(),
+                new TestSpanInput().attribute("server.address", "nginx"));
+        }
+    }
+
     /**
      * {@code a} calls {@code b:8080}; when {@code callee} is given, the SERVER span that answered follows.
      */
