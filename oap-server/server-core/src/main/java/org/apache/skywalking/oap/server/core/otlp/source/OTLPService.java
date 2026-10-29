@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.otlp.source;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ScopeDeclaration;
 import org.apache.skywalking.oap.server.core.source.Source;
@@ -41,6 +42,14 @@ public class OTLPService extends Source {
     @Getter
     private String serviceName;
 
+    /**
+     * The resource's {@code service.layer} as the span arrived with it; {@code UNDEFINED} when the resource carries
+     * no registered layer.
+     */
+    @Setter
+    @Getter
+    private String layer = Layer.UNDEFINED.name();
+
     @Override
     public String toJson() {
         final JsonObject obj = new JsonObject();
@@ -48,6 +57,7 @@ public class OTLPService extends Source {
         obj.addProperty("entityId", getEntityId());
         obj.addProperty("timeBucket", getTimeBucket());
         obj.addProperty("serviceName", serviceName);
+        obj.addProperty("layer", layer);
         return obj.toString();
     }
 }

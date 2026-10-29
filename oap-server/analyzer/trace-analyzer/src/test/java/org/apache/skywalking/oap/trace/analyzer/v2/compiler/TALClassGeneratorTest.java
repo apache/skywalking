@@ -45,7 +45,7 @@ class TALClassGeneratorTest {
         final TALClassGenerator generator = generator("svc_metric");
         final TalExpression expression = generator.compile(
             "filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  metrics { name \"service_cpm\"; scope svc; function cpm; value 1 }\n"
                 + "} }");
@@ -106,7 +106,7 @@ class TALClassGeneratorTest {
         final TALClassGenerator generator = generator("votes");
         assertNotNull(generator.compile(
             "filter {\n"
-                + "  extractor { layer \"OTLP_SERVICE\" }\n"
+                + "  extractor { layer \"OTLP_GENERAL\" }\n"
                 + "  persist { enforcer {} }\n"
                 + "}"));
     }
@@ -250,8 +250,41 @@ class TALClassGeneratorTest {
     }
 
     @Test
+    void rejectABuildNetworkAliasThatReadsMoreThanTheCallerHalf() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(meta.service, pairing.peer)\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer");
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias attr(\"server.address\")\n"
+                + "} }",
+            "not attr(...)");
+    }
+
+    @Test
+    void rejectABuildNetworkAliasThatReadsAPerCallField() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.spanId)\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer, not 'pairing.spanId'");
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias pairing.peer.length\n"
+                + "} }",
+            "its address reads pairing.service and pairing.peer");
+    }
+
+    @Test
+    void rejectASecondBuildNetworkAlias() {
+        assertCompileFails("filter { extractor {\n"
+                + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer)\n"
+                + "  buildNetworkAlias pairing.peer\n"
+                + "} }",
+            "a rule declares buildNetworkAlias once");
+    }
+
+    @Test
     void rejectAStatementAfterAbort() {
-        assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_SERVICE\"\n} }",
+        assertCompileFails("filter { extractor {\n  abort {}\n  layer \"OTLP_GENERAL\"\n} }",
             "abort {} ends its block");
     }
 

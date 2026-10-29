@@ -24,9 +24,11 @@ import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 
 /**
- * One half of a call, as {@link SpanPairing} needs it: the SERVER side carries the callee's identity under its
- * parent span id, the CLIENT side carries the address it dialed under its own span id. Routed to the node that
- * owns the trace by {@link #remoteHashCode()}, so both halves of every call meet on one node.
+ * One half of a call, as {@link SpanPairing} needs it. The caller half is the calling span's service and the peer it
+ * dialed, under its own span id, from a CLIENT span or a SERVER span that passed its own context on; the callee half
+ * is a SERVER span's service, under its parent span id, with the key of the rule whose {@code buildNetworkAlias}
+ * composes the alias address from the caller half. Routed to the node that owns the trace by
+ * {@link #remoteHashCode()}, so both halves of every call meet on one node.
  */
 @Getter
 public class PairingFact extends StreamData {
@@ -34,8 +36,15 @@ public class PairingFact extends StreamData {
     private String spanId = "";
     private String parentSpanId = "";
     private String service = "";
-    private String instance = "";
-    private String address = "";
+    /**
+     * The caller half's peer, as its rule's {@code prepareNetworkAlias} named it.
+     */
+    private String peer = "";
+    /**
+     * The callee half's rule, by the layer it is declared for and its name.
+     */
+    private String ruleLayer = "";
+    private String ruleName = "";
     private boolean server;
     private boolean normal;
     private long timestampMillis;
@@ -44,17 +53,21 @@ public class PairingFact extends StreamData {
     }
 
     /**
-     * @param meta   a SERVER or CONSUMER span with a parent
-     * @param normal the {@code normal} flag its service id carries
+     * @param meta      a SERVER span with a parent in another process
+     * @param normal    the {@code normal} flag its service id carries
+     * @param ruleLayer the layer of the rule whose {@code buildNetworkAlias} the span ran
+     * @param ruleName  that rule's name
      * @return the callee half of the call
      */
-    public static PairingFact server(final SpanMetadata meta, final boolean normal) {
+    public static PairingFact server(final SpanMetadata meta, final boolean normal,
+                                     final String ruleLayer, final String ruleName) {
         final PairingFact fact = new PairingFact();
         fact.traceId = meta.getTraceId();
         fact.spanId = meta.getSpanId();
         fact.parentSpanId = meta.getParentSpanId();
         fact.service = meta.getService();
-        fact.instance = meta.getServiceInstance() == null ? "" : meta.getServiceInstance();
+        fact.ruleLayer = ruleLayer;
+        fact.ruleName = ruleName;
         fact.server = true;
         fact.normal = normal;
         fact.timestampMillis = meta.getTimestamp();
@@ -62,17 +75,17 @@ public class PairingFact extends StreamData {
     }
 
     /**
-     * @param meta    a CLIENT span
-     * @param address the peer nothing else could name
+     * @param meta the calling span: a CLIENT span, or a SERVER span that passed its own context to the peer
+     * @param peer the peer its rule prepared
      * @return the caller half of the call
      */
-    public static PairingFact client(final SpanMetadata meta, final String address) {
+    public static PairingFact client(final SpanMetadata meta, final String peer) {
         final PairingFact fact = new PairingFact();
         fact.traceId = meta.getTraceId();
         fact.spanId = meta.getSpanId();
         fact.parentSpanId = meta.getParentSpanId() == null ? "" : meta.getParentSpanId();
         fact.service = meta.getService();
-        fact.address = address;
+        fact.peer = peer;
         fact.timestampMillis = meta.getTimestamp();
         return fact;
     }
@@ -104,8 +117,9 @@ public class PairingFact extends StreamData {
         builder.addDataStrings(spanId);
         builder.addDataStrings(parentSpanId);
         builder.addDataStrings(service);
-        builder.addDataStrings(instance);
-        builder.addDataStrings(address);
+        builder.addDataStrings(peer);
+        builder.addDataStrings(ruleLayer);
+        builder.addDataStrings(ruleName);
         builder.addDataIntegers(server ? 1 : 0);
         builder.addDataIntegers(normal ? 1 : 0);
         builder.addDataLongs(timestampMillis);
@@ -118,8 +132,9 @@ public class PairingFact extends StreamData {
         spanId = remoteData.getDataStrings(1);
         parentSpanId = remoteData.getDataStrings(2);
         service = remoteData.getDataStrings(3);
-        instance = remoteData.getDataStrings(4);
-        address = remoteData.getDataStrings(5);
+        peer = remoteData.getDataStrings(4);
+        ruleLayer = remoteData.getDataStrings(5);
+        ruleName = remoteData.getDataStrings(6);
         server = remoteData.getDataIntegers(0) == 1;
         normal = remoteData.getDataIntegers(1) == 1;
         timestampMillis = remoteData.getDataLongs(0);

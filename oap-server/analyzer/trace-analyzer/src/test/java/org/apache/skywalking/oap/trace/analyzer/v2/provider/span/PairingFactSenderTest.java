@@ -71,6 +71,6 @@ class PairingFactSenderTest {
 
     private static PairingFact fact() {
         return PairingFact.server(SpanMetadata.builder().service("frontend").traceId("t1").spanId("s2")
-                                              .parentSpanId("s1").build(), true);
+                                              .parentSpanId("s1").build(), true, "OTLP_GENERAL", "otlp-general");
     }
 }

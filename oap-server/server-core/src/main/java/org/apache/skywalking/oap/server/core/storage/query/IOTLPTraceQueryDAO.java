@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.storage.query;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.skywalking.oap.server.core.otlp.OTLPServiceTraffic;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.input.OTLPTraceQueryCondition;
 import org.apache.skywalking.oap.server.core.query.type.debugging.DebuggingSpan;
@@ -38,8 +39,12 @@ public interface IOTLPTraceQueryDAO extends DAO {
      * The three catalogs list every name the storage retains and take no time range: their traffic rows are
      * insert-only ({@code supportUpdate = false}), so each keeps the minute its name was first seen, and a
      * time-bounded read would drop every name older than the window.
+     *
+     * @param layer a {@code resource.service.layer}, or null for every row
+     * @return one row per service name and layer it arrived with, so a name stored with two layers is two rows; a
+     * caller that wants the names alone de-duplicates them. With a layer, only that layer's rows
      */
-    List<String> getServiceNames() throws IOException;
+    List<OTLPServiceTraffic> getServices(@Nullable String layer) throws IOException;
 
     List<String> getSpanNames(String serviceName) throws IOException;
 

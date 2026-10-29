@@ -87,6 +87,7 @@ public abstract class TraceQLApiHandler {
 
     // Resource-scoped tag names
     public static final String RESOURCE_SERVICE_NAME = "resource.service.name";
+    public static final String RESOURCE_SERVICE_LAYER = "resource.service.layer";
     public static final String RESOURCE_SERVICE = "resource.service";
     public static final String RESOURCE_REMOTE_SERVICE = "resource.remote.service";
     public static final String RESOURCE_INSTANCE = "resource.instance";
@@ -524,11 +525,14 @@ public abstract class TraceQLApiHandler {
      * for the unfiltered catalogs.
      */
     protected static boolean hasFilter(final TraceQLQueryParams params) {
-        return isSet(params.getServiceName()) || isSet(params.getRemoteServiceName()) || isSet(params.getServiceInstance())
-            || isSet(params.getSpanName()) || params.getMinDuration() != null || params.getMaxDuration() != null
-            || StringUtil.isNotBlank(params.getStatus()) || StringUtil.isNotBlank(params.getKind())
-            || StringUtil.isNotBlank(params.getHttpStatusCode())
-            || (params.getTags() != null && !params.getTags().isEmpty());
+        return hasConditionBesidesTags(params) || (params.getTags() != null && !params.getTags().isEmpty());
+    }
+
+    /**
+     * True when the filter carries a condition other than an attribute tag.
+     */
+    protected static boolean hasConditionBesidesTags(final TraceQLQueryParams params) {
+        return isSet(params.getServiceName()) || hasConditionBesidesServiceAndTags(params);
     }
 
     /**
@@ -536,12 +540,19 @@ public abstract class TraceQLApiHandler {
      * a sample is only worth taking for anything narrower.
      */
     protected static boolean onlyServiceName(final TraceQLQueryParams params) {
-        return isSet(params.getServiceName())
-            && !isSet(params.getRemoteServiceName()) && !isSet(params.getServiceInstance()) && !isSet(params.getSpanName())
-            && params.getMinDuration() == null && params.getMaxDuration() == null
-            && StringUtil.isBlank(params.getStatus()) && StringUtil.isBlank(params.getKind())
-            && StringUtil.isBlank(params.getHttpStatusCode())
+        return isSet(params.getServiceName()) && !hasConditionBesidesServiceAndTags(params)
             && (params.getTags() == null || params.getTags().isEmpty());
+    }
+
+    /**
+     * True when the filter carries a condition other than the service name and the attribute tags; the one list of
+     * them, so a new field of {@link TraceQLQueryParams} is added once.
+     */
+    private static boolean hasConditionBesidesServiceAndTags(final TraceQLQueryParams params) {
+        return isSet(params.getRemoteServiceName()) || isSet(params.getServiceInstance()) || isSet(params.getSpanName())
+            || params.getMinDuration() != null || params.getMaxDuration() != null
+            || StringUtil.isNotBlank(params.getStatus()) || StringUtil.isNotBlank(params.getKind())
+            || StringUtil.isNotBlank(params.getHttpStatusCode());
     }
 
     private static boolean isSet(final String value) {

@@ -44,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * }</pre>
  *
  * <p>Output lands in {@code target/tal-rule-generated-classes/}, one {@code .java} and one {@code .class} per
- * rule, named {@code otlp_default_L{line}_{rule}}. The {@code .java} is the verbatim source Javassist compiled —
+ * rule, named {@code otlp_general_L{line}_{rule}}. The {@code .java} is the verbatim source Javassist compiled —
  * it exists because Javassist compiles from an in-memory string, so there is otherwise no source to read, and
  * because its bytecode tends to defeat decompilers.
  *
@@ -85,7 +85,7 @@ class DumpShippedRuleSourcesTest {
         for (final TALConfig rule : rules) {
             // Prefix, not equality: DslClassNaming.allocate dedups against a process-wide set, so when another
             // test in the same JVM has already claimed this name the file gains a _2 suffix.
-            final String expected = "otlp_default_L" + rule.getLineNo() + "_" + rule.getName().replace('-', '_');
+            final String expected = "otlp_general_L" + rule.getLineNo() + "_" + rule.getName().replace('-', '_');
             assertTrue(written.stream().anyMatch(f -> f.startsWith(expected) && f.endsWith(".java")),
                 "no source written for " + rule.getName() + "; got " + written);
             assertTrue(written.stream().anyMatch(f -> f.startsWith(expected) && f.endsWith(".class")),

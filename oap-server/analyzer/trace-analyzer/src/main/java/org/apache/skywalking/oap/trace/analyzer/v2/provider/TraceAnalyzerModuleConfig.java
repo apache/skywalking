@@ -37,7 +37,7 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
      */
     @Getter
     @Setter
-    private String talFiles = "otlp-default";
+    private String talFiles = "otlp-general";
 
     /**
      * Seconds. Spans seen within this window are analyzed once, so an exporter retrying a batch after a transport
@@ -59,11 +59,11 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
     private int dedupCapacity = 1000000;
 
     /**
-     * The percentage of traces, by trace id, whose call pairs are routed to the trace's owner node in a cluster, so
-     * an address is learned from a sample of its calls; both halves of a call share the id, so a pair is never
-     * split. An address is learned once and then resolved from every node's cache, which is why a sample is enough.
-     * 100 sends every pair, one small message per SERVER span across the cluster; a single node pairs every call
-     * regardless. An int because the module config loader sets no double fields.
+     * The percentage of traces, by trace id, whose call pairs are paired, on the trace's owner node in a cluster and
+     * on the node itself when it is alone, so an address is learned from a sample of its calls; both halves of a call
+     * share the id, so a pair is never split. An address is written once and then resolved from every node's cache,
+     * which is why a sample is enough. 100 pairs every call, 0 none. An int because the module config loader sets no
+     * double fields.
      */
     @Getter
     @Setter

@@ -153,8 +153,8 @@ final class TALBlockCodegen {
             generateOutputFieldAssignment(sb, (TALScriptModel.OutputFieldAssignment) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.TagAssignment) {
             generateTagAssignment(sb, (TALScriptModel.TagAssignment) stmt, genCtx);
-        } else if (stmt instanceof TALScriptModel.AliasStatement) {
-            generateAliasStatement(sb, (TALScriptModel.AliasStatement) stmt, genCtx);
+        } else if (stmt instanceof TALScriptModel.NetworkAliasStatement) {
+            generateNetworkAliasStatement(sb, (TALScriptModel.NetworkAliasStatement) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.MetricsBlock) {
             generateMetricsBlock(sb, (TALScriptModel.MetricsBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.EnforcerStatement) {
@@ -299,12 +299,26 @@ final class TALBlockCodegen {
         }
     }
 
-    private static void generateAliasStatement(final StringBuilder sb,
-                                               final TALScriptModel.AliasStatement stmt,
-                                               final TALGenCtx genCtx) {
-        sb.append("  h.alias(");
-        TALValueCodegen.generateStringValueAccess(sb, stmt.getAddress(), stmt.getCastType(), genCtx);
-        sb.append(");\n");
+    private static void generateNetworkAliasStatement(final StringBuilder sb,
+                                                      final TALScriptModel.NetworkAliasStatement stmt,
+                                                      final TALGenCtx genCtx) {
+        if (!stmt.isBuild()) {
+            // Recorded only: TraceAnalyzerServiceImpl sends the caller half once the rules have run, so a rule that
+            // aborts later sends none.
+            sb.append("  h.ctx().prepareNetworkAlias(");
+            TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
+            sb.append(");\n");
+            return;
+        }
+        // The address is composed on the trace's owner from the matched caller half, by the method
+        // TALClassGenerator generates from this statement; here the span is only marked as the callee half.
+        if (genCtx.networkAliasBuild != null && genCtx.networkAliasBuild != stmt) {
+            throw new IllegalArgumentException(
+                "a rule declares buildNetworkAlias once: the trace's owner composes one alias address per call, "
+                    + "from the rule the callee half names");
+        }
+        genCtx.networkAliasBuild = stmt;
+        sb.append("  h.ctx().requestNetworkAlias();\n");
     }
 
     private static void generateSamplerBlock(final StringBuilder sb,

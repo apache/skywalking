@@ -5,7 +5,7 @@ The handler stores them in one of two ways, selected by `receiver-otel.default.o
 
 | `otlpTraceStorage` | What is stored                                                                                                   | Query API                                                                                  |
 |--------------------|------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| `otlp` (default)   | The span exactly as it arrived, with its resource and instrumentation scope, in the `otlp_span` record.          | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
+| `otlp` (default)   | The span as it arrived, with its resource and instrumentation scope, in the `otlp_span` record; only the resource's `service.layer` is set to the registered layer, `UNDEFINED` otherwise. | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
 | `zipkin`           | Spans converted to Zipkin v2 and handed to the Zipkin receiver, the only mode of earlier releases. Follows the [Zipkin Exporter](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) conversion rules. | [Zipkin query API](./zipkin-trace.md#zipkin-query), Lens UI, and the TraceQL `/zipkin` datasource. |
 
 Span listeners such as the GenAI analyzer and AI evaluation run in both modes. In `otlp` mode they read the
@@ -113,55 +113,25 @@ The grouped name is the service everywhere OAP names one: the [trace analysis](t
 instances, endpoints and topology; the stored span, in both storage modes, so a TraceQL search names the service as
 the layer does, `{resource.service.name="opentelemetry-demo::cart"}`; and the OTLP logs, which are filed under it.
 The resource attributes are stored as sent, `service.name` and the grouping attribute among them, so
-`{resource.service.namespace="opentelemetry-demo"}` still finds the group's traces. A query names each span's
+`{resource.service.namespace="opentelemetry-demo"}` still finds the group's traces; only `service.layer` is stored as
+the registered layer it names, `UNDEFINED` otherwise, as the [service catalog](../../api/traceql-service.md) files it. A query names each span's
 service by the grouped name: a search lists it as the span's `service.name`, and a trace fetched by id carries it as
 its resource's `service.name`, the other resource attributes as sent. In the `zipkin` storage mode the stored service
 is lower case, since Zipkin lowercases every service name, so a group value with capitals, `service.namespace=Shop`,
 gives `Shop::cart` in the analysis and the logs but `shop::cart` in the stored span and the query; Kubernetes
 namespace names are always lower case.
 
-A caller that dials the host `cart` still reaches the grouped `cart`: the trace analyzer resolves a host the way
-Kubernetes DNS resolves a Service name, against the services the OAP node has seen spans from, in this order:
-
-1. A host qualified with a group names that group's service: `cart.outlet`, `cart.outlet.svc` and
-   `cart.outlet.svc.cluster.local` are `outlet::cart`. A qualified host is never resolved in the caller's group by its
-   first label, since it says which group it means; only a service of the caller's group named exactly the whole host,
-   as in step 2, matches it there.
-2. A host names the service of exactly that name in the caller's own group: `cart` dialed by `shop::frontend` is
-   `shop::cart`, and dialed by `outlet::frontend` is `outlet::cart`, even when both are deployed. A `service.name`
-   that holds a dot is matched whole, `checkout.api` is `shop::checkout.api`, never by its first label.
-3. A host, or its first DNS label, that is an ungrouped service's whole name is that service.
-4. The network address alias row of the address, written by the callee that was dialed at it.
-5. The service an earlier pair of a call's CLIENT and SERVER spans named for the address.
-6. The one grouped service, in any group, whose short name is the whole host. This is ranked last because an OAP node
-   that has seen only `outlet::cart` would otherwise name it for a `shop` caller; a qualified host such as
-   `cart.outlet` is never guessed by its first label.
-
-The first two steps match Kubernetes only when the group is the namespace, so list `k8s.namespace.name` first, or
-alone, on Kubernetes; with `service.namespace` first, a qualified host such as `cart.otel-demo` names nothing, while a
-bare host still resolves in the caller's group as long as caller and callee carry the same value. Both steps also need
-the Kubernetes Service named as the SDK's `service.name`. Calls these steps cannot name land on the address row, which
-is keyed by the address alone, as on the agent path, and the last callee to register it wins. So calls to a short name
-two groups share, `shop::cart` and `outlet::cart`, may land on either group's service when they come from an ungrouped
-caller, such as a browser app without the grouping attribute, or when the Kubernetes Service name differs from
-`service.name`. An OAP node also records, when it starts, the OTLP services storage already holds, so a restart does
-not forget a callee that emits only now and then, such as a feature flag service; a stored service that sends no span
-to the node is forgotten again a day after it was read. A client's peer is expected to name one target. When services
-of two groups are reached at the same address, such as a bare `cart:7070` dialed in both namespaces, and the node
-cannot name the callee in the caller's own group, the call is named by the address row when there is one, which may
-name either group's service, as on the agent path, and otherwise by the pairing or the step 6 guess. A node that never
-receives the callee's spans, for example one the collectors are not connected to over their long-lived gRPC
-connections, stays in that state once the day the startup read covers has passed. To pin which TAL rules analyze such
+A caller that dials the host `cart` still reaches the grouped `cart`: the trace analyzer learns a network address alias
+from the two spans of a call, keyed by the caller and the address it dialed, so `shop::frontend` dialing `cart:7070`
+reaches `shop::cart` and `outlet::frontend` dialing the same `cart:7070` reaches `outlet::cart`, see [Address-named
+peers](../../concepts-and-designs/tal.md#address-named-peers). No host is matched against service names or
+Kubernetes DNS, so the group needs no particular relation to the namespace for this, and a callee is named only once
+one of its caller's calls has been paired; the calls before then are drawn to the address-named node, which the
+topology query folds onto the service once the row lands. To pin which TAL rules analyze the
 spans, set their resource's `service.layer` to a registered layer name and declare TAL rules for that layer. Only
-those rules run; the shipped `layer: auto` rules do not. An unknown layer name is logged and its spans are not
+those rules run. An unknown layer name is logged and its spans are not
 analyzed. See [Layer](../../concepts-and-designs/tal.md#layer). The group has no cluster part either: the namespace `shop` of two Kubernetes
 clusters groups both clusters' `cart` as one `shop::cart`.
-
-The guard that keeps a proxy's address its own works on short names too: an address whose first DNS label, or whose
-whole host, is the short name of any group's service is never registered for a callee of another short name, so a
-proxy that passes the `Host` header through keeps its node whichever group it is in. The callee's own short name is
-exempt for the first label only: `edge.proxy:8080` stays `infra::edge.proxy`'s even against a callee named `edge`. See
-[Address-named peers](../../concepts-and-designs/tal.md#address-named-peers).
 
 Pick an attribute that holds one low-cardinality value per service, such as `service.namespace`,
 `deployment.environment.name` or `k8s.namespace.name`; a value that changes per pod or per request splits a service
@@ -199,5 +169,7 @@ The status module exposes the same queries with the execution trace for debuggin
 
 Every accepted span also goes through the [Trace Analysis Language](../../concepts-and-designs/tal.md) rules of the
 `trace-analyzer` module, in both storage modes and before the head sampling and the rate limit above. The shipped
-rule file registers the services under the `OTLP_SERVICE` layer with their metrics, topology and slow statements;
-see [OpenTelemetry Trace Analysis](trace-analyzer.md) for the settings and for what it produces.
+rule file analyzes the spans whose resource carries `service.layer=OTLP_GENERAL`, and registers their services under
+that layer with their metrics, topology and slow statements; every other span is only stored. See [OpenTelemetry
+Trace Analysis](trace-analyzer.md#enabling-the-analysis-for-an-application) for how an application enables it, the
+settings, and what it produces.

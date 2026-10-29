@@ -80,20 +80,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 /**
- * The shipped {@code otlp-service} rule over a trace recorded from the OpenTelemetry Demo, one {@code GET /api/cart}
+ * The shipped {@code otlp-general} rule over a trace recorded from the OpenTelemetry Demo, one {@code GET /api/cart}
  * through {@code frontend-web}, {@code frontend-proxy}, {@code frontend} and {@code cart}, fed as the receiver
  * feeds it: the real {@code otlp} input type, resource and scope attributes as string maps, and
  * {@link SpanMetadata} built the way {@code OpenTelemetryTraceHandler} builds it.
  *
- * <p>Two passes over the same eight spans: a cold one, where only the span pairing can name a peer, and a warm
- * one, where the callees have emitted spans and the alias rows of the first pass are in the cache. The fixture
+ * <p>Two passes over the same eight spans: a cold one, where the span pairing learns each caller and peer as its
+ * callee's SERVER span arrives, and a warm one, where the alias rows of the first pass are in the cache. The fixture
  * is the original OTLP/JSON with the host, OS, process, container and browser attributes removed, along with the
  * copies of the resource attributes the demo's collector puts on every span; neither the rule nor this test reads
  * them.
  */
 class ShippedRuleOverRecordedTraceTest {
     private static final String FIXTURE = "tal/otlp-trace-get-api-cart.json";
-    private static final Path RULES = Paths.get("../../server-starter/src/main/resources/tal/otlp-default.yaml");
+    private static final Path RULES = Paths.get("../../server-starter/src/main/resources/tal/otlp-general.yaml");
 
     private ModuleServiceHolder coreProvider;
     private MeterSystem meterSystem;
@@ -164,29 +164,27 @@ class ShippedRuleOverRecordedTraceTest {
             spans.stream().map(s -> s.meta.getService() + " " + s.meta.getKind()).collect(Collectors.toList()),
             "the spans in start order, as the receiver would analyze them");
 
-        // ---- Pass 1: cold. No service is known yet, no alias row is in the cache.
+        // ---- Pass 1: cold. No alias row is in the cache yet.
         report.append("=== PASS 1: cold ===\n");
         runAll(rule, spans);
         assertEquals(List.of(
                 "frontend-web -> frontend-proxy:8080 [49]",
                 "frontend -> cart:7070 [23]",
-                "frontend-proxy -> frontend [49]"),
-            clientEdges(), "the browser and frontend dial peers nobody has named yet; Envoy's IP-dialed callee "
-                + "is named on the spot because frontend's SERVER span, its child, was analyzed first");
+                "frontend-proxy -> 172.19.0.19:8080 [49]"),
+            clientEdges(), "a peer is named only once its row reaches the alias cache, so the cold pass keeps every "
+                + "peer's address");
         assertTrue(serverEdges().isEmpty(), "no root SERVER span, so no User edge: " + serverEdges());
-        final List<String> pass1 = aliasRows();
-        assertTrue(pass1.contains("cart:7070 -> cart"), "the .NET server registers the address it was dialed at: " + pass1);
-        assertTrue(pass1.contains("172.19.0.19:8080 -> frontend"), "the pairing learned Envoy's IP for frontend: " + pass1);
-        // The startup race, kept honest: frontend's SERVER span ran before any frontend-proxy span, so the guard
-        // could not yet tell the proxy's name from an address and the misleading row was written; the pairing of
-        // the browser's call with the proxy's own SERVER span then wrote the right one, and the stored row keeps
-        // the last writer.
-        assertEquals(List.of("frontend", "frontend-proxy"),
-            pass1.stream().filter(r -> r.startsWith("frontend-proxy:8080 -> ")).map(r -> r.substring("frontend-proxy:8080 -> ".length()))
-                 .collect(Collectors.toList()));
+        // Each hop is learned from its own two spans. frontend's SERVER span reports the proxy's address,
+        // frontend-proxy:8080, as its server.address; it is never registered, since its caller is Envoy's CLIENT
+        // span, which dialed 172.19.0.19:8080.
+        assertEquals(List.of(
+                "frontend-web->frontend-proxy:8080 = frontend-proxy",
+                "frontend-proxy->172.19.0.19:8080 = frontend",
+                "frontend->cart:7070 = cart"),
+            aliasRows());
         assertMetricCounts(spans);
 
-        // ---- Pass 2: warm. Every service has emitted a span and the alias rows are in the cache.
+        // ---- Pass 2: warm. The alias rows the first pass built are in the cache.
         loadAliasCache();
         sent.clear();
         traffic.clear();
@@ -197,10 +195,13 @@ class ShippedRuleOverRecordedTraceTest {
                 "frontend-web -> frontend-proxy [49]",
                 "frontend -> cart [23]",
                 "frontend-proxy -> frontend [49]"),
-            clientEdges(), "every edge lands on the service that answered it; the proxy hop is kept because "
-                + "frontend-proxy's name beats the row that maps its address to frontend");
-        assertEquals(List.of("cart:7070 -> cart"), aliasRows(),
-            "the proxy's address is no longer registered for frontend, and the pairing has nothing new to learn");
+            clientEdges(), "every edge lands on the service that answered it, the proxy hop included");
+        // Every matched pair is pushed again; NetworkAddressAlias#combine skips the write of an unchanged mapping.
+        assertEquals(List.of(
+                "frontend-web->frontend-proxy:8080 = frontend-proxy",
+                "frontend-proxy->172.19.0.19:8080 = frontend",
+                "frontend->cart:7070 = cart"),
+            aliasRows());
         assertMetricCounts(spans);
     }
 
@@ -225,21 +226,27 @@ class ShippedRuleOverRecordedTraceTest {
         int i = 0;
         for (final AnalyzedSpan s : spans) {
             final int before = sent.size();
-            // What TraceAnalyzerServiceImpl does before any rule runs.
-            filterSpec.getKnownServices().record(s.meta.getService());
-            if (SpanMetadata.KIND_SERVER.equals(s.meta.getKind()) && !s.meta.getParentSpanId().isEmpty()) {
-                filterSpec.getSpanPairing().serverSeen(s.meta, true);
-            }
             final ExecutionContext ctx = new ExecutionContext();
             ctx.setSourceTypeProvider(new OtlpTALSourceTypeProvider());
             ctx.init(s.meta, s.span, s.resourceTags, s.scopeTags);
             rule.execute(filterSpec, ctx);
+            // What TraceAnalyzerServiceImpl does after the rules ran: the CLIENT span of a rule that named its peer is
+            // the caller half of a pair, the SERVER span of a rule that asked for an alias the callee half, composed
+            // on the trace's owner by that rule's buildNetworkAlias.
+            if (!ctx.isAborted() && ctx.getNetworkAliasPeer() != null) {
+                filterSpec.getSpanPairing().clientSeen(s.meta, ctx.getNetworkAliasPeer());
+            }
+            if (!ctx.isAborted() && ctx.isNetworkAliasRequested()) {
+                filterSpec.getSpanPairing().setAddressComposer(
+                    (caller, callee) -> rule.networkAliasAddress(filterSpec, new ExecutionContext(), caller));
+                filterSpec.getSpanPairing().serverSeen(s.meta, true, "OTLP_GENERAL", "otlp-general");
+            }
             s.metrics = sent.size() - before;
             report.append(String.format("#%d %s %s \"%s\": %d metrics%n", ++i, s.meta.getService(), s.meta.getKind(),
                 s.meta.getEndpoint(), s.metrics));
         }
         traffic.forEach(r -> report.append("  traffic ").append(describe(r)).append('\n'));
-        aliases.forEach(a -> report.append("  alias   ").append(a.getAddress()).append(" -> ")
+        aliases.forEach(a -> report.append("  alias   ").append(a.getAddress()).append(" = ")
                                    .append(serviceName(a.getRepresentServiceId())).append('\n'));
     }
 
@@ -262,7 +269,7 @@ class ShippedRuleOverRecordedTraceTest {
         final Map<String, Object> doc = new Yaml().load(Files.newInputStream(RULES));
         String dsl = null;
         for (final Object r : (List<?>) doc.get("rules")) {
-            if ("otlp-service".equals(((Map<?, ?>) r).get("name"))) {
+            if ("otlp-general".equals(((Map<?, ?>) r).get("name"))) {
                 dsl = String.valueOf(((Map<?, ?>) r).get("dsl"));
             }
         }
@@ -270,7 +277,7 @@ class ShippedRuleOverRecordedTraceTest {
         generator.setClassNameHint("recorded_trace");
         generator.setMetricPrefix(String.valueOf(doc.get("metricPrefix")));
         generator.setInputType(Span.class);
-        generator.setSourceRef(DslSourceRef.ofRule("tal/otlp-default.yaml", 29));
+        generator.setSourceRef(DslSourceRef.ofRule("tal/otlp-general.yaml", 29));
         final TalExpression expression = generator.compile(dsl);
         generator.createMetrics(meterSystem);
         return expression;
@@ -346,7 +353,7 @@ class ShippedRuleOverRecordedTraceTest {
     }
 
     private List<String> aliasRows() {
-        return aliases.stream().map(a -> a.getAddress() + " -> " + serviceName(a.getRepresentServiceId()))
+        return aliases.stream().map(a -> a.getAddress() + " = " + serviceName(a.getRepresentServiceId()))
                       .collect(Collectors.toList());
     }
 

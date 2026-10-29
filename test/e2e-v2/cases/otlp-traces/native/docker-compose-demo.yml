@@ -33,7 +33,7 @@ services:
       FRONTEND_ADDR: frontend:8080
       PRODUCT_CATALOG_SERVICE_ADDR: productcatalogservice:3550
       OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
-      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo,service.layer=OTLP_GENERAL
       ENV_PLATFORM: local
       OTEL_SERVICE_NAME: frontend
       WEB_OTEL_SERVICE_NAME: frontend-web
@@ -53,7 +53,7 @@ services:
     environment:
       PRODUCT_CATALOG_SERVICE_PORT: 3550
       OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
-      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo
+      OTEL_RESOURCE_ATTRIBUTES: service.namespace=opentelemetry-demo,service.layer=OTLP_GENERAL
       OTEL_SERVICE_NAME: productcatalogservice
       FEATURE_FLAG_GRPC_SERVICE_ADDR: productcatalogservice:3550
     healthcheck:

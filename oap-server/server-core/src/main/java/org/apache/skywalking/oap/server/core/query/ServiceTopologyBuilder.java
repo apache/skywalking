@@ -109,7 +109,13 @@ class ServiceTopologyBuilder {
              * a caller that dials its downstream by its own service name, as the nginx-lua agent's
              * `tracer:start(upstream)` may, records itself as the destination until the downstream's alias lands.
              */
-            final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(destService.getName());
+            // The OTLP trace analysis files an alias under the caller and the address, see
+            // IDManager.NetworkAddressAliasDefine#buildCallerScopedAddress; the agent path under the address alone.
+            final NetworkAddressAlias callerScopedAlias = networkAddressAliasCache.get(
+                IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(
+                    sourceService.getName(), destService.getName()));
+            final NetworkAddressAlias networkAddressAlias = callerScopedAlias != null
+                ? callerScopedAlias : networkAddressAliasCache.get(destService.getName());
             if (networkAddressAlias != null
                 && (getMetadataQueryService().getService(targetServiceId) == null
                 || (targetServiceId.equals(sourceServiceId)
@@ -119,7 +125,9 @@ class ServiceTopologyBuilder {
                  */
                 destService = IDManager.ServiceID.analysisId(
                     networkAddressAlias.getRepresentServiceId());
-                targetServiceId = IDManager.ServiceID.buildId(destService.getName(), true);
+                // The row's own id keeps the represented service's normal flag; the OTLP trace analysis writes a
+                // callee filed under a virtual layer as not normal.
+                targetServiceId = networkAddressAlias.getRepresentServiceId();
             }
 
             /*

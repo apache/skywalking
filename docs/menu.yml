@@ -256,6 +256,8 @@ catalog:
             path: "/en/setup/backend/otlp-trace"
           - name: "OpenTelemetry Trace Analysis"
             path: "/en/setup/backend/trace-analyzer"
+          - name: "OpenTelemetry Trace Analysis Practices"
+            path: "/en/setup/backend/trace-analyzer-practices"
       - name: "Metrics"
         catalog:
           - name: "OAL Scripts"

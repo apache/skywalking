@@ -352,6 +352,25 @@ public class IDManager {
      */
     public static class NetworkAddressAliasDefine {
         /**
+         * Joins the caller and the peer in an OTLP alias address; {@code |} is already {@code Const.ARRAY_SPLIT}. A
+         * peer named by {@code peer.service} may hold {@code ->} too, so a reader splits after the caller it knows.
+         */
+        public static final String CALLER_SCOPE_SEPARATOR = "->";
+
+        /**
+         * The address the OTLP trace analysis files an alias under, so one peer dialed by two callers can name two
+         * services, as {@code cart:7070} does from two namespaces. The agent path writes plain addresses, which never
+         * match this form. The trace analyzer writes and reads it, and the topology fold rebuilds it from an edge.
+         *
+         * @param service the caller, as its service id names it
+         * @param peer    the address the caller dialed, as the address node is named
+         * @return {@code service->peer}
+         */
+        public static String buildCallerScopedAddress(final String service, final String peer) {
+            return service + CALLER_SCOPE_SEPARATOR + peer;
+        }
+
+        /**
          * @return encoded network address id
          */
         public static String buildId(String name) {

@@ -78,6 +78,20 @@ public class ExecutionContext {
     private boolean aborted;
 
     /**
+     * Set by {@code buildNetworkAlias}: the span is the callee half of a call whose alias this rule composes.
+     */
+    @Getter
+    private boolean networkAliasRequested;
+
+    /**
+     * Set by {@code prepareNetworkAlias}: the peer this span dialed, the caller half of a call, which pairs with the
+     * SERVER span whose parent is this span. Sent once the rules have run, by the first rule that was not aborted, as
+     * the callee half is.
+     */
+    @Getter
+    private String networkAliasPeer;
+
+    /**
      * Whether the rule voted on the span at all, which is what separates "keep" from "abstain" when the votes are
      * merged; a rule without a {@code persist {}} block that ran abstains.
      */
@@ -161,6 +175,8 @@ public class ExecutionContext {
         this.attributeIndex = null;
         this.scopeAttributeIndex = scopeAttributes;
         this.aborted = false;
+        this.networkAliasRequested = false;
+        this.networkAliasPeer = null;
         this.persistVoted = false;
         this.spanDropped = false;
         this.spanSampledOut = false;
@@ -216,6 +232,28 @@ public class ExecutionContext {
 
     public void abort() {
         this.aborted = true;
+    }
+
+    /**
+     * {@code buildNetworkAlias <address>} — mark this SERVER span as the callee half of a call. The address
+     * expression is not evaluated here: it reads the matched caller half, {@code pairing.*}, and runs on the
+     * trace's owner after the match, see {@code TalDSL#networkAliasAddress}.
+     */
+    public void requestNetworkAlias() {
+        this.networkAliasRequested = true;
+    }
+
+    /**
+     * {@code prepareNetworkAlias <peer>} — mark this span as the caller half of a call to the peer: a CLIENT span, or
+     * a SERVER span that passed its own context to the peer. The first peer a rule names is kept; an empty one names
+     * none.
+     *
+     * @param peer the peer as the rule named it
+     */
+    public void prepareNetworkAlias(final String peer) {
+        if (networkAliasPeer == null && peer != null && !peer.isEmpty()) {
+            this.networkAliasPeer = peer;
+        }
     }
 
     /**

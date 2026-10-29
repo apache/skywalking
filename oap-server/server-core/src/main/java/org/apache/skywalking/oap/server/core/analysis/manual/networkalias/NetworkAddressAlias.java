@@ -18,12 +18,14 @@
 
 package org.apache.skywalking.oap.server.core.analysis.manual.networkalias;
 
+import java.util.Objects;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.MetricsExtension;
 import org.apache.skywalking.oap.server.core.analysis.Stream;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProcessor;
 import org.apache.skywalking.oap.server.core.remote.grpc.proto.RemoteData;
@@ -46,15 +48,29 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.NE
 })
 @BanyanDB.IndexMode
 public class NetworkAddressAlias extends Metrics {
+    /**
+     * How far back each reload of a node's alias cache, {@code CacheUpdateTimer}, reads rows by their update bucket.
+     */
+    public static final long RELOAD_WINDOW_MILLIS = 10 * 60_000L;
+    /**
+     * Half the reload window, so a live alias is rewritten well inside it and a node that evicted or missed it loads
+     * it again.
+     */
+    private static final long REFRESH_MILLIS = RELOAD_WINDOW_MILLIS / 2;
+
     public static final String INDEX_NAME = "network_address_alias";
     public static final String ADDRESS = "address";
     public static final String REPRESENT_SERVICE_ID = "represent_service_id";
     public static final String REPRESENT_SERVICE_INSTANCE_ID = "represent_service_instance_id";
     public static final String LAST_UPDATE_TIME_BUCKET = "last_update_time_bucket";
+    /**
+     * The {@code address} column's length, which an alias address must fit.
+     */
+    public static final int ADDRESS_MAX_LENGTH = 200;
 
     @Setter
     @Getter
-    @Column(name = ADDRESS)
+    @Column(name = ADDRESS, length = ADDRESS_MAX_LENGTH)
     private String address;
     @Setter
     @Getter
@@ -69,15 +85,28 @@ public class NetworkAddressAlias extends Metrics {
     @Column(name = LAST_UPDATE_TIME_BUCKET)
     private long lastUpdateTimeBucket;
 
+    /**
+     * An unchanged mapping written less than {@link #REFRESH_MILLIS} ago is not written again: {@code false} leaves
+     * this row as stored, and the persistent worker skips the write. A changed mapping is always written, the last
+     * write winning; the update bucket is the minute OAP received the setup, see the dispatcher. An unchanged mapping
+     * is written once per interval, and so is a row whose update bucket is not a minute bucket.
+     */
     @Override
     public boolean combine(final Metrics metrics) {
-        NetworkAddressAlias alias = (NetworkAddressAlias) metrics;
+        final NetworkAddressAlias alias = (NetworkAddressAlias) metrics;
+        final boolean sameMapping = Objects.equals(representServiceId, alias.getRepresentServiceId())
+            && Objects.equals(representServiceInstanceId, alias.getRepresentServiceInstanceId());
+        // Buckets are yyyyMMddHHmm, so their difference is not minutes across an hour or a day.
+        if (sameMapping && TimeBucket.isMinuteBucket(lastUpdateTimeBucket)
+            && TimeBucket.isMinuteBucket(alias.getLastUpdateTimeBucket())
+            && TimeBucket.getTimestamp(alias.getLastUpdateTimeBucket())
+            - TimeBucket.getTimestamp(lastUpdateTimeBucket) < REFRESH_MILLIS) {
+            return false;
+        }
         this.representServiceId = alias.getRepresentServiceId();
         this.representServiceInstanceId = alias.getRepresentServiceInstanceId();
         this.lastUpdateTimeBucket = alias.getLastUpdateTimeBucket();
-        /**
-         * Keep the time bucket as the same time inserted.
-         */
+        // Keep the time bucket as the same time inserted.
         if (this.getTimeBucket() > metrics.getTimeBucket()) {
             this.setTimeBucket(metrics.getTimeBucket());
         }

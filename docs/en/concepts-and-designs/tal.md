@@ -25,8 +25,8 @@ layerDefinitions:      # optional, the same contract as LAL and MAL: registered 
     ordinal: 1000
     normal: true
 rules:
-  - name: otlp-service # unique within its layer
-    layer: auto        # a registered layer name, or `auto`
+  - name: otlp-general # unique within its layer
+    layer: OTLP_GENERAL # a registered layer name
     inputType: otlp    # optional; the only input this release ships, and the default
     outputType: SlowSQL # optional; the record the rule writes, see Output Type
     dsl: |
@@ -63,11 +63,18 @@ proto enums in conditions.
 ## Layer
 
 A span whose resource carries `service.layer` is evaluated by the rules declared for that layer, and by nothing
-else. A span whose resource carries a layer name that is not registered is logged and not analyzed. A span without
-`service.layer` is evaluated by the `layer: auto` rules; an auto rule that does not `abort {}` has claimed the span
-and must set `layer` in its extractor. There is no fallback to `GENERAL`, which is the agent layer: the shipped rule
-puts OpenTelemetry services under `OTLP_SERVICE` and their conjectured peers under `OTLP_VIRTUAL_DATABASE`,
-`OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup doc](../setup/backend/trace-analyzer.md#layers).
+else. A span whose resource carries a layer name that is not registered is logged and not analyzed, and so is a span
+without `service.layer`. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules are declared
+for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`, and put their
+conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup
+doc](../setup/backend/trace-analyzer.md#layers).
+
+A sender that cannot be changed gets its `service.layer` from the OpenTelemetry Collector instead, with a `resource`
+processor that inserts it.
+
+A span no rule claims, one every rule aborted or one on a layer no rule is declared for, sends no pairing fact, see
+[Address-named peers](#address-named-peers). An Envoy sidecar's spans, unclaimed, therefore never become the callee
+of an alias or the caller of one, and spare the cluster the pairing traffic.
 
 Rules for one layer run in file order, each with its own copy of `meta`, so a rule that overwrites `service` for its
 record does not change what the next rule reads. Each rule decides independently.
@@ -96,7 +103,8 @@ Attributes are reached through functions, all null-safe and returning `""` when 
 | `event(name)` | the first span event with that name, or `null`: `event("exception") != null` |
 | `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
 | `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
-| `resolveAlias(address)` | the service an address names, see [Address-named peers](#address-named-peers); the address unchanged when none is known yet |
+| `callerScopedAddress(service, peer)` | the key of a network address alias learned for one caller and one peer, `service->peer`, see [Address-named peers](#address-named-peers) |
+| `resolveNetworkAlias(address)` | the service a caller-scoped address names, see [Address-named peers](#address-named-peers); when none is learned yet, the peer part of the address, or the address unchanged when it has no `->` |
 | `isGateway(address)` | whether the address is listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md), matched exactly, a bare host at port 80; always false when the `agent-analyzer` module is not loaded. Its limits are listed under [Address-named peers](#address-named-peers) |
 | `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not. For a client that names its target only as `url.full` or `http.url` |
 | `toJson(expr)`, `toJsonArray(expr)` | as in LAL |
@@ -141,7 +149,8 @@ extractor {
   service | instance | endpoint | layer <expr>   // overwrite meta.*; also the record's standard fields
   <field> <expr> [as <Type>]                // an output field of the outputType, see Output Type
   tag '<key>': <expr>                       // appended to the stored span as a string attribute
-  alias <expr>                              // the address this span was dialed at, see Address-named peers
+  prepareNetworkAlias <expr>                // CLIENT, or a one-span proxy's SERVER: the peer it dialed
+  buildNetworkAlias <expr>                  // SERVER: the alias address, composed from pairing.service and pairing.peer
   metrics { ... }                           // see below
   if (...) { ... } else if (...) { ... } else { ... }
   abort {}                                  // stop this rule for this span; it writes nothing and votes nothing
@@ -150,7 +159,7 @@ extractor {
 
 `abort {}` is allowed anywhere: at filter level and inside `extractor`, `sink` and `persist`, and it stops the whole
 rule, the statements after the block it sits in included. A statement after it in the same block could never run
-and is a compile error. In a `layer: auto` rule it means "not mine". An `extractor`, `sink` or `persist` block may sit
+and is a compile error. An `extractor`, `sink` or `persist` block may sit
 inside a filter-level `if`, but not inside one another.
 
 ### `metrics`
@@ -275,52 +284,99 @@ record, validated at compile time; the standard fields `service`, `instance`, `e
 A CLIENT span names its peer by what it dialed, `server.address` and `server.port`, and the callee names itself by
 `service.name`; nothing on the OTLP wire ties the two, since the trace context carries no address. Without help, a
 fleet that does not set `service.peer.name` gets `product-catalog:3550` beside `product-catalog` in the service list and
-in the topology. Three mechanisms fold the address onto the service, and the shipped rule uses all three:
+in the topology. TAL folds the address onto the service from the trace context alone, by strict span pairing: a
+SERVER span's `parentSpanId` is the span id of the caller's span that made the call, so the caller's half and the
+callee's half of one call name the caller, the address it dialed and the service that answered. Nothing is inferred
+from a host name, a DNS label or a Kubernetes namespace.
 
-- **`alias <address>`** in a SERVER span's rule registers the address the span was dialed at as a network address
-  alias of `meta.service`, the row the agent path derives from its propagation header. An HTTP server's
-  `server.address` and `server.port` are the `Host` the caller sent, so the caller's `resolveAlias` finds it. The
-  alias rows travel through storage and the core's alias cache, which reloads every 10 seconds, so the first calls
-  to a freshly seen address are still address-named, and the topology query folds those.
-- **`resolveAlias(address)`** on the CLIENT side answers, in this order, from the services this OAP node has seen
-  spans from, or read from storage when it started: for a qualified host, the grouped service of the group its
-  second DNS label names (`cart.outlet` is `outlet::cart`); the service of the caller's own group named exactly the
-  host (`cart` from `shop::frontend` is `shop::cart`); a host, or its first DNS label, that is an ungrouped
-  service's name; the service an alias row names; the service an earlier pair named for the address on this node,
-  see the pairing below; the one grouped service of any group whose short name the whole host is; else the address
-  unchanged. A CLIENT span whose own pair has not met yet stays address-named; its pair names the calls that follow.
-- **Pairing** resolves the rest from the trace context: a SERVER span's `parentSpanId` is its caller's span id,
-  which needs no attribute convention on either side. Every SERVER span with a parent, and every CLIENT span
-  whose peer could not be named, becomes a fact; messaging spans take no part, since a CONSUMER span's parent is
-  the PRODUCER span and pairing them would alias the broker's address to the consumer. In a cluster the facts of one trace are
-  routed to the node that owns the trace, so the two halves meet wherever each arrived. A match learns the alias and
-  writes the row for every node. Facts wait 60 seconds for their other half; a callee that never reports, an
-  uninstrumented service or a dropped trace context, leaves its caller address-named, which is the honest answer.
+```text
+filter {
+  if (meta.kind == "SERVER") {
+    extractor { buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer) }
+  }
+  if (meta.kind == "CLIENT") {
+    extractor {
+      def peer = attr("server.address") + ":" + attr("server.port")
+      prepareNetworkAlias peer
+      def peer = resolveNetworkAlias(callerScopedAddress(meta.service, peer))
+    }
+  }
+}
+```
 
-The topology query folds an address-named node into the service its address alias names once the row lands, so
-those first calls join the callee's node. It folds a node that is not a registered service, or a self-call whose
-alias names another service, the shape a caller that dials its downstream by its own service name records until the
-downstream's alias lands. Other registered nodes keep their own names even when the name equals some alias address,
-as an OTLP `frontend` does while an agent has registered the host `frontend` for `agent::frontend`.
+- **`prepareNetworkAlias <peer>`** sends the caller half of a call, the span's service and the peer, to the trace's
+  owner. The half is keyed by the span's own id, so it pairs with the callee half of the SERVER span whose parent that
+  span is. A CLIENT span sends it, and so may a SERVER span that passed its own context to the upstream, as a proxy
+  reporting one span per request does: such a span sends its callee half for the hop from its caller, when it has one,
+  and a caller half for the hop to its upstream, see [OpenTelemetry Trace Analysis
+  Practices](../setup/backend/trace-analyzer-practices.md#a-proxy-that-reports-one-span-per-request). A PRODUCER or
+  CONSUMER span is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing them would name the broker's
+  address after the consumer. Every call in the sampled share of traces sends its half,
+  and every pair that meets pushes its row; the row decides whether storage writes it, at once when the mapping
+  changed and once per five minutes when it did not, so an address that moves to another service is followed at its
+  next sampled call. A peer that never answers with a SERVER span, an external API or an uninstrumented service,
+  costs one message per sampled call, which waits out the buffer unmatched. The statement only names the peer: the
+  half is sent once the span's rules have run, by the first rule that was not aborted, as the callee half is, so an
+  `abort {}` anywhere in the rule withdraws it and a span sends at most one caller half.
+- **`buildNetworkAlias <address>`** marks a SERVER span with a remote parent as the callee half. The expression is
+  not evaluated on the span: it runs on the trace's owner when the two halves match, and reads the caller half only,
+  through `pairing`, a variable that exists only in this expression and is never declared with `def`:
+  `pairing.service` is the caller's `meta.service` and `pairing.peer` the value its `prepareNetworkAlias` sent. They
+  are joined with literals, `+` and `callerScopedAddress`. Reading anything else, such as `meta`, an attribute or
+  another field of `pairing`, or declaring `buildNetworkAlias` twice in one rule, is a compile error. The first rule
+  that claims the span and asks for an alias names the fact.
 
-Two guards keep an alias honest. An address whose host names another service is never registered: a proxy that keeps
-the `Host` header hands `frontend-proxy:8080` to the `frontend` behind it, and that address stays the proxy's. With
-service grouping the host's first DNS label counts too: an address whose first label is the short name of any
-group's service that emitted, or was read from storage, within a day, other than the registering service's own, is
-refused, and so is one whose whole host is such a short name, `edge.proxy:8080` of `infra::edge.proxy`, so
-`frontend-proxy.ingress:8080` stays `infra::frontend-proxy`'s even when the group is not the namespace, and two
-groups' proxies of one name guard it as one does. A host outside the cluster whose first label happens to be such a
-name, `api.example.com` while `shop::api` exists, is refused the same way and its callers stay address-named, as an
-ungrouped `api` already did. And `resolveAlias` asks the known-service registry before the cache, so a row that did
-get through cannot redirect an edge away from a service that exists under that name.
+  > **Warning:** keep the address `callerScopedAddress(pairing.service, pairing.peer)`, as the shipped rule does.
+  > `resolveNetworkAlias(callerScopedAddress(...))` and the topology query both look the row up by
+  > `service->peer`, so any other address is built but never read. An address without the caller,
+  > such as `buildNetworkAlias pairing.peer`, is worse: it is the plain-address form the agent analyzer writes and
+  > the topology query falls back to for every caller, so it overwrites the agent's alias of that address, the last
+  > write winning, and hands a proxy's address to whichever service last answered behind it.
+- **`callerScopedAddress(service, peer)`** is `service->peer`, both parts formatted as the service names are. The
+  alias row is keyed by it, so one address dialed by two callers can name two services, as two namespaces' frontends
+  that both dial `cart:7070` reach their own carts.
+- **`resolveNetworkAlias(address)`** answers the service the row names, from the core's alias cache, which reloads
+  every 10 seconds; when no row is there yet it answers the peer part, so the edge stays address-named until the row
+  has been stored and reloaded, about 35 seconds after the first pair.
+
+In a cluster the facts of one trace are routed to the node that owns the trace, so the two halves meet wherever each
+arrived; a share of the traces, `pairingSamplePercent`, is paired, see [the setup
+doc](../setup/backend/trace-analyzer.md#topology). Facts wait 60 seconds for their other half. A row is built for
+every matched pair except one whose peer is a gateway; a call to another replica of the caller is drawn as a loop; an address longer than the alias
+column's 200 characters is counted and logged, not built, and so is a pair whose callee's rule is missing on the
+owner or fails to compose the address. The row names no instance, and the last pair written wins.
+
+What the pairing costs, and what it cannot see:
+
+- **Each caller and peer is learned on its own.** A new caller of a known service is address-named until one of its
+  own calls is paired, about four calls at the default 25% sample. Metrics recorded before then stay under the
+  address-named relation; the topology query folds that node into the service once the row lands, since it asks for
+  the caller's own row before the plain address.
+- **The callee must be analyzed.** A callee that sends no spans, has no rule claiming its SERVER spans, or drops the
+  trace context leaves its callers address-named, which is the honest answer. An uninstrumented load balancer in front
+  of a fleet is listed in [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) instead.
+- **One tracer per hop.** When a mesh sidecar traces as well as the applications, the application's CLIENT span is the
+  parent of the sidecar's span, not of the callee's SERVER span, so no pair of analyzed spans meets. Trace each hop
+  once, or use the [service mesh](../setup/envoy/als_setting.md) topology for the mesh.
+- **Agent callers are not folded.** An agent-instrumented caller of an OTLP service registers no caller-scoped row,
+  and its address-named edge stays as the agent analyzer records it.
+
+[OpenTelemetry Trace Analysis Practices](../setup/backend/trace-analyzer-practices.md) walks through common
+deployments: proxies, uninstrumented gateways, two namespaces of one application and a header-routed canary.
+
+The topology query folds an address-named node into the service an alias names, the caller's own row first and the
+plain address second. It folds a node that is not a registered service, or a self-call whose alias names another
+service, the shape a caller that dials its downstream by its own service name records until the downstream's alias
+lands. Other registered nodes keep their own names even when the name equals some alias address, as an OTLP
+`frontend` does while an agent has registered the host `frontend` for `agent::frontend`.
 
 An address listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) is
-never registered either, by `alias` or by a pair. The shipped rule does not resolve such a peer: when `isGateway` says
+never built by a pair either. The shipped rule does not resolve such a peer: when `isGateway` says
 it is one, the gateway stays a `VIRTUAL_GATEWAY` node of its own, as on the agent path, which the caller's edge ends on
 and the callee's edge starts from. `isGateway` has these limits:
 
 - It matches the address exactly as `gateways.yml` lists it, `host:port`, with a bare host tried at port 80, the port
-  the file assumes for an instance that names none. Nothing is resolved or folded the way `resolveAlias` does it: a
+  the file assumes for an instance that names none. Nothing is resolved or folded the way `resolveNetworkAlias` does it: a
   gateway listed as `ingress:80` is not `ingress.default.svc.cluster.local:80`, `10.0.0.5:80` or `ingress:443`, so
   every spelling and port the callers dial has to be listed.
 - A peer named by `service.peer.name` is a name, not an address, and is a gateway only if that name is listed as a
@@ -342,9 +398,9 @@ The source of a client edge is always the span's own `service.name`; a span emit
 - No parser blocks. `text {}`, `json {}` and `yaml {}` give a log body structure; a span is already structured.
 - No `traceId`, `segmentId`, `spanId` or `timestamp` statements. The identifiers are facts of the span, readable as
   `meta.traceId` and friends.
-- `abort {}` is allowed anywhere, and a `layer: auto` rule uses it to decline a span.
+- `abort {}` is allowed anywhere.
 - `tag` injects into the stored span, not into a record.
-- `alias` and `resolveAlias` exist, see above.
+- `prepareNetworkAlias`, `buildNetworkAlias`, `callerScopedAddress` and `resolveNetworkAlias` exist, see above.
 - `metrics {}` declares a metric and emits one value; it does not hand a sample to another engine.
 - `persist {}` is new and decides the span's own fate. `sink {}` needs an `outputType`.
 - The statements in `sink {}` and `persist {}` vote: `dropper {}` wins over `enforcer {}`, and `enforcer {}` over the
@@ -353,6 +409,6 @@ The source of a client edge is always the span's own `service.name`; a span emit
   its output when its `sink {}` block ends.
 - Statements may be separated by `;` as well as by newlines, so a `metrics {}` block fits on one line.
 - `!` binds tighter than `&&` and `||`, as in Java: `!peer && hasAttr("x")` reads as `(!peer) && hasAttr("x")`.
-- More words are keywords: `persist`, `alias`, `scope`, `function`, `match`, `status`, `labelLimit`, `buckets`,
+- More words are keywords: `persist`, `prepareNetworkAlias`, `buildNetworkAlias`, `scope`, `function`, `match`, `status`, `labelLimit`, `buckets`,
   `ranks`, `span`, `meta`, `CLIENT` and `SERVER`. They still work as field names and label keys, `labels status: ...`, but not as a
   `def` name, so `def status = ...` is a syntax error.

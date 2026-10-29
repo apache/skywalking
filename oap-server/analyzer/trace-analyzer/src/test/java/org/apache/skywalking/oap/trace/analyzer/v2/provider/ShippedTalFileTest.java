@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.apache.skywalking.oap.trace.analyzer.v2.ShippedRules;
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The file an OAP actually boots with, {@code tal/otlp-default.yaml}, loaded and compiled as the module loads it.
+ * The file an OAP actually boots with, {@code tal/otlp-general.yaml}, loaded and compiled as the module loads it.
  *
  * <p>The other compile tests read DSL fragments; this one reads the shipped YAML, so a rule that parses in
  * isolation but is wired into the file wrongly — a bad {@code layer}, an {@code inputType} no provider claims, an
@@ -47,12 +48,13 @@ class ShippedTalFileTest {
 
         assertEquals("otlp", configs.getMetricPrefix(),
             "the prefix marks these as TAL's; meter_* marks MAL's");
-        assertEquals(List.of("otlp-service", "otlp-slow-sql"),
+        assertEquals(List.of("otlp-general", "otlp-slow-sql"),
             configs.getRules().stream().map(TALConfig::getName).collect(Collectors.toList()));
 
         for (final TALConfig rule : configs.getRules()) {
-            assertEquals(TALConfig.LAYER_AUTO, rule.getLayer(),
-                rule.getName() + " sees the spans that carry no service.layer");
+            assertEquals(Layer.OTLP_GENERAL.name(), rule.getLayer(),
+                rule.getName() + " sees only the spans that carry service.layer=OTLP_GENERAL; the others are stored, "
+                    + "not analyzed");
             assertEquals(List.of("otlp"), rule.inputTypes(), rule.getName() + " reads OTLP spans");
             assertNotNull(rule.getDsl(), rule.getName() + " has a body");
         }
@@ -60,7 +62,7 @@ class ShippedTalFileTest {
 
         // The line a generated class reports is the line an operator opens, so it has to be the rule's own.
         for (final TALConfig rule : configs.getRules()) {
-            assertEquals("tal/otlp-default.yaml", rule.getSourcePath());
+            assertEquals("tal/otlp-general.yaml", rule.getSourcePath());
             assertTrue(rule.getLineNo() > 0, rule.getName() + " carries no line number");
             assertEquals(rule.getName(), nameAtLine(rule.getLineNo()),
                 rule.getName() + " is not at the line it claims");

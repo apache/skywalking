@@ -52,9 +52,14 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     private static final int REPORTED_UNKNOWN_LAYERS_CAP = 1000;
 
+    /**
+     * Services already reported for sending spans without a {@code service.layer}, which no rule sees. Bounded the
+     * same way.
+     */
+    private static final Set<String> REPORTED_UNLAYERED_SERVICES = ConcurrentHashMap.newKeySet();
+
     private final ModuleManager moduleManager;
     private final SpanFilterListener.Factory factory;
-    private final KnownServices knownServices;
     private final SpanPairing spanPairing;
     private final SeenSpans seenSpans;
 
@@ -66,12 +71,10 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     public TraceAnalyzerServiceImpl(final ModuleManager moduleManager,
                                     final SpanFilterListener.Factory factory,
-                                    final KnownServices knownServices,
                                     final SpanPairing spanPairing,
                                     final SeenSpans seenSpans) {
         this.moduleManager = moduleManager;
         this.factory = factory;
-        this.knownServices = knownServices;
         this.spanPairing = spanPairing;
         this.seenSpans = seenSpans;
     }
@@ -93,40 +96,52 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
         if (!factory.hasRules()) {
             return SpanAnalysisResult.CONTINUE;
         }
+        // A span is analyzed by the rules of the layer its resource names, and by nothing else: one without a
+        // registered layer is stored, not analyzed. Each is reported once, per name or per service, not per span.
+        final Layer layer = resolveLayer(meta);
+        if (layer == null) {
+            if (StringUtil.isNotEmpty(meta.getLayer())) {
+                if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP
+                    && REPORTED_UNKNOWN_LAYERS.add(meta.getLayer())) {
+                    log.warn("Spans carry an unknown service.layer '{}'; they are not analyzed", meta.getLayer());
+                }
+            } else if (meta.getService() != null
+                // Looked up before the bounded add, since every span of such a service passes here.
+                && !REPORTED_UNLAYERED_SERVICES.contains(meta.getService())
+                && REPORTED_UNLAYERED_SERVICES.size() < REPORTED_UNKNOWN_LAYERS_CAP
+                && REPORTED_UNLAYERED_SERVICES.add(meta.getService())) {
+                // Silent otherwise: an application that never set the layer shows up as empty dashboards only.
+                log.info("Spans of service '{}' carry no service.layer, so they are stored but not analyzed. Set "
+                    + "service.layer on its resource to a layer the TAL rules are declared for, OTLP_GENERAL with "
+                    + "the shipped rules, e.g. OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL, to analyze "
+                    + "them.", meta.getService());
+            }
+            return SpanAnalysisResult.CONTINUE;
+        }
+        final List<SpanFilterListener.RuleBinding> rules = factory.rulesFor(layer, span);
+        if (rules.isEmpty()) {
+            // A layer with no rule, as OTLP_MESH, is a deliberate opt-out.
+            return SpanAnalysisResult.CONTINUE;
+        }
         // A retried span is not counted again: no metric, no pairing. It gets the verdict its first delivery got,
-        // so a span a rule dropped stays dropped and an enforced one stays enforced.
+        // so a span a rule dropped stays dropped and an enforced one stays enforced, while its rules stay installed.
+        // Only a span some rule runs on takes a slot: the others, unlayered or on a layer with no rule, are most of
+        // the traffic and would push the analyzed spans out of the window.
         if (!seenSpans.firstSight(meta.getTraceId(), meta.getSpanId())) {
             log.debug("Span {}/{} was analyzed already; skipped", meta.getTraceId(), meta.getSpanId());
             return seenSpans.verdictOf(meta.getTraceId(), meta.getSpanId());
         }
-        // Recorded before any rule runs, and whether or not one matches: a service that emits spans is a service.
-        knownServices.record(meta.getService());
-        final Layer layer = resolveLayer(meta);
-        if (layer == null && StringUtil.isNotEmpty(meta.getLayer())) {
-            // An unknown layer name is not analyzed rather than silently handed to the auto rules, which would
-            // attribute the span to a layer the operator did not ask for. Warned once per name, not per span.
-            if (REPORTED_UNKNOWN_LAYERS.size() < REPORTED_UNKNOWN_LAYERS_CAP
-                && REPORTED_UNKNOWN_LAYERS.add(meta.getLayer())) {
-                log.warn("Spans carry an unknown service.layer '{}'; they are not analyzed", meta.getLayer());
-            }
-            return SpanAnalysisResult.CONTINUE;
-        }
-        // The callee side of the pairing is a fact of the span, sent whether or not a rule matches. SERVER only: a
-        // CONSUMER span's parent is the PRODUCER span, and pairing those two would register the broker's address
-        // as an alias of the consumer, pulling every producer's edge off the broker.
-        final boolean pairable =
-            SpanMetadata.KIND_SERVER.equals(meta.getKind()) && StringUtil.isNotEmpty(meta.getParentSpanId());
-
-        final List<SpanFilterListener.RuleBinding> rules = factory.rulesFor(layer, span);
-        if (rules.isEmpty()) {
-            if (pairable) {
-                spanPairing.serverSeen(meta, MeterEntity.isNormal(layer));
-            }
-            return SpanAnalysisResult.CONTINUE;
-        }
-        // The layer the first rule that ran named, so a learned alias names the same service id the rule's own
-        // `alias` and metrics do; an auto rule names it, and a span's own service.layer is only the fallback.
-        Layer pairingLayer = null;
+        // The first rule that ran to the end, without `abort {}`, and asked for a network alias with
+        // buildNetworkAlias; the callee half of the pairing carries its key, so the trace's owner composes the
+        // alias address with that rule's expression. The half names the service as that rule left it, and the layer
+        // its extractor named gives the alias the service id the rule's own metrics use; the span's own layer is the
+        // fallback.
+        String aliasRule = null;
+        SpanMetadata aliasMeta = null;
+        // The first rule that ran to the end and named the peer with prepareNetworkAlias sends the caller half, once
+        // per span, as the callee half is chosen; an aborted rule sends neither.
+        String clientPeer = null;
+        SpanMetadata clientMeta = null;
 
         boolean persist = true;
         boolean enforced = false;
@@ -157,8 +172,13 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             if (ctx.isAborted()) {
                 continue;
             }
-            if (pairingLayer == null) {
-                pairingLayer = resolveLayer(ruleMeta);
+            if (aliasRule == null && ctx.isNetworkAliasRequested()) {
+                aliasRule = binding.dsl.getRuleName();
+                aliasMeta = ruleMeta;
+            }
+            if (clientPeer == null && ctx.getNetworkAliasPeer() != null) {
+                clientPeer = ctx.getNetworkAliasPeer();
+                clientMeta = ruleMeta;
             }
             writeRecord(ctx, ruleMeta, span);
             tags.putAll(ctx.getAdditionalTags());
@@ -168,8 +188,13 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
         }
 
-        if (pairable) {
-            spanPairing.serverSeen(meta, MeterEntity.isNormal(pairingLayer != null ? pairingLayer : layer));
+        if (clientPeer != null) {
+            spanPairing.clientSeen(clientMeta, clientPeer);
+        }
+        if (aliasRule != null) {
+            final Layer aliasLayer = resolveLayer(aliasMeta);
+            spanPairing.serverSeen(aliasMeta, MeterEntity.isNormal(aliasLayer != null ? aliasLayer : layer),
+                layer.name(), aliasRule);
         }
 
         // The common outcome carries nothing span-specific, so the dedup window holds the shared instance.
@@ -216,8 +241,8 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
 
     /**
      * @param meta the span's layer name as the receiver read it
-     * @return the layer; null when the span carries none, which the auto rules serve, and when the name is not
-     * registered, which {@link #doAnalysis} reports. {@code Layer.nameOf} is not used here because it answers
+     * @return the layer; null when the span carries none or the name is not registered, neither of which a rule
+     * serves, as {@link #doAnalysis} reports. {@code Layer.nameOf} is not used here because it answers
      * {@code UNDEFINED} for an unknown name, which no rule serves either, but silently.
      */
     private static Layer resolveLayer(final SpanMetadata meta) {

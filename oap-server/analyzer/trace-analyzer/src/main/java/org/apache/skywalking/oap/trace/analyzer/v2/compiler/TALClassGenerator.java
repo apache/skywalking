@@ -41,6 +41,7 @@ import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefine
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.rt.TalExpressionPackageHolder;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
 
 /**
  * Compiles one TAL rule into a class implementing {@link TalExpression}.
@@ -57,6 +58,12 @@ public final class TALClassGenerator {
     private static final String EXEC_CTX = "org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext";
     private static final String HELPER = "org.apache.skywalking.oap.trace.analyzer.v2.compiler.rt.TalRuntimeHelper";
     private static final String EXPRESSION = "org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression";
+    /**
+     * The caller half a {@code buildNetworkAlias} address reads.
+     */
+    private static final String PAIRING = "pairing";
+    private static final Set<String> PAIRING_FIELDS = Set.of("service", "peer");
+    private static final String CALLER_SCOPED_ADDRESS = "callerScopedAddress";
 
     private final ClassPool classPool;
     private final ClassLoader targetClassLoader;
@@ -164,6 +171,11 @@ public final class TALClassGenerator {
 
         final CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
         ctClass.addMethod(execMethod);
+        final String aliasBody = genCtx.networkAliasBuild == null ? null
+            : generateNetworkAliasMethod(genCtx.networkAliasBuild);
+        if (aliasBody != null) {
+            ctClass.addMethod(CtNewMethod.make(aliasBody, ctClass));
+        }
 
         final List<String[]> execLvt = new ArrayList<>();
         execLvt.add(new String[] {"filterSpec", "L" + FILTER_SPEC.replace('.', '/') + ";"});
@@ -182,7 +194,8 @@ public final class TALClassGenerator {
         execLvt.addAll(genCtx.localVarLvtVars);
         DslGeneratedFileWriter.addLocalVariableTable(execMethod, className, execLvt.toArray(new String[0][]));
 
-        final String sourceText = buildSourceText(ctClass, genCtx, executeBody);
+        final String sourceText = buildSourceText(ctClass, genCtx,
+            aliasBody == null ? executeBody : executeBody + aliasBody);
         if (sourceRef != null) {
             DslGeneratedFileWriter.setSourceFile(ctClass, sourceRef.sourceFileOf(ctClass.getSimpleName()));
         }
@@ -230,6 +243,57 @@ public final class TALClassGenerator {
             }
         }
         return new ArrayList<>(byName.values());
+    }
+
+    /**
+     * {@code networkAliasAddress}, from the rule's {@code buildNetworkAlias}: it runs on the trace's owner after a
+     * call's two halves matched, where there is no span, only the caller half as {@code pairing}. So the expression
+     * may read {@code pairing.*}, literals and {@code callerScopedAddress(...)}, and nothing of a span.
+     */
+    private String generateNetworkAliasMethod(final TALScriptModel.NetworkAliasStatement build) {
+        requirePairingOnly(build.getValue());
+        final TALGenCtx aliasCtx = new TALGenCtx(new TALSpanRootResolver(inputType), inputType, outputType);
+        aliasCtx.localVars.put(PAIRING, new TALLocalVar(PAIRING, PairingFact.class));
+        final StringBuilder address = new StringBuilder();
+        TALValueCodegen.generateStringValueAccess(address, build.getValue(), build.getCastType(), aliasCtx);
+        return "public String networkAliasAddress(" + FILTER_SPEC + " filterSpec, " + EXEC_CTX + " ctx, "
+            + PairingFact.class.getName() + " " + PAIRING + ") {\n"
+            + "  " + HELPER + " h = new " + HELPER + "(ctx, filterSpec);\n"
+            + "  return " + address + ";\n"
+            + "}\n";
+    }
+
+    private static void requirePairingOnly(final TALScriptModel.ValueAccess value) {
+        if (value == null || value.isStringLiteral() || value.isNumberLiteral()) {
+            return;
+        }
+        if (value.getFunctionCallName() != null) {
+            if (!CALLER_SCOPED_ADDRESS.equals(value.getFunctionCallName())) {
+                throw new IllegalArgumentException(
+                    "buildNetworkAlias runs on the trace's owner with the caller half only; it may call "
+                        + CALLER_SCOPED_ADDRESS + "(...), not " + value.getFunctionCallName() + "(...)");
+            }
+            for (final TALScriptModel.FunctionArg arg : value.getFunctionCallArgs()) {
+                requirePairingOnly(arg.getValue());
+            }
+            return;
+        }
+        if (!value.getConcatParts().isEmpty()) {
+            value.getConcatParts().forEach(TALClassGenerator::requirePairingOnly);
+            return;
+        }
+        if (value.getParenInner() != null) {
+            requirePairingOnly(value.getParenInner());
+            return;
+        }
+        // Only the caller and the peer it dialed: a per-call field, as pairing.spanId, would write a row per call.
+        if (value.isMetaRef() || value.isInputRef() || value.getSegments().size() != 2
+            || !PAIRING.equals(value.getSegments().get(0))
+            || !PAIRING_FIELDS.contains(value.getSegments().get(1))) {
+            throw new IllegalArgumentException(
+                "buildNetworkAlias runs on the trace's owner with the caller half only, so its address reads "
+                    + "pairing.service and pairing.peer, not '" + value.toPathString() + "'");
+        }
     }
 
     private String generateExecuteMethod(final TALScriptModel model, final TALGenCtx genCtx) {

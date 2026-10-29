@@ -14,14 +14,14 @@
 # limitations under the License.
 
 # The Trace Analysis Language (TAL) rules run on every span the native OTLP storage accepts: the two demo services
-# must appear as OTLP_SERVICE services, with their metrics, their endpoint, and the topology the client spans draw.
+# must appear as OTLP_GENERAL services, with their metrics, their endpoint, and the topology the client spans draw.
 # The `User` end of the topology is the root span the trigger's curl creates on `frontend`, which carries no trace
 # context; the `frontend -> productcatalogservice` edge is the gRPC client span, named by `net.peer.name:port` and
 # folded onto the callee's own service by the alias the span pairing learned.
 cases:
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_SERVICE
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_GENERAL
     expected: expected/tal-services.yml
-  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=OTLP_SERVICE
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency global --layer=OTLP_GENERAL
     expected: expected/tal-topology.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql endpoint list --service-name=productcatalogservice
     expected: expected/tal-endpoints-productcatalogservice.yml
@@ -35,13 +35,13 @@ cases:
     expected: expected/tal-metric-present.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=otlp_service_relation_client_cpm --service-name=frontend --dest-service-name=productcatalogservice
     expected: expected/tal-metric-values.yml
-  # Slow statements: one 500 ms PostgreSQL client span, sent as OTLP/HTTP JSON with fresh ids on every attempt so a
+  # Slow statements: one 500 ms PostgreSQL client span of an OTLP_GENERAL service, sent as OTLP/HTTP JSON with fresh ids on every attempt so a
   # retry is a new record rather than a duplicate key, is written by otlp-slow-sql as a slow statement of the
   # database it called, named as the topology names it, `orders-db:5432` in OTLP_VIRTUAL_DATABASE (not normal).
   - query: |
       now=$(date +%s%N)
       trace_id=$(printf '%016x%016x' "$now" "$((now % 65536))")
       span_id=$(printf '%016x' "$now")
-      curl -s -o /dev/null -X POST -H 'Content-Type: application/json' http://${oap_host}:${oap_12800}/v1/traces -d '{"resourceSpans":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"e2e-slow-sql-client"}}]},"scopeSpans":[{"scope":{"name":"e2e"},"spans":[{"traceId":"'"$trace_id"'","spanId":"'"$span_id"'","name":"SELECT orders","kind":3,"startTimeUnixNano":"'"$((now - 500000000))"'","endTimeUnixNano":"'"$now"'","attributes":[{"key":"db.system.name","value":{"stringValue":"postgresql"}},{"key":"db.query.text","value":{"stringValue":"SELECT * FROM orders WHERE id = ?"}},{"key":"server.address","value":{"stringValue":"orders-db"}},{"key":"server.port","value":{"intValue":"5432"}}]}]}]}]}'
+      curl -s -o /dev/null -X POST -H 'Content-Type: application/json' http://${oap_host}:${oap_12800}/v1/traces -d '{"resourceSpans":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"e2e-slow-sql-client"}},{"key":"service.layer","value":{"stringValue":"OTLP_GENERAL"}}]},"scopeSpans":[{"scope":{"name":"e2e"},"spans":[{"traceId":"'"$trace_id"'","spanId":"'"$span_id"'","name":"SELECT orders","kind":3,"startTimeUnixNano":"'"$((now - 500000000))"'","endTimeUnixNano":"'"$now"'","attributes":[{"key":"db.system.name","value":{"stringValue":"postgresql"}},{"key":"db.query.text","value":{"stringValue":"SELECT * FROM orders WHERE id = ?"}},{"key":"server.address","value":{"stringValue":"orders-db"}},{"key":"server.port","value":{"intValue":"5432"}}]}]}]}]}'
       swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql records list --name=top_n_database_statement --service-id=$(echo -n 'orders-db:5432' | base64).0 |yq e 'to_entries | with(.[] ; .value=(.value | to_entries))' -
     expected: expected/tal-slow-statements.yml

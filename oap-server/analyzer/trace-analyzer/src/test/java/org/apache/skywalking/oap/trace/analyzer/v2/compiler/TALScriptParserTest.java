@@ -174,16 +174,19 @@ class TALScriptParserTest {
     }
 
     @Test
-    void parseAliasStatementInExtractorAndAtFilterLevel() {
+    void parseNetworkAliasStatementsInExtractorAndAtFilterLevel() {
         final TALScriptModel model = TALScriptParser.parse(
-            "filter { alias attr(\"server.address\")\n"
-                + "  extractor { alias attr(\"server.address\") + \":\" + attr(\"server.port\") } }");
-        assertInstanceOf(TALScriptModel.AliasStatement.class, model.getStatements().get(0));
-        final TALScriptModel.AliasStatement inExtractor = (TALScriptModel.AliasStatement)
+            "filter { prepareNetworkAlias attr(\"server.address\")\n"
+                + "  extractor { buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer) } }");
+        final TALScriptModel.NetworkAliasStatement prepare =
+            (TALScriptModel.NetworkAliasStatement) model.getStatements().get(0);
+        assertFalse(prepare.isBuild());
+        final TALScriptModel.NetworkAliasStatement build = (TALScriptModel.NetworkAliasStatement)
             ((ExtractorBlock) model.getStatements().get(1)).getStatements().get(0);
-        assertNotNull(inExtractor.getAddress());
-        assertEquals(2, inExtractor.getSourceLine());
-        assertTrue(inExtractor.getSourceText().startsWith("alias attr"));
+        assertTrue(build.isBuild());
+        assertEquals("callerScopedAddress", build.getValue().getFunctionCallName());
+        assertEquals(2, build.getSourceLine());
+        assertTrue(build.getSourceText().startsWith("buildNetworkAlias callerScopedAddress"));
     }
 
     @Test
@@ -268,11 +271,11 @@ class TALScriptParserTest {
     @Test
     void statementsCarryTheirSourceLine() {
         final TALScriptModel model = TALScriptParser.parse(
-            "filter {\n  extractor {\n    layer \"OTLP_SERVICE\"\n  }\n}");
+            "filter {\n  extractor {\n    layer \"OTLP_GENERAL\"\n  }\n}");
         final TALScriptModel.FieldAssignment layer = (TALScriptModel.FieldAssignment)
             ((ExtractorBlock) model.getStatements().get(0)).getStatements().get(0);
         assertEquals(3, layer.getSourceLine());
-        assertEquals("layer \"OTLP_SERVICE\"", layer.getSourceText());
+        assertEquals("layer \"OTLP_GENERAL\"", layer.getSourceText());
     }
 
     private static MetricsBlock firstMetrics(final TALScriptModel model) {

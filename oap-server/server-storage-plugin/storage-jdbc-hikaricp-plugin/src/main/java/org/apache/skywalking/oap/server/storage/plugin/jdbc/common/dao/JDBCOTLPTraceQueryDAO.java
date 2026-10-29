@@ -47,6 +47,7 @@ import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCEntityConverters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
@@ -58,6 +59,7 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 @RequiredArgsConstructor
 public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
     private static final int NAME_QUERY_MAX_SIZE = Integer.MAX_VALUE;
+    private static final OTLPServiceTraffic.Builder SERVICE_TRAFFIC_BUILDER = new OTLPServiceTraffic.Builder();
 
     /**
      * The alias of the aggregate a search ranks traces by, {@code min(start_time)} or {@code max(duration)}.
@@ -69,18 +71,24 @@ public class JDBCOTLPTraceQueryDAO implements IOTLPTraceQueryDAO {
 
     @Override
     @SneakyThrows
-    public List<String> getServiceNames() {
+    public List<OTLPServiceTraffic> getServices(@Nullable final String layer) {
         final List<String> tables = tableHelper.getTablesWithinTTL(OTLPServiceTraffic.INDEX_NAME);
-        final Set<String> services = new LinkedHashSet<>();
+        // One row per name and layer, as the other storages return: each day's table holds a row of its own.
+        final Set<OTLPServiceTraffic> services = new LinkedHashSet<>();
+        final Object[] params = layer == null
+            ? new Object[] {OTLPServiceTraffic.INDEX_NAME}
+            : new Object[] {OTLPServiceTraffic.INDEX_NAME, layer};
+        final String layerCondition = layer == null ? "" : " and " + OTLPServiceTraffic.LAYER + " = ?";
         for (final String table : tables) {
-            final String sql = "select " + OTLPServiceTraffic.SERVICE_NAME + " from " + table
-                + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ? limit " + NAME_QUERY_MAX_SIZE;
+            final String sql = "select " + OTLPServiceTraffic.SERVICE_NAME + ", " + OTLPServiceTraffic.LAYER + ", "
+                + OTLPServiceTraffic.TIME_BUCKET + " from " + table + " where " + JDBCTableInstaller.TABLE_COLUMN + " = ?" + layerCondition
+                + " limit " + NAME_QUERY_MAX_SIZE;
             jdbcClient.executeQuery(sql, resultSet -> {
                 while (resultSet.next()) {
-                    services.add(resultSet.getString(OTLPServiceTraffic.SERVICE_NAME));
+                    services.add(SERVICE_TRAFFIC_BUILDER.storage2Entity(JDBCEntityConverters.toEntity(resultSet)));
                 }
                 return null;
-            }, OTLPServiceTraffic.INDEX_NAME);
+            }, params);
         }
         return new ArrayList<>(services);
     }

@@ -27,13 +27,13 @@ nodes:
   type: http
   isreal: true
   layers:
-    - OTLP_SERVICE
+    - OTLP_GENERAL
 - id: {{ b64enc "productcatalogservice" }}.1
   name: productcatalogservice
   type: null
   isreal: true
   layers:
-    - OTLP_SERVICE
+    - OTLP_GENERAL
 {{- end }}
 calls:
 {{- contains .calls }}

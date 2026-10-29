@@ -87,7 +87,7 @@ public class OpenTelemetryTraceHandler
      * The resource attributes an instance name is taken from, in the order the OTLP logs handler uses.
      */
     private static final List<String> INSTANCE_KEYS = List.of("service.instance.id", "service.instance");
-    private static final String SERVICE_LAYER_KEY = "service.layer";
+    static final String SERVICE_LAYER_KEY = "service.layer";
     private static final String NO_SERVICE_NAME_MESSAGE =
         "resource carries none of service.name, faas.name, k8s.deployment.name, process.executable.name";
 
@@ -216,6 +216,12 @@ public class OpenTelemetryTraceHandler
                 // service.name among them, stay as sent.
                 final String groupedServiceName = OTLPServiceGroup.apply(
                     serviceName, analyzedResourceTags, serviceGroupKeys);
+                // The analysis reads service.layer as sent; the stored span carries the layer the service catalog
+                // files the service under, UNDEFINED for an unregistered or absent one, so a search on it agrees
+                // with the catalog.
+                final Resource storedResource = nativeStorage
+                    ? OTLPSpanForward.withCatalogLayer(resource, OTLPSpanForward.catalogLayerOf(resourceTags))
+                    : resource;
 
                 try {
                     for (ScopeSpans scopeSpans : scopeSpansList) {
@@ -257,8 +263,9 @@ public class OpenTelemetryTraceHandler
                                 // The response reports the batch as accepted, so one span's failure must not take the
                                 // rest of the export with it; what is not stored is counted as dropped.
                                 try {
-                                    storeNative(resourceSpans, scopeSpans, span, groupedServiceName, resourceTags,
-                                                injectedTags, analysis.isEnforced());
+                                    storeNative(storedResource, resourceSpans.getSchemaUrl(), scopeSpans, span,
+                                                groupedServiceName, resourceTags, injectedTags,
+                                                analysis.isEnforced());
                                 } catch (Exception e) {
                                     log.warn("Storing OTLP span {} failed, dropping it: {}",
                                              OTLPValues.hexId(span.getSpanId()), e.getMessage());
@@ -658,11 +665,14 @@ public class OpenTelemetryTraceHandler
      * is left here is the native-only phase-two notification and the forward. Exceptions propagate to the caller,
      * which drops this span only.
      *
+     * @param storedResource the span's resource as stored: as received but for its {@code service.layer}, see
+     *                       {@link OTLPSpanForward#withCatalogLayer}
      * @param injectedTags the tags phase one and the rules injected, which the caller merged; they are appended
      *                     to the stored span, so the resource attributes are never among them
      * @param enforced     whether a rule's {@code enforcer {}} kept this span past head sampling
      */
-    private void storeNative(final ResourceSpans resourceSpans,
+    private void storeNative(final Resource storedResource,
+                             final String resourceSchemaUrl,
                              final ScopeSpans scopeSpans,
                              final io.opentelemetry.proto.trace.v1.Span span,
                              final String serviceName,
@@ -680,7 +690,7 @@ public class OpenTelemetryTraceHandler
         final Map<String, String> storedTags = new HashMap<>(injectedTags);
         storedTags.putAll(storedResult.getAdditionalTags());
         if (!otlpSpanForward.send(
-            resourceSpans.getResource(), resourceSpans.getSchemaUrl(), scope, scopeSpans.getSchemaUrl(),
+            storedResource, resourceSchemaUrl, scope, scopeSpans.getSchemaUrl(),
             span, serviceName, resourceTags, storedTags, enforced)) {
             getDroppedSpans().inc(1);
         }

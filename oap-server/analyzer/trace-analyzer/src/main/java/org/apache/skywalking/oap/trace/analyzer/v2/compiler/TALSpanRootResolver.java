@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccess
 /**
  * What TAL contributes to {@link TALValueCodegen}: the {@code span} and {@code meta} roots, the attribute
  * functions the semantic conventions are read through, and the lookups a peer's name goes through,
- * {@code component}, {@code resolveAlias} and {@code isGateway}.
+ * {@code component}, {@code callerScopedAddress}, {@code resolveNetworkAlias} and {@code isGateway}.
  *
  * <p>The entity constructors are function calls too, but they are not resolved here: only a {@code def} or a
  * {@code scope} may hold one, so {@link TALBlockCodegen} recognizes them by name where they are legal, and
@@ -93,7 +93,18 @@ public class TALSpanRootResolver implements TALRootResolver {
             sb.append(asArray ? "})" : ")");
             return true;
         }
-        if ("component".equals(name) || "resolveAlias".equals(name) || "urlHost".equals(name)
+        if ("callerScopedAddress".equals(name)) {
+            requireKeys(value, name, 2, 2);
+            sb.append("h.callerScopedAddress(");
+            TALValueCodegen.generateStringValueAccess(
+                sb, value.getFunctionCallArgs().get(0).getValue(), null, genCtx);
+            sb.append(", ");
+            TALValueCodegen.generateStringValueAccess(
+                sb, value.getFunctionCallArgs().get(1).getValue(), null, genCtx);
+            sb.append(")");
+            return true;
+        }
+        if ("component".equals(name) || "resolveNetworkAlias".equals(name) || "urlHost".equals(name)
             || "isGateway".equals(name)) {
             requireKeys(value, name, 1, 1);
             sb.append("h.").append(name).append("(");
@@ -138,8 +149,8 @@ public class TALSpanRootResolver implements TALRootResolver {
         if ("hasAttr".equals(functionName) || "isGateway".equals(functionName)) {
             return ExprType.BOOLEAN;
         }
-        if ("eventAttr".equals(functionName) || "resolveAlias".equals(functionName)
-            || "urlHost".equals(functionName)) {
+        if ("eventAttr".equals(functionName) || "resolveNetworkAlias".equals(functionName)
+            || "callerScopedAddress".equals(functionName) || "urlHost".equals(functionName)) {
             return ExprType.STRING;
         }
         if ("component".equals(functionName)) {

@@ -19,13 +19,13 @@
   group: ""
   shortname: frontend
   layers:
-    - OTLP_SERVICE
+    - OTLP_GENERAL
   normal: true
 - id: {{ b64enc "productcatalogservice" }}.1
   name: productcatalogservice
   group: ""
   shortname: productcatalogservice
   layers:
-    - OTLP_SERVICE
+    - OTLP_GENERAL
   normal: true
 {{- end }}

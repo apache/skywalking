@@ -61,6 +61,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.ShippedSlowStatement;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,7 @@ import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -160,7 +162,7 @@ class TALExecutionTest {
     @Test
     void aServiceMetricReachesTheMeterSystemWithItsEntity() throws Exception {
         run("filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  metrics { name \"service_cpm\"; scope svc; function cpm; value 1 }\n"
                 + "} }",
@@ -169,7 +171,7 @@ class TALExecutionTest {
         assertEquals(1, sentValues.size());
         final AcceptableValue<?> value = sentValues.get(0);
         assertEquals(
-            MeterEntity.newService("frontend", Layer.OTLP_SERVICE).id(),
+            MeterEntity.newService("frontend", Layer.OTLP_GENERAL).id(),
             entityIdOf(value));
         assertEquals(TimeBucket.getMinuteTimeBucket(SPAN_START_MILLIS), value.getTimeBucket(),
             "the value lands in the minute the span started in, not the wall clock's");
@@ -178,7 +180,7 @@ class TALExecutionTest {
     @Test
     void theEntityIsRegisteredOncePerExecution() throws Exception {
         run("filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  metrics { name \"shared_cpm\"; scope svc; function cpm; value 1 }\n"
                 + "  metrics { name \"shared_resp_time\"; scope svc; function avg; value meta.latency }\n"
@@ -194,7 +196,7 @@ class TALExecutionTest {
         // The names come from the span, so nothing is checked at compile; at runtime an unregistered name resolves
         // to no layer and the block is skipped, rather than filed under UNDEFINED, where nothing would read it.
         run("filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  metrics { name \"typo_cpm\"; scope service(meta.service, attr(\"l\")); function cpm; value 1 }\n"
                 + "  metrics { name \"typo_rel_cpm\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"pg:5432\","
                 + "             attr(\"l\"), 0); function cpm; value 1 }\n"
@@ -204,17 +206,17 @@ class TALExecutionTest {
 
         assertEquals(1, sentValues.size(), "only the block on a registered layer is sent: " + sentValues);
         assertEquals(
-            MeterEntity.newService("frontend", Layer.OTLP_SERVICE).id(), entityIdOf(sentValues.get(0)));
+            MeterEntity.newService("frontend", Layer.OTLP_GENERAL).id(), entityIdOf(sentValues.get(0)));
         assertEquals(1, traffic.size(), "nothing is registered under a layer the rule misspelled: " + traffic);
     }
 
     @Test
     void urlHostNamesThePeerOfAClientThatOnlyReportsAUrl() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def peer = urlHost(attr(\"url.full\", \"http.url\"))\n"
             + "  if (peer) {\n"
-            + "    def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\", 0)\n"
+            + "    def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_GENERAL\", 0)\n"
             + "    metrics { name \"url_peer_cpm\"; scope edge; function cpm; value 1 }\n"
             + "  }\n"
             + "} }");
@@ -229,7 +231,7 @@ class TALExecutionTest {
             execute(rule, clientSpan(), new TestSpanInput().attribute("http.url", c[0]));
             assertEquals(1, sentValues.size(), c[0]);
             assertEquals(
-                MeterEntity.newServiceRelation("frontend", Layer.OTLP_SERVICE, c[1], Layer.OTLP_SERVICE,
+                MeterEntity.newServiceRelation("frontend", Layer.OTLP_GENERAL, c[1], Layer.OTLP_GENERAL,
                                                DetectPoint.CLIENT, 0).id(),
                 entityIdOf(sentValues.get(0)), c[0]);
         }
@@ -246,7 +248,7 @@ class TALExecutionTest {
         span.setStartTime(start);
         span.setTimestamp(start + 300L);
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"start_minute_cpm\"; scope svc; function cpm; value 1 }\n"
             + "} }", span, new TestSpanInput());
@@ -260,21 +262,21 @@ class TALExecutionTest {
     @Test
     void serviceAndEndpointMetricsCarryTheirLayerAsAttr0() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  metrics { name \"attr0_svc_cpm\"; scope service(meta.service, meta.layer); function cpm; value 1 }\n"
             + "  metrics { name \"attr0_ep_cpm\"; scope endpoint(meta.service, meta.endpoint, meta.layer); function cpm;"
             + " value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput());
-        assertEquals("OTLP_SERVICE", attr0Of(sentValues.get(0)));
-        assertEquals("OTLP_SERVICE", attr0Of(sentValues.get(1)));
+        assertEquals("OTLP_GENERAL", attr0Of(sentValues.get(0)));
+        assertEquals("OTLP_GENERAL", attr0Of(sentValues.get(1)));
     }
 
     @Test
     void aClientEdgeListsItsCallerAndAConjecturedPeerButNotAServicePeer() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  metrics { name \"to_svc\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"cart:7070\","
-            + " \"OTLP_SERVICE\", 0); function cpm; value 1 }\n"
+            + " \"OTLP_GENERAL\", 0); function cpm; value 1 }\n"
             + "  metrics { name \"to_db\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"pg:5432\","
             + " \"OTLP_VIRTUAL_DATABASE\", 0); function cpm; value 1 }\n"
             + "} }", clientSpan(), new TestSpanInput());
@@ -289,7 +291,7 @@ class TALExecutionTest {
 
     @Test
     void theShippedRuleCountsAnHttp4xxAsAFailure() throws Exception {
-        final TalExpression rule = compileShipped("otlp-service", "tal_exec_4xx");
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_4xx");
         execute(rule, serverSpan(), new TestSpanInput().attribute("http.response.status_code", "404"));
         final AcceptableValue<?> sla = sentValues.stream()
             .filter(v -> metricNameOf(v).endsWith("service_sla")).findFirst().orElseThrow();
@@ -305,7 +307,7 @@ class TALExecutionTest {
 
     @Test
     void theShippedRuleLeavesAnIosAppsUrlSessionCallsToTheIosAnalyzer() throws Exception {
-        final TalExpression rule = compileShipped("otlp-service", "tal_exec_ios");
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_ios");
         final SpanMetadata call = clientSpan();
         call.setScopeName("NSURLSession");
         final ExecutionContext ctx = new ExecutionContext();
@@ -324,7 +326,7 @@ class TALExecutionTest {
         Mockito.when(catalog.getComponentIdIgnoreCase("Redis")).thenReturn(7);
         Mockito.when(catalog.getComponentIdIgnoreCase("Dubbo")).thenReturn(3);
         Mockito.when(coreProvider.getService(IComponentLibraryCatalogService.class)).thenReturn(catalog);
-        final TalExpression rule = compileShipped("otlp-service", "tal_exec_components");
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_components");
         final String[][] cases = {
             {"db.system", "mssql", "3006"},
             {"db.system.name", "microsoft.sql_server", "3006"},
@@ -342,9 +344,41 @@ class TALExecutionTest {
     }
 
     @Test
+    void aCalleeThatReportsNoPortIsCalledFromTheGatewayItsCallerDialed() throws Exception {
+        // nginx's `proxy_set_header Host $host` passes the host without its port, while the caller's span names it.
+        filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway_noport");
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String frontend = IDManager.ServiceID.buildId("frontend", true);
+
+        final SpanMetadata called = clientSpan();
+        called.setKind(SpanMetadata.KIND_SERVER);
+        execute(rule, called, new TestSpanInput().attribute("server.address", "ingress"));
+        assertEquals(1, traffic.stream().filter(ServiceRelationServerSideMetrics.class::isInstance)
+            .map(ServiceRelationServerSideMetrics.class::cast)
+            .filter(r -> gateway.equals(r.getSourceServiceId()) && frontend.equals(r.getDestServiceId()))
+            .count(), "the callee's edge starts from the node the caller's edge ends on, ingress:80: " + traffic);
+    }
+
+    @Test
+    void aCallerThatDialsAGatewayWithoutAPortEndsOnTheNodeItsCalleeStartsFrom() throws Exception {
+        filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway_noport_client");
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String frontend = IDManager.ServiceID.buildId("frontend", true);
+
+        execute(rule, clientSpan(), new TestSpanInput().attribute("server.address", "ingress"));
+        assertEquals(1, traffic.stream().filter(ServiceRelationClientSideMetrics.class::isInstance)
+            .map(ServiceRelationClientSideMetrics.class::cast)
+            .filter(r -> frontend.equals(r.getSourceServiceId()) && gateway.equals(r.getDestServiceId()))
+            .count(), "the caller's edge ends on ingress:80, as the callee's starts from it: " + traffic);
+        assertTrue(received.isEmpty(), "a gateway's address is never an alias: " + received);
+    }
+
+    @Test
     void theShippedRuleDrawsAGatewayBetweenTheCallerAndTheCallee() throws Exception {
         filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
-        final TalExpression rule = compileShipped("otlp-service", "tal_exec_gateway");
+        final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway");
         final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
         final String frontend = IDManager.ServiceID.buildId("frontend", true);
 
@@ -404,9 +438,8 @@ class TALExecutionTest {
     }
 
     @Test
-    void anAutoRuleThatNamesNoLayerWritesNothing() throws Exception {
-        // `layer: auto` hands the rule spans without a service.layer; forgetting `layer` in the extractor used to
-        // file the service under UNDEFINED.
+    void aRuleWhoseEntityHasNoLayerWritesNothing() throws Exception {
+        // An entity built without a layer is dropped, not filed under UNDEFINED.
         run("filter { extractor {\n"
             + "  metrics { name \"no_layer_cpm\"; scope service(meta.service, meta.layer); function cpm; value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput());
@@ -417,7 +450,7 @@ class TALExecutionTest {
     @Test
     void aLabeledMetricKeepsNoMoreLabelSetsThanItsLimit() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"by_url\"; scope svc; function sumLabeled; labels url: attr(\"url\"); value 1;"
             + " labelLimit 2 }\n"
@@ -438,7 +471,7 @@ class TALExecutionTest {
     void aNumericMetaFieldTakesPartInArithmetic() throws Exception {
         // meta.latency + 1 used to concatenate, "110" + "1".
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"plus_one\"; scope svc; function sum; value meta.latency + 1 }\n"
             + "} }", serverSpan(), new TestSpanInput());
@@ -448,7 +481,7 @@ class TALExecutionTest {
     @Test
     void aDefHoldingANumberLiteralAdds() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def n = 1\n"
             + "  def m = n + 2\n"
             + "  def svc = service(meta.service, meta.layer)\n"
@@ -460,7 +493,7 @@ class TALExecutionTest {
     @Test
     void aValueCastAsDoubleIsConvertedBeforeItIsCounted() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"amount\"; scope svc; function sum; value attr(\"amount\") as Double }\n"
             + "} }", serverSpan(), new TestSpanInput().attribute("amount", "1.7"));
@@ -485,7 +518,7 @@ class TALExecutionTest {
     @Test
     void booleanAndNullLiteralsCompile() throws Exception {
         final ExecutionContext ctx = run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def nothing = null\n"
             + "  if (meta.root == true) { tag \"root\": \"yes\" }\n"
             + "  if (false) { tag \"never\": \"yes\" }\n"
@@ -520,10 +553,11 @@ class TALExecutionTest {
     void anAbortedExtractorStopsTheWholeRule() throws Exception {
         final ExecutionContext ctx = run("filter {\n"
             + "  extractor { abort {} }\n"
-            + "  alias \"frontend:8080\"\n"
+            + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer)\n"
             + "}", serverSpan(), new TestSpanInput());
         assertTrue(ctx.isAborted());
-        assertTrue(received.isEmpty(), "the filter-level alias after the aborted extractor is not written");
+        assertFalse(ctx.isNetworkAliasRequested(), "the filter-level buildNetworkAlias after the aborted extractor "
+            + "does not run");
     }
 
     @Test
@@ -550,7 +584,7 @@ class TALExecutionTest {
     @Test
     void anInlineRelationUsedTwiceKeepsItsOwner() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  metrics { name \"rel_a\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"db\","
             + " \"OTLP_VIRTUAL_DATABASE\", 0); function cpm; value 1 }\n"
             + "  metrics { name \"rel_b\"; scope serviceRelation(CLIENT, meta.service, meta.layer, \"db\","
@@ -565,7 +599,7 @@ class TALExecutionTest {
     @Test
     void anInstanceAndAnEndpointWithOneNameAreBothRegistered() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  metrics { name \"i\"; scope instance(meta.service, \"same\", meta.layer); function cpm; value 1 }\n"
             + "  metrics { name \"e\"; scope endpoint(meta.service, \"same\", meta.layer); function cpm; value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput());
@@ -576,7 +610,7 @@ class TALExecutionTest {
     @Test
     void bucketsAreReadAsDecimalAndLabelValuesCannotSplitTheTable() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"octal\"; scope svc; function percentile; value attr(\"v\"); buckets [010, 20] }\n"
             + "  metrics { name \"by_route\"; scope svc; function sumLabeled; labels route: attr(\"r\"); value 1 }\n"
@@ -599,7 +633,7 @@ class TALExecutionTest {
     @Test
     void aFailingMetricsBlockSkipsOnlyItself() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def peer = service(\"payments\", meta.layer)\n"
             + "  metrics { name \"amount_sum\"; scope peer; function sum; value attr(\"amount\") }\n"
             + "  def svc = service(meta.service, meta.layer)\n"
@@ -623,7 +657,7 @@ class TALExecutionTest {
         ApdexFunction.setDICT(name -> "backend".equals(name) || stored.equals(name) ? 100 : 500);
         try {
             final TalExpression rule = compile("filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def svc = service(attr(\"callee\"), meta.layer)\n"
                 + "  metrics { name \"callee_apdex\"; scope svc; function apdex; value meta.latency\n"
                 + "            status meta.statusCode != \"ERROR\" }\n"
@@ -646,7 +680,7 @@ class TALExecutionTest {
         // A bound is its bucket's upper edge, as MAL keys OTel's `le`; above the last bound is the overflow bucket,
         // keyed Long.MAX_VALUE like MAL's +Inf.
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"latency_buckets\"; scope svc; function percentile; value attr(\"lat\")\n"
             + "            buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }\n"
@@ -670,7 +704,7 @@ class TALExecutionTest {
     @Test
     void aPercentileAboveTheLastBoundReadsTheOverflowBucket() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"latency_percentile\"; scope svc; function percentile; value attr(\"lat\")\n"
             + "            buckets [10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000] }\n"
@@ -694,7 +728,7 @@ class TALExecutionTest {
     @Test
     void aRelationRegistersBothEndsInTheirOwnLayers() throws Exception {
         run("filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, \"pg:5432\","
                 + "             \"VIRTUAL_DATABASE\", component(\"postgresql\"))\n"
                 + "  metrics { name \"rel_cpm\"; scope edge; function cpm; value 1 }\n"
@@ -711,7 +745,7 @@ class TALExecutionTest {
         run("filter {\n"
                 + "  if (!hasAttr(\"http.route\")) { abort {} }\n"
                 + "  extractor {\n"
-                + "    layer \"OTLP_SERVICE\"\n"
+                + "    layer \"OTLP_GENERAL\"\n"
                 + "    endpoint attr(\"http.request.method\", \"http.method\") + \" \" + attr(\"http.route\")\n"
                 + "    def ep = endpoint(meta.service, meta.endpoint, meta.layer)\n"
                 + "    metrics { name \"endpoint_cpm\"; scope ep; function cpm; value 1 }\n"
@@ -723,7 +757,7 @@ class TALExecutionTest {
 
         assertEquals(1, sentValues.size());
         assertEquals(
-            MeterEntity.newEndpoint("frontend", "GET /api/products", Layer.OTLP_SERVICE).id(),
+            MeterEntity.newEndpoint("frontend", "GET /api/products", Layer.OTLP_GENERAL).id(),
             entityIdOf(sentValues.get(0)),
             "the endpoint name is built from the attributes, with the fallback spelling");
     }
@@ -734,7 +768,7 @@ class TALExecutionTest {
             "filter {\n"
                 + "  if (meta.kind == \"SERVER\") { abort {} }\n"
                 + "  extractor {\n"
-                + "    def svc = service(meta.service, \"OTLP_SERVICE\")\n"
+                + "    def svc = service(meta.service, \"OTLP_GENERAL\")\n"
                 + "    metrics { name \"never\"; scope svc; function cpm; value 1 }\n"
                 + "  }\n"
                 + "  persist { dropper {} }\n"
@@ -768,7 +802,7 @@ class TALExecutionTest {
     @Test
     void aRuleWithoutAPersistBlockAbstains() throws Exception {
         final ExecutionContext ctx = run(
-            "filter { extractor { layer \"OTLP_SERVICE\" } }", serverSpan(), new TestSpanInput());
+            "filter { extractor { layer \"OTLP_GENERAL\" } }", serverSpan(), new TestSpanInput());
         assertFalse(ctx.isPersistVoted(), "no persist block means no vote");
         assertTrue(ctx.isPersist());
     }
@@ -786,7 +820,7 @@ class TALExecutionTest {
     void metaOverwritesAreVisibleToLaterStatements() throws Exception {
         final ExecutionContext ctx = run(
             "filter { extractor {\n"
-                + "  layer \"OTLP_SERVICE\"\n"
+                + "  layer \"OTLP_GENERAL\"\n"
                 + "  service \"renamed\"\n"
                 + "  def svc = service(meta.service, meta.layer)\n"
                 + "  metrics { name \"cpm\"; scope svc; function cpm; value 1 }\n"
@@ -795,74 +829,105 @@ class TALExecutionTest {
 
         assertEquals("renamed", ctx.getMeta().getService());
         assertEquals(
-            MeterEntity.newService("renamed", Layer.OTLP_SERVICE).id(),
+            MeterEntity.newService("renamed", Layer.OTLP_GENERAL).id(),
             entityIdOf(sentValues.get(0)));
     }
 
-    /**
-     * Compile a rule and run it against one span.
-     *
-     * @return the context, carrying what the rule decided
-     */
     @Test
-    void aliasRegistersTheDialedAddressForTheSpansService() throws Exception {
+    void buildNetworkAliasMarksTheCalleeAndComposesTheAddressFromItsCaller() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  alias attr(\"server.address\") + \":\" + attr(\"server.port\")\n"
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer)\n"
             + "} }");
-        execute(rule, serverSpan(),
-            new TestSpanInput().attribute("server.address", "frontend").attribute("server.port", "8080"));
+        final ExecutionContext ctx = execute(rule, serverSpan(), new TestSpanInput());
+        assertTrue(ctx.isNetworkAliasRequested());
+        assertTrue(received.isEmpty(), "the callee alone writes no row; the trace's owner does on the match: "
+            + received);
 
-        assertEquals(1, received.size(), "one alias row per span: " + received);
-        final NetworkAddressAliasSetup setup = (NetworkAddressAliasSetup) received.get(0);
-        assertEquals("frontend:8080", setup.getAddress());
-        final String serviceId = IDManager.ServiceID.buildId("frontend", true);
-        assertEquals(serviceId, setup.getRepresentServiceId(),
-            "the represented service carries the layer's normal flag, as service(meta.service, meta.layer) does");
-        assertEquals(IDManager.ServiceInstanceID.buildId(serviceId, "frontend-1"),
-            setup.getRepresentServiceInstanceId());
-        assertEquals(TimeBucket.getMinuteTimeBucket(SPAN_END_MILLIS), setup.getTimeBucket());
-
-        // An address the span does not carry registers nothing rather than an empty alias.
-        received.clear();
-        execute(compile("filter { extractor { layer \"OTLP_SERVICE\"; alias attr(\"server.address\") } }"),
-            serverSpan(), new TestSpanInput());
-        assertTrue(received.isEmpty(), "an empty address is not an alias: " + received);
+        final SpanMetadata caller = clientSpan();
+        caller.setService("frontend-web");
+        assertEquals("frontend-web->frontend-proxy:8080",
+            rule.networkAliasAddress(filterSpec, new ExecutionContext(), PairingFact.client(caller, "frontend-proxy:8080")));
+        assertNull(compile("filter { extractor { layer \"OTLP_GENERAL\" } }")
+                .networkAliasAddress(filterSpec, new ExecutionContext(), PairingFact.client(caller, "frontend-proxy:8080")),
+            "a rule without buildNetworkAlias composes no address");
     }
 
     @Test
-    void resolveAliasSubstitutesTheRegisteredServiceAndLeavesOthers() throws Exception {
-        final NetworkAddressAlias row = new NetworkAddressAlias();
-        row.setAddress("productcatalogservice:3550");
-        row.setRepresentServiceId(IDManager.ServiceID.buildId("productcatalogservice", true));
-        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
-        Mockito.when(cache.get("productcatalogservice:3550")).thenReturn(row);
-        Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
+    void resolveNetworkAliasNamesThePeerTheCallersPairingLearned() throws Exception {
+        aliasRow("frontend->productcatalogservice:3550", "productcatalogservice");
 
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = resolveAlias(attr(\"net.peer.name\") + \":\" + attr(\"net.peer.port\"))\n"
-            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  def peer = resolveNetworkAlias(callerScopedAddress(meta.service,"
+            + "             attr(\"net.peer.name\") + \":\" + attr(\"net.peer.port\")))\n"
+            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_GENERAL\","
             + "             component(\"grpc\"))\n"
             + "  metrics { name \"alias_rel_cpm\"; scope edge; function cpm; value 1 }\n"
             + "} }");
-        execute(rule, serverSpan(), new TestSpanInput()
+        execute(rule, clientSpan(), new TestSpanInput()
             .attribute("net.peer.name", "productcatalogservice").attribute("net.peer.port", "3550"));
-        execute(rule, serverSpan(), new TestSpanInput()
+        execute(rule, clientSpan(), new TestSpanInput()
             .attribute("net.peer.name", "pg").attribute("net.peer.port", "5432"));
+        execute(rule, clientSpanOf("checkout"), new TestSpanInput()
+            .attribute("net.peer.name", "productcatalogservice").attribute("net.peer.port", "3550"));
 
-        assertEquals(2, sentValues.size());
-        final String frontend = IDManager.ServiceID.buildId("frontend", true);
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                frontend, IDManager.ServiceID.buildId("productcatalogservice", true))),
-            entityIdOf(sentValues.get(0)),
-            "the aliased address lands the edge on the service that registered it");
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                frontend, IDManager.ServiceID.buildId("pg:5432", true))),
-            entityIdOf(sentValues.get(1)),
-            "an address nobody registered stays the peer's name");
+        assertEquals(List.of(
+                relation("frontend", "productcatalogservice"),
+                relation("frontend", "pg:5432"),
+                relation("checkout", "productcatalogservice:3550")),
+            entityIds(),
+            "the row names the peer for the caller that learned it; any other pair stays the peer's address");
+    }
+
+    @Test
+    void aFreshRowDoesNotStopTheHalfThatFindsAChangedMapping() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  prepareNetworkAlias attr(\"peer.address\")\n"
+            + "} }");
+        // The row was written a minute ago and names cart; the address now answers as cart-v2.
+        aliasRow("frontend->cart:7070", "cart", TimeBucket.getMinuteTimeBucket(System.currentTimeMillis()));
+        execute(rule, clientSpanIn("t1", "c1"), new TestSpanInput().attribute("peer.address", "cart:7070"));
+        filterSpec.getSpanPairing().serverSeen(serverSpanIn("t1", "s1", "c1", "cart-v2"), true, "OTLP_GENERAL", "test");
+        assertEquals(1, received.size(), "every sampled call is paired; the alias row decides whether it is written");
+        assertEquals(IDManager.ServiceID.buildId("cart-v2", true),
+            ((NetworkAddressAliasSetup) received.get(0)).getRepresentServiceId());
+    }
+
+    @Test
+    void anUnlearnedPeerThatHoldsTheSeparatorKeepsItsWholeName() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  def peer = resolveNetworkAlias(callerScopedAddress(meta.service, attr(\"peer.service\")))\n"
+            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_GENERAL\","
+            + "             component(\"http\"))\n"
+            + "  metrics { name \"sep_rel_cpm\"; scope edge; function cpm; value 1 }\n"
+            + "} }");
+        execute(rule, clientSpan(), new TestSpanInput().attribute("peer.service", "orders->v2"));
+        assertEquals(relation("frontend", "orders->v2"), entityIdOf(sentValues.get(0)));
+    }
+
+    @Test
+    void aReusedContextForgetsTheAliasTheLastSpanAskedFor() {
+        final ExecutionContext ctx = new ExecutionContext();
+        ctx.init(serverSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        ctx.requestNetworkAlias();
+        ctx.init(serverSpan(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertFalse(ctx.isNetworkAliasRequested(), "the next span sends no callee half it never asked for");
+    }
+
+    @Test
+    void prepareNetworkAliasLooksNothingUp() throws Exception {
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  prepareNetworkAlias attr(\"peer.address\")\n"
+            + "} }");
+        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
+        Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
+        execute(rule, serverSpan(), new TestSpanInput().attribute("peer.address", "cart:7070"));
+        execute(rule, clientSpan(), new TestSpanInput().attribute("peer.address", "cart:7070"));
+        Mockito.verifyNoInteractions(cache);
     }
 
     @Test
@@ -870,13 +935,13 @@ class TALExecutionTest {
         // A set peer and an absent attribute: `!peer && hasAttr("peer.address")` must be false, so the peer
         // survives; `!(peer && hasAttr)` would be true and wipe it.
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def peer = attr(\"peer.service\")\n"
             + "  if (!peer && hasAttr(\"peer.address\")) {\n"
             + "    def peer = attr(\"peer.address\")\n"
             + "  }\n"
             + "  if (peer) {\n"
-            + "    def svc = service(peer, \"OTLP_SERVICE\")\n"
+            + "    def svc = service(peer, \"OTLP_GENERAL\")\n"
             + "    metrics { name \"not_prec_cpm\"; scope svc; function cpm; value 1 }\n"
             + "  }\n"
             + "} }");
@@ -884,8 +949,8 @@ class TALExecutionTest {
         execute(rule, serverSpan(), new TestSpanInput().attribute("peer.address", "10.0.0.9:8080"));
         execute(rule, serverSpan(), new TestSpanInput());
         assertEquals(List.of(
-                MeterEntity.newService("cart", Layer.OTLP_SERVICE).id(),
-                MeterEntity.newService("10.0.0.9:8080", Layer.OTLP_SERVICE).id()),
+                MeterEntity.newService("cart", Layer.OTLP_GENERAL).id(),
+                MeterEntity.newService("10.0.0.9:8080", Layer.OTLP_GENERAL).id()),
             sentValues.stream().map(v -> {
                 try {
                     return entityIdOf(v);
@@ -897,113 +962,14 @@ class TALExecutionTest {
     }
 
     @Test
-    void aliasSkipsAnAddressThatNamesAnotherService() throws Exception {
-        // frontend sits behind an Envoy that keeps the Host header, so its SERVER spans report the proxy's address.
-        filterSpec.getKnownServices().record("frontend-proxy");
+    void resolveNetworkAliasLearnsTheCalleeFromTheServerSpanItsCallerCalled() throws Exception {
+        // The Go callee reports its IP and the caller dials an address no row names, so only the trace context can
+        // name the peer.
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  alias attr(\"server.address\") + \":\" + attr(\"server.port\")\n"
-            + "} }");
-        execute(rule, serverSpan(),
-            new TestSpanInput().attribute("server.address", "frontend-proxy").attribute("server.port", "8080"));
-        execute(rule, serverSpan(), new TestSpanInput()
-            .attribute("server.address", "frontend-proxy.default.svc.cluster.local").attribute("server.port", "8080"));
-        assertTrue(received.isEmpty(), "a proxy's address is never registered for the service behind it: " + received);
-
-        // Its own name, and an address nobody's spans are named by, still register.
-        execute(rule, serverSpan(),
-            new TestSpanInput().attribute("server.address", "frontend").attribute("server.port", "8080"));
-        execute(rule, serverSpan(),
-            new TestSpanInput().attribute("server.address", "10.0.0.7").attribute("server.port", "8080"));
-        assertEquals(List.of("frontend:8080", "10.0.0.7:8080"),
-            received.stream().map(s -> ((NetworkAddressAliasSetup) s).getAddress()).collect(Collectors.toList()));
-    }
-
-    @Test
-    void resolveAliasPrefersAServiceNamedByTheHost() throws Exception {
-        filterSpec.getKnownServices().record("frontend-proxy");
-        filterSpec.getKnownServices().record("product-catalog");
-        // The misleading row a pass-through proxy produces: the address maps to the service behind the proxy.
-        final NetworkAddressAlias row = new NetworkAddressAlias();
-        row.setAddress("frontend-proxy:8080");
-        row.setRepresentServiceId(IDManager.ServiceID.buildId("frontend", true));
-        final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
-        Mockito.when(cache.get("frontend-proxy:8080")).thenReturn(row);
-        Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
-
-        final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = resolveAlias(attr(\"server.address\") + \":\" + attr(\"server.port\"))\n"
-            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
-            + "             component(\"http\"))\n"
-            + "  metrics { name \"named_rel_cpm\"; scope edge; function cpm; value 1 }\n"
-            + "} }");
-        execute(rule, serverSpan(), new TestSpanInput()
-            .attribute("server.address", "frontend-proxy").attribute("server.port", "8080"));
-        execute(rule, serverSpan(), new TestSpanInput()
-            .attribute("server.address", "product-catalog.default.svc.cluster.local").attribute("server.port", "3550"));
-        execute(rule, serverSpan(), new TestSpanInput()
-            .attribute("server.address", "pg").attribute("server.port", "5432"));
-
-        final String frontend = IDManager.ServiceID.buildId("frontend", true);
-        final List<String> dests = List.of("frontend-proxy", "product-catalog", "pg:5432");
-        for (int i = 0; i < dests.size(); i++) {
-            assertEquals(
-                IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                    frontend, IDManager.ServiceID.buildId(dests.get(i), true))),
-                entityIdOf(sentValues.get(i)),
-                "the host names the service before the cache is asked; an unknown host stays itself");
-        }
-    }
-
-    @Test
-    void resolveAliasNamesAHostInTheCallersOwnGroupBeforeTheAddressRow() throws Exception {
-        // One application in two namespaces: both carts registered `cart:7070`, and outlet's row was written last.
-        filterSpec.getKnownServices().record("shop::cart");
-        filterSpec.getKnownServices().record("outlet::cart");
-        aliasRow("cart:7070", "outlet::cart");
-
-        final TalExpression rule = resolveAliasRule("group_rel_cpm");
-        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
-        execute(rule, clientSpanOf("outlet::frontend"), dialing("cart", "7070"));
-        execute(rule, clientSpanOf("shop::frontend"), dialing("cart.outlet.svc.cluster.local", "7070"));
-        execute(rule, clientSpanOf("frontend-web"), dialing("cart", "7070"));
-
-        assertEquals(List.of(
-                relation("shop::frontend", "shop::cart"),
-                relation("outlet::frontend", "outlet::cart"),
-                relation("shop::frontend", "outlet::cart"),
-                relation("frontend-web", "outlet::cart")),
-            entityIds(),
-            "each frontend reaches its own namespace's cart, a qualified host the namespace it names, and an "
-                + "ungrouped caller is left to the address row");
-    }
-
-    @Test
-    void resolveAliasAsksTheAddressRowBeforeAnotherGroupsServiceOfTheSameShortName() throws Exception {
-        // This node has seen only outlet's cart; shop's cart registered the address its frontend dials.
-        filterSpec.getKnownServices().record("outlet::cart");
-        aliasRow("cart:7070", "shop::cart");
-
-        final TalExpression rule = resolveAliasRule("guess_rel_cpm");
-        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7070"));
-        execute(rule, clientSpanOf("shop::frontend"), dialing("cart", "7071"));
-
-        assertEquals(List.of(
-                relation("shop::frontend", "shop::cart"),
-                relation("shop::frontend", "outlet::cart")),
-            entityIds(),
-            "the row names the address; the one cart this node knows is only the guess for an address with none");
-    }
-
-    @Test
-    void resolveAliasLearnsTheCalleeFromTheServerSpanItCalled() throws Exception {
-        // The Go callee reports its IP and the caller dials a name nobody's spans are named by, so neither the
-        // host rule nor the cache can name the peer; the trace context can.
-        final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = resolveAlias(attr(\"peer.address\"))\n"
-            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  prepareNetworkAlias attr(\"peer.address\")\n"
+            + "  def peer = resolveNetworkAlias(callerScopedAddress(meta.service, attr(\"peer.address\")))\n"
+            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_GENERAL\","
             + "             component(\"http\"))\n"
             + "  metrics { name \"pair_rel_cpm\"; scope edge; function cpm; value 1 }\n"
             + "} }");
@@ -1014,40 +980,44 @@ class TALExecutionTest {
             .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
             .startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS).traceId("aabb").spanId("e002").parentSpanId("e001").build();
 
-        // Client first: the edge stays address-named and the client waits.
+        // Client first: the edge stays address-named and the client half waits.
         execute(rule, egress, new TestSpanInput().attribute("peer.address", "172.19.0.19:8080"));
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                IDManager.ServiceID.buildId("frontend-proxy", true), IDManager.ServiceID.buildId("172.19.0.19:8080", true))),
-            entityIdOf(sentValues.get(0)));
+        assertEquals(relation("frontend-proxy", "172.19.0.19:8080"), entityIdOf(sentValues.get(0)));
         assertTrue(received.isEmpty());
 
-        // The callee's SERVER span arrives, what TraceAnalyzerServiceImpl hands the pairing before any rule runs.
-        filterSpec.getSpanPairing().serverSeen(callee, true);
+        // The callee's SERVER span, as TraceAnalyzerServiceImpl hands it over once a rule asked for an alias.
+        filterSpec.getSpanPairing().serverSeen(callee, true, "OTLP_GENERAL", "test");
         assertEquals(1, received.size(), "the pair learned the alias row");
-        assertEquals("172.19.0.19:8080", ((NetworkAddressAliasSetup) received.get(0)).getAddress());
+        assertEquals("frontend-proxy->172.19.0.19:8080", ((NetworkAddressAliasSetup) received.get(0)).getAddress());
         assertEquals(IDManager.ServiceID.buildId("frontend", true),
             ((NetworkAddressAliasSetup) received.get(0)).getRepresentServiceId());
 
-        // Server first, for the next request: the edge resolves on the spot.
+        // The row reaches the callers through storage and the alias cache: until the cache reloads, the next request
+        // still names the peer; after it, the callee.
         final SpanMetadata egress2 = SpanMetadata.builder().service("frontend-proxy").endpoint("router frontend egress")
             .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
             .startTime(SPAN_END_MILLIS - 2).timestamp(SPAN_END_MILLIS).traceId("ccdd").spanId("f001").parentSpanId("f000").build();
-        final SpanMetadata callee2 = SpanMetadata.builder().service("frontend").endpoint("GET /api/cart")
-            .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
-            .startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS).traceId("ccdd").spanId("f002").parentSpanId("f001").build();
-        filterSpec.getSpanPairing().serverSeen(callee2, true);
         execute(rule, egress2, new TestSpanInput().attribute("peer.address", "172.19.0.19:8080"));
-        assertEquals(
-            IDManager.ServiceID.buildRelationId(new IDManager.ServiceID.ServiceRelationDefine(
-                IDManager.ServiceID.buildId("frontend-proxy", true), IDManager.ServiceID.buildId("frontend", true))),
-            entityIdOf(sentValues.get(1)), "the callee's SERVER span was already known, so the edge lands on it");
+        assertEquals(relation("frontend-proxy", "172.19.0.19:8080"), entityIdOf(sentValues.get(1)),
+            "before the cache reload the edge keeps the peer's address");
+        aliasRow("frontend-proxy->172.19.0.19:8080", "frontend");
+        final SpanMetadata egress3 = SpanMetadata.builder().service("frontend-proxy").endpoint("router frontend egress")
+            .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+            .startTime(SPAN_END_MILLIS - 2).timestamp(SPAN_END_MILLIS).traceId("eeff").spanId("g001").parentSpanId("g000").build();
+        execute(rule, egress3, new TestSpanInput().attribute("peer.address", "172.19.0.19:8080"));
+        assertEquals(relation("frontend-proxy", "frontend"), entityIdOf(sentValues.get(2)),
+            "after it the edge lands on the callee");
+        filterSpec.getSpanPairing().serverSeen(SpanMetadata.builder().service("frontend").endpoint("GET /api/cart")
+            .kind(SpanMetadata.KIND_SERVER).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
+            .startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS).traceId("ccdd").spanId("f002").parentSpanId("f001")
+            .build(), true, "OTLP_GENERAL", "test");
+        assertEquals(2, received.size(), "every sampled pair is pushed again; NetworkAddressAlias#combine decides the write");
     }
 
     @Test
     void aRootServerSpanDrawsTheUserEdgeWithoutListingUser() throws Exception {
         final TalExpression rule = compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  if (meta.root) {\n"
             + "    def fromUser = serviceRelation(SERVER, \"User\", \"UNDEFINED\", meta.service, meta.layer,"
             + "                   component(\"http\"))\n"
@@ -1105,11 +1075,12 @@ class TALExecutionTest {
         assertEquals("10.0.0.7:5432", execute(rule, slowClientSpan(), new TestSpanInput()
             .attribute("db.statement", "SELECT 1").attribute("peer.address", "10.0.0.7:5432"))
             .getMeta().getService());
-        // An address whose first DNS label is a service that sends spans is that service.
-        filterSpec.getKnownServices().record("orders-db");
-        assertEquals("orders-db", execute(rule, slowClientSpan(), new TestSpanInput()
-            .attribute("db.statement", "SELECT 1").attribute("server.address", "orders-db.prod.svc")
-            .attribute("server.port", "5432"))
+        // A database answers with no SERVER span, so no alias names it: even a row for this caller and address,
+        // which no pair could have built, leaves the record under the address the topology draws.
+        aliasRow("frontend->orders-db.prod.svc:5432", "orders-db");
+        assertEquals("orders-db.prod.svc:5432", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("db.system", "postgresql")
+            .attribute("server.address", "orders-db.prod.svc").attribute("server.port", "5432"))
             .getMeta().getService());
     }
 
@@ -1149,7 +1120,7 @@ class TALExecutionTest {
     @Test
     void aMethodAfterAStringBuiltInKeepsItsType() throws Exception {
         run("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"length_plus_one\"; scope svc; function sum; value attr(\"x\").length() + 1 }\n"
             + "} }", serverSpan(), new TestSpanInput().attribute("x", "abc"));
@@ -1196,7 +1167,7 @@ class TALExecutionTest {
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
         // Compiled without createMetrics, as a metric the meter system refused at boot.
         final TalExpression rule = generator.compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
+            + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"uncreated_cpm\"; scope svc; function cpm; value 1 }\n"
             + "} }");
@@ -1229,32 +1200,36 @@ class TALExecutionTest {
     }
 
     private void aliasRow(final String address, final String service) {
+        aliasRow(address, service, 0L);
+    }
+
+    private void aliasRow(final String address, final String service, final long lastUpdateTimeBucket) {
         final NetworkAddressAlias row = new NetworkAddressAlias();
         row.setAddress(address);
         row.setRepresentServiceId(IDManager.ServiceID.buildId(service, true));
+        row.setLastUpdateTimeBucket(lastUpdateTimeBucket);
         final NetworkAddressAliasCache cache = mock(NetworkAddressAliasCache.class);
         Mockito.when(cache.get(address)).thenReturn(row);
         Mockito.when(coreProvider.getService(NetworkAddressAliasCache.class)).thenReturn(cache);
     }
 
-    private TalExpression resolveAliasRule(final String metric) throws Exception {
-        return compile("filter { extractor {\n"
-            + "  layer \"OTLP_SERVICE\"\n"
-            + "  def peer = resolveAlias(attr(\"server.address\") + \":\" + attr(\"server.port\"))\n"
-            + "  def edge = serviceRelation(CLIENT, meta.service, meta.layer, peer, \"OTLP_SERVICE\","
-            + "             component(\"grpc\"))\n"
-            + "  metrics { name \"" + metric + "\"; scope edge; function cpm; value 1 }\n"
-            + "} }");
+    private static SpanMetadata clientSpanIn(final String traceId, final String spanId) {
+        return SpanMetadata.builder().service("frontend").endpoint("GET /cart").kind(SpanMetadata.KIND_CLIENT)
+            .statusCode(SpanMetadata.STATUS_UNSET).latency(1).startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS)
+            .traceId(traceId).spanId(spanId).parentSpanId("p").build();
+    }
+
+    private static SpanMetadata serverSpanIn(final String traceId, final String spanId, final String parent,
+                                             final String service) {
+        return SpanMetadata.builder().service(service).endpoint("GET /cart").kind(SpanMetadata.KIND_SERVER)
+            .statusCode(SpanMetadata.STATUS_UNSET).latency(1).startTime(SPAN_END_MILLIS - 1).timestamp(SPAN_END_MILLIS)
+            .traceId(traceId).spanId(spanId).parentSpanId(parent).build();
     }
 
     private static SpanMetadata clientSpanOf(final String service) {
         final SpanMetadata meta = clientSpan();
         meta.setService(service);
         return meta;
-    }
-
-    private static TestSpanInput dialing(final String host, final String port) {
-        return new TestSpanInput().attribute("server.address", host).attribute("server.port", port);
     }
 
     private static String relation(final String source, final String dest) {
@@ -1303,6 +1278,10 @@ class TALExecutionTest {
         ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
         ctx.init(meta, input, Collections.emptyMap(), Collections.emptyMap());
         expression.execute(filterSpec, ctx);
+        // What TraceAnalyzerServiceImpl does once the rules ran: a rule that was not aborted sends the caller half.
+        if (!ctx.isAborted() && ctx.getNetworkAliasPeer() != null) {
+            filterSpec.getSpanPairing().clientSeen(meta, ctx.getNetworkAliasPeer());
+        }
         return ctx;
     }
 
