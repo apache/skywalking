@@ -30,7 +30,8 @@ is.
 
 | In front of the callee | Do | Topology |
 |---|---|---|
-| A proxy or gateway that traces itself, as Envoy or an instrumented nginx | give its spans `service.layer=OTLP_GENERAL` | `caller → gateway → backend`, each hop learned from its own spans, see [A proxy that emits spans](#a-proxy-that-emits-spans) and [Instrumenting a gateway](#instrumenting-a-gateway) |
+| A proxy or gateway that traces itself with a SERVER and a CLIENT span per request, as Envoy | give its spans `service.layer=OTLP_GENERAL` | `caller → gateway → backend`, each hop learned from its own spans, see [A proxy that emits spans](#a-proxy-that-emits-spans) and [Instrumenting a gateway](#instrumenting-a-gateway) |
+| A proxy that reports one span per request, as nginx with its OpenTelemetry module | propagate the context, put the upstream on its span, and add a rule on its SERVER span | `caller → nginx → backend`, see [A proxy that reports one span per request](#a-proxy-that-reports-one-span-per-request) |
 | A gateway that does not trace, routing by host, or by path to distinct services | list it in [uninstrumented gateways](uninstrumented-gateways.md) | `caller → [gateway] → service`, an edge per service, see [A load balancer or gateway that does not trace](#a-load-balancer-or-gateway-that-does-not-trace) |
 | A gateway that does not trace and splits one address between versions, by blue/green, weight or header | not supported: [instrument the gateway](#instrumenting-a-gateway) | as for a gateway that traces itself |
 | A canary behind a traced gateway that dials `b` and `b-canary` at their own addresses | nothing | `gateway → b` and `gateway → b-canary`, see [A canary](#a-canary) |
@@ -105,7 +106,8 @@ Whatever the gateway, check that:
   forward the context, leaves both of its hops unpaired.
 - **It reports a SERVER span for the request it receives and a CLIENT span for each call it makes to a backend.**
   The SERVER span pairs with the caller; the CLIENT span pairs with the backend. A gateway that reports one span per
-  request pairs only one of the two hops.
+  request pairs only one of the two hops, unless a rule makes that span the caller of the backend too, see [A proxy
+  that reports one span per request](#a-proxy-that-reports-one-span-per-request).
 - **Its CLIENT span names the backend it dialed.** The shipped rule reads, in this order: `service.peer.name` (or
   `peer.service`), which overrides the address; `server.address` and `server.port`; `peer.address`, as Envoy
   reports it; then the host and port of `url.full`. That peer keys the row, so a blue and a green backend dialed at
@@ -195,3 +197,90 @@ mesh](../envoy/als_setting.md) analysis draws from access logs.
 A SkyWalking agent calling an OTLP service by address writes no caller-scoped row, and the OTLP service registers no
 plain-address row for it, so that edge stays drawn to the address. An OTLP caller of an agent-instrumented service is
 folded at query time by the plain row the agent registers.
+
+## A proxy that reports one span per request
+
+The OpenTelemetry trace API says a span serves one purpose: a SERVER span does not describe an outgoing call, and
+instrumentation starts a new span before it injects the context into one
+([SpanKind](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#spankind)).
+A proxy that follows it reports a SERVER span and a CLIENT span per request, which the pairing reads hop by hop, see
+[Instrumenting a gateway](#instrumenting-a-gateway). nginx's OpenTelemetry modules, the official `ngx_otel_module` and
+the contrib `otel_ngx_module`, do not: they report one SERVER span per request, and inject that span's context into the
+call to the upstream. That one span is then on both hops: the caller's CLIENT span is its parent, and it is the parent
+of the upstream's SERVER span. A rule that recognizes the proxy's span and makes it the caller of the upstream as well
+learns both hops from it:
+
+| Caller half | Callee span | Row |
+|---|---|---|
+| `frontend` CLIENT to `nginx:80` | `nginx` SERVER | `frontend->nginx:80 → nginx` |
+| `nginx` SERVER, naming its upstream `10.0.3.4:8080` | `cart` SERVER | `nginx->10.0.3.4:8080 → cart` |
+
+The topology reads `frontend → nginx → cart`. Each upstream keys its own row, so a blue/green or weight split inside
+nginx is drawn as for any traced gateway.
+
+**On nginx**, continue the trace and pass it on, follow the caller's sampling decision, put the upstream on the span,
+and give the span the layer:
+
+```nginx
+otel_service_name nginx;
+otel_resource_attr service.layer OTLP_GENERAL;
+otel_trace $otel_parent_sampled;
+otel_trace_context propagate;
+
+# A retried request lists every server it tried, "10.0.3.4:8080, 10.0.3.5:8080"; keep the last.
+map $upstream_addr $otel_upstream {
+    "~(?<last>[^,\s]+)$" $last;
+    default "";
+}
+otel_span_attr upstream.address $otel_upstream;
+```
+
+- `otel_span_attr` is evaluated when the span is written, after the upstream answered, so `$upstream_addr` is known.
+  The contrib module takes the same value with `opentelemetry_attribute upstream.address $otel_upstream;`, and
+  passes the context on with `opentelemetry_propagate;`.
+- Without `otel_trace`, nginx records no span and passes the context on as not sampled, so a service behind it whose
+  SDK samples by its parent records nothing either.
+- `upstream.address` is a name of your choice, not a semantic convention. Pick one that no application sets.
+
+**In TAL**, in the SERVER block of your copy of `otlp-general.yaml`, pick nginx's SERVER span and make it the caller
+of its upstream too:
+
+```text
+// nginx's SERVER span, picked by the service name `otel_service_name` set. It also made the call to the upstream.
+if (meta.kind == "SERVER" && meta.service == "nginx") {
+  def upstream = attr("upstream.address")
+  if (upstream) {
+    prepareNetworkAlias upstream
+    def upstream = resolveNetworkAlias(callerScopedAddress(meta.service, upstream))
+    def proxied = serviceRelation(CLIENT, meta.service, meta.layer, upstream, "OTLP_GENERAL", component("http"))
+    metrics { name "service_relation_client_cpm";       scope proxied; function cpm; value 1 }
+    metrics { name "service_relation_client_resp_time"; scope proxied; function avg; value meta.latency }
+    metrics { name "service_relation_client_call_sla";  scope proxied; function percent
+              match ok }
+  }
+}
+```
+
+- Instead of the service name, any tag only nginx's spans carry can pick them, such as a resource attribute set in
+  the nginx config:
+
+  ```nginx
+  otel_resource_attr proxy.type nginx;
+  ```
+
+  ```text
+  if (meta.kind == "SERVER" && resource("proxy.type") == "nginx") {
+  ```
+
+  With [OTLP service grouping](otlp-trace.md), `meta.service` is the grouped name, such as `shop::nginx`, so compare
+  that, or use the tag. On any other service's SERVER span, the block would draw a call that was never made.
+- A request nginx answers itself, a redirect or a static file, has no upstream, so it draws no call.
+- The rest of the SERVER block runs as for any service, so the callers' hop to nginx is learned too.
+- The relation's latency is the whole request at nginx, its own time included.
+- Do not also list this nginx in `gateways.yml`.
+
+Without the rule, treat nginx as [a gateway that does not trace](#a-load-balancer-or-gateway-that-does-not-trace):
+list it in `gateways.yml`, keep the callers' `Host`, and leave `service.layer` off its spans, so they stay in the
+trace but out of the analysis. The topology then reads `caller → [nginx] → service`, whatever `otel_trace_context`
+says. An nginx that is analyzed, but neither listed nor given the rule, learns its callers' hop and draws nothing to
+the services behind it, whose SERVER spans pair with nothing.

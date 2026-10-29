@@ -149,7 +149,7 @@ extractor {
   service | instance | endpoint | layer <expr>   // overwrite meta.*; also the record's standard fields
   <field> <expr> [as <Type>]                // an output field of the outputType, see Output Type
   tag '<key>': <expr>                       // appended to the stored span as a string attribute
-  prepareNetworkAlias <expr>                // CLIENT: the peer this span dialed, see Address-named peers
+  prepareNetworkAlias <expr>                // CLIENT, or a one-span proxy's SERVER: the peer it dialed
   buildNetworkAlias <expr>                  // SERVER: the alias address, composed from pairing.service and pairing.peer
   metrics { ... }                           // see below
   if (...) { ... } else if (...) { ... } else { ... }
@@ -305,8 +305,11 @@ filter {
 ```
 
 - **`prepareNetworkAlias <peer>`** sends a CLIENT span's half of the call, its service and the peer, to the trace's
-  owner. Any other kind, PRODUCER included, is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing
-  them would name the broker's address after the consumer. Every call in the sampled share of traces sends its half,
+  owner. A SERVER span sends one too when its rule names the upstream it proxied to, for a proxy that reports one
+  span per request, see [OpenTelemetry Trace Analysis
+  Practices](../setup/backend/trace-analyzer-practices.md#a-proxy-that-reports-one-span-per-request). A PRODUCER or
+  CONSUMER span is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing them would name the broker's
+  address after the consumer. Every call in the sampled share of traces sends its half,
   and every pair that meets pushes its row; the row decides whether storage writes it, at once when the mapping
   changed and once per five minutes when it did not, so an address that moves to another service is followed at its
   next sampled call. A peer that never answers with a SERVER span, an external API or an uninstrumented service,
