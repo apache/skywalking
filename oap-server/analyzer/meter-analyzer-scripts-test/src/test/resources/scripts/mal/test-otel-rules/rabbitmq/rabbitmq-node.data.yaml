@@ -30,6 +30,11 @@ input:
         cluster: test-cluster
         node: test-node
       value: 100.0
+  rabbitmq_global_publishers:
+    - labels:
+        cluster: test-cluster
+        node: test-node
+      value: 40.0
   rabbitmq_channel_consumers:
     - labels:
         cluster: test-cluster
@@ -106,7 +111,7 @@ input:
         alloc: test-value
         usage: carriers_size
         kind: mbcs
-      value: 100.0
+      value: 180.0
     - labels:
         cluster: test-cluster
         node: test-node
@@ -120,8 +125,7 @@ input:
         alloc: test-value
         usage: carriers_size
         kind: mbcs_pool
-      value: 100.0
-    # Distinct from mbcs to catch copy-paste.
+      value: 160.0
     - labels:
         cluster: test-cluster
         node: test-node
@@ -174,7 +178,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 0.0
+        value: 40.0
   meter_rabbitmq_node_connections_total:
     entities:
       - scope: SERVICE_INSTANCE
@@ -251,7 +255,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 9000.0
+        value: 7031.25
   meter_rabbitmq_node_allocated_unused_percent:
     entities:
       - scope: SERVICE_INSTANCE
@@ -262,7 +266,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 1000.0
+        value: 2968.75
   meter_rabbitmq_node_allocated_used_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -284,7 +288,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 50.0
+        value: 190.0
   meter_rabbitmq_node_allocated_total_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -295,7 +299,7 @@ expected:
       - labels:
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 500.0
+        value: 640.0
   meter_rabbitmq_node_process_resident_memory_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -318,7 +322,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 500.0
+        value: 640.0
   meter_rabbitmq_node_allocated_multiblock_used:
     entities:
       - scope: SERVICE_INSTANCE
@@ -342,7 +346,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 100.0
+        value: 80.0
   meter_rabbitmq_node_allocated_multiblock_pool_used:
     entities:
       - scope: SERVICE_INSTANCE
@@ -366,7 +370,7 @@ expected:
           alloc: test-value
           cluster: 'rabbitmq::test-cluster'
           node: test-node
-        value: 100.0
+        value: 60.0
   meter_rabbitmq_node_allocated_singleblock_used:
     entities:
       - scope: SERVICE_INSTANCE

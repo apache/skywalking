@@ -93,6 +93,9 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_allocated_unused_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
     expected: expected/metrics-has-value.yml
+  # unused must equal total - used (carriers - blocks); catches unused reporting whole carriers again
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='meter_rabbitmq_node_allocated_unused_bytes-(meter_rabbitmq_node_allocated_total_bytes-meter_rabbitmq_node_allocated_used_bytes)' --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692
+    expected: expected/metrics-value-zero.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_allocated_total_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_process_resident_memory_bytes --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 

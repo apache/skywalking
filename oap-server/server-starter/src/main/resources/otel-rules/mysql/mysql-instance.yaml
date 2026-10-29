@@ -72,7 +72,7 @@ metricsRules:
   - name: instance_connects_available
     exp: mysql_global_variables_max_connections.sum(['host_name','service_instance_id']) - mysql_global_status_threads_connected.sum(['host_name','service_instance_id'])
   - name: instance_connection_errors_max_connections
-    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connection')
+    exp: mysql_global_status_connection_errors_total.tagEqual('error','max_connections')
   - name: instance_connection_errors_internal
     exp: mysql_global_status_connection_errors_total.tagEqual('error','internal')
 
