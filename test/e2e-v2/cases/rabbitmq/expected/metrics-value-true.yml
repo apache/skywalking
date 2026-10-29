@@ -16,13 +16,13 @@
 debuggingtrace: null
 type: TIME_SERIES_VALUES
 results:
-  {{- contains .results }}
+{{- contains .results }}
   - metric:
       labels: []
     values:
       {{- contains .values }}
       - id: {{ notEmpty .id }}
-        value: "0"
+        value: "1"
         traceid: null
         owner: null
       - id: {{ notEmpty .id }}
@@ -30,5 +30,5 @@ results:
         traceid: null
         owner: null
       {{- end}}
-  {{- end}}
+{{- end}}
 error: null

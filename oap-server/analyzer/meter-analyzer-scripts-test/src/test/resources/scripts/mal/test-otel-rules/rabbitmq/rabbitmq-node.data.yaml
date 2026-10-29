@@ -126,6 +126,7 @@ input:
         usage: carriers_size
         kind: mbcs_pool
       value: 160.0
+    # Distinct from mbcs to catch copy-paste.
     - labels:
         cluster: test-cluster
         node: test-node

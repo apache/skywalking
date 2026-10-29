@@ -10,8 +10,9 @@ Collector to transfer the metrics to
    - **3.8.0+** for the built-in `rabbitmq_prometheus` plugin and basic node/cluster panels.
    - **3.9+** for metrics backed by `rabbitmq_global_*` counters (message rates, `meter_rabbitmq_node_publisher_total`
      from `rabbitmq_global_publishers`, and several cluster panels). On RabbitMQ 3.8 these meters stay empty.
-   - Prefer **≥3.9.27 or ≥3.11.3**: older builds can report a negative `rabbitmq_global_publishers` after an abnormal
-     client disconnect. OAP does not clamp that counter; upgrade the broker instead.
+   - **3.10.11+ or 3.11.3+** (any 3.12+) for a correct `meter_rabbitmq_node_publisher_total`. On 3.9.x and
+     3.10.0–3.10.10, `rabbitmq_global_publishers` goes wrong as channels close and can drop below zero
+     ([rabbitmq-server#5462](https://github.com/rabbitmq/rabbitmq-server/issues/5462)); OAP stores a negative value as 0.
 2. OpenTelemetry Collector fetches metrics from `rabbitmq_prometheus` plugin via Prometheus Receiver and pushes metrics
    to
    SkyWalking OAP Server via OpenTelemetry gRPC exporter.
