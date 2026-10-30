@@ -6,9 +6,13 @@ Collector to transfer the metrics to
 
 ## Data flow
 
-1. The `rabbitmq_prometheus` plugin collect metrics data from RabbitMQ. Note: The RabbitMQ version is required to be
-   3.8.0+.
-   The `rabbitmq_prometheus` plugin is built-in since RabbitMQ v3.8.0.
+1. The `rabbitmq_prometheus` plugin collect metrics data from RabbitMQ. Version requirements:
+   - **3.8.0+** for the built-in `rabbitmq_prometheus` plugin and basic node/cluster panels.
+   - **3.9+** for metrics backed by `rabbitmq_global_*` counters (message rates, `meter_rabbitmq_node_publisher_total`
+     from `rabbitmq_global_publishers`, and several cluster panels). On RabbitMQ 3.8 these meters stay empty.
+   - **3.10.11+ or 3.11.3+** (any 3.12+) for a correct `meter_rabbitmq_node_publisher_total`. On 3.9.x and
+     3.10.0–3.10.10, `rabbitmq_global_publishers` goes wrong as channels close and can drop below zero
+     ([rabbitmq-server#5462](https://github.com/rabbitmq/rabbitmq-server/issues/5462)); OAP stores a negative value as 0.
 2. OpenTelemetry Collector fetches metrics from `rabbitmq_prometheus` plugin via Prometheus Receiver and pushes metrics
    to
    SkyWalking OAP Server via OpenTelemetry gRPC exporter.
@@ -63,7 +67,7 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 | Unacknowledged Messages |      | meter_rabbitmq_node_unacknowledged_messages                                                                                                         | Messages delivered to consumers but not yet acknowledged           | rabbitmq_prometheus plugin |
 | Incoming Messages       |      | meter_rabbitmq_node_incoming_messages                                                                                                               | The incoming message rate before any routing rules are applied.    | rabbitmq_prometheus plugin |
 | Outgoing Messages       |      | meter_rabbitmq_node_outgoing_messages_total                                                                                                         | The outgoing message rate before any routing rules are applied.    | rabbitmq_prometheus plugin |
-| Publishers              |      | meter_rabbitmq_node_publisher_total                                                                                                                 | Publishers                                                         | rabbitmq_prometheus plugin |
+| Publishers              |      | meter_rabbitmq_node_publisher_total                                                                                                                 | Currently connected publishers (`rabbitmq_global_publishers`, RabbitMQ 3.9+) | rabbitmq_prometheus plugin |
 | Consumers               |      | meter_rabbitmq_node_consumer_total                                                                                                                  | Consumers currently connect                                        | rabbitmq_prometheus plugin |
 | Collections             |      | meter_rabbitmq_node_connections_total                                                                                                               | Connections currently open                                         | rabbitmq_prometheus plugin |
 | Channels                |      | meter_rabbitmq_node_channel_total                                                                                                                   | Channels currently open                                            | rabbitmq_prometheus plugin |
@@ -77,7 +81,7 @@ the OAP. In each cluster, the nodes are represented as `Instance`.
 | Allocators              | MB   | meter_rabbitmq_node_allocated_unused_bytes <br />meter_rabbitmq_node_allocated_total_bytes <br /> meter_rabbitmq_node_process_resident_memory_bytes |                                                                    | rabbitmq_prometheus plugin |
 | Allocated By Type       | MB   | meter_rabbitmq_node_allocated_by_type                                                                                                               | Allocated by allocator type                                        | rabbitmq_prometheus plugin |
 | Multiblock Used         | MB   | meter_rabbitmq_node_allocated_multiblock_used                                                                                                       | Multi block used                                                   | rabbitmq_prometheus plugin |
-| Multiblock Unused       | MB   | meter_rabbitmq_node_allocated_multiblock_unused                                                                                                     | Multi block used                                                   | rabbitmq_prometheus plugin |
+| Multiblock Unused       | MB   | meter_rabbitmq_node_allocated_multiblock_unused                                                                                                     | Multi block unused                                                 | rabbitmq_prometheus plugin |
 | Multiblock Pool Used    | MB   | meter_rabbitmq_node_allocated_multiblock_pool_used                                                                                                  | Multi block pool used                                              | rabbitmq_prometheus plugin |
 | Multiblock Pool Unused  | MB   | meter_rabbitmq_node_allocated_multiblock_pool_unused                                                                                                | Multi block pool unused                                            | rabbitmq_prometheus plugin |
 | Singleblock Used        | MB   | meter_rabbitmq_node_allocated_singleblock_used                                                                                                      | Single block used                                                  | rabbitmq_prometheus plugin |
