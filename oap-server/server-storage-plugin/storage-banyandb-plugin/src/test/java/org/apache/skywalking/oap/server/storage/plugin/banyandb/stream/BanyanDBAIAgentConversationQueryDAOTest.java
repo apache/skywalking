@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
@@ -33,6 +35,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
+import org.apache.skywalking.oap.server.core.storage.query.IAIAgentConversationQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageConfig;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.MetadataRegistry;
@@ -100,6 +103,35 @@ class BanyanDBAIAgentConversationQueryDAOTest {
 
         assertEquals(1, emitted.size());
         assertFalse(emitted.get(0).contains(" ON "));
+    }
+
+    @Test
+    void windowReadsSendTheirOwnLimitNotTheClientResultWindow() throws IOException {
+        final BanyanDBStorageClient client = mock(BanyanDBStorageClient.class);
+        when(client.getResultWindowMaxSize()).thenReturn(10000);
+        final StreamQueryResponse response = mock(StreamQueryResponse.class);
+        when(response.getElements()).thenReturn(Collections.emptyList());
+        final List<String> queries = new ArrayList<>();
+        final List<Long> limits = new ArrayList<>();
+        when(client.queryStream(anyInt(), anyString(), any(Serializable[].class))).thenAnswer(invocation -> {
+            queries.add(invocation.getArgument(1));
+            // varargs are expanded, so the last argument is the last bound parameter
+            final Object[] args = invocation.getArguments();
+            limits.add(((BanyandbModel.TagValue) ((Serializable<?>) args[args.length - 1]).serialize()).getInt().getValue());
+            return response;
+        });
+        final BanyanDBAIAgentConversationQueryDAO windowed = new BanyanDBAIAgentConversationQueryDAO(client);
+
+        windowed.queryRoundsByNumberDebuggable("service", null, "conversation", 1, 5, 1024, false);
+        windowed.queryFilesDebuggable("service", null, "session", 1000, 2000, 3, 4, 1024, false);
+
+        assertEquals(2, queries.size());
+        for (final String query : queries) {
+            assertTrue(query.endsWith(" LIMIT ?"), query);
+        }
+        // five numbers and two numbers, room for five rows each
+        assertEquals(Arrays.asList(5L * IAIAgentConversationQueryDAO.MAX_COPIES, 2L * IAIAgentConversationQueryDAO.MAX_COPIES),
+                     limits);
     }
 
     @ParameterizedTest

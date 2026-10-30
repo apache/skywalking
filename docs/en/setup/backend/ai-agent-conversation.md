@@ -468,8 +468,9 @@ dropped for want of a record worker; drop `ai-agent` from `SW_LOG_LAL_FILES` as 
 - The files of a conversation, and its rounds, are read in windows of `readWindow` per storage query, inside one
   view request. On BanyanDB each of those queries may answer
   with up to `maxResponseBytes`, 100 MiB by default, as a call option on the shared client in place of its 50 MB
-  default, which every other read keeps. Elasticsearch answers
-  at most 10,000 hits to one search.
+  default, which every other read keeps. Each of those queries returns at most five times as many rows as its window
+  has rounds or seqs, 80 for a window of 16, on every storage: a row for each, and room for redeliveries or a second
+  sender. Elasticsearch never asks for more than 10,000, its default result window.
 - The view and the files route read over the retention window of the caller's selected stages. On BanyanDB, the
   default is hot/warm; cold is queried only when the caller explicitly sets `coldStage: true`. Every round and
   file read uses that same selection. A conversation spanning stages can therefore report missing rounds or

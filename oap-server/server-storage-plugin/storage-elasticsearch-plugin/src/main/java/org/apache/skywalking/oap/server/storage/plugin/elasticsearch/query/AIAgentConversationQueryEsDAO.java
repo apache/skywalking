@@ -50,7 +50,7 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexN
  * returned source.
  */
 public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConversationQueryDAO {
-    /** Elasticsearch's default result window; a seq or round window of 16 is far below it, copies included. */
+    /** Elasticsearch's default result window; a search asking for more is refused, whatever it would match. */
     private static final int RESULT_WINDOW = 10_000;
     private static final String[] ROUND_FIELDS = {
         AIAgentSessionFlowRecord.SERVICE_ID,
@@ -168,11 +168,12 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
         }
         query.must(Query.term(AIAgentSessionFlowRecord.CONVERSATION, conversation));
         query.must(Query.range(AIAgentSessionFlowRecord.ROUND).gte(fromRound).lte(throughRound));
+        final int limit = Math.min(IAIAgentConversationQueryDAO.windowLimit(fromRound, throughRound), RESULT_WINDOW);
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(AIAgentSessionFlowRecord.ROUND, Sort.Order.ASC)
                                            // every row of the window: a round two senders both pushed is there twice
-                                           .size(RESULT_WINDOW);
+                                           .size(limit);
         // every index of the family: the rounds of a long conversation span days
         final SearchResponse response = searchDebuggable(
             new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionFlowRecord.INDEX_NAME)},
@@ -243,10 +244,11 @@ public class AIAgentConversationQueryEsDAO extends EsDAO implements IAIAgentConv
             ? new String[] {IndexController.LogicIndicesRegister.getPhysicalTableName(AIAgentSessionDataRecord.INDEX_NAME)}
             : IndexNames.rangeIndicesBetweenTimestamps(
                 IndexFamily.of(AIAgentSessionDataRecord.INDEX_NAME), fromTimestamp, toTimestamp);
+        final int limit = Math.min(IAIAgentConversationQueryDAO.windowLimit(fromSeq, throughSeq), RESULT_WINDOW);
         final SearchBuilder search = Search.builder()
                                            .query(query)
                                            .sort(AIAgentSessionDataRecord.SEQ, Sort.Order.ASC)
-                                           .size(RESULT_WINDOW);
+                                           .size(limit);
         final SearchResponse response = searchDebuggable(indices, search.build());
         final List<AIAgentSessionDataRecord> files = new ArrayList<>();
         for (final SearchHit hit : response.getHits().getHits()) {
