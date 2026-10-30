@@ -183,6 +183,7 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
                                                               final boolean coldStage) {
         final List<String> columns = new ArrayList<>(ROUND_COLUMNS);
         columns.add(AIAgentSessionFlowRecord.BODY);
+        final int limit = IAIAgentConversationQueryDAO.windowLimit(fromRound, throughRound);
         final List<AIAgentSessionFlowRecord> rounds = new ArrayList<>();
         // every table within the TTL: the rounds of a long conversation span days
         for (final String table : tableHelper.getTablesWithinTTL(AIAgentSessionFlowRecord.INDEX_NAME)) {
@@ -210,11 +211,11 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
             parameters.add(fromRound);
             parameters.add(throughRound);
             sql.append(" order by ").append(column(AIAgentSessionFlowRecord.INDEX_NAME, AIAgentSessionFlowRecord.ROUND))
-               .append(" asc");
+               .append(" asc limit ").append(limit);
             rounds.addAll(jdbcClient.executeQuery(sql.toString(), rs -> parseRounds(rs, true), parameters.toArray()));
         }
         rounds.sort(Comparator.comparingLong(AIAgentSessionFlowRecord::getRound));
-        return rounds;
+        return rounds.size() > limit ? new ArrayList<>(rounds.subList(0, limit)) : rounds;
     }
 
     @Override
@@ -233,6 +234,7 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
             TimeBucket.getTimeBucket(fromTimestamp, DownSampling.Day),
             TimeBucket.getTimeBucket(toTimestamp, DownSampling.Day)
         );
+        final int limit = IAIAgentConversationQueryDAO.windowLimit(fromSeq, throughSeq);
         final List<AIAgentSessionDataRecord> files = new ArrayList<>();
         for (final String table : tables) {
             final StringBuilder sql = new StringBuilder("select ");
@@ -264,11 +266,11 @@ public class JDBCAIAgentConversationQueryDAO implements IAIAgentConversationQuer
             parameters.add(fromTimestamp);
             parameters.add(toTimestamp);
             sql.append(" order by ").append(column(AIAgentSessionDataRecord.INDEX_NAME, AIAgentSessionDataRecord.SEQ))
-               .append(" asc");
+               .append(" asc limit ").append(limit);
             files.addAll(jdbcClient.executeQuery(sql.toString(), this::parseFiles, parameters.toArray()));
         }
         files.sort(Comparator.comparingLong(AIAgentSessionDataRecord::getSeq));
-        return files;
+        return files.size() > limit ? new ArrayList<>(files.subList(0, limit)) : files;
     }
 
     private List<AIAgentSessionFlowRecord> parseRounds(final ResultSet resultSet, final boolean includeBody)

@@ -148,8 +148,8 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         where.eq(AIAgentSessionFlowRecord.CONVERSATION, conversation);
         where.gte(AIAgentSessionFlowRecord.ROUND, fromRound);
         where.lte(AIAgentSessionFlowRecord.ROUND, throughRound);
-        // every row of the window, up to the client's result window: a round two senders both pushed is there twice
-        where.orderByAsc();
+        // every row of the window: a round two senders both pushed is there twice
+        where.orderByAsc().limit(IAIAgentConversationQueryDAO.windowLimit(fromRound, throughRound));
         final List<AIAgentSessionFlowRecord> rounds = rounds(
             queryDebuggable(coldStage, AIAgentSessionFlowRecord.INDEX_NAME, ROUND_TAGS_WITH_BODY, everythingRetained(),
                             where, maxResponseBytes).getElements(), true);
@@ -208,7 +208,7 @@ public class BanyanDBAIAgentConversationQueryDAO extends AbstractBanyanDBDAO imp
         where.eq(AIAgentSessionDataRecord.SESSION, session);
         where.gte(AIAgentSessionDataRecord.SEQ, fromSeq);
         where.lte(AIAgentSessionDataRecord.SEQ, throughSeq);
-        where.orderByAsc();
+        where.orderByAsc().limit(IAIAgentConversationQueryDAO.windowLimit(fromSeq, throughSeq));
         final List<? extends RowEntity> rows = queryDebuggable(
             coldStage, AIAgentSessionDataRecord.INDEX_NAME, FILE_TAGS,
             new TimestampRange(Math.max(0, fromTimestamp - 1), toTimestamp + 1), where, maxResponseBytes).getElements();

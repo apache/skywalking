@@ -35,6 +35,24 @@ import static org.apache.skywalking.oap.server.core.query.type.debugging.Debuggi
  * one session in a seq window. Every storage implements it once against what it does natively.
  */
 public interface IAIAgentConversationQueryDAO extends Service {
+    /**
+     * The rows a window read makes room for per round or file of the window: the row it landed as, and room for a
+     * redelivery or a second sender. The limit is on the window's rows in total, not on each round or file.
+     */
+    int MAX_COPIES = 5;
+
+    /**
+     * The limit every storage sends with a {@link #queryRoundsByNumber} or {@link #queryFiles} read.
+     *
+     * @param from    the first round number or seq of the window
+     * @param through the last round number or seq of the window
+     * @return the window's numbers times {@link #MAX_COPIES}
+     */
+    static int windowLimit(final long from, final long through) {
+        final long numbers = Math.max(1L, through - from + 1);
+        return numbers > Integer.MAX_VALUE / MAX_COPIES ? Integer.MAX_VALUE : (int) numbers * MAX_COPIES;
+    }
+
     default List<AIAgentSessionFlowRecord> queryRoundsDebuggable(String serviceId,
                                                                  @Nullable String serviceInstanceId,
                                                                  @Nullable String conversation,
@@ -180,7 +198,7 @@ public interface IAIAgentConversationQueryDAO extends Service {
      *                          call applies it to this read, another ignores it
      * @param coldStage         true to query only cold storage, false for the default stages; ignored by storage
      *                          implementations without stage selection
-     * @return the rounds of the window, in round order
+     * @return the rounds of the window, in round order, at most {@link #windowLimit} rows
      * @throws IOException on a storage failure
      */
     List<AIAgentSessionFlowRecord> queryRoundsByNumber(String serviceId, @Nullable String serviceInstanceId,
@@ -203,7 +221,7 @@ public interface IAIAgentConversationQueryDAO extends Service {
      *                          call applies it to this read, another ignores it
      * @param coldStage         true to query only cold storage, false for the default stages; ignored by storage
      *                          implementations without stage selection
-     * @return the files, seq ascending
+     * @return the files, seq ascending, at most {@link #windowLimit} rows
      * @throws IOException on a storage failure
      */
     List<AIAgentSessionDataRecord> queryFiles(String serviceId,
