@@ -73,6 +73,9 @@ cases:
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_publisher_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
     expected: expected/metrics-has-value.yml
+  # rmq0 runs two producers (basic-get and greedy-consumer); channels - channel_consumers read 4 there
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='latest(meter_rabbitmq_node_publisher_total)==2' --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692
+    expected: expected/metrics-single-value-true.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_connections_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
     expected: expected/metrics-has-value.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_queue_total --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
@@ -111,5 +114,8 @@ cases:
     expected: expected/metrics-has-value-instance-label.yml
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_rabbitmq_node_allocated_singleblock_unused --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692 
     expected: expected/metrics-has-value-instance-label.yml
+  # carriers equal used + unused summed over mbcs, mbcs_pool and sbcs; an unused meter reporting whole carriers breaks it by MBs
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression='abs(meter_rabbitmq_node_allocated_total_bytes-(aggregate_labels(meter_rabbitmq_node_allocated_multiblock_used,sum)+aggregate_labels(meter_rabbitmq_node_allocated_multiblock_unused,sum)+aggregate_labels(meter_rabbitmq_node_allocated_multiblock_pool_used,sum)+aggregate_labels(meter_rabbitmq_node_allocated_multiblock_pool_unused,sum)+aggregate_labels(meter_rabbitmq_node_allocated_singleblock_used,sum)+aggregate_labels(meter_rabbitmq_node_allocated_singleblock_unused,sum)))<1024' --service-name=rabbitmq::rabbitmq-cluster --instance-name=rmq0:15692
+    expected: expected/metrics-value-true.yml
 
 

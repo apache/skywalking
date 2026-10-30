@@ -95,7 +95,7 @@ input:
     - labels:
         host_name: test-host
         service_instance_id: test-instance
-        error: max_connection
+        error: max_connections
       value: 100.0
     - labels:
         host_name: test-host
@@ -297,7 +297,7 @@ expected:
         layer: MYSQL
     samples:
       - labels:
-          error: max_connection
+          error: max_connections
           host_name: 'mysql::test-host'
           service_instance_id: test-instance
         value: 100.0
