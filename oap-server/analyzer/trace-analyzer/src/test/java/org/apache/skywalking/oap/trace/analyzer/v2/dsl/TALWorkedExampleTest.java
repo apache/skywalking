@@ -396,8 +396,8 @@ class TALWorkedExampleTest {
 
     @Test
     void theCanaryRecipeOfThePracticesDocLandsEachCallOnItsOwnService() throws Exception {
-        // docs/en/setup/backend/trace-analyzer-practices.md, "A canary routed by an HTTP header": the snippet goes
-        // into a copy of otlp-general.yaml right after the peer is named and before prepareNetworkAlias.
+        // The "Canary Releases" practice, a canary chosen by a header through a router that emits no spans: the
+        // snippet goes into a copy of otlp-general.yaml right after the peer is named and before prepareNetworkAlias.
         final String anchor = "// A CLIENT span to a peer that answers with a SERVER span of its own";
         final String shipped = ShippedRules.dsl("otlp-general");
         final int at = shipped.indexOf(anchor);
@@ -473,7 +473,7 @@ class TALWorkedExampleTest {
 
     @Test
     void theGatewayCanaryRecipeTagsOnlyTheGatewaysOwnCalls() throws Exception {
-        // trace-analyzer-practices.md, "A canary": a traced gateway dials both versions at one address, a router
+        // The "Canary Releases" practice: a traced gateway dials both versions at one address, a router
         // behind it splitting them; the rule puts the version on the gateway's own CLIENT spans only.
         final String anchor = "// A CLIENT span to a peer that answers with a SERVER span of its own";
         final String shipped = ShippedRules.dsl("otlp-general");
@@ -526,7 +526,7 @@ class TALWorkedExampleTest {
 
     @Test
     void theOneSpanProxyRecipeLearnsBothHopsFromNginxsServerSpan() throws Exception {
-        // trace-analyzer-practices.md, "A proxy that reports one span per request": a rule in the SERVER block sends
+        // The nginx practice, "With the OpenTelemetry module": a rule in the SERVER block sends
         // a caller half from nginx's one SERVER span, naming the upstream the nginx config put on the span.
         final String anchor = "// A root span was called from outside the fleet";
         final String shipped = ShippedRules.dsl("otlp-general");
