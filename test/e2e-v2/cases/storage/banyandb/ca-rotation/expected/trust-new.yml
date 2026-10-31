@@ -13,6 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Printed by the query only when a second channel rebuild has been logged, after the trust file was
-# rotated back to material that validates the server.
-ca-restored
+# Printed by the query only when the trust file holding the new CA alone was rebuilt into the
+# channel.
+trust-new

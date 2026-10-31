@@ -18,11 +18,20 @@ services:
     extends:
       file: ../../../../script/docker-compose/base-compose.yml
       service: banyandb
-    # Reuses the certificate set of the BanyanDB TLS case rather than committing a second copy of
-    # the same key material. Those certificates are generated with a 100-year validity.
+    # Starts with the certificate set of the BanyanDB TLS case, and rotates to new-server.crt, which
+    # new-ca.crt signed. All of them are generated with a 100-year validity. BanyanDB reloads its
+    # certificate when the files change, so they are copied into /tmp first: the rotation must not
+    # write through a bind mount into the repository.
     volumes:
-      - ../tls/tls:/tls
-    command: standalone --tls=true --key-file=/tls/cert.key --cert-file=/tls/cert.crt --http-grpc-cert-file=/tls/ca.crt
+      - ../tls/tls:/tls-src:ro
+      - ./new-server.crt:/tls-new/new-server.crt:ro
+      - ./new-server.key:/tls-new/new-server.key:ro
+    entrypoint:
+      - /bin/sh
+      - -c
+      - "mkdir -p /tmp/tls && cp /tls-src/* /tmp/tls/ && exec /banyand \"$$@\""
+      - --
+    command: standalone --tls=true --key-file=/tmp/tls/cert.key --cert-file=/tmp/tls/cert.crt --http-grpc-cert-file=/tmp/tls/ca.crt
     networks:
       - e2e
 
@@ -32,8 +41,10 @@ services:
       service: oap
     volumes:
       - ../tls/tls:/tls-src:ro
-      # A self-signed CA unrelated to the server's certificate. Rotating the trust file to this and
-      # back is what gives the reload a behavioural signal rather than only a log line.
+      # The CA the rotation moves to.
+      - ./new-ca.crt:/tls-new/new-ca.crt:ro
+      # A self-signed CA unrelated to the server's certificate. Rotating the trust file to it last is
+      # what gives the reload a behavioural signal rather than only a log line.
       - ./wrong-ca.crt:/tls-src-wrong/wrong-ca.crt:ro
     # The trust file must already exist when the OAP starts, or TLS is never enabled at all
     # (DefaultChannelFactory only switches to TLS when the CA file is present). It must also be
