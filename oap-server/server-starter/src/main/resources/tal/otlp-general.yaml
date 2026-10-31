@@ -42,10 +42,18 @@ rules:
         if (meta.scopeName == "NSURLSession" && (resource("os.name") == "iOS" || resource("os.name") == "iPadOS")) {
           abort {}
         }
-        // A messaging poll is transport bookkeeping, not a request anyone can be measured on. The OpenTelemetry
-        // Java agent reports a blocking JMS receive as a CONSUMER span as long as the wait, so the kind alone cannot
-        // tell a poll from a handled message; the operation can.
-        if ((meta.kind == "CLIENT" || meta.kind == "CONSUMER")
+        // The OpenTelemetry Java agent opens a messaging receive span as receive() or poll() is entered and closes it
+        // when a message arrives, so its duration holds the wait. A root CONSUMER receive is such a poll, either one
+        // whose records the Java agent reports again as `process` spans, with receive telemetry on, or a bare poll
+        // loop; counting it would count each message twice or time the idle wait. A receive with a parent, as the
+        // .NET Kafka instrumentation reports one under the application's handling span, is the only record of the
+        // message and is counted as the consumer's request; that instrumentation times the fetch alone, while a Java
+        // poll under a span of its own process still times the wait. A CLIENT receive is dropped wherever it ran, so
+        // an outbound edge is never drawn from a poll.
+        if (meta.kind == "CLIENT" && attr("messaging.operation.type", "messaging.operation") == "receive") {
+          abort {}
+        }
+        if (meta.kind == "CONSUMER" && meta.root
             && attr("messaging.operation.type", "messaging.operation") == "receive") {
           abort {}
         }
