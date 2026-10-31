@@ -54,6 +54,7 @@ import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.K8sMetadataReadSettings;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
@@ -147,6 +148,7 @@ public class CoreModuleProvider extends ModuleProvider {
     private EndpointNameGroupingRuleWatcher endpointNameGroupingRuleWatcher;
     private OALEngineLoaderService oalEngineLoaderService;
     private LoggingConfigWatcher loggingConfigWatcher;
+    private ServerClusterConfig serverClusterConfig;
     private EndpointNameGroupingRule4OpenapiWatcher endpointNameGroupingRule4OpenapiWatcher;
     private EndpointNameGrouping endpointNameGrouping;
     private HierarchyService hierarchyService;
@@ -295,6 +297,12 @@ public class CoreModuleProvider extends ModuleProvider {
         httpServer.initialize();
 
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
+        try {
+            serverClusterConfig = new ServerClusterConfig(this, moduleConfig.getServiceNameMaxLength());
+        } catch (final IllegalArgumentException e) {
+            throw new ModuleStartException(e.getMessage(), e);
+        }
+        this.registerServiceImplementation(ServerClusterConfig.class, serverClusterConfig);
         this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
         hierarchyService = new HierarchyService(getManager(), moduleConfig);
@@ -488,6 +496,7 @@ public class CoreModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(apdexThresholdConfig);
         dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRuleWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(loggingConfigWatcher);
+        dynamicConfigurationService.registerConfigChangeWatcher(serverClusterConfig);
         if (moduleConfig.isEnableEndpointNameGroupingByOpenapi()) {
             dynamicConfigurationService.registerConfigChangeWatcher(endpointNameGroupingRule4OpenapiWatcher);
         }

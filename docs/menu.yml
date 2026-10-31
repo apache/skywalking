@@ -250,6 +250,8 @@ catalog:
             path: "/en/setup/backend/mq"
           - name: "Uninstrumented Gateways"
             path: "/en/setup/backend/uninstrumented-gateways"
+          - name: "Server Clusters"
+            path: "/en/setup/backend/server-clusters"
           - name: "Zipkin Trace"
             path: "/en/setup/backend/zipkin-trace"
           - name: "OpenTelemetry Trace"
@@ -274,6 +276,8 @@ catalog:
                         path: "/en/setup/backend/otlp-trace-practices/gateway-canary"
                   - name: "Message Queue"
                     path: "/en/setup/backend/otlp-trace-practices/message-queue"
+                  - name: "Database and Cache"
+                    path: "/en/setup/backend/otlp-trace-practices/database-and-cache"
       - name: "Metrics"
         catalog:
           - name: "OAL Scripts"

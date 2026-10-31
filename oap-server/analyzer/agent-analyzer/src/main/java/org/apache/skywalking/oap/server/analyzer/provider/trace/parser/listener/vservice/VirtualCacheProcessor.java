@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.CacheAccess;
@@ -49,6 +50,8 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
     private final NamingControl namingControl;
 
     private final AnalyzerModuleConfig config;
+
+    private final ServerClusterConfig serverClusters;
 
     private final List<Source> sourceList = new ArrayList<>();
 
@@ -67,9 +70,11 @@ public class VirtualCacheProcessor implements VirtualServiceProcessor {
         }
         cacheType = cacheType.toLowerCase();
         String peer = span.getPeer();
-        // peer is blank if it's a local span.
+        // peer is blank if it's a local span. Only a reported address is looked up in server-clusters.yml.
         if (StringUtil.isBlank(peer)) {
             peer = tags.get(SpanTags.CACHE_TYPE) + "-local";
+        } else {
+            peer = serverClusters.clusterNameOrAddress(peer);
         }
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
         String serviceName = namingControl.formatServiceName(peer);

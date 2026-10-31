@@ -1,0 +1,50 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Uninstrumented servers, the message brokers, databases and caches the traced services call, that clients reach at
+# more than one address. Each cluster listed here is shown as one service, named `name`, in place of those addresses,
+# by the native trace analysis and by the OTLP trace analysis wherever its rules call findServerClusterName(). An
+# exit span to an address that a network alias already maps to a service keeps that service.
+#
+# An address matches exactly as a client's span reports it, `host:port`, a bare `host` (agents leave a default port
+# out), or a whole URL. A list of addresses joined by `,` or `;`, as many clients report a cluster they were
+# configured with, is renamed when every element is listed under the same cluster, in any order. No DNS, port or
+# wildcard is inferred. A span that reports no address is not renamed. Every entry is a string: quote one that YAML
+# would read as a boolean or a number, such as 'on'.
+#
+# Empty by default: nothing is renamed until a cluster is listed. The dynamic configuration item
+# `core.default.serverClusters` replaces this file's content. See docs/en/setup/backend/server-clusters.md.
+
+#clusters:
+#  - name: kafka-prod                         # the service the topology shows; unique among all service names
+#    kinds: [kafka]                           # optional names a custom TAL rule may filter by, findServerClusterName(
+#                                             # address, kind); a cluster without kinds matches every kind. The
+#                                             # native trace analysis and the shipped TAL rules do not use kinds
+#    members:                                 # the addresses of single nodes, as the clients report them
+#      - kafka-0.kafka-headless.prod.svc.cluster.local:9092
+#      - kafka-1.kafka-headless.prod.svc.cluster.local:9092
+#    aliases:                                 # the addresses that name the whole cluster: a Service, a load
+#      - kafka.prod.svc.cluster.local:9092    # balancer, a bootstrap entry
+#  - name: pulsar-prod
+#    scheme: pulsar://                        # optional: the prefix the clients write before an address, as written
+#    members:
+#      - pulsar-0.pulsar.prod.svc.cluster.local:6650
+#      - pulsar-1.pulsar.prod.svc.cluster.local:6650
+#  - name: orders-db
+#    members:
+#      - pg-0.pg.db.svc.cluster.local:5432
+#      - pg-1.pg.db.svc.cluster.local:5432
+#    aliases:
+#      - orders-db.db.svc.cluster.local:5432

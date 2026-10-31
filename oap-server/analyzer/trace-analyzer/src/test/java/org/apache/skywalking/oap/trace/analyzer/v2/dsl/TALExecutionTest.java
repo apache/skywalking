@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher.ConfigChangeEvent;
+import org.apache.skywalking.oap.server.configuration.api.ConfigChangeWatcher.EventType;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -46,11 +48,13 @@ import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -208,6 +212,36 @@ class TALExecutionTest {
         assertEquals(
             MeterEntity.newService("frontend", Layer.OTLP_GENERAL).id(), entityIdOf(sentValues.get(0)));
         assertEquals(1, traffic.size(), "nothing is registered under a layer the rule misspelled: " + traffic);
+    }
+
+    /**
+     * A rule of the user's own may pass a kind, here the database system, so only the clusters that list it in their
+     * {@code kinds} match.
+     */
+    @Test
+    void findServerClusterNameMatchesOnlyTheKindTheRuleAsksFor() throws Exception {
+        final ServerClusterConfig clusters = new ServerClusterConfig(mock(ModuleProvider.class), 70);
+        clusters.notify(new ConfigChangeEvent(
+            "clusters:\n  - name: orders-pg\n    kinds: [postgresql]\n    aliases: [orders:5432]", EventType.MODIFY));
+        Mockito.when(coreProvider.getService(ServerClusterConfig.class)).thenReturn(clusters);
+        final TalExpression rule = compile("filter { extractor {\n"
+            + "  layer \"OTLP_GENERAL\"\n"
+            + "  def cluster = findServerClusterName(attr(\"server.address\"), attr(\"db.system.name\"))\n"
+            + "  if (cluster) {\n"
+            + "    metrics { name \"kind_cpm\"; scope service(cluster, \"OTLP_VIRTUAL_DATABASE\")\n"
+            + "              function cpm; value 1 }\n"
+            + "  }\n"
+            + "} }");
+        execute(rule, clientSpan(), new TestSpanInput()
+            .attribute("server.address", "orders:5432").attribute("db.system.name", "postgresql"));
+        assertEquals(1, sentValues.size(), "the cluster lists the kind: " + sentValues);
+        assertEquals(MeterEntity.newService("orders-pg", Layer.OTLP_VIRTUAL_DATABASE).id(),
+                     entityIdOf(sentValues.get(0)));
+
+        sentValues.clear();
+        execute(rule, clientSpan(), new TestSpanInput()
+            .attribute("server.address", "orders:5432").attribute("db.system.name", "mysql"));
+        assertTrue(sentValues.isEmpty(), "a kind the cluster does not list: " + sentValues);
     }
 
     @Test
@@ -1082,6 +1116,29 @@ class TALExecutionTest {
             .attribute("db.statement", "SELECT 1").attribute("db.system", "postgresql")
             .attribute("server.address", "orders-db.prod.svc").attribute("server.port", "5432"))
             .getMeta().getService());
+    }
+
+    /**
+     * A slow statement is filed under the cluster server-clusters.yml lists the database's address under, as the
+     * OpenTelemetry Java agent reports a multi-host JDBC URL with its stable database conventions on: the hosts joined
+     * by {@code ,}. A peer the span names by {@code service.peer.name} is not an address and keeps its name.
+     */
+    @Test
+    void theShippedSlowStatementIsFiledUnderTheServerCluster() throws Exception {
+        final ServerClusterConfig clusters = new ServerClusterConfig(mock(ModuleProvider.class), 70);
+        clusters.notify(new ConfigChangeEvent(
+            "clusters:\n  - name: orders-db\n    members: [pg-0:5432, pg-1:5432]\n    aliases: [orders]",
+            EventType.MODIFY));
+        Mockito.when(coreProvider.getService(ServerClusterConfig.class)).thenReturn(clusters);
+        final TalExpression rule = compileShippedSlowSql();
+        assertEquals("orders-db", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.query.text", "SELECT 1").attribute("db.system.name", "postgresql")
+            .attribute("server.address", "pg-1:5432,pg-0:5432"))
+            .getMeta().getService());
+        assertEquals("orders", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.query.text", "SELECT 1").attribute("db.system.name", "postgresql")
+            .attribute("peer.service", "orders"))
+            .getMeta().getService(), "a logical peer name is not looked up");
     }
 
     @Test

@@ -42,6 +42,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
@@ -60,6 +61,7 @@ public class TalRuntimeHelper {
     private final ExecutionContext ctx;
     private final FilterSpec spec;
     private IComponentLibraryCatalogService componentLibrary;
+    private ServerClusterConfig serverClusters;
     private NetworkAddressAliasCache aliasCache;
 
     public TalRuntimeHelper(final ExecutionContext ctx, final FilterSpec spec) {
@@ -331,6 +333,43 @@ public class TalRuntimeHelper {
      */
     public boolean isGateway(final String address) {
         return spec.getAliasRegistrar().isGateway(address);
+    }
+
+    /**
+     * {@code findServerClusterName(address)} — the cluster the core's {@code server-clusters.yml} lists the address
+     * under, so a rule names a broker, a database or a cache reached at several addresses as one service. The rule
+     * decides which address it asks for; a network alias is not consulted.
+     *
+     * @param address one address, or a list joined by {@code ,} or {@code ;}, as the span reports it
+     * @return the cluster name, or an empty string when the address is not listed, as {@code attr()} returns for an
+     * absent attribute
+     */
+    public String findServerClusterName(final String address) {
+        return findServerClusterName(address, null);
+    }
+
+    /**
+     * {@code findServerClusterName(address, kind)} — the same among the clusters whose {@code kinds} list the kind, a
+     * name the user chose such as {@code postgresql} or {@code queue}, and those that list no kind.
+     *
+     * @param address one address, or a list joined by {@code ,} or {@code ;}, as the span reports it
+     * @param kind    the kind to match, null for every cluster
+     * @return the cluster name, or an empty string when the address is not listed
+     */
+    public String findServerClusterName(final String address, final String kind) {
+        try {
+            if (serverClusters == null) {
+                serverClusters = spec.getModuleManager()
+                                     .find(CoreModule.NAME)
+                                     .provider()
+                                     .getService(ServerClusterConfig.class);
+            }
+            final String cluster = serverClusters.findClusterName(address, kind);
+            return cluster == null ? "" : cluster;
+        } catch (final Exception e) {
+            log.debug("No server cluster lookup for {} in a TAL rule", address, e);
+            return "";
+        }
     }
 
     private NetworkAddressAlias storedAlias(final String address) {

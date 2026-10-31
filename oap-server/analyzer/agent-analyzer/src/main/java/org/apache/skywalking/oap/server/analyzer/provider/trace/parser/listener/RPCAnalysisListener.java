@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.RequestType;
@@ -65,6 +66,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
     private final AnalyzerModuleConfig config;
     private final NetworkAddressAliasCache networkAddressAliasCache;
     private final NamingControl namingControl;
+    private final ServerClusterConfig serverClusters;
 
     @Override
     public boolean containsPoint(Point point) {
@@ -102,9 +104,12 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
                 boolean isMQ = span.getSpanLayer().equals(SpanLayer.MQ);
                 if (isMQ || config.getUninstrumentedGatewaysConfig()
                                   .isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
-                    sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
+                    // A broker the producer reached at an address server-clusters.yml lists is named as its cluster.
+                    final String source = isMQ
+                        ? serverClusters.clusterNameOrAddress(networkAddressUsedAtPeer) : networkAddressUsedAtPeer;
+                    sourceBuilder.setSourceServiceName(source);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
-                    sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
+                    sourceBuilder.setSourceServiceInstanceName(source);
                     if (isMQ) {
                         sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
                     } else {
@@ -128,8 +133,9 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
         } else if (span.getSpanLayer() == SpanLayer.MQ && StringUtil.isNotBlank(span.getPeer())) {
             // For MQ, if there is no producer-side instrumentation, we set the existing peer as the source service name.
             RPCTrafficSourceBuilder sourceBuilder = new RPCTrafficSourceBuilder(namingControl);
-            sourceBuilder.setSourceServiceName(span.getPeer());
-            sourceBuilder.setSourceServiceInstanceName(span.getPeer());
+            final String broker = serverClusters.clusterNameOrAddress(span.getPeer());
+            sourceBuilder.setSourceServiceName(broker);
+            sourceBuilder.setSourceServiceInstanceName(broker);
             sourceBuilder.setDestEndpointName(span.getOperationName());
             sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
             sourceBuilder.setDestServiceInstanceName(segmentObject.getServiceInstance());
@@ -182,8 +188,12 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
 
         final NetworkAddressAlias networkAddressAlias = networkAddressAliasCache.get(networkAddress);
         if (networkAddressAlias == null) {
-            sourceBuilder.setDestServiceName(networkAddress);
-            sourceBuilder.setDestServiceInstanceName(networkAddress);
+            // A database, a cache or a broker that no alias maps, reached at an address server-clusters.yml lists, is
+            // named as its cluster.
+            final String dest = isServerLayer(span.getSpanLayer())
+                ? serverClusters.clusterNameOrAddress(networkAddress) : networkAddress;
+            sourceBuilder.setDestServiceName(dest);
+            sourceBuilder.setDestServiceInstanceName(dest);
             sourceBuilder.setDestLayer(identifyRemoteServiceLayer(span.getSpanLayer(), span.getPeer()));
         } else {
             /*
@@ -212,6 +222,10 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
         sourceBuilder.setComponentId(span.getComponentId());
         setPublicAttrs(sourceBuilder, span);
         callingOutTraffic.add(sourceBuilder);
+    }
+
+    private static boolean isServerLayer(final SpanLayer spanLayer) {
+        return spanLayer == SpanLayer.Database || spanLayer == SpanLayer.Cache || spanLayer == SpanLayer.MQ;
     }
 
     private void setPublicAttrs(RPCTrafficSourceBuilder sourceBuilder, SpanObject span) {
@@ -380,6 +394,7 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
         private final SourceReceiver sourceReceiver;
         private final NetworkAddressAliasCache networkAddressAliasCache;
         private final NamingControl namingControl;
+        private final ServerClusterConfig serverClusters;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
@@ -389,12 +404,15 @@ public class RPCAnalysisListener extends CommonAnalysisListener implements Entry
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
+            this.serverClusters = moduleManager.find(CoreModule.NAME)
+                                               .provider()
+                                               .getService(ServerClusterConfig.class);
         }
 
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             return new RPCAnalysisListener(
-                sourceReceiver, config, networkAddressAliasCache, namingControl);
+                sourceReceiver, config, networkAddressAliasCache, namingControl, serverClusters);
         }
     }
 }

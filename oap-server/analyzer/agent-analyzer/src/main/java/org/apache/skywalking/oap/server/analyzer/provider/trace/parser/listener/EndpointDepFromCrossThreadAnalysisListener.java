@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -47,6 +48,7 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
     private final SourceReceiver sourceReceiver;
     private final AnalyzerModuleConfig config;
     private final NamingControl namingControl;
+    private final ServerClusterConfig serverClusters;
 
     private final List<EndpointDependencyBuilder> depBuilders = new ArrayList<>(10);
 
@@ -85,9 +87,12 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
                 boolean isMQ = span.getSpanLayer().equals(SpanLayer.MQ);
                 if (isMQ || config.getUninstrumentedGatewaysConfig()
                                   .isAddressConfiguredAsGateway(networkAddressUsedAtPeer)) {
-                    sourceBuilder.setSourceServiceName(networkAddressUsedAtPeer);
+                    // Named as RPCAnalysisListener names the same broker.
+                    final String source = isMQ
+                        ? serverClusters.clusterNameOrAddress(networkAddressUsedAtPeer) : networkAddressUsedAtPeer;
+                    sourceBuilder.setSourceServiceName(source);
                     sourceBuilder.setSourceEndpointOwnerServiceName(reference.getParentService());
-                    sourceBuilder.setSourceServiceInstanceName(networkAddressUsedAtPeer);
+                    sourceBuilder.setSourceServiceInstanceName(source);
                     if (isMQ) {
                         sourceBuilder.setSourceLayer(Layer.VIRTUAL_MQ);
                     } else {
@@ -136,17 +141,22 @@ public class EndpointDepFromCrossThreadAnalysisListener extends CommonAnalysisLi
     public static class Factory implements AnalysisListenerFactory {
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
+        private final ServerClusterConfig serverClusters;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.namingControl = moduleManager.find(CoreModule.NAME)
                                               .provider()
                                               .getService(NamingControl.class);
+            this.serverClusters = moduleManager.find(CoreModule.NAME)
+                                               .provider()
+                                               .getService(ServerClusterConfig.class);
         }
 
         @Override
         public AnalysisListener create(final ModuleManager moduleManager, final AnalyzerModuleConfig config) {
-            return new EndpointDepFromCrossThreadAnalysisListener(sourceReceiver, config, namingControl);
+            return new EndpointDepFromCrossThreadAnalysisListener(
+                sourceReceiver, config, namingControl, serverClusters);
         }
     }
 }

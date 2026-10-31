@@ -32,6 +32,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.EndpointMeta;
 import org.apache.skywalking.oap.server.core.source.MQAccess;
 import org.apache.skywalking.oap.server.core.source.MQEndpointAccess;
@@ -44,6 +45,7 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
 public class VirtualMQProcessor implements VirtualServiceProcessor {
 
     private final NamingControl namingControl;
+    private final ServerClusterConfig serverClusters;
     private final List<Source> sourceList = new ArrayList<>();
 
     @Override
@@ -72,7 +74,8 @@ public class VirtualMQProcessor implements VirtualServiceProcessor {
             return;
         }
         MQTags mqTags = collectTags(span.getTagsList());
-        String serviceName = namingControl.formatServiceName(peer);
+        // A broker reached at an address server-clusters.yml lists is named as its cluster.
+        String serviceName = namingControl.formatServiceName(serverClusters.clusterNameOrAddress(peer));
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
         sourceList.add(toServiceMeta(serviceName, timeBucket));
 

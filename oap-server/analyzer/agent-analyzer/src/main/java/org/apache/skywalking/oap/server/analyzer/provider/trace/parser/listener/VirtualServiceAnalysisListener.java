@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.vservice.VirtualServiceProcessor;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
@@ -76,12 +77,16 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
         private final SourceReceiver sourceReceiver;
         private final NamingControl namingControl;
         private final IGenAIMeterAnalyzerService genAIMeterAnalyzerService;
+        private final ServerClusterConfig serverClusters;
 
         public Factory(ModuleManager moduleManager) {
             this.sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
             this.namingControl = moduleManager.find(CoreModule.NAME)
                     .provider()
                     .getService(NamingControl.class);
+            this.serverClusters = moduleManager.find(CoreModule.NAME)
+                    .provider()
+                    .getService(ServerClusterConfig.class);
             if (moduleManager.has(GenAIAnalyzerModule.NAME)) {
                 this.genAIMeterAnalyzerService = moduleManager.find(GenAIAnalyzerModule.NAME)
                         .provider()
@@ -94,9 +99,9 @@ public class VirtualServiceAnalysisListener implements ExitAnalysisListener, Loc
         @Override
         public AnalysisListener create(ModuleManager moduleManager, AnalyzerModuleConfig config) {
             List<VirtualServiceProcessor> processors = new ArrayList<>();
-            processors.add(new VirtualCacheProcessor(namingControl, config));
-            processors.add(new VirtualDatabaseProcessor(namingControl, config));
-            processors.add(new VirtualMQProcessor(namingControl));
+            processors.add(new VirtualCacheProcessor(namingControl, config, serverClusters));
+            processors.add(new VirtualDatabaseProcessor(namingControl, config, serverClusters));
+            processors.add(new VirtualMQProcessor(namingControl, serverClusters));
             if (genAIMeterAnalyzerService != null) {
                 processors.add(new VirtualGenAIProcessor(genAIMeterAnalyzerService));
             }

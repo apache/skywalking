@@ -33,6 +33,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
@@ -141,6 +142,8 @@ public class MockCoreModuleProvider extends CoreModuleProvider {
 
         CoreModuleConfig moduleConfig = new CoreModuleConfig();
         this.registerServiceImplementation(ConfigService.class, new ConfigService(moduleConfig, this));
+        this.registerServiceImplementation(
+            ServerClusterConfig.class, new ServerClusterConfig(this, moduleConfig.getServiceNameMaxLength()));
         this.registerServiceImplementation(ServerStatusService.class, new ServerStatusService(getManager()));
         moduleConfig.setEnableHierarchy(false);
         this.registerServiceImplementation(HierarchyDefinitionService.class, new HierarchyDefinitionService(moduleConfig));
