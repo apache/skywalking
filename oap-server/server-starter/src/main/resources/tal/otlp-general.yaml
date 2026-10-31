@@ -49,8 +49,10 @@ rules:
         // .NET Kafka instrumentation reports one under the application's handling span, is the only record of the
         // message and is counted as the consumer's request; that instrumentation times the fetch alone, while a Java
         // poll under a span of its own process still times the wait. A CLIENT receive is dropped wherever it ran, so
-        // an outbound edge is never drawn from a poll.
-        if (meta.kind == "CLIENT" && attr("messaging.operation.type", "messaging.operation") == "receive") {
+        // an outbound edge is never drawn from a poll, and so is a CLIENT settle, the ack, nack or reject of a message
+        // the consumer already received, which is no call to the broker anyone waits on for a message.
+        if (meta.kind == "CLIENT" && (attr("messaging.operation.type", "messaging.operation") == "receive"
+            || attr("messaging.operation.type", "messaging.operation") == "settle")) {
           abort {}
         }
         if (meta.kind == "CONSUMER" && meta.root
@@ -108,7 +110,16 @@ rules:
           }
 
           // A consumer was called by its broker.
-          if (meta.kind == "CONSUMER" && hasAttr("messaging.system")) {
+          if (meta.kind == "CONSUMER" && hasAttr("messaging.system.name", "messaging.system")) {
+            // The conventions renamed `aws_sqs` to `aws.sqs`, and Go's otelaws spells SNS `aws_sns`, so the broker
+            // keeps one name whichever spelling a client sends. Keep in step with the outbound block below.
+            def mqSystem = attr("messaging.system.name", "messaging.system")
+            if (mqSystem == "aws_sqs") {
+              def mqSystem = "aws.sqs"
+            }
+            if (mqSystem == "aws_sns") {
+              def mqSystem = "aws.sns"
+            }
             def broker = attr("server.address", "net.peer.name")
             if (broker && hasAttr("server.port", "net.peer.port")) {
               def broker = broker + ":" + attr("server.port", "net.peer.port")
@@ -117,10 +128,18 @@ rules:
             // named after the messaging system, the same one the producer side draws below, so one queue has one
             // broker. The port alone would be a worse name than that.
             if (!broker) {
-              def broker = attr("messaging.system")
+              def broker = mqSystem
+            }
+            // The catalog's names where the semantic conventions spell a system differently.
+            def mqCatalogName = mqSystem
+            if (mqSystem == "aws.sqs") {
+              def mqCatalogName = "AWSSQS"
+            }
+            if (mqSystem == "aws.sns") {
+              def mqCatalogName = "AWSSNS"
             }
             def fromBroker = serviceRelation(SERVER, broker, "OTLP_VIRTUAL_MQ", meta.service, meta.layer,
-                                             component(attr("messaging.system")))
+                                             component(mqCatalogName))
             metrics { name "service_relation_server_cpm"; scope fromBroker; function cpm; value 1 }
           }
 
@@ -202,7 +221,7 @@ rules:
             // ever built for it and its peer stays as named. A peer listed in gateways.yml stays the gateway's own
             // node, so the call reads caller, gateway, callee.
             if (peer && meta.kind == "CLIENT" && !isGateway(peer)
-                && !hasAttr("db.system.name", "db.system") && !hasAttr("messaging.system")) {
+                && !hasAttr("db.system.name", "db.system") && !hasAttr("messaging.system.name", "messaging.system")) {
               prepareNetworkAlias peer
               def peer = resolveNetworkAlias(callerScopedAddress(meta.service, peer))
             }
@@ -217,8 +236,16 @@ rules:
                 def peer = peer + "/" + attr("db.namespace", "db.name")
               }
             }
-            if (!peer && hasAttr("messaging.system")) {
-              def peer = attr("messaging.system")
+            // One spelling per broker, as the consumer block names it. Keep the two in step.
+            def mqSystem = attr("messaging.system.name", "messaging.system")
+            if (mqSystem == "aws_sqs") {
+              def mqSystem = "aws.sqs"
+            }
+            if (mqSystem == "aws_sns") {
+              def mqSystem = "aws.sns"
+            }
+            if (!peer && mqSystem) {
+              def peer = mqSystem
             }
             if (peer) {
               def peerLayer = "OTLP_GENERAL"
@@ -250,9 +277,16 @@ rules:
                 }
                 def comp = component(catalogName)
               }
-              if (hasAttr("messaging.system")) {
+              if (mqSystem) {
                 def peerLayer = "OTLP_VIRTUAL_MQ"
-                def comp = component(attr("messaging.system"))
+                def mqCatalogName = mqSystem
+                if (mqSystem == "aws.sqs") {
+                  def mqCatalogName = "AWSSQS"
+                }
+                if (mqSystem == "aws.sns") {
+                  def mqCatalogName = "AWSSNS"
+                }
+                def comp = component(mqCatalogName)
               }
 
               // A conjectured peer gets metrics of its own, not just a node in the topology, so its layer's service

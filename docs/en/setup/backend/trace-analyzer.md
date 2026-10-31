@@ -67,7 +67,7 @@ names first and the deprecated spellings older SDKs still emit as fallbacks.
 | `OTLP_GENERAL` | a service whose spans arrived over OTLP with `service.layer=OTLP_GENERAL` | the `service.name` of a span the rule claims |
 | `OTLP_VIRTUAL_DATABASE` | a database a client span names through `db.system.name` or `db.system` | the client's span |
 | `OTLP_VIRTUAL_CACHE` | a cache, the same way, for `redis`, `memcached` and the other cache systems | the client's span |
-| `OTLP_VIRTUAL_MQ` | a broker a producer or consumer span names through `messaging.system` | the producer's or consumer's span |
+| `OTLP_VIRTUAL_MQ` | a broker a producer or consumer span names through `messaging.system.name` or `messaging.system` | the producer's or consumer's span |
 
 The layers are separate from the agent path's `GENERAL` and `VIRTUAL_*` layers because their metrics come from a
 different engine under different names. A service id is its name plus the `normal` flag, not the layer, so a
@@ -184,11 +184,13 @@ The numbers follow the agent path's definitions:
   `top_n(otlp_endpoint_cpm, 10, des, attr0='OTLP_GENERAL')` works as it does for the agent metrics.
 
 The component of an edge, the protocol icon in the topology, comes from `rpc.system.name`, `rpc.system`,
-`db.system.name`, `db.system` or `messaging.system`, looked up in `component-libraries.yml` ignoring case; `grpc`
-finds `GRPC` and `connect_rpc` finds `Connect_RPC`. Where the semantic conventions spell a system differently from
-the catalog, the rule maps it first: `apache_dubbo` to `Dubbo`, `mssql` and `microsoft.sql_server` to `SqlServer`,
-and `valkey`, which speaks the Redis protocol, to `Redis`. A system the catalog does not list shows as `Unknown`;
-`jms` is one, since JMS is an API rather than a broker.
+`db.system.name`, `db.system`, `messaging.system.name` or `messaging.system`, looked up in `component-libraries.yml`
+ignoring case; `grpc` finds `GRPC` and `connect_rpc` finds `Connect_RPC`. Where the semantic conventions spell a
+system differently from the catalog, the rule maps it first: `apache_dubbo` to `Dubbo`, `mssql` and
+`microsoft.sql_server` to `SqlServer`, `valkey`, which speaks the Redis protocol, to `Redis`, `aws.sqs` to `AWSSQS`
+and `aws.sns` to `AWSSNS`. A system the catalog does not list shows as `Unknown`; `jms` is one, since JMS is an API
+rather than a broker. The older `aws_sqs` and the `aws_sns` some clients send are read as `aws.sqs` and `aws.sns`,
+so a broker reached by clients of either spelling is one node.
 
 An iOS or iPadOS app's `NSURLSession` CLIENT spans are left to the [iOS analyzer](backend-ios-monitoring.md), which
 already turns them into the app's metrics; the rule aborts on them.
@@ -198,6 +200,9 @@ A messaging `receive` span is one whose `messaging.operation.type` (or the older
 - A root CONSUMER `receive` is a poll and is dropped. Either its records are reported again as `process` spans, as the Java agent does with `otel.instrumentation.messaging.experimental.receive-telemetry.enabled`, and counting the poll would count each message twice, or it is a bare poll loop, whose duration is the idle wait.
 - A CONSUMER `receive` with a parent is the message's only record, as the .NET Kafka instrumentation reports one under the application's own handling span, and counts as the consumer's request, the call from the broker included. The .NET Kafka instrumentation times the fetch of the message alone, so that is what the consumer's response time shows; the handling that follows the fetch is in no span the rule measures.
 - A CLIENT `receive` is dropped wherever it ran, since it would draw an outbound edge timed by the wait.
+- A CLIENT span whose operation is `settle`, the ack, nack or reject of a message already received, as the
+  OpenTelemetry Java agent reports one for RabbitMQ with its stable messaging conventions on, is dropped too: it is
+  no call to the broker for a message.
 - A `process` span, the message actually handled, counts as the consumer's request.
 
 [Message Queue](otlp-trace-practices/message-queue.md#which-consumer-span-is-counted) lists which of these shapes each

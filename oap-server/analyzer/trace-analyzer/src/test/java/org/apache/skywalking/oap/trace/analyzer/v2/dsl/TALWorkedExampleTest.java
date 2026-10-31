@@ -71,6 +71,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -345,6 +346,135 @@ class TALWorkedExampleTest {
                                .attribute("messaging.destination.name", "orders")
                                .attribute("messaging.operation", "receive"));
         assertEquals(0, sent.size(), "a CLIENT receive emits nothing");
+    }
+
+    /**
+     * The semantic conventions now name the messaging system {@code messaging.system.name}, which the OpenTelemetry
+     * Java instrumentation's main branch sends in place of {@code messaging.system}. The rule names the broker by it on
+     * both sides, and keeps such a span out of the alias pairing, since no broker answers with a SERVER span; that
+     * branch reports an SQS batch send as a CLIENT span with the endpoint's address.
+     */
+    @Test
+    void theMessagingSystemNameNamesTheBroker() throws Exception {
+        final TalExpression rule = compileShippedRule("system_name_example", "sysname");
+
+        run(rule, SpanMetadata.builder()
+                              .service("checkout").endpoint("send orders")
+                              .kind(SpanMetadata.KIND_PRODUCER).statusCode(SpanMetadata.STATUS_UNSET).latency(2)
+                              .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 88)
+                              .traceId("t6").spanId("m1").parentSpanId("p1").build(),
+            new TestSpanInput().attribute("messaging.system.name", "kafka")
+                               .attribute("messaging.destination.name", "orders")
+                               .attribute("messaging.operation.type", "send"));
+        assertEquals(MeterEntity.newService("kafka", Layer.OTLP_VIRTUAL_MQ).id(),
+                     entityIdOf(sentNamed("sysname_mq_access_cpm")), "the producer's broker is named by it");
+
+        sent.clear();
+        run(rule, SpanMetadata.builder()
+                              .service("fraud-detection").endpoint("process orders")
+                              .kind(SpanMetadata.KIND_CONSUMER).statusCode(SpanMetadata.STATUS_UNSET).latency(4)
+                              .startTime(SPAN1_END - 80).timestamp(SPAN1_END - 76)
+                              .traceId("t6").spanId("c1").parentSpanId("m1").build(),
+            new TestSpanInput().attribute("messaging.system.name", "kafka")
+                               .attribute("messaging.destination.name", "orders")
+                               .attribute("messaging.operation.type", "process"));
+        assertEquals(MeterEntity.newServiceRelation("kafka", Layer.OTLP_VIRTUAL_MQ, "fraud-detection",
+                                                    Layer.OTLP_GENERAL, DetectPoint.SERVER, 0).id(),
+                     entityIdOf(sentNamed("sysname_service_relation_server_cpm")), "and so is the consumer's");
+
+        final ExecutionContext ctx = new ExecutionContext();
+        ctx.setSourceTypeProvider(new TestSpanSourceTypeProvider());
+        ctx.init(SpanMetadata.builder()
+                             .service("orders-java").endpoint("send orders")
+                             .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
+                             .startTime(SPAN1_END - 70).timestamp(SPAN1_END - 69)
+                             .traceId("t6").spanId("m2").parentSpanId("p1").build(),
+                 new TestSpanInput().attribute("messaging.system.name", "aws.sqs")
+                                    .attribute("messaging.destination.name", "orders")
+                                    .attribute("messaging.operation.type", "send")
+                                    .attribute("messaging.operation.name", "send")
+                                    .attribute("server.address", "sqs.us-east-1.amazonaws.com")
+                                    .attribute("server.port", "443"),
+                 Collections.emptyMap(), Collections.emptyMap());
+        rule.execute(filterSpec, ctx);
+        assertNull(ctx.getNetworkAliasPeer(), "a messaging CLIENT span prepares no network alias");
+    }
+
+    /**
+     * With its stable messaging conventions on, the OpenTelemetry Java agent reports a RabbitMQ ack as a CLIENT span
+     * whose operation is {@code settle}, carrying the broker's address. It is no call to the broker for a message.
+     */
+    @Test
+    void aSettleIsNotACallToTheBroker() throws Exception {
+        final TalExpression rule = compileShippedRule("settle_example", "settle");
+
+        run(rule, SpanMetadata.builder()
+                              .service("songs").endpoint("ack")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(1)
+                              .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 89)
+                              .traceId("t7").spanId("a1").parentSpanId("p1").build(),
+            new TestSpanInput().attribute("messaging.system", "rabbitmq")
+                               .attribute("messaging.operation.type", "settle")
+                               .attribute("messaging.operation.name", "ack")
+                               .attribute("server.address", "10.0.0.5")
+                               .attribute("server.port", "5672"));
+        assertEquals(0, sent.size(), "a settle emits nothing");
+    }
+
+    /**
+     * The semantic conventions renamed {@code aws_sqs} to {@code aws.sqs}. The Python boto3sqs instrumentation sends the
+     * new spelling and no address; the JavaScript AWS SDK instrumentation's consumer sends the old one, and its consumer
+     * side reports no address the rule reads; both land on one broker. The Java agent 2.32.0 sends the old spelling with
+     * the endpoint's address, and its edge is drawn with the catalog's AWSSQS.
+     */
+    @Test
+    void bothSqsSpellingsLandOnOneBroker() throws Exception {
+        final IComponentLibraryCatalogService catalog = coreProvider.getService(IComponentLibraryCatalogService.class);
+        Mockito.when(catalog.getComponentIdIgnoreCase("AWSSQS")).thenReturn(140);
+        final TalExpression rule = compileShippedRule("sqs_example", "sqs");
+
+        run(rule, SpanMetadata.builder()
+                              .service("orders-py").endpoint("orders send")
+                              .kind(SpanMetadata.KIND_PRODUCER).statusCode(SpanMetadata.STATUS_UNSET).latency(3)
+                              .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 87)
+                              .traceId("t8").spanId("m1").parentSpanId("p1").build(),
+            new TestSpanInput().attribute("messaging.system", "aws.sqs")
+                               .attribute("messaging.url", "https://sqs.us-east-1.amazonaws.com/123456789012/orders"));
+        assertEquals(MeterEntity.newService("aws.sqs", Layer.OTLP_VIRTUAL_MQ).id(),
+                     entityIdOf(sentNamed("sqs_mq_access_cpm")), "the producer lands on aws.sqs");
+
+        sent.clear();
+        run(rule, SpanMetadata.builder()
+                              .service("worker-js").endpoint("orders receive")
+                              .kind(SpanMetadata.KIND_CONSUMER).statusCode(SpanMetadata.STATUS_UNSET).latency(5)
+                              .startTime(SPAN1_END - 80).timestamp(SPAN1_END - 75)
+                              .traceId("t9").spanId("c1").parentSpanId("h1").build(),
+            new TestSpanInput().attribute("messaging.system", "aws_sqs")
+                               .attribute("messaging.operation.type", "receive")
+                               .attribute("url.full", "https://sqs.us-east-1.amazonaws.com/123456789012/orders"));
+        assertEquals(MeterEntity.newServiceRelation("aws.sqs", Layer.OTLP_VIRTUAL_MQ, "worker-js", Layer.OTLP_GENERAL,
+                                                    DetectPoint.SERVER, 140).id(),
+                     entityIdOf(sentNamed("sqs_service_relation_server_cpm")), "and so does the consumer");
+
+        sent.clear();
+        traffic.clear();
+        run(rule, SpanMetadata.builder()
+                              .service("orders-java").endpoint("orders publish")
+                              .kind(SpanMetadata.KIND_PRODUCER).statusCode(SpanMetadata.STATUS_UNSET).latency(6)
+                              .startTime(SPAN1_END - 70).timestamp(SPAN1_END - 64)
+                              .traceId("t10").spanId("m2").parentSpanId("p2").build(),
+            new TestSpanInput().attribute("messaging.system", "aws_sqs")
+                               .attribute("messaging.destination.name", "orders")
+                               .attribute("messaging.operation", "publish")
+                               .attribute("server.address", "sqs.us-east-1.amazonaws.com")
+                               .attribute("server.port", "443"));
+        final ServiceRelationClientSideMetrics edge = traffic.stream()
+            .filter(ServiceRelationClientSideMetrics.class::isInstance)
+            .map(ServiceRelationClientSideMetrics.class::cast)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("no client-side relation was registered: " + traffic));
+        assertTrue(edge.getComponentIds().toString().contains("140"),
+            "the edge carries the AWSSQS component id: " + edge.getComponentIds());
     }
 
     /**
