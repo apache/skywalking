@@ -80,10 +80,12 @@ A sidecar's spans repeat the calls its application's own spans already describe,
 way, Istio's Envoy as `<service>.<namespace>`. They carry no `OTLP_GENERAL`, so they are stored, and searchable with
 TraceQL, but not analyzed: they register no service, no metrics and no topology. A span no rule claims sends no
 pairing fact either, see [Layer](../../concepts-and-designs/tal.md#layer). The sidecars' spans still sit between the
-applications' spans in the trace: an application's CLIENT span is the parent of its sidecar's span, not of the
-callee's SERVER span, so the pairing cannot name an address-named peer while the sidecars trace too, see
-[Address-named peers](../../concepts-and-designs/tal.md#address-named-peers). Trace each hop once, or draw the mesh
-from the [service mesh](../envoy/als_setting.md) topology.
+applications' spans in the trace, which reads `a` CLIENT, `a`'s sidecar, `b`'s sidecar, `b` SERVER: an application's
+CLIENT span is the parent of its sidecar's span, not of the callee's SERVER span, so the pairing cannot name an address-named peer while the sidecars trace too, see
+[Address-named peers](../../concepts-and-designs/tal.md#address-named-peers). Labelling the sidecars' spans
+`service.layer=OTLP_MESH`, as below, keeps them out of the analysis but not out of the trace, so it does not help here.
+Trace each hop once: either the applications, with the sidecars' tracing off and the trace context passed through, or
+the mesh alone, whose topology the [service mesh](../envoy/als_setting.md) analysis draws from access logs.
 
 To label them, set the sidecars' resource `service.layer` to `OTLP_MESH`, a layer no shipped rule is declared for, and
 search them with `{resource.service.layer="OTLP_MESH"}`. On Istio, the OpenTelemetry tracing provider's environment
@@ -198,6 +200,9 @@ A messaging `receive` span is one whose `messaging.operation.type` (or the older
 - A CLIENT `receive` is dropped wherever it ran, since it would draw an outbound edge timed by the wait.
 - A `process` span, the message actually handled, counts as the consumer's request.
 
+[Message Queue](otlp-trace-practices/message-queue.md#which-consumer-span-is-counted) lists which of these shapes each
+agent reports.
+
 Three consumer shapes are not measured as you might expect, since a single span cannot tell them apart from the ones above: a synchronous consumer whose `receive` runs with no span around it and reports no `process` span is not counted at all; a poll run inside a span of its own process, such as an instrumented scheduled job, is counted with the wait as its response time; and if its records also get `process` spans, each message is counted twice.
 
 A SERVER span nested under another span of the same process is not a request either: frameworks such as Next.js open their own SERVER span under the one the HTTP instrumentation already opened for the request, and counting both would count the request twice. The rule drops a SERVER span whose OTLP span flags say its parent is local (`meta.parentLocation == "LOCAL"`). A SERVER span whose sender leaves those flags unset, as older SDKs and Envoy do, still counts.
@@ -226,7 +231,8 @@ node onto the service once the row has reached every node's cache: up to one per
 
 The topology query asks for the caller's own row first and the plain address, which the agent path writes, second.
 An agent-instrumented caller of an OTLP service therefore stays address-named: no OTLP pair learns its calls, and an
-OTLP service registers no plain address row. It folds a node that is not a registered service, or a self-call whose
+OTLP service registers no plain address row. An OTLP caller of an agent-instrumented service is folded by the plain row
+the agent registers. It folds a node that is not a registered service, or a self-call whose
 alias names another service; other registered nodes keep their own names, so a service named like some alias address
 keeps its own node: an OTLP service `frontend` is not drawn as `agent::frontend` because an agent registered the host
 `frontend` for `agent::frontend`. An address listed in the agent analyzer's [uninstrumented
@@ -244,8 +250,8 @@ not a gateway: each hop through it is learned from its own two spans, so the Ope
 The callee sees the gateway's address only when the gateway passes its callers' `Host` through, or sets
 `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to the upstream's, as nginx's
 `proxy_pass` and Kong do by default, still ends its callers' edges but draws no edge to the service behind it. With
-the `agent-analyzer` module not loaded, no address is a gateway. See [OpenTelemetry Trace Analysis
-Practices](trace-analyzer-practices.md) for how this plays out in common deployments.
+the `agent-analyzer` module not loaded, no address is a gateway. See [Gateways and
+Proxies](otlp-trace-practices/gateway-overview.md) for which setup fits the gateway in front of your services.
 
 In a cluster the pairing routes the facts of a trace to the node that owns it, through the same channel the metrics
 use, so the two spans of a call meet wherever each arrived. In a Receiver/Aggregator deployment the owners are the
@@ -285,9 +291,29 @@ its messaging system alone, `jms`. The queue or topic a message went to becomes 
 node, carrying `otlp_mq_destination_cpm`, `resp_time` and `sla`, so the virtual layer's list stays one row per
 broker while the destinations can still be ranked, and a consumer's handled messages draw the same broker as
 their caller. Such a node has no address for an alias to fold, so a broker that other clients reach by address
-keeps a second identity under that address. A client span that knows none of these, neither an address, a
+keeps a second identity under that address, see [Message Queue](otlp-trace-practices/message-queue.md) for what the
+agents report on each side. A client span that knows none of these, neither an address, a
 `service.peer.name`, a database system nor a messaging system, as the APISIX 2.15 proxy span and HotROD's Redis
 spans do, draws no peer node, and its errors reach no metric, since `service_sla` counts server spans.
+
+#### Callers dial a Kubernetes Service
+
+`frontend` dials `cart:7070`, the Kubernetes Service in front of the `cart` pods, which report
+`service.name=cart`. The first calls are drawn as `frontend → cart:7070`. Once one of them is paired, after about
+four calls at the default `pairingSamplePercent` of 25, the row `frontend->cart:7070 → cart` is written, and once
+it has been stored and reloaded, about 35 seconds later, the edge lands on `cart`. The calls recorded before then keep their
+metrics under the `frontend → cart:7070` relation; the topology folds that node onto `cart`.
+
+A second caller, `checkout`, dialing the same `cart:7070`, is learned on its own: its first calls are drawn to the
+address too. The name `cart` is never guessed from the host, so a Service named differently from the pods'
+`service.name` works the same way.
+
+#### The same application in two namespaces
+
+With [OTLP service grouping](otlp-trace.md) by namespace, `shop::frontend` and `outlet::frontend` both dial
+`cart:7070`, each reaching the `cart` of its own namespace. The rows are `shop::frontend->cart:7070 → shop::cart` and
+`outlet::frontend->cart:7070 → outlet::cart`: the caller in the key keeps them apart, whatever the grouping attribute
+is.
 
 ### Records
 
