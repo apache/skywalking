@@ -308,8 +308,8 @@ filter {
   owner. The half is keyed by the span's own id, so it pairs with the callee half of the SERVER span whose parent that
   span is. A CLIENT span sends it, and so may a SERVER span that passed its own context to the upstream, as a proxy
   reporting one span per request does: such a span sends its callee half for the hop from its caller, when it has one,
-  and a caller half for the hop to its upstream, see [OpenTelemetry Trace Analysis
-  Practices](../setup/backend/trace-analyzer-practices.md#a-proxy-that-reports-one-span-per-request). A PRODUCER or
+  and a caller half for the hop to its upstream, see
+  [nginx](../setup/backend/otlp-trace-practices/gateway-nginx.md#with-the-opentelemetry-module). A PRODUCER or
   CONSUMER span is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing them would name the broker's
   address after the consumer. Every call in the sampled share of traces sends its half,
   and every pair that meets pushes its row; the row decides whether storage writes it, at once when the mapping
@@ -361,8 +361,10 @@ What the pairing costs, and what it cannot see:
 - **Agent callers are not folded.** An agent-instrumented caller of an OTLP service registers no caller-scoped row,
   and its address-named edge stays as the agent analyzer records it.
 
-[OpenTelemetry Trace Analysis Practices](../setup/backend/trace-analyzer-practices.md) walks through common
-deployments: proxies, uninstrumented gateways, two namespaces of one application and a header-routed canary.
+The best practices walk through common deployments: [gateways and
+proxies](../setup/backend/otlp-trace-practices/gateway-overview.md), uninstrumented gateways and canary releases
+among them, and [message queues](../setup/backend/otlp-trace-practices/message-queue.md). Two namespaces of one
+application are shown under [Topology](../setup/backend/trace-analyzer.md#topology).
 
 The topology query folds an address-named node into the service an alias names, the caller's own row first and the
 plain address second. It folds a node that is not a registered service, or a self-call whose alias names another
