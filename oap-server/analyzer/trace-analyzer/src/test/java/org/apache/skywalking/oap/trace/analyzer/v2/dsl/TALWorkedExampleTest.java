@@ -281,25 +281,70 @@ class TALWorkedExampleTest {
 
     /**
      * The OpenTelemetry Java agent reports a blocking JMS receive as a CONSUMER span as long as the wait, which the
-     * showcase's songs service turned into a 10-second "request" every poll. The rule drops the poll by its
-     * operation, whatever its kind, and keeps the message that is actually handled.
+     * showcase's songs service turned into a 10-second "request" every poll. Its poll loop runs on a thread of its
+     * own, so the receive is a root span, which the rule drops, and keeps the message that is actually handled.
      */
     @Test
     void aMessagingReceivePollIsNotARequest() throws Exception {
         final TalExpression rule = compileShippedRule("poll_example", "poll");
 
-        run(rule, consumerSpan("queue-songs-ping receive", 10_079),
+        run(rule, consumerSpan("queue-songs-ping receive", 10_079, ""),
             new TestSpanInput().attribute("messaging.system", "jms")
                                .attribute("messaging.destination.name", "queue-songs-ping")
                                .attribute("messaging.operation", "receive"));
         assertEquals(0, sent.size(), "a receive poll emits nothing");
 
-        run(rule, consumerSpan("queue-songs-ping process", 3),
+        run(rule, consumerSpan("queue-songs-ping process", 3, "p1"),
             new TestSpanInput().attribute("messaging.system", "jms")
                                .attribute("messaging.destination.name", "queue-songs-ping")
                                .attribute("messaging.operation", "process"));
         assertTrue(sent.stream().map(TALWorkedExampleTest::metricNameOf).anyMatch("poll_service_cpm"::equals),
                    "a handled message is a request of the consumer");
+    }
+
+    /**
+     * The .NET Kafka instrumentation reports a handled message only as a receive, under the application's own
+     * handling span, as the OpenTelemetry Demo's accounting service does. That receive is the message's only record,
+     * so it is the consumer's request, timed by the fetch. A CLIENT receive stays dropped wherever it ran.
+     */
+    @Test
+    void aReceiveUnderItsHandlerIsARequest() throws Exception {
+        final TalExpression rule = compileShippedRule("handled_receive_example", "handled");
+
+        run(rule, SpanMetadata.builder()
+                              .service("accounting").serviceInstance("accounting-1").endpoint("orders receive")
+                              .kind(SpanMetadata.KIND_CONSUMER).statusCode(SpanMetadata.STATUS_UNSET).latency(12)
+                              .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 78)
+                              .traceId("t5").spanId("r1").parentSpanId("h1")
+                              .parentLocation(SpanMetadata.PARENT_LOCAL).build(),
+            new TestSpanInput().attribute("messaging.system", "kafka")
+                               .attribute("messaging.destination.name", "orders")
+                               .attribute("messaging.operation", "receive"));
+        final List<String> names = sent.stream().map(TALWorkedExampleTest::metricNameOf).collect(Collectors.toList());
+        for (final String emitted : List.of("handled_service_cpm", "handled_service_resp_time", "handled_service_sla",
+                                            "handled_service_apdex", "handled_service_percentile",
+                                            "handled_endpoint_cpm", "handled_endpoint_resp_time",
+                                            "handled_endpoint_sla", "handled_endpoint_percentile",
+                                            "handled_service_instance_cpm", "handled_service_instance_resp_time",
+                                            "handled_service_instance_sla")) {
+            assertTrue(names.contains(emitted), emitted + " was not emitted; got " + names);
+        }
+        assertEquals(MeterEntity.newServiceRelation("kafka", Layer.OTLP_VIRTUAL_MQ, "accounting", Layer.OTLP_GENERAL,
+                                                    DetectPoint.SERVER, 0).id(),
+                     entityIdOf(sentNamed("handled_service_relation_server_cpm")),
+                     "the message is a call from its broker");
+
+        sent.clear();
+        run(rule, SpanMetadata.builder()
+                              .service("accounting").endpoint("orders receive")
+                              .kind(SpanMetadata.KIND_CLIENT).statusCode(SpanMetadata.STATUS_UNSET).latency(12)
+                              .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 78)
+                              .traceId("t5").spanId("r2").parentSpanId("h1")
+                              .parentLocation(SpanMetadata.PARENT_LOCAL).build(),
+            new TestSpanInput().attribute("messaging.system", "kafka")
+                               .attribute("messaging.destination.name", "orders")
+                               .attribute("messaging.operation", "receive"));
+        assertEquals(0, sent.size(), "a CLIENT receive emits nothing");
     }
 
     /**
@@ -339,7 +384,7 @@ class TALWorkedExampleTest {
                      entityIdOf(sentNamed("noaddr_mq_destination_cpm")), "the queue is an endpoint of the broker");
 
         sent.clear();
-        run(rule, consumerSpan("queue-songs-ping process", 2),
+        run(rule, consumerSpan("queue-songs-ping process", 2, "p1"),
             new TestSpanInput().attribute("messaging.system", "jms")
                                .attribute("messaging.destination.name", "queue-songs-ping")
                                .attribute("messaging.operation", "process"));
@@ -605,12 +650,16 @@ class TALWorkedExampleTest {
                        + sent.stream().map(TALWorkedExampleTest::metricNameOf).collect(Collectors.toList())));
     }
 
-    private static SpanMetadata consumerSpan(final String name, final int latency) {
+    /**
+     * @param parentSpanId empty for a root span
+     */
+    private static SpanMetadata consumerSpan(final String name, final int latency, final String parentSpanId) {
         return SpanMetadata.builder()
                            .service("songs").endpoint(name)
                            .kind(SpanMetadata.KIND_CONSUMER).statusCode(SpanMetadata.STATUS_UNSET).latency(latency)
                            .startTime(SPAN1_END - 90).timestamp(SPAN1_END - 80)
-                           .traceId("t2").spanId("c1").parentSpanId("p1").build();
+                           .traceId("t2").spanId("c1").parentSpanId(parentSpanId).root(parentSpanId.isEmpty())
+                           .build();
     }
 
     private void runSpan1(final TalExpression rule) {

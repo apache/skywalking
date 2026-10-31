@@ -191,7 +191,14 @@ and `valkey`, which speaks the Redis protocol, to `Redis`. A system the catalog 
 An iOS or iPadOS app's `NSURLSession` CLIENT spans are left to the [iOS analyzer](backend-ios-monitoring.md), which
 already turns them into the app's metrics; the rule aborts on them.
 
-A messaging `receive` poll is not a request: the rule drops a CLIENT or CONSUMER span whose `messaging.operation.type` (or the older `messaging.operation`) is `receive`, since the OpenTelemetry Java agent reports a blocking JMS receive as a CONSUMER span lasting the whole wait, which would otherwise count as a ten-second request on every poll. A `process` span, the message actually handled, counts as the consumer's request.
+A messaging `receive` span is one whose `messaging.operation.type` (or the older `messaging.operation`) is `receive`. The OpenTelemetry Java agent opens it as `receive()` or `poll()` is entered and closes it when a message arrives, so its duration holds the wait for the message. The rule therefore reads it as follows:
+
+- A root CONSUMER `receive` is a poll and is dropped. Either its records are reported again as `process` spans, as the Java agent does with `otel.instrumentation.messaging.experimental.receive-telemetry.enabled`, and counting the poll would count each message twice, or it is a bare poll loop, whose duration is the idle wait.
+- A CONSUMER `receive` with a parent is the message's only record, as the .NET Kafka instrumentation reports one under the application's own handling span, and counts as the consumer's request, the call from the broker included. The .NET Kafka instrumentation times the fetch of the message alone, so that is what the consumer's response time shows; the handling that follows the fetch is in no span the rule measures.
+- A CLIENT `receive` is dropped wherever it ran, since it would draw an outbound edge timed by the wait.
+- A `process` span, the message actually handled, counts as the consumer's request.
+
+Three consumer shapes are not measured as you might expect, since a single span cannot tell them apart from the ones above: a synchronous consumer whose `receive` runs with no span around it and reports no `process` span is not counted at all; a poll run inside a span of its own process, such as an instrumented scheduled job, is counted with the wait as its response time; and if its records also get `process` spans, each message is counted twice.
 
 A SERVER span nested under another span of the same process is not a request either: frameworks such as Next.js open their own SERVER span under the one the HTTP instrumentation already opened for the request, and counting both would count the request twice. The rule drops a SERVER span whose OTLP span flags say its parent is local (`meta.parentLocation == "LOCAL"`). A SERVER span whose sender leaves those flags unset, as older SDKs and Envoy do, still counts.
 
