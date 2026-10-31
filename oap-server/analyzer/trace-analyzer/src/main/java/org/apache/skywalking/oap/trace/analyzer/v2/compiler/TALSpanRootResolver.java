@@ -104,6 +104,18 @@ public class TALSpanRootResolver implements TALRootResolver {
             sb.append(")");
             return true;
         }
+        if ("findServerClusterName".equals(name)) {
+            // The address, then optionally the kind a cluster lists in server-clusters.yml.
+            requireKeys(value, name, 1, 2);
+            sb.append("h.findServerClusterName(");
+            for (int i = 0; i < value.getFunctionCallArgs().size(); i++) {
+                sb.append(i > 0 ? ", " : "");
+                TALValueCodegen.generateStringValueAccess(
+                    sb, value.getFunctionCallArgs().get(i).getValue(), null, genCtx);
+            }
+            sb.append(")");
+            return true;
+        }
         if ("component".equals(name) || "resolveNetworkAlias".equals(name) || "urlHost".equals(name)
             || "isGateway".equals(name)) {
             requireKeys(value, name, 1, 1);
@@ -150,7 +162,8 @@ public class TALSpanRootResolver implements TALRootResolver {
             return ExprType.BOOLEAN;
         }
         if ("eventAttr".equals(functionName) || "resolveNetworkAlias".equals(functionName)
-            || "callerScopedAddress".equals(functionName) || "urlHost".equals(functionName)) {
+            || "callerScopedAddress".equals(functionName) || "urlHost".equals(functionName)
+            || "findServerClusterName".equals(functionName)) {
             return ExprType.STRING;
         }
         if ("component".equals(functionName)) {

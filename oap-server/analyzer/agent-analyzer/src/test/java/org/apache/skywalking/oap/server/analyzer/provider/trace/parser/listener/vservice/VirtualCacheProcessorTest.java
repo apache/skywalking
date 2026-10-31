@@ -33,16 +33,19 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatency
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
 import org.apache.skywalking.oap.server.core.source.CacheAccess;
 import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.server.core.source.CacheSlowAccess;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class VirtualCacheProcessorTest {
 
@@ -184,7 +187,8 @@ public class VirtualCacheProcessorTest {
         NamingControl namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
         AnalyzerModuleConfig config = new AnalyzerModuleConfig();
         config.setCacheReadLatencyThresholdsAndWatcher(new CacheReadLatencyThresholdsAndWatcher("default:10", null));
-        return new VirtualCacheProcessor(namingControl, config);
+        return new VirtualCacheProcessor(
+            namingControl, config, new ServerClusterConfig(Mockito.mock(ModuleProvider.class), 512));
     }
 
 }

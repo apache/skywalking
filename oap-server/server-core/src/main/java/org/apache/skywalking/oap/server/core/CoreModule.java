@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.config.HierarchyDefinitionService;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGroupService;
 import org.apache.skywalking.oap.server.core.hierarchy.HierarchyService;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplateManagementService;
@@ -117,6 +118,7 @@ public class CoreModule extends ModuleDefine {
         classes.add(CommandService.class);
         classes.add(HierarchyService.class);
         classes.add(EndpointNameGroupService.class);
+        classes.add(ServerClusterConfig.class);
         return classes.toArray(new Class[]{});
     }
 

@@ -32,11 +32,13 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointMeta;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
 import org.apache.skywalking.oap.server.core.source.ISource;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +57,10 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
         100,
         100,
         new EndpointNameGrouping()
+    );
+    private static ServerClusterConfig SERVER_CLUSTERS = new ServerClusterConfig(
+        Mockito.mock(ModuleProvider.class),
+        70
     );
     private final String serviceId = IDManager.ServiceID.buildId("local-service", true);
     private final String instanceId = IDManager.ServiceInstanceID.buildId(serviceId, "local-instance");
@@ -75,7 +81,8 @@ public class EndpointDepFromCrossThreadAnalysisListenerTest {
         EndpointDepFromCrossThreadAnalysisListener listener = new EndpointDepFromCrossThreadAnalysisListener(
             mockReceiver,
             CONFIG,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();

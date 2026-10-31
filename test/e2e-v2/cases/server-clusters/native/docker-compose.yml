@@ -1,0 +1,124 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Two producers reach one Kafka broker through two names, in opposite orders, as two clients configured with the same
+# bootstrap servers in a different order report it: the SkyWalking Java agent's Kafka plugin joins bootstrap.servers by
+# `;`, so the peers are `kafka:9092;kafka-node:9092` and `kafka-node:9092;kafka:9092`. server-clusters.yml lists both
+# names under kafka-prod, so both producers and the consumer draw one broker, kafka-prod.
+
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    ports:
+      - 12800
+    volumes:
+      - ./server-clusters.yml:/skywalking/config/server-clusters.yml
+    networks:
+      e2e:
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+    networks:
+      e2e:
+
+  producer1:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_NAME: e2e-producer-a
+      SW_AGENT_INSTANCE_NAME: producer-a
+      kafka_enable: "true"
+      kafka_topic: orders
+      kafka_server: kafka:9092,kafka-node:9092
+    depends_on:
+      - oap
+      - kafka
+    ports:
+      - 9090
+    networks:
+      e2e:
+
+  producer2:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_NAME: e2e-producer-b
+      SW_AGENT_INSTANCE_NAME: producer-b
+      kafka_enable: "true"
+      kafka_topic: orders
+      kafka_server: kafka-node:9092,kafka:9092
+    depends_on:
+      - oap
+      - kafka
+    networks:
+      e2e:
+
+  # The e2e trigger calls producer1; this calls producer2.
+  producer2-trigger:
+    image: busybox:1.36
+    command: ["sh", "-c", "while true; do wget -q -O /dev/null http://producer2:9090/kafka/send; sleep 3; done"]
+    depends_on:
+      - producer2
+    networks:
+      e2e:
+
+  consumer:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: consumer
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800
+      SW_AGENT_NAME: e2e-service-consumer
+      kafka_enable: "true"
+      kafka_topic: orders
+      kafka_server: kafka:9092
+    depends_on:
+      - oap
+      - kafka
+    networks:
+      e2e:
+
+  zookeeper:
+    image: 'zookeeper:3.9.3'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      e2e:
+
+  kafka:
+    image: 'bitnamilegacy/kafka:2.4.1'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      e2e:
+        aliases:
+          - kafka-node
+
+networks:
+  e2e:

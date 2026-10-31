@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.ServiceDatabaseSlowStatement;
@@ -51,6 +52,8 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
 
     private final AnalyzerModuleConfig config;
 
+    private final ServerClusterConfig serverClusters;
+
     private List<Source> recordList = new ArrayList<>();
 
     @Override
@@ -60,7 +63,8 @@ public class VirtualDatabaseProcessor implements VirtualServiceProcessor {
         }
         String peer = span.getPeer();
         long timeBucket = TimeBucket.getMinuteTimeBucket(span.getStartTime());
-        String serviceName = namingControl.formatServiceName(peer);
+        // A database reached at an address server-clusters.yml lists is named as its cluster, its slow statements too.
+        String serviceName = namingControl.formatServiceName(serverClusters.clusterNameOrAddress(peer));
         int latency = (int) (span.getEndTime() - span.getStartTime());
         recordList.add(toServiceMeta(serviceName, timeBucket));
         recordList.add(toDatabaseAccess(span, serviceName, timeBucket, latency));

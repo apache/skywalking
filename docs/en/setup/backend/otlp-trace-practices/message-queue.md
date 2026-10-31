@@ -7,11 +7,11 @@ The [trace analysis](../trace-analyzer.md) draws a message as two calls that mee
 producer ──▶ broker ──▶ consumer
 ```
 
-- A PRODUCER or CLIENT span that carries `messaging.system` draws `producer → broker` with the
+- A PRODUCER or CLIENT span that carries `messaging.system.name` or `messaging.system` draws `producer → broker` with the
   `otlp_service_relation_client_*` metrics and measures the broker with `otlp_mq_access_*`. The topic or queue it names
   in `messaging.destination.name`, or the older `messaging.destination`, is an endpoint of the broker, with
   `otlp_mq_destination_*`.
-- A CONSUMER span that carries `messaging.system` draws `broker → consumer` with `otlp_service_relation_server_cpm`,
+- A CONSUMER span that carries `messaging.system.name` or `messaging.system` draws `broker → consumer` with `otlp_service_relation_server_cpm`,
   and counts as a request of the consumer in its service and endpoint metrics, and in its instance metrics when the
   span reports an instance.
 
@@ -29,11 +29,12 @@ span names the broker from its own attributes, by the first one present:
 
 | Span | Broker named by |
 |---|---|
-| producer | `service.peer.name` or `peer.service`; `server.address` and `server.port` (`net.peer.name` and `net.peer.port`); `peer.address`; the host and port of `url.full` or `http.url`; `messaging.system` |
-| consumer | `server.address` and `server.port` (`net.peer.name` and `net.peer.port`); `messaging.system` |
+| producer | `service.peer.name` or `peer.service`; `server.address` and `server.port` (`net.peer.name` and `net.peer.port`); `peer.address`; the host and port of `url.full` or `http.url`; the messaging system |
+| consumer | `server.address` and `server.port` (`net.peer.name` and `net.peer.port`); the messaging system |
 
-A span that names the broker by none of the others lands on the node named after its messaging system, `kafka` or
-`rabbitmq`, so every cluster of one system reached that way is one node.
+The messaging system is `messaging.system.name`, or the older `messaging.system`, with `aws_sqs` read as `aws.sqs`
+and `aws_sns` as `aws.sns`. A span that names the broker by none of the others lands on the node named after it,
+`kafka` or `rabbitmq`, so every cluster of one system reached that way is one node.
 
 ## What the agents report
 
@@ -64,13 +65,15 @@ one Kubernetes Service, so that they name the same node.
 
 The Java agent also reports the channel calls other than a publish, `queue.declare` and `basic.ack` among them, as
 CLIENT spans that carry `messaging.system`, and the RabbitMQ .NET client reports its connection attempts the same way.
-The rule draws them as calls to the broker and counts them in its `otlp_mq_access_*`.
+The rule draws them as calls to the broker and counts them in its `otlp_mq_access_*`. With its stable messaging
+conventions on, the Java agent reports an ack, nack or reject as a CLIENT span whose operation is `settle` instead,
+which the rule drops.
 
 ## Which consumer span is counted
 
 The rule counts a CONSUMER span as the consumer's request, except one whose operation (`messaging.operation.type`, or
 the older `messaging.operation`) is `receive` and that is the root of its trace, and never counts a CLIENT span whose
-operation is `receive`, see [Metrics](../trace-analyzer.md#metrics). What the consumer's response time shows depends
+operation is `receive` or `settle`, see [Metrics](../trace-analyzer.md#metrics). What the consumer's response time shows depends
 on the span its agent reports:
 
 | Consumer span | Counted | Response time | Reported by |
@@ -89,3 +92,58 @@ on the span its agent reports:
 confluent-kafka (Python) reports what one `poll()` or `consume()` call returned as a `recv` span with no attributes
 and a `process` span under it, which stays open until the next call. Both are counted as requests, and only the
 `process` span draws the edge from the broker.
+
+## Naming a broker cluster
+
+A broker that clients reach at more than one address can be named as one cluster in [server
+clusters](../server-clusters.md). Only an address a span reports is renamed, so what to list follows from the agent:
+
+| Agent | Reports for the broker | List |
+|---|---|---|
+| SkyWalking Java agent: Kafka | its `bootstrap.servers`, joined by `;` in its own order | every address, as members or aliases; a list matches in any order and as any subset |
+| SkyWalking Java agent: RocketMQ | its name server list as configured | every address |
+| SkyWalking Java agent: Pulsar | its service URL, `pulsar://h1:6650,h2:6650` | every address, with `scheme: pulsar://` on the cluster |
+| SkyWalking Java agent: NATS | its servers, `nats://h1:4222,nats://h2:4222` | every address, with `scheme: nats://` on the cluster |
+| SkyWalking Java agent: RabbitMQ, ActiveMQ, Artemis | the node it is connected to, as the plugin spells it | every node, as members |
+| OpenTelemetry Java agent: RabbitMQ, with its stable messaging conventions on | the IP address and port it is connected to | every node's IP address |
+| pika, aio-pika, amqplib | the connection's configured `host:port` | that address, an alias when it names a Service |
+| confluent-kafka (Python) | the first `bootstrap.servers` entry | that entry |
+| RabbitMQ .NET client | its endpoint's `host:port` on publish | that address; its `deliver` span reports none, so the consumer side keeps `rabbitmq` |
+| Java agent, .NET automatic instrumentation, kafkajs, Go automatic instrumentation, kafka-python: Kafka | no address | nothing: the broker keeps the messaging system's name, `kafka` |
+
+On the native path a consumer's broker is named by the address its producer reported, which the `sw8` header
+carries, so listing the producers' addresses names both sides.
+
+### Renaming a broker cluster only for its own system
+
+The shipped rules call `findServerClusterName(address)` without a kind, and the native trace analysis does not use
+kinds, so a span of any messaging system is renamed to the cluster that lists its address. A TAL rule file of your own
+can rename a broker only for the clients of its own system. Give the cluster, as a kind, the system its clients
+report as `messaging.system.name` or `messaging.system`:
+
+```yaml
+clusters:
+  - name: kafka-prod
+    kinds: [kafka]
+    aliases:
+      - kafka.prod.svc.cluster.local:9092
+```
+
+Then copy `config/tal/otlp-general.yaml` to a file of your own, such as `config/tal/otlp-custom.yaml`, list that file
+in `talFiles` in place of `otlp-general`, see [Configuration](../trace-analyzer.md#configuration), and pass the system
+at each of its three calls:
+
+```text
+// otlp-general, the consumer block: the broker a message came through
+def cluster = findServerClusterName(broker, attr("messaging.system.name", "messaging.system"))
+// otlp-general, the outbound block: the database, cache or broker a client or producer calls
+def cluster = findServerClusterName(peer, attr("db.system.name", "db.system", "messaging.system.name", "messaging.system"))
+// otlp-slow-sql: the database a slow statement is filed under; system is the span's db.system.name or db.system
+def cluster = findServerClusterName(peer, system)
+```
+
+Change the three together. The outbound call names databases, caches and brokers alike, so a rule that passes a kind
+there and not at the consumer, or not in `otlp-slow-sql`, names one server two ways. Each passes the system as the span
+reports it, so the two sides of a call meet at the same cluster. Kinds are compared as written. A system the conventions
+renamed needs both spellings when its clients report both, such as SQS's `kinds: [aws_sqs, aws.sqs]`. A cluster that
+lists no kinds is still renamed for every system. The OAP reads the rule files at start, so restart it after the change.

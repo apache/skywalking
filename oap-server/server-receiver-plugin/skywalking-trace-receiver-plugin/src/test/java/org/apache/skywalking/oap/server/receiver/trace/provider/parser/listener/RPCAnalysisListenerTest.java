@@ -36,6 +36,7 @@ import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
 import org.apache.skywalking.oap.server.core.cache.NetworkAddressAliasCache;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.Endpoint;
 import org.apache.skywalking.oap.server.core.source.EndpointRelation;
@@ -45,6 +46,7 @@ import org.apache.skywalking.oap.server.core.source.Service;
 import org.apache.skywalking.oap.server.core.source.ServiceInstance;
 import org.apache.skywalking.oap.server.core.source.ServiceInstanceRelation;
 import org.apache.skywalking.oap.server.core.source.ServiceRelation;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -77,6 +79,10 @@ public class RPCAnalysisListenerTest {
         100,
         new EndpointNameGrouping()
     );
+    private static ServerClusterConfig SERVER_CLUSTERS = new ServerClusterConfig(
+        Mockito.mock(ModuleProvider.class),
+        70
+    );
 
     @BeforeEach
     public void init() {
@@ -101,7 +107,8 @@ public class RPCAnalysisListenerTest {
             new MockReceiver(),
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
         Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Entry));
         Assertions.assertTrue(listener.containsPoint(AnalysisListener.Point.Local));
@@ -120,7 +127,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -182,7 +190,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -248,7 +257,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -307,7 +317,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -350,7 +361,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -395,7 +407,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -436,7 +449,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE2,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();
@@ -481,7 +495,7 @@ public class RPCAnalysisListenerTest {
         alias.setRepresentServiceInstanceId(IDManager.ServiceInstanceID.buildId(serviceId, ""));
         when(cache.get(any())).thenReturn(alias);
         final MockReceiver mockReceiver = new MockReceiver();
-        final RPCAnalysisListener listener = new RPCAnalysisListener(mockReceiver, CONFIG, cache, NAMING_CONTROL);
+        final RPCAnalysisListener listener = new RPCAnalysisListener(mockReceiver, CONFIG, cache, NAMING_CONTROL, SERVER_CLUSTERS);
 
         final long startTime = System.currentTimeMillis();
         final SpanObject spanObject = SpanObject.newBuilder()
@@ -513,7 +527,8 @@ public class RPCAnalysisListenerTest {
             mockReceiver,
             CONFIG,
             CACHE,
-            NAMING_CONTROL
+            NAMING_CONTROL,
+            SERVER_CLUSTERS
         );
 
         final long startTime = System.currentTimeMillis();

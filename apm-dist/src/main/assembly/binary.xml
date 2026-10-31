@@ -55,6 +55,7 @@
                 <include>application.yml</include>
                 <include>component-libraries.yml</include>
                 <include>gateways.yml</include>
+                <include>server-clusters.yml</include>
                 <include>service-apdex-threshold.yml</include>
                 <include>endpoint-name-grouping.yml</include>
                 <include>metadata-service-mapping.yaml</include>

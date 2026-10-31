@@ -370,6 +370,7 @@
                         <exclude>alarm-settings.yml</exclude>
                         <exclude>component-libraries.yml</exclude>
                         <exclude>gateways.yml</exclude>
+                        <exclude>server-clusters.yml</exclude>
                         <exclude>service-apdex-threshold.yml</exclude>
                         <exclude>endpoint-name-grouping.yml</exclude>
                         <exclude>metadata-service-mapping.yaml</exclude>

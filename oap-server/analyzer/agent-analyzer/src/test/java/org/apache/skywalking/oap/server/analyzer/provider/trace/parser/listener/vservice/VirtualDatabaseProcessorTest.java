@@ -29,16 +29,19 @@ import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresho
 import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SpanTags;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
+import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.ServiceDatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.ServiceMeta;
 import org.apache.skywalking.oap.server.core.source.Source;
+import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -148,7 +151,8 @@ public class VirtualDatabaseProcessorTest {
         NamingControl namingControl = new NamingControl(512, 512, 512, new EndpointNameGrouping());
         AnalyzerModuleConfig config = new AnalyzerModuleConfig();
         config.setDbLatencyThresholdsAndWatcher(new DBLatencyThresholdsAndWatcher("default:10", null));
-        return new VirtualDatabaseProcessor(namingControl, config);
+        return new VirtualDatabaseProcessor(
+            namingControl, config, new ServerClusterConfig(Mockito.mock(ModuleProvider.class), 512));
     }
 
 }

@@ -724,6 +724,10 @@ jobs:
             config: test/e2e-v2/cases/exporter/kafka/e2e.yaml
           - name: Virtual MQ
             config: test/e2e-v2/cases/virtual-mq/e2e.yaml
+          - name: Server Clusters
+            config: test/e2e-v2/cases/server-clusters/native/e2e.yaml
+          - name: Server Clusters OTLP
+            config: test/e2e-v2/cases/server-clusters/otlp/e2e.yaml
           - name: AWS Cloud EKS
             config: test/e2e-v2/cases/aws/eks/e2e.yaml
           - name: Windows
