@@ -13,14 +13,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Covers reloading the BanyanDB TLS trust CA in a running OAP. The trust material is resolved when
-# the gRPC channel is built, so the reload has to replace the channel.
+# Covers rotating the BanyanDB TLS trust CA in a running OAP the way an operator does, so that no
+# handshake is rejected: the OAP trusts the old and the new CA, BanyanDB switches to a certificate the
+# new CA signed, and the OAP then trusts the new CA only. The trust material is resolved when the gRPC
+# channel is built, so each reload replaces the channel.
 #
-# The rotation deliberately goes to a CA that does NOT validate the server and then back again, so
-# the reload is proven by behaviour rather than only by a log line: while the unrelated CA is in the
-# trust file the handshake fails PKIX validation, and it only recovers once material that validates
-# the server is rotated back in. A reload that silently did nothing would leave the connection
-# working throughout, and both assertions would fail.
+# That rotation would also pass with a reload that silently did nothing, because the connection made
+# at boot keeps working. So the case ends by rotating to a CA that does NOT validate the server: the
+# rebuilt channel's handshake then fails PKIX validation, which proves the trust file reaches the
+# wire. It runs last because its writes fail.
+#
+# A write that fails is a problem for the assertions when it is a network address alias's first one:
+# the alias is cached as written, and an unchanged alias is only rewritten every five minutes. Even
+# the rotation can fail a write, one that picked the old channel as the rebuild replaced it. So the
+# rotation starts once the topology shows the alias was stored.
+#
+# Each rotation step writes its file once: a retry must not rewrite it, as a rewrite is a change the
+# monitor may read half-written. The OAP's trust file is completed in /tmp and renamed into place;
+# BanyanDB's reloader waits for its files to stop changing, so they are written in place.
 
 setup:
   env: compose
@@ -56,12 +66,16 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: ../../expected/service.yml
 
-    # Rotate the trust file to a CA unrelated to the server's certificate. The rebuilt channel then
-    # trusts the wrong anchor, so the handshake fails PKIX validation -- which is what shows the
-    # rotated material really reached the wire, and not merely that a log line was written.
+    # The consumer's calls are drawn to the provider, so the alias of the address it dials is stored
+    # before any rotation can fail a write.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider
+      expected: ../../expected/dependency-services-provider.yml
+
+    # Trust the old and the new CA. The channel the bundle rebuilds still validates the server's old
+    # certificate, and will validate the new one.
     #
-    # Each retry rewrites the same content, which the monitor compares and ignores, so only the
-    # first write is a change.
+    # Rebuilds are counted rather than matched because the message is the same for every rotation;
+    # the first one is logged at boot, when the monitor reads the file.
     #
     # The container is found by its compose service label rather than through `docker compose`,
     # because the project name is chosen by the runner: "skywalking_e2e" locally, but $GITHUB_RUN_ID
@@ -69,26 +83,42 @@ verify:
     # directory name instead and match nothing, in either environment.
     - query: |
         oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
-        docker exec $oap bash -c 'cat /tls-src-wrong/wrong-ca.crt > /tmp/bydb-ca.crt'
-        docker logs $oap 2>&1 \
-          | grep -Fq "Rebuilt the BanyanDB channel to reload the TLS trust CA from /tmp/bydb-ca.crt" \
+        docker exec $oap bash -c '[ -e /tmp/trust-old-and-new ] || { cat /tls-src/cert.crt /tls-new/new-ca.crt > /tmp/bydb-ca.next && mv /tmp/bydb-ca.next /tmp/bydb-ca.crt && touch /tmp/trust-old-and-new; }'
+        [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 2 ] \
+          && echo trust-old-and-new
+      expected: expected/trust-old-and-new.yml
+
+    # BanyanDB serves the certificate the new CA signed.
+    - query: |
+        banyandb=$(docker ps -q --filter label=com.docker.compose.service=banyandb)
+        docker exec $banyandb sh -c '[ -e /tmp/server-rotated ] || { cat /tls-new/new-server.crt > /tmp/tls/cert.crt && cat /tls-new/new-server.key > /tmp/tls/cert.key && touch /tmp/server-rotated; }'
+        docker logs $banyandb 2>&1 | grep -Fq "Successfully updated TLS certificate after content change" \
+          && echo server-rotated
+      expected: expected/server-rotated.yml
+
+    # Trust the new CA only. The rebuilt channel validates nothing but the new certificate, so the
+    # storage assertions below run over a connection that needs both reloads to have happened.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        docker exec $oap bash -c '[ -e /tmp/trust-new ] || { cp /tls-new/new-ca.crt /tmp/bydb-ca.next && mv /tmp/bydb-ca.next /tmp/bydb-ca.crt && touch /tmp/trust-new; }'
+        [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 3 ] \
+          && echo trust-new
+      expected: expected/trust-new.yml
+
+    # Every storage assertion, over the channel that trusts the new CA only.
+    - includes:
+        - ../../storage-cases.yaml
+
+    # Rotate the trust file to a CA unrelated to the server's certificate. The rebuilt channel then
+    # trusts the wrong anchor, so the handshake fails PKIX validation -- which is what shows the
+    # rotated material really reached the wire, and not merely that a log line was written.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        docker exec $oap bash -c '[ -e /tmp/trust-wrong ] || { cp /tls-src-wrong/wrong-ca.crt /tmp/bydb-ca.next && mv /tmp/bydb-ca.next /tmp/bydb-ca.crt && touch /tmp/trust-wrong; }'
+        [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 4 ] \
           && docker logs $oap 2>&1 | grep -Fq "PKIX path building failed" \
           && echo ca-rejected
       expected: expected/ca-rejected.yml
-
-    # Rotate back to material that validates the server. A second rebuild has to be logged, which is
-    # counted rather than matched because the message is identical for every rotation.
-    - query: |
-        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
-        docker exec $oap bash -c 'cat /tls-src/cert.crt > /tmp/bydb-ca.crt'
-        [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 2 ] \
-          && echo ca-restored
-      expected: expected/ca-restored.yml
-
-    # Every storage assertion, over the channel that recovered. This is what proves the second
-    # rotation restored a working connection rather than just logging another rebuild.
-    - includes:
-        - ../../storage-cases.yaml
 
 cleanup:
   on: always
