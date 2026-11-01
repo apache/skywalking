@@ -18,7 +18,7 @@ microservices, cloud native and container-based architectures.
 * Distributed Tracing
   * End-to-end distributed tracing. Service topology analysis, service-centric observability and APIs dashboards.
 * Agents for your stack
-  * Java, .Net Core, PHP, NodeJS, Golang, LUA, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
+  * Java, .Net Core, PHP, NodeJS, Golang, Lua, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
 * eBPF early adoption
   * Rover agent works as a monitor and profiler powered by eBPF to monitor Kubernetes deployments and diagnose CPU and network performance.
 * Scaling
