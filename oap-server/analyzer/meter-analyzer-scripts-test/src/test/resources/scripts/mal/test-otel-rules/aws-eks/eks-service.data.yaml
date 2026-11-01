@@ -34,22 +34,22 @@ input:
     - labels:
         ClusterName: test-cluster
         Service: test-service
-      value: 100.0
+      value: 80.0
   pod_network_rx_errors:
     - labels:
         ClusterName: test-cluster
         Service: test-service
-      value: 100.0
+      value: 5.0
   pod_network_tx_bytes:
     - labels:
         ClusterName: test-cluster
         Service: test-service
-      value: 100.0
+      value: 90.0
   pod_network_tx_errors:
     - labels:
         ClusterName: test-cluster
         Service: test-service
-      value: 100.0
+      value: 15.0
 expected:
   eks_cluster_service_pod_cpu_utilization:
     entities:
@@ -86,7 +86,7 @@ expected:
           ClusterName: test-cluster
           Service: test-service
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 80.0
   eks_cluster_service_pod_net_rx_error:
     entities:
       - scope: ENDPOINT
@@ -98,7 +98,7 @@ expected:
           ClusterName: test-cluster
           Service: test-service
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 5.0
   eks_cluster_service_pod_net_tx_bytes:
     entities:
       - scope: ENDPOINT
@@ -110,7 +110,7 @@ expected:
           ClusterName: test-cluster
           Service: test-service
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 90.0
   eks_cluster_service_pod_net_tx_error:
     entities:
       - scope: ENDPOINT
@@ -122,4 +122,4 @@ expected:
           ClusterName: test-cluster
           Service: test-service
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 15.0

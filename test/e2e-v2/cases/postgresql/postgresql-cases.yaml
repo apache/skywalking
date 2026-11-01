@@ -35,6 +35,9 @@ cases:
 
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_active_sessions,sum)" --service-name=postgresql::postgres:5432
     expected: expected/metrics-has-value.yml
+  # plural checkpoints_timed (doc once listed singular checkpoint_timed)
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="aggregate_labels(meter_pg_checkpoints_timed_rate,sum)" --service-name=postgresql::postgres:5432
+    expected: expected/metrics-has-value.yml
   # instance metrics
   - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_pg_instance_shared_buffers --service-name=postgresql::postgres:5432 --instance-name=postgres-exporter:9187
     expected:  expected/metrics-has-value.yml

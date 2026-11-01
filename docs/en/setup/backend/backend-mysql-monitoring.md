@@ -19,10 +19,10 @@ Each MySQL/MariaDB server is cataloged as an `Instance` in OAP.
 #### Supported Metrics 
 | Monitoring Panel | Unit | Metric Name                                                                                                                                      | Description | Data Source |
 |-----|------|--------------------------------------------------------------------------------------------------------------------------------------------------|-----|-----|
-| MySQL Uptime |   day   | meter_mysql_uptime                                                                                                                               | The MySQL startup time | mysqld_exporter|
+| MySQL Uptime |   day   | meter_mysql_instance_uptime                                                                                                                      | The MySQL startup time | mysqld_exporter|
 | Max Connections |      | meter_mysql_max_connections                                                                                                                      | The max number of connections. | mysqld_exporter|
-| Innodb Buffer Pool Size |  MB    | meter_mysql_innodb_buffer_pool_size                                                                                                              | The buffer pool size in Innodb engine | mysqld_exporter|
-| Thread Cache Size |      | meter_mysql_thread_cache_size                                                                                                                    | The size of thread cache | mysqld_exporter|
+| Innodb Buffer Pool Size |  MB    | meter_mysql_instance_innodb_buffer_pool_size                                                                                                     | The buffer pool size in Innodb engine | mysqld_exporter|
+| Thread Cache Size |      | meter_mysql_instance_thread_cache_size                                                                                                           | The size of thread cache | mysqld_exporter|
 | Current QPS|      | meter_mysql_qps                                                                                                                                  | Queries Per Second | mysqld_exporter|
 | Current TPS |      | meter_mysql_tps                                                                                                                                  | Transactions Per Second | mysqld_exporter|
 | Commands Rate |     | meter_mysql_commands_insert_rate <br/>meter_mysql_commands_select_rate<br />meter_mysql_commands_delete_rate<br />meter_mysql_commands_update_rate | The rate of total number of insert/select/delete/update executed by the current server | mysqld_exporter|

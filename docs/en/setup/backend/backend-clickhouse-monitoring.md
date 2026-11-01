@@ -47,7 +47,7 @@ an `Instance` in OAP.
 | ---------------------- | ----- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- | ----------- |
 | TcpConnections         | count | meter_clickhouse_instance_tcp_connections<br/>meter_clickhouse_tcp_connections                   | Number of connections to TCP server.                       | ClickHouse  |
 | MysqlConnections       | count | meter_clickhouse_instance_mysql_connections<br/>meter_clickhouse_mysql_connections               | Number of client connections using MySQL protocol.         | ClickHouse  |
-| HttpConnections        | count | meter_clickhouse_instance_http_connections<br/>meter_clickhouse_mysql_connections                | Number of connections to HTTP server.                      | ClickHouse  |
+| HttpConnections        | count | meter_clickhouse_instance_http_connections<br/>meter_clickhouse_http_connections                 | Number of connections to HTTP server.                      | ClickHouse  |
 | InterserverConnections | count | meter_clickhouse_instance_interserver_connections<br/>meter_clickhouse_interserver_connections   | Number of connections from other replicas to fetch parts.  | ClickHouse  |
 | PostgresqlConnections  | count | meter_clickhouse_instance_postgresql_connections<br/>meter_clickhouse_postgresql_connections     | Number of client connections using PostgreSQL protocol.    | ClickHouse  |
 | ReceiveBytes           | bytes | meter_clickhouse_instance_network_receive_bytes<br/>meter_clickhouse_network_receive_bytes       | Total number of bytes received from network.               | ClickHouse  |
@@ -75,7 +75,7 @@ an `Instance` in OAP.
 | InsertQueryCount   | count | meter_clickhouse_instance_query_insert<br/>meter_clickhouse_query_insert     | Number of executing queries, but only for INSERT queries.                                                                       | ClickHouse  |
 | InsertedRowCount   | count | meter_clickhouse_instance_inserted_rows<br/>meter_clickhouse_inserted_rows   | Number of rows INSERTed to all tables.                                                                                          | ClickHouse  |
 | InsertedBytes      | bytes | meter_clickhouse_instance_inserted_bytes<br/>meter_clickhouse_inserted_bytes | Number of bytes INSERTed to all tables.                                                                                         | ClickHouse  |
-| DelayedInsertCount | count | meter_clickhouse_instance_delayed_insert<br/>meter_clickhouse_delayed_insert | Number of times the INSERT of a block to a MergeTree table was throttled due to high number of active data parts for partition. | ClickHouse  |
+| DelayedInsertCount | count | meter_clickhouse_instance_delayed_inserts<br/>meter_clickhouse_delayed_inserts | Number of times the INSERT of a block to a MergeTree table was throttled due to high number of active data parts for partition. | ClickHouse  |
 
 #### ClickHouse Replicas Supported Metrics
 

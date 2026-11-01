@@ -39,37 +39,55 @@ input:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+      value: 800.0
   node_network_rx_errors:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+      value: 11.0
   node_network_tx_bytes:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+      value: 1200.0
   node_network_tx_errors:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+      value: 22.0
   node_diskio_io_service_bytes_write:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
+        device: nvme0n1
+      value: 500.0
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+        device: nvme1n1
       value: 100.0
   node_diskio_io_service_bytes_read:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+        device: nvme0n1
+      value: 600.0
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+        device: nvme1n1
+      value: 200.0
   node_filesystem_utilization:
     - labels:
         ClusterName: test-cluster
         NodeName: test-node
-      value: 100.0
+        device: nvme0n1
+      value: 42.0
+    - labels:
+        ClusterName: test-cluster
+        NodeName: test-node
+        device: nvme1n1
+      value: 12.0
   pod_cpu_utilization:
     - labels:
         ClusterName: test-cluster
@@ -148,7 +166,7 @@ expected:
           NodeName: test-node
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 800.0
   eks_cluster_node_net_rx_error:
     entities:
       - scope: SERVICE_INSTANCE
@@ -160,7 +178,7 @@ expected:
           NodeName: test-node
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 11.0
   eks_cluster_node_net_tx_bytes:
     entities:
       - scope: SERVICE_INSTANCE
@@ -172,7 +190,7 @@ expected:
           NodeName: test-node
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 1200.0
   eks_cluster_node_net_tx_error:
     entities:
       - scope: SERVICE_INSTANCE
@@ -184,7 +202,7 @@ expected:
           NodeName: test-node
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 22.0
   eks_cluster_node_disk_io_write:
     entities:
       - scope: SERVICE_INSTANCE
@@ -193,7 +211,12 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          device: 
+          device: nvme0n1
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 500.0
+      - labels:
+          device: nvme1n1
           cluster: 'aws-eks-cluster::test-cluster'
           NodeName: test-node
         value: 100.0
@@ -205,10 +228,15 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          device: 
+          device: nvme0n1
           cluster: 'aws-eks-cluster::test-cluster'
           NodeName: test-node
-        value: 100.0
+        value: 600.0
+      - labels:
+          device: nvme1n1
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 200.0
   eks_cluster_node_fs_utilization:
     entities:
       - scope: SERVICE_INSTANCE
@@ -217,10 +245,15 @@ expected:
         layer: AWS_EKS
     samples:
       - labels:
-          device: 
+          device: nvme0n1
           cluster: 'aws-eks-cluster::test-cluster'
           NodeName: test-node
-        value: 100.0
+        value: 42.0
+      - labels:
+          device: nvme1n1
+          cluster: 'aws-eks-cluster::test-cluster'
+          NodeName: test-node
+        value: 12.0
   eks_cluster_node_pod_cpu_utilization:
     entities:
       - scope: SERVICE_INSTANCE

@@ -21,8 +21,8 @@ Self observability monitoring provides monitoring of the status and resources of
 |------|---------------------------------------------------|-----|-----|
 | Count Per Minute | meter_oap_instance_jvm_gc_count                   | GC Count | oap self observability |
 | MB | meter_oap_instance_jvm_memory_bytes_used          | Memory | oap self observability |
-| ms / min | meter_oap_instance_jvm_young_gc_time              | GC Time (ms / min) | oap self observability |
-| ms / min | meter_oap_instance_jvm_old_gc_time                | GC Time (ms / min) | oap self observability |
+| ms / min | meter_oap_instance_jvm_gc_time                    | Young GC Time (ms / min), `gc=young_gc_time` | oap self observability |
+| ms / min | meter_oap_instance_jvm_gc_time                    | Old GC Time (ms / min), `gc=old_gc_time` | oap self observability |
 | Count Per Minute | meter_oap_instance_mesh_count                     | Mesh Analysis Count (Per Minute) | oap self observability |
 | Count Per Minute | meter_oap_instance_mesh_analysis_error_count      | Mesh Analysis Count (Per Minute) | oap self observability |
 | ms | meter_oap_instance_trace_latency_percentile       | Trace Analysis Latency (ms) | oap self observability |

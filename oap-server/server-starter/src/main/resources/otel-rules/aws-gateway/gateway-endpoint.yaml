@@ -39,7 +39,7 @@ metricsRules:
     exp: amazonaws_com_AWS_ApiGateway_4xx_sum.downsampling(SUM)
   - name: 5xx
     exp: amazonaws_com_AWS_ApiGateway_5xx_sum.downsampling(SUM)
-  - name: DataProcessed
+  - name: data_processed
     exp: amazonaws_com_AWS_ApiGateway_DataProcessed_sum.downsampling(SUM)
 
   # Only for REST API

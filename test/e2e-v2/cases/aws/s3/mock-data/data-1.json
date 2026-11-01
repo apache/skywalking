@@ -43,8 +43,7 @@
                     "count": "1",
                     "sum": "5",
                     "quantileValues": [
-                      {
-                      },
+                      {},
                       {
                         "quantile": 1.0
                       }
@@ -90,8 +89,7 @@
                     "count": "1",
                     "sum": "5",
                     "quantileValues": [
-                      {
-                      },
+                      {},
                       {
                         "quantile": 1.0
                       }
@@ -107,6 +105,190 @@
                         "key": "MetricName",
                         "value": {
                           "stringValue": "5xxErrors"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/FirstByteLatency",
+              "unit": "Milliseconds",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "2",
+                    "sum": "20.0",
+                    "quantileValues": [
+                      {},
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "FirstByteLatency"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/AllRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": "15",
+                    "quantileValues": [
+                      {},
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "AllRequests"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/GetRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": "7",
+                    "quantileValues": [
+                      {},
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "GetRequests"
+                        }
+                      },
+                      {
+                        "key": "BucketName",
+                        "value": {
+                          "stringValue": "skywalking"
+                        }
+                      },
+                      {
+                        "key": "FilterId",
+                        "value": {
+                          "stringValue": "test"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "amazonaws.com/AWS/S3/PutRequests",
+              "unit": "{Count}",
+              "summary": {
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1674547500000000000",
+                    "timeUnixNano": "1674547560000000000",
+                    "count": "1",
+                    "sum": "5",
+                    "quantileValues": [
+                      {},
+                      {
+                        "quantile": 1.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/S3"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "PutRequests"
                         }
                       },
                       {

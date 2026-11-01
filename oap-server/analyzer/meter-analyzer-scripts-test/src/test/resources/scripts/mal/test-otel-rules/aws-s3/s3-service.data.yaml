@@ -19,62 +19,62 @@ input:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 40.0
   amazonaws_com_AWS_S3_5xxErrors_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 50.0
   amazonaws_com_AWS_S3_BytesDownloaded_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 1100.0
   amazonaws_com_AWS_S3_BytesUploaded_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 2200.0
   amazonaws_com_AWS_S3_TotalRequestLatency_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 40.0
   amazonaws_com_AWS_S3_TotalRequestLatency_count:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 2.0
   amazonaws_com_AWS_S3_FirstByteLatency_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 20.0
   amazonaws_com_AWS_S3_FirstByteLatency_count:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 2.0
   amazonaws_com_AWS_S3_AllRequests_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 15.0
   amazonaws_com_AWS_S3_PutRequests_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 8.0
   amazonaws_com_AWS_S3_GetRequests_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 7.0
   amazonaws_com_AWS_S3_DeleteRequests_sum:
     - labels:
         bucket: test-value
         BucketName: test-value
-      value: 100.0
+      value: 3.0
 expected:
   aws_s3_4xx:
     entities:
@@ -85,7 +85,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 40.0
   aws_s3_5xx:
     entities:
       - scope: SERVICE
@@ -95,7 +95,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 50.0
   aws_s3_downloaded_bytes:
     entities:
       - scope: SERVICE
@@ -105,7 +105,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 1100.0
   aws_s3_uploaded_bytes:
     entities:
       - scope: SERVICE
@@ -115,7 +115,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 2200.0
   aws_s3_request_latency:
     entities:
       - scope: SERVICE
@@ -125,7 +125,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 1.0
+        value: 20.0
   aws_s3_first_latency_bytes:
     entities:
       - scope: SERVICE
@@ -135,7 +135,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 1.0
+        value: 10.0
   aws_s3_all_requests:
     entities:
       - scope: SERVICE
@@ -145,7 +145,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 15.0
   aws_s3_put_requests:
     entities:
       - scope: SERVICE
@@ -155,7 +155,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 8.0
   aws_s3_get_requests:
     entities:
       - scope: SERVICE
@@ -165,7 +165,7 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 7.0
   aws_s3_delete_requests:
     entities:
       - scope: SERVICE
@@ -175,4 +175,4 @@ expected:
       - labels:
           bucket: 'aws-s3::test-value'
           BucketName: test-value
-        value: 100.0
+        value: 3.0

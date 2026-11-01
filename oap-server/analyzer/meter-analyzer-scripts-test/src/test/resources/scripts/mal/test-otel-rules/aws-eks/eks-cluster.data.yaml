@@ -38,19 +38,19 @@ input:
   node_network_rx_dropped:
     - labels:
         ClusterName: test-cluster
-      value: 100.0
+      value: 14.0
   node_network_rx_errors:
     - labels:
         ClusterName: test-cluster
-      value: 100.0
+      value: 11.0
   node_network_tx_dropped:
     - labels:
         ClusterName: test-cluster
-      value: 100.0
+      value: 23.0
   node_network_tx_errors:
     - labels:
         ClusterName: test-cluster
-      value: 100.0
+      value: 22.0
 expected:
   eks_cluster_node_count:
     entities:
@@ -101,7 +101,7 @@ expected:
       - labels:
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 14.0
   eks_cluster_net_rx_error:
     entities:
       - scope: SERVICE
@@ -111,7 +111,7 @@ expected:
       - labels:
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 11.0
   eks_cluster_net_tx_dropped:
     entities:
       - scope: SERVICE
@@ -121,7 +121,7 @@ expected:
       - labels:
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 23.0
   eks_cluster_net_tx_error:
     entities:
       - scope: SERVICE
@@ -131,4 +131,4 @@ expected:
       - labels:
           ClusterName: test-cluster
           cluster: 'aws-eks-cluster::test-cluster'
-        value: 100.0
+        value: 22.0

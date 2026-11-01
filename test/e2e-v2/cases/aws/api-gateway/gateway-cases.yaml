@@ -24,6 +24,24 @@
       expected: expected/metrics-has-value.yml
     - query: |
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_gateway_service_data_processed --service-name='aws-api-gateway::$default:6m85d5acx7'
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
           --expression=aws_gateway_endpoint_latency --endpoint-name='ANY:/graphql' \
           --service-name='aws-api-gateway::$default:6m85d5acx7'
       expected: expected/metrics-has-value.yml
+    # Documented snake_case name must have data on a fresh e2e store
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_gateway_endpoint_data_processed --endpoint-name='ANY:/graphql' \
+          --service-name='aws-api-gateway::$default:6m85d5acx7'
+      expected: expected/metrics-has-value.yml
+    # Empty e2e DB: PascalCase must not exist (rules must not emit the old name).
+    # After an upgrade, storage may still hold series under DataProcessed, but MQE
+    # rejects unregistered names before reading storage; this case does not cover that.
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_gateway_endpoint_DataProcessed --endpoint-name='ANY:/graphql' \
+          --service-name='aws-api-gateway::$default:6m85d5acx7'
+      expected: expected/metrics-does-not-exist.yml

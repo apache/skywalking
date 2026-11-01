@@ -37,7 +37,7 @@ K8s cluster monitoring provides monitoring of the status and resources of the wh
 | Service Status           |      | k8s_cluster_service_pod_status                                                                                                     | The services current status, depending on the related pods' status                       | K8s kube-state-metrics |
 | Pod Status Not Running   |      | k8s_cluster_pod_status_not_running                                                                                                 | The pods which are not running in the current phase                                      | K8s kube-state-metrics |
 | Pod Status Waiting       |      | k8s_cluster_pod_status_waiting                                                                                                     | The pods and containers which are currently in the waiting status, with reasons shown    | K8s kube-state-metrics |
-| Pod Status Terminated    |      | k8s_cluster_container_status_terminated                                                                                            | The pods and containers which are currently in the terminated status, with reasons shown | K8s kube-state-metrics |
+| Pod Status Terminated    |      | k8s_cluster_pod_status_terminated                                                                                                  | The pods and containers which are currently in the terminated status, with reasons shown | K8s kube-state-metrics |
 
 ### Kubernetes Cluster Node Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |

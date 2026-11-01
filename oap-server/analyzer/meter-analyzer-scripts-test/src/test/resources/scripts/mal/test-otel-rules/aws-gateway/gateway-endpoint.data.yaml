@@ -41,7 +41,7 @@ input:
         ApiName: test-value
         Method: GET
         Resource: /test-resource
-      value: 100.0
+      value: 2775.0
   amazonaws_com_AWS_ApiGateway_4XXError_sum:
     - labels:
         service_name: test-service
@@ -172,7 +172,7 @@ expected:
           ApiId: test-value
           service_name: 'aws-api-gateway::test-value:test-value'
         value: 100.0
-  aws_gateway_endpoint_DataProcessed:
+  aws_gateway_endpoint_data_processed:
     entities:
       - scope: ENDPOINT
         service: 'aws-api-gateway::test-value:test-value'
@@ -186,7 +186,7 @@ expected:
           ApiName: test-value
           ApiId: test-value
           service_name: 'aws-api-gateway::test-value:test-value'
-        value: 100.0
+        value: 2775.0
   aws_gateway_endpoint_4xx_2:
     entities:
       - scope: ENDPOINT

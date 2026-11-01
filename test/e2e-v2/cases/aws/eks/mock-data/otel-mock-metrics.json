@@ -86,6 +86,361 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "node_network_rx_errors",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 11.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_network_tx_bytes",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 1200.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_network_tx_errors",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 22.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_network_tx_dropped",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 23.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_network_rx_dropped",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 14.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_diskio_io_service_bytes_write",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 500.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 100.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_diskio_io_service_bytes_read",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 600.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 200.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_filesystem_utilization",
+              "unit": "Percent",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 42.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 12.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_network_rx_bytes",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 800.0
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "AutoScalingGroupName",
+            "value": {
+              "stringValue": "eks-node-2-46c25931-6b80-2e04-5023-cca9e97c589d"
+            }
+          },
+          {
+            "key": "ClusterName",
+            "value": {
+              "stringValue": "SkyWalking"
+            }
+          },
+          {
+            "key": "Type",
+            "value": {
+              "stringValue": "Node"
+            }
+          },
+          {
+            "key": "NodeName",
+            "value": {
+              "stringValue": "ip-172-31-10-159.ap-northeast-1.compute.internal"
+            }
+          },
+          {
+            "key": "InstanceId",
+            "value": {
+              "stringValue": "i-06c02c575d866b59c"
+            }
+          },
+          {
+            "key": "InstanceType",
+            "value": {
+              "stringValue": "t3.medium"
+            }
+          },
+          {
+            "key": "kubernetes",
+            "value": {
+              "stringValue": "{\"host\":\"ip-172-31-10-159.ap-northeast-1.compute.internal\"}"
+            }
+          },
+          {
+            "key": "Sources",
+            "value": {
+              "stringValue": "[\"cadvisor\",\"/proc\",\"pod\",\"calculated\"]"
+            }
+          },
+          {
+            "key": "Timestamp",
+            "value": {
+              "stringValue": "1669442689514"
+            }
+          },
+          {
+            "key": "Version",
+            "value": {
+              "stringValue": "0"
+            }
+          },
+          {
+            "key": "job_name",
+            "value": {
+              "stringValue": "aws-cloud-eks-monitoring"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {},
+          "metrics": [
+            {
+              "name": "node_memory_utilization",
+              "unit": "Percent",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 20.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_diskio_io_service_bytes_write",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 900.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 300.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_diskio_io_service_bytes_read",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 700.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 250.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "node_filesystem_utilization",
+              "unit": "Percent",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 55.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme0n1"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1669442689514625306",
+                    "asDouble": 18.0,
+                    "attributes": [
+                      {
+                        "key": "device",
+                        "value": {
+                          "stringValue": "nvme1n1"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }
@@ -149,7 +504,7 @@
                 "dataPoints": [
                   {
                     "timeUnixNano": "1669442693795487301",
-                    "asInt": "1"
+                    "asInt": "2"
                   }
                 ]
               }
@@ -264,7 +619,43 @@
                 "dataPoints": [
                   {
                     "timeUnixNano": "1669442684150753695",
-                    "asDouble": 80
+                    "asDouble": 80.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pod_network_tx_errors",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442684150753695",
+                    "asDouble": 15.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pod_network_tx_bytes",
+              "unit": "Bytes/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442684150753695",
+                    "asDouble": 90.0
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pod_network_rx_errors",
+              "unit": "Count/Second",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1669442684150753695",
+                    "asDouble": 5.0
                   }
                 ]
               }
@@ -273,7 +664,5 @@
         }
       ]
     }
-
   ]
 }
-

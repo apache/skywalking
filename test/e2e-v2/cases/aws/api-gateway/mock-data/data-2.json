@@ -357,6 +357,65 @@
                         "value": {
                           "stringValue": "6m85d5acx7"
                         }
+                      },
+                      {
+                        "key": "Stage",
+                        "value": {
+                          "stringValue": "$default"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "startTimeUnixNano": "1679195460000000000",
+                    "timeUnixNano": "1679195520000000000",
+                    "count": "5",
+                    "sum": 2775.0,
+                    "quantileValues": [
+                      {
+                        "value": 555.0
+                      },
+                      {
+                        "quantile": 1.0,
+                        "value": 555.0
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "Namespace",
+                        "value": {
+                          "stringValue": "AWS/ApiGateway"
+                        }
+                      },
+                      {
+                        "key": "MetricName",
+                        "value": {
+                          "stringValue": "DataProcessed"
+                        }
+                      },
+                      {
+                        "key": "ApiId",
+                        "value": {
+                          "stringValue": "6m85d5acx7"
+                        }
+                      },
+                      {
+                        "key": "Method",
+                        "value": {
+                          "stringValue": "ANY"
+                        }
+                      },
+                      {
+                        "key": "Resource",
+                        "value": {
+                          "stringValue": "/graphql"
+                        }
+                      },
+                      {
+                        "key": "Stage",
+                        "value": {
+                          "stringValue": "$default"
+                        }
                       }
                     ]
                   }

@@ -24,10 +24,10 @@ Each Redis server is cataloged as an `Instance` in OAP.
 | Blocked Clients                   |        | meter_redis_blocked_clients                                                                      | The number of blocked clients.                     | redis-exporter |
 | Memory Max Bytes                  | MB     | meter_redis_memory_max_bytes                                                                     | The max bytes of memory.                           | redis-exporter |
 | Hits Rate                         | %      | meter_redis_hit_rate                                                                             | Hit rate of redis when used as a cache.            | redis-exporter |
-| Average Time Spend By Command     | second | meter_redis_average_time_spent_by_command                                                        | Average time to execute various types of commands. | redis-exporter |
+| Average Time Spend By Command     | second | meter_redis_instance_average_time_spent_by_command                                               | Average time to execute various types of commands. | redis-exporter |
 | Total Commands Trend              |        | meter_redis_total_commands_rate                                                                  | The Trend of total commands.                       | redis-exporter |
 | DB keys                           |        | meter_redis_evicted_keys_total  </br>   meter_redis_expired_keys_total  </br> meter_redis_db_keys | The number of Expired / Evicted / total keys.      | redis-exporter |
-| Net Input/Output Bytes            | KB     | meter_redis_net_input_bytes  </br>  meter_redis_net_output_bytes                                 | Total bytes of input / output of redis net.        | redis-exporter |
+| Net Input/Output Bytes            | KB/s   | meter_redis_net_input_bytes_total  </br>  meter_redis_net_output_bytes_total                     | Rate of input / output bytes on the Redis network (OAP stores bytes/s; panels often display KB/s). | redis-exporter |
 | Memory Usage                      | %      | meter_redis_memory_used_bytes </br> meter_redis_memory_max_bytes                                 | Percentage of used memory.                         | redis-exporter |
 | Total Time Spend By Command Trend |        | meter_redis_commands_duration    </br>     meter_redis_commands_total                                                           | The trend of total time spend by command           | redis-exporter |
 

@@ -18,15 +18,15 @@ PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each 
 #### Supported Metrics
 | Monitoring Panel | Unit | Metric Name | Description | Data Source |
 |-----|------|-----|-----|-----|
-| Shared Buffers |   MB   | meter_pg_shared_buffers | The number of shared memory buffers used by the server | postgres-exporter|
-| Effective Cache |   GB   | meter_pg_effective_cache | The planner's assumption about the total size of the data caches | postgres-exporter|
-| Maintenance Work Mem |  MB    | meter_pg_maintenance_work_mem | The maximum memory to be used for maintenance operations| postgres-exporter|
-| Seq Page Cost |      | meter_pg_seq_page_cost | The planner's estimate of the cost of a sequentially fetched disk page.| postgres-exporter|
-| Random Page Cost|      | meter_pg_random_page_cost | The planner's estimate of the cost of a nonsequentially fetched disk page. | postgres-exporter|
-| Max Worker Processes |      | meter_pg_max_worker_processes | Maximum number of concurrent worker processes | postgres-exporter|
-| Max WAL Size |    GB  | meter_max_wal_size | The WAL size that triggers a checkpoint | postgres-exporter|
-| Max Parallel Workers |      | meter_pg_max_parallel_workers | The maximum number of parallel processes per executor node| postgres-exporter|
-| Work Mem |  MB    | meter_pg_max_work_mem | The maximum memory to be used for query workspaces.  | postgres-exporter|
+| Shared Buffers |   MB   | meter_pg_instance_shared_buffers | The number of shared memory buffers used by the server | postgres-exporter|
+| Effective Cache |   GB   | meter_pg_instance_effective_cache | The planner's assumption about the total size of the data caches | postgres-exporter|
+| Maintenance Work Mem |  MB    | meter_pg_instance_maintenance_work_mem | The maximum memory to be used for maintenance operations| postgres-exporter|
+| Seq Page Cost |      | meter_pg_instance_seq_page_cost | The planner's estimate of the cost of a sequentially fetched disk page.| postgres-exporter|
+| Random Page Cost|      | meter_pg_instance_random_page_cost | The planner's estimate of the cost of a nonsequentially fetched disk page. | postgres-exporter|
+| Max Worker Processes |      | meter_pg_instance_max_worker_processes | Maximum number of concurrent worker processes | postgres-exporter|
+| Max WAL Size |    GB  | meter_pg_instance_max_wal_size | The WAL size that triggers a checkpoint | postgres-exporter|
+| Max Parallel Workers |      | meter_pg_instance_max_parallel_workers | The maximum number of parallel processes per executor node| postgres-exporter|
+| Work Mem |  MB    | meter_pg_instance_work_mem | The maximum memory to be used for query workspaces.  | postgres-exporter|
 | Fetched Row Trend |      | meter_pg_fetched_rows_rate | The trend of the number of rows fetched by queries in this database. | postgres-exporter|
 | Inserted Row Trend |      | meter_pg_inserted_rows_rate | The trend of the number of rows inserted by queries in this database. | postgres-exporter|
 | Updated Row Trend |      | meter_pg_updated_rows_rate | The trend of the number of rows updated by queries in this database. | postgres-exporter|
@@ -39,7 +39,7 @@ PostgreSQL cluster is cataloged as a `Layer: PostgreSQL` `Service` in OAP. Each 
 | Deadlock Trend |      | meter_pg_deadlocks_rate | The trend of the number of deadlocks detected in this database | postgres-exporter|
 | Cache Hit Rate |   %   | meter_pg_cache_hit_rate | The rate of cache hit | postgres-exporter|
 | Temporary Files Trend |      | meter_pg_temporary_files_rate | The rate of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the `log_temp_files` setting | postgres-exporter|
-| Checkpoint Stat Trend |      | meter_pg_checkpoint_write_time_rate </br> meter_pg_checkpoint_sync_time_rate </br> meter_pg_checkpoint_req_rate </br>meter_pg_checkpoint_timed_rate | The trend of checkpoint stat | postgres-exporter|
+| Checkpoint Stat Trend |      | meter_pg_checkpoint_write_time_rate </br> meter_pg_checkpoint_sync_time_rate </br> meter_pg_checkpoint_req_rate </br>meter_pg_checkpoints_timed_rate | The trend of checkpoint stat | postgres-exporter|
 | Active Sessions |      | meter_pg_active_sessions | The number of connections which state is active  | postgres-exporter|
 | Idle Sessions |      | meter_pg_idle_sessions | The number of connections which state is idle,idle in transaction or idle in transaction (aborted)  | postgres-exporter|
 | Locks Count |      | meter_pg_locks_count | Number of locks  | postgres-exporter|

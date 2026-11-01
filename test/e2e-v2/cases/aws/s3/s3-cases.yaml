@@ -26,3 +26,20 @@
         swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
           --expression=aws_s3_5xx --service-name aws-s3::skywalking
       expected: expected/metrics-has-value.yml
+    # Names that the monitoring doc once copy-pasted wrong
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_first_latency_bytes --service-name aws-s3::skywalking
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_all_requests --service-name aws-s3::skywalking
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_get_requests --service-name aws-s3::skywalking
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec \
+          --expression=aws_s3_put_requests --service-name aws-s3::skywalking
+      expected: expected/metrics-has-value.yml
