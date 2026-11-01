@@ -56,6 +56,11 @@ verify:
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service layer GENERAL
       expected: ../../expected/service.yml
 
+    # The consumer's calls are drawn to the provider, so the alias of the address it dials is stored
+    # before the incomplete credentials can fail a write.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider
+      expected: ../../expected/dependency-services-provider.yml
+
     # Create the file with the other identity the server accepts. Each retry rewrites the same
     # content, which the monitor compares and ignores, so only the first write is a change.
     #
@@ -85,12 +90,14 @@ verify:
       expected: expected/credentials-incomplete.yml
 
     # Writing a complete pair back restores service without a restart. A different user than the
-    # earlier rotation is used so the log line is distinguishable from it.
+    # earlier rotation is used so the log line is distinguishable from it. The time the restore is
+    # first seen applied is kept for the write check at the end.
     - query: |
         oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
         docker exec $oap bash -c 'printf "user=admin\npassword=admin\n" > /tmp/bydb-secrets.properties'
         docker logs $oap 2>&1 \
           | grep -Fq "Applied the BanyanDB credentials reloaded from /tmp/bydb-secrets.properties, user=admin" \
+          && docker exec $oap bash -c '[ -e /tmp/restored-at ] || date +%s > /tmp/restored-at' \
           && echo credentials-restored
       expected: expected/credentials-restored.yml
 
@@ -98,6 +105,16 @@ verify:
     # rotation restored a working credential rather than just logging another line.
     - includes:
         - ../../storage-cases.yaml
+
+    # The topology assertions above use the default range, the last 30 minutes, which rows written
+    # before the rotation satisfy too. A minute bucket after the restore's holds only rows written on
+    # the restored credentials, so the topology drawn from those minutes proves the writes resumed.
+    # The minute is computed in the OAP container, so it is in the timezone the OAP reads it in.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        start=$(docker exec $oap bash -c 'date -d @$(( $(cat /tmp/restored-at) + 60 )) "+%Y-%m-%d %H%M"') \
+          && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider --start "$start"
+      expected: ../../expected/dependency-services-provider.yml
 
 cleanup:
   on: always
