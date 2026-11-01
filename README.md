@@ -18,7 +18,7 @@ microservices, cloud native and container-based architectures.
 * Distributed Tracing
   * End-to-end distributed tracing. Service topology analysis, service-centric observability and APIs dashboards.
 * Agents for your stack
-  * Java, .Net Core, PHP, NodeJS, Golang, LUA, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
+  * Java, .Net Core, PHP, NodeJS, Golang, Lua, Rust, C++, Client JavaScript and Python agents with active development and maintenance.
 * eBPF early adoption
   * Rover agent works as a monitor and profiler powered by eBPF to monitor Kubernetes deployments and diagnose CPU and network performance.
 * Scaling
@@ -28,7 +28,7 @@ microservices, cloud native and container-based architectures.
 * Native APM Database
   * BanyanDB, an observability database, created in 2022, aims to ingest, analyze and store telemetry/observability data.
 * Consistent Metrics Aggregation
-  * SkyWalking native meter format and widely known metrics format(OpenTelemetry, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
+  * SkyWalking native meter format and widely known metrics format (OpenTelemetry, Telegraf, Zabbix, e.g.) are processed through the same script pipeline.
 * Log Management Pipeline
   * Support log formatting, extract metrics, various sampling policies through script pipeline in high performance.
 * Alerting and Telemetry Pipelines
