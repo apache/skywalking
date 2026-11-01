@@ -7,7 +7,7 @@ contributing.
 ## Code of Conduct
 
 This project and everyone participating in it is governed by the Apache
-software Foundation's
+Software Foundation's
 [Code of Conduct](http://www.apache.org/foundation/policies/conduct.html). By
 participating, you are expected to adhere to this code. If you are aware of
 unacceptable behavior, please visit the
