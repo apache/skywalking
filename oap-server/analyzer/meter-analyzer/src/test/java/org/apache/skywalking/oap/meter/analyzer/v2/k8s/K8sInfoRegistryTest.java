@@ -100,9 +100,13 @@ public class K8sInfoRegistryTest {
         K8sInfoRegistry.getInstance().readServicesOfPods(keys);
         final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 
-        // Five reads of 700 ms one after another take 3.5 s; the step waits the 2 s timeout at most.
+        // Five reads of 700 ms one after another take 3.5 s; the step waits the 2 s timeout at most. The bound is the
+        // 3.5 s rather than the timeout plus a margin, which a loaded runner overruns (2547 and 2567 ms on macOS).
         final long timeout = K8sMetadataReadSettings.getMalReadTimeoutMillis();
-        assertTrue(elapsedMillis >= timeout - 100 && elapsedMillis < timeout + 500, "waited " + elapsedMillis + " ms");
+        assertTrue(
+            elapsedMillis >= timeout - 100 && elapsedMillis < READ_MILLIS * keys.size(),
+            "waited " + elapsedMillis + " ms"
+        );
         assertEquals("web.default", K8sInfoRegistry.getInstance().findServiceName("default", prefix + 0));
     }
 
@@ -132,7 +136,8 @@ public class K8sInfoRegistryTest {
             }
             final long elapsedMillis = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
 
-            assertTrue(elapsedMillis < 2000 + 500, "waited " + elapsedMillis + " ms");
+            // Under the 4.2 s the six reads take one after another, let alone a timeout per step.
+            assertTrue(elapsedMillis < 2000 + 1500, "waited " + elapsedMillis + " ms");
         } finally {
             K8sMetadataReadSettings.set(2000, "", "als=21,mal=21", 3, 1);
         }

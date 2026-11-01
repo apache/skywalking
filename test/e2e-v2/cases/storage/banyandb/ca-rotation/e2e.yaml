@@ -97,17 +97,30 @@ verify:
       expected: expected/server-rotated.yml
 
     # Trust the new CA only. The rebuilt channel validates nothing but the new certificate, so the
-    # storage assertions below run over a connection that needs both reloads to have happened.
+    # storage assertions below run over a connection that needs both reloads to have happened. The
+    # time the rebuild is first seen is kept for the write check after them.
     - query: |
         oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
         docker exec $oap bash -c '[ -e /tmp/trust-new ] || { cp /tls-new/new-ca.crt /tmp/bydb-ca.next && mv /tmp/bydb-ca.next /tmp/bydb-ca.crt && touch /tmp/trust-new; }'
         [ "$(docker logs $oap 2>&1 | grep -Fc 'Rebuilt the BanyanDB channel')" -ge 3 ] \
+          && docker exec $oap bash -c '[ -e /tmp/trust-new-at ] || date +%s > /tmp/trust-new-at' \
           && echo trust-new
       expected: expected/trust-new.yml
 
     # Every storage assertion, over the channel that trusts the new CA only.
     - includes:
         - ../../storage-cases.yaml
+
+    # The topology assertions above use the default range, the last 30 minutes, which rows written
+    # before the rotation satisfy too. A minute bucket after the rebuild's holds only rows written over
+    # the channel that trusts the new CA only, so the topology drawn from those minutes proves the
+    # writes went through it. The minute is computed in the OAP container, so it is in the timezone
+    # the OAP reads it in.
+    - query: |
+        oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
+        start=$(docker exec $oap bash -c 'date -d @$(( $(cat /tmp/trust-new-at) + 60 )) "+%Y-%m-%d %H%M"') \
+          && swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql dependency service --service-name=e2e-service-provider --start "$start"
+      expected: ../../expected/dependency-services-provider.yml
 
     # Rotate the trust file to a CA unrelated to the server's certificate. The rebuilt channel then
     # trusts the wrong anchor, so the handshake fails PKIX validation -- which is what shows the
