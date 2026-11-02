@@ -26,6 +26,8 @@ import org.apache.skywalking.oap.query.tempo.grammar.TraceQLParserBaseVisitor;
 import org.apache.skywalking.oap.query.traceql.exception.IllegalExpressionException;
 import org.apache.skywalking.oap.server.core.Const;
 
+import static org.apache.skywalking.oap.query.traceql.handler.TraceQLApiHandler.ALL;
+
 /**
  * TraceQL query visitor to extract query parameters.
  */
@@ -140,6 +142,9 @@ public class TraceQLQueryVisitor extends TraceQLParserBaseVisitor<TraceQLParseRe
         }
         if ("name".equals(field)) {
             params.setSpanName(value);
+        } else if (("status".equals(field) || "kind".equals(field)) && ALL.equals(value)) {
+            // A Grafana variable set to All sends `*`; the handlers treat it as no filter on the other fields too.
+            return visitChildren(ctx);
         } else if ("status".equals(field)) {
             String status = value.toLowerCase(Locale.ROOT);
             if (!STATUS_VALUES.contains(status)) {

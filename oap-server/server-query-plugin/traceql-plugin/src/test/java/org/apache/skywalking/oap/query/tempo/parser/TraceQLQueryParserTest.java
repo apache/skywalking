@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -213,6 +214,23 @@ public class TraceQLQueryParserTest {
         result = TraceQLQueryParser.extractParams("{status=\"OK\"}");
         assertFalse(result.hasError(), result.getErrorInfo());
         assertEquals("ok", result.getParams().getStatus());
+    }
+
+    @Test
+    public void testAllWildcardOnStatusAndKindIsNoFilter() {
+        // The query Grafana's Tempo builder sends for a dashboard whose variables are all set to All.
+        TraceQLParseResult result = TraceQLQueryParser.extractParams(
+            "{resource.instance=\"*\" && resource.service.name=\"*\" && name=\"*\" && status=\"*\"}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        assertNull(result.getParams().getStatus());
+        assertEquals("*", result.getParams().getServiceName());
+        assertEquals("*", result.getParams().getSpanName());
+
+        result = TraceQLQueryParser.extractParams("{kind=\"*\"}");
+        assertFalse(result.hasError(), result.getErrorInfo());
+        assertNull(result.getParams().getKind());
+
+        assertRefused("{rootName=\"*\"}", "Unsupported intrinsic rootName");
     }
 
     @Test
