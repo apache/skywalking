@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -67,17 +67,17 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "11"
           cache: "maven"
       - name: Setup Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: "1.17"
       - name: Check Dependencies Licenses
@@ -115,7 +115,7 @@ jobs:
       oap: ${{ steps.filter.outputs.oap }}
       pom: ${{ steps.filter.outputs.pom }}
     steps:
-      - uses: actions/checkout@v6 # required for push event
+      - uses: actions/checkout@v7 # required for push event
         with:
           fetch-depth: 0
           submodules: true
@@ -162,11 +162,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "11"
@@ -179,7 +179,7 @@ jobs:
             -Dgpg.skip
       - name: Verify builds are reproducible
         run: ./mvnw -Dmaven.test.skip clean flatten:flatten verify artifact:compare -Pall -Dgpg.skip
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         name: Upload distribution tar
         with:
           name: dist
@@ -197,17 +197,17 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download distribution tar
         with:
           name: dist
           path: dist
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: ${{ matrix.java-version }}
@@ -218,7 +218,7 @@ jobs:
           make docker.all || make docker.all
           docker save -o docker-images-skywalking-oap.tar skywalking/oap:latest
       - name: Upload docker images
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-images-${{ matrix.java-version }}
           path: docker-images-skywalking-*.tar
@@ -243,17 +243,17 @@ jobs:
           - os: ubuntu-24.04
             java-version: 25
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
@@ -272,17 +272,17 @@ jobs:
       matrix:
         java-version: [11, 17, 21, 25]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
@@ -309,17 +309,17 @@ jobs:
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           java-version: 11
           distribution: temurin
@@ -804,7 +804,7 @@ jobs:
           - name: Pprof MySQL
             config: test/e2e-v2/cases/profiling/pprof/mysql/e2e.yaml
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -812,7 +812,7 @@ jobs:
       - uses: apache/skywalking-cli/actions/setup@master
         with:
           version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download docker images
         with:
           name: docker-images-25
@@ -821,25 +821,25 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download distribution tar
         with:
           name: dist
           path: dist
       - name: Login to ghcr
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       # The virtual-genai case builds e2e-spring-ai-service, which needs Java 17. Without this
       # the job silently rides whatever JDK the runner image defaults to.
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: "temurin"
           java-version: "17"
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
@@ -854,7 +854,7 @@ jobs:
         if: matrix.test.docker != null
         run: docker build -t ${{ matrix.test.docker.name }} -f ${{ matrix.test.docker.base }}/${{ matrix.test.docker.file }} ${{ matrix.test.docker.base }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
+        uses: apache/skywalking-infra-e2e@56ac8befeb5f910f2dc9339e65d07cd18953f90e
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() || cancelled() }}
@@ -877,7 +877,7 @@ jobs:
             name=$(docker inspect -f '{{.Name}}' "$c" | tr -d '/')
             docker logs "$c" > "$LOG_DIR/$name.log" 2>&1 || true
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         name: Upload Logs
         with:
@@ -919,7 +919,7 @@ jobs:
             kubernetes: 28
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -927,7 +927,7 @@ jobs:
       - uses: apache/skywalking-cli/actions/setup@master
         with:
           version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download docker images
         with:
           name: docker-images-25
@@ -937,13 +937,13 @@ jobs:
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
       - name: Login to ghcr
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ALS ${{ matrix.storage }}, ${{ matrix.analyzer }}, istio-${{ matrix.versions.istio }}, k8s-${{ matrix.versions.kubernetes }}
-        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
+        uses: apache/skywalking-infra-e2e@56ac8befeb5f910f2dc9339e65d07cd18953f90e
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -955,7 +955,7 @@ jobs:
           df -h
           du -sh .
           docker images
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -991,7 +991,7 @@ jobs:
           - istio: 1.29.0
             kubernetes: 28
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -999,7 +999,7 @@ jobs:
       - uses: apache/skywalking-cli/actions/setup@master
         with:
           version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download docker images
         with:
           name: docker-images-25
@@ -1009,13 +1009,13 @@ jobs:
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
       - name: Login to ghcr
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
+        uses: apache/skywalking-infra-e2e@56ac8befeb5f910f2dc9339e65d07cd18953f90e
         env:
           ISTIO_VERSION: ${{ matrix.versions.istio }}
           KUBERNETES_VERSION: ${{ matrix.versions.kubernetes }}
@@ -1027,7 +1027,7 @@ jobs:
           df -h
           du -sh .
           docker images
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() }}
         name: Upload Logs
         with:
@@ -1048,7 +1048,7 @@ jobs:
       matrix:
         java-version: [11, 17, 25]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -1056,7 +1056,7 @@ jobs:
       - uses: apache/skywalking-cli/actions/setup@master
         with:
           version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download docker images
         with:
           name: docker-images-${{ matrix.java-version }}
@@ -1065,12 +1065,12 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           java-version: ${{ matrix.java-version }}
           distribution: temurin
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
@@ -1079,7 +1079,7 @@ jobs:
         shell: bash
         run: ./mvnw -B -q -f test/e2e-v2/java-test-service/pom.xml clean package
       - name: Java version ${{ matrix.java-version }}
-        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
+        uses: apache/skywalking-infra-e2e@56ac8befeb5f910f2dc9339e65d07cd18953f90e
         env:
           SW_AGENT_JDK_VERSION: ${{ matrix.java-version }}
         with:
@@ -1102,7 +1102,7 @@ jobs:
           - name: BanyanDB Stages
             config: test/e2e-v2/cases/storage/banyandb/stages/e2e.yaml
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           submodules: true
           persist-credentials: false
@@ -1110,7 +1110,7 @@ jobs:
       - uses: apache/skywalking-cli/actions/setup@master
         with:
           version: ${{ env.SW_CTL_COMMIT }}
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download docker images
         with:
           name: docker-images-25
@@ -1119,19 +1119,19 @@ jobs:
         run: |
           find docker-images -name "*.tar" -exec docker load -i {} \;
           find docker-images -name "*.tar" -exec rm {} \;
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         name: Download distribution tar
         with:
           name: dist
           path: dist
       - name: Login to ghcr
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Cache maven repository
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('test/e2e-v2/java-test-service/**/pom.xml') }}
@@ -1175,7 +1175,7 @@ jobs:
           fi
           docker compose -f ${BANYANDB_DATA_GENERATE_ROOT}/docker-compose.yml down -v
       - name: ${{ matrix.test.name }}
-        uses: apache/skywalking-infra-e2e@68bbdec303cf2d3df9f2353f970f91938b52f674
+        uses: apache/skywalking-infra-e2e@56ac8befeb5f910f2dc9339e65d07cd18953f90e
         with:
           e2e-file: $GITHUB_WORKSPACE/${{ matrix.test.config }}
       - if: ${{ failure() || cancelled() }}
@@ -1198,7 +1198,7 @@ jobs:
             name=$(docker inspect -f '{{.Name}}' "$c" | tr -d '/')
             docker logs "$c" > "$LOG_DIR/$name.log" 2>&1 || true
           done
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ failure() || cancelled() }}
         name: Upload Logs
         with:
