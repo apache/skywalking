@@ -34,7 +34,7 @@
     <artifactId>e2e-service-provider</artifactId>
 
     <properties>
-        <log4j2.version>2.25.4</log4j2.version>
+        <log4j2.version>2.25.5</log4j2.version>
     </properties>
 
     <dependencies>
@@ -102,7 +102,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>32.0.0-jre</version>
+            <version>${guava.version}</version>
         </dependency>
 
     </dependencies>

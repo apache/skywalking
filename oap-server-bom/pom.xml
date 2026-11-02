@@ -29,7 +29,7 @@
 
     <properties>
         <slf4j.version>1.7.30</slf4j.version>
-        <log4j.version>2.25.4</log4j.version>
+        <log4j.version>2.25.5</log4j.version>
         <google.error_prone_annotations>2.11.0</google.error_prone_annotations>
         <graphql-java-tools.version>13.0.1</graphql-java-tools.version>
         <graphql-java.version>21.5</graphql-java.version>
@@ -38,7 +38,7 @@
         <httpclient.version>4.5.13</httpclient.version>
         <joda-time.version>2.10.5</joda-time.version>
         <zookeeper.version>3.9.5</zookeeper.version>
-        <guava.version>32.0.1-jre</guava.version>
+        <guava.version>33.7.2-jre</guava.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <protobuf-java.version>4.33.1</protobuf-java.version>
         <protobuf-java-util.version>4.33.1</protobuf-java-util.version>
@@ -49,22 +49,22 @@
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.1</zipkin.version>
-        <jackson.version>2.18.8</jackson.version>
-        <jackson-databind.version>2.18.8</jackson-databind.version>
+        <jackson.version>2.18.12</jackson.version>
+        <jackson-databind.version>2.18.12</jackson-databind.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
         <nacos.version>2.3.2</nacos.version>
         <curator.version>5.9.0</curator.version>
         <curator-test.version>5.9.0</curator-test.version>
         <etcd4j.version>2.18.0</etcd4j.version>
-        <freemarker.version>2.3.31</freemarker.version>
+        <freemarker.version>2.3.35</freemarker.version>
         <javaassist.version>3.25.0-GA</javaassist.version>
         <vavr.version>0.10.3</vavr.version>
         <groovy.version>5.0.3</groovy.version>
         <mvel.version>2.4.8.Final</mvel.version>
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <flatbuffers-java.version>1.12.0</flatbuffers-java.version>
-        <postgresql.version>42.7.11</postgresql.version>
+        <postgresql.version>42.7.14</postgresql.version>
         <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
         <armeria.version>1.34.2</armeria.version>
@@ -79,7 +79,7 @@
         <commons-net.version>3.9.0</commons-net.version>
         <maven-core.version>3.9.0</maven-core.version>
         <async-profiler-converter.version>3.0</async-profiler-converter.version>
-        <micrometer.version>1.14.4</micrometer.version>
+        <micrometer.version>1.16.8</micrometer.version>
     </properties>
 
     <dependencyManagement>

@@ -112,7 +112,7 @@ dependency:
       version: 2.20.1
       license: Apache-2.0
     - name: com.fasterxml.jackson.datatype:jackson-datatype-jdk8
-      version: 2.18.8,2.20.1
+      version: 2.18.12,2.20.1
       license: Apache-2.0
     - name: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml
       version: 2.15.2
@@ -130,7 +130,7 @@ dependency:
       version: 1.4.3-1
       license: BSD-2-Clause
     - name: org.postgresql:postgresql
-      version: 42.7.11
+      version: 42.7.14
       license: BSD-2-Clause
     - name: org.antlr:antlr4-runtime
       version: 4.11.1
