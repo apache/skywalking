@@ -8,6 +8,16 @@ Please follow AGPL 3.0 license requirements.
 Notice <2>, SkyWalking always uses its native UI as first class. All visualization features are only available on native UI.
 Grafana UI is an extension on our support of PromQL APIs. We don't maintain or promise the complete Grafana UI dashboard setup.
 
+The [SkyWalking Showcase](https://github.com/apache/skywalking-showcase) runs Grafana with the setup this document
+describes. Its data sources are in
+[datasources.yaml](https://github.com/apache/skywalking-showcase/blob/main/deploy/platform/docker/config/grafana/datasources.yaml)
+and its dashboards, General Service, General Relation, Service Mesh, Virtual-Database, Log, SkyWalking Trace, Zipkin
+Trace and OTLP Trace, are JSON files in
+[deploy/platform/config/grafana/dashboards](https://github.com/apache/skywalking-showcase/tree/main/deploy/platform/config/grafana/dashboards),
+which you can import as a starting point. Each dashboard picks its data sources by name: `SkyWalkingPromQL`,
+`SkyWalkingLogQL`, `SkywalkingTraceQL`, `ZipkinTraceQL` or `OTLPTraceQL`. Give your data sources the same names, or
+change the dashboard's data source variable after importing it.
+
 ## Configure Data Source
 ### Prometheus Data Source
 In the data source config panel, choose the `Prometheus` and set the url to the OAP server address, the default port is `9090`.
@@ -40,6 +50,10 @@ The supported TraceQL subset is listed in [TraceQL Service](../../api/traceql-se
 
 #### Zipkin Trace
 <img src="https://skywalking.apache.org/screenshots/10.4.0/traceql/grafana-tempo-zipkin-datasource.png"/>
+
+#### OTLP Trace
+Same as the Zipkin trace, with the URL `http://<oap-host>:3200/otlp`, for example a data source named `OTLPTraceQL`.
+The `/otlp` data source is enabled by `SW_TRACEQL_ENABLE_DATASOURCE_OTLP`.
 
 ## Configure Metric Dashboards
 
@@ -165,6 +179,27 @@ Same as the SkyWalking native trace, but use the Zipkin Tempo data source you co
 The following are the variables and trace panel configuration screenshots for Zipkin trace:
 <img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-zipkin-variables.png"/>
 <img src="https://skywalking.apache.org/screenshots/10.5.0/traceql/grafana-tempo-zipkin-panel.png"/>
+
+### OTLP Trace
+The following steps are an example of configuring a `Trace` dashboard for the OTLP traces stored natively, using the
+`OTLPTraceQL` data source configured in [OTLP Trace](#otlp-trace). The showcase's
+[trace-otlp.json](https://github.com/apache/skywalking-showcase/blob/main/deploy/platform/config/grafana/dashboards/trace-otlp.json)
+is this dashboard.
+1. Go to the `Explore` page, select the `OTLPTraceQL` data source, add it to the dashboard and save it as `OTLP Trace`.
+2. Add an `Ad hoc filters` variable named `filters` on the `OTLPTraceQL` data source. A viewer adds conditions from
+   drop-downs, for example `resource.service.name`, `name`, `resource.service.instance.id`, `kind`, `status` or a span
+   attribute such as `span.http.request.method`, and Grafana adds them to the panel's query. The values listed for a
+   key are those of the spans the other filters match, so add `resource.service.name` first and `name` lists that
+   service's span names. Services are listed by the name OAP stores them under, `group::name` when
+   [service grouping](otlp-trace.md#service-group) is on. Only the `=` operator is supported; `!=` and the regex
+   operators are refused.
+3. Add `Text box` variables `min_duration` and `max_duration`, for example `100ms` or `1s`.
+4. Choose `Table` chart, set `Query type` to `Search`, add a `Duration` condition `>` `$min_duration` and another `<`
+   `$max_duration`, test the query and save the panel. An empty duration box adds no condition.
+
+The `Service` and `Name` columns of the panel are those of each trace's root span, so a trace that matches the
+filters may be listed under the service that started it. Expand a row to see the matched spans, or click the trace ID
+to open the whole trace.
 
 ## Preview on demo.skywalking.a.o
 SkyWalking community provides a preview site for services of `General` and `Service Mesh` layers from the demo environment.
