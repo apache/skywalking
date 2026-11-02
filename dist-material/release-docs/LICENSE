@@ -199,12 +199,12 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.alibaba.nacos/nacos-encryption-plugin/2.3.2 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-client/1.8.0 Apache-2.0
     https://mvnrepository.com/artifact/com.ctrip.framework.apollo/apollo-core/1.8.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.8 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.8 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.18.8 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations/2.18.12 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core/2.18.12 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind/2.18.12 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.15.2 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.18.8 Apache-2.0
-    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.8 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-guava/2.18.12 Apache-2.0
+    https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jdk8/2.18.12 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310/2.20.1 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml.jackson.module/jackson-module-kotlin/2.13.4 Apache-2.0
     https://mvnrepository.com/artifact/com.fasterxml/classmate/1.5.1 Apache-2.0
@@ -214,8 +214,8 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/com.google.code.gson/gson/2.9.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.errorprone/error_prone_annotations/2.11.0 Apache-2.0
     https://mvnrepository.com/artifact/com.google.flatbuffers/flatbuffers-java/1.12.0 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.guava/failureaccess/1.0.1 Apache-2.0
-    https://mvnrepository.com/artifact/com.google.guava/guava/32.0.1-jre Apache-2.0
+    https://mvnrepository.com/artifact/com.google.guava/failureaccess/1.0.3 Apache-2.0
+    https://mvnrepository.com/artifact/com.google.guava/guava/33.7.2-jre Apache-2.0
     https://mvnrepository.com/artifact/com.google.guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava Apache-2.0
     https://mvnrepository.com/artifact/com.google.inject/guice/4.1.0 Apache-2.0
     https://mvnrepository.com/artifact/com.graphql-java/java-dataloader/3.2.1 Apache-2.0
@@ -280,9 +280,9 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/io.grpc/grpc-stub/1.80.0 Apache-2.0
     https://mvnrepository.com/artifact/io.grpc/grpc-util/1.80.0 Apache-2.0
     https://mvnrepository.com/artifact/io.micrometer/context-propagation/1.2.0 Apache-2.0
-    https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.14.4 Apache-2.0
-    https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.14.4 Apache-2.0
-    https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.14.4 Apache-2.0
+    https://mvnrepository.com/artifact/io.micrometer/micrometer-commons/1.16.8 Apache-2.0
+    https://mvnrepository.com/artifact/io.micrometer/micrometer-core/1.16.8 Apache-2.0
+    https://mvnrepository.com/artifact/io.micrometer/micrometer-observation/1.16.8 Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-buffer/4.2.15.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec/4.2.15.Final Apache-2.0
     https://mvnrepository.com/artifact/io.netty/netty-codec-base/4.2.15.Final Apache-2.0
@@ -331,13 +331,13 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.httpcomponents/httpcore-nio/4.4.16 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients/3.9.2 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.25.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.25.4 Apache-2.0
-    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.25.4 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api/2.25.5 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core/2.25.5 Apache-2.0
+    https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl/2.25.5 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.yetus/audience-annotations/0.12.0 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper/3.9.5 Apache-2.0
     https://mvnrepository.com/artifact/org.apache.zookeeper/zookeeper-jute/3.9.5 Apache-2.0
-    https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.31 Apache-2.0
+    https://mvnrepository.com/artifact/org.freemarker/freemarker/2.3.35 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect/1.7.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib/1.7.10 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-stdlib-common/1.7.10 Apache-2.0
@@ -348,7 +348,7 @@ The text of each license is the standard Apache 2.0 license.
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-jdk8/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactive/1.6.4 Apache-2.0
     https://mvnrepository.com/artifact/org.jetbrains/annotations/13.0 Apache-2.0
-    https://mvnrepository.com/artifact/org.jspecify/jspecify/1.0.0 Apache-2.0
+    https://mvnrepository.com/artifact/org.jspecify/jspecify/1.0.1 Apache-2.0
     https://mvnrepository.com/artifact/org.kiwiproject/consul-client/0.9.0 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/jcl-over-slf4j/1.7.30 Apache-2.0
     https://mvnrepository.com/artifact/org.slf4j/log4j-over-slf4j/1.7.30 Apache-2.0
@@ -363,7 +363,7 @@ BSD-2-Clause licenses
 The following components are provided under the BSD-2-Clause License. See project link for details.
 The text of each license is also included in licenses/LICENSE-[project].txt.
 
-    https://mvnrepository.com/artifact/org.postgresql/postgresql/42.7.11 BSD-2-Clause
+    https://mvnrepository.com/artifact/org.postgresql/postgresql/42.7.14 BSD-2-Clause
 
 ========================================================================
 BSD-3-Clause licenses
@@ -401,7 +401,7 @@ The text of each license is also included in licenses/LICENSE-[project].txt.
     https://mvnrepository.com/artifact/com.graphql-java-kickstart/graphql-java-tools/13.0.1 MIT
     https://mvnrepository.com/artifact/com.graphql-java/graphql-java/21.5 MIT
     https://mvnrepository.com/artifact/com.graphql-java/graphql-java-extended-scalars/18.1 MIT
-    https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.33.0 MIT
+    https://mvnrepository.com/artifact/org.checkerframework/checker-qual/3.36.0 MIT
     https://mvnrepository.com/artifact/org.codehaus.mojo/animal-sniffer-annotations/1.26 MIT
     https://mvnrepository.com/artifact/org.curioswitch.curiostack/protobuf-jackson/2.8.1 MIT
     https://mvnrepository.com/artifact/org.slf4j/slf4j-api/1.7.30 MIT
