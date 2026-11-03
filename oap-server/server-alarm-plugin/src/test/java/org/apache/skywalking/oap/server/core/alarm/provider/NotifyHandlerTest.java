@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider;
 
 import com.google.common.collect.Lists;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.EndpointMetaInAlarm;
 import org.apache.skywalking.oap.server.core.alarm.EndpointRelationMetaInAlarm;
@@ -34,6 +35,7 @@ import org.apache.skywalking.oap.server.core.analysis.metrics.MetricsMetaInfo;
 import org.apache.skywalking.oap.server.core.analysis.metrics.WithMetadata;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -266,6 +268,7 @@ public class NotifyHandlerTest {
 
         notifyHandler = new NotifyHandler(
             new AlarmRulesWatcher(rules, null, moduleManager), moduleManager, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+        notifyHandler.setDeliveryMetrics(new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
 
         notifyHandler.init(new AlarmCallback() {
             @Override

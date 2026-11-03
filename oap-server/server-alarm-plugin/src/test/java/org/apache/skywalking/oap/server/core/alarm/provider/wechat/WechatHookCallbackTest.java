@@ -24,12 +24,14 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -92,7 +94,7 @@ public class WechatHookCallbackTest {
         rules.getWechatSettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getWechatSettingsMap().put(setting2.getFormattedName(), setting2);
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+        WechatHookCallback wechatHookCallback = new WechatHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         List<AlarmMessage> alarmRecoveryMessages = new ArrayList<>(1);
         AlarmMessage alarmMessage = new AlarmMessage();
@@ -112,5 +114,23 @@ public class WechatHookCallbackTest {
         alarmRecoveryMessages.add(alarmRecoveryMessage);
         wechatHookCallback.doAlarmRecovery(alarmRecoveryMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
+    }
+
+    @Test
+    public void errorCodesInAcceptedBodyAreClassified() {
+        final WechatHookCallback callback = new WechatHookCallback(
+            new AlarmRulesWatcher(new Rules(), null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12),
+            new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
+
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_SUCCESS, callback.classifyAcceptedBody(
+            "{\"errcode\":0,\"errmsg\":\"ok\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED, callback.classifyAcceptedBody(
+            "{\"errcode\":93000,\"errmsg\":\"invalid webhook url\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED, callback.classifyAcceptedBody(
+            "{\"errcode\":45009,\"errmsg\":\"api freq out of limit\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR, callback.classifyAcceptedBody(
+            "{\"errcode\":-1,\"errmsg\":\"system busy\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_REJECTED, callback.classifyAcceptedBody(
+            "{\"errcode\":40058,\"errmsg\":\"markdown.content exceed max length 4096\"}"));
     }
 }

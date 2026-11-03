@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.webhook;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 
@@ -29,6 +30,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 
@@ -41,8 +43,8 @@ public class WebhookCallback extends HttpAlarmCallback {
     private final Gson gson = new Gson();
 
     public WebhookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
-                           final Duration httpTimeout) {
-        super(httpClient, httpTimeout);
+                           final Duration httpTimeout, final AlarmHttpDeliveryMetrics deliveryMetrics) {
+        super(httpClient, httpTimeout, deliveryMetrics, AlarmHooksType.webhook.name());
         this.alarmRulesWatcher = alarmRulesWatcher;
     }
 

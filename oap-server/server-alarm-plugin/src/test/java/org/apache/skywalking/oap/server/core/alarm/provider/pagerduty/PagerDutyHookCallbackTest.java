@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.alarm.provider.pagerduty;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.ArrayList;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
@@ -32,6 +33,7 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -92,7 +94,7 @@ public class PagerDutyHookCallbackTest {
         alarmMessage.setAlarmMessage("alarmMessage with [DefaultScopeDefine.All]");
         alarmMessage.getHooks().add(setting.getFormattedName());
 
-        new PagerDutyHookCallback(new AlarmRulesWatcher(rules, null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12))
+        new PagerDutyHookCallback(new AlarmRulesWatcher(rules, null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()))
             .doAlarm(new ArrayList<>(List.of(alarmMessage)));
 
         // one request per integration key
@@ -126,8 +128,7 @@ public class PagerDutyHookCallbackTest {
         rules.getPagerDutySettingsMap().put(setting1.getFormattedName(), setting1);
         rules.getPagerDutySettingsMap().put(setting2.getFormattedName(), setting2);
         PagerDutyHookCallback pagerDutyHookCallback = new PagerDutyHookCallback(
-            new AlarmRulesWatcher(rules, null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12)
-        );
+            new AlarmRulesWatcher(rules, null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);

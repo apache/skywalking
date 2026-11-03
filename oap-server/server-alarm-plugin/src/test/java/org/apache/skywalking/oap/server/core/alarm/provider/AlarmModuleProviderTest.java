@@ -22,26 +22,39 @@ import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
+import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AlarmModuleProviderTest {
 
@@ -77,11 +90,55 @@ public class AlarmModuleProviderTest {
 
     @Test
     public void notifyAfterCompleted() throws Exception {
+        final MetricsCreatorNoop noop = new MetricsCreatorNoop();
+        final ModuleManager manager = mock(ModuleManager.class);
+        final ModuleProviderHolder telemetryHolder = mock(ModuleProviderHolder.class);
+        final ModuleServiceHolder telemetryProvider = mock(ModuleServiceHolder.class);
+        when(manager.find(TelemetryModule.NAME)).thenReturn(telemetryHolder);
+        when(telemetryHolder.provider()).thenReturn(telemetryProvider);
+        when(telemetryProvider.getService(MetricsCreator.class)).thenReturn(noop);
+        moduleProvider.setManager(manager);
 
         NotifyHandler handler = mock(NotifyHandler.class);
-
         ReflectUtil.setInternalState(moduleProvider, "notifyHandler", handler);
         moduleProvider.notifyAfterCompleted();
+
+        final ArgumentCaptor<AlarmHttpDeliveryMetrics> metricsCaptor =
+            ArgumentCaptor.forClass(AlarmHttpDeliveryMetrics.class);
+        verify(handler).setDeliveryMetrics(metricsCaptor.capture());
+        assertInstanceOf(AlarmHttpDeliveryMetrics.class, metricsCaptor.getValue());
+        assertSame(noop, ReflectUtil.getInternalState(metricsCaptor.getValue(), "metricsCreator"));
+        verify(handler).init(any());
+    }
+
+    @Test
+    public void deliveryMetricsAndHookTypesReachHttpHooks() throws Exception {
+        final NotifyHandler handler = ReflectUtil.getInternalState(moduleProvider, "notifyHandler");
+        final AlarmHttpDeliveryMetrics metrics = new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop());
+        handler.setDeliveryMetrics(metrics);
+
+        final Map<String, String> expectedHookTypes = Map.of(
+            "WebhookCallback", AlarmHooksType.webhook.name(),
+            "SlackhookCallback", AlarmHooksType.slack.name(),
+            "WechatHookCallback", AlarmHooksType.wechat.name(),
+            "DingtalkHookCallback", AlarmHooksType.dingtalk.name(),
+            "FeishuHookCallback", AlarmHooksType.feishu.name(),
+            "WeLinkHookCallback", AlarmHooksType.welink.name(),
+            "PagerDutyHookCallback", AlarmHooksType.pagerduty.name(),
+            "DiscordHookCallback", AlarmHooksType.discord.name()
+        );
+        final List<HttpAlarmCallback> hooks = handler.buildCallbacks()
+                                                     .stream()
+                                                     .filter(HttpAlarmCallback.class::isInstance)
+                                                     .map(HttpAlarmCallback.class::cast)
+                                                     .collect(Collectors.toList());
+        assertEquals(expectedHookTypes.size(), hooks.size());
+        for (final HttpAlarmCallback hook : hooks) {
+            final String name = hook.getClass().getSimpleName();
+            assertTrue(expectedHookTypes.containsKey(name), name);
+            assertSame(metrics, ReflectUtil.getInternalState(hook, "deliveryMetrics"), name);
+            assertEquals(expectedHookTypes.get(name), ReflectUtil.getInternalState(hook, "hookType"), name);
+        }
     }
 
     @Test
@@ -89,7 +146,8 @@ public class AlarmModuleProviderTest {
         String[] modules = moduleProvider.requiredModules();
         assertArrayEquals(new String[] {
             CoreModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            TelemetryModule.NAME
         }, modules);
     }
 
@@ -113,6 +171,7 @@ public class AlarmModuleProviderTest {
         moduleProvider.prepare();
 
         final NotifyHandler handler = ReflectUtil.getInternalState(moduleProvider, "notifyHandler");
+        handler.setDeliveryMetrics(new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         final HttpClient client = ReflectUtil.getInternalState(handler, "httpClient");
         assertEquals(Duration.ofSeconds(3), client.connectTimeout().orElseThrow());
         final List<HttpAlarmCallback> hooks = handler.buildCallbacks()

@@ -22,17 +22,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,12 +53,33 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  */
 @Slf4j
 public class WeLinkHookCallback extends HttpAlarmCallback {
+    /**
+     * Error codes of the access-token API, plus {@code 1000}, {@code 501} and {@code 48503}, which every WeLink API
+     * may answer, the group chat API among them. Any other code is {@code rejected}.
+     */
+    private static final Map<String, String> ERROR_CODE_RESULTS = Map.of(
+        "1000", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "501", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "10007", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "41403", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "41579", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "41580", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "48503", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED,
+        "41500", AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR,
+        "411145", AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR
+    );
+
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     public WeLinkHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
-                              final Duration httpTimeout) {
-        super(httpClient, httpTimeout);
+                              final Duration httpTimeout, final AlarmHttpDeliveryMetrics deliveryMetrics) {
+        super(httpClient, httpTimeout, deliveryMetrics, AlarmHooksType.welink.name());
         this.alarmRulesWatcher = alarmRulesWatcher;
+    }
+
+    @Override
+    protected String classifyAcceptedBody(final String body) {
+        return resultOfBodyCode(body, "code", ERROR_CODE_RESULTS);
     }
 
     /**
@@ -81,9 +106,12 @@ public class WeLinkHookCallback extends HttpAlarmCallback {
             }
             for (final var webHookUrl : setting.getWebhooks()) {
                 final var accessToken = getAccessToken(webHookUrl);
+                if (accessToken.isEmpty()) {
+                    continue;
+                }
                 for (final var alarmMessage : messages) {
                     final var content = String.format(template, alarmMessage.getAlarmMessage());
-                    sendAlarmMessage(webHookUrl, accessToken, content);
+                    sendAlarmMessage(webHookUrl, accessToken.get(), content);
                 }
             }
         }
@@ -118,23 +146,51 @@ public class WeLinkHookCallback extends HttpAlarmCallback {
     }
 
     /**
-     * Get access token from remote endpoint
+     * Get the access token of {@code webHookUrl}. A token is not an alarm delivery, so a successful request records
+     * nothing. A response without a token records one failed delivery of this hook and returns empty, so the messages
+     * of this URL are skipped; a request without a response records {@code token_error} and throws.
      */
-    private String getAccessToken(WeLinkSettings.WebHookUrl webHookUrl) throws IOException, InterruptedException {
+    private Optional<String> getAccessToken(WeLinkSettings.WebHookUrl webHookUrl) throws IOException, InterruptedException {
         final var accessTokenUrl = webHookUrl.getAccessTokenUrl();
         final var clientId = webHookUrl.getClientId();
         final var clientSecret = webHookUrl.getClientSecret();
-        final var response = post(
-                URI.create(accessTokenUrl),
-                String.format(Locale.US, "{\"client_id\":%s,\"client_secret\":%s}", clientId, clientSecret),
-                Collections.emptyMap()
-        );
-        final var gson = new Gson();
-        final var responseJson = gson.fromJson(response, JsonObject.class);
-        return Optional.ofNullable(responseJson)
-                .map(r -> r.get("access_token"))
-                .map(JsonElement::getAsString)
-                .orElse("");
+        final long started = System.nanoTime();
+        final HttpResponse<String> response;
+        try {
+            response = send(
+                    URI.create(accessTokenUrl),
+                    String.format(Locale.US, "{\"client_id\":%s,\"client_secret\":%s}", clientId, clientSecret),
+                    Collections.emptyMap()
+            );
+        } catch (IOException | InterruptedException e) {
+            record(AlarmHttpDeliveryMetrics.RESULT_TOKEN_ERROR, null, started);
+            throw e;
+        }
+        final int status = response.statusCode();
+        String result = AlarmHttpDeliveryMetrics.resultOfStatus(status);
+        if (AlarmHttpDeliveryMetrics.RESULT_SUCCESS.equals(result)) {
+            try {
+                final var accessToken = Optional.ofNullable(new Gson().fromJson(response.body(), JsonObject.class))
+                        .map(r -> r.get("access_token"))
+                        .filter(JsonElement::isJsonPrimitive)
+                        .map(JsonElement::getAsString)
+                        .filter(token -> !token.isEmpty());
+                if (accessToken.isPresent()) {
+                    return accessToken;
+                }
+                final var codeResult = resultOfBodyCode(response.body(), "code", ERROR_CODE_RESULTS);
+                // Neither a token nor an error code: the response cannot be used either.
+                result = AlarmHttpDeliveryMetrics.RESULT_SUCCESS.equals(codeResult)
+                    ? AlarmHttpDeliveryMetrics.RESULT_REJECTED
+                    : codeResult;
+            } catch (JsonParseException e) {
+                result = AlarmHttpDeliveryMetrics.RESULT_TOKEN_ERROR;
+            }
+        }
+        log.error("WeLink access token request to {} failed. Response code: {}, Response content: {}",
+                  accessTokenUrl, status, response.body());
+        record(result, AlarmHttpDeliveryMetrics.statusClassOf(status), started);
+        return Optional.empty();
     }
 
 }

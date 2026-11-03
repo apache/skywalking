@@ -25,6 +25,8 @@ services:
     ports:
       - 12800
       - 1234
+    volumes:
+      - ./alarm-settings.yml:/skywalking/config/alarm-settings.yml
 
   banyandb:
     extends:

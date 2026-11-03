@@ -47,3 +47,13 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_trace_latency_percentile{p='90,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value-percentile.yml
 
+    # alarm HTTP hook delivery, fed by the webhook in alarm-settings.yml. Alarm evaluation, scraping, MAL
+    # initialization and persistence can outlast the normal retry window, so wait before each attempt for the series.
+    - query: |
+        sleep 60;
+        swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_count{hook_type='webhook',result='success'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-label-alarm-delivery.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_status_count{hook_type='webhook',status_class='2xx'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-label-alarm-delivery-status.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_latency_percentile{p='50,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-percentile-alarm-delivery.yml

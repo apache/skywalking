@@ -39,6 +39,7 @@ services:
       SW_STORAGE_ES_LOGIC_SHARDING: "true"
     ports:
       - 12800
+      - 1234
     depends_on:
       es:
         condition: service_healthy
