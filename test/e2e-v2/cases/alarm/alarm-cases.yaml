@@ -35,6 +35,18 @@
         sleep 30;
         curl  -XPOST http://${provider_host}:${provider_9090}/alarm/read
       expected: expected/silence-before-webhook.yml
+    # so11y: after webhook delivery, :1234 must expose the three alarm_http_* series.
+    # Match labels with separate greps (same style as exporter/kafka) so exposition
+    # order and the sw_backend_instance label cannot break the case.
+    - query: |
+        m=$(curl -s http://${oap_host}:${oap_1234});
+        echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="webhook"' | grep 'result="success"' >/dev/null;
+        echo "$m" | grep 'alarm_http_delivery_status_total{' | grep 'hook_type="webhook"' | grep 'status_class="2xx"' >/dev/null;
+        echo "$m" | grep 'alarm_http_delivery_latency_seconds_count{' | grep 'hook_type="webhook"' >/dev/null;
+        val=$(echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="webhook"' | grep 'result="success"' | awk '{print $2}' | head -1);
+        awk -v v="$val" 'BEGIN { if ((v+0) <= 0) exit 1 }';
+        echo alarm-http-delivery-so11y-ok
+      expected: expected/alarm-http-delivery-so11y.yml
     # after silence alarm list WARNING,receivers=lisi
     - query: |
         sleep 30;

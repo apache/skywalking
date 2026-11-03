@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.core.alarm.provider.wechat;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 
 import java.net.URI;
@@ -37,12 +39,31 @@ import org.apache.skywalking.oap.server.library.util.StringUtil;
  */
 @Slf4j
 public class WechatHookCallback extends HttpAlarmCallback {
+    /**
+     * Error codes of the WeCom group robot API. Any other code is {@code rejected}. WeCom asks callers to read
+     * {@code errcode} only, as its {@code errmsg} texts may change.
+     */
+    private static final Map<String, String> ERROR_CODE_RESULTS = Map.of(
+        "-1", AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR,
+        "93000", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "93001", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "93004", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "93008", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "45009", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED,
+        "45033", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED
+    );
+
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     public WechatHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
-                              final Duration httpTimeout) {
-        super(httpClient, httpTimeout);
+                              final Duration httpTimeout, final AlarmHttpDeliveryMetrics deliveryMetrics) {
+        super(httpClient, httpTimeout, deliveryMetrics, AlarmHooksType.wechat.name());
         this.alarmRulesWatcher = alarmRulesWatcher;
+    }
+
+    @Override
+    protected String classifyAcceptedBody(final String body) {
+        return resultOfBodyCode(body, "errcode", ERROR_CODE_RESULTS);
     }
 
     @Override

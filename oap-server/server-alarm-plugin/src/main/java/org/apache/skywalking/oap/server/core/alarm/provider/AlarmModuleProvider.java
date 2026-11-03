@@ -26,6 +26,7 @@ import lombok.Getter;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmKernelService;
 import org.apache.skywalking.oap.server.core.alarm.AlarmModule;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRulesWatcherService;
@@ -39,6 +40,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.library.util.ResourceUtils;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 
 public class AlarmModuleProvider extends ModuleProvider {
     private static final long MAX_HTTP_TIMEOUT_SECONDS = TimeUnit.NANOSECONDS.toSeconds(Long.MAX_VALUE);
@@ -106,7 +109,16 @@ public class AlarmModuleProvider extends ModuleProvider {
         RulesReader reader = new RulesReader(applicationReader, getManager());
         Rules rules = reader.readRules();
         alarmRulesWatcher.initConfig(rules);
+        // Bind once, immediately before HTTP hooks are built in init().
+        bindDeliveryMetrics();
         notifyHandler.init(new AlarmStandardPersistence(getManager()));
+    }
+
+    private void bindDeliveryMetrics() {
+        final MetricsCreator metricsCreator = getManager().find(TelemetryModule.NAME)
+                                                          .provider()
+                                                          .getService(MetricsCreator.class);
+        notifyHandler.setDeliveryMetrics(new AlarmHttpDeliveryMetrics(metricsCreator));
     }
 
     /**
@@ -124,7 +136,8 @@ public class AlarmModuleProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             CoreModule.NAME,
-            ConfigurationModule.NAME
+            ConfigurationModule.NAME,
+            TelemetryModule.NAME
         };
     }
 }

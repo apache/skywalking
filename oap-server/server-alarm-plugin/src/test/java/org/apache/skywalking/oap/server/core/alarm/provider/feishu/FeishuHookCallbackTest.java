@@ -24,12 +24,14 @@ import com.linecorp.armeria.common.HttpResponse;
 import com.linecorp.armeria.common.HttpStatus;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.core.alarm.provider.Rules;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
+import org.apache.skywalking.oap.server.telemetry.none.MetricsCreatorNoop;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -91,7 +93,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
@@ -126,7 +128,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
@@ -161,7 +163,7 @@ public class FeishuHookCallbackTest {
         rules.getFeishuSettingsMap().put(setting2.getFormattedName(), setting2);
 
         AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
-        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+        FeishuHookCallback feishuHookCallback = new FeishuHookCallback(alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12), new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
         List<AlarmMessage> alarmMessages = new ArrayList<>(2);
         AlarmMessage alarmMessage = new AlarmMessage();
         alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
@@ -177,5 +179,23 @@ public class FeishuHookCallbackTest {
         alarmMessages.add(anotherAlarmMessage);
         feishuHookCallback.doAlarm(alarmMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
+    }
+
+    @Test
+    public void errorCodesInAcceptedBodyAreClassified() {
+        final FeishuHookCallback callback = new FeishuHookCallback(
+            new AlarmRulesWatcher(new Rules(), null, null), HttpClient.newHttpClient(), Duration.ofSeconds(12),
+            new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
+
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_SUCCESS, callback.classifyAcceptedBody(
+            "{\"StatusCode\":0,\"StatusMessage\":\"success\",\"code\":0,\"data\":{},\"msg\":\"success\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED, callback.classifyAcceptedBody(
+            "{\"code\":19021,\"msg\":\"sign match fail or timestamp is not within one hour from current time\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED, callback.classifyAcceptedBody(
+            "{\"code\":19022,\"msg\":\"Ip Not Allowed\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED, callback.classifyAcceptedBody(
+            "{\"code\":11232,\"msg\":\"create message service trigger rate limit\"}"));
+        Assertions.assertEquals(AlarmHttpDeliveryMetrics.RESULT_REJECTED, callback.classifyAcceptedBody(
+            "{\"code\":19024,\"msg\":\"Key Words Not Found\"}"));
     }
 }

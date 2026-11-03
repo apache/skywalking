@@ -525,6 +525,46 @@ alarm:
 
 The default is `12` seconds. Values `<= 0` fall back to `12`.
 
+### HTTP delivery so11y metrics
+When the OAP [telemetry](backend-telemetry.md) selector is `prometheus` (process-local scrape, default port `:1234`),
+each finished HTTP hook delivery records three metric families:
+
+| Metric | Labels | Meaning |
+| --- | --- | --- |
+| `alarm_http_delivery_total` | `hook_type`, `result` | One increment per finished delivery attempt |
+| `alarm_http_delivery_status_total` | `hook_type`, `status_class` | One increment per response, by its HTTP status class |
+| `alarm_http_delivery_latency_seconds` | `hook_type` | Histogram of delivery wall time in seconds (`_bucket` / `_count` / `_sum`) |
+
+Every series also carries `sw_backend_instance`.
+`hook_type` is one of `webhook` / `slack` / `wechat` / `dingtalk` / `feishu` / `welink` / `pagerduty` / `discord`.
+`status_class` is one of `2xx` / `3xx` / `4xx` / `5xx` / `other`. It is recorded only after the whole response body has
+been read; after a redirect it describes the final response. `result` says why a delivery succeeded or failed:
+
+| `result` | Meaning |
+| --- | --- |
+| `success` | A 2xx response whose body reports no platform error |
+| `auth_failed` | HTTP 401 / 403, or a platform error code for a bad token, key, signature or IP whitelist |
+| `rate_limited` | HTTP 429, or a platform error code for frequency control |
+| `rejected` | Any other response below 500 that is not a success, or any other platform error code, such as a missing keyword |
+| `server_error` | HTTP 5xx, or a platform error code for a server-side failure |
+| `token_error` | The WeLink access-token request got no response, or a response that could not be read |
+| `timeout` | No complete response within `httpTimeout` |
+| `io_error` | The request failed without a response, for example a refused or reset connection, or a DNS or TLS failure |
+| `interrupted` | The delivery thread was interrupted |
+
+DingTalk, WeCom (`wechat`), Feishu and WeLink answer a message they refuse with an error code in the body, often with
+HTTP 200. Such a response counts by its error code, with the `status_class` of its HTTP status, and is logged as a
+failure like a non-2xx response.
+
+WeLink fetches an access token before it sends the messages of a webhook URL. A successful token request is not a
+delivery and is not counted. A failed one is counted once, with the result its response gives, such as `auth_failed`
+for rejected credentials, and the messages of that URL are not sent.
+
+The [OAP self observability dashboard](dashboards-so11y.md) charts these metrics as
+`meter_oap_instance_alarm_http_delivery_count`, `meter_oap_instance_alarm_http_delivery_status_count` and
+`meter_oap_instance_alarm_http_delivery_latency_percentile`, and the OAP
+[Grafana dashboards](backend-telemetry.md#grafana-visualization) chart the raw series.
+
 ## Update the settings dynamically
 Since 6.5.0, the alerting settings can be updated dynamically at runtime by [Dynamic Configuration](dynamic-config.md),
 which will override the settings in `alarm-settings.yml`.

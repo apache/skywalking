@@ -21,8 +21,10 @@ package org.apache.skywalking.oap.server.core.alarm.provider.feishu;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -46,12 +48,30 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class FeishuHookCallback extends HttpAlarmCallback {
+    /**
+     * Error codes of the custom bot webhook, read from {@code code}; the legacy {@code StatusCode} only repeats a
+     * success. Any other code is {@code rejected}.
+     */
+    private static final Map<String, String> ERROR_CODE_RESULTS = Map.of(
+        "19001", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "19007", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "19021", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "19022", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "11232", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED,
+        "99991400", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED
+    );
+
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     public FeishuHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
-                              final Duration httpTimeout) {
-        super(httpClient, httpTimeout);
+                              final Duration httpTimeout, final AlarmHttpDeliveryMetrics deliveryMetrics) {
+        super(httpClient, httpTimeout, deliveryMetrics, AlarmHooksType.feishu.name());
         this.alarmRulesWatcher = alarmRulesWatcher;
+    }
+
+    @Override
+    protected String classifyAcceptedBody(final String body) {
+        return resultOfBodyCode(body, "code", ERROR_CODE_RESULTS);
     }
 
     protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {

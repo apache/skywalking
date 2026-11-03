@@ -146,3 +146,9 @@ metricsRules:
     exp: elasticsearch_write_latency.sum(['le', 'service', 'host_name', 'operation']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])
   - name: banyandb_write_latency_percentile
     exp: banyandb_write_latency.sum(['le', 'service', 'host_name', 'catalog', 'operation']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])
+  - name: instance_alarm_http_delivery_count
+    exp: alarm_http_delivery_total.sum(['service', 'host_name', 'hook_type', 'result']).increase('PT1M')
+  - name: instance_alarm_http_delivery_status_count
+    exp: alarm_http_delivery_status_total.sum(['service', 'host_name', 'hook_type', 'status_class']).increase('PT1M')
+  - name: instance_alarm_http_delivery_latency_percentile
+    exp: alarm_http_delivery_latency_seconds.sum(['le', 'service', 'host_name', 'hook_type']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])

@@ -18,9 +18,12 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.dingtalk;
 
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.HttpAlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
@@ -44,12 +47,56 @@ import java.util.Map;
  */
 @Slf4j
 public class DingtalkHookCallback extends HttpAlarmCallback {
+    /**
+     * Error codes of the custom robot API, besides {@code 310000} and {@code 40035}, which stand for more than one
+     * reason and are read with their {@code errmsg}. Any other code is {@code rejected}.
+     */
+    private static final Map<String, String> ERROR_CODE_RESULTS = Map.of(
+        "-1", AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR,
+        "300001", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "400101", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "400102", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "400106", AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED,
+        "130101", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED,
+        "410100", AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED
+    );
+
     private final AlarmRulesWatcher alarmRulesWatcher;
 
     public DingtalkHookCallback(final AlarmRulesWatcher alarmRulesWatcher, final HttpClient httpClient,
-                                final Duration httpTimeout) {
-        super(httpClient, httpTimeout);
+                                final Duration httpTimeout, final AlarmHttpDeliveryMetrics deliveryMetrics) {
+        super(httpClient, httpTimeout, deliveryMetrics, AlarmHooksType.dingtalk.name());
         this.alarmRulesWatcher = alarmRulesWatcher;
+    }
+
+    @Override
+    protected String classifyAcceptedBody(final String body) {
+        return jsonObjectOf(body).map(DingtalkHookCallback::resultOf).orElse(AlarmHttpDeliveryMetrics.RESULT_SUCCESS);
+    }
+
+    private static String resultOf(final JsonObject json) {
+        // The oapi gateway answers its per-IP limit with {"status":1111} instead of an errcode.
+        if (stringOf(json, "status").filter("1111"::equals).isPresent()) {
+            return AlarmHttpDeliveryMetrics.RESULT_RATE_LIMITED;
+        }
+        final String code = stringOf(json, "errcode").orElse("0");
+        final String message = stringOf(json, "errmsg").orElse("");
+        switch (code) {
+            case "0":
+                return AlarmHttpDeliveryMetrics.RESULT_SUCCESS;
+            case "310000":
+                // A failed security setting: a missing keyword, or a bad timestamp, signature or IP whitelist.
+                return message.contains("keywords not in content")
+                    ? AlarmHttpDeliveryMetrics.RESULT_REJECTED
+                    : AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED;
+            case "40035":
+                // A missing parameter: the access_token of the webhook URL, or the JSON body.
+                return message.contains("access_token")
+                    ? AlarmHttpDeliveryMetrics.RESULT_AUTH_FAILED
+                    : AlarmHttpDeliveryMetrics.RESULT_REJECTED;
+            default:
+                return ERROR_CODE_RESULTS.getOrDefault(code, AlarmHttpDeliveryMetrics.RESULT_REJECTED);
+        }
     }
 
     protected void doAlarmCallback(List<AlarmMessage> alarmMessages, boolean isRecovery) throws Exception {
