@@ -68,7 +68,9 @@ build_release_artifacts() {
            -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties" > ${log_file} 2>&1
 
     echo "Creating the release source artifacts..."
-    tar czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
+    # Without these, macOS bsdtar stores every file's extended attributes (com.apple.provenance)
+    # as pax headers plus an AppleDouble `._*` entry, which extract as stray files on Linux.
+    COPYFILE_DISABLE=1 tar --no-xattrs -czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
         --exclude .git \
         --exclude .DS_Store \
         --exclude .github \
@@ -141,7 +143,10 @@ prepare_next_version() {
     git push --set-upstream origin ${RELEASE_VERSION}-release
 
     echo "Creating the PR..."
-    gh pr create --title "Prepare for next release ${NEXT_RELEASE_VERSION}" \
+    # The `--depth 1` clone is single-branch, so the push leaves no origin/${RELEASE_VERSION}-release
+    # tracking ref and gh cannot find the pushed branch without `--head`.
+    gh pr create --head ${RELEASE_VERSION}-release \
+        --title "Prepare for next release ${NEXT_RELEASE_VERSION}" \
         --body "Update version to ${NEXT_RELEASE_VERSION}-SNAPSHOT and rotate changelog for ${RELEASE_VERSION} release." \
         --base master
 }
@@ -194,6 +199,7 @@ generate_vote_email() {
     # own release cadence and is not part of this OAP release.
     local PROTOCOL_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- apm-protocol/apm-network/src/main/proto | awk '{print $1}' | tr -d '+-')
     local QUERY_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol | awk '{print $1}' | tr -d '+-')
+    local BANYANDB_PROTO_COMMIT=$(git -C "${CLONE_DIR}" submodule status -- oap-server/server-library/library-banyandb-client/src/main/proto | awk '{print $1}' | tr -d '+-')
 
     cat <<EOF
 
@@ -228,6 +234,7 @@ Release CommitID :
  * Git submodule
    * apm-protocol/apm-network/src/main/proto: https://github.com/apache/skywalking-data-collect-protocol/tree/${PROTOCOL_COMMIT}
    * oap-server/server-query-plugin/query-graphql-plugin/src/main/resources/query-protocol https://github.com/apache/skywalking-query-protocol/tree/${QUERY_COMMIT}
+   * oap-server/server-library/library-banyandb-client/src/main/proto: https://github.com/apache/skywalking-banyandb-client-proto/tree/${BANYANDB_PROTO_COMMIT}
 
 Keys to verify the Release Candidate :
 

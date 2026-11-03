@@ -520,6 +520,8 @@ catalog:
         path: "/en/changes/changes"
       - name: 11.x Releases
         catalog:
+          - name: 11.1.0
+            path: /en/changes/changes-11.1.0
           - name: 11.0.0
             path: /en/changes/changes-11.0.0
       - name: "10.x Releases"
