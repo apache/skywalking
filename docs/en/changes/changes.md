@@ -8,6 +8,7 @@
 #### UI
 
 #### Documentation
+* Document how a release is named in the release guide: a few words that state its key features, used as the GitHub release title `x.y.z - <release name>`, which the guide's `gh release create` example now uses in place of the bare version.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.2.0)

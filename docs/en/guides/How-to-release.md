@@ -52,6 +52,18 @@ The voting process is as follows:
 1. If you obtain at least 3 (+1 binding) votes with more +1 than -1 votes within 72 hours, the release will be approved.
 
 
+## Name the release
+Each release has a name: a few plain words that state its key features, not a codename. Pick one to three
+features, the ones the release's blog post or the top of its changelog leads with, and join them with commas
+and "and":
+
+- `10.3.0 - New Trace Model in BanyanDB`
+- `11.0.0 - Horizon Ready, Runtime Rule Hot-Update and Live DSL Debugger`
+
+Keep it short; a long list of features reads as a changelog, not a name. The [GitHub release](#publish-the-github-release)
+is titled `x.y.z - <release name>`, and the name alone heads the release event on the website and is the first
+highlight of the ANNOUNCE email.
+
 ## Publish the release
 1. Move source codes tar and distribution packages to `https://dist.apache.org/repos/dist/release/skywalking/`.
 ```
@@ -66,7 +78,7 @@ enter your apache password
 The Apache mirror path is the only release information that we publish.
 3. Update the website download page. http://skywalking.apache.org/downloads/ . Add a new download source, distribution, sha512, asc, and document
 links. The links can be found following rules (3) to (6) above.
-4. Add a release event on the website homepage and event page. Announce the public release with changelog or key features.
+4. Add a release event on the website homepage and event page, headed with the [release name](#name-the-release). Announce the public release with changelog or key features.
 5. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`. The sender should use the Apache email account.
 ```
 Mail title: [ANNOUNCE] Apache SkyWalking x.y.z released
@@ -110,11 +122,11 @@ SkyWalking Resources:
 
 ## Publish the GitHub release
 
-Create a GitHub release for the signed tag so the changelog is discoverable at
-`https://github.com/apache/skywalking/releases/tag/vx.y.z`:
+Create a GitHub release for the signed tag, titled with the [release name](#name-the-release), so the
+changelog is discoverable at `https://github.com/apache/skywalking/releases/tag/vx.y.z`:
 
 ```shell
-gh release create vx.y.z --title "vx.y.z" --notes-file release-notes.md --verify-tag
+gh release create vx.y.z --title "x.y.z - <release name>" --notes-file release-notes.md --verify-tag
 ```
 
 Use the version's section of `docs/en/changes/changes.md` as the release body, with **one formatting
