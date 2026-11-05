@@ -44,7 +44,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -58,12 +60,18 @@ public class CiliumNodeManager implements ClusterWatcher {
     private final ClientBuilder clientBuilder;
     private final ModuleManager moduleManager;
     private final int retrySecond;
-    private volatile List<RemoteInstance> remoteInstances;
-    private List<CiliumNodeUpdateListener> listeners;
+    /**
+     * Single monitor for peer/cluster/timer mutations, using-node rebuild, listener
+     * notify and node close. Production listeners only enqueue work / interrupt, so
+     * holding the lock across notify is acceptable and preserves event order.
+     */
+    private final Object nodeLock = new Object();
+    private List<RemoteInstance> remoteInstances;
+    private final List<CiliumNodeUpdateListener> listeners;
     private ClusterNodesQuery clusterNodesQuery;
 
     // This is a list of all cilium nodes
-    private volatile List<CiliumNode> allNodes;
+    private List<CiliumNode> allNodes;
     // This is a list of cilium nodes that are should be used in current OAP node
     private volatile List<CiliumNode> usingNodes;
 
@@ -72,8 +80,8 @@ public class CiliumNodeManager implements ClusterWatcher {
         this.clientBuilder = clientBuilder;
         this.peerStub = this.clientBuilder.buildClient(config.getPeerHost(), config.getPeerPort(), PeerGrpc.PeerBlockingStub.class);
         this.allNodes = new ArrayList<>();
-        this.usingNodes = new ArrayList<>();
-        this.listeners = new ArrayList<>();
+        this.usingNodes = ImmutableList.of();
+        this.listeners = new CopyOnWriteArrayList<>();
         this.retrySecond = config.getFetchFailureRetrySecond();
     }
 
@@ -82,9 +90,14 @@ public class CiliumNodeManager implements ClusterWatcher {
             .find(ClusterModule.NAME)
             .provider()
             .getService(ClusterCoordinator.class);
+        // Publish the first snapshot under nodeLock before registering, so a watcher
+        // callback cannot race an unlocked assignment in start().
+        final List<RemoteInstance> initialRemoteInstances =
+            ImmutableList.copyOf(coordinator.queryRemoteNodes());
+        synchronized (nodeLock) {
+            this.remoteInstances = initialRemoteInstances;
+        }
         coordinator.registerWatcher(this);
-        // init the remote instances
-        this.remoteInstances = ImmutableList.copyOf(coordinator.queryRemoteNodes());
         startWatchNodeUpdates();
         startRefreshRemoteNodes();
     }
@@ -144,20 +157,33 @@ public class CiliumNodeManager implements ClusterWatcher {
     }
 
     private void addOrUpdateNode(CiliumNode node) {
-        if (allNodes.contains(node)) {
-            allNodes.remove(node);
+        synchronized (nodeLock) {
+            if (allNodes.contains(node)) {
+                allNodes.remove(node);
+            }
+            allNodes.add(node);
+            refreshUsingNodesLocked();
         }
-        allNodes.add(node);
-        this.refreshUsingNodes();
     }
 
     private void removeNode(CiliumNode node) {
-        allNodes.remove(node);
-        this.refreshUsingNodes();
+        synchronized (nodeLock) {
+            allNodes.remove(node);
+            refreshUsingNodesLocked();
+        }
     }
 
     void refreshUsingNodes() {
-        final List<CiliumNode> shouldUsingNodes = buildShouldUsingNodes();
+        synchronized (nodeLock) {
+            refreshUsingNodesLocked();
+        }
+    }
+
+    /**
+     * Must hold {@link #nodeLock}.
+     */
+    private void refreshUsingNodesLocked() {
+        final List<CiliumNode> shouldUsingNodes = buildShouldUsingNodesLocked();
         log.debug("Trying to rebuilding using cilium nodes, current using nodes count: {}, new using nodes count: {}",
             usingNodes.size(), shouldUsingNodes.size());
 
@@ -175,6 +201,9 @@ public class CiliumNodeManager implements ClusterWatcher {
         }
     }
 
+    /**
+     * Must hold {@link #nodeLock}.
+     */
     private void reBuildUsingNodes(List<CiliumNode> shouldUsingNodes) {
         final Map<String, NodeWithAction> remoteClientCollection =
             this.usingNodes.stream()
@@ -215,6 +244,9 @@ public class CiliumNodeManager implements ClusterWatcher {
                     notifyListeners(clientAction.getNode(), Action.Create);
                     break;
                 case Close:
+                    // Closing leaves the peer in allNodes; swap the same instance for a
+                    // fresh one so a later reassignment does not reopen a closed stub.
+                    replaceSameInstanceInAllNodesWithFresh(clientAction.getNode());
                     notifyListeners(clientAction.getNode(), Action.Close);
                     clientAction.getNode().close();
                     break;
@@ -223,6 +255,18 @@ public class CiliumNodeManager implements ClusterWatcher {
 
         newNodes.sort(Comparator.comparing(CiliumNode::getAddress));
         this.usingNodes = ImmutableList.copyOf(newNodes);
+    }
+
+    /**
+     * Must hold {@link #nodeLock}.
+     */
+    private void replaceSameInstanceInAllNodesWithFresh(CiliumNode node) {
+        for (int i = 0; i < allNodes.size(); i++) {
+            if (allNodes.get(i) == node) {
+                allNodes.set(i, new CiliumNode(node.getAddress(), clientBuilder));
+                return;
+            }
+        }
     }
 
     private void notifyListeners(CiliumNode node, Action action) {
@@ -243,17 +287,27 @@ public class CiliumNodeManager implements ClusterWatcher {
         log.debug("Current using cilium nodes: {}", addresses);
     }
 
-    private List<CiliumNode> buildShouldUsingNodes() {
+    private List<CiliumNode> buildShouldUsingNodesLocked() {
         if (CollectionUtils.isEmpty(allNodes) || CollectionUtils.isEmpty(remoteInstances)) {
             log.debug("Found no cilium or backend nodes, skip all nodes, cilium nodes: {}, backend clients: {}",
                 allNodes, remoteInstances);
             return ImmutableList.of();
         }
+        // allNodes is only touched under nodeLock; sort in place for sharding.
         allNodes.sort(Comparator.comparing(CiliumNode::getAddress));
         final List<RemoteInstance> totalBackendClients = remoteInstances
             .stream().sorted(Comparator.comparing(RemoteInstance::getAddress)).collect(Collectors.toList());
-        final int currentNodeIndex = totalBackendClients.indexOf(totalBackendClients.stream()
-            .filter(t -> t.getAddress().isSelf()).findFirst().get());
+        final Optional<RemoteInstance> self = totalBackendClients.stream()
+            .filter(t -> t.getAddress().isSelf())
+            .findFirst();
+        if (!self.isPresent()) {
+            // Non-Kubernetes coordinators list only registered OAPs, and CoreModuleProvider registers only
+            // Mixed and Aggregator, so a Receiver-role OAP is never here; the listed OAPs share every Cilium node.
+            log.debug("Found no self backend instance among remoteInstances, skip using cilium nodes: {}",
+                totalBackendClients);
+            return ImmutableList.of();
+        }
+        final int currentNodeIndex = totalBackendClients.indexOf(self.get());
         // if the backend count bigger than cilium node count, we need to
         if (totalBackendClients.size() > allNodes.size()) {
             if (currentNodeIndex >= allNodes.size()) {
@@ -294,8 +348,12 @@ public class CiliumNodeManager implements ClusterWatcher {
 
     @Override
     public void onClusterNodesChanged(List<RemoteInstance> remoteInstances) {
-        this.remoteInstances = ImmutableList.copyOf(remoteInstances);
-        refreshUsingNodes();
+        // Publish under nodeLock so buildShouldUsingNodesLocked cannot observe a new
+        // empty list between its isEmpty check and the self lookup.
+        synchronized (nodeLock) {
+            this.remoteInstances = ImmutableList.copyOf(remoteInstances);
+            refreshUsingNodesLocked();
+        }
     }
 
     enum Action {
