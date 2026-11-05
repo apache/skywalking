@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.fetcher.cilium.nodes;
 
 import io.cilium.api.observer.ObserverGrpc;
 import io.vavr.Tuple2;
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +28,9 @@ import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * CiliumNode represents a node in the Cilium cluster.
@@ -49,7 +51,8 @@ public class CiliumNode {
 
     private volatile ObserverGrpc.ObserverBlockingStub observerStub;
     private volatile boolean closed;
-    private final CopyOnWriteArrayList<Closeable> closeables = new CopyOnWriteArrayList<>();
+    @Getter(AccessLevel.NONE)
+    private final List<Closeable> closeables = new ArrayList<>();
 
     public ObserverGrpc.ObserverBlockingStub getObserverStub() {
         if (closed) {
@@ -68,12 +71,34 @@ public class CiliumNode {
         return observerStub;
     }
 
-    public void addingCloseable(Closeable closeable) {
+    /**
+     * Registers a closeable to run when this node closes.
+     *
+     * @param closeable run by {@link #close()} unless removed first
+     * @return false when the node is already closed; the closeable is then neither registered nor run.
+     */
+    public synchronized boolean addingCloseable(Closeable closeable) {
+        if (closed) {
+            return false;
+        }
         closeables.add(closeable);
+        return true;
     }
 
-    public void close() {
-        this.closed = true;
+    public synchronized void removeCloseable(Closeable closeable) {
+        closeables.remove(closeable);
+    }
+
+    /**
+     * Runs the closeables under this node's monitor, so a stream thread blocked in
+     * {@link #removeCloseable} cannot return to its pool and pick up another node's
+     * stream before the interrupt aimed at it lands.
+     */
+    public synchronized void close() {
+        if (closed) {
+            return;
+        }
+        closed = true;
         closeables.forEach(c -> {
             try {
                 c.close();
@@ -81,6 +106,7 @@ public class CiliumNode {
                 log.warn("Failed to close the cilium node", e);
             }
         });
+        closeables.clear();
     }
 
     private Tuple2<String, Integer> parseAddress() {

@@ -45,10 +45,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -217,6 +223,84 @@ public class CiliumNodeManagerTest {
     }
 
     /**
+     * Scaling the OAP cluster out and back in moves a node away and back while self stays
+     * listed; the node handed back must be a fresh, open instance.
+     */
+    @Test
+    public void shouldReassignFreshNodeAfterScalingOutAndBackIn() {
+        final CiliumNode c2 = ciliumNode("c2");
+        ReflectUtil.setInternalState(ciliumNodeManager, "remoteInstances",
+            Arrays.asList(oapInstance("a1", true)));
+        ReflectUtil.setInternalState(ciliumNodeManager, "allNodes",
+            new ArrayList<>(Arrays.asList(ciliumNode("c1"), c2)));
+        ciliumNodeManager.refreshUsingNodes();
+        assertEquals(Arrays.asList("c1", "c2"), usingAddresses());
+
+        ciliumNodeManager.onClusterNodesChanged(Arrays.asList(oapInstance("a1", true), oapInstance("a2", false)));
+        assertEquals(Collections.singletonList("c1"), usingAddresses());
+        assertTrue(c2.isClosed());
+
+        ciliumNodeManager.onClusterNodesChanged(Arrays.asList(oapInstance("a1", true)));
+        assertEquals(Arrays.asList("c1", "c2"), usingAddresses());
+        final CiliumNode reassigned = ReflectUtil.<List<CiliumNode>>getInternalState(
+            ciliumNodeManager, "usingNodes").get(1);
+        assertNotSame(c2, reassigned);
+        assertFalse(reassigned.isClosed());
+    }
+
+    /**
+     * A peer deleted while in use is closed and stays gone; the close path must not put a
+     * fresh instance of it back into {@code allNodes}.
+     */
+    @Test
+    public void shouldCloseDeletedPeerInUseWithoutRestoringIt() throws Exception {
+        final CiliumNode c2 = ciliumNode("c2");
+        ReflectUtil.setInternalState(ciliumNodeManager, "remoteInstances",
+            Arrays.asList(oapInstance("a1", true)));
+        ReflectUtil.setInternalState(ciliumNodeManager, "allNodes",
+            new ArrayList<>(Arrays.asList(ciliumNode("c1"), c2)));
+        ciliumNodeManager.refreshUsingNodes();
+
+        ReflectUtil.invokeMethod(ciliumNodeManager, "removeNode", ciliumNode("c2"));
+
+        assertEquals(Collections.singletonList("c1"), usingAddresses());
+        assertTrue(c2.isClosed());
+        assertEquals(Collections.singletonList("c1"),
+            addresses(ReflectUtil.getInternalState(ciliumNodeManager, "allNodes")));
+    }
+
+    /**
+     * A same-address peer update preserves the assigned open node and the listener's
+     * final membership.
+     */
+    @Test
+    public void shouldKeepOpenInstanceWhenPeerUpdatedInUse() throws Exception {
+        final CiliumNode original = ciliumNode("c1");
+        ReflectUtil.setInternalState(ciliumNodeManager, "remoteInstances",
+            Arrays.asList(oapInstance("a1", true)));
+        ReflectUtil.setInternalState(ciliumNodeManager, "allNodes",
+            new ArrayList<>(Collections.singletonList(original)));
+        ciliumNodeManager.refreshUsingNodes();
+
+        ReflectUtil.invokeMethod(ciliumNodeManager, "addOrUpdateNode", ciliumNode("c1"));
+
+        final List<CiliumNode> usingNodes = ReflectUtil.getInternalState(ciliumNodeManager, "usingNodes");
+        assertEquals(1, usingNodes.size());
+        assertSame(original, usingNodes.get(0));
+        assertFalse(original.isClosed());
+        assertEquals(1, nodeUpdateListener.getNodes().size());
+        assertSame(original, nodeUpdateListener.getNodes().get(0));
+    }
+
+    private List<String> usingAddresses() {
+        return addresses(ReflectUtil.getInternalState(ciliumNodeManager, "usingNodes"));
+    }
+
+    private static List<String> addresses(List<CiliumNode> nodes) {
+        return nodes.stream().map(CiliumNode::getAddress).collect(Collectors.toList());
+    }
+
+    /**
      * With one monitor covering notify, a blocking Create holds {@code nodeLock} so a
      * concurrent Close waits and events stay ordered.
      */
@@ -251,19 +335,32 @@ public class CiliumNodeManagerTest {
             new ArrayList<>(Collections.singletonList(ciliumNode("c1"))));
 
         final Thread assigner = new Thread(ciliumNodeManager::refreshUsingNodes, "cilium-assign");
-        assigner.start();
-        assertThat(createStarted.await(5, TimeUnit.SECONDS)).isTrue();
-
         final Thread closer = new Thread(
             () -> ciliumNodeManager.onClusterNodesChanged(Collections.emptyList()), "cilium-close");
-        closer.start();
-        // Closer blocks on nodeLock until Create finishes notify under that lock.
-        Thread.sleep(200);
-        allowCreateFinish.countDown();
+        try {
+            assigner.start();
+            assertThat(createStarted.await(5, TimeUnit.SECONDS)).isTrue();
+            closer.start();
+            // Closer blocks on nodeLock until Create finishes notify under that lock.
+            awaitBlocked(closer);
+        } finally {
+            allowCreateFinish.countDown();
+        }
         assigner.join(5000);
         closer.join(5000);
+        assertFalse(assigner.isAlive());
+        assertFalse(closer.isAlive());
 
         assertThat(order).containsExactly("create:c1", "close:c1");
+    }
+
+    private static void awaitBlocked(Thread thread) throws InterruptedException {
+        final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        while (thread.getState() != Thread.State.BLOCKED) {
+            assertTrue(thread.isAlive(), () -> thread.getName() + " finished without waiting for the lock");
+            assertTrue(System.nanoTime() - deadline < 0, () -> thread.getName() + " never blocked on the lock");
+            Thread.sleep(1);
+        }
     }
 
     /**
@@ -281,25 +378,29 @@ public class CiliumNodeManagerTest {
         final CountDownLatch start = new CountDownLatch(1);
         final AtomicReference<Throwable> failure = new AtomicReference<>();
 
-        pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
-            ReflectUtil.invokeMethod(ciliumNodeManager, "addOrUpdateNode", ciliumNode("c" + (i % 8)));
-        }));
-        pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
-            ReflectUtil.invokeMethod(ciliumNodeManager, "removeNode", ciliumNode("c" + ((i + 3) % 8)));
-        }));
-        pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
-            if (i % 2 == 0) {
-                ciliumNodeManager.onClusterNodesChanged(
-                    Arrays.asList(oapInstance("a1", true), oapInstance("a2", false)));
-            } else {
-                ciliumNodeManager.onClusterNodesChanged(Collections.emptyList());
-            }
-            ciliumNodeManager.refreshUsingNodes();
-        }));
+        try {
+            pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
+                ReflectUtil.invokeMethod(ciliumNodeManager, "addOrUpdateNode", ciliumNode("c" + (i % 8)));
+            }));
+            pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
+                ReflectUtil.invokeMethod(ciliumNodeManager, "removeNode", ciliumNode("c" + ((i + 3) % 8)));
+            }));
+            pool.execute(() -> runUntilDone(start, failure, rounds, i -> {
+                if (i % 2 == 0) {
+                    ciliumNodeManager.onClusterNodesChanged(
+                        Arrays.asList(oapInstance("a1", true), oapInstance("a2", false)));
+                } else {
+                    ciliumNodeManager.onClusterNodesChanged(Collections.emptyList());
+                }
+                ciliumNodeManager.refreshUsingNodes();
+            }));
 
-        start.countDown();
-        pool.shutdown();
-        assertThat(pool.awaitTermination(30, TimeUnit.SECONDS)).isTrue();
+            start.countDown();
+            pool.shutdown();
+            assertThat(pool.awaitTermination(30, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            pool.shutdownNow();
+        }
         assertNull(failure.get(), () -> "concurrent update failed: " + failure.get());
 
         final List<CiliumNode> usingNodes =

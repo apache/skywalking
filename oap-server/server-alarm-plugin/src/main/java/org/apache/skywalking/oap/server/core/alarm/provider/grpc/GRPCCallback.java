@@ -272,7 +272,18 @@ public class GRPCCallback implements AlarmCallback {
                 return;
             }
             final GRPCClient grpcClient = new GRPCClient(newAlarmSetting.getTargetHost(), newAlarmSetting.getTargetPort());
-            grpcClient.connect();
+            try {
+                grpcClient.connect();
+            } catch (RuntimeException e) {
+                // A malformed target, such as "http://host" or "host:port" as the host, fails here.
+                // Skip only this hook so the other gRPC hooks still reconcile and send.
+                log.error("Cannot build the gRPC client of alarm hook {} for target {}:{}, {}.",
+                          name, newAlarmSetting.getTargetHost(), newAlarmSetting.getTargetPort(),
+                          existing == null ? "the hook is skipped"
+                              : "it keeps the previous target " + existing.getHost() + ":" + existing.getPort(),
+                          e);
+                return;
+            }
             final GRPCClient previous = grpcClientMap.put(name, grpcClient);
             alarmServiceStubMap.put(name, AlarmServiceGrpc.newStub(grpcClient.getChannel()));
             if (previous != null) {
