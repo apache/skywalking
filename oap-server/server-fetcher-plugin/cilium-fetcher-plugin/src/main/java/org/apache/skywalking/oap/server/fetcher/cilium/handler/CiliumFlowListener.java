@@ -51,6 +51,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.RunnableWithExceptionProtection;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
+import java.io.Closeable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
@@ -82,28 +83,38 @@ public class CiliumFlowListener implements CiliumNodeUpdateListener {
     public void onNodeAdded(CiliumNode node) {
         final String address = node.getAddress();
         EXECUTOR.execute(new RunnableWithExceptionProtection(() -> {
-            final ObserverGrpc.ObserverBlockingStub stub = node.getObserverStub();
-            if (stub == null) {
+            // Register before opening the stream, so a close() in between interrupts it, and
+            // deregister when it ends: EXECUTOR reuses this thread, and a stale interrupter
+            // would stop whichever node's stream runs on it next.
+            final Thread thread = Thread.currentThread();
+            final Closeable interrupter = thread::interrupt;
+            if (!node.addingCloseable(interrupter)) {
                 return;
             }
-            final Iterator<GetFlowsResponse> flows = stub.getFlows(
-                GetFlowsRequest.newBuilder().setSince(Timestamps.now()).setFollow(true).build());
-            final Thread thread = Thread.currentThread();
-            node.addingCloseable(thread::interrupt);
-            flows.forEachRemaining(flow -> {
-                switch (flow.getResponseTypesCase()) {
-                    case FLOW:
-                        log.debug("Detect flow data: address: {}, flow: {}", address, flow.getFlow());
-                        handleFlow(node, flow.getFlow());
-                        break;
-                    case LOST_EVENTS:
-                        log.warn("Detected lost events, address: {}, events: {}", address, flow.getLostEvents());
-                        break;
-                    case NODE_STATUS:
-                        log.debug("Detected node status, address: {}, status: {}", address, flow.getNodeStatus());
-                        break;
+            try {
+                final ObserverGrpc.ObserverBlockingStub stub = node.getObserverStub();
+                if (stub == null) {
+                    return;
                 }
-            });
+                final Iterator<GetFlowsResponse> flows = stub.getFlows(
+                    GetFlowsRequest.newBuilder().setSince(Timestamps.now()).setFollow(true).build());
+                flows.forEachRemaining(flow -> {
+                    switch (flow.getResponseTypesCase()) {
+                        case FLOW:
+                            log.debug("Detect flow data: address: {}, flow: {}", address, flow.getFlow());
+                            handleFlow(node, flow.getFlow());
+                            break;
+                        case LOST_EVENTS:
+                            log.warn("Detected lost events, address: {}, events: {}", address, flow.getLostEvents());
+                            break;
+                        case NODE_STATUS:
+                            log.debug("Detected node status, address: {}, status: {}", address, flow.getNodeStatus());
+                            break;
+                    }
+                });
+            } finally {
+                node.removeCloseable(interrupter);
+            }
         }, t -> {
             if (t instanceof InterruptedException || (t.getCause() != null && t.getCause() instanceof InterruptedException)) {
                 log.debug("detected the node have been closed: {}, stopping to get flows", node.getAddress());

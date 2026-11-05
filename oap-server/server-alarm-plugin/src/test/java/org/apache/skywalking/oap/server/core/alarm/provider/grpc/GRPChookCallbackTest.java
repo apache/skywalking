@@ -28,10 +28,12 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
@@ -43,15 +45,24 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.query.enumeration.Scope;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class GRPChookCallbackTest {
 
     private GRPCCallback grpcCallback;
+
+    // testGauchoSettingClean replaces grpcCallback, so keep the one init() built to shut it down.
+    private GRPCCallback initCallback;
 
     private AlarmRulesWatcher alarmRulesWatcher;
 
@@ -72,8 +83,16 @@ public class GRPChookCallbackTest {
 
         alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
         grpcCallback = new GRPCCallback(alarmRulesWatcher);
+        initCallback = grpcCallback;
         mockAlarmMessage(setting1.getFormattedName(), setting2.getFormattedName());
         mockAlarmRecoveryMessage(setting1.getFormattedName(), setting2.getFormattedName());
+    }
+
+    @AfterEach
+    public void shutdownInitClients() {
+        ReflectUtil.<Map<String, GRPCClient>>getInternalState(initCallback, "grpcClientMap")
+            .values()
+            .forEach(GRPCClient::shutdown);
     }
 
     @Test
@@ -96,18 +115,18 @@ public class GRPChookCallbackTest {
     }
 
     /**
-     * Dynamic config clearing gRPC hooks used to null the stub/client maps; restoring
+     * Dynamic config clearing gRPC hooks used to null the settings and stub maps; restoring
      * targets then NPE'd on the next alarm. After restore, real alarm and recovery
      * messages must reach a live hook server — not only leave maps non-empty.
      */
     @Test
     public void shouldKeepMapsUsableAfterClearThenRestore() throws Exception {
-        final int port = freePort();
         final RecordingAlarmHandler handler = new RecordingAlarmHandler();
-        final Server server = NettyServerBuilder.forAddress(new InetSocketAddress("127.0.0.1", port))
+        final Server server = NettyServerBuilder.forAddress(new InetSocketAddress("127.0.0.1", 0))
             .addService(handler)
             .build()
             .start();
+        final int port = server.getPort();
         try {
             Rules initial = new Rules();
             GRPCAlarmSetting setting = setting("restore-hook", true, port);
@@ -269,6 +288,121 @@ public class GRPChookCallbackTest {
 
         watcher.notify(new Rules());
         callback.doAlarm(Collections.emptyList());
+    }
+
+    /**
+     * A malformed target such as "http://host" fails while building the channel. It must
+     * disable only its own hook, at boot as well, while the other gRPC hooks still deliver.
+     */
+    @Test
+    public void shouldSkipOnlyTheHookWithMalformedTarget() throws Exception {
+        final RecordingAlarmHandler handler = new RecordingAlarmHandler();
+        final Server server = NettyServerBuilder.forAddress(new InetSocketAddress("127.0.0.1", 0))
+            .addService(handler)
+            .build()
+            .start();
+        try {
+            final int port = server.getPort();
+            final GRPCAlarmSetting good = setting("good-hook", true, port);
+            final GRPCAlarmSetting bad = setting("bad-hook", false, port);
+            bad.setTargetHost("http://127.0.0.1");
+            // The malformed hook comes first, so the good one is reached only if reconciling continues past it.
+            final Map<String, GRPCAlarmSetting> settings = new LinkedHashMap<>();
+            settings.put(bad.getFormattedName(), bad);
+            settings.put(good.getFormattedName(), good);
+            final Rules rules = new Rules();
+            rules.setGrpcAlarmSettingMap(settings);
+
+            final AlarmRulesWatcher watcher = new AlarmRulesWatcher(rules, null, null);
+            final GRPCCallback callback = assertDoesNotThrow(() -> new GRPCCallback(watcher));
+            try {
+                assertEquals(Collections.singleton(good.getFormattedName()),
+                    ReflectUtil.<Map<String, ?>>getInternalState(callback, "grpcClientMap").keySet());
+
+                final AlarmMessage toGood = alarmMessage(good.getFormattedName(), "good-alarm");
+                final AlarmMessage toBad = alarmMessage(bad.getFormattedName(), "bad-alarm");
+                assertDoesNotThrow(() -> callback.doAlarm(Arrays.asList(toGood, toBad)));
+                assertEquals(Collections.singletonList("good-alarm"), handler.alarms.stream()
+                    .map(org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage::getName)
+                    .collect(Collectors.toList()));
+            } finally {
+                watcher.notify(new Rules());
+                callback.doAlarm(Collections.emptyList());
+            }
+        } finally {
+            server.shutdownNow();
+            server.awaitTermination(5, TimeUnit.SECONDS);
+        }
+    }
+
+    /**
+     * When an existing hook's target becomes malformed, the hook keeps its previous client
+     * rather than failing the callback.
+     */
+    @Test
+    public void shouldKeepPreviousClientWhenTargetBecomesMalformed() throws IOException {
+        final int port = freePort();
+        final Rules initial = new Rules();
+        final GRPCAlarmSetting setting = setting("moving-hook", true, port);
+        initial.getGrpcAlarmSettingMap().put(setting.getFormattedName(), setting);
+
+        final AlarmRulesWatcher watcher = new AlarmRulesWatcher(initial, null, null);
+        final GRPCCallback callback = new GRPCCallback(watcher);
+        try {
+            final GRPCClient original = ReflectUtil.<Map<String, GRPCClient>>getInternalState(
+                callback, "grpcClientMap").get(setting.getFormattedName());
+
+            final Rules malformed = new Rules();
+            final GRPCAlarmSetting badTarget = setting("moving-hook", true, port);
+            badTarget.setTargetHost("127.0.0.1:" + port);
+            malformed.getGrpcAlarmSettingMap().put(badTarget.getFormattedName(), badTarget);
+            watcher.notify(malformed);
+            assertDoesNotThrow(() -> callback.doAlarm(Collections.emptyList()));
+
+            assertSame(original, ReflectUtil.<Map<String, GRPCClient>>getInternalState(callback, "grpcClientMap")
+                .get(setting.getFormattedName()));
+            assertFalse(original.getChannel().isShutdown());
+        } finally {
+            watcher.notify(new Rules());
+            callback.doAlarm(Collections.emptyList());
+        }
+    }
+
+    /**
+     * Changing the host replaces the client, shuts down the previous channel, and leaves the
+     * replacement channel open.
+     */
+    @Test
+    public void shouldReplaceClientWhenTargetChanges() throws IOException {
+        final int port = freePort();
+        final Rules initial = new Rules();
+        final GRPCAlarmSetting setting = setting("moving-hook", true, port);
+        initial.getGrpcAlarmSettingMap().put(setting.getFormattedName(), setting);
+
+        final AlarmRulesWatcher watcher = new AlarmRulesWatcher(initial, null, null);
+        final GRPCCallback callback = new GRPCCallback(watcher);
+        final GRPCClient original = ReflectUtil.<Map<String, GRPCClient>>getInternalState(
+            callback, "grpcClientMap").get(setting.getFormattedName());
+        try {
+            final Rules moved = new Rules();
+            final GRPCAlarmSetting newTarget = setting("moving-hook", true, port);
+            newTarget.setTargetHost("localhost");
+            moved.getGrpcAlarmSettingMap().put(newTarget.getFormattedName(), newTarget);
+            watcher.notify(moved);
+            callback.doAlarm(Collections.emptyList());
+
+            final GRPCClient replacement = ReflectUtil.<Map<String, GRPCClient>>getInternalState(
+                callback, "grpcClientMap").get(setting.getFormattedName());
+            assertNotSame(original, replacement);
+            assertEquals("localhost", replacement.getHost());
+            assertTrue(original.getChannel().isShutdown());
+            assertFalse(replacement.getChannel().isShutdown());
+        } finally {
+            watcher.notify(new Rules());
+            callback.doAlarm(Collections.emptyList());
+            // A failed replacement may have dropped the original from the map without shutting it down.
+            original.shutdown();
+        }
     }
 
     private static GRPCAlarmSetting setting(String name, boolean isDefault, int port) {

@@ -18,14 +18,15 @@
 
 package org.apache.skywalking.oap.server.core.cluster;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 
 @Slf4j
 public abstract class ClusterCoordinator implements ClusterRegister, ClusterNodesQuery, ClusterWatcherRegister {
-    private final List<ClusterWatcher> clusterWatchers = new ArrayList<>();
+    // Watchers may register after start(), e.g. the Cilium fetcher, while a coordinator thread notifies.
+    private final List<ClusterWatcher> clusterWatchers = new CopyOnWriteArrayList<>();
 
     /**
      * Initialize the required resources, such as healthy checker and listener.
