@@ -66,8 +66,8 @@ A span whose resource carries `service.layer` is evaluated by the rules declared
 else. A span whose resource carries a layer name that is not registered is logged and not analyzed, and so is a span
 without `service.layer`. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules are declared
 for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`, and put their
-conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE` and `OTLP_VIRTUAL_MQ`, see [the setup
-doc](../setup/backend/trace-analyzer.md#layers).
+conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE`, `OTLP_VIRTUAL_MQ` and
+`OTLP_VIRTUAL_GATEWAY`, see [the setup doc](../setup/backend/trace-analyzer.md#layers).
 
 A sender that cannot be changed gets its `service.layer` from the OpenTelemetry Collector instead, with a `resource`
 processor that inserts it.
@@ -375,7 +375,7 @@ lands. Other registered nodes keep their own names even when the name equals som
 
 An address listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) is
 never built by a pair either. The shipped rule does not resolve such a peer: when `isGateway` says
-it is one, the gateway stays a `VIRTUAL_GATEWAY` node of its own, as on the agent path, which the caller's edge ends on
+it is one, the gateway stays a `virtual gateway` node of its own, as on the agent path, which the caller's edge ends on
 and the callee's edge starts from. `isGateway` has these limits:
 
 - It matches the address exactly as `gateways.yml` lists it, `host:port`, with a bare host tried at port 80, the port

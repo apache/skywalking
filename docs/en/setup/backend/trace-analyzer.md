@@ -68,6 +68,7 @@ names first and the deprecated spellings older SDKs still emit as fallbacks.
 | `OTLP_VIRTUAL_DATABASE` | a database a client span names through `db.system.name` or `db.system` | the client's span |
 | `OTLP_VIRTUAL_CACHE` | a cache, the same way, for `redis`, `memcached` and the other cache systems | the client's span |
 | `OTLP_VIRTUAL_MQ` | a broker a producer or consumer span names through `messaging.system.name` or `messaging.system` | the producer's or consumer's span |
+| `OTLP_VIRTUAL_GATEWAY` | a gateway listed in [uninstrumented gateways](uninstrumented-gateways.md), which a client span dials or a server span was dialed at | the caller's or the callee's span |
 
 The layers are separate from the agent path's `GENERAL` and `VIRTUAL_*` layers because their metrics come from a
 different engine under different names. A service id is its name plus the `normal` flag, not the layer, so a
@@ -242,7 +243,7 @@ alias names another service; other registered nodes keep their own names, so a s
 keeps its own node: an OTLP service `frontend` is not drawn as `agent::frontend` because an agent registered the host
 `frontend` for `agent::frontend`. An address listed in the agent analyzer's [uninstrumented
 gateways](uninstrumented-gateways.md) is never built as an alias, and the shipped rule draws it the way the agent
-path does, as a `VIRTUAL_GATEWAY` node between the caller and the callee: a CLIENT span that dials it ends its edge on
+path does, as a `virtual gateway` node between the caller and the callee: a CLIENT span that dials it ends its edge on
 the gateway, and a SERVER span dialed at it, other than a root span, starts its edge from the gateway. An
 uninstrumented proxy in front of a service belongs in that file; otherwise, when it passes the trace context on, the
 callee's SERVER span pairs with the caller's CLIENT span and the proxy's address is named after the service behind

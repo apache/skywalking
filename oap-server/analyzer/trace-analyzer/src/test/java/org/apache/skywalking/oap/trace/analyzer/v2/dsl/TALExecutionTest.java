@@ -382,7 +382,7 @@ class TALExecutionTest {
         // nginx's `proxy_set_header Host $host` passes the host without its port, while the caller's span names it.
         filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
         final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway_noport");
-        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.OTLP_VIRTUAL_GATEWAY.isNormal());
         final String frontend = IDManager.ServiceID.buildId("frontend", true);
 
         final SpanMetadata called = clientSpan();
@@ -398,7 +398,7 @@ class TALExecutionTest {
     void aCallerThatDialsAGatewayWithoutAPortEndsOnTheNodeItsCalleeStartsFrom() throws Exception {
         filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
         final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway_noport_client");
-        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.OTLP_VIRTUAL_GATEWAY.isNormal());
         final String frontend = IDManager.ServiceID.buildId("frontend", true);
 
         execute(rule, clientSpan(), new TestSpanInput().attribute("server.address", "ingress"));
@@ -413,7 +413,7 @@ class TALExecutionTest {
     void theShippedRuleDrawsAGatewayBetweenTheCallerAndTheCallee() throws Exception {
         filterSpec.getAliasRegistrar().setGateways("ingress:80"::equals);
         final TalExpression rule = compileShipped("otlp-general", "tal_exec_gateway");
-        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.VIRTUAL_GATEWAY.isNormal());
+        final String gateway = IDManager.ServiceID.buildId("ingress:80", Layer.OTLP_VIRTUAL_GATEWAY.isNormal());
         final String frontend = IDManager.ServiceID.buildId("frontend", true);
 
         execute(rule, clientSpan(),
@@ -423,8 +423,9 @@ class TALExecutionTest {
             .filter(r -> frontend.equals(r.getSourceServiceId()) && gateway.equals(r.getDestServiceId()))
             .count(), "the caller's edge ends on the gateway: " + traffic);
         assertTrue(traffic.stream().filter(ServiceTraffic.class::isInstance).map(ServiceTraffic.class::cast)
-            .anyMatch(r -> "ingress:80".equals(r.getName()) && r.getLayer() == Layer.VIRTUAL_GATEWAY),
-            "the gateway is a VIRTUAL_GATEWAY service, as the agent path lists it: " + traffic);
+            .anyMatch(r -> "ingress:80".equals(r.getName()) && r.getLayer() == Layer.OTLP_VIRTUAL_GATEWAY),
+            "the gateway is an OTLP_VIRTUAL_GATEWAY service, the OTLP counterpart of the agent path's "
+                + "VIRTUAL_GATEWAY: " + traffic);
 
         traffic.clear();
         final SpanMetadata called = clientSpan();
