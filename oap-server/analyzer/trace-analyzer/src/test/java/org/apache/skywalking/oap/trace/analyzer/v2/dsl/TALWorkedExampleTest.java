@@ -680,7 +680,7 @@ class TALWorkedExampleTest {
             new TestSpanInput().attribute("server.address", "ingress").attribute("server.port", "80")
                                .attribute("http.request.header.x-canary", "v2"));
         assertEquals(List.of(
-                MeterEntity.newServiceRelation("a", Layer.OTLP_GENERAL, "ingress:80", Layer.VIRTUAL_GATEWAY,
+                MeterEntity.newServiceRelation("a", Layer.OTLP_GENERAL, "ingress:80", Layer.OTLP_VIRTUAL_GATEWAY,
                                                DetectPoint.CLIENT, 49).id()),
             sent.stream().filter(v -> "canary_service_relation_client_cpm".equals(metricNameOf(v)))
                 .map(v -> {

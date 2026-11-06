@@ -4,7 +4,7 @@ An ingress, a cloud load balancer or an nginx without tracing emits no spans, so
 caller's CLIENT span as its parent while the caller dialed the gateway's address. Without more, the pair would name
 the gateway's address after the service behind it, and every service behind it would take the address in turn. List
 the gateway in [uninstrumented gateways](../uninstrumented-gateways.md): its address is never aliased, the caller's edge
-ends on a `VIRTUAL_GATEWAY` node, and the callee's edge starts from it when the gateway passes its callers' `Host`
+ends on a `virtual gateway` node, and the callee's edge starts from it when the gateway passes its callers' `Host`
 through.
 
 List the address the callers dial, as their CLIENT spans report it, in `config/gateways.yml`:
@@ -26,6 +26,12 @@ gateways:
   it. A `Host` without a port, as `$host` passes it, is read as port 80, the port the file assumes, so a gateway
   listening elsewhere, such as HTTPS on 443, draws the edge to the services behind it only when the `Host` it
   passes carries the port.
+- Not every server instrumentation takes the port from the `Host` header. Go's `otelhttp` takes the host and the port
+  from it, and leaves the port out when the header has none. The OpenTelemetry Python WSGI instrumentation, which the
+  Flask instrumentation uses, takes the host from the `Host` header but reports the port the application listens on,
+  as `server.port` (`net.host.port` with the older conventions), as read in 0.66b2. A Flask service on port 8080 behind
+  a gateway listed at port 80 then reports `nginx:8080` and draws no edge from the gateway; only its callers' edges end
+  on it. Check the `server.address` and `server.port` the services' SERVER spans report.
 - The file belongs to the agent analyzer; with the `agent-analyzer` module not loaded, no address is a gateway. See
   [uninstrumented gateways](../uninstrumented-gateways.md) for the format and for changing it at runtime.
 

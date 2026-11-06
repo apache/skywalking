@@ -30,6 +30,7 @@ and give the span the layer:
 ```nginx
 otel_service_name nginx;
 otel_resource_attr service.layer OTLP_GENERAL;
+otel_resource_attr service.instance.id nginx-0;   # the module names no instance of its own
 otel_trace $otel_parent_sampled;
 otel_trace_context propagate;
 
@@ -55,6 +56,8 @@ otel_span_attr upstream.address $otel_upstream;
 - With `propagate` or `inject` but without `otel_trace`, nginx records no span and passes the context on as not
   sampled, so a service behind it whose SDK samples by its parent records nothing either.
 - `upstream.address` is a name of your choice, not a semantic convention. Pick one that no application sets.
+- The module's resource carries no `service.instance.id`, so nginx has instances only when the config names one, as
+  above; name each nginx apart.
 
 **In TAL**, in the SERVER block of your copy of `otlp-general.yaml`, pick nginx's SERVER span and send a caller half
 from it as well:

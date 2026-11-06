@@ -14,7 +14,8 @@ own CLIENT spans, in the CLIENT block of your copy of `otlp-general.yaml`, after
 `prepareNetworkAlias`:
 
 ```text
-if (peer && meta.service == "<gateway>" && attr("http.request.header.x-canary") == "v2") {
+if (peer && meta.service == "<gateway>"
+    && attr("http.request.header.x-canary", "http.request.header.x_canary") == "v2") {
   def peer = peer + "(v2)"
 }
 ```
@@ -24,7 +25,8 @@ tracing off, leaves the callers' CLIENT spans as the only ones that dialed the a
 peer:
 
 ```text
-if (peer && !isGateway(peer) && attr("http.request.header.x-canary") == "v2") {
+if (peer && !isGateway(peer)
+    && attr("http.request.header.x-canary", "http.request.header.x_canary") == "v2") {
   def peer = peer + "(v2)"
 }
 ```
@@ -37,8 +39,11 @@ Without Instrumentation](gateway-without-instrumentation.md).
 - `!isGateway(peer)` keeps a call to a gateway listed in `gateways.yml` as it is: `ingress:80(v2)` would no longer
   match the file, so the canary's calls would skip the gateway node the others end on.
 - The header has to be on the CLIENT span the rule reads, which the SDKs capture only when asked, for example
-  `OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS=x-canary` for the OpenTelemetry Java agent. The attribute
-  is `http.request.header.x-canary`.
+  `OTEL_INSTRUMENTATION_HTTP_CLIENT_CAPTURE_REQUEST_HEADERS=x-canary` for the OpenTelemetry Java agent, or
+  `OTEL_INSTRUMENTATION_HTTP_CAPTURE_HEADERS_CLIENT_REQUEST=x-canary` for the OpenTelemetry Python `requests`
+  instrumentation. The semantic conventions name the attribute `http.request.header.x-canary`; the Python
+  instrumentation turns the dashes into underscores, `http.request.header.x_canary`, so the rules read both. The value
+  is a list, `["v2"]`, which the OAP joins with `,`, so a request that carries the header once reads as `v2`.
 - Match the values you route on. Appending any header value as it comes makes a new peer, and a new pair to learn,
   per value.
 - With a rule on the CLIENT span, a split by weight, or by anything that span does not carry, such as a header the

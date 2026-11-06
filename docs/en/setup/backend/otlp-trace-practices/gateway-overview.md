@@ -35,12 +35,16 @@ Whatever the gateway, check that:
 - **It reports a SERVER span for the request it receives and a CLIENT span for each call it makes to a backend.**
   The SERVER span pairs with the caller; the CLIENT span pairs with the backend. A gateway that reports one span per
   request pairs only one of the two hops, unless a rule also sends a caller half from that span, see
-  [nginx](gateway-nginx.md#with-the-opentelemetry-module).
+  [nginx](gateway-nginx.md#with-the-opentelemetry-module). Envoy reports the CLIENT span only when asked, see
+  [Envoy](gateway-envoy.md).
 - **Its CLIENT span names the backend it dialed.** The shipped rule reads, in this order: `service.peer.name` (or
   `peer.service`), which overrides the address; `server.address` and `server.port`; `peer.address`, as Envoy
   reports it; then the host and port of `url.full`. That peer keys the row, so a blue and a green backend dialed at
   their own addresses are two rows, `gateway->10.0.1.5:8080` and `gateway->10.0.2.7:8080`, each naming its own
   service.
+- **Its resource names an instance**, as `service.instance.id` or `service.instance`, if its instances are to be
+  listed. The OpenTelemetry Python SDK makes one up per process; Envoy, nginx's OpenTelemetry module and the Go SDK set
+  none, and a gateway without one has service metrics but no instances. Set it next to `service.layer`.
 
 A gateway that records its upstream under another attribute, logically the same as these, needs one line in your
 copy of `otlp-general.yaml`, next to the other peer sources in the CLIENT block, before the gateway check and

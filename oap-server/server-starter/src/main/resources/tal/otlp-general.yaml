@@ -181,7 +181,8 @@ rules:
               // comes from the gateway, as the agent path draws it. The address only arrives here when the gateway
               // passes its callers' Host through; one that rewrites it to the upstream's draws no such edge.
               if (!meta.root && isGateway(dialed)) {
-                def fromGateway = serviceRelation(SERVER, dialed, "VIRTUAL_GATEWAY", meta.service, meta.layer, comp)
+                def fromGateway = serviceRelation(SERVER, dialed, "OTLP_VIRTUAL_GATEWAY", meta.service, meta.layer,
+                                                  comp)
                 metrics { name "service_relation_server_cpm"; scope fromGateway; function cpm; value 1 }
               }
             }
@@ -270,7 +271,7 @@ rules:
             if (peer) {
               def peerLayer = "OTLP_GENERAL"
               if (isGateway(peer)) {
-                def peerLayer = "VIRTUAL_GATEWAY"
+                def peerLayer = "OTLP_VIRTUAL_GATEWAY"
               }
               def comp = component("http")
               if (hasAttr("rpc.system.name", "rpc.system")) {

@@ -39,7 +39,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
  * <p>Layers are persisted by ordinal (int). The ordinal space is partitioned by tier so
  * each registration channel has a non-overlapping range:
  * <ul>
- *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..56} in
+ *   <li>{@code 0 – 9_999} — built-in {@code Layer.*} constants. Currently {@code 0..57} in
  *       use; the rest of the range is reserved for future built-ins. Ordinals already
  *       persisted in storage are frozen forever and must never be reused.</li>
  *   <li>{@code 10_000 – 99_999} — boot-time external layers: {@code layer-extensions.yml},
@@ -335,6 +335,12 @@ public final class Layer {
      * workload named after the mesh's naming.
      */
     public static final Layer OTLP_MESH = register("OTLP_MESH", 56, true);
+
+    /**
+     * A gateway listed in {@code gateways.yml}, as the OTLP spans of its callers and callees draw it: the OTLP
+     * counterpart of {@link #VIRTUAL_GATEWAY}, which the agent path gives the same gateway.
+     */
+    public static final Layer OTLP_VIRTUAL_GATEWAY = register("OTLP_VIRTUAL_GATEWAY", 57, false);
 
     private final String name;
     private final int value;
