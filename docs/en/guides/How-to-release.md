@@ -76,10 +76,8 @@ enter your apache password
 ```
 2. Public download source and distribution tar/zip with asc and sha512 are located in `http://www.apache.org/dyn/closer.cgi/skywalking/x.y.z/xxx`.
 The Apache mirror path is the only release information that we publish.
-3. Update the website download page. http://skywalking.apache.org/downloads/ . Add a new download source, distribution, sha512, asc, and document
-links. The links can be found following rules (3) to (6) above.
-4. Add a release event on the website homepage and event page, headed with the [release name](#name-the-release). Announce the public release with changelog or key features.
-5. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`. The sender should use the Apache email account.
+3. Once `https://downloads.apache.org/skywalking/x.y.z/` lists the files, open a [website](https://github.com/apache/skywalking-website) PR that adds the release to `data/projects.yml` as latest, moves the previous release's links to the archive, and adds a release event headed with the [release name](#name-the-release), as the website's `CLAUDE.md` describes.
+4. Send ANNOUNCE email to `dev@skywalking.apache.org`, `announce@apache.org`. The sender should use the Apache email account.
 ```
 Mail title: [ANNOUNCE] Apache SkyWalking x.y.z released
 
@@ -129,6 +127,8 @@ changelog is discoverable at `https://github.com/apache/skywalking/releases/tag/
 gh release create vx.y.z --title "x.y.z - <release name>" --notes-file release-notes.md --verify-tag
 ```
 
+After the `#### Download` and `#### Notice` sections of the previous release, add a `#### <release name>` section with screenshots of its features.
+
 Use the version's section of `docs/en/changes/changes.md` as the release body, with **one formatting
 step that matters**: GitHub renders release notes (like issues / PRs / comments) as GitHub-Flavored
 Markdown, where a **single newline that continues a bullet's prose becomes a `<br>` line break** —
@@ -146,7 +146,7 @@ sub-bullets for structure — avoids this step entirely.
 ## Publish the Docker images
 
 We have a [GitHub workflow](../../../.github/workflows/publish-docker.yaml) to automatically publish the Docker images to
-Docker Hub after you set the version from `pre-release` to `release`, all you need to do is to watch that workflow and see
+Docker Hub once the GitHub release is published as a release (not a `pre-release`), all you need to do is to watch that workflow and see
 whether it succeeds, if it fails, you can use the following steps to publish the Docker images in your local machine.
 
 ```shell
@@ -181,6 +181,6 @@ Once the latest release has been published, you should clean up the old releases
 
 We hosted the [SkyWalking Quick Start script](https://skywalking.apache.org/docs/main/latest/en/setup/backend/backend-docker/#start-the-storage-oap-and-booster-ui-with-docker-compose), 
 which is a shell script that helps users to download and start SkyWalking quickly.
-The versions of OAP and BanyanDB are hard-coded in the script, so you need to update the versions in the script.
+The versions of OAP, Horizon UI and BanyanDB are hard-coded in the script, so you need to update the versions in the script.
 
-Update the versions for [shell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.sh#L23-L24) and [powershell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.ps1#L18-L19).
+Update the versions for [shell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.sh) and [powershell script](https://github.com/apache/skywalking-website/blob/master/content/quickstart-docker.ps1).
