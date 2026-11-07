@@ -17,6 +17,7 @@
 * Document how a release is named in the release guide: a few words that state its key features, used as the GitHub release title `x.y.z - <release name>`, which the guide's `gh release create` example now uses in place of the bare version.
 * Update the release guide for the redesigned website and add a release-name section to the GitHub release body.
 * Fix the Zabbix receiver doc's links to the Zabbix documentation, which moved in Zabbix 8.0, by pinning them to Zabbix 6.0.
+* Describe the sampling convention in the `sw8` protocol doc: the SkyWalking agents always write `1` as the Sample value and don't use it, and an agent that receives a valid `sw8` header should keep the upstream sampling decision instead of applying its own sampling rate.
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.2.0)

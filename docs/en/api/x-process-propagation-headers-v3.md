@@ -19,7 +19,7 @@ Example of the value format: `XXXXX-XXXXX-XXXX-XXXX`
 Values must include the following segments, and all string type values are in BASE64 encoding.
 
 - Required:
-1. Sample. 0 or 1. 0 means that the context exists, but it could (and most likely will) be ignored. 1 means this trace needs to be sampled and sent to the backend. 
+1. Sample. 0 or 1. 0 means that the context exists, but it could (and most likely will) be ignored. 1 means this trace needs to be sampled and sent to the backend. See [Sampling](#sampling) for how the SkyWalking agents use this value.
 1. Trace ID. **String(BASE64 encoded)**. A literal string that is globally unique.
 1. Parent trace segment ID. **String(BASE64 encoded)**. A literal string that is globally unique.
 1. Parent span ID. Must be an integer. It begins with 0. This span ID points to the parent span in parent trace segment.
@@ -28,8 +28,21 @@ Values must include the following segments, and all string type values are in BA
 1. Parent endpoint. **String(BASE64 encoded)**. The operation name of the first entry span in the parent segment. Its length should be less than 150 UTF-8 characters.
 1. Target address of this request used on the client end. **String(BASE64 encoded)**. The network address (not necessarily IP + port) used on the client end to access this target service.
 
-- Sample values:
+- Example value:
 `1-TRACEID-SEGMENTID-3-PARENT_SERVICE-PARENT_INSTANCE-PARENT_ENDPOINT-IPPORT`
+
+#### Sampling
+SkyWalking analyzes the reported traces to provide complete metrics and topology, so it is common for the agents to
+sample 100% of the traces, which is their default. Storage is reduced instead by
+[trace sampling at the server side](../setup/backend/trace-sampling.md), which drops traces without changing the
+metrics and topology. For this reason, the Sample value, designed at the beginning of this protocol, is not used in
+practice. By convention, the SkyWalking agent implementations always set Sample to `1` when they write the `sw8`
+header, and don't use it to decide whether to trace a request when they read the header.
+
+When an agent supports sampling, the decision should be made once, by the service that starts the trace. An agent that
+receives a valid `sw8` header should trace the request without applying its own sampling rate, so the upstream sampling
+decision is kept along the trace. The agent's other rules still apply, such as ignored endpoints or suffixes, a
+disconnected backend, or a full buffer.
 
 ### Extension Header Item
 The extension header item is designed for advanced features. It provides interaction capabilities between the agents
