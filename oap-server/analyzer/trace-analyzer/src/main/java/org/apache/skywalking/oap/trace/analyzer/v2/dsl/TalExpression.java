@@ -48,6 +48,42 @@ public interface TalExpression {
     }
 
     /**
+     * @return whether the rule has a {@code first {}} run
+     */
+    default boolean hasFirst() {
+        return false;
+    }
+
+    /**
+     * The rule's {@code first {}} blocks, a run of its own on a span whose {@code spanId} is {@code 0}: its own
+     * {@code def} values, sharing only the {@code segmentDef} values with the rule's regular runs.
+     *
+     * @param filterSpec the runtime services the blocks call into
+     * @param ctx        this run's state, holding the span and the segment's {@code segmentDef} values
+     */
+    default void executeFirst(FilterSpec filterSpec, ExecutionContext ctx) {
+    }
+
+    /**
+     * Run one queued {@code build {}} block, after the segment's last span.
+     *
+     * @param index      the block, as {@link ExecutionContext#queueBuild} recorded it
+     * @param filterSpec the runtime services the block calls into
+     * @param ctx        the block's state, holding the span of the run that queued it and the segment's
+     *                   {@code segmentDef} values
+     * @param captured   the values of the {@code def} variables the run had when it queued the block
+     */
+    default void executeBuild(int index, FilterSpec filterSpec, ExecutionContext ctx, Object[] captured) {
+    }
+
+    /**
+     * @return how many {@code segmentDef} variables the rule has, the length of the array each segment's runs share
+     */
+    default int segmentDefCount() {
+        return 0;
+    }
+
+    /**
      * @return the per-rule capture binding the generated probes read, or null when dsl-debugging injection was
      * off at compile time
      */

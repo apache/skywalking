@@ -52,6 +52,9 @@ services:
     extends:
       file: ../docker-compose.yml
       service: provider-py
+    environment:
+      # The otlp-ai-evaluation rule samples natively stored spans of OTLP_GENERAL services, like every OTLP rule.
+      OTEL_RESOURCE_ATTRIBUTES: service.layer=OTLP_GENERAL
     depends_on:
       oap:
         condition: service_healthy

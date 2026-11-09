@@ -23,7 +23,7 @@ metric from the consumer's side.
 
 The producer and the consumer are both clients of the broker, so their spans are not paired as a caller's CLIENT span
 and a callee's SERVER span are, and no network alias is learned for a broker, see [Address-named
-peers](../../../concepts-and-designs/tal.md#address-named-peers). The two edges meet only where both sides name the
+peers](../../../concepts-and-designs/tal-otlp.md#address-named-peers). The two edges meet only where both sides name the
 broker with the same string. W3C trace context carries no address, unlike the SkyWalking agents' `sw8` header, so each
 span names the broker from its own attributes, by the first one present:
 

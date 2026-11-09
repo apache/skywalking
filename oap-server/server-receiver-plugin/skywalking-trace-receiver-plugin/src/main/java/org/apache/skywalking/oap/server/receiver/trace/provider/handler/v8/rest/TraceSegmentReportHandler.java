@@ -24,14 +24,14 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
 
 @Slf4j
 @Blocking
@@ -41,7 +41,7 @@ public class TraceSegmentReportHandler {
     private final CounterMetrics errorCounter;
 
     public TraceSegmentReportHandler(ModuleManager moduleManager) {
-        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+        this.segmentParserService = moduleManager.find(TraceAnalyzerModule.NAME)
                                                  .provider()
                                                  .getService(ISegmentParserService.class);
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)

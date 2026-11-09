@@ -1,16 +1,35 @@
 # Trace Analysis Language
 
-Trace Analysis Language (TAL) in SkyWalking is a Domain-Specific Language (DSL) to analyze the spans that arrive over
-the OpenTelemetry protocol. A TAL rule reads one span at a time and decides what it is, which service, instance and
-endpoint it belongs to, which metrics it feeds, which record it writes, and whether the span itself is stored. The
-metrics go through the meter system, so they are stored, downsampled, queried and alerted on like every meter
-metric.
+Trace Analysis Language (TAL) in SkyWalking is a Domain-Specific Language (DSL) to analyze spans. A TAL rule reads one
+span at a time and decides what it is, which service, instance and endpoint it belongs to, and which metrics and
+records it produces. A metric a rule declares goes through the meter system, so it is stored, downsampled, queried and
+alerted on like every meter metric; a rule over SkyWalking agents' segments also hands the OAL engine the sources the
+`.oal` files compute from.
 
-The TAL config files are in YAML format, and are located under directory `tal`. You can set
-`trace-analyzer/default/talFiles` in the `application.yml` file or set environment variable `SW_TRACE_TAL_FILES` to
-activate specific TAL config files. The files are read when the OAP starts. See
-[OpenTelemetry Trace Analysis](../setup/backend/trace-analyzer.md) for the module's settings and for what the shipped
-rule file produces.
+A rule reads one input, named by its `inputType`. This page describes the language every input shares; each input has
+a page of its own for what only it reads and builds:
+
+| | `otlp` | `sw-native` |
+|---|---|---|
+| Sent by | OpenTelemetry SDKs and collectors | SkyWalking agents, as trace segments over gRPC, HTTP or Kafka |
+| Rule files | `talFiles` (`SW_TRACE_TAL_FILES`) | `nativeTalFiles` (`SW_TRACE_NATIVE_TAL_FILES`) |
+| Which rules see a span | the rules declared for the span's `service.layer` | every rule of every listed file whose `requiredModules` are loaded, in list order, on every span of the segment, in wire order |
+| What a rule reads | `span`, the OTLP `Span`, and `meta`, what the receiver derived from it | `span`, the native `SpanObject`, `segment()`, its `SegmentObject`, and the values the runner derives from the segment |
+| Runs | one per span and rule | `first {}` on a span `0`, the span's run, and `build {}` after the segment's last span; `segmentDef` lives for the segment |
+| Outputs | `metrics {}` and `source {}`, each sent at its statement; `persist {}` and `tag` for the stored span | inside `build {}`: `metrics {}` and `source {}` |
+| The trace itself | stored by the receiver when no span listener vetoes it and no rule's `persist {}` votes to drop it, then past the receiver's rate limit and head sampling. An `enforcer {}` skips head sampling only; with `otlpTraceStorage: zipkin` it marks the span `debug`, which the Zipkin path keeps past both its rate limit and its sample rate. Neither overrides a veto | stored as the `native-segment` rule's `Segment` source when the segment is sampled, the segment as received |
+| Network alias | learned from caller and callee pairing, `prepareNetworkAlias` and `buildNetworkAlias` | written by the callee alone, `writeNetworkAlias`, from the address the `sw8` header carries |
+| Entity names | in `metrics {}`, formatted by the entity constructor, `service(...)`, `endpoint(...)` and the others, where it runs, inline in `scope` or in a `def`; for a `source {}`, by the rule, through `formatServiceName`, `formatInstanceName` and `formatEndpointName` | formatted by the rule, through `formatServiceName`, `formatInstanceName` and `formatEndpointName`, before `source {}` |
+| Retries | with `dedupWindow` above `0` (off by default), a span seen again on the same node within the window, while its id is still held, is analyzed once | none |
+| A rule that throws | skipped for that span, logged, and the span's other rules still run | stops the segment there; nothing is caught |
+| Its page | [TAL for OpenTelemetry Spans](tal-otlp.md) | [TAL for Native Segments](tal-sw-native.md) |
+
+The TAL config files are in YAML format, and are located under directory `tal`. The `trace-analyzer` module lists the
+files for OpenTelemetry spans in `trace-analyzer/default/talFiles` and those for SkyWalking agents' segments in
+`trace-analyzer/default/nativeTalFiles`, in the `application.yml` file or through the environment variables above. The
+files are read when the OAP starts. See [OpenTelemetry Trace Analysis](../setup/backend/trace-analyzer.md) and
+[Native Trace Analysis](../setup/backend/native-trace-analysis.md) for the module's settings and for what the shipped
+rule files produce.
 
 Anyone who has written a [LAL](lal.md) rule can read a TAL rule: the grammar is LAL's, with the log-specific parts
 removed and span-specific parts added. The differences are listed at the end of this page.
@@ -20,15 +39,16 @@ removed and span-specific parts added. The differences are listed at the end of 
 ```yaml
 # tal/<file>.yaml
 metricPrefix: otlp     # every metric declared in this file is stored as <metricPrefix>_<name>
+requiredModules:       # optional; the file's rules are compiled and run only when every module listed is loaded
+  - gen-ai-analyzer
 layerDefinitions:      # optional, the same contract as LAL and MAL: registered before the rules compile
   - name: IOT_FLEET
     ordinal: 1000
     normal: true
 rules:
-  - name: otlp-general # unique within its layer
+  - name: otlp-general # unique within its layer; a native rule's name is unique among the native rules
     layer: OTLP_GENERAL # a registered layer name
-    inputType: otlp    # optional; the only input this release ships, and the default
-    outputType: SlowSQL # optional; the record the rule writes, see Output Type
+    inputType: otlp    # otlp, the default, or sw-native
     dsl: |
       filter { ... }
 ```
@@ -36,92 +56,71 @@ rules:
 A rule names exactly one `inputType`. The OAP refuses to start on a rule whose `layer` is not registered, naming the
 rule and the layer; declare the layer under `layerDefinitions` or use a built-in one.
 
-## Span metadata
-
-Every rule reads the span through two roots. `meta` holds what the receiver derived from the span and its resource,
-and it means the same thing whatever the input:
-
-| `meta` field | Source on an OTLP span |
-|---|---|
-| `service` | the service name the receiver resolved: the resource's `service.name`, or the fallbacks in [Service name](../setup/backend/otlp-trace.md#service-name), in the `group::name` form when [service grouping](../setup/backend/otlp-trace.md#service-group) applies |
-| `serviceInstance` | the resource's `service.instance.id` |
-| `endpoint` | the span's name, until a rule sets it |
-| `layer` | the resource's `service.layer`, empty when absent; see [Layer](#layer) |
-| `kind` | `SERVER`, `CLIENT`, `PRODUCER`, `CONSUMER`, `INTERNAL` or `UNSPECIFIED` |
-| `statusCode`, `statusMessage` | `UNSET`, `OK` or `ERROR`, and the status message |
-| `startTime`, `timestamp` | the span's start and end, in milliseconds; `startTime` is the minute bucket the metrics land in |
-| `latency` | end minus start, in milliseconds |
-| `traceId`, `spanId`, `parentSpanId` | the ids in lowercase hex; `parentSpanId` is empty on a root span |
-| `root` | whether `parentSpanId` is empty |
-| `parentLocation` | where the parent span ran, from the OTLP span flags: `REMOTE` in another process, `LOCAL` in the same one, `UNKNOWN` on a root span or when the sender leaves the flags unset |
-| `scopeName`, `scopeVersion` | the instrumentation scope |
-
-`span` is the wire object itself, `io.opentelemetry.proto.trace.v1.Span`, resolved at compile time: `span.name`,
-`span.traceState`, `span.status.message`, `span.eventsCount`. Prefer `meta.kind` and `meta.statusCode` over the
-proto enums in conditions.
-
-## Layer
-
-A span whose resource carries `service.layer` is evaluated by the rules declared for that layer, and by nothing
-else. A span whose resource carries a layer name that is not registered is logged and not analyzed, and so is a span
-without `service.layer`. There is no fallback to `GENERAL`, which is the agent layer. The shipped rules are declared
-for `OTLP_GENERAL`, so they analyze only the spans whose resource carries `service.layer=OTLP_GENERAL`, and put their
-conjectured peers under `OTLP_VIRTUAL_DATABASE`, `OTLP_VIRTUAL_CACHE`, `OTLP_VIRTUAL_MQ` and
-`OTLP_VIRTUAL_GATEWAY`, see [the setup doc](../setup/backend/trace-analyzer.md#layers).
-
-A sender that cannot be changed gets its `service.layer` from the OpenTelemetry Collector instead, with a `resource`
-processor that inserts it.
-
-A span no rule claims, one every rule aborted or one on a layer no rule is declared for, sends no pairing fact, see
-[Address-named peers](#address-named-peers). An Envoy sidecar's spans, unclaimed, therefore never become the callee
-of an alias or the caller of one, and spare the cluster the pairing traffic.
-
-Rules for one layer run in file order, each with its own copy of `meta`, so a rule that overwrites `service` for its
-record does not change what the next rule reads. Each rule decides independently.
+`requiredModules` names the modules a file's rules need, such as a module whose functions or sources they use.
+A file whose modules are not all loaded is not compiled, and so not checked, and its rules do not run. Every module a
+listed file names is a required module of `trace-analyzer` whenever it is loaded, so it starts before the rules are
+compiled.
 
 ## Filter
 
 ```text
 filter {
-  <if / def / abort>*
+  <def / assignment / if / foreach / abort / log>*
   extractor { ... }
-  sink { ... }                                        // the record declared by outputType
-  persist { ... }                                     // the span itself
+  <the input's own blocks>   // persist {} on otlp, first {} on sw-native
 }
 ```
 
-### Global functions
+### Statements
 
-Attributes are reached through functions, all null-safe and returning `""` when absent:
+These statements are allowed in `filter` and `extractor`, and in the native input's `first {}` and `build {}`. The
+OTLP `persist {}` holds statements of its own, listed on the OTLP page:
 
-| Function | Returns |
-|---|---|
-| `attr(key, ...)` | the first present span attribute among the keys, rendered as a string: scalars as text, arrays joined by `,`, key-value lists as JSON, bytes as base64. Several keys let one rule serve SDKs on different semantic-convention versions: `attr("db.system.name", "db.system")` |
-| `hasAttr(key, ...)` | whether any of the keys is present on the span |
-| `resource(key, ...)` | the same over the resource attributes: `resource("telemetry.sdk.language")` |
-| `scopeAttr(key, ...)` | the same over the instrumentation scope's attributes |
-| `event(name)` | the first span event with that name, or `null`: `event("exception") != null` |
-| `eventAttr(name, key, ...)` | an attribute of that event: `eventAttr("exception", "exception.type")` |
-| `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `attr("rpc.system.name", "rpc.system")` giving `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
-| `callerScopedAddress(service, peer)` | the key of a network address alias learned for one caller and one peer, `service->peer`, see [Address-named peers](#address-named-peers) |
-| `resolveNetworkAlias(address)` | the service a caller-scoped address names, see [Address-named peers](#address-named-peers); when none is learned yet, the peer part of the address, or the address unchanged when it has no `->` |
-| `isGateway(address)` | whether the address is listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md), matched exactly, a bare host at port 80; always false when the `agent-analyzer` module is not loaded. Its limits are listed under [Address-named peers](#address-named-peers) |
-| `findServerClusterName(address)`, `findServerClusterName(address, kind)` | the cluster the core's [server clusters](../setup/backend/server-clusters.md) list the address under: the whole string, or every element of a list joined by `,` or `;`, in any order; empty when the address is not listed. With a kind, only the clusters whose `kinds` list it, or list none, match. The shipped rule asks it, without a kind, for the address of a database, a cache or a broker |
-| `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not. For a client that names its target only as `url.full` or `http.url` |
-| `toJson(expr)`, `toJsonArray(expr)` | as in LAL |
+```text
+def <name> = <expr> [as <Type>]            // declare a variable
+<name> = <expr> [as <Type>]                // assign a declared variable
+if (<condition>) { ... } else if (<condition>) { ... } else { ... }
+foreach (<name> in <list>) { ... }
+abort {}                                   // stop this run of the rule
+log <trace | debug | info | warn | error> "<message>" [, <expr>, ...]
+```
 
-`attr`, `hasAttr`, `resource` and `scopeAttr` take any number of keys. A method can follow a function that returns
-a string, `attr("x").trim()`.
+- **`def` declares and `=` assigns.** `=` assigns a variable a `def` declared earlier in the rule's text and in scope
+  where the assignment stands, or a `segmentDef` of a native rule. A name nothing declares is a compile error, and so
+  is a value that does not fit the variable's type, the type of the value its declaration gave it. A later `def` of a
+  declared name assigns it too.
+- **Declaring before the branches.** A variable the branches of an `if` assign is declared before them. A `String`, a
+  `Layer` or an enum is declared with a typed `null`, `def owner = null as String`, `def callerLayer = null as Layer`;
+  it stays `null` on the paths that do not assign it. A number or a boolean is declared with a literal, `def
+  logicLatency = 0`, since `as Integer`, `as Long` and `as Boolean` turn `null` into `0` and `false`.
+- **Scopes.** A filter-level `def` is in scope inside the `extractor`. A `def` in a `foreach` body, in a native rule's
+  `build {}` block or in its `first {}` run declares a variable of that iteration, block or run; `=` assigns it there,
+  or assigns a variable of an enclosing scope. A `def` first given a value inside an `if` branch is `null` after it on
+  the paths that did not give it one.
+- **`foreach`.** `<list>` is a `java.util.List`, such as the native `span.refsList` or a list a function returns. The loop
+  variable is typed to the list's element type when the rule compiles, so `ref.parentService` is a compile-checked
+  chain. A `def` inside the body is declared again at each iteration and is not visible after the loop; a variable
+  declared before the loop and assigned inside it with `=` keeps its value across iterations. `foreach` is allowed
+  wherever `if` is. Indexing such as `span.refsList[0]` is not supported.
+- **`abort {}`** is allowed anywhere, and stops the whole run of the rule, the statements after the block it sits in
+  included. A statement after it in the same block could never run and is a compile error.
+- **`log`** writes the message through SLF4J under the logger `org.apache.skywalking.trace.analysis.script.<script>`,
+  the script being the rule file without its extension, such as
+  `org.apache.skywalking.trace.analysis.script.native-rpc`. Each `{}` is replaced by the next argument as SLF4J formats
+  it, and the arguments are evaluated only when the level is enabled. A function that logs, such as `parseStatusCode`,
+  logs under the calling rule's script logger; a function that calls other Java, such as the native naming functions,
+  logs as that Java logs, under its own class name.
 
-A span's attributes are indexed once per span, however many rules and lookups read them.
+Statements may be separated by `;` as well as by newlines.
 
 ### Expressions
 
-An expression starts with `span`, `meta`, a `def` variable, a function or a literal; any other first name, such as a
-misspelled `mta.kind`, is a compile error. A string literal is plain text in `"` or `'`: a backslash escapes only
-the quote, `'` and itself, so `"a\"b"` is the three characters `a"b` and `"C:\temp"` keeps its backslash, and there is
-no `\n` or `\t`. Numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are literals. A numeric field
-of `meta`, such as `meta.latency`, is a number, so `meta.latency + 1` adds.
+An expression starts with `span`, an input's own root such as the OTLP `meta`, a variable, a function or a literal;
+any other first name, such as a misspelled `mta.kind`, is a compile error. `span` is typed to the input's span when the
+rule compiles, so every getter chain after it is checked then. A string literal is plain text in `"` or `'`: a
+backslash escapes only the quote, `'` and itself, so `"a\"b"` is the three characters `a"b` and `"C:\temp"` keeps its
+backslash, and there is no `\n` or `\t`. Numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are
+literals. A numeric field, such as the OTLP `meta.latency`, is a number, so `meta.latency + 1` adds.
 
 A comparison is decided by the types of its two sides when the rule compiles. There is no implicit parse and no
 implicit `toString`; `as T` is the only conversion:
@@ -131,43 +130,82 @@ implicit `toString`; `as T` is the only conversion:
 | number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long` |
 | boolean and boolean, String and String, two values of one type | `==`, `!=` | equal values |
 | a value that can be absent and `null` | `==`, `!=` | a null check |
-| a value whose type is known only when the rule runs, such as `event(...)`, and a string literal | `==`, `!=` | equal values; an event never equals a string, so compare `event(...)` with `null` |
+| a `Layer` or an enum value and a string literal | `==`, `!=` | by name; the literal is checked when the rule compiles |
+| a value whose type is known only when the rule runs, such as the OTLP `event(...)`, and a string literal | `==`, `!=` | equal values; an event never equals a string, so compare `event(...)` with `null` |
 | anything else, such as `attr("x") > 400` or `meta.latency == "5"` | | a compile error naming both types |
 
-`attr(...)` returns a String, so `attr("http.response.status_code") as Integer >= 400` orders it as a number. An
-`as T` that cannot convert its value, `"abc" as Integer` or an absent attribute, makes that comparison false
-whatever the operator, so `!(attr("code") as Integer >= 400)` is true for a value that is not a number.
+A function that returns a String is ordered as a number with `as`: `attr("http.response.status_code") as Integer >=
+400`. An `as T` that cannot convert its value, `"abc" as Integer` or an absent attribute, makes that comparison false
+whatever the operator, so `!(attr("code") as Integer >= 400)` is true for a value that is not a number. A method can
+follow a function that returns a string, `attr("x").trim()`. `!` binds tighter than `&&` and `||`, as in Java.
 
-A `def` is one variable for the whole rule, declared by its first `def` and assigned by the later ones, so each value
-it is given has to fit the type its first value had. A filter-level `def` is in scope inside the `extractor`, and a
-`def` first given a value inside a branch is `null` after it on the paths that did not give it one.
+#### Typed `Layer` and enum values
+
+`as` converts a string to a `Layer`, or to an enum a source takes, such as `RequestType`, `DetectPoint`,
+`MQOperation`, `VirtualCacheOperation`, `TagType` and `GenAITraceRefType`:
+
+```text
+def calleeLayer = "VIRTUAL_CACHE" as Layer
+def type = "HTTP" as RequestType
+```
+
+`as Layer` looks the name up among the registered layers and fails on an unknown one; a literal is checked when the
+rule compiles, against the layers registered by then, those a file's `layerDefinitions` registers included. An enum
+literal is checked against the enum's constants. A `def` given a typed value has that type, so a misspelt name is a
+compile error where it is written, not a failure when its branch runs. `as Layer` and `as <Enum>` keep a literal `null`
+and give it the type.
 
 ### Extractor
 
 ```text
 extractor {
-  def <name> = <expr> [as <Type>]           // any value, including an entity from the metrics block
-  service | instance | endpoint | layer <expr>   // overwrite meta.*; also the record's standard fields
-  <field> <expr> [as <Type>]                // an output field of the outputType, see Output Type
-  tag '<key>': <expr>                       // appended to the stored span as a string attribute
-  prepareNetworkAlias <expr>                // CLIENT, or a one-span proxy's SERVER: the peer it dialed
-  buildNetworkAlias <expr>                  // SERVER: the alias address, composed from pairing.service and pairing.peer
-  metrics { ... }                           // see below
-  if (...) { ... } else if (...) { ... } else { ... }
-  abort {}                                  // stop this rule for this span; it writes nothing and votes nothing
+  <def / assignment / if / foreach / abort / log>
+  metrics { ... }                           // see below; inside build {} on sw-native
+  source <Name> { ... }                     // see below; inside build {} on sw-native
+  <the input's own statements and blocks>   // see the input's page
 }
 ```
 
-`abort {}` is allowed anywhere: at filter level and inside `extractor`, `sink` and `persist`, and it stops the whole
-rule, the statements after the block it sits in included. A statement after it in the same block could never run
-and is a compile error. An `extractor`, `sink` or `persist` block may sit
-inside a filter-level `if`, but not inside one another.
+An `extractor` may sit inside a filter-level `if`, and in a native rule's `first {}`, but not inside another
+`extractor` or an OTLP `persist {}`.
 
-### `metrics`
+## Functions for every input
+
+These functions are callable wherever a value goes, in a rule of any input. An input adds functions of its own, which
+its page lists, and a module can add more, see [Extension points](#extension-points).
+
+| Function | Returns |
+|---|---|
+| `formatServiceName(name)` | the service name after the core's length limit; `null` stays `null`; a truncation logs |
+| `formatInstanceName(name)` | the instance name after the length limit; a truncation logs |
+| `formatEndpointName(service, endpoint)` | the endpoint unchanged when either argument is empty; otherwise the name after the length limit and the [endpoint grouping](../setup/backend/endpoint-grouping-rules.md), which keeps per-service state |
+| `buildServiceId(name, normal)` | the service id, as `IDManager.ServiceID.buildId` builds it |
+| `matchGenAIModel(model)` | the match for the model's longest prefix in `gen-ai-config.yml`: `provider`, `unknown` when none or when the model is empty, and `pricing`, the matched model's `inputEstimatedCostPerM` and `outputEstimatedCostPerM`, `null` when no model matches |
+| `evaluationActive()`, `evaluationSampleRate()` | contributed by `ai-evaluation`, in a file that lists it under `requiredModules`: whether the module evaluates, false when its judge configuration is incomplete, and its `sampleRate`, the traces sampled out of 1,000,000 |
+| `buildInstanceId(serviceId, name)` | the instance id, as `IDManager.ServiceInstanceID.buildId` builds it |
+| `buildEndpointId(serviceId, name)` | the endpoint id, as `IDManager.EndpointID.buildId` builds it |
+| `minuteTimeBucket(millis)`, `recordTimeBucket(millis)` | the minute and the record (second) time bucket, in the JVM's time zone |
+| `round(double)` | the `long` nearest the value |
+| `cut(text, length)` | the text cut to at most `length` characters |
+| `isBlank(text)` | whether the text is `null`, or empty once trimmed |
+| `emptyList()`, `emptyMap()` | a new, empty, mutable list or map |
+| `isEmpty(list)` | whether the list is `null` or holds nothing |
+| `parseJsonObject(text)` | the text parsed as a JSON object, `null` for blank text; malformed or non-object text fails the rule. The getters that follow are Gson's, so their coercions and failures are Gson's |
+| `parseLongOrZero(text)`, `parseIntOrZero(text)` | `0` for `null` or empty text; the number; or `0` after the warning `Failed to parse value to long: {}` (`to int` for the second) under the script's logger, for text that does not parse |
+| `murmur3Hash(text)` | the first 64 bits of the murmur3-128 hash of the text's UTF-8 bytes, as a `long` |
+| `floorMod(x, y)` | the floor modulus of two `long` values, never negative for a positive `y` |
+| `parseStatusCode(text)` | the text as an `Integer`, or `null` after logging, under the script's logger, the warning `span {} has illegal status code {}` with the span and the text |
+| `urlHost(url)` | the authority of a URL, `host` or `host:port`, without scheme, user info, path, query or fragment; empty when the value has none, which a value without a `scheme://` prefix, such as a bare path, does not |
+| `toJson(expr)`, `toJsonArray(expr)` | the value as a JSON object or array, as in LAL |
+| `component(name)` | the component id from `component-libraries.yml`, matched exactly and then ignoring case, so `grpc` finds `GRPC` and `postgresql` finds `PostgreSQL`; `0`, the `Unknown` component, when nothing matches |
+| `isGateway(address)` | whether the address is listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md), matched exactly, a bare host also at port 80, the port the file gives an instance that names none; nothing is resolved, so every spelling and port the callers dial has to be listed. Always false when the `agent-analyzer` module is not loaded, and for an empty address. A change made through [dynamic configuration](../setup/backend/dynamic-config.md) applies to the next span |
+| `isNoUpstreamRealAddressAgent(componentId)` | whether the agent analyzer's `noUpstreamRealAddressAgents` lists the component, the agents, such as Nginx and Envoy, that cannot see the real remote address; false when the `agent-analyzer` module is not loaded |
+
+## `metrics`
 
 A `metrics {}` block declares one metric and emits one value for this span. The name, the function and the entity
 constructor are literals, so every metric a file declares is known when it compiles and its storage is created
-then.
+then. In an `otlp` rule it sits in the `extractor`; in a `sw-native` rule, inside `build {}`.
 
 ```text
 metrics {
@@ -181,7 +219,7 @@ metrics {
   [labelLimit n]                     // *Labeled functions only; the label sets one row keeps per minute, 50 by default
   [buckets [n, n, ...]]              // percentile only, required; whole numbers, ascending, in the unit of `value`
   [ranks [50, 75, 90, 95, 99]]       // percentile only; whole numbers in 1..100, ascending; this is the default
-  [timestamp <expr> [as <Type>]]     // milliseconds; default meta.startTime, the span's start, as the agent path buckets a call
+  [timestamp <expr> [as <Type>]]     // milliseconds; default the span's start, as the agent path buckets a call
 }
 ```
 
@@ -189,8 +227,8 @@ A numeric cast on `value` or `timestamp` converts before the number is taken, so
 reads `"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
 for instance, when they agree on its function, scope, buckets and ranks; any difference is a compile error. The same
 holds across rules and files, two files sharing a `metricPrefix` included: blocks of one stored name that disagree
-fail the rule that loads second, and so the boot. A label
-value is stored with `|` and `,` replaced by `_`, since those two characters separate the stored labels.
+fail the rule that loads second, and so the boot. A label value is stored with `|` and `,` replaced by `_`, since those
+two characters separate the stored labels.
 
 Every label set of a labeled metric is an entry in one stored row per entity per minute, so its labels should take a
 few values, as a status code or a method does, and never a URL, an id or a statement. A row keeps at most
@@ -209,10 +247,10 @@ rules, as a meter entity's does:
 | `serviceInstanceRelation(CLIENT \| SERVER, sourceService, sourceInstance, sourceLayer, destService, destInstance, destLayer, componentId)` | a call between two instances |
 
 A `layer` argument is a string expression. A name that is not registered skips the block, with one warning per
-name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one warning per metric, and the rule's later blocks still run. The value is read and the metric built before the
-block registers its entity, so a skipped block, one whose metric the meter system could not create included, writes
-no traffic. An entity held in a `def` has one
-shape: reassigning it with a different constructor is a compile error.
+name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one
+warning per metric, and the rule's later blocks still run. The value is read and the metric built before the block
+registers its entity, so a skipped block, one whose metric the meter system could not create included, writes no
+traffic. An entity held in a `def` has one shape: reassigning it with a different constructor is a compile error.
 
 The functions are the meter system's, named for what they do to the values of one minute:
 
@@ -230,188 +268,131 @@ The functions are the meter system's, named for what they do to the values of on
 With `cpm`, `percent` and `apdex` a TAL metric named like an agent metric holds the same number in the same unit, so
 an alarm rule or a dashboard widget written for `service_sla` ports to `otlp_service_sla` by renaming the metric.
 
-### Sink
+## Source (existing system adoption)
 
-`sink {}` persists the record the rule builds. A rule with an `outputType` needs one, and a `sink {}` in a rule with no
-`outputType` is a compile error. The record is written only when a `sink {}` ran, so `if (c) { sink {} }` writes it
-only for the spans where `c` holds. Its statements are spelled as LAL's, `sampler { rateLimit("<id>") { rpm <n> } }`,
-`dropper {}`, `enforcer {}` and `if`, but they vote rather than overwrite one another, see
-[Differences from LAL](#differences-from-lal). They decide a record or a span, so they are a compile error anywhere but
-inside `sink {}` or `persist {}`. A `rateLimit` budget is shared by id across every rule
-and span: the first rule to use an id sets its `rpm`. An id unused for ten minutes is forgotten, and beyond 10,000
-ids the least recently used is forgotten too, which bounds the ids a `${...}` placeholder makes; an id forgotten and
-used again starts with a fresh budget. `enforcer {}` keeps the record whatever the rule's samplers say, before it or
-after it; `dropper {}` drops it whatever an `enforcer {}` says, before it or after it.
-
-### Persist
-
-`persist {}` decides the fate of the span itself, with the same statements as `sink {}`. Storing the incoming span
-is the receiver's default and most rules only want metrics, so a rule without `persist {}` abstains. A rule with
-`persist {}` votes: `dropper {}` and an unsampled `rateLimit` vote drop, `enforcer {}` votes keep and marks the span
-enforced, past this rule's samplers before or after it but not past its `dropper {}`, and an empty `persist {}` votes
-keep. The span is stored when every rule that voted said keep and no span
-listener vetoed; a drop vote from one rule therefore beats an `enforcer {}` in another, and a rule that aborted did
-not vote.
-
-Two things follow from the span being the unit:
-
-- `rateLimit` counts spans, not traces: two spans of one trace can fall on different sides of the budget and a
-  stored trace can have spans missing. A rule that needs whole traces keys its decision on something every span of
-  the trace carries, or accepts partial traces.
-- `enforcer {}` also bypasses the receiver's head sampling. TAL votes before `otlpTraceSampleRate` is applied, and an
-  enforced span skips the trace-id check, the way a Zipkin `debug` span does. It does not skip
-  `otlpTraceMaxSpansPerSecond`, which stays the operator's ceiling. With `otlpTraceStorage: zipkin` the span is stored
-  as a Zipkin `debug` span instead, which the Zipkin receiver keeps past both its `sampleRate` and its
-  `maxSpansPerSecond`. The bypass is per span, so at a low sample rate an
-  enforced slow statement is stored while the rest of its trace may not be, and an `enforcer {}` on a broad condition
-  turns head sampling off for everything it matches; it belongs behind a condition that is rare by construction, an
-  error status or a latency threshold.
-
-## Output Type
-
-A rule that declares `outputType` builds one record per span and writes it after the rule has run, when a `sink {}` ran
-and kept it, see [Sink](#sink). Every extractor statement whose name is not a keyword becomes a setter call on the
-record, validated at compile time; the standard fields `service`, `instance`, `endpoint` and `layer` are taken from
-`meta`, so the `service` statement names the record's service.
-
-- A `TALOutputBuilder` name, `SlowSQL` for the `DatabaseSlowStatement` record. Its fields are `id`, `statement` and
-  `latency`; `traceId`, `timestamp` and `layer` come from `meta`. The record shows on the database's slow-statement
-  panel when the record's service is named and layered as the database node in the topology.
-- The fully qualified class name of a `TALOutputBuilder` implementation. Any other class, a plain `Source`
-  included, is refused when the rule loads.
-
-## Address-named peers
-
-A CLIENT span names its peer by what it dialed, `server.address` and `server.port`, and the callee names itself by
-`service.name`; nothing on the OTLP wire ties the two, since the trace context carries no address. Without help, a
-fleet that does not set `service.peer.name` gets `product-catalog:3550` beside `product-catalog` in the service list and
-in the topology. TAL folds the address onto the service from the trace context alone, by strict span pairing: a
-SERVER span's `parentSpanId` is the span id of the caller's span that made the call, so the caller's half and the
-callee's half of one call name the caller, the address it dialed and the service that answered. Nothing is inferred
-from a host name, a DNS label or a Kubernetes namespace.
+`source {}` hands one source of the existing system to the source receiver, which dispatches it by its scope: to the
+OAL engine, as the agent analysis builds it for `core.oal` and the other `.oal` files, or to the dispatcher a module
+declares for it. It exists so that an analysis can move to TAL without changing what the existing system computes
+from it: every metric named in `.oal` keeps its name, its function and its number, and a record such as
+`DatabaseSlowStatement` is stored as before. A new metric is declared with [`metrics {}`](#metrics) instead.
 
 ```text
-filter {
-  if (meta.kind == "SERVER") {
-    extractor { buildNetworkAlias callerScopedAddress(pairing.service, pairing.peer) }
-  }
-  if (meta.kind == "CLIENT") {
-    extractor {
-      def peer = attr("server.address") + ":" + attr("server.port")
-      prepareNetworkAlias peer
-      def peer = resolveNetworkAlias(callerScopedAddress(meta.service, peer))
-    }
-  }
+source <Name> {
+  <field> <expr> [as <Type>]
+  ...
 }
 ```
 
-- **`prepareNetworkAlias <peer>`** sends the caller half of a call, the span's service and the peer, to the trace's
-  owner. The half is keyed by the span's own id, so it pairs with the callee half of the SERVER span whose parent that
-  span is. A CLIENT span sends it, and so may a SERVER span that passed its own context to the upstream, as a proxy
-  reporting one span per request does: such a span sends its callee half for the hop from its caller, when it has one,
-  and a caller half for the hop to its upstream, see
-  [nginx](../setup/backend/otlp-trace-practices/gateway-nginx.md#with-the-opentelemetry-module). A PRODUCER or
-  CONSUMER span is ignored: a CONSUMER span's parent is the PRODUCER span, and pairing them would name the broker's
-  address after the consumer. Every call in the sampled share of traces sends its half,
-  and every pair that meets pushes its row; the row decides whether storage writes it, at once when the mapping
-  changed and once per five minutes when it did not, so an address that moves to another service is followed at its
-  next sampled call. A peer that never answers with a SERVER span, an external API or an uninstrumented service,
-  costs one message per sampled call, which waits out the buffer unmatched. The statement only names the peer: the
-  half is sent once the span's rules have run, by the first rule that was not aborted, as the callee half is, so an
-  `abort {}` anywhere in the rule withdraws it and a span sends at most one caller half.
-- **`buildNetworkAlias <address>`** marks a SERVER span with a remote parent as the callee half. The expression is
-  not evaluated on the span: it runs on the trace's owner when the two halves match, and reads the caller half only,
-  through `pairing`, a variable that exists only in this expression and is never declared with `def`:
-  `pairing.service` is the caller's `meta.service` and `pairing.peer` the value its `prepareNetworkAlias` sent. They
-  are joined with literals, `+` and `callerScopedAddress`. Reading anything else, such as `meta`, an attribute or
-  another field of `pairing`, or declaring `buildNetworkAlias` twice in one rule, is a compile error. The first rule
-  that claims the span and asks for an alias names the fact.
+- **`<Name>`** is the name OAL's `from()` gives the source, the `name` of its `@ScopeDeclaration`: `Service`,
+  `ServiceInstance`, `Endpoint`, `ServiceRelation`, `ServiceInstanceRelation`, `EndpointRelation`, `ServiceMeta`,
+  `EndpointMeta`, `DatabaseAccess`, `DatabaseSlowStatement`, `ServiceDatabaseSlowStatement`, `CacheAccess`,
+  `VirtualCacheSlowAccess`, `MQAccess`, `MQEndpointAccess`, `Segment`, `TagAutocomplete`, `GenAIProviderAccess`,
+  `GenAIModelAccess`, `GenAIEvaluationSample`, and any source a module declares. `GenAIEvaluationSample` is no OAL
+  source: `ai-evaluation`'s dispatcher queues the span it describes for the module's LLM judge and stores nothing.
+  Only a concrete source class with a public no-argument constructor qualifies; an unknown name is a compile error.
+- **Each field statement** calls the source's setter of that name, checked when the rule compiles. Keywords such as
+  `name`, `status`, `layer` and `endpoint` work as field names here, and set the source's field. The value is
+  converted to the setter's parameter type:
+  - a number, a boolean, a string or a byte array as it is;
+  - a `Layer` or an enum, such as `RequestType` or `DetectPoint`, as it is when the value already has that type (see
+    [Typed Layer and enum values](tal.md#typed-layer-and-enum-values)), and from its name when it is a string. A
+    literal name is checked when the rule compiles; any other string is converted when the rule runs, and a name that
+    matches nothing fails the rule;
+  - a `List` or `Map` field takes the list or map object as it is, such as
+    [`tagList()`](tal-sw-native.md#functions-of-the-native-input), without copying it.
 
-  > **Warning:** keep the address `callerScopedAddress(pairing.service, pairing.peer)`, as the shipped rule does.
-  > `resolveNetworkAlias(callerScopedAddress(...))` and the topology query both look the row up by
-  > `service->peer`, so any other address is built but never read. An address without the caller,
-  > such as `buildNetworkAlias pairing.peer`, is worse: it is the plain-address form the agent analyzer writes and
-  > the topology query falls back to for every caller, so it overwrites the agent's alias of that address, the last
-  > write winning, and hands a proxy's address to whichever service last answered behind it.
-- **`callerScopedAddress(service, peer)`** is `service->peer`, both parts formatted as the service names are. The
-  alias row is keyed by it, so one address dialed by two callers can name two services, as two namespaces' frontends
-  that both dial `cart:7070` reach their own carts.
-- **`resolveNetworkAlias(address)`** answers the service the row names, from the core's alias cache, which reloads
-  every 10 seconds; when no row is there yet it answers the peer part, so the edge stays address-named until the row
-  has been stored and reloaded, about 35 seconds after the first pair.
+  A field the block does not set keeps the source's constructor default: `null` for most objects, an empty list for
+  `Segment`'s tags.
+- **`timeBucket` is required**, `minuteTimeBucket(...)` for a metrics source and `recordTimeBucket(...)` for a record
+  such as `DatabaseSlowStatement`, as the agent analysis sets them. A `source {}` without it is a compile error.
+- **Nothing is formatted implicitly.** A name is stored as the expression gives it. A rule calls `formatServiceName`,
+  `formatInstanceName` and `formatEndpointName` where it needs the core's naming rules.
+- **The block holds field statements only.** A value that depends on a condition is computed into a `def` first.
+- **Where it is written.** On `otlp`, in the extractor: it is built and sent at its statement, as `metrics {}` is, so
+  an `abort {}` or a failure later in the rule leaves it sent. On `sw-native`, inside
+  [`build {}`](tal-sw-native.md#build): it is built and sent at its statement in the segment's build phase, so a later
+  failure in the same block leaves it sent.
 
-In a cluster the facts of one trace are routed to the node that owns the trace, so the two halves meet wherever each
-arrived; a share of the traces, `pairingSamplePercent`, is paired, see [the setup
-doc](../setup/backend/trace-analyzer.md#topology). Facts wait 60 seconds for their other half. A row is built for
-every matched pair except one whose peer is a gateway; a call to another replica of the caller is drawn as a loop; an address longer than the alias
-column's 200 characters is counted and logged, not built, and so is a pair whose callee's rule is missing on the
-owner or fails to compose the address. The row names no instance, and the last pair written wins.
+```text
+source ServiceMeta {
+  name db
+  layer "VIRTUAL_DATABASE"
+  timeBucket minuteTimeBucket(span.startTime)
+}
+```
 
-What the pairing costs, and what it cannot see:
+## Where each construct applies
 
-- **Each caller and peer is learned on its own.** A new caller of a known service is address-named until one of its
-  own calls is paired, about four calls at the default 25% sample. Metrics recorded before then stay under the
-  address-named relation; the topology query folds that node into the service once the row lands, since it asks for
-  the caller's own row before the plain address.
-- **The callee must be analyzed.** A callee that sends no spans, has no rule claiming its SERVER spans, or drops the
-  trace context leaves its callers address-named, which is the honest answer. An uninstrumented load balancer in front
-  of a fleet is listed in [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) instead.
-- **One tracer per hop.** When a mesh sidecar traces as well as the applications, the application's CLIENT span is the
-  parent of the sidecar's span, not of the callee's SERVER span, so no pair of analyzed spans meets. Trace each hop
-  once, or use the [service mesh](../setup/envoy/als_setting.md) topology for the mesh.
-- **Agent callers are not folded.** An agent-instrumented caller of an OTLP service registers no caller-scoped row,
-  and its address-named edge stays as the agent analyzer records it.
+An OTLP rule reads attributes and events, overwrites the span's metadata and votes on the stored span; a native rule
+reads tags and logs and makes its outputs in the segment's build phase. So the language keeps what every input has,
+and each input adds its own:
 
-The best practices walk through common deployments: [gateways and
-proxies](../setup/backend/otlp-trace-practices/gateway-overview.md), uninstrumented gateways and canary releases
-among them, and [message queues](../setup/backend/otlp-trace-practices/message-queue.md). Two namespaces of one
-application are shown under [Topology](../setup/backend/trace-analyzer.md#topology).
+| | `otlp` | `sw-native` |
+|---|---|---|
+| span | the OTLP `Span` | the native `SpanObject`, see [the native page](tal-sw-native.md#the-segment-and-its-spans) |
+| key and value data | `attr(key, ...)`, `hasAttr(key, ...)`: the span's attributes | `tag(key)`, `hasTag(key)`: the span's tags by name, the first of a repeated key; `tagMap()`: the same as a map; `span.tagsList`: the list |
+| events | `event(name)`, `eventAttr(name, key, ...)`: the span's events | `span.logsList`: the span's logs, each with `time` and `dataList` |
+| resource and scope | `resource(key, ...)`, `scopeAttr(key, ...)` | none: the agent reports its identity as the segment's `service` and `serviceInstance` |
+| constructs | the `meta` root and the statements that overwrite it (`service`, `instance`, `endpoint`, `layer`), `tag`, `persist {}`, `prepareNetworkAlias`, `buildNetworkAlias` and the `pairing` root | `build {}`, `first {}`, `segmentDef`, `writeNetworkAlias` |
+| functions | the [functions of the OTLP input](tal-otlp.md#functions-of-the-otlp-input) | the [functions of the native input](tal-sw-native.md#functions-of-the-native-input) |
 
-The topology query folds an address-named node into the service an alias names, the caller's own row first and the
-plain address second. It folds a node that is not a registered service, or a self-call whose alias names another
-service, the shape a caller that dials its downstream by its own service name records until the downstream's alias
-lands. Other registered nodes keep their own names even when the name equals some alias address, as an OTLP
-`frontend` does while an agent has registered the host `frontend` for `agent::frontend`.
+Every input has `def`, assignment, `if`, `foreach`, `abort {}`, `log`, typed `Layer` and enum values, `metrics {}`,
+`source {}`, `requiredModules`, and the [functions for every input](#functions-for-every-input). A construct or a function that a
+rule's input does not have is a compile error that names the inputs it belongs to, such as `tag() is a function of the
+inputs [sw-native], not of this rule's inputType otlp`. The rules compile at boot, so the misuse fails the boot with
+that message and the rule's name.
 
-An address listed in the agent analyzer's [uninstrumented gateways](../setup/backend/uninstrumented-gateways.md) is
-never built by a pair either. The shipped rule does not resolve such a peer: when `isGateway` says
-it is one, the gateway stays a `virtual gateway` node of its own, as on the agent path, which the caller's edge ends on
-and the callee's edge starts from. `isGateway` has these limits:
+## Extension points
 
-- It matches the address exactly as `gateways.yml` lists it, `host:port`, with a bare host tried at port 80, the port
-  the file assumes for an instance that names none. Nothing is resolved or folded the way `resolveNetworkAlias` does it: a
-  gateway listed as `ingress:80` is not `ingress.default.svc.cluster.local:80`, `10.0.0.5:80` or `ingress:443`, so
-  every spelling and port the callers dial has to be listed.
-- A peer named by `service.peer.name` is a name, not an address, and is a gateway only if that name is listed as a
-  host at port 80.
-- The callee's SERVER span sees the gateway's address only when the gateway passes its callers' `Host` through, or
-  sets `X-Forwarded-Host` for an SDK that reads it. A gateway that rewrites the `Host` to the upstream's still ends
-  its callers' edges, but no edge leaves it; see [Topology](../setup/backend/trace-analyzer.md#topology) in the
-  operator guide. A root SERVER span draws no edge from the gateway either: the trace context says nobody called
-  it, so its call is `User`'s, as on the agent path.
-- The shipped rule draws a listed peer as a gateway for any CLIENT span except a database or messaging one, gRPC
-  included. The agent path does that for HTTP exit spans only.
-- It is always false when the `agent-analyzer` module is not loaded, since that module owns `gateways.yml`. A change
-  made through [dynamic configuration](../setup/backend/dynamic-config.md) applies to the next span.
+Two interfaces open TAL to a module, its own or a third party's on the classpath, and a module takes an output of its
+own as a source:
 
-The source of a client edge is always the span's own `service.name`; a span emitted under a pseudo-service named after a backend, as HotROD's `mysql` spans are, is described under [Topology](../setup/backend/trace-analyzer.md#topology) in the operator guide.
+- **`TALSourceTypeProvider`** (`trace-analyzer`) is the bridge between TAL and an input, and the point an input is
+  extended at. `alias()` is the name a rule writes in `inputType`, and `inputType()` the Java type of its span, whose
+  getters the `span` root reads. `constructs()` lists the constructs the input adds. The provider's own public methods
+  whose first parameter is the run are the input's functions, named in the input's own words, such as `attr` and
+  `tag`. `helperFunctions()` hands the kernel the helper function implementations its rules call beside them: each a
+  `TALFunctionProvider` that must serve the input; the shipped inputs both hand over the [functions for every
+  input](#functions-for-every-input). A provider is found through
+  `META-INF/services/org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider`.
+- **`TALFunctionProvider`** (`server-core`) adds functions. It names its module, which must be loaded for its
+  functions to be bound, and states the inputs it serves with `supportsInputType(inputType)`, which every
+  provider implements. Its public methods are the functions; a method whose first parameter is a
+  `TALFunctionContext` receives the run there. A module's providers are found through
+  `META-INF/services/org.apache.skywalking.oap.server.core.source.TALFunctionProvider` and bound once its module has
+  started; `ai-evaluation`'s, for instance, gives rules `evaluationActive()` and `evaluationSampleRate()`.
+- **A source and its dispatcher.** A rule writes an output with [`source {}`](#source-existing-system-adoption). A
+  module that takes an output of its own declares the source class in `server-core`, with a `@ScopeDeclaration` whose
+  id `DefaultScopeDefine` holds, and a `SourceDispatcher` of it in an `org.apache.skywalking` package, which the source
+  receiver finds by scanning the classpath and calls on the rule's thread. `ai-evaluation`'s dispatcher takes
+  `GenAIEvaluationSample`.
+
+The compiler resolves a call by name and the rule's input, then by argument count, a fixed count before a
+variable-length tail, then among overloads of that count by how well each argument's compile-time type fits its
+parameter: the same type fits best, then a supertype, then any numeric widening, all widenings alike, then a scalar
+conversion. It types the result from the chosen method's return type. A call that two overloads fit equally well, such
+as `f(1)` against `f(long)` and `f(double)`, is a compile error until an `as` settles it, and so is one no overload
+fits. A function name that two classes serve for one input fails the boot, among an input's own functions, its
+helpers and the modules' providers, and so does one that takes an entity constructor's name, such as `service`. A
+function object is stateless across runs and safe to call from every receiver thread.
 
 ## Differences from LAL
 
 - No parser blocks. `text {}`, `json {}` and `yaml {}` give a log body structure; a span is already structured.
-- No `traceId`, `segmentId`, `spanId` or `timestamp` statements. The identifiers are facts of the span, readable as
-  `meta.traceId` and friends.
+- No `traceId`, `segmentId`, `spanId` or `timestamp` statements. The identifiers are facts of the span, readable
+  through `span` and the input's own roots.
 - `abort {}` is allowed anywhere.
-- `tag` injects into the stored span, not into a record.
-- `prepareNetworkAlias`, `buildNetworkAlias`, `callerScopedAddress` and `resolveNetworkAlias` exist, see above.
+- `def` declares, `=` assigns, and `foreach` loops over a list.
 - `metrics {}` declares a metric and emits one value; it does not hand a sample to another engine.
-- `persist {}` is new and decides the span's own fate. `sink {}` needs an `outputType`.
-- The statements in `sink {}` and `persist {}` vote: `dropper {}` wins over `enforcer {}`, and `enforcer {}` over the
-  samplers, in either order. In LAL every one of them overwrites the decision, so the last to run wins.
-- The record is written once, after the rule has run, when any `sink {}` ran and the votes keep it. A LAL rule writes
-  its output when its `sink {}` block ends.
+- No `sink {}` and no `outputType`: a rule writes a record as a [`source {}`](#source-existing-system-adoption), sent
+  at its statement. A LAL rule writes its output when its `sink {}` block ends.
+- Each input adds its own blocks: on OTLP, `tag` injects into the stored span rather than into a record, and
+  `persist {}` decides the span's own fate with LAL's sink statements, which vote rather than overwrite one another; on
+  the native input, `build {}`, `first {}` and `segmentDef`. See the inputs' pages.
 - Statements may be separated by `;` as well as by newlines, so a `metrics {}` block fits on one line.
 - `!` binds tighter than `&&` and `||`, as in Java: `!peer && hasAttr("x")` reads as `(!peer) && hasAttr("x")`.
-- More words are keywords: `persist`, `prepareNetworkAlias`, `buildNetworkAlias`, `scope`, `function`, `match`, `status`, `labelLimit`, `buckets`,
-  `ranks`, `span`, `meta`, `CLIENT` and `SERVER`. They still work as field names and label keys, `labels status: ...`, but not as a
-  `def` name, so `def status = ...` is a syntax error.
+- More words are keywords: `persist`, `prepareNetworkAlias`, `buildNetworkAlias`, `scope`, `function`, `match`,
+  `status`, `labelLimit`, `buckets`, `ranks`, `source`, `foreach`, `in`, `build`, `first`, `segmentDef`,
+  `writeNetworkAlias` and `log`. They still work as field names and label keys, `labels status: ...`, but not as a
+  `def` name, so `def status = ...` is a syntax error. `span`, `meta`, `CLIENT` and `SERVER` are keywords too, and work
+  as none of these.

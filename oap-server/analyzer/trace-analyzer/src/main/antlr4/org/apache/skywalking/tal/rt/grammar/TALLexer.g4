@@ -24,7 +24,6 @@ lexer grammar TALLexer;
 // Keywords - block structure
 FILTER:         'filter';
 EXTRACTOR:      'extractor';
-SINK:           'sink';
 PERSIST:        'persist';
 ABORT:          'abort';
 
@@ -37,6 +36,17 @@ TAG:            'tag';
 METRICS:        'metrics';
 PREPARE_NETWORK_ALIAS: 'prepareNetworkAlias';
 BUILD_NETWORK_ALIAS:   'buildNetworkAlias';
+// `build`, `first`, `segmentDef` and `writeNetworkAlias` belong to the sw-native input; `source`, `foreach`, `in` and
+// `log` to every input. Each still works as a field name and a label key through anyIdentifier, and no longer as a def
+// name.
+SOURCE:         'source';
+FOREACH:        'foreach';
+IN:             'in';
+BUILD:          'build';
+FIRST:          'first';
+SEGMENT_DEF:    'segmentDef';
+WRITE_NETWORK_ALIAS: 'writeNetworkAlias';
+LOG:            'log';
 
 // Keywords - metrics block
 NAME:           'name';
@@ -55,7 +65,7 @@ TIMESTAMP:      'timestamp';
 CLIENT:         'CLIENT';
 SERVER:         'SERVER';
 
-// Keywords - sink and persist statements
+// Keywords - persist statements
 SAMPLER:        'sampler';
 RATE_LIMIT:     'rateLimit';
 RPM:            'rpm';

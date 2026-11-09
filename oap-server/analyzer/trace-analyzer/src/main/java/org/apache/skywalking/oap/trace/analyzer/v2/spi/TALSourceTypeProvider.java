@@ -17,67 +17,67 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.spi;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
+import java.util.Set;
+import org.apache.skywalking.oap.server.core.source.TALFunctionProvider;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
 
 /**
- * SPI for a receiver plugin to contribute one input kind a TAL rule may declare in {@code inputType}.
+ * The bridge between TAL and one input a rule may declare in {@code inputType}, and the point an input is extended at.
+ * TAL asks every input the same questions, and each answers in its own concepts: the OTLP span reads attributes,
+ * events, a resource and a scope and builds through span metadata; the native span reads tags and logs and builds the
+ * agent analysis's sources from the segment.
  *
  * <p>The compiler resolves a rule's {@code inputType} entry against the registered aliases first and against the
  * declared {@link #inputType()} class name second, then types the {@code span} root to that class and resolves its
- * getter chains by reflection. At runtime the same provider reads the attributes the {@code attr()},
- * {@code scopeAttr()}, {@code event()} and {@code eventAttr()} functions expose, which is why a rule written
- * against {@code meta} and {@code attr()} runs unchanged on every input.
+ * getter chains by reflection. It checks every construct and function a rule uses against the input's, and names the
+ * inputs a misused one belongs to.
  *
- * <p>The trace-analyzer module registers the OTLP provider, the only input this release ships.
- * Implementations are discovered through {@link java.util.ServiceLoader} from
+ * <p>An input's functions are its provider's own public methods whose first parameter is the run, the
+ * {@code TalRuntimeHelper}: what the input's rules read its data with and build with, named in the input's own words,
+ * such as {@code attr} on an OTLP span and {@code tag} on a native one. Beside them, it hands the kernel the helper
+ * functions its rules call, {@link #helperFunctions()}. Its data is read through its span, the {@link #inputType()};
+ * the services a function needs are reached once, in {@link #bind}, or through the run's {@code FilterSpec}.
+ *
+ * <p>The trace-analyzer module registers the OTLP provider and the native one, {@code sw-native}. Implementations are
+ * discovered through {@link java.util.ServiceLoader} from
  * {@code META-INF/services/org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider}.
  */
 public interface TALSourceTypeProvider {
     /**
-     * @return the short name a rule writes in {@code inputType}, such as {@code otlp}
+     * @return the short name a rule writes in {@code inputType}, such as {@code otlp} or {@code sw-native}
      */
     String alias();
 
     /**
-     * @return the Java type of the object the receiver hands to
-     * {@code ITraceAnalyzerService#doAnalysis}, which the {@code span} root is typed to
+     * @return the Java type of the span the rule reads, which the {@code span} root is typed to
      */
     Class<?> inputType();
 
     /**
-     * Read the span's own attributes. The runtime indexes them once per execution and serves every {@code attr()}
-     * and {@code hasAttr()} of that execution from the index.
+     * @return the constructs this input's rules may use beyond those of the language every input has: what the input
+     * builds with
+     */
+    Set<TALConstruct> constructs();
+
+    /**
+     * The helper function implementations this input's rules call beside the provider's own functions, such as the
+     * logic and configuration functions the shipped inputs share. Each serves the inputs its
+     * {@link TALFunctionProvider#supportsInputType} accepts, every input or a specific one, and must accept this one.
+     * A function name has one owner per input, among the provider's own functions, these helpers and the modules'
+     * providers.
      *
-     * @param input the span, an instance of {@link #inputType()}
-     * @return the attributes with their values rendered as strings; an absent key is absent from the map
+     * @return the helpers, bound once when the rules compile
      */
-    Map<String, String> spanAttributes(Object input);
+    List<TALFunctionProvider> helperFunctions();
 
     /**
-     * @param input the span, an instance of {@link #inputType()}
-     * @return the instrumentation scope's attributes, empty for an input that has no scope
+     * Reach the services the input's functions read, once, when the function registry is bound in the trace
+     * analyzer's {@code start()}, so a function call reads a field rather than looking a service up.
+     *
+     * @param moduleManager the module manager; null for the default registry a unit test compiles against, which
+     *                      starts no module
      */
-    default Map<String, String> scopeAttributes(Object input) {
-        return Collections.emptyMap();
-    }
-
-    /**
-     * @param input the span, an instance of {@link #inputType()}
-     * @param name  the event name to look for
-     * @return the first event with that name, or null; the engine passes it to the rule without reading it
-     */
-    default Object event(Object input, String name) {
-        return null;
-    }
-
-    /**
-     * @param input     the span, an instance of {@link #inputType()}
-     * @param eventName the event to look in
-     * @param key       the attribute to read
-     * @return the attribute's value as a string, empty when the event or the attribute is absent
-     */
-    default String eventAttribute(Object input, String eventName, String key) {
-        return "";
+    default void bind(ModuleManager moduleManager) {
     }
 }

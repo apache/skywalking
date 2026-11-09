@@ -75,11 +75,32 @@ public interface TALRootResolver {
     void generateInputRootAccess(StringBuilder sb, List<? extends TALValueAccessSegment> chain, TALGenCtx ctx);
 
     /**
-     * @param functionName the built-in being called
-     * @return the type that built-in returns, so arithmetic and comparisons around it are typed rather than
+     * @param call the function call, whose arguments choose among a contributed function's overloads
+     * @param ctx  the generation context
+     * @return the type the function returns, so arithmetic and comparisons around it are typed rather than
      * falling back to string concatenation; null when the DSL does not know the name
      */
-    default ExprType functionReturnType(final String functionName) {
+    default ExprType functionReturnType(final TALValueAccess call, final TALGenCtx ctx) {
+        return null;
+    }
+
+    /**
+     * @param call the function call
+     * @param ctx  the generation context
+     * @return the class an {@link ExprType#OBJECT} function returns, so a method or field can follow it and a def
+     * holding it is typed; null when unknown
+     */
+    default Class<?> functionReturnClass(final TALValueAccess call, final TALGenCtx ctx) {
+        return null;
+    }
+
+    /**
+     * @param call the function call
+     * @param ctx  the generation context
+     * @return the element type when the function returns a generic {@code List}, so a {@code foreach} can walk it;
+     * null otherwise
+     */
+    default Class<?> functionReturnElementType(final TALValueAccess call, final TALGenCtx ctx) {
         return null;
     }
 

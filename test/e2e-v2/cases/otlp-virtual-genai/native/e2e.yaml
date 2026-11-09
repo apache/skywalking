@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# The GenAI OTLP case with receiver-otel.otlpTraceStorage: otlp. The GenAI and AI evaluation span listeners read
-# the native OTLP span here instead of its Zipkin conversion, and the Zipkin modules stay off.
+# The GenAI OTLP case with receiver-otel.otlpTraceStorage: otlp. The GenAI span listener and the otlp-ai-evaluation
+# TAL rule read the native OTLP span here instead of its Zipkin conversion, and the Zipkin modules stay off.
 
 setup:
   env: compose

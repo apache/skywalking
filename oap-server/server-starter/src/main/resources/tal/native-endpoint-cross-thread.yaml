@@ -1,0 +1,133 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# EndpointDepFromCrossThreadAnalysisListener, as a TAL rule for spans that SkyWalking agents send.
+#
+# An exit or local span with references, such as the first span of a task another thread started, draws the endpoint
+# dependency from each reference's endpoint to the span. One queued build {} is one EndpointDependencyBuilder.
+
+rules:
+  - name: native-endpoint-cross-thread
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!traceAnalysis() || !(span.spanType == "Exit" || span.spanType == "Local")
+            || span.skipAnalysis) {
+          abort {}
+        }
+        extractor {
+          // identifyServiceLayer: FAAS for a FaaS span, GENERAL for any other
+          def calleeLayer = "GENERAL" as Layer
+          if (span.spanLayer == "FAAS") {
+            calleeLayer = "FAAS" as Layer
+          }
+          // Without a reference there is no builder; every reference type counts
+          foreach (ref in span.refsList) {
+            // One builder per reference: the owner fields stay null outside the MQ and gateway branch
+            def callerEndpoint = "User"
+            def caller = null as String
+            def callerInstance = null as String
+            def callerLayer = null as Layer
+            def owner = null as String
+            def ownerLayer = null as Layer
+            if (ref.parentEndpoint) {
+              callerEndpoint = ref.parentEndpoint
+            }
+            if (span.spanLayer == "MQ" || isGateway(ref.networkAddressUsedAtPeer)) {
+              caller = ref.networkAddressUsedAtPeer
+              callerLayer = "VIRTUAL_GATEWAY" as Layer
+              if (span.spanLayer == "MQ") {
+                caller = clusterNameOrAddress(ref.networkAddressUsedAtPeer)
+                callerLayer = "VIRTUAL_MQ" as Layer
+              }
+              callerInstance = caller
+              owner = ref.parentService
+              ownerLayer = "GENERAL" as Layer
+            } else {
+              caller = ref.parentService
+              callerInstance = ref.parentServiceInstance
+              callerLayer = "GENERAL" as Layer
+            }
+
+            // This listener's own setPublicAttrs: HTTP code NONE (0), every tag, the status. It sets no type and no
+            // RPC status code, so both stay null even when the span carries status tags.
+            def bucket = minuteTimeBucket(span.startTime)
+            def latency = (span.endTime - span.startTime) as Integer
+            def tags = tagList()
+            def originalTags = tagMap()
+            def ok = true
+            if (span.isError) {
+              ok = false
+            }
+
+            build {
+              // RPCTrafficSourceBuilder#prepare, through EndpointDependencyBuilder#prepare
+              caller = formatServiceName(caller)
+              owner = formatServiceName(owner)
+              callerInstance = formatInstanceName(callerInstance)
+              callerEndpoint = formatEndpointName(caller, callerEndpoint)
+              def callee = formatServiceName(segment().service)
+              def calleeInstance = formatInstanceName(segment().serviceInstance)
+              def calleeEndpoint = formatEndpointName(callee, span.operationName)
+
+              // EndpointDependencyBuilder#toSourceEndpoint: the caller service, never the endpoint's owner
+              source EndpointMeta {
+                serviceName caller
+                serviceNormal callerLayer.isNormal()
+                endpoint callerEndpoint
+                timeBucket bucket
+              }
+              // No FaaS exclusion here, unlike RPCAnalysisListener
+              source Endpoint {
+                name calleeEndpoint
+                serviceName callee
+                serviceLayer calleeLayer
+                serviceInstanceName calleeInstance
+                latency latency
+                status ok
+                httpResponseStatusCode 0
+                tags tags
+                originalTags originalTags
+                timeBucket bucket
+              }
+              if (callerEndpoint && calleeEndpoint) {
+                def relationService = caller
+                def relationLayer = callerLayer
+                if (owner != null) {
+                  relationService = owner
+                  relationLayer = ownerLayer
+                }
+                source EndpointRelation {
+                  endpoint callerEndpoint
+                  serviceName relationService
+                  serviceLayer relationLayer
+                  serviceInstanceName callerInstance
+                  childEndpoint calleeEndpoint
+                  childServiceName callee
+                  childServiceLayer calleeLayer
+                  childServiceInstanceName calleeInstance
+                  componentId span.componentId
+                  rpcLatency latency
+                  status ok
+                  httpResponseStatusCode 0
+                  detectPoint "SERVER"
+                  timeBucket bucket
+                }
+              }
+            }
+          }
+        }
+      }

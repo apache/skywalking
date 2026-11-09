@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.trace.analyzer.v2.module;
 
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFilterListener;
@@ -43,6 +44,8 @@ public class TraceAnalyzerModule extends ModuleDefine {
             RateLimitingSamplers.class,
             // The client and server spans waiting for their other half, which builds an alias per call pair.
             SpanPairing.class,
+            // The segments SkyWalking agents send, analyzed by the native rules.
+            ISegmentParserService.class,
         };
     }
 }

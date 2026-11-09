@@ -32,12 +32,21 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
     private String talPath = "tal";
 
     /**
-     * TAL rule files under {@link #talPath}, without extension, comma separated. Empty turns span analysis off
-     * while keeping the module, which the receivers require.
+     * TAL rule files under {@link #talPath}, without extension, comma separated, as {@code application.yml} lists
+     * them. Empty turns span analysis off while keeping the module, which the receivers require.
      */
     @Getter
     @Setter
-    private String talFiles = "otlp-general";
+    private String talFiles;
+
+    /**
+     * TAL rule files under {@link #talPath} for spans that SkyWalking agents send, without extension, comma
+     * separated, in the order their rules run, as {@code application.yml} lists them. Every rule declares
+     * {@code inputType: sw-native}. A listed file that does not exist fails the boot.
+     */
+    @Getter
+    @Setter
+    private String nativeTalFiles;
 
     /**
      * Seconds. Spans seen within this window are analyzed once, so an exporter retrying a batch after a transport
@@ -71,5 +80,9 @@ public class TraceAnalyzerModuleConfig extends ModuleConfig {
 
     public List<String> talFiles() {
         return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(Strings.nullToEmpty(getTalFiles()));
+    }
+
+    public List<String> nativeTalFiles() {
+        return Splitter.on(",").omitEmptyStrings().trimResults().splitToList(Strings.nullToEmpty(getNativeTalFiles()));
     }
 }

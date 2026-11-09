@@ -1,0 +1,120 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# SegmentAnalysisListener, as a TAL rule for spans that SkyWalking agents send: the trace itself, one Segment
+# record per sampled segment, and a TagAutocomplete row per stored tag.
+#
+# parseSegment runs before every span callback. The runner does that work before any rule runs, in its order, and
+# the rules read the results with segmentStartTime() and segmentLatency() (the fold over every span),
+# segmentIsError() (the error fold under segmentStatusAnalysisStrategy), segmentTags() (the tags
+# core.searchableTracesTags picks, which the record stores), and segmentSampled() (the sampling policy's
+# decision, or an error segment under forceSampleErrorSegment). The segmentDef variables are the listener's fields.
+
+rules:
+  - name: native-segment
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        // parseFirst: on every span whose id is 0, before any rule's regular run on that span, whatever its type
+        first {
+          if (segmentSampled()) {
+            // The service name and id are computed once per segment, by the first callback that needs them
+            if (serviceId == null) {
+              segmentDef serviceName = formatServiceName(segment().service)
+              segmentDef serviceId = buildServiceId(serviceName, true)
+            }
+            // The record's fields, set in parseFirst's order; a later span 0 sets them again
+            segmentDef recordBucket = recordTimeBucket(segmentStartTime())
+            segmentDef segmentId = segment().traceSegmentId
+            segmentDef serviceInstanceId = buildInstanceId(serviceId, formatInstanceName(segment().serviceInstance))
+            segmentDef errorValue = 0
+            if (segmentIsError()) {
+              errorValue = 1
+            }
+            segmentDef dataBinary = segmentBytes()
+            segmentDef endpointId = buildEndpointId(serviceId, formatEndpointName(serviceName, span.operationName))
+          }
+        }
+
+        // parseEntry: every entry span names the segment's endpoint, sampled or not, and skipAnalysis or not. A span
+        // 0 later in wire order renames it in first {}.
+        if (span.spanType == "Entry") {
+          extractor {
+            // The segment variables first {} declares, assigned again
+            if (serviceId == null) {
+              serviceName = formatServiceName(segment().service)
+              serviceId = buildServiceId(serviceName, true)
+            }
+            endpointId = buildEndpointId(serviceId, formatEndpointName(serviceName, span.operationName))
+          }
+        }
+
+        // build(): queued once per segment, by the run on its first span in wire order, whatever the span's type. The
+        // block reads the segmentDef values as they are after the last span.
+        if (buildQueued == null) {
+          segmentDef buildQueued = true
+          extractor {
+            build {
+              if (!segmentSampled()) {
+                log debug "segment ignored, trace id: {}", segment().traceId
+              } else {
+                // segmentId is null when no span 0 ran parseFirst, and the Java logs it as null too
+                log debug "segment listener build, segment id: {}", segmentId
+                def recordEndpointId = endpointId
+                if (recordEndpointId == null) {
+                  recordEndpointId = ""
+                }
+                // The record's start time: the fold's start when parseFirst ran, the field's default 0 otherwise
+                def recordStart = 0L
+                if (segmentId != null) {
+                  recordStart = segmentStartTime()
+                  source Segment {
+                    segmentId segmentId
+                    traceId segment().traceId
+                    serviceId serviceId
+                    serviceInstanceId serviceInstanceId
+                    endpointId recordEndpointId
+                    latency segmentLatency()
+                    startTime segmentStartTime()
+                    timeBucket recordBucket
+                    isError errorValue
+                    dataBinary dataBinary
+                    tags segmentTags()
+                  }
+                } else {
+                  // No span 0: parseFirst never ran, so only what parseSegment and parseEntry set; the other fields
+                  // keep the record's defaults, the time bucket 0 among them
+                  source Segment {
+                    traceId segment().traceId
+                    endpointId recordEndpointId
+                    timeBucket 0
+                    tags segmentTags()
+                  }
+                }
+                // addAutocompleteTags: the minute of the record's start time, minuteTimeBucket(0) without span 0
+                foreach (recordTag in segmentTags()) {
+                  source TagAutocomplete {
+                    tagKey recordTag.key
+                    tagValue recordTag.value
+                    tagType "TRACE"
+                    timeBucket minuteTimeBucket(recordStart)
+                  }
+                }
+              }
+            }
+          }
+        }
+      }

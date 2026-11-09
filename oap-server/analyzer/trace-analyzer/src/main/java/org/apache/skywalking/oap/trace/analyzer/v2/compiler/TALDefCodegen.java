@@ -17,18 +17,31 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
+import org.apache.skywalking.oap.server.core.source.DetectPoint;
+import org.apache.skywalking.oap.server.core.source.MQOperation;
+import org.apache.skywalking.oap.server.core.source.RequestType;
+import org.apache.skywalking.oap.server.core.source.VirtualCacheOperation;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALDefStatement;
-
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFieldSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFunctionArg;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALIndexSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALMethodSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccess;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccessSegment;
-
-import java.util.List;
-import java.lang.reflect.Method;
+import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALConstruct;
 
 /**
  * Code generation for TAL {@code def} local variable declarations and
@@ -64,6 +77,25 @@ import java.lang.reflect.Method;
  * by design; see {@link TALValueCodegen}.
  */
 public final class TALDefCodegen {
+    /**
+     * A string literal of one identifier, as the generated code writes it: a name a literal {@code as Layer} or
+     * {@code as <Enum>} can be resolved for once.
+     */
+    private static final Pattern LITERAL_NAME = Pattern.compile("\"([A-Za-z_][A-Za-z0-9_]*)\"");
+
+    /**
+     * The simple names {@code as} accepts for {@code Layer} and the enums the OAL sources take; any other enum is
+     * named by its class name.
+     */
+    private static final Map<String, Class<?>> TYPED_VALUE_CLASSES = Map.of(
+        "Layer", Layer.class,
+        "RequestType", RequestType.class,
+        "DetectPoint", DetectPoint.class,
+        "MQOperation", MQOperation.class,
+        "VirtualCacheOperation", VirtualCacheOperation.class,
+        "TagType", TagType.class,
+        "GenAITraceRefType", GenAITraceRefType.class
+    );
 
     private TALDefCodegen() {
         // utility class
@@ -94,13 +126,53 @@ public final class TALDefCodegen {
     public static void generateDefStatement(final StringBuilder sb,
                                       final TALDefStatement def,
                                       final TALGenCtx genCtx) {
+        generateValueStatement(sb, def, genCtx, true);
+    }
+
+    /**
+     * Generates a plain assignment, {@code <name> = <expr>}, to a variable a def declared earlier in the rule and
+     * still in scope, or a segmentDef. It never declares: a name nothing declares is a compile error.
+     */
+    public static void generateAssignStatement(final StringBuilder sb,
+                                               final TALDefStatement assign,
+                                               final TALGenCtx genCtx) {
+        generateValueStatement(sb, assign, genCtx, false);
+    }
+
+    /**
+     * {@code segmentDef <name> = <expr>}: assigns the rule's variable of the segment, which every generated method
+     * reads from the segment's array when it starts, see {@link TALGenCtx#beginMethod}, and which every assignment
+     * writes back to it. The value's type is what the next generation of the rule declares the variable as.
+     */
+    public static void generateSegmentDefStatement(final StringBuilder sb,
+                                                   final TALScriptModel.SegmentDefStatement def,
+                                                   final TALGenCtx genCtx) {
+        TALInputs.require(TALConstruct.SEGMENT_DEF, genCtx.inputAlias);
+        generateValueStatement(sb, def, genCtx, false);
+    }
+
+    private static void generateValueStatement(final StringBuilder sb,
+                                               final TALDefStatement def,
+                                               final TALGenCtx genCtx,
+                                               final boolean mayDeclare) {
         final TALValueAccess init = def.getInitializer();
         final String varName = def.getVarName();
-        final String javaVar = "_def_" + varName;
         final TALLocalVar previous = genCtx.localVars.get(varName);
+        if (previous == null && !mayDeclare) {
+            throw new IllegalArgumentException(
+                "'" + varName + " = ...' assigns a variable that no def or segmentDef declares before it in scope; "
+                    + "declare it with def " + varName + " = ...");
+        }
+        if (mayDeclare && previous != null && previous.segmentSlot >= 0) {
+            throw new IllegalArgumentException(
+                "def " + varName + " names the rule's segmentDef " + varName + "; a name is a def or a segmentDef, "
+                    + "so assign it with " + varName + " = ...");
+        }
 
         // Determine type and generate initializer expression
         Class<?> resolvedType;
+        Class<?> elementType = null;
+        String entityScope = null;
         final StringBuilder initExpr = new StringBuilder();
 
         if (init.getFunctionCallName() != null
@@ -108,6 +180,7 @@ public final class TALDefCodegen {
             // An entity held in a def has a compile-time scope type, so `scope svc` always has one shape and
             // reassigning the variable with a different constructor is caught here rather than at runtime.
             final String scopeType = TALBlockCodegen.appendEntityConstructor(initExpr, init, genCtx);
+            entityScope = scopeType;
             final String previousScope = genCtx.entityScopeTypes.put(varName, scopeType);
             if (previousScope != null && !previousScope.equals(scopeType)) {
                 throw new IllegalArgumentException(
@@ -116,37 +189,21 @@ public final class TALDefCodegen {
             }
             resolvedType = MeterEntity.class;
         } else if (init.getFunctionCallName() != null
-                && TALCodegenHelper.BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
-            // Built-in function: toJson(...), toJsonArray(...)
-            final String funcName = init.getFunctionCallName();
-            final int argCount = init.getFunctionCallArgs().size();
-            if (argCount != 1) {
-                throw new IllegalArgumentException(
-                    funcName + "() requires exactly 1 argument, got " + argCount);
-            }
-            final Object[] info = TALCodegenHelper.BUILTIN_FUNCTIONS.get(funcName);
-            final String helperMethod = (String) info[0];
-            resolvedType = (Class<?>) info[1];
-
-            initExpr.append(helperMethod).append("(");
-            TALValueCodegen.generateValueAccess(initExpr,
-                init.getFunctionCallArgs().get(0).getValue(), genCtx);
-            initExpr.append(")");
-        } else if (init.getFunctionCallName() != null
-                && primitiveWrapper(genCtx.resolver.functionReturnType(init.getFunctionCallName())) != null) {
-            // A built-in returning a primitive has to be boxed here: the local is declared as a wrapper, and
+                && primitiveWrapper(genCtx.resolver.functionReturnType(init, genCtx)) != null) {
+            // A function returning a primitive has to be boxed here: the local is declared as a wrapper, and
             // Javassist's compiler does not autobox on assignment, which the verifier rejects.
             final Class<?> wrapper = primitiveWrapper(
-                genCtx.resolver.functionReturnType(init.getFunctionCallName()));
+                genCtx.resolver.functionReturnType(init, genCtx));
             initExpr.append(wrapper.getSimpleName()).append(".valueOf(");
             TALValueCodegen.generateValueAccess(initExpr, init, genCtx);
             initExpr.append(")");
             resolvedType = wrapper;
         } else {
-            // General value access — type inferred from lastResolvedType
-            TALValueCodegen.generateValueAccess(initExpr, init, genCtx);
+            // General value access — type inferred from lastResolvedType, a primitive boxed for the wrapper local
+            TALValueCodegen.generateBoxedValueAccess(initExpr, init, null, genCtx);
             resolvedType = genCtx.lastResolvedType != null
                 ? genCtx.lastResolvedType : Object.class;
+            elementType = genCtx.lastResolvedElementType;
             // Box primitive types for local variable declarations
             if (resolvedType.isPrimitive()) {
                 final String boxName = TALCodegenHelper.boxTypeName(resolvedType);
@@ -162,30 +219,54 @@ public final class TALDefCodegen {
 
         // Apply explicit type cast if specified (e.g., "as com.example.MyType")
         final String castType = def.getCastType();
+        Class<?> castClass = null;
         if (castType != null && !castType.isEmpty()) {
-            // Resolve the cast type — primitive wrapper names are handled,
+            // Resolve the cast type — primitive wrapper names, Layer and the source enums are handled,
             // anything else is treated as a FQCN
-            final Class<?> castClass = resolveDefCastType(castType);
+            castClass = resolveDefCastType(castType);
             if (castClass != null) {
                 resolvedType = castClass;
+                elementType = null;
+                checkTypedLiteral(castClass, init);
             }
         }
 
+        if (def instanceof TALScriptModel.SegmentDefStatement) {
+            genCtx.learnedSegmentDefTypes.putIfAbsent(varName, Arrays.asList(resolvedType, elementType, entityScope));
+        }
+
         // The first def of a name declares the variable, hoisted to the top of the method; a later def of the
-        // same name assigns to it, so its value has to fit the declared type.
+        // same name, or a plain assignment, assigns to it, so its value has to fit the declared type.
+        final String javaVar;
         if (previous == null) {
-            genCtx.localVars.put(varName, new TALLocalVar(javaVar, resolvedType));
+            javaVar = freshJavaName(varName, genCtx);
+            genCtx.localVars.put(varName, new TALLocalVar(javaVar, resolvedType, elementType));
+            if (!genCtx.blockScopes.isEmpty()) {
+                genCtx.blockScopes.peekLast().add(varName);
+            }
             // Initialized, so a def first assigned inside one branch can still be read after it: the variable is
             // null on the paths that did not assign it, where Javassist would otherwise reject the read.
-            genCtx.localVarDecls.append("  ").append(resolvedType.getName())
+            genCtx.localVarDecls.append("  ").append(TALCodegenHelper.javaTypeName(resolvedType))
                 .append(" ").append(javaVar).append(" = null;\n");
             genCtx.localVarLvtVars.add(new String[]{
-                javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
+                javaVar, TALCodegenHelper.descriptor(resolvedType)
             });
-        } else if (!previous.resolvedType.isAssignableFrom(resolvedType)) {
-            throw new IllegalArgumentException(
-                "def " + varName + " holds a " + previous.resolvedType.getSimpleName()
-                    + " and is reassigned a " + resolvedType.getSimpleName());
+        } else {
+            javaVar = previous.javaVarName;
+            if (!previous.resolvedType.isAssignableFrom(resolvedType) && !isNullLiteral(init)) {
+                throw new IllegalArgumentException(
+                    "def " + varName + " holds a " + previous.resolvedType.getSimpleName()
+                        + " and is reassigned a " + resolvedType.getSimpleName());
+            }
+            // A foreach over the variable is typed to the element type it was declared with, so a list of anything
+            // else would be cast to that type at runtime.
+            if (previous.elementType != null && !isNullLiteral(init)
+                && (elementType == null || !previous.elementType.isAssignableFrom(elementType))) {
+                throw new IllegalArgumentException(
+                    "def " + varName + " holds a list of " + previous.elementType.getSimpleName()
+                        + " and is reassigned a list of "
+                        + (elementType == null ? "elements of unknown type" : elementType.getSimpleName()));
+            }
         }
 
         // Emit assignment in body (at the point where def appears).
@@ -197,21 +278,26 @@ public final class TALDefCodegen {
         // the initialiser already produces.
         sb.append("  ").append(javaVar).append(" = ");
         if (castType != null && !castType.isEmpty()) {
-            final String conversion = scalarCastConversion(castType, initExpr);
+            final String typed = typedCastConversion(castClass, initExpr, genCtx);
+            final String conversion = typed != null ? typed : scalarCastConversion(castType, initExpr);
             if (conversion != null) {
                 sb.append(conversion);
             } else {
-                sb.append("(").append(resolvedType.getName()).append(") ").append(initExpr);
+                sb.append("(").append(TALCodegenHelper.javaTypeName(resolvedType)).append(") ").append(initExpr);
             }
         } else {
             sb.append(initExpr);
         }
         sb.append(";\n");
+        if (previous != null && previous.segmentSlot >= 0) {
+            sb.append("  ctx.getSegmentDefs()[").append(previous.segmentSlot).append("] = ").append(javaVar)
+              .append(";\n");
+        }
     }
 
     /**
      * Render the boxed runtime-helper conversion for a scalar cast type
-     * (e.g. {@code Long.valueOf(h.toLong(<init>))}). Returns {@code null}
+     * (e.g. {@code Long.valueOf(TalValueConversions.toLong(<init>))}). Returns {@code null}
      * for FQCN / unknown cast types so the caller can fall back to a
      * direct Java cast.
      */
@@ -219,19 +305,133 @@ public final class TALDefCodegen {
                                                  final CharSequence init) {
         switch (castType) {
             case "String":
-                return "h.toStr(" + init + ")";
+                return TALRuntimeRoles.method("toStr") + "(" + init + ")";
             case "Long":
-                return "Long.valueOf(h.toLong(" + init + "))";
+                return "Long.valueOf(" + TALRuntimeRoles.method("toLong") + "(" + init + "))";
             case "Integer":
-                return "Integer.valueOf(h.toInt(" + init + "))";
+                return "Integer.valueOf(" + TALRuntimeRoles.method("toInt") + "(" + init + "))";
             case "Double":
-                return "Double.valueOf(h.toDouble(" + init + "))";
+                return "Double.valueOf(" + TALRuntimeRoles.method("toDouble") + "(" + init + "))";
             case "Float":
-                return "Float.valueOf(h.toFloat(" + init + "))";
+                return "Float.valueOf(" + TALRuntimeRoles.method("toFloat") + "(" + init + "))";
             case "Boolean":
-                return "Boolean.valueOf(h.toBool(" + init + "))";
+                return "Boolean.valueOf(" + TALRuntimeRoles.method("toBool") + "(" + init + "))";
             default:
                 return null;
+        }
+    }
+
+    /**
+     * @return a Java local name for a def, fresh when the rule declared the same name again after its earlier
+     * declaration's scope ended
+     */
+    private static String freshJavaName(final String varName, final TALGenCtx genCtx) {
+        String javaVar = "_def_" + varName;
+        int suffix = 1;
+        while (genCtx.declaredJavaNames.contains(javaVar)) {
+            javaVar = "_def_" + varName + "_" + suffix++;
+        }
+        genCtx.declaredJavaNames.add(javaVar);
+        return javaVar;
+    }
+
+    private static boolean isNullLiteral(final TALValueAccess init) {
+        return !init.isStringLiteral() && !init.isNumberLiteral() && init.getFunctionCallName() == null
+            && init.getParenInner() == null && init.getChain().isEmpty() && !init.isInputRef() && !init.isMetaRef()
+            && init.getSegments().size() == 1 && "null".equals(init.getSegments().get(0));
+    }
+
+    /**
+     * {@code as Layer} and {@code as <Enum>}: a literal name is checked against the registered layers or the enum's
+     * constants now, so a misspelt one is a compile error where it is written.
+     */
+    static void checkTypedLiteral(final Class<?> castClass, final TALValueAccess init) {
+        if (!init.isStringLiteral() || !init.getConcatParts().isEmpty()) {
+            return;
+        }
+        final String literal = init.getSegments().get(0);
+        if (castClass == Layer.class) {
+            try {
+                Layer.valueOf(literal);
+            } catch (RuntimeException e) {
+                throw new IllegalArgumentException("'" + literal + "' as Layer names no registered layer", e);
+            }
+        } else if (castClass.isEnum()) {
+            if (enumConstant(castClass, literal) == null) {
+                throw new IllegalArgumentException(
+                    "'" + literal + "' as " + castClass.getSimpleName() + " is none of its constants");
+            }
+        }
+    }
+
+    /**
+     * @return whether the name is a layer {@code Layer} declares as a constant, which {@code unregisterDynamic}
+     * refuses to remove, so the field and {@code Layer.valueOf(name)} are always the same object
+     */
+    private static boolean isBuiltInLayer(final String name) {
+        try {
+            final Field field = Layer.class.getField(name);
+            return field.getType() == Layer.class && Modifier.isStatic(field.getModifiers())
+                && Modifier.isFinal(field.getModifiers());
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
+    }
+
+    static Object enumConstant(final Class<?> enumClass, final String name) {
+        for (final Object constant : enumClass.getEnumConstants()) {
+            if (((Enum<?>) constant).name().equals(name)) {
+                return constant;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * The conversion for {@code as Layer} and {@code as <Enum>}: from a value of that type as it is, and from a
+     * string by name. {@code null} stays {@code null}. A literal naming an enum constant is that constant, and one
+     * naming a built-in layer is its {@code Layer} field, which no runtime change removes; any other literal is
+     * converted at the statement, where it fails when the name is not registered then.
+     */
+    static String typedCastConversion(final Class<?> castClass, final CharSequence init, final TALGenCtx genCtx) {
+        if (castClass == null) {
+            return null;
+        }
+        final Matcher literal = LITERAL_NAME.matcher(init);
+        if (castClass == Layer.class) {
+            if (literal.matches() && isBuiltInLayer(literal.group(1))) {
+                return Layer.class.getName() + "." + literal.group(1);
+            }
+            return TALRuntimeRoles.method("toLayer") + "(" + init + ")";
+        }
+        if (castClass.isEnum() && literal.matches() && enumConstant(castClass, literal.group(1)) != null) {
+            return castClass.getName() + "." + literal.group(1);
+        }
+        if (castClass.isEnum()) {
+            // Grouped, so a method that follows applies to the enum rather than to toEnum's Object.
+            return "((" + castClass.getName() + ") " + TALRuntimeRoles.method("toEnum") + "(" + castClass.getName() + ".class, "
+                + init + "))";
+        }
+        return null;
+    }
+
+    /**
+     * @return {@code Layer} or the enum an {@code as} names, by simple name for Layer and the source enums and by
+     * class name for any other enum; null for any other cast
+     */
+    static Class<?> typedCastClass(final String castType) {
+        if (castType == null) {
+            return null;
+        }
+        final Class<?> known = TYPED_VALUE_CLASSES.get(castType);
+        if (known != null || castType.indexOf('.') < 0) {
+            return known;
+        }
+        try {
+            final Class<?> named = Class.forName(castType);
+            return named.isEnum() ? named : null;
+        } catch (ClassNotFoundException e) {
+            return null;
         }
     }
 
@@ -240,7 +440,11 @@ public final class TALDefCodegen {
      * Handles the four built-in type names ({@code String}, {@code Long},
      * {@code Integer}, {@code Boolean}) and fully qualified class names.
      */
-    private static Class<?> resolveDefCastType(final String castType) {
+    static Class<?> resolveDefCastType(final String castType) {
+        final Class<?> typed = TYPED_VALUE_CLASSES.get(castType);
+        if (typed != null) {
+            return typed;
+        }
         switch (castType) {
             case "String":
                 return String.class;
@@ -280,9 +484,11 @@ public final class TALDefCodegen {
             final TALLocalVar localVar,
             final List<? extends TALValueAccessSegment> chain,
             final TALGenCtx genCtx) {
+        genCtx.lastResolvedElementType = null;
         if (chain.isEmpty()) {
             sb.append(localVar.javaVarName);
             genCtx.lastResolvedType = localVar.resolvedType;
+            genCtx.lastResolvedElementType = localVar.elementType;
             return;
         }
 
@@ -291,6 +497,9 @@ public final class TALDefCodegen {
         boolean canBeNull = true;
         // Set when a safe-navigated primitive was already boxed to carry its null.
         boolean boxed = false;
+        // The element type of the last segment's generic List, kept apart from the metadata the arguments' code
+        // overwrites.
+        Class<?> resultElementType = null;
 
         for (int i = 0; i < chain.size(); i++) {
             final TALValueAccessSegment seg = chain.get(i);
@@ -303,15 +512,19 @@ public final class TALDefCodegen {
 
                 // Resolve method on currentType via reflection
                 final Method method =
-                    resolveMethod(currentType, methodName, ms.getArguments());
+                    resolveMethod(currentType, methodName, ms.getArguments(), genCtx);
                 if (method == null) {
                     throw new IllegalArgumentException(
                         "Cannot resolve method " + currentType.getSimpleName()
                             + "." + methodName + "() in def variable chain");
                 }
                 final Class<?> returnType = method.getReturnType();
-                final String args =
-                    TALValueCodegen.generateMethodArgs(ms.getArguments(), genCtx);
+                if (isLast) {
+                    resultElementType = TALCodegenHelper.listElementType(method.getGenericReturnType());
+                }
+                final String args = method.isVarArgs()
+                    ? TALValueCodegen.generateMethodArgs(ms.getArguments(), genCtx)
+                    : TALValueCodegen.generateArgumentsFor(ms.getArguments(), method, genCtx);
 
                 if (ms.isSafeNav() && canBeNull) {
                     if (isLast && returnType.isPrimitive()) {
@@ -338,25 +551,17 @@ public final class TALDefCodegen {
                 final TALFieldSegment fs =
                     (TALFieldSegment) seg;
                 final String fieldName = fs.getName();
-                // Try getter first
-                final String getterName = "get"
-                    + Character.toUpperCase(fieldName.charAt(0))
-                    + fieldName.substring(1);
-                Method getter = null;
-                try {
-                    getter = currentType.getMethod(getterName);
-                } catch (NoSuchMethodException e) {
-                    // Try direct field access name
-                    try {
-                        getter = currentType.getMethod(fieldName);
-                    } catch (NoSuchMethodException e2) {
-                        throw new IllegalArgumentException(
-                            "Cannot resolve field/getter "
-                                + currentType.getSimpleName()
-                                + "." + fieldName + " in def variable chain");
-                    }
+                final Method getter = TALCodegenHelper.resolveGetter(currentType, fieldName);
+                if (getter == null) {
+                    throw new IllegalArgumentException(
+                        "Cannot resolve field/getter "
+                            + currentType.getSimpleName()
+                            + "." + fieldName + " in def variable chain");
                 }
                 final Class<?> returnType = getter.getReturnType();
+                if (isLast) {
+                    resultElementType = TALCodegenHelper.listElementType(getter.getGenericReturnType());
+                }
 
                 if (fs.isSafeNav() && canBeNull) {
                     if (isLast && returnType.isPrimitive()) {
@@ -378,6 +583,21 @@ public final class TALDefCodegen {
                     currentType = returnType;
                     canBeNull = !returnType.isPrimitive();
                 }
+            } else if (seg instanceof TALIndexSegment && currentType.isArray()) {
+                final int index = ((TALIndexSegment) seg).getIndex();
+                final Class<?> component = currentType.getComponentType();
+                final String access = prevExpr + "[" + index + "]";
+                if (canBeNull && component.isPrimitive() && TALCodegenHelper.boxTypeName(component) != null) {
+                    prevExpr = "(" + prevExpr + " == null ? null : "
+                        + TALCodegenHelper.boxTypeName(component) + ".valueOf(" + access + "))";
+                    boxed = true;
+                } else if (canBeNull) {
+                    prevExpr = "(" + prevExpr + " == null ? null : " + access + ")";
+                } else {
+                    prevExpr = access;
+                }
+                currentType = component;
+                canBeNull = !component.isPrimitive();
             } else if (seg instanceof TALIndexSegment) {
                 final int index = ((TALIndexSegment) seg).getIndex();
                 // Try get(int) method (e.g., JsonArray.get(int))
@@ -402,7 +622,14 @@ public final class TALDefCodegen {
             }
         }
 
+        // The arguments' code above left its own metadata; what follows describes the chain's result alone.
+        genCtx.clearExtraLogResult();
+        genCtx.lastResolvedElementType = resultElementType;
         genCtx.lastResolvedType = currentType;
+        if (boxed) {
+            // Already boxed, carrying the null of a safe-navigated receiver.
+            genCtx.lastNullChecks = "safe navigation";
+        }
         if (currentType.isPrimitive() && !boxed && TALCodegenHelper.boxTypeName(currentType) != null) {
             // Javassist does not autobox, so a primitive leaf such as `.length()` is boxed for the Object contexts
             // it lands in; the raw form stays available to numeric comparisons and arithmetic.
@@ -420,8 +647,23 @@ public final class TALDefCodegen {
      */
     private static Method resolveMethod(
             final Class<?> type, final String name,
-            final List<? extends TALFunctionArg> args) {
+            final List<? extends TALFunctionArg> args,
+            final TALGenCtx genCtx) {
         final int argCount = args != null ? args.size() : 0;
+        // Overloads of one arity are told apart by the arguments' types, since each argument is converted to the
+        // chosen method's parameter; a tie falls back to the order below.
+        final List<Method> overloads = new ArrayList<>();
+        for (final Method m : type.getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == argCount && !m.isVarArgs()) {
+                overloads.add(m);
+            }
+        }
+        if (overloads.size() > 1) {
+            final Method best = TALFunctionRegistry.bestMethod(overloads, TALValueCodegen.argumentTypes(args, genCtx));
+            if (best != null) {
+                return best;
+            }
+        }
         // Try exact match with common parameter types
         if (argCount == 1) {
             try {

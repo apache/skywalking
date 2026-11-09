@@ -56,12 +56,6 @@ public class TALConfig {
     }
 
     /**
-     * The record this rule writes, named by a {@code TALOutputBuilder}'s name or by a class name. Absent means the
-     * rule writes no record, and a {@code sink {}} in it is a compile error.
-     */
-    private String outputType;
-
-    /**
      * Source YAML file name, set while loading, the middle component of the dsl-debugging
      * {@code RuleKey (TAL, sourceName, ruleName)}. Rules are read once at start; there is no hot update yet.
      */

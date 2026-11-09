@@ -74,8 +74,7 @@ public final class TALScriptModel {
     }
 
     /**
-     * Anything that can appear inside {@code sink { }} or {@code persist { }}. The two blocks take the same
-     * statements and differ only in what they decide: the record, or the span.
+     * Anything that can appear inside {@code persist { }}, which votes on the span's own fate.
      */
     public interface VoteStatement {
     }
@@ -109,6 +108,154 @@ public final class TALScriptModel {
         }
     }
 
+    /**
+     * {@code <name> = <expr> [as <Type>]}: assigns a variable that a {@code def} earlier in the rule, or a
+     * {@code segmentDef}, declared. It shares the def's codegen contract, without the right to declare.
+     */
+    @Getter
+    public static final class AssignStatement
+        implements FilterStatement, ExtractorStatement, TALDefStatement {
+        private final String varName;
+        private final ValueAccess initializer;
+        private final String castType;
+        private int sourceLine;
+        private String sourceText = "";
+
+        public AssignStatement(final String varName, final ValueAccess initializer, final String castType) {
+            this.varName = varName;
+            this.initializer = initializer;
+            this.castType = castType;
+        }
+
+        public AssignStatement withSource(final int line, final String text) {
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+            return this;
+        }
+    }
+
+    /**
+     * {@code foreach (<name> in <list>) { ... }}: the body runs once per element, in list order. A def first
+     * declared inside the body belongs to one iteration.
+     */
+    @Getter
+    public static final class ForeachBlock
+        implements FilterStatement, ExtractorStatement, VoteStatement, SamplerContent {
+        private final String varName;
+        private final ValueAccess list;
+        private final List<FilterStatement> body;
+
+        public ForeachBlock(final String varName, final ValueAccess list, final List<FilterStatement> body) {
+            this.varName = varName;
+            this.list = list;
+            this.body = Collections.unmodifiableList(body);
+        }
+    }
+
+    /**
+     * {@code log <level> "<message>" [, <expr>, ...]}: one SLF4J line under the script's logger.
+     */
+    @Getter
+    public static final class LogStatement
+        implements FilterStatement, ExtractorStatement, VoteStatement, SamplerContent {
+        private final String level;
+        private final String message;
+        private final List<FunctionArg> arguments;
+
+        public LogStatement(final String level, final String message, final List<FunctionArg> arguments) {
+            this.level = level;
+            this.message = message;
+            this.arguments = Collections.unmodifiableList(arguments);
+        }
+    }
+
+    /**
+     * {@code first {}}: the run a rule makes on every span whose id is {@code 0}, before any rule's regular run on
+     * that span, with its own {@code def} values.
+     */
+    @Getter
+    public static final class FirstBlock implements FilterStatement {
+        private final List<FilterStatement> statements;
+
+        public FirstBlock(final List<FilterStatement> statements) {
+            this.statements = Collections.unmodifiableList(statements);
+        }
+    }
+
+    /**
+     * {@code build {}}: queued when the run reaches it, with the values the run has there, and run after the
+     * segment's last span.
+     */
+    @Getter
+    public static final class BuildBlock implements FilterStatement, ExtractorStatement {
+        private final List<ExtractorStatement> statements;
+
+        public BuildBlock(final List<ExtractorStatement> statements) {
+            this.statements = Collections.unmodifiableList(statements);
+        }
+    }
+
+    /**
+     * {@code source <Name> {}}: one source, made and sent at the statement.
+     */
+    @Getter
+    public static final class SourceBlock implements FilterStatement, ExtractorStatement {
+        private final String name;
+        private final List<SourceField> fields;
+
+        public SourceBlock(final String name, final List<SourceField> fields) {
+            this.name = name;
+            this.fields = Collections.unmodifiableList(fields);
+        }
+    }
+
+    /**
+     * One {@code <field> <expr> [as <Type>]} of a {@code source {}}.
+     */
+    @Getter
+    public static final class SourceField {
+        private final String field;
+        private final ValueAccess value;
+        private final String castType;
+
+        public SourceField(final String field, final ValueAccess value, final String castType) {
+            this.field = field;
+            this.value = value;
+            this.castType = castType;
+        }
+    }
+
+    /**
+     * {@code segmentDef <name> = <expr>}: declares a variable of the rule that lives for one segment, and assigns it.
+     */
+    @Getter
+    public static final class SegmentDefStatement
+        implements FilterStatement, ExtractorStatement, TALDefStatement {
+        private final String varName;
+        private final ValueAccess initializer;
+        private final String castType;
+
+        public SegmentDefStatement(final String varName, final ValueAccess initializer, final String castType) {
+            this.varName = varName;
+            this.initializer = initializer;
+            this.castType = castType;
+        }
+    }
+
+    /**
+     * {@code writeNetworkAlias <address>}: the alias row of an entry span's reference, sent at the statement.
+     */
+    @Getter
+    public static final class WriteNetworkAliasStatement implements FilterStatement, ExtractorStatement {
+        private final ValueAccess value;
+        private final String castType;
+
+        public WriteNetworkAliasStatement(final ValueAccess value, final String castType) {
+            this.value = value;
+            this.castType = castType;
+        }
+    }
+
     @Getter
     public static final class ExtractorBlock implements FilterStatement {
         private final List<ExtractorStatement> statements;
@@ -119,8 +266,7 @@ public final class TALScriptModel {
     }
 
     /**
-     * The standard identity fields an extractor may overwrite on {@code meta}, which are also the record's
-     * standard fields when the rule declares an {@code outputType}.
+     * The standard identity fields an extractor may overwrite on {@code meta}.
      */
     public enum FieldType {
         SERVICE, INSTANCE, ENDPOINT, LAYER
@@ -141,31 +287,6 @@ public final class TALScriptModel {
         }
 
         public FieldAssignment withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
-        }
-    }
-
-    /**
-     * A statement whose name is not a keyword: it sets a field on the rule's {@code outputType}, validated
-     * against a setter at compile time.
-     */
-    @Getter
-    public static final class OutputFieldAssignment implements ExtractorStatement, FilterStatement {
-        private final String fieldName;
-        private final ValueAccess value;
-        private final String castType;
-        private int sourceLine;
-        private String sourceText = "";
-
-        public OutputFieldAssignment(final String fieldName, final ValueAccess value, final String castType) {
-            this.fieldName = fieldName;
-            this.value = value;
-            this.castType = castType;
-        }
-
-        public OutputFieldAssignment withSource(final int line, final String text) {
             this.sourceLine = line;
             this.sourceText = text == null ? "" : text;
             return this;
@@ -308,19 +429,6 @@ public final class TALScriptModel {
     }
 
     /**
-     * {@code sink { }} — what happens to the record the rule built. A rule without an {@code outputType} has no
-     * record, so a sink in it is a compile error rather than a silent no-op.
-     */
-    @Getter
-    public static final class SinkBlock implements FilterStatement {
-        private final List<VoteStatement> statements;
-
-        public SinkBlock(final List<VoteStatement> statements) {
-            this.statements = Collections.unmodifiableList(statements);
-        }
-    }
-
-    /**
      * {@code persist { }} — the span's own fate. A rule without this block abstains.
      */
     @Getter
@@ -368,18 +476,20 @@ public final class TALScriptModel {
     public static final class InterpolationPart {
         private final String text;
         private final ValueAccess expression;
+        private final String castType;
 
-        private InterpolationPart(final String text, final ValueAccess expression) {
+        private InterpolationPart(final String text, final ValueAccess expression, final String castType) {
             this.text = text;
             this.expression = expression;
+            this.castType = castType;
         }
 
         public static InterpolationPart ofLiteral(final String text) {
-            return new InterpolationPart(text, null);
+            return new InterpolationPart(text, null, null);
         }
 
-        public static InterpolationPart ofExpression(final ValueAccess expr) {
-            return new InterpolationPart(null, expr);
+        public static InterpolationPart ofExpression(final ValueAccess expr, final String castType) {
+            return new InterpolationPart(null, expr, castType);
         }
 
         public boolean isLiteral() {

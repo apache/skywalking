@@ -33,9 +33,9 @@ import com.linecorp.armeria.server.annotation.RequestObject;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.Future;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class SegmentGeneratorHandler {
     private final ISegmentParserService segmentParserService;
 
     public SegmentGeneratorHandler(ModuleManager manager) {
-        segmentParserService = manager.find(AnalyzerModule.NAME).provider().getService(ISegmentParserService.class);
+        segmentParserService = manager.find(TraceAnalyzerModule.NAME).provider().getService(ISegmentParserService.class);
     }
 
     @Post("/mock-data/segments/tasks")

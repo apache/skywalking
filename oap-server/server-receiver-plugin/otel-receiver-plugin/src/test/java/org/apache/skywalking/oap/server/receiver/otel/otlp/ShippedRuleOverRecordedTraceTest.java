@@ -62,7 +62,11 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 import org.apache.skywalking.oap.trace.analyzer.v2.spi.OtlpTALSourceTypeProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -139,8 +143,18 @@ class ShippedRuleOverRecordedTraceTest {
             aliases.add((NetworkAddressAliasSetup) source);
             return null;
         }).when(sourceReceiver).receive(any());
-        filterSpec = new FilterSpec(moduleManager, new TraceAnalyzerModuleConfig(),
-            meterSystem, namingControl, sourceReceiver);
+        Mockito.when(coreProvider.getService(MeterSystem.class)).thenReturn(meterSystem);
+        Mockito.when(coreProvider.getService(NamingControl.class)).thenReturn(namingControl);
+        Mockito.when(coreProvider.getService(SourceReceiver.class)).thenReturn(sourceReceiver);
+        final SpanPairing spanPairing = new SpanPairing();
+        spanPairing.setAliasRegistrar(new AliasRegistrar(sourceReceiver, namingControl));
+        final ModuleServiceHolder analyzerProvider = mock(ModuleServiceHolder.class);
+        Mockito.when(analyzerProvider.getService(SpanPairing.class)).thenReturn(spanPairing);
+        Mockito.when(analyzerProvider.getService(RateLimitingSamplers.class)).thenReturn(new RateLimitingSamplers());
+        final ModuleProviderHolder analyzerModule = mock(ModuleProviderHolder.class);
+        Mockito.when(analyzerModule.provider()).thenReturn(analyzerProvider);
+        Mockito.when(moduleManager.find(TraceAnalyzerModule.NAME)).thenReturn(analyzerModule);
+        filterSpec = new FilterSpec(moduleManager, new TraceAnalyzerModuleConfig());
     }
 
     @AfterEach

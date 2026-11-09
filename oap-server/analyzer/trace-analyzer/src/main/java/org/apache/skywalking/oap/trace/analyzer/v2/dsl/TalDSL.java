@@ -29,6 +29,7 @@ import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
+import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALFunctionRegistry;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALMetricShapes;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
@@ -48,6 +49,7 @@ public class TalDSL {
     private final String ruleName;
     @Getter
     private final TalExpression expression;
+    @Getter
     private final FilterSpec filterSpec;
 
     /**
@@ -70,8 +72,12 @@ public class TalDSL {
     }
 
     /**
-     * Compile one rule and create the metrics it declares.
+     * Compile one rule against the functions the bound providers serve its input, and create the metrics it
+     * declares.
      *
+     * @param inputAlias        the alias of the rule's input, which input-scoped functions and constructs are
+     *                          checked against; null when unknown
+     * @param functions         the bound function providers, or null for {@code TALFunctionRegistry.defaults()}
      * @param metricShapes      the shapes of the metrics every loaded rule declares; a different shape for a name
      *                          another rule declared fails this rule
      * @param pool              a pool scoped to {@code targetClassLoader}, or null for the default pool
@@ -83,7 +89,8 @@ public class TalDSL {
                             final TraceAnalyzerModuleConfig config,
                             final String dsl,
                             final Class<?> inputType,
-                            final Class<?> outputType,
+                            final String inputAlias,
+                            final TALFunctionRegistry functions,
                             final String ruleName,
                             final String metricPrefix,
                             final DslSourceRef sourceRef,
@@ -94,11 +101,12 @@ public class TalDSL {
             final TALClassGenerator generator = pool != null && targetClassLoader != null
                 ? new TALClassGenerator(pool, targetClassLoader) : new TALClassGenerator();
             generator.setInputType(inputType);
-            generator.setOutputType(outputType);
             generator.setClassNameHint(ruleName);
             generator.setSourceRef(sourceRef);
             generator.setMetricPrefix(metricPrefix);
             generator.setContent(dsl);
+            generator.setInputAlias(inputAlias);
+            generator.setFunctionRegistry(functions);
 
             final TalExpression expression = generator.compile(dsl);
             // Checked against every rule loaded before, across files, before anything is created.
@@ -108,7 +116,8 @@ public class TalDSL {
             generator.createMetrics(
                 moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class));
 
-            return new TalDSL(ruleName, expression, new FilterSpec(moduleManager, config), inputType);
+            final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
+            return new TalDSL(ruleName, expression, filterSpec, inputType);
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to compile TAL rule " + ruleName, e);
         }

@@ -48,7 +48,6 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.Persi
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.RateLimitBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.SamplerBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.SamplerContent;
-import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.SinkBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.TagValue;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.ValueAccess;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.ValueAccessSegment;
@@ -66,6 +65,10 @@ import org.apache.skywalking.tal.rt.grammar.TALParser;
  * grammar. Separate copies by design; see {@link TALValueCodegen}.
  */
 public final class TALScriptParser {
+    /**
+     * The levels {@code log} takes, SLF4J's.
+     */
+    private static final List<String> LOG_LEVELS = List.of("trace", "debug", "info", "warn", "error");
 
     private TALScriptParser() {
     }
@@ -118,9 +121,6 @@ public final class TALScriptParser {
         if (ctx.extractorBlock() != null) {
             return visitExtractorBlock(ctx.extractorBlock());
         }
-        if (ctx.sinkBlock() != null) {
-            return visitSinkBlock(ctx.sinkBlock());
-        }
         if (ctx.persistBlock() != null) {
             return visitPersistBlock(ctx.persistBlock());
         }
@@ -130,6 +130,15 @@ public final class TALScriptParser {
         if (ctx.defStatement() != null) {
             return visitDefStatement(ctx.defStatement());
         }
+        if (ctx.assignStatement() != null) {
+            return visitAssignStatement(ctx.assignStatement()).withSource(ctx.getStart().getLine(), rawTextOf(ctx));
+        }
+        if (ctx.logStatement() != null) {
+            return visitLogStatement(ctx.logStatement());
+        }
+        if (ctx.foreachStatement() != null) {
+            return visitForeachStatement(ctx.foreachStatement());
+        }
         if (ctx.prepareNetworkAliasStatement() != null) {
             return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement())
                 .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
@@ -138,7 +147,41 @@ public final class TALScriptParser {
             return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement())
                 .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
         }
+        if (ctx.firstBlock() != null) {
+            final List<FilterStatement> stmts = new ArrayList<>();
+            for (final TALParser.FilterStatementContext fsc : ctx.firstBlock().filterContent().filterStatement()) {
+                stmts.add(visitFilterStatement(fsc));
+            }
+            return new TALScriptModel.FirstBlock(stmts);
+        }
+        if (ctx.segmentDefStatement() != null) {
+            return visitSegmentDef(ctx.segmentDefStatement());
+        }
+        if (ctx.writeNetworkAliasStatement() != null) {
+            return visitWriteNetworkAlias(ctx.writeNetworkAliasStatement());
+        }
         return visitIfStatement(ctx.ifStatement());
+    }
+
+    private static TALScriptModel.SegmentDefStatement visitSegmentDef(final TALParser.SegmentDefStatementContext ctx) {
+        return new TALScriptModel.SegmentDefStatement(
+            ctx.IDENTIFIER().getText(), visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast()));
+    }
+
+    private static TALScriptModel.WriteNetworkAliasStatement visitWriteNetworkAlias(
+        final TALParser.WriteNetworkAliasStatementContext ctx) {
+        return new TALScriptModel.WriteNetworkAliasStatement(
+            visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast()));
+    }
+
+    private static TALScriptModel.SourceBlock visitSourceBlock(final TALParser.SourceBlockContext ctx) {
+        final List<TALScriptModel.SourceField> fields = new ArrayList<>();
+        for (final TALParser.SourceFieldContext field : ctx.sourceField()) {
+            fields.add(new TALScriptModel.SourceField(
+                field.anyIdentifier().getText(), visitValueAccess(field.valueAccess()),
+                extractCastType(field.typeCast())));
+        }
+        return new TALScriptModel.SourceBlock(ctx.IDENTIFIER().getText(), fields);
     }
 
     // ==================== Extractor block ====================
@@ -159,6 +202,31 @@ public final class TALScriptParser {
 
         if (ctx.defStatement() != null) {
             return visitDefStatement(ctx.defStatement()).withSource(sourceLine, sourceText);
+        }
+        if (ctx.assignStatement() != null) {
+            return visitAssignStatement(ctx.assignStatement()).withSource(sourceLine, sourceText);
+        }
+        if (ctx.logStatement() != null) {
+            return visitLogStatement(ctx.logStatement());
+        }
+        if (ctx.foreachStatement() != null) {
+            return visitForeachStatement(ctx.foreachStatement());
+        }
+        if (ctx.segmentDefStatement() != null) {
+            return visitSegmentDef(ctx.segmentDefStatement());
+        }
+        if (ctx.writeNetworkAliasStatement() != null) {
+            return visitWriteNetworkAlias(ctx.writeNetworkAliasStatement());
+        }
+        if (ctx.buildBlock() != null) {
+            final List<ExtractorStatement> stmts = new ArrayList<>();
+            for (final TALParser.ExtractorStatementContext esc : ctx.buildBlock().extractorContent().extractorStatement()) {
+                stmts.add(visitExtractorStatement(esc));
+            }
+            return new TALScriptModel.BuildBlock(stmts);
+        }
+        if (ctx.sourceBlock() != null) {
+            return visitSourceBlock(ctx.sourceBlock());
         }
         if (ctx.serviceStatement() != null) {
             return visitFieldAssignment(FieldType.SERVICE, ctx.serviceStatement().valueAccess(),
@@ -191,9 +259,6 @@ public final class TALScriptParser {
         if (ctx.abortBlock() != null) {
             return new AbortStatement();
         }
-        if (ctx.outputFieldStatement() != null) {
-            return visitOutputFieldStatement(ctx.outputFieldStatement()).withSource(sourceLine, sourceText);
-        }
         if (ctx.ifStatement() != null) {
             return visitIfStatement(ctx.ifStatement());
         }
@@ -222,19 +287,38 @@ public final class TALScriptParser {
         return new TALScriptModel.FieldAssignment(type, visitValueAccess(vaCtx), extractCastType(tcCtx));
     }
 
-    private static TALScriptModel.OutputFieldAssignment visitOutputFieldStatement(
-            final TALParser.OutputFieldStatementContext ctx) {
-        return new TALScriptModel.OutputFieldAssignment(
-            ctx.anyIdentifier().getText(),
-            visitValueAccess(ctx.valueAccess()),
-            extractCastType(ctx.typeCast()));
-    }
-
     private static DefStatement visitDefStatement(final TALParser.DefStatementContext ctx) {
         return new DefStatement(
             ctx.IDENTIFIER().getText(),
             visitValueAccess(ctx.valueAccess()),
             extractCastType(ctx.typeCast()));
+    }
+
+    private static TALScriptModel.AssignStatement visitAssignStatement(final TALParser.AssignStatementContext ctx) {
+        return new TALScriptModel.AssignStatement(
+            ctx.IDENTIFIER().getText(),
+            visitValueAccess(ctx.valueAccess()),
+            extractCastType(ctx.typeCast()));
+    }
+
+    private static TALScriptModel.LogStatement visitLogStatement(final TALParser.LogStatementContext ctx) {
+        final String level = ctx.IDENTIFIER().getText();
+        if (!LOG_LEVELS.contains(level)) {
+            throw new IllegalArgumentException(
+                "log takes a level of " + LOG_LEVELS + " before its message, not '" + level + "', at line "
+                    + ctx.getStart().getLine());
+        }
+        final List<TALScriptModel.FunctionArg> arguments = new ArrayList<>();
+        for (final TALParser.LogArgumentContext arg : ctx.logArgument()) {
+            arguments.add(new TALScriptModel.FunctionArg(
+                visitValueAccess(arg.valueAccess()), extractCastType(arg.typeCast())));
+        }
+        return new TALScriptModel.LogStatement(level, unquote(ctx.STRING().getText()), arguments);
+    }
+
+    private static TALScriptModel.ForeachBlock visitForeachStatement(final TALParser.ForeachStatementContext ctx) {
+        return new TALScriptModel.ForeachBlock(
+            ctx.IDENTIFIER().getText(), visitValueAccess(ctx.valueAccess()), visitIfBody(ctx.ifBody()));
     }
 
     private static TALScriptModel.NetworkAliasStatement visitPrepareNetworkAlias(
@@ -327,37 +411,35 @@ public final class TALScriptParser {
         return out;
     }
 
-    // ==================== Sink and persist ====================
-
-    private static SinkBlock visitSinkBlock(final TALParser.SinkBlockContext ctx) {
-        final List<VoteStatement> stmts = new ArrayList<>();
-        for (final TALParser.SinkStatementContext ssc : ctx.sinkContent().sinkStatement()) {
-            stmts.add(visitVoteStatement(
-                ssc.samplerBlock(), ssc.enforcerStatement(), ssc.dropperStatement(),
-                ssc.abortBlock(), ssc.ifStatement()));
-        }
-        return new SinkBlock(stmts);
-    }
+    // ==================== Persist ====================
 
     private static PersistBlock visitPersistBlock(final TALParser.PersistBlockContext ctx) {
         final List<VoteStatement> stmts = new ArrayList<>();
         for (final TALParser.PersistStatementContext psc : ctx.persistContent().persistStatement()) {
             stmts.add(visitVoteStatement(
                 psc.samplerBlock(), psc.enforcerStatement(), psc.dropperStatement(),
-                psc.abortBlock(), psc.ifStatement()));
+                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()));
         }
         return new PersistBlock(stmts);
     }
 
     /**
-     * {@code sink} and {@code persist} take the same statements, so one visitor serves both; the caller has
-     * already pulled the alternatives off its own context type.
+     * A {@code persist} statement, at the block's top level or inside an {@code if}; the caller has already pulled
+     * the alternatives off its own context type.
      */
     private static VoteStatement visitVoteStatement(final TALParser.SamplerBlockContext sampler,
                                                     final TALParser.EnforcerStatementContext enforcer,
                                                     final TALParser.DropperStatementContext dropper,
                                                     final TALParser.AbortBlockContext abort,
-                                                    final TALParser.IfStatementContext ifStatement) {
+                                                    final TALParser.IfStatementContext ifStatement,
+                                                    final TALParser.ForeachStatementContext foreach,
+                                                    final TALParser.LogStatementContext logStatement) {
+        if (foreach != null) {
+            return visitForeachStatement(foreach);
+        }
+        if (logStatement != null) {
+            return visitLogStatement(logStatement);
+        }
         if (sampler != null) {
             return visitSamplerBlock(sampler);
         }
@@ -389,6 +471,10 @@ public final class TALScriptParser {
                 contents.add(visitRateLimitBlock((TALParser.RateLimitBlockContext) child));
             } else if (child instanceof TALParser.IfStatementContext) {
                 contents.add(visitIfStatement((TALParser.IfStatementContext) child));
+            } else if (child instanceof TALParser.ForeachStatementContext) {
+                contents.add(visitForeachStatement((TALParser.ForeachStatementContext) child));
+            } else if (child instanceof TALParser.LogStatementContext) {
+                contents.add(visitLogStatement((TALParser.LogStatementContext) child));
             }
         }
         return contents;
@@ -430,15 +516,10 @@ public final class TALScriptParser {
         for (final TALParser.ExtractorStatementContext esc : ctx.extractorStatement()) {
             stmts.add((FilterStatement) visitExtractorStatement(esc));
         }
-        for (final TALParser.SinkStatementContext ssc : ctx.sinkStatement()) {
-            stmts.add((FilterStatement) visitVoteStatement(
-                ssc.samplerBlock(), ssc.enforcerStatement(), ssc.dropperStatement(),
-                ssc.abortBlock(), ssc.ifStatement()));
-        }
         for (final TALParser.PersistStatementContext psc : ctx.persistStatement()) {
             stmts.add((FilterStatement) visitVoteStatement(
                 psc.samplerBlock(), psc.enforcerStatement(), psc.dropperStatement(),
-                psc.abortBlock(), psc.ifStatement()));
+                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()));
         }
         final TALParser.SamplerContentContext sc = ctx.samplerContent();
         if (sc != null) {
@@ -944,7 +1025,8 @@ public final class TALScriptParser {
             if (depth != 0) {
                 throw new IllegalArgumentException("Unclosed interpolation in: " + s);
             }
-            parts.add(InterpolationPart.ofExpression(parseValueAccessExpr(s.substring(start + 2, i - 1))));
+            final TALScriptModel.ExprCondition placeholder = parseValueAccessExpr(s.substring(start + 2, i - 1));
+            parts.add(InterpolationPart.ofExpression(placeholder.getExpr(), placeholder.getCastType()));
             pos = i;
         }
         return parts;
@@ -954,14 +1036,16 @@ public final class TALScriptParser {
      * Parse a standalone expression by wrapping it in a minimal rule, since the grammar's entry point is a whole
      * {@code filter} block.
      */
-    private static ValueAccess parseValueAccessExpr(final String expr) {
+    private static TALScriptModel.ExprCondition parseValueAccessExpr(final String expr) {
         final TALScriptModel model = parse("filter { if (" + expr + ") { abort {} } }");
         final Condition cond = ((IfBlock) model.getStatements().get(0)).getCondition();
         if (cond instanceof TALScriptModel.ExprCondition) {
-            return ((TALScriptModel.ExprCondition) cond).getExpr();
+            // The expression and its own `as`, which the placeholder converts with.
+            return (TALScriptModel.ExprCondition) cond;
         }
         if (cond instanceof TALScriptModel.ComparisonCondition) {
-            return ((TALScriptModel.ComparisonCondition) cond).getLeft();
+            final TALScriptModel.ComparisonCondition comparison = (TALScriptModel.ComparisonCondition) cond;
+            return new TALScriptModel.ExprCondition(comparison.getLeft(), comparison.getLeftCast());
         }
         throw new IllegalArgumentException("Cannot parse interpolation expression: " + expr);
     }

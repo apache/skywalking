@@ -19,14 +19,14 @@
 // Trace Analysis Language parser
 //
 // Covers TAL DSL patterns:
-//   filter { extractor {} sink {} persist {} }
+//   filter { extractor {} persist {} }
 //   if (meta.kind == "SERVER") { ... }
 //   extractor { layer "OTLP_GENERAL"; def svc = service(meta.service, meta.layer) }
 //   metrics { name "service_cpm"; scope svc; function cpm; value 1 }
 //   metrics { name "service_percentile"; scope svc; function percentile; value meta.latency
 //             buckets [10, 25, 50] }
-//   sink { sampler { rateLimit("id") { rpm 6000 } } }
-//   persist { enforcer {} }
+//   source DatabaseSlowStatement { id meta.traceId; timeBucket recordTimeBucket(meta.timestamp) }
+//   persist { sampler { rateLimit("id") { rpm 6000 } } }
 parser grammar TALParser;
 
 @Header {package org.apache.skywalking.tal.rt.grammar;}
@@ -52,13 +52,33 @@ filterContent
 
 filterStatement
     : extractorBlock
-    | sinkBlock
     | persistBlock
+    | firstBlock
     | ifStatement
+    | foreachStatement
     | abortBlock
     | defStatement
+    | segmentDefStatement
+    | assignStatement
+    | logStatement
+    | writeNetworkAliasStatement
     | prepareNetworkAliasStatement
     | buildNetworkAliasStatement
+    ;
+
+// sw-native: a run of its own on every span whose id is 0, before any rule's regular run on that span.
+firstBlock
+    : FIRST L_BRACE filterContent R_BRACE
+    ;
+
+// sw-native: a variable of the rule that lives for one segment.
+segmentDefStatement
+    : SEGMENT_DEF IDENTIFIER ASSIGN valueAccess typeCast?
+    ;
+
+// sw-native: the alias row of an entry span's reference, sent at the statement.
+writeNetworkAliasStatement
+    : WRITE_NETWORK_ALIAS valueAccess typeCast?
     ;
 
 abortBlock
@@ -77,6 +97,13 @@ extractorContent
 
 extractorStatement
     : defStatement
+    | segmentDefStatement
+    | assignStatement
+    | logStatement
+    | foreachStatement
+    | buildBlock
+    | sourceBlock
+    | writeNetworkAliasStatement
     | serviceStatement
     | instanceStatement
     | endpointStatement
@@ -87,11 +114,46 @@ extractorStatement
     | metricsBlock
     | ifStatement
     | abortBlock
-    | outputFieldStatement
     ;
 
 defStatement
     : DEF IDENTIFIER ASSIGN valueAccess typeCast?
+    ;
+
+// sw-native: queued when the run reaches it, run after the segment's last span; where a native rule makes its outputs.
+buildBlock
+    : BUILD L_BRACE extractorContent R_BRACE
+    ;
+
+// One source, by the scope name OAL's from() gives it, sent at the statement; on sw-native, inside build {}.
+sourceBlock
+    : SOURCE IDENTIFIER L_BRACE (sourceField | SEMI)* R_BRACE
+    ;
+
+sourceField
+    : anyIdentifier valueAccess typeCast?
+    ;
+
+// `def` declares a variable and `=` assigns one a def or a segmentDef declared; a later def of the same name still
+// assigns, so rules written before plain assignment keep compiling.
+assignStatement
+    : IDENTIFIER ASSIGN valueAccess typeCast?
+    ;
+
+// One SLF4J line under the script's logger; the arguments are evaluated only when the level is enabled.
+logStatement
+    : LOG IDENTIFIER STRING (COMMA logArgument)*
+    ;
+
+logArgument
+    : valueAccess typeCast?
+    ;
+
+// Allowed wherever if is. A def inside the body belongs to one iteration.
+foreachStatement
+    : FOREACH L_PAREN IDENTIFIER IN valueAccess R_PAREN L_BRACE
+        ifBody
+      R_BRACE
     ;
 
 serviceStatement
@@ -108,10 +170,6 @@ endpointStatement
 
 layerStatement
     : LAYER valueAccess typeCast?
-    ;
-
-outputFieldStatement
-    : anyIdentifier valueAccess typeCast?
     ;
 
 tagStatement
@@ -220,27 +278,9 @@ numberList
     : L_BRACKET NUMBER (COMMA NUMBER)* R_BRACKET
     ;
 
-// ==================== Sink block ====================
-
-sinkBlock
-    : SINK L_BRACE sinkContent R_BRACE
-    ;
-
-sinkContent
-    : (sinkStatement | SEMI)*
-    ;
-
-sinkStatement
-    : samplerBlock
-    | enforcerStatement
-    | dropperStatement
-    | ifStatement
-    | abortBlock
-    ;
-
 // ==================== Persist block ====================
 
-// The span's own fate, voted on with the same statements a sink uses.
+// The span's own fate, voted on.
 persistBlock
     : PERSIST L_BRACE persistContent R_BRACE
     ;
@@ -254,6 +294,8 @@ persistStatement
     | enforcerStatement
     | dropperStatement
     | ifStatement
+    | foreachStatement
+    | logStatement
     | abortBlock
     ;
 
@@ -262,7 +304,7 @@ samplerBlock
     ;
 
 samplerContent
-    : (rateLimitBlock | ifStatement | SEMI)*
+    : (rateLimitBlock | ifStatement | foreachStatement | logStatement | SEMI)*
     ;
 
 rateLimitBlock
@@ -302,7 +344,6 @@ ifStatement
 ifBody
     : (filterStatement | SEMI)*
     | (extractorStatement | SEMI)*
-    | (sinkStatement | SEMI)*
     | (persistStatement | SEMI)*
     | samplerContent
     ;
@@ -415,8 +456,9 @@ typeCast
     : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | DOUBLE_TYPE | FLOAT_TYPE | BOOLEAN_TYPE | qualifiedName)
     ;
 
+// A package component may spell a keyword, as `core.source` does.
 qualifiedName
-    : IDENTIFIER (DOT IDENTIFIER)*
+    : IDENTIFIER (DOT anyIdentifier)*
     ;
 
 // ==================== Common ====================
@@ -430,8 +472,9 @@ anyIdentifier
     | NAME | SCOPE | FUNCTION | VALUE | MATCH | STATUS
     | LABELS | LABEL_LIMIT | BUCKETS | RANKS | TIMESTAMP
     | SAMPLER | RATE_LIMIT | RPM | ENFORCER | DROPPER
-    | FILTER | EXTRACTOR | SINK | PERSIST | ABORT
+    | FILTER | EXTRACTOR | PERSIST | ABORT
     | DEF
+    | SOURCE | FOREACH | IN | BUILD | FIRST | SEGMENT_DEF | WRITE_NETWORK_ALIAS | LOG
     ;
 
 boolValue

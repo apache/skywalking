@@ -19,6 +19,8 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.LinkedHashSet;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
@@ -43,6 +45,8 @@ import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedExcepti
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.RateLimitingSamplers;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.SwNativeRuleRunner;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.ITraceAnalyzerService;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
@@ -52,6 +56,7 @@ import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SeenSpans;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.SpanPairing;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.TraceAnalyzerServiceImpl;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFilterListener;
+import org.apache.skywalking.oap.trace.analyzer.v2.spi.SwNativeTALSourceTypeProvider;
 
 /**
  * Owns the {@code tal} catalog: the registry of compiled rules, and the service the receivers call per span.
@@ -72,6 +77,11 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
 
     private SpanFilterListener.Factory factory;
     private SpanPairing spanPairing;
+    private SwNativeRuleRunner nativeRuleRunner;
+    /**
+     * The modules the configured rule files list under {@code requiredModules}, read in {@code prepare()}.
+     */
+    private Set<String> ruleRequiredModules = Set.of();
 
     @Override
     public String name() {
@@ -106,12 +116,18 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to create the TAL rule factory.", e);
         }
+        final Set<String> required = new LinkedHashSet<>(
+            TALConfigs.requiredModulesOf(moduleConfig.getTalPath(), moduleConfig.talFiles()));
+        required.addAll(TALConfigs.requiredModulesOf(moduleConfig.getTalPath(), moduleConfig.nativeTalFiles()));
+        this.ruleRequiredModules = required;
         this.registerServiceImplementation(RateLimitingSamplers.class, new RateLimitingSamplers());
         this.spanPairing = new SpanPairing();
         this.registerServiceImplementation(SpanPairing.class, this.spanPairing);
         this.registerServiceImplementation(ITraceAnalyzerService.class,
-            new TraceAnalyzerServiceImpl(getManager(), this.factory, this.spanPairing,
+            new TraceAnalyzerServiceImpl(this.factory, this.spanPairing,
                 new SeenSpans(moduleConfig.getDedupWindow(), moduleConfig.getDedupCapacity())));
+        this.nativeRuleRunner = new SwNativeRuleRunner(getManager(), new SwNativeTALSourceTypeProvider());
+        this.registerServiceImplementation(ISegmentParserService.class, this.nativeRuleRunner);
     }
 
     @Override
@@ -156,6 +172,15 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         } catch (final Exception e) {
             throw new ModuleStartException("Failed to load the static TAL rules.", e);
         }
+        // The native rules read the agent analyzer's settings; without it no native receiver loads, since every
+        // caller of the native service requires it too.
+        if (getManager().has(AnalyzerModule.NAME)) {
+            try {
+                this.nativeRuleRunner.loadRules(this.factory.compileNativeRules());
+            } catch (final Exception e) {
+                throw new ModuleStartException("Failed to load the native TAL rules.", e);
+            }
+        }
     }
 
     /**
@@ -183,6 +208,20 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
         // unit tests.
         if (getManager() != null && getManager().has(AnalyzerModule.NAME)) {
             required.add(AnalyzerModule.NAME);
+        }
+        // Every module whose functions or settings a rule uses has started before the rules compile: the modules
+        // the function providers name and the rule files list, each only when loaded.
+        if (getManager() != null) {
+            final Set<String> reached = new LinkedHashSet<>(ruleRequiredModules);
+            if (factory != null) {
+                reached.addAll(factory.getFunctionRegistry().modules());
+            }
+            for (final String module : reached) {
+                if (!TraceAnalyzerModule.NAME.equals(module) && !required.contains(module)
+                    && getManager().has(module)) {
+                    required.add(module);
+                }
+            }
         }
         return required.toArray(new String[0]);
     }

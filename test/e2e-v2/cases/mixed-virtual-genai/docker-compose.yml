@@ -97,6 +97,8 @@ services:
       OPENAI_BASE_URL: http://mock-llm-server:9090/llm/otlp/v1
       OPENAI_API_KEY: xxxxxxxxxxxxxxxxxxxxxxxx
       OTEL_SERVICE_NAME: e2e-openai-otlp
+      # The otlp-ai-evaluation rule samples natively stored spans of OTLP_GENERAL services, like every OTLP rule.
+      OTEL_RESOURCE_ATTRIBUTES: service.layer=OTLP_GENERAL
       OTEL_TRACES_EXPORTER: otlp
       OTEL_EXPORTER_OTLP_ENDPOINT: http://oap:11800
       OTEL_EXPORTER_OTLP_PROTOCOL: grpc

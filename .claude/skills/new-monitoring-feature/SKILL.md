@@ -1,6 +1,6 @@
 ---
 name: new-monitoring-feature
-description: Add a new monitoring target / layer to SkyWalking OAP. Orients you to the OAL / MAL / LAL / SpanListener / SegmentListener extension points, the UI template + submodule touchpoints, the docs set that must move together, and the cross-cutting traps that don't live in any one skill.
+description: Add a new monitoring target / layer to SkyWalking OAP. Orients you to the OAL / MAL / LAL / TAL / SpanListener extension points, the UI template + submodule touchpoints, the docs set that must move together, and the cross-cutting traps that don't live in any one skill.
 ---
 
 # Adding a New Monitoring Feature / Layer
@@ -13,7 +13,7 @@ There is one skill per narrow concern. This one is the wiring map.
 
 ## Working posture
 
-- **Default scope for a new monitoring feature is narrow.** For most new monitoring targets, traces are **re-used as-is** — you do not write or modify a trace analyzer. Metrics and log extensions via OTLP (MAL + LAL) are the common shape. OTLP / Zipkin span-based metrics analysis (`SpanListener`) already exists and only needs a new implementation if your feature introduces genuinely new semantic-convention attributes to extract (e.g. `gen_ai.*`, `mcp.*` for the GenAI layer). Do **not** touch `CommonAnalysisListener` / `RPCAnalysisListener` / `SegmentAnalysisListener` unless the OAP core protocol gains a new `SpanLayer` enum value — details in §2.
+- **Default scope for a new monitoring feature is narrow.** For most new monitoring targets, traces are **re-used as-is** — you do not write or modify a trace analyzer. Metrics and log extensions via OTLP (MAL + LAL) are the common shape. OTLP / Zipkin span-based metrics analysis (`SpanListener`) already exists and only needs a new implementation if your feature introduces genuinely new semantic-convention attributes to extract (e.g. `gen_ai.*`, `mcp.*` for the GenAI layer). Do **not** touch the native trace rules (`tal/native-*.yaml`) unless the OAP core protocol gains a new `SpanLayer` enum value — details in §2.
 - **If you find yourself editing more than this skill suggests, stop and confirm.** Scope creep on trace analysis, span-layer mapping, receiver handlers, or protobuf/proto contracts is a strong signal the framing is wrong. Ask the developer before committing that direction.
 - **Verify every new feature locally before pushing to CI.** Compile + checkstyle + license-eye are minimums, but they only tell you the code builds — they do **not** tell you the new MAL rule compiles its closures at startup, the LAL layer:auto dispatch works, the OTLP payload shape matches the MAL labels, the UI template renders against real data, or the layer shows up in `swctl service ly <LAYER>`. Run the new e2e case end-to-end locally against a live OAP (see [run-e2e skill](../run-e2e/SKILL.md)) and fire every verify step with `swctl` by hand at least once. Pushing to CI without a local green run wastes shared CI cycles and slow-loops review.
 
@@ -64,15 +64,17 @@ Downstream (the core OAL, `service ly <LAYER>` swctl query, topology filters, UI
 
 | Signal you want to process | Extension point | Register via |
 |---|---|---|
-| **SkyWalking native trace segments** (from language agents) | `AnalysisListener` (TraceSegmentListener / EntryAnalysisListener / ExitAnalysisListener / LocalAnalysisListener / FirstAnalysisListener) + factory in `agent-analyzer` | `META-INF/services/org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory` |
-| **OTLP / Zipkin trace spans** (OTel SDKs, Istio, Envoy, iOS/Android, …) | `SpanListener` in `core.trace` | `META-INF/services/org.apache.skywalking.oap.server.core.trace.SpanListener` |
+| **SkyWalking native trace segments** (from language agents) | TAL rules with `inputType: sw-native` — `tal/native-*.yaml`, run by `trace-analyzer` | Append the file to `nativeTalFiles` (`SW_TRACE_NATIVE_TAL_FILES`); order matters |
+| **OTLP trace spans of a layer** (OTel SDKs that set `service.layer`) | TAL rules with `inputType: otlp` — `tal/*.yaml` | Append the file to `talFiles` (`SW_TRACE_TAL_FILES`) |
+| **OTLP / Zipkin trace spans** needing Java (iOS/Android, GenAI, …) | `SpanListener` in `core.trace` | `META-INF/services/org.apache.skywalking.oap.server.core.trace.SpanListener` |
 | **OTel metrics** (Prometheus scrape, Envoy stats, Istio, …) | MAL rules — `otel-rules/<namespace>/*.yaml` | Append the rule path to `enabledOtelMetricsRules` in `application.yml` |
 | **Logs** (OTLP, SkyWalking native, Fluent Bit, Envoy ALS) | LAL rules — `lal/<rule>.yaml` | Append to `SW_LOG_LAL_FILES` (env) or `lalFiles` (YAML) under `log-analyzer` |
 | **Pre-computed meter / custom meter** (custom agent protocol, meter receiver) | MAL `meter-analyzer-config/*.yaml` | Append to `meter-analyzer-config` entries |
 | **Aggregation from Source entities** (service, instance, endpoint, relation) | OAL rules — `oal/*.oal` | Already loaded by `OAL grammar`; just add lines |
 
-All five DSLs (OAL, MAL, LAL, Hierarchy + SpanListener SPI) compile via ANTLR4 + Javassist at startup. Source-of-truth details are in:
+The DSLs (OAL, MAL, LAL, TAL, Hierarchy) compile via ANTLR4 + Javassist at startup. Source-of-truth details are in:
 - [`docs/en/concepts-and-designs/oal.md`](../../../docs/en/concepts-and-designs/oal.md)
+- [`docs/en/concepts-and-designs/tal.md`](../../../docs/en/concepts-and-designs/tal.md), [`tal-sw-native.md`](../../../docs/en/concepts-and-designs/tal-sw-native.md), [`tal-otlp.md`](../../../docs/en/concepts-and-designs/tal-otlp.md); the [`tal` skill](../tal/SKILL.md) covers compiling, inspecting and verifying TAL rules
 - [`docs/en/concepts-and-designs/mal.md`](../../../docs/en/concepts-and-designs/mal.md)
 - [`docs/en/concepts-and-designs/lal.md`](../../../docs/en/concepts-and-designs/lal.md)
 - [`docs/en/concepts-and-designs/scope-definitions.md`](../../../docs/en/concepts-and-designs/scope-definitions.md)
@@ -87,10 +89,10 @@ SkyWalking OAP ingests traces through two distinct entry points. Pick based on s
 
 > **Before writing any trace extension — ask "do I actually need one?"**
 >
-> For **most new layers you do not touch trace analysis at all.** Segments (native or
-> OTLP) flow through the existing pipeline, `RPCAnalysisListener.parseExit` produces
+> For **most new layers you do not touch trace analysis at all.** Native segments
+> flow through the existing native rules: `native-rpc-exit` (`tal/native-rpc.yaml`) produces
 > the outbound `ServiceRelation` edges, the backend-side agent produces the inbound
-> metrics via its own `parseEntry`, and the new-layer Service / Instance / Endpoint
+> metrics via `native-rpc-entry`; OTLP spans go through the OTLP TAL rules of `talFiles` instead, and the new-layer Service / Instance / Endpoint
 > entities come from **MAL + LAL**, not from trace analysis. This is how browser
 > (`Layer.BROWSER`), iOS (`Layer.IOS`), mobile mini-programs
 > (`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`), and most
@@ -100,35 +102,30 @@ SkyWalking OAP ingests traces through two distinct entry points. Pick based on s
 > interpretation that the existing pipeline cannot express:
 >
 > - **A new `SpanLayer`** — OAP core protobuf has a new `SpanLayer` enum value that
->   callers of `identifyServiceLayer` / `identifyRemoteServiceLayer` must dispatch on.
->   That means touching `CommonAnalysisListener` / `RPCAnalysisListener`.
-> - **A genuinely new signal class not covered by existing listeners** — e.g. the GenAI
+>   the native rules' layer branches must dispatch on.
+>   That means touching `tal/native-rpc.yaml` and its siblings.
+> - **A genuinely new signal class not covered by existing rules or listeners** — e.g. the GenAI
 >   work added `GenAISpanListener` for LLM / MCP instrumentation because OTLP spans
 >   carry semantic-convention attributes (`gen_ai.*`, `mcp.*`) that no prior listener
 >   extracted. That is rare.
 >
 > **Anti-pattern we've been bitten by:** using a componentId mapping in
-> `CommonAnalysisListener` to assign a client-side layer to exit-only segments. This
+> the native trace analysis to assign a client-side layer to exit-only segments. This
 > does not produce inbound metrics anyway (no entry spans → no
 > `service_cpm` / `endpoint_cpm` from OAL), and it is orthogonal to the Service entity
 > layer (which MAL / LAL sets). Mirror the browser pattern instead: ship `Layer` +
-> `component-libraries.yml` + MAL + LAL + dashboards, and leave the listener chain
+> `component-libraries.yml` + MAL + LAL + dashboards, and leave the native rules
 > alone.
 
-### 2.1 SkyWalking native segments — `AnalysisListener`
+### 2.1 SkyWalking native segments — TAL `sw-native` rules
 
-**Source protocol**: `apm-protocol/apm-network/src/main/proto/language-agent/Tracing.proto` (`TraceSegmentObject`).
+**Source protocol**: `apm-protocol/apm-network/src/main/proto/language-agent/Tracing.proto` (`SegmentObject`).
 
-**Receiver**: `oap-server/server-receiver-plugin/skywalking-trace-receiver-plugin`. After wire decoding, segments are handed to `SegmentParserServiceImpl` which fans out to registered `AnalysisListenerFactory` implementations.
+**Receiver**: `oap-server/server-receiver-plugin/skywalking-trace-receiver-plugin` (and the Kafka fetcher). After wire decoding, segments go to `ISegmentParserService` of `trace-analyzer`, whose `SwNativeRuleRunner` runs every rule of every file in `nativeTalFiles`, in list order, on every span of the segment.
 
-**Extension**: implement one or more of
-- `FirstAnalysisListener` — per-segment, before per-span phase
-- `EntryAnalysisListener` — per-entry-span
-- `ExitAnalysisListener` — per-exit-span
-- `LocalAnalysisListener` — per-local-span
-- `TraceSegmentListener` — whole-segment, after per-span phase
+**Extension**: a TAL rule file under `oap-server/server-starter/src/main/resources/tal/` with `inputType: sw-native`, appended to `nativeTalFiles` in `application.yml`. Outputs are made inside `build {}`: `source <Scope> {}` for the existing sources (`core.oal` metrics, records such as `DatabaseSlowStatement`, or a module's own source, as `ai-evaluation` takes `GenAIEvaluationSample` through its `SourceDispatcher`), `metrics {}` for new meter metrics. A file that needs a module (its functions or sources) lists it under `requiredModules`. Reference files: `tal/native-rpc.yaml` (services, endpoints, relations), `tal/native-virtual-service.yaml` (virtual DB/cache/MQ), `tal/native-virtual-genai.yaml`. Language and runner: [`docs/en/concepts-and-designs/tal-sw-native.md`](../../../docs/en/concepts-and-designs/tal-sw-native.md); file order and loggers: [`docs/en/setup/backend/native-trace-analysis.md`](../../../docs/en/setup/backend/native-trace-analysis.md).
 
-Register the **factory** in `META-INF/services/org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory`. Existing examples: `RPCAnalysisListener`, `MultiScopesAnalysisListener`, `SegmentAnalysisListener` in `oap-server/analyzer/agent-analyzer/src/main/java/.../trace/parser/listener/`.
+A module contributes functions to TAL rules through `TALFunctionProvider` (`server-core`, `supportsInputType(...)` naming the inputs it serves, registered in `META-INF/services/org.apache.skywalking.oap.server.core.source.TALFunctionProvider`), as `ai-evaluation` does for `native-ai-evaluation` and `otlp-ai-evaluation`.
 
 Use when: the data arrives on the SW native wire (language agents — Java, Python, Go, Node.js, .NET, PHP, Lua, etc.).
 
@@ -159,7 +156,7 @@ Register in `META-INF/services/org.apache.skywalking.oap.server.core.trace.SpanL
 
 Return `SpanListenerResult.builder().shouldPersist(false).build()` to prevent a span being stored as a trace (useful for e.g. 24-hour aggregate spans that are not meaningful as traces).
 
-**When both native and OTLP should feed the same metric**, write your extension against the downstream scope (Service / ServiceInstance / Endpoint + OAL) and emit those entities from **both** a SegmentListener and a SpanListener. The OAL layer is protocol-agnostic.
+**When both native and OTLP should feed the same metric**, write your extension against the downstream scope (Service / ServiceInstance / Endpoint + OAL) and emit those entities from **both** a native TAL rule and an OTLP TAL rule with `source {}` (or a `SpanListener` on the OTLP side). The OAL layer is protocol-agnostic. A TAL `metrics {}` block makes a meter metric, not an OAL source, so it feeds the same metric only when both inputs use `metrics {}`.
 
 ---
 
@@ -169,7 +166,7 @@ Return `SpanListenerResult.builder().shouldPersist(false).build()` to prevent a 
 
 `oap-server/server-starter/src/main/resources/oal/core.oal` already defines the standard `service_cpm`, `service_resp_time`, `service_sla`, `endpoint_cpm`, etc. — keyed off the `Service`, `ServiceInstance`, `Endpoint` source scopes. If your new layer emits those entities with the right `Layer`, you get the core metrics for free.
 
-**Who emits those entities matters.** `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time` come from `RPCAnalysisListener.parseEntry` → `callingIn.toService()` / `toEndpoint()`. That only fires on **inbound entry spans**. Client-side / edge layers (browser, iOS, mini-programs) only emit exit spans, so these OAL metrics do **not** populate under those layers — their Service entities are produced by MAL / LAL, and their dashboards use MAL metrics (`meter_<layer>_*`) for load / latency, not `service_cpm` / `service_resp_time`. Don't wire dashboards to OAL-derived metrics that the layer never produces.
+**Who emits those entities matters.** `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time` come from the `native-rpc-entry` rule's `source Service {}` / `source Endpoint {}` (`tal/native-rpc.yaml`). That only fires on **inbound entry spans**. Client-side / edge layers (browser, iOS, mini-programs) only emit exit spans, so these OAL metrics do **not** populate under those layers — their Service entities are produced by MAL / LAL, and their dashboards use MAL metrics (`meter_<layer>_*`) for load / latency, not `service_cpm` / `service_resp_time`. Don't wire dashboards to OAL-derived metrics that the layer never produces.
 
 Additional OAL rules go in the same file. OAL grammar: `oap-server/oal-grammar/src/main/antlr4/OALParser.g4`. Syntax and examples: [`docs/en/concepts-and-designs/oal.md`](../../../docs/en/concepts-and-designs/oal.md).
 
@@ -309,7 +306,7 @@ Run in order; each has a dedicated skill:
 | Trap | Symptom | Fix |
 |---|---|---|
 | Layer folder named with hyphens | `ui-initialized-templates/my-layer/*.json` on disk but dashboard empty | Folder must be `Layer.name().toLowerCase()` (underscores). `wechat_mini_program/`, not `wechat-mini-program/` |
-| Extending `CommonAnalysisListener` for a client-side layer | Added componentId → layer mapping "to get topology for free"; then `service_cpm` etc. don't populate anyway | Client-side (exit-only) layers don't need trace-analysis changes. Ship `Layer` + `component-libraries.yml` + MAL + LAL. See §2 header for when extending trace analysis is actually justified |
+| Extending the native trace rules for a client-side layer | Added componentId → layer mapping "to get topology for free"; then `service_cpm` etc. don't populate anyway | Client-side (exit-only) layers don't need trace-analysis changes. Ship `Layer` + `component-libraries.yml` + MAL + LAL. See §2 header for when extending trace analysis is actually justified |
 | Dashboards wired to OAL-derived metrics on a client-side layer | Charts stay empty — `service_cpm` / `service_resp_time` / `endpoint_cpm` never populate | Those come from inbound `parseEntry`, which mini-program / browser / iOS don't emit. Use MAL metrics (`meter_<layer>_*`) instead |
 | LAL `#` comment in DSL body | OAP boot fails with `extraneous input 'metrics'` at the `#` line | LAL grammar accepts `//` and `/* */` only. No `#` comments |
 | LAL bare def-var value access — `tag 'x': myvar` | OAP boot fails with `Cannot resolve expression '[myvar]'` | `LALValueCodegen` only treats def-vars as valid when there's a method chain (`myvar?.foo`). Inline `sourceAttribute(...)` or `tag(...)` in the three value-access sites instead of storing to a def, or add a no-op chain like `myvar.toString()`. Conditions (`if (myvar == ...)`) go through a different codegen path and DO handle bare def refs |
@@ -353,11 +350,11 @@ Browse these when you need a template to copy from. Grouped by the kind of data 
 
 `Layer.GENERAL` is the default layer for services reporting via the SkyWalking native trace protocol (Java / Python / Go / Node.js / .NET / PHP / Lua / Rust agents). It's the richest reference because the native pipeline is where the **full topology** lives:
 
-- **Service → service dependency** (topology): derived by `MultiScopesAnalysisListener` and `NetworkAddressAliasMappingListener` in `oap-server/analyzer/agent-analyzer/src/main/java/.../trace/parser/listener/`. Entry/exit spans produce `ServiceRelation`, `ServiceInstanceRelation` sources.
-- **Endpoint → endpoint dependency**: `RPCAnalysisListener` emits `EndpointRelation` sources from cross-process refs and exit spans. This is unique to the native protocol — OTLP spans don't preserve upstream entry-span metadata the same way, so OTLP-only layers generally lose endpoint-level topology.
+- **Service → service dependency** (topology): derived by `tal/native-rpc.yaml` and `tal/native-network-alias.yaml`. Entry/exit spans produce `ServiceRelation`, `ServiceInstanceRelation` sources.
+- **Endpoint → endpoint dependency**: `native-rpc-entry` emits `EndpointRelation` sources from an entry span's references, and `native-endpoint-cross-thread` from exit and local spans with references. This is unique to the native protocol — OTLP spans don't preserve upstream entry-span metadata the same way, so OTLP-only layers generally lose endpoint-level topology.
 - OAL aggregation: `oap-server/server-starter/src/main/resources/oal/core.oal` — all `service_relation_*`, `service_instance_relation_*`, `endpoint_relation_*` metrics are already defined there; a new native-tracing layer just needs to produce the right sources with the right `Layer`.
 
-Read order: `AnalysisListenerFactory` SPI registration → `SegmentParserServiceImpl` fan-out → individual listeners → OAL rules.
+Read order: `nativeTalFiles` in `application.yml` → `SwNativeRuleRunner` → the `tal/native-*.yaml` rules → OAL rules.
 
 ### Service-mesh (Istio / Envoy ALS) — topology from proxy-side signals
 
@@ -396,7 +393,7 @@ No OTel; the agent / plugin sends pre-built meter samples on the SW `MeterProtoc
 
 | You're adding | Closest reference |
 |---|---|
-| Language agent (new JVM / runtime) | The General / Java layer flow; extend `AnalysisListener` SPI. |
+| Language agent (new JVM / runtime) | The General / Java layer flow; usually no change — the native TAL rules already analyze it. |
 | Service mesh / proxy | `mesh-*` + `envoy-*` rules; LAL on ALS. |
 | Mobile / browser / mini-program SDK (OTLP) | `ios-analyzer` (OTLP client-side). Expect no topology relations. |
 | Database / middleware (metrics only) | `mysql`, `postgresql` — pure MAL rules. |

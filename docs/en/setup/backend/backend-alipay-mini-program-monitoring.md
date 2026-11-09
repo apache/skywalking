@@ -97,7 +97,7 @@ WeChat-only metrics (`route_duration`, `script_duration`, `package_load_duration
 entirely.
 
 Mini-program native trace segments are client-side (exit-only) — the same shape as browser
-JS-agent traces. They flow through OAP's standard `RPCAnalysisListener` pipeline and produce
+JS-agent traces. They flow through OAP's standard [native trace analysis](native-trace-analysis.md) and produce
 `ServiceRelation` / `ServiceInstanceRelation` edges to the backend services the mini-program
 calls (so topology shows the outbound dependency), but do **not** produce
 `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time`

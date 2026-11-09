@@ -17,13 +17,18 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.AliasRegistrar;
@@ -47,8 +52,7 @@ public class FilterSpec {
     @Getter
     private final SourceReceiver sourceReceiver;
     /**
-     * The call pairs waiting for their other half; the module's shared buffers in production, fresh ones for a
-     * caller that builds the spec from the services it holds.
+     * The call pairs waiting for their other half, the module's shared buffers.
      */
     @Getter
     private final SpanPairing spanPairing;
@@ -59,111 +63,100 @@ public class FilterSpec {
     private final AliasRegistrar aliasRegistrar;
 
     /**
-     * The rate-limit counters by id; the module's shared set in production, so two rules naming one id share
-     * one budget, and a fresh set for a caller that builds the spec from the services it holds.
+     * The rate-limit counters by id, the module's shared set, so two rules naming one id share one budget.
      */
     private final RateLimitingSamplers samplers;
 
-    public FilterSpec(final ModuleManager moduleManager, final TraceAnalyzerModuleConfig config) {
-        this(moduleManager, config,
-            moduleManager.find(CoreModule.NAME).provider().getService(MeterSystem.class),
-            moduleManager.find(CoreModule.NAME).provider().getService(NamingControl.class),
-            moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class),
-            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(SpanPairing.class),
-            moduleManager.find(TraceAnalyzerModule.NAME).provider().getService(RateLimitingSamplers.class));
-    }
+    /**
+     * The services the input's functions read, by type, with the module the first lookup of the type named, so the
+     * usual lookup is one probe; {@link #servicesByModule} answers a type another module also serves.
+     */
+    private final Map<Class<?>, ModuleService> services = new ConcurrentHashMap<>();
 
     /**
-     * For a caller that already holds the core services, which is what makes the runtime exercisable without a
-     * booted module system.
-     *
-     * @param moduleManager  the manager, for what a rule resolves lazily
-     * @param config         the module's configuration
-     * @param meterSystem    where metric values go
-     * @param namingControl  the naming rules every entity name passes through
-     * @param sourceReceiver where output records go
+     * Every service looked up, by module, then by type.
      */
-    public FilterSpec(final ModuleManager moduleManager,
-                      final TraceAnalyzerModuleConfig config,
-                      final MeterSystem meterSystem,
-                      final NamingControl namingControl,
-                      final SourceReceiver sourceReceiver) {
-        this(moduleManager, config, meterSystem, namingControl, sourceReceiver, new SpanPairing(),
-            new RateLimitingSamplers());
-    }
+    private final Map<String, Map<Class<?>, Object>> servicesByModule = new ConcurrentHashMap<>();
 
-    private FilterSpec(final ModuleManager moduleManager,
-                       final TraceAnalyzerModuleConfig config,
-                       final MeterSystem meterSystem,
-                       final NamingControl namingControl,
-                       final SourceReceiver sourceReceiver,
-                       final SpanPairing spanPairing,
-                       final RateLimitingSamplers samplers) {
+    public FilterSpec(final ModuleManager moduleManager, final TraceAnalyzerModuleConfig config) {
         this.moduleManager = moduleManager;
         this.config = config;
-        this.meterSystem = meterSystem;
-        this.namingControl = namingControl;
-        this.sourceReceiver = sourceReceiver;
-        this.spanPairing = spanPairing;
-        this.samplers = samplers;
-        // The module's registrar knows gateways.yml, which needs a booted OAP; a spec built without one makes its own.
-        if (spanPairing.getAliasRegistrar() == null) {
-            spanPairing.setAliasRegistrar(new AliasRegistrar(sourceReceiver, namingControl));
-        }
+        final ModuleServiceHolder core = moduleManager.find(CoreModule.NAME).provider();
+        this.meterSystem = core.getService(MeterSystem.class);
+        this.namingControl = core.getService(NamingControl.class);
+        this.sourceReceiver = core.getService(SourceReceiver.class);
+        final ModuleServiceHolder analyzer = moduleManager.find(TraceAnalyzerModule.NAME).provider();
+        this.spanPairing = analyzer.getService(SpanPairing.class);
+        this.samplers = analyzer.getService(RateLimitingSamplers.class);
+        // Set by the module's start() before the first rule compiles, see TraceAnalyzerModuleProvider.
         this.aliasRegistrar = spanPairing.getAliasRegistrar();
     }
 
     /**
-     * {@code dropper {}} — vote to drop.
+     * {@code dropper {}} — vote to drop the span.
      *
-     * @param ctx      this span's state
-     * @param inPersist whether the statement sits in a {@code persist} block, so the span is what it drops
+     * @param ctx this span's state
      */
-    public void dropper(final ExecutionContext ctx, final boolean inPersist) {
-        if (inPersist) {
-            ctx.votePersist(false);
-        } else {
-            ctx.dropRecord();
-        }
+    public void dropper(final ExecutionContext ctx) {
+        ctx.votePersist(false);
     }
 
     /**
-     * {@code enforcer {}} — keep regardless of this rule's samplers, before or after it, and in a {@code persist}
-     * block ask the forward to skip the receiver's trace-id head sampling for this span.
+     * {@code enforcer {}} — keep the span regardless of this rule's samplers, before or after it, and ask the forward
+     * to skip the receiver's trace-id head sampling for it.
      *
-     * @param ctx       this span's state
-     * @param inPersist whether the statement sits in a {@code persist} block
+     * @param ctx this span's state
      */
-    public void enforcer(final ExecutionContext ctx, final boolean inPersist) {
-        if (inPersist) {
-            ctx.enforce();
-        } else {
-            ctx.enforceRecord();
-        }
+    public void enforcer(final ExecutionContext ctx) {
+        ctx.enforce();
     }
 
     /**
      * {@code rateLimit(id) { rpm n }} — one counter per id, reset every minute, shared by every rule and span
      * that names the same id. It counts spans, not traces, so two spans of one trace can fall on different
-     * sides of the budget. A span or record an {@code enforcer {}} already kept neither votes nor spends budget.
+     * sides of the budget. A span an {@code enforcer {}} already kept neither votes nor spends budget.
      *
-     * @param ctx       this span's state
-     * @param id        the counter's id, already interpolated
-     * @param rpm       the budget per minute
-     * @param inPersist whether the sampler sits in a {@code persist} block
+     * @param ctx this span's state
+     * @param id  the counter's id, already interpolated
+     * @param rpm the budget per minute
      */
-    public void rateLimit(final ExecutionContext ctx, final String id, final int rpm, final boolean inPersist) {
-        if (inPersist ? ctx.isEnforced() : ctx.isRecordEnforced()) {
+    public void rateLimit(final ExecutionContext ctx, final String id, final int rpm) {
+        if (ctx.isEnforced()) {
             return;
         }
         if (samplers.of(id, rpm).sample()) {
-            if (inPersist) {
-                ctx.votePersist(true);
-            }
-        } else if (inPersist) {
-            ctx.sampleOutSpan();
+            ctx.votePersist(true);
         } else {
-            ctx.sampleOutRecord();
+            ctx.sampleOutSpan();
         }
+    }
+
+    /**
+     * A module's service, looked up once per rule and kept, for the functions an input declares, which read their
+     * services through the run.
+     *
+     * @param module the module serving it
+     * @param type   the service
+     * @param <T>    the service's type
+     * @return the service, or null when the module does not serve it
+     */
+    public <T extends Service> T service(final String module, final Class<T> type) {
+        final ModuleService cached = services.get(type);
+        if (cached != null && cached.module.equals(module)) {
+            return type.cast(cached.service);
+        }
+        final Object service = servicesByModule.computeIfAbsent(module, key -> new ConcurrentHashMap<>())
+                                               .computeIfAbsent(type, key -> moduleManager.find(module).provider()
+                                                                                          .getService(type));
+        if (cached == null && service != null) {
+            services.putIfAbsent(type, new ModuleService(module, service));
+        }
+        return type.cast(service);
+    }
+
+    @RequiredArgsConstructor
+    private static final class ModuleService {
+        private final String module;
+        private final Object service;
     }
 }

@@ -19,13 +19,13 @@ package org.apache.skywalking.oap.trace.analyzer.v2.dsl;
 
 import java.util.Collections;
 import java.util.Map;
-import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider;
+import org.apache.skywalking.oap.trace.analyzer.v2.spi.OtlpTALSourceTypeProvider;
 
 /**
  * Serves {@link TestSpanInput} to the runtime so an execution test can control exactly which attributes a rule
  * sees.
  */
-public class TestSpanSourceTypeProvider implements TALSourceTypeProvider {
+public class TestSpanSourceTypeProvider extends OtlpTALSourceTypeProvider {
     @Override
     public String alias() {
         return "test";

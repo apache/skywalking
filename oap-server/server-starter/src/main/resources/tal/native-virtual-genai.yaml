@@ -1,0 +1,123 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# VirtualServiceAnalysisListener's GenAI processor, as a TAL rule for spans that SkyWalking agents send.
+# Loaded only with the gen-ai-analyzer module, as the listener's factory adds the processor only then.
+#
+# The processor extracts the GenAI facts (GenAIMeterAnalyzer.extractMetricsFromSWSpan, written out below) and prepares
+# the sources (GenAIMeterAnalyzer.transferToSources) during the span loop, and the listener sends them in build(), after
+# the cache, database and MQ sources. The outputs stay the four OAL sources that virtual-gen-ai.oal reads.
+
+requiredModules:
+  - gen-ai-analyzer
+
+rules:
+  - name: native-virtual-genai
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!(span.spanType == "Entry" || span.spanType == "Exit" || span.spanType == "Local") || span.spanLayer != "GenAI") {
+          abort {}
+        }
+        extractor {
+          // extractMetricsFromSWSpan. The raw tags; a key is not expected to repeat, and when it does the first value
+          // is kept
+          def genAITags = tagMap()
+          // GenAIContextResolver.resolve: the declared provider, else the legacy gen_ai.system, else the provider
+          // gen-ai-config.yml names for the model; the model lookup runs first, whichever branch is taken
+          def modelName = genAITags.get("gen_ai.response.model") as String
+          def declaredProvider = genAITags.get("gen_ai.provider.name") as String
+          def legacySystem = genAITags.get("gen_ai.system") as String
+          def providerName = matchGenAIModel(modelName).provider
+          if (!isBlank(declaredProvider)) {
+            providerName = declaredProvider
+          } else if (!isBlank(legacySystem)) {
+            providerName = legacySystem
+          }
+          if (isBlank(modelName)) {
+            log debug "Model name is missing in span [{}], skipping GenAI analysis", span.operationName
+            abort {}
+          }
+          // GenAIProviderPrefixMatcher.match: the same lookup, for the model's prices; null when no model is priced
+          def pricing = matchGenAIModel(modelName).pricing
+          // parseSafeLong: 0 for no value, and 0 with a warning for one that does not parse
+          def inputTokens = parseLongOrZero(genAITags.get("gen_ai.usage.input_tokens") as String)
+          def outputTokens = parseLongOrZero(genAITags.get("gen_ai.usage.output_tokens") as String)
+          // calculateTotalCost
+          def totalCost = 0.0
+          if (pricing != null) {
+            if (pricing.inputEstimatedCostPerM > 0) {
+              totalCost = totalCost + inputTokens * pricing.inputEstimatedCostPerM
+            }
+            if (pricing.outputEstimatedCostPerM > 0) {
+              totalCost = totalCost + outputTokens * pricing.outputEstimatedCostPerM
+            }
+          }
+          // The Java also builds the provider's service id here, which nothing reads
+          def timeToFirstToken = parseIntOrZero(genAITags.get("gen_ai.server.time_to_first_token") as String)
+          def latency = span.endTime - span.startTime
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          def bucket = minuteTimeBucket(span.startTime)
+
+          // transferToSources, during the span loop: the same six naming calls and two roundings, in its order
+          def metaService = formatServiceName(providerName)
+          def instanceName = formatInstanceName(modelName)
+          def instanceService = formatServiceName(providerName)
+          def providerService = formatServiceName(providerName)
+          def providerCost = round(totalCost)
+          def modelService = formatServiceName(providerName)
+          def modelInstanceName = formatInstanceName(modelName)
+          def modelCost = round(totalCost)
+
+          build {
+            source ServiceMeta {
+              name metaService
+              layer "VIRTUAL_GENAI"
+              timeBucket bucket
+            }
+            // Only these four fields; the others keep the source's defaults
+            source ServiceInstance {
+              timeBucket bucket
+              name instanceName
+              serviceLayer "VIRTUAL_GENAI"
+              serviceName instanceService
+            }
+            source GenAIProviderAccess {
+              name providerService
+              inputTokens inputTokens
+              outputTokens outputTokens
+              totalEstimatedCost providerCost
+              latency latency
+              status ok
+              timeBucket bucket
+            }
+            source GenAIModelAccess {
+              serviceName modelService
+              modelName modelInstanceName
+              inputTokens inputTokens
+              outputTokens outputTokens
+              totalEstimatedCost modelCost
+              timeToFirstToken timeToFirstToken
+              latency latency
+              status ok
+              timeBucket bucket
+            }
+          }
+        }
+      }

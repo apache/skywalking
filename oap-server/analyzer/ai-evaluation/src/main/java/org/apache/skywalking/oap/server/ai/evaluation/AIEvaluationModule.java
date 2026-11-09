@@ -31,7 +31,9 @@ public class AIEvaluationModule extends ModuleDefine {
     @Override
     public Class[] services() {
         return new Class[] {
-            IAIEvaluationService.class
+            IAIEvaluationService.class,
+            // Read by the trace analyzer's native rules, which sample GenAI spans for evaluation.
+            AIEvaluationSamplingConfig.class
         };
     }
 }

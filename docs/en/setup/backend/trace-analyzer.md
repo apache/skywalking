@@ -1,11 +1,14 @@
 # OpenTelemetry Trace Analysis
 
-The `trace-analyzer` module runs the [Trace Analysis Language (TAL)](../../concepts-and-designs/tal.md) rules over
+The `trace-analyzer` module runs the [Trace Analysis Language (TAL)](../../concepts-and-designs/tal.md) rules for
+OpenTelemetry spans, [TAL for OpenTelemetry Spans](../../concepts-and-designs/tal-otlp.md), over
 every span the [OpenTelemetry trace receiver](otlp-trace.md) accepts, in both of its storage modes, and before the
 receiver's head sampling and rate limit, so the metrics count what the SDKs sent rather than what the OAP chose to
 store. The shipped rules analyze the applications that ask for it, by setting their resource's `service.layer` to
 `OTLP_GENERAL`; their services, metrics, topology and slow statements then appear. Every other span, one with no
 `service.layer`, a service mesh sidecar's, or any other source's, is stored and can be queried, but is not analyzed.
+The same module analyzes the segments SkyWalking agents send, with rules of its own, see [Native Trace
+Analysis](native-trace-analysis.md).
 
 ## Enabling the analysis for an application
 
@@ -27,9 +30,14 @@ rule, such as `OTLP_MESH`, has opted out and is not logged.
 trace-analyzer:
   selector: ${SW_TRACE_ANALYZER:default}
   default:
-    # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
-    # the module loaded.
-    talFiles: ${SW_TRACE_TAL_FILES:otlp-general}
+    # TAL rule files under `tal/` for spans that SkyWalking agents send, without extension, comma separated, in the
+    # order their rules run. The default reproduces the agent path.
+    nativeTalFiles: ${SW_TRACE_NATIVE_TAL_FILES:native-rpc,native-endpoint-cross-thread,native-network-alias,native-segment,native-virtual-service,native-virtual-genai,native-ai-evaluation}
+    # OpenTelemetry (OTLP) spans: the settings from here to the end of this section apply to OTLP spans only.
+    #
+    # TAL rule files under `tal/` for OTLP spans, without extension, comma separated. Empty disables OTLP span
+    # analysis while keeping the module loaded.
+    talFiles: ${SW_TRACE_TAL_FILES:otlp-general,otlp-ai-evaluation}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
     # arrival as new. Set it longer than the exporter's retry budget; the OTLP SDKs give up after about 30 s. The
@@ -50,15 +58,22 @@ trace-analyzer:
 ```
 
 The rule files live under `config/tal/` of the distribution. To change what is measured, edit a file there or add
-one and list it in `talFiles`, then restart the OAP: the files are read at start. A rule file that does not compile,
+one and list it in `talFiles`, then restart the OAP: the files are read at start. `nativeTalFiles` lists the rules for
+SkyWalking agents' segments, described in [Native Trace Analysis](native-trace-analysis.md); `dedupWindow`,
+`dedupCapacity` and `pairingSamplePercent` apply to OTLP spans only. A rule file that does not compile,
 or that names a layer that is not registered, stops the OAP from starting with a message naming the rule.
 
-## What the shipped rule file produces
+## What the shipped rule files produce
 
 `tal/otlp-general.yaml` holds two rules, both declared for the `OTLP_GENERAL` layer. `otlp-general` claims every
 span whose resource carries `service.layer=OTLP_GENERAL`, except the GenAI spans the GenAI analyzer already handles,
 and `otlp-slow-sql` writes a slow statement record for a database client span above 200 ms. Both read the OpenTelemetry semantic conventions with the current attribute
 names first and the deprecated spellings older SDKs still emit as fallbacks.
+
+`tal/otlp-ai-evaluation.yaml`, which lists `ai-evaluation` under `requiredModules` and so loads only with that module,
+holds `otlp-ai-evaluation`, also declared for `OTLP_GENERAL`. It samples a GenAI span, one that names the model that
+answered in `gen_ai.response.model`, for [AI evaluation](ai-evaluation.md) when the span is stored natively, and sends
+it to the module as a `GenAIEvaluationSample` source. A span stored as a Zipkin span is sampled on the Zipkin path.
 
 ### Layers
 
@@ -80,10 +95,10 @@ reached from both paths is one node.
 A sidecar's spans repeat the calls its application's own spans already describe, and name the workload the mesh's
 way, Istio's Envoy as `<service>.<namespace>`. They carry no `OTLP_GENERAL`, so they are stored, and searchable with
 TraceQL, but not analyzed: they register no service, no metrics and no topology. A span no rule claims sends no
-pairing fact either, see [Layer](../../concepts-and-designs/tal.md#layer). The sidecars' spans still sit between the
+pairing fact either, see [Layer](../../concepts-and-designs/tal-otlp.md#layer). The sidecars' spans still sit between the
 applications' spans in the trace, which reads `a` CLIENT, `a`'s sidecar, `b`'s sidecar, `b` SERVER: an application's
 CLIENT span is the parent of its sidecar's span, not of the callee's SERVER span, so the pairing cannot name an address-named peer while the sidecars trace too, see
-[Address-named peers](../../concepts-and-designs/tal.md#address-named-peers). Labelling the sidecars' spans
+[Address-named peers](../../concepts-and-designs/tal-otlp.md#address-named-peers). Labelling the sidecars' spans
 `service.layer=OTLP_MESH`, as below, keeps them out of the analysis but not out of the trace, so it does not help here.
 Trace each hop once: either the applications, with the sidecars' tracing off and the trace context passed through, or
 the mesh alone, whose topology the [service mesh](../envoy/als_setting.md) analysis draws from access logs.
@@ -225,7 +240,7 @@ one, else by `server.address` and
 host and port of `url.full` or `http.url` when the SDK reports nothing else, as the Python `requests` instrumentation
 does. An
 address-named peer, `cart:7070` or `172.19.0.19:8080`, is folded onto the service it reaches by strict span pairing,
-described under [Address-named peers](../../concepts-and-designs/tal.md#address-named-peers): the callee's SERVER
+described under [Address-named peers](../../concepts-and-designs/tal-otlp.md#address-named-peers): the callee's SERVER
 span names the caller's span that called it as its parent, and the pair writes a network address alias keyed by the
 caller and the peer, `frontend->cart:7070`, for the callee's service. No host is matched against service names or
 DNS, so an alias needs both spans of a call analyzed. Each caller and peer is learned on its own, about four calls
@@ -345,12 +360,14 @@ trace-analyzer:
 or sets `SW_TRACE_TAL_FILES` to an empty string. With no rule installed a span costs the analyzer nothing: no
 metric, no service or topology entry, no slow statement record, no pairing fact, and in a cluster no pairing
 traffic. The receiver's storage path is unchanged, so the traces are still stored in the mode `otlpTraceStorage`
-selects and still served to TraceQL.
+selects and still served to TraceQL. The native analysis of SkyWalking agents' segments, `nativeTalFiles`, keeps
+running.
 
-Removing the module altogether, with `selector: -` or `SW_TRACE_ANALYZER=-`, has the same effect: the OpenTelemetry
-trace receiver declares the module as a requirement only when it is loaded, and without it the receiver stores
-every span and analyzes none. The difference is what stays resident: with an empty `talFiles` the module and its
-services exist and a rule file can be listed again with a restart; with `-` nothing of it is loaded.
+Removing the module altogether, with `selector: -` or `SW_TRACE_ANALYZER=-`, stops the boot whenever a module that
+requires it is loaded: the native trace receiver, `receiver-trace`, which is loaded by default, or the Kafka fetcher,
+since they hand it the agents' segments. With neither loaded, removing it works for OTLP alone: the OpenTelemetry trace
+receiver declares the module as a requirement only when it is loaded, and without it the receiver stores every span
+and analyzes none.
 
 To keep part of the analysis, put the rules you want in a file of your own under `config/tal/` and list only that
 file. The two shipped rules are independent: `otlp-slow-sql` alone writes the slow statement records and keeps the

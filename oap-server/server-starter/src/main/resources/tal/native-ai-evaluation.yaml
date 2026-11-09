@@ -1,0 +1,89 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# GenAIEvaluationAnalysisListener, as a TAL rule for spans that SkyWalking agents send. Loaded only with the
+# ai-evaluation module, which the listener's factory required.
+#
+# The sampling decision and the tag reads run on the span, where the listener makes them. The sample itself is a
+# GenAIEvaluationSample source, sent in build {} as a native rule makes all of its outputs, so it is taken after the
+# segment's last span, once the earlier files' blocks have run. A segment that analyzes completely makes the same sample
+# calls, with the same contexts, in the same order as the listener; a segment that fails makes none, where the listener
+# could already have sampled the spans before the failure. ai-evaluation's dispatcher builds the AIEvaluationContext
+# from the fields below and calls IAIEvaluationService.sample on the same thread, with nothing caught; it hands the
+# context to the evaluation queue and stores nothing.
+
+requiredModules:
+  - ai-evaluation
+
+rules:
+  - name: native-ai-evaluation
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!(span.spanType == "Entry" || span.spanType == "Exit" || span.spanType == "Local") || span.skipAnalysis || span.spanLayer != "GenAI") {
+          abort {}
+        }
+        // IAIEvaluationService.shouldSample, decided before the tags are read, so an unsampled trace reads none.
+        // ai-evaluation is inactive, and samples nothing, when its judge configuration is incomplete
+        if (!evaluationActive()) {
+          abort {}
+        }
+        // DefaultAIEvaluationSamplingPolicy: a non-empty trace id whose murmur3-128 hash, taken as a long, falls below
+        // sampleRate in a space of 1,000,000
+        if (segment().traceId == ""
+            || floorMod(murmur3Hash(segment().traceId), 1000000L)
+                >= evaluationSampleRate()) {
+          abort {}
+        }
+        extractor {
+          // The raw tags; a key is not expected to repeat, and when it does the first value is kept
+          def genAITags = tagMap()
+          if (isBlank(genAITags.get("gen_ai.response.model") as String)) {
+            abort {}
+          }
+          // GenAIContextResolver.resolve: the declared provider, else the legacy gen_ai.system, else the provider
+          // gen-ai-config.yml names for the model; the model lookup runs first, whichever branch is taken
+          def responseModel = genAITags.get("gen_ai.response.model") as String
+          def declaredProvider = genAITags.get("gen_ai.provider.name") as String
+          def legacySystem = genAITags.get("gen_ai.system") as String
+          def providerName = matchGenAIModel(responseModel).provider
+          if (!isBlank(declaredProvider)) {
+            providerName = declaredProvider
+          } else if (!isBlank(legacySystem)) {
+            providerName = legacySystem
+          }
+          build {
+            // Handed to ai-evaluation's dispatcher, which queues the span for the judge; nothing is stored
+            source GenAIEvaluationSample {
+              traceId segment().traceId
+              traceRefType "SKYWALKING_NATIVE"
+              segmentId segment().traceSegmentId
+              // The span's id, not its position in the segment
+              spanIndex span.spanId
+              serviceName segment().service
+              serviceInstanceName segment().serviceInstance
+              operationName span.operationName
+              providerName providerName
+              modelName responseModel
+              startTimeMillis span.startTime
+              endTimeMillis span.endTime
+              error span.isError
+              tags genAITags
+              timeBucket recordTimeBucket(span.startTime)
+            }
+          }
+        }
+      }

@@ -27,6 +27,7 @@ import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterPr
 import org.apache.skywalking.oap.server.ai.evaluation.judge.JudgeModelProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.judge.provider.OpenAICompatibleProvider;
 import org.apache.skywalking.oap.server.ai.evaluation.level.EvaluationLevelResolver;
+import org.apache.skywalking.oap.server.ai.evaluation.listener.GenAIEvaluationSampleDispatcher;
 import org.apache.skywalking.oap.server.ai.evaluation.plan.EvaluationInputExtractor;
 import org.apache.skywalking.oap.server.ai.evaluation.plan.EvaluationPlanner;
 import org.apache.skywalking.oap.server.ai.evaluation.plan.EvaluationPromptBuilder;
@@ -103,7 +104,9 @@ public class AIEvaluationProvider extends ModuleProvider {
         }
         if (!hasCompleteJudgeConfiguration(config)) {
             log.warn("AI evaluation is inactive because judge configuration is incomplete.");
-            registerServiceImplementation(IAIEvaluationService.class, new InactiveAIEvaluationService());
+            final IAIEvaluationService inactive = new InactiveAIEvaluationService();
+            registerServiceImplementation(IAIEvaluationService.class, inactive);
+            GenAIEvaluationSampleDispatcher.bind(inactive);
             active = false;
         } else {
             validateConfig(config);
@@ -114,8 +117,11 @@ public class AIEvaluationProvider extends ModuleProvider {
                 config.getConsumerThreads()
             );
             registerServiceImplementation(IAIEvaluationService.class, aiEvaluationService);
+            GenAIEvaluationSampleDispatcher.bind(aiEvaluationService);
             active = true;
         }
+        registerServiceImplementation(
+            AIEvaluationSamplingConfig.class, new AIEvaluationSamplingConfig(active, config.getSampleRate()));
     }
 
     @Override

@@ -20,8 +20,8 @@ package org.apache.skywalking.oap.server.analyzer.module;
 
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.server.analyzer.provider.meter.process.IMeterProcessService;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.NativeTraceAnalysisConfig;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 
 public class AnalyzerModule extends ModuleDefine {
@@ -34,13 +34,14 @@ public class AnalyzerModule extends ModuleDefine {
     @Override
     public Class[] services() {
         return new Class[] {
-            ISegmentParserService.class,
             IMeterProcessService.class,
             // Lets the runtime-rule plugin hot-swap a single meter-analyzer-config rule.
             // Resolved by MalRuleEngine via moduleManager.find("agent-analyzer").
             MalConverterRegistry.class,
             // Read by the trace analyzer, whose alias rows honour the same gateways.
-            UninstrumentedGatewaysConfig.class
+            UninstrumentedGatewaysConfig.class,
+            // Read by the trace analyzer, which runs the native trace analysis under these settings.
+            NativeTraceAnalysisConfig.class
         };
     }
 }

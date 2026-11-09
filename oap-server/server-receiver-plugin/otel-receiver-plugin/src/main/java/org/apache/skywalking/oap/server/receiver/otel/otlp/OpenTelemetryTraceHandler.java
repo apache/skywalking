@@ -242,7 +242,8 @@ public class OpenTelemetryTraceHandler
                             // and before the forward applies head sampling, so metrics count what the SDK sent
                             // rather than what OAP chose to store.
                             final SpanAnalysisResult analysis = analyze(
-                                span, groupedServiceName, analyzedResourceTags, scopeTags, scopeName, scopeVersion);
+                                span, groupedServiceName, analyzedResourceTags, scopeTags, scopeName, scopeVersion,
+                                nativeStorage);
 
                             if (!otlpResult.isShouldPersist() || !analysis.isPersist()) {
                                 continue;
@@ -321,6 +322,7 @@ public class OpenTelemetryTraceHandler
      * @param scopeTags     the instrumentation scope's attributes
      * @param scopeName     the instrumentation scope's name
      * @param scopeVersion  the instrumentation scope's version
+     * @param nativeStorage whether the span is stored natively, not as a Zipkin span
      * @return the rules' verdict, or {@code CONTINUE} when no rule ran
      */
     private SpanAnalysisResult analyze(final io.opentelemetry.proto.trace.v1.Span span,
@@ -328,14 +330,17 @@ public class OpenTelemetryTraceHandler
                                        final Map<String, String> resourceTags,
                                        final Map<String, String> scopeTags,
                                        final String scopeName,
-                                       final String scopeVersion) {
+                                       final String scopeVersion,
+                                       final boolean nativeStorage) {
         final ITraceAnalyzerService analyzer = traceAnalyzerService();
         if (analyzer == null) {
             return SpanAnalysisResult.CONTINUE;
         }
         try {
             return analyzer.doAnalysis(
-                spanMetadataOf(span, serviceName, resourceTags, scopeName, scopeVersion),
+                spanMetadataOf(span, serviceName, resourceTags, scopeName, scopeVersion,
+                               nativeStorage ? OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP
+                                   : OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN),
                 span, resourceTags, scopeTags);
         } catch (final Exception e) {
             log.warn("TAL analysis failed for span {}; the span is unaffected",
@@ -346,12 +351,16 @@ public class OpenTelemetryTraceHandler
 
     /**
      * The protocol-neutral view a rule reads as {@code meta.*}.
+     *
+     * @param traceStorage how the span is stored, {@code otlp} or {@code zipkin}, which a rule reads as
+     *                     {@code meta.traceStorage}
      */
     static SpanMetadata spanMetadataOf(final io.opentelemetry.proto.trace.v1.Span span,
                                                final String serviceName,
                                                final Map<String, String> resourceTags,
                                                final String scopeName,
-                                               final String scopeVersion) {
+                                               final String scopeVersion,
+                                               final String traceStorage) {
         final String parentSpanId = OTLPValues.hexId(span.getParentSpanId());
         // A sender that leaves a time out sends 0. The other time, or the arrival time when both are missing, stands
         // in, rather than metrics in the epoch's minute or a latency of decades.
@@ -377,6 +386,7 @@ public class OpenTelemetryTraceHandler
                            .parentLocation(parentLocation(parentSpanId, span.getFlags()))
                            .scopeName(scopeName)
                            .scopeVersion(scopeVersion)
+                           .traceStorage(traceStorage)
                            .build();
     }
 

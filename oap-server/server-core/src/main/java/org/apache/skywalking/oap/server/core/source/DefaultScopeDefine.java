@@ -21,9 +21,11 @@ package org.apache.skywalking.oap.server.core.source;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
@@ -32,6 +34,10 @@ public class DefaultScopeDefine {
     private static final Map<String, Integer> NAME_2_ID = new HashMap<>();
     private static final Map<Integer, String> ID_2_NAME = new HashMap<>();
     private static final Map<String, List<ScopeDefaultColumn>> SCOPE_COLUMNS = new HashMap<>();
+    /**
+     * Each scope's declaring class by its name, which TAL's {@code source <Name> {}} builds by name.
+     */
+    private static final Map<String, Class<?>> NAME_2_CLASS = new HashMap<>();
 
     /**
      * All metrics IDs in [0, 10,000) are reserved in Apache SkyWalking.
@@ -166,6 +172,7 @@ public class DefaultScopeDefine {
     public static final int OTLP_SERVICE = 103;
     public static final int OTLP_SERVICE_SPAN = 104;
     public static final int OTLP_SERVICE_RELATION = 105;
+    public static final int GEN_AI_EVALUATION_SAMPLE = 106;
 
     /**
      * Catalog of scope, the metrics processor could use this to group all generated metrics by oal rt.
@@ -239,6 +246,7 @@ public class DefaultScopeDefine {
 
         ID_2_NAME.put(id, name);
         NAME_2_ID.put(name, id);
+        NAME_2_CLASS.put(name, originalClass);
 
         List<ScopeDefaultColumn> scopeDefaultColumns = new ArrayList<>();
 
@@ -338,6 +346,22 @@ public class DefaultScopeDefine {
         NAME_2_ID.clear();
         ID_2_NAME.clear();
         SCOPE_COLUMNS.clear();
+        NAME_2_CLASS.clear();
+    }
+
+    /**
+     * @param name a scope's name, as OAL's {@code from()} gives it
+     * @return the class declaring that scope, or null when no class declares it
+     */
+    public static Class<?> classOf(final String name) {
+        return NAME_2_CLASS.get(name);
+    }
+
+    /**
+     * @return the names of every declared scope
+     */
+    public static Set<String> names() {
+        return Collections.unmodifiableSet(NAME_2_CLASS.keySet());
     }
 
     /**

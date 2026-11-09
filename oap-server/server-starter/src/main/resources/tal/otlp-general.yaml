@@ -350,13 +350,12 @@ rules:
             }
           }
         }
-        // No outputType and no persist block: this rule writes no record and takes no part in the span's persistence.
+        // No persist block: this rule takes no part in the span's persistence.
       }
 
   - name: otlp-slow-sql
     layer: OTLP_GENERAL
     inputType: otlp
-    outputType: SlowSQL
     dsl: |
       filter {
         if (meta.kind != "CLIENT" || !hasAttr("db.query.text", "db.statement")) {
@@ -372,7 +371,6 @@ rules:
           abort {}
         }
         extractor {
-          layer "OTLP_VIRTUAL_DATABASE"
           // The record belongs to the database service, named exactly as the otlp-general rule names the peer of
           // a CLIENT span, so the statement is listed under the node the topology draws. Keep the two in step. A
           // database answers with no SERVER span, so no network alias is built for it and its peer is not resolved.
@@ -409,13 +407,19 @@ rules:
           if (!peer) {
             abort {}
           }
-          service peer
-          // A span id is unique only within its trace; the agent path keys the record by segment and span.
-          id meta.traceId + "-" + meta.spanId
-          statement attr("db.query.text", "db.statement")
-          latency meta.latency
+          source DatabaseSlowStatement {
+            // A span id is unique only within its trace; the agent path keys the record by segment and span.
+            id meta.traceId + "-" + meta.spanId
+            traceId meta.traceId
+            // The database's node in the topology, of the OTLP_VIRTUAL_DATABASE layer, which is not a normal one
+            databaseServiceId buildServiceId(formatServiceName(peer), false)
+            // The length of the statement column; the agent path cuts to maxSlowSQLLength, whose default it is
+            statement cut(attr("db.query.text", "db.statement"), 2000)
+            latency meta.latency
+            timeBucket recordTimeBucket(meta.timestamp)
+            timestamp meta.timestamp
+          }
         }
-        sink {}
         persist {
           enforcer {}          // keep the span behind every slow statement, past this rule's samplers and the receiver's head sampling
         }
