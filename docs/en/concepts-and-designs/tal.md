@@ -225,7 +225,8 @@ metrics {
 
 A numeric cast on `value` or `timestamp` converts before the number is taken, so `value attr("amount") as Double`
 reads `"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
-for instance, when they agree on its function, scope, buckets and ranks; any difference is a compile error. The same
+for instance, when they agree on its function, scope, buckets, ranks and `labelLimit`, an omitted `labelLimit`
+counting as its default of 50; any difference is a compile error. The same
 holds across rules and files, two files sharing a `metricPrefix` included: blocks of one stored name that disagree
 fail the rule that loads second, and so the boot. A label value is stored with `|` and `,` replaced by `_`, since those
 two characters separate the stored labels.

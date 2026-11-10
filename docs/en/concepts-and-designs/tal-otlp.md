@@ -12,13 +12,13 @@ Every rule reads the span through two roots. `meta` holds what the receiver deri
 | `meta` field | Source on an OTLP span |
 |---|---|
 | `service` | the service name the receiver resolved: the resource's `service.name`, or the fallbacks in [Service name](../setup/backend/otlp-trace.md#service-name), in the `group::name` form when [service grouping](../setup/backend/otlp-trace.md#service-group) applies |
-| `serviceInstance` | the resource's `service.instance.id` |
+| `serviceInstance` | the resource's `service.instance.id`, else its `service.instance`; empty when it carries neither |
 | `endpoint` | the span's name, until a rule sets it |
 | `layer` | the resource's `service.layer`, empty when absent; see [Layer](#layer) |
 | `kind` | `SERVER`, `CLIENT`, `PRODUCER`, `CONSUMER`, `INTERNAL` or `UNSPECIFIED` |
 | `statusCode`, `statusMessage` | `UNSET`, `OK` or `ERROR`, and the status message |
-| `startTime`, `timestamp` | the span's start and end, in milliseconds; `startTime` is the minute bucket the metrics land in |
-| `latency` | end minus start, in milliseconds |
+| `startTime`, `timestamp` | the span's start and end, in milliseconds; `startTime` is the minute bucket the metrics land in. A time the sender left at 0 is replaced by the other one, and both by the time the span arrived when both are 0 |
+| `latency` | end minus start, in milliseconds; 0 when the end is before the start, and at most `2147483647` (`Integer.MAX_VALUE`) |
 | `traceId`, `spanId`, `parentSpanId` | the ids in lowercase hex; `parentSpanId` is empty on a root span |
 | `root` | whether `parentSpanId` is empty |
 | `parentLocation` | where the parent span ran, from the OTLP span flags: `REMOTE` in another process, `LOCAL` in the same one, `UNKNOWN` on a root span or when the sender leaves the flags unset |

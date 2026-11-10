@@ -88,4 +88,21 @@ class AliasRegistrarTest {
         assertFalse(registrar.isGateway(""));
         assertFalse(registrar.isGateway("frontend:8080"));
     }
+
+    @Test
+    void theHostIsTheAddressWithoutAPortOfDigits() {
+        assertEquals("ingress", AliasRegistrar.hostOf(" ingress:8080 "));
+        assertEquals("ingress", AliasRegistrar.hostOf("ingress"));
+        assertEquals("ingress", AliasRegistrar.hostOf("ingress:"), "an empty port is all digits");
+        assertEquals("ingress:80a", AliasRegistrar.hostOf("ingress:80a"));
+        assertEquals(":80", AliasRegistrar.hostOf(":80"), "no host before the colon");
+        assertEquals("fe80::1", AliasRegistrar.hostOf("fe80::1"), "a bare IPv6 address has more than one colon");
+        assertEquals("fe80::1", AliasRegistrar.hostOf("[fe80::1]:80"));
+        // Character.isDigit per UTF-16 char: a decimal digit of the Basic Multilingual Plane, here ARABIC-INDIC DIGIT
+        // THREE, counts as a port digit; a supplementary one, MATHEMATICAL BOLD DIGIT ZERO, is two surrogates and
+        // does not, nor does an unpaired surrogate.
+        assertEquals("ingress", AliasRegistrar.hostOf("ingress:٣"));
+        assertEquals("ingress:𝟎", AliasRegistrar.hostOf("ingress:𝟎"));
+        assertEquals("ingress:\uD835", AliasRegistrar.hostOf("ingress:\uD835"));
+    }
 }

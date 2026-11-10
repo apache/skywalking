@@ -74,6 +74,9 @@ names first and the deprecated spellings older SDKs still emit as fallbacks.
 holds `otlp-ai-evaluation`, also declared for `OTLP_GENERAL`. It samples a GenAI span, one that names the model that
 answered in `gen_ai.response.model`, for [AI evaluation](ai-evaluation.md) when the span is stored natively, and sends
 it to the module as a `GenAIEvaluationSample` source. A span stored as a Zipkin span is sampled on the Zipkin path.
+Like `otlp-general`, it sees only the spans of services whose resource sets `service.layer=OTLP_GENERAL`, so a GenAI
+application whose spans should be evaluated sets it, as in [the example above](#enabling-the-analysis-for-an-application); the
+GenAI metrics do not need it.
 
 ### Layers
 
@@ -145,7 +148,7 @@ Every metric carries the file's `otlp_` prefix. On the service and its edges:
 | Entity | Metrics |
 |---|---|
 | service | `otlp_service_cpm`, `otlp_service_resp_time`, `otlp_service_sla`, `otlp_service_apdex`, `otlp_service_percentile` |
-| instance, when the resource carries `service.instance.id` | `otlp_service_instance_cpm`, `otlp_service_instance_resp_time`, `otlp_service_instance_sla` |
+| instance, when the resource carries `service.instance.id`, or else `service.instance` | `otlp_service_instance_cpm`, `otlp_service_instance_resp_time`, `otlp_service_instance_sla` |
 | endpoint, named `<method> <route>` for HTTP spans and by the span name otherwise | `otlp_endpoint_cpm`, `otlp_endpoint_resp_time`, `otlp_endpoint_sla`, `otlp_endpoint_percentile` |
 | the call a CLIENT or PRODUCER span makes | `otlp_service_relation_client_cpm`, `otlp_service_relation_client_resp_time`, `otlp_service_relation_client_call_sla` |
 | the call a SERVER or CONSUMER span receives: from the `User` node for a root span, from the broker for a consumer, and from the gateway for a span dialed at an [uninstrumented gateway](uninstrumented-gateways.md) | `otlp_service_relation_server_cpm` |
