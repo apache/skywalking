@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.grpc.TraceSegmentReportServiceHandlerCompat;
 import org.apache.skywalking.oap.server.receiver.trace.provider.handler.v8.rest.TraceSegmentReportHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 
 public class TraceModuleProvider extends ModuleProvider {
 
@@ -88,6 +89,7 @@ public class TraceModuleProvider extends ModuleProvider {
             TelemetryModule.NAME,
             CoreModule.NAME,
             AnalyzerModule.NAME,
+            TraceAnalyzerModule.NAME,
             SharingServerModule.NAME,
             ConfigurationModule.NAME
         };

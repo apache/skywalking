@@ -37,8 +37,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * The file an OAP actually boots with, {@code tal/otlp-general.yaml}, loaded and compiled as the module loads it.
  *
  * <p>The other compile tests read DSL fragments; this one reads the shipped YAML, so a rule that parses in
- * isolation but is wired into the file wrongly — a bad {@code layer}, an {@code inputType} no provider claims, an
- * {@code outputType} that does not resolve — fails here.
+ * isolation but is wired into the file wrongly — a bad {@code layer}, an {@code inputType} no provider claims, a
+ * {@code source} that names no scope — fails here.
  */
 class ShippedTalFileTest {
 
@@ -58,7 +58,6 @@ class ShippedTalFileTest {
             assertEquals(List.of("otlp"), rule.inputTypes(), rule.getName() + " reads OTLP spans");
             assertNotNull(rule.getDsl(), rule.getName() + " has a body");
         }
-        assertEquals("SlowSQL", configs.getRules().get(1).getOutputType());
 
         // The line a generated class reports is the line an operator opens, so it has to be the rule's own.
         for (final TALConfig rule : configs.getRules()) {
@@ -72,6 +71,7 @@ class ShippedTalFileTest {
     @Test
     void everyShippedRuleCompiles() throws Exception {
         final TALConfigs configs = load();
+        ShippedRules.declareSlowStatementScope();
         for (final TALConfig rule : configs.getRules()) {
             final TALClassGenerator generator = new TALClassGenerator();
             generator.setClassNameHint("shipped_" + rule.getName().replace('-', '_'));
@@ -79,9 +79,6 @@ class ShippedTalFileTest {
             generator.setInputType(TestSpanInput.class);
             generator.setSourceRef(DslSourceRef.ofRule(rule.getSourcePath(), rule.getLineNo()));
             generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-            if (rule.getOutputType() != null) {
-                generator.setOutputType(ShippedSlowStatement.class);
-            }
             assertNotNull(generator.compile(rule.getDsl()), rule.getName() + " compiles");
         }
     }

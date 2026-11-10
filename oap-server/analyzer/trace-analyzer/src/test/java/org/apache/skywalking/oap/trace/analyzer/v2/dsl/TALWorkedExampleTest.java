@@ -65,7 +65,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.trace.analyzer.v2.ShippedRules;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -143,8 +142,8 @@ class TALWorkedExampleTest {
             aliases.add((NetworkAddressAliasSetup) source);
             return null;
         }).when(sourceReceiver).receive(any());
-        filterSpec = new FilterSpec(moduleManager, new TraceAnalyzerModuleConfig(),
-            meterSystem, namingControl, sourceReceiver);
+        filterSpec = TALTestModules.filterSpec(moduleManager, coreProvider, meterSystem, namingControl,
+            sourceReceiver);
     }
 
     /**

@@ -19,11 +19,7 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.Setter;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
@@ -102,7 +98,7 @@ class TALClassGeneratorTest {
     }
 
     @Test
-    void compileSinkAndPersist() throws Exception {
+    void compilePersist() throws Exception {
         final TALClassGenerator generator = generator("votes");
         assertNotNull(generator.compile(
             "filter {\n"
@@ -198,12 +194,6 @@ class TALClassGeneratorTest {
     }
 
     @Test
-    void rejectAnOutputFieldWithoutAnOutputType() {
-        assertCompileFails("filter { extractor { statement attr(\"db.query.text\") } }",
-            "needs the rule to declare an outputType");
-    }
-
-    @Test
     void rejectApdexOnARelation() {
         assertCompileFails("filter { extractor {\n"
                 + "  def rel = serviceRelation(CLIENT, meta.service, meta.layer, \"backend\", meta.layer,"
@@ -233,20 +223,6 @@ class TALClassGeneratorTest {
     void rejectAnUnknownRoot() {
         // A misspelled `meta` used to read the input span instead.
         assertCompileFails("filter { if (mta.kind == \"SERVER\") { abort {} } }", "Cannot resolve 'mta.kind'");
-    }
-
-    @Test
-    void rejectASinkWithoutAnOutputType() {
-        assertCompileFails("filter { sink {} }", "this rule declares none");
-    }
-
-    @Test
-    void rejectAnOutputTypeWithoutASink() {
-        final TALClassGenerator generator = generator("no_sink");
-        generator.setOutputType(StubRecord.class);
-        final Exception e = assertThrows(Exception.class, () -> generator.compile(
-            "filter { extractor { statement \"SELECT 1\" } }"));
-        assertTrue(rootMessage(e).contains("needs a sink {} block"), rootMessage(e));
     }
 
     @Test
@@ -364,11 +340,11 @@ class TALClassGeneratorTest {
     }
 
     @Test
-    void rejectAVoteStatementOutsideASinkOrPersistBlock() {
+    void rejectAVoteStatementOutsideAPersistBlock() {
         assertCompileFails("filter { if (meta.root) { enforcer {} } }",
-            "enforcer {} belongs inside a sink {} or a persist {} block");
+            "enforcer {} belongs inside a persist {} block");
         assertCompileFails("filter { extractor { if (meta.root) { dropper {} } } }",
-            "dropper {} belongs inside a sink {} or a persist {} block");
+            "dropper {} belongs inside a persist {} block");
     }
 
     @Test
@@ -395,32 +371,6 @@ class TALClassGeneratorTest {
             + "  def svc = service(meta.service, meta.layer)\n"
             + "  metrics { name \"p\"; scope svc; function percentile; value meta.latency; " + clauses + " }\n"
             + "} }";
-    }
-
-    /**
-     * An output type with the one field the rules above write.
-     */
-    public static class StubRecord implements TALOutputBuilder {
-        @Setter
-        private String statement;
-
-        @Override
-        public String name() {
-            return "Stub";
-        }
-
-        @Override
-        public void init(final SpanMetadata meta, final Object input, final ModuleManager moduleManager) {
-        }
-
-        @Override
-        public void complete(final SourceReceiver sourceReceiver) {
-        }
-
-        @Override
-        public String outputToJson() {
-            return "{}";
-        }
     }
 
     private static void assertCompileFails(final String dsl, final String expectedMessage) {

@@ -17,6 +17,8 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
+import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALConstruct;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.BinaryOp;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.CompareOp;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALBoolConditionValue;
@@ -105,7 +107,7 @@ public final class TALValueCodegen {
         } else if (cond instanceof TALExprCondition) {
             final String ct = ((TALExprCondition) cond).getCastType();
             final TALValueAccess expr = ((TALExprCondition) cond).getExpr();
-            final String literal = booleanOrNullLiteral(expr);
+            final String literal = ct == null ? booleanOrNullLiteral(expr) : null;
             if (literal != null) {
                 sb.append("null".equals(literal) ? "false" : literal);
                 return;
@@ -113,14 +115,13 @@ public final class TALValueCodegen {
             // A built-in that already returns boolean is the condition. Wrapping it would hand a primitive to
             // an Object overload, which Javassist compiles without autoboxing and the verifier then rejects.
             if (ct == null && expr.getFunctionCallName() != null && expr.getChain().isEmpty()
-                    && genCtx.resolver.functionReturnType(expr.getFunctionCallName()) == ExprType.BOOLEAN) {
+                    && genCtx.resolver.functionReturnType(expr, genCtx) == ExprType.BOOLEAN) {
                 generateValueAccess(sb, expr, genCtx);
                 return;
             }
-            final String method = "Boolean".equals(ct) || "boolean".equals(ct)
-                ? ".isTrue(" : ".isNotEmpty(";
-            sb.append("h").append(method);
-            generateValueAccessObj(sb, expr, ct, genCtx);
+            sb.append(TALRuntimeRoles.method("Boolean".equals(ct) || "boolean".equals(ct) ? "isTrue" : "isNotEmpty"))
+              .append("(");
+            generateBoxedValueAccess(sb, expr, "boolean".equals(ct) ? "Boolean" : ct, genCtx);
             sb.append(")");
         }
     }
@@ -213,8 +214,34 @@ public final class TALValueCodegen {
             sb.append("(").append(other.expr).append(op == CompareOp.EQ ? " == null)" : " != null)");
             return;
         }
+        final Operand named = isNamedValue(left) && right.stringLiteral ? left
+            : isNamedValue(right) && left.stringLiteral ? right : null;
+        if (named != null) {
+            // A Layer or an enum value compares with a string literal by name; the literal is checked now, so a
+            // misspelt name is a compile error where it is written.
+            final Operand literal = named == left ? right : left;
+            if (!equality) {
+                throw incomparable(left, op, right, "a Layer or an enum value compares by name, with == or !=");
+            }
+            final String name = literal.source.substring(1, literal.source.length() - 1);
+            final boolean known = named.type == Layer.class ? isRegisteredLayer(name)
+                : TALDefCodegen.enumConstant(named.type, name) != null;
+            if (!known) {
+                throw incomparable(left, op, right,
+                    "'" + name + "' is no " + named.type.getSimpleName() + " name");
+            }
+            if (named.type.isEnum()) {
+                // An enum has one instance per constant
+                sb.append("(").append(named.expr).append(op == CompareOp.EQ ? " == " : " != ")
+                  .append(named.type.getName()).append(".").append(name).append(")");
+                return;
+            }
+            sb.append(TALRuntimeRoles.method("sameName")).append("(").append(named.expr).append(", ").append(literal.expr).append(", ")
+              .append(op == CompareOp.EQ).append(")");
+            return;
+        }
         if (left.kind == OperandKind.NUMBER && right.kind == OperandKind.NUMBER) {
-            sb.append("h.compareNumbers(").append(left.expr).append(", ").append(right.expr).append(", ")
+            sb.append(TALRuntimeRoles.method("compareNumbers")).append("(").append(left.expr).append(", ").append(right.expr).append(", ")
               .append(op.ordinal()).append(")");
             return;
         }
@@ -230,8 +257,35 @@ public final class TALValueCodegen {
         if (!equality) {
             throw incomparable(left, op, right, "only numbers are ordered; convert with `as T`");
         }
-        sb.append("h.sameValue(").append(left.expr).append(", ").append(right.expr).append(", ")
+        final String not = op == CompareOp.EQ ? "" : "!";
+        if (left.kind == OperandKind.STRING || left.kind == OperandKind.OBJECT) {
+            // Neither side is a failed `as T`, which only a number or a boolean conversion answers, so this is
+            // sameValue's own Objects.equals. String.equals is symmetric, so the literal can stand first.
+            if (right.stringLiteral || left.stringLiteral) {
+                final Operand literal = right.stringLiteral ? right : left;
+                final Operand other = literal == right ? left : right;
+                sb.append("(").append(not).append(literal.expr).append(".equals(").append(other.expr).append("))");
+            } else {
+                sb.append("(").append(not).append("java.util.Objects.equals(").append(left.expr).append(", ")
+                  .append(right.expr).append("))");
+            }
+            return;
+        }
+        sb.append(TALRuntimeRoles.method("sameValue")).append("(").append(left.expr).append(", ").append(right.expr).append(", ")
           .append(op == CompareOp.EQ).append(")");
+    }
+
+    private static boolean isNamedValue(final Operand operand) {
+        return operand.kind == OperandKind.OBJECT && (operand.type == Layer.class || operand.type.isEnum());
+    }
+
+    private static boolean isRegisteredLayer(final String name) {
+        try {
+            Layer.valueOf(name);
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     private static IllegalArgumentException incomparable(final Operand left, final CompareOp op,
@@ -297,11 +351,20 @@ public final class TALValueCodegen {
             // `(x as Integer)` on its own is the same conversion as `x as Integer`.
             return operand(value.getParenInner(), value.getParenCast(), genCtx);
         }
+        final Class<?> typed = TALDefCodegen.typedCastClass(cast);
+        if (typed != null) {
+            // A Layer or an enum value, its literal checked now; it then compares by name with a string literal and
+            // with a value of its own type only.
+            final StringBuilder rendered = new StringBuilder();
+            generateTypedConversion(rendered, value, typed, genCtx);
+            return new Operand(rendered.toString(), OperandKind.OBJECT, typed, true, false, source);
+        }
         final ExprType castType = castToType(cast);
         if (castType.isNumeric() || castType == ExprType.BOOLEAN) {
             final StringBuilder inner = new StringBuilder();
-            generateValueAccessObj(inner, value, null, genCtx);
-            final String helper = castType == ExprType.BOOLEAN ? "h.asBoolean(" : "h.as" + castType.wrapperName + "(";
+            generateBoxedValueAccess(inner, value, null, genCtx);
+            final String helper = TALRuntimeRoles.method(
+                castType == ExprType.BOOLEAN ? "asBoolean" : "as" + castType.wrapperName) + "(";
             return new Operand(helper + inner + ")",
                 castType == ExprType.BOOLEAN ? OperandKind.BOOLEAN : OperandKind.NUMBER,
                 castType == ExprType.BOOLEAN ? Boolean.class : castType.primitiveClass, false, false, source);
@@ -322,6 +385,10 @@ public final class TALValueCodegen {
             final String expr = genCtx.lastRawChain != null && genCtx.lastNullChecks == null && box != null
                 ? box + ".valueOf(" + genCtx.lastRawChain + ")" : rendered.toString();
             final boolean guarded = genCtx.lastNullChecks != null;
+            if (type == char.class) {
+                // A char is no number to the comparison helpers; it compares as a value, with chars only.
+                return new Operand(expr, OperandKind.OBJECT, Character.class, guarded, false, source);
+            }
             return new Operand(expr, type == boolean.class ? OperandKind.BOOLEAN : OperandKind.NUMBER, type,
                 guarded, false, source);
         }
@@ -350,7 +417,7 @@ public final class TALValueCodegen {
      */
     private static String wrapAsPrimitive(final String objectExpr, final ExprType target) {
         final String helper = target.runtimeHelper != null && target.isNumeric()
-            ? target.runtimeHelper : "h.toLong";
+            ? target.runtimeHelper : TALRuntimeRoles.method("toLong");
         return helper + "(" + objectExpr + ")";
     }
 
@@ -373,13 +440,33 @@ public final class TALValueCodegen {
                                            final TALValueAccess value,
                                            final String castType,
                                            final TALGenCtx genCtx) {
+        final Class<?> typed = TALDefCodegen.typedCastClass(castType);
+        if (typed != null) {
+            generateTypedConversion(sb, value, typed, genCtx);
+            return;
+        }
         // Each numeric cast produces a primitive expression; record the type
         // and the raw chain so callers (numeric comparisons, arithmetic
         // codegen) can skip a redundant h.toX() wrapper when the operand
         // already matches the target primitive.
         final ExprType castET = castToType(castType);
+        if (castET.runtimeHelper == null && castType != null && castType.indexOf('.') > 0) {
+            // A class name is a Java cast, so the value has that static type wherever it goes: the overload a call
+            // or a setter chose for it by that type, see argumentTypes, is the one the compiled call takes.
+            final Class<?> castClass = TALDefCodegen.resolveDefCastType(castType);
+            final StringBuilder rendered = new StringBuilder();
+            generateValueAccess(rendered, value, genCtx);
+            final String raw = rawPrimitive(genCtx);
+            sb.append("((").append(TALCodegenHelper.javaTypeName(castClass)).append(") ")
+              .append(raw != null ? TALCodegenHelper.boxTypeName(genCtx.lastResolvedType) + ".valueOf(" + raw + ")"
+                  : rendered)
+              .append(")");
+            genCtx.clearExtraLogResult();
+            genCtx.lastResolvedType = castClass;
+            return;
+        }
         if (castET.runtimeHelper == null) {
-            // FQCN or no cast — emit the raw value access.
+            // No cast: the raw value access.
             generateValueAccess(sb, value, genCtx);
             return;
         }
@@ -388,15 +475,211 @@ public final class TALValueCodegen {
             generateValueAccess(sb, value, genCtx);
             return;
         }
+        final StringBuilder rendered = new StringBuilder();
+        generateValueAccess(rendered, value, genCtx);
+        final String raw = rawPrimitive(genCtx);
+        final Class<?> source = genCtx.lastResolvedType;
         final int start = sb.length();
-        sb.append(castET.runtimeHelper).append("(");
-        generateValueAccess(sb, value, genCtx);
-        sb.append(")");
-        // Numeric casts produce a primitive — capture the raw chain so the
-        // caller can avoid the redundant unbox wrapper.
-        if (castET.isNumeric()) {
-            recordPrimitiveResult(genCtx, castET.primitiveClass, sb, start);
+        final Class<?> target = castET == ExprType.BOOLEAN ? boolean.class : castET.primitiveClass;
+        if (raw != null && source == target) {
+            // Already that primitive: the raw read, with no conversion around it.
+            sb.append(raw);
+        } else {
+            // The helpers' Object overloads take any boxed value, so a primitive is boxed rather than matched to
+            // one of the few primitive overloads.
+            sb.append(castET.runtimeHelper).append("(")
+              .append(raw != null ? TALCodegenHelper.boxTypeName(source) + ".valueOf(" + raw + ")" : rendered)
+              .append(")");
         }
+        if (target != null) {
+            recordPrimitiveResult(genCtx, target, sb, start);
+        } else {
+            genCtx.clearExtraLogResult();
+            genCtx.lastResolvedType = String.class;
+        }
+    }
+
+    /**
+     * @return the raw primitive form of the value just generated, when it is a primitive read outside a
+     * null-guarded chain; null otherwise. A primitive result always records its raw form, so a chain guarded by
+     * {@code ?.} is the only primitive read without one, and it is already boxed.
+     */
+    private static String rawPrimitive(final TALGenCtx genCtx) {
+        final Class<?> type = genCtx.lastResolvedType;
+        if (type == null || !type.isPrimitive() || genCtx.lastRawChain == null || genCtx.lastNullChecks != null
+            || TALCodegenHelper.boxTypeName(type) == null) {
+            return null;
+        }
+        return genCtx.lastRawChain;
+    }
+
+    /**
+     * {@code as Layer} and {@code as <Enum>} wherever a cast stands: a value of that type as it is, a string by
+     * name, a literal name checked now.
+     */
+    static void generateTypedConversion(final StringBuilder sb, final TALValueAccess value, final Class<?> typed,
+                                        final TALGenCtx genCtx) {
+        TALDefCodegen.checkTypedLiteral(typed, value);
+        final StringBuilder inner = new StringBuilder();
+        generateBoxedValueAccess(inner, value, null, genCtx);
+        if (genCtx.lastResolvedType == typed) {
+            sb.append(inner);
+        } else {
+            sb.append(TALDefCodegen.typedCastConversion(typed, inner, genCtx));
+        }
+        genCtx.clearExtraLogResult();
+        genCtx.lastResolvedType = typed;
+    }
+
+    /**
+     * A value as an {@code Object}, for the places Java takes one, such as a log argument: an {@code as} converts
+     * first, and a primitive result is boxed, since Javassist does not autobox.
+     */
+    public static void generateBoxedValueAccess(final StringBuilder sb,
+                                                final TALValueAccess value,
+                                                final String castType,
+                                                final TALGenCtx genCtx) {
+        final StringBuilder rendered = new StringBuilder();
+        if (castType != null) {
+            generateCastedValueAccess(rendered, value, castType, genCtx);
+        } else {
+            generateValueAccess(rendered, value, genCtx);
+        }
+        final String raw = rawPrimitive(genCtx);
+        if (raw == null) {
+            sb.append(rendered);
+            return;
+        }
+        final Class<?> type = genCtx.lastResolvedType;
+        sb.append(TALCodegenHelper.boxTypeName(type)).append(".valueOf(").append(raw).append(")");
+        genCtx.clearExtraLogResult();
+        genCtx.lastResolvedType = TALCodegenHelper.boxedClass(type);
+    }
+
+    /**
+     * A value passed where Java takes a {@code paramType}: a setter's parameter or a contributed function's.
+     * A Layer or an enum parameter converts as {@code as} does, by name; a scalar one converts as {@code as} does,
+     * after the rule's own {@code as} when it wrote one; a boxed scalar keeps a null; any other object is passed as
+     * it is, cast to the parameter's type.
+     *
+     * @param what names the parameter in a compile error
+     */
+    public static void generateArgumentFor(final StringBuilder sb,
+                                           final TALValueAccess value,
+                                           final String castType,
+                                           final Class<?> paramType,
+                                           final String what,
+                                           final TALGenCtx genCtx) {
+        final Class<?> typed = TALDefCodegen.typedCastClass(castType);
+        if (paramType == Layer.class || paramType.isEnum()) {
+            if (castType != null && typed != paramType && !"String".equals(castType)) {
+                throw new IllegalArgumentException(
+                    what + " takes a " + paramType.getSimpleName() + ", not a value converted with as " + castType);
+            }
+            generateTypedConversion(sb, value, paramType, genCtx);
+            return;
+        }
+        // The cast applies first; its value then passes where the parameter takes it, or as its name where the
+        // parameter takes a String.
+        if (typed != null && paramType != String.class && !paramType.isAssignableFrom(typed)) {
+            throw new IllegalArgumentException(
+                what + " takes a " + paramType.getSimpleName() + ", not a " + typed.getSimpleName());
+        }
+        final ExprType kind = scalarKind(paramType);
+        if (paramType.isPrimitive() && kind == null) {
+            throw new IllegalArgumentException(
+                what + " takes a " + paramType.getName() + ", which TAL has no value of; take an int or a String");
+        }
+        if (kind == ExprType.STRING) {
+            generateStringValueAccess(sb, value, castType, genCtx);
+            return;
+        }
+        if (kind != null && paramType.isPrimitive()) {
+            final String kindCast = kind == ExprType.BOOLEAN ? "Boolean" : kind.wrapperName;
+            // A byte or short parameter takes the int conversion narrowed to it.
+            final boolean narrow = paramType == byte.class || paramType == short.class;
+            sb.append(narrow ? "((" + paramType.getName() + ") " : "");
+            if (castType == null || castToType(castType) == kind) {
+                generateCastedValueAccess(sb, value, kindCast, genCtx);
+            } else {
+                // The rule's conversion first, then the parameter's: `x as Double` into an int truncates.
+                sb.append(kind.runtimeHelper).append("(");
+                generateBoxedValueAccess(sb, value, castType, genCtx);
+                sb.append(")");
+            }
+            sb.append(narrow ? ")" : "");
+            return;
+        }
+        final StringBuilder boxed = new StringBuilder();
+        generateBoxedValueAccess(boxed, value, castType, genCtx);
+        final Class<?> type = genCtx.lastResolvedType;
+        if (type != null && paramType.isAssignableFrom(type)) {
+            sb.append(boxed);
+        } else if (kind != null) {
+            sb.append("(").append(paramType.getName()).append(") ").append(TALRuntimeRoles.method("toBoxed")).append("(")
+              .append(paramType.getName())
+              .append(".class, ").append(boxed).append(")");
+        } else {
+            sb.append("(").append(TALCodegenHelper.javaTypeName(paramType)).append(") ").append(boxed);
+        }
+    }
+
+    /**
+     * The arguments of a Java method a chain calls, each converted to the parameter the method takes, as a
+     * contributed function's are.
+     *
+     * @return the arguments as Java source, comma-separated
+     */
+    static String generateArgumentsFor(final List<? extends TALFunctionArg> args, final Method method,
+                                       final TALGenCtx genCtx) {
+        final Class<?>[] params = method.getParameterTypes();
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < args.size(); i++) {
+            if (i > 0) {
+                sb.append(", ");
+            }
+            generateArgumentFor(sb, args.get(i).getValue(), args.get(i).getCastType(), params[i],
+                "argument " + (i + 1) + " of " + method.getName() + "()", genCtx);
+        }
+        return sb.toString();
+    }
+
+    /**
+     * The compile-time type of each argument of a call, which chooses among same-arity overloads: the type an
+     * {@code as} converts to, else the type the argument's own code resolves to, null when that is unknown.
+     */
+    static Class<?>[] argumentTypes(final List<? extends TALFunctionArg> args, final TALGenCtx genCtx) {
+        final Class<?>[] types = new Class<?>[args.size()];
+        for (int i = 0; i < types.length; i++) {
+            final String cast = args.get(i).getCastType();
+            final Class<?> typed = TALDefCodegen.typedCastClass(cast);
+            final ExprType castType = castToType(cast);
+            if (typed != null) {
+                types[i] = typed;
+            } else if (castType == ExprType.STRING) {
+                types[i] = String.class;
+            } else if (castType == ExprType.BOOLEAN) {
+                types[i] = boolean.class;
+            } else if (castType.primitiveClass != null) {
+                types[i] = castType.primitiveClass;
+            } else if (cast != null && cast.indexOf('.') > 0) {
+                // A class name: the rule states the type the value is converted to.
+                types[i] = TALDefCodegen.resolveDefCastType(cast);
+            } else {
+                // The argument's code is generated into a scratch buffer only to read its type.
+                generateValueAccess(new StringBuilder(), args.get(i).getValue(), genCtx);
+                types[i] = genCtx.lastResolvedType;
+            }
+        }
+        return types;
+    }
+
+    /**
+     * @return the scalar kind a parameter type is, primitive or boxed, or null for any other type
+     */
+    private static ExprType scalarKind(final Class<?> type) {
+        final ExprType kind = exprTypeFromClass(type);
+        return kind == ExprType.OBJECT ? null : kind;
     }
 
     private static void recordPrimitiveResult(final TALGenCtx genCtx,
@@ -410,11 +693,14 @@ public final class TALValueCodegen {
 
     /**
      * Generates a value access that must produce a String result (used by
-     * tag assignments). For numeric / boolean casts wraps the conversion
-     * helper with {@code String.valueOf(...)}; for String (or unspecified)
-     * wraps with {@code h.toStr(...)} — except when the value is already
-     * a Java {@code String} literal, in which case the wrapper is elided
-     * since {@code h.toStr("llm")} just returns {@code "llm"}.
+     * tag assignments). The rule's own cast converts first, through the
+     * same emitter as anywhere else: a numeric or boolean cast is then
+     * stringified with {@code String.valueOf(...)}, a Layer or an enum
+     * cast gives its name; any other value is wrapped with
+     * {@code h.toStr(...)}, boxed when it is a primitive — except when the
+     * value is already a Java {@code String} literal, in which case the
+     * wrapper is elided since {@code h.toStr("llm")} just returns
+     * {@code "llm"}.
      */
     public static void generateStringValueAccess(final StringBuilder sb,
                                             final TALValueAccess value,
@@ -422,21 +708,19 @@ public final class TALValueCodegen {
                                             final TALGenCtx genCtx) {
         final ExprType castET = castToType(castType);
         if (castET.isNumeric() || castET == ExprType.BOOLEAN) {
-            // String.valueOf(h.toX(value)) — primitive conversion then
-            // stringify. Drives off the runtime-helper field on ExprType
-            // instead of repeating a parallel switch.
-            sb.append("String.valueOf(").append(castET.runtimeHelper).append("(");
+            sb.append("String.valueOf(");
+            generateCastedValueAccess(sb, value, castType, genCtx);
+            sb.append(")");
+        } else if (TALDefCodegen.typedCastClass(castType) == null && isPlainStringLiteral(value)) {
             generateValueAccess(sb, value, genCtx);
-            sb.append("))");
-            return;
+        } else {
+            sb.append(TALRuntimeRoles.method("toStr")).append("(");
+            generateBoxedValueAccess(sb, value, castType == null || castET == ExprType.STRING ? null : castType,
+                genCtx);
+            sb.append(")");
         }
-        if (isPlainStringLiteral(value)) {
-            generateValueAccess(sb, value, genCtx);
-            return;
-        }
-        sb.append("h.toStr(");
-        generateValueAccess(sb, value, genCtx);
-        sb.append(")");
+        genCtx.clearExtraLogResult();
+        genCtx.lastResolvedType = String.class;
     }
 
     /**
@@ -450,9 +734,11 @@ public final class TALValueCodegen {
                                         final String castType,
                                         final TALGenCtx genCtx) {
         if ("String".equals(castType) && !isPlainStringLiteral(value)) {
-            sb.append("h.toStr(");
-            generateValueAccess(sb, value, genCtx);
+            sb.append(TALRuntimeRoles.method("toStr")).append("(");
+            generateBoxedValueAccess(sb, value, null, genCtx);
             sb.append(")");
+            genCtx.clearExtraLogResult();
+            genCtx.lastResolvedType = String.class;
         } else {
             generateValueAccess(sb, value, genCtx);
         }
@@ -520,7 +806,9 @@ public final class TALValueCodegen {
         if (value.getFunctionCallName() != null) {
             final StringBuilder call = new StringBuilder();
             if (genCtx.resolver.generateFunctionCall(call, value, genCtx)) {
-                final ExprType returns = genCtx.resolver.functionReturnType(value.getFunctionCallName());
+                final ExprType returns = genCtx.resolver.functionReturnType(value, genCtx);
+                // The arguments' code left its own metadata; what follows describes the call's result alone.
+                genCtx.clearExtraLogResult();
                 final boolean returnsString = returns == ExprType.STRING;
                 if (value.getChain().isEmpty()) {
                     sb.append(call);
@@ -534,17 +822,29 @@ public final class TALValueCodegen {
                     } else if (returns == ExprType.BOOLEAN) {
                         genCtx.lastResolvedType = boolean.class;
                         genCtx.lastRawChain = call.toString();
+                    } else if (returns == ExprType.OBJECT) {
+                        genCtx.lastResolvedType = genCtx.resolver.functionReturnClass(value, genCtx);
+                        genCtx.lastResolvedElementType =
+                            genCtx.resolver.functionReturnElementType(value, genCtx);
+                        if (genCtx.lastResolvedType != null && genCtx.lastResolvedType.isPrimitive()) {
+                            // A byte, short or char result: raw, for the callers that box it.
+                            genCtx.lastRawChain = call.toString();
+                        }
                     }
                     return;
                 }
-                // `attr("x").trim()`: the methods after the call are resolved on what it returns.
-                if (!returnsString) {
+                // `attr("x").trim()`, `parseJsonObject(t).get("k")`: the methods after the call are resolved on
+                // what it returns.
+                final Class<?> returnClass = returnsString ? String.class
+                    : returns == ExprType.OBJECT ? genCtx.resolver.functionReturnClass(value, genCtx)
+                    : null;
+                if (returnClass == null) {
                     throw new IllegalArgumentException(
-                        "only a built-in that returns a string can be followed by a method or field; "
+                        "only a built-in that returns a string or an object can be followed by a method or field; "
                             + value.getFunctionCallName() + "() does not");
                 }
                 TALDefCodegen.generateDefVarChain(
-                    sb, new TALLocalVar(call.toString(), String.class), value.getChain(), genCtx);
+                    sb, new TALLocalVar(call.toString(), returnClass), value.getChain(), genCtx);
                 return;
             }
         }
@@ -597,6 +897,7 @@ public final class TALValueCodegen {
         final List<? extends TALValueAccessSegment> chain = value.getChain();
 
         if (value.isMetaRef()) {
+            TALInputs.require(TALConstruct.META, genCtx.inputAlias);
             genCtx.resolver.generateMetaRootAccess(sb, chain, genCtx);
             return;
         }
@@ -618,7 +919,11 @@ public final class TALValueCodegen {
         }
 
         // No matching codegen path — fail at compile time instead of silently generating null. A chain whose
-        // first name is none of the roots is a misspelling such as `mta.kind`, not a field of the input.
+        // first name is none of the roots is a misspelling such as `mta.kind`, not a field of the input, unless it is
+        // the root of another input, which is reported as that input's.
+        if (!value.getSegments().isEmpty() && "pairing".equals(value.getSegments().get(0))) {
+            TALInputs.require(TALConstruct.PAIRING, genCtx.inputAlias);
+        }
         final String desc = value.getFunctionCallName() != null
             ? "function call '" + value.getFunctionCallName() + "(...)'"
             : "'" + value.toPathString() + "'";
@@ -661,6 +966,15 @@ public final class TALValueCodegen {
             generateValueAccess(inner, value.getParenInner(), genCtx);
         }
 
+        // A typed inner value is walked by reflection, its methods, fields and indexes alike, so each segment resolves
+        // on what the one before returns and the result is typed.
+        final Class<?> innerType = genCtx.lastResolvedType;
+        if (!value.getChain().isEmpty() && innerType != null && !innerType.isPrimitive()) {
+            TALDefCodegen.generateDefVarChain(sb, new TALLocalVar("(" + inner + ")", innerType), value.getChain(),
+                genCtx);
+            return;
+        }
+
         // Apply chain segments (methods, fields, index access)
         String current = inner.toString();
         for (final TALValueAccessSegment seg : value.getChain()) {
@@ -681,22 +995,17 @@ public final class TALValueCodegen {
                 }
             }
         }
+        if (!value.getChain().isEmpty()) {
+            // What the segments above return is not resolved, so the result's type is unknown, whatever the
+            // arguments' code left behind.
+            genCtx.clearExtraLogResult();
+        }
         sb.append(current);
     }
 
     /**
-     * Generates a reflection-based getter chain on a typed root object, which is what every DSL root that
-     * resolves to a class needs: {@code span?.status?.message} on the OTLP span, {@code meta.latency} on the
-     * metadata view.
-     *
-     * <p>Each getter call is validated at compile time via reflection. Safe
-     * navigation ({@code ?.}) generates null checks. Intermediate results
-     * are cached in local variables ({@code _t0}, {@code _t1}, ...) to avoid
-     * redundant getter calls when the same chain prefix appears multiple times.
-     */
-    /**
-     * The same reflective getter walk as {@link #generateTypedChainAccess}, emitted inline instead of through
-     * hoisted variables.
+     * The same reflective getter walk as {@link #generateTypedChainAccess}, for {@code meta}, a root that is never
+     * null and that the rule can overwrite.
      *
      * <p>Caching a chain into a variable declared at the top of the method is only sound while the root cannot
      * change during the rule. {@code meta} can: an extractor's {@code service}, {@code endpoint} and
@@ -749,6 +1058,11 @@ public final class TALValueCodegen {
         return current;
     }
 
+    /**
+     * A chain of getters on a typed root, emitted inline where the expression stands. Each getter runs when its
+     * expression is evaluated, after the guards around it, rather than once at the top of the method, so a chain
+     * behind a guard such as {@code if (ref.parentEndpoint)} is not dereferenced before the guard.
+     */
     public static String generateTypedChainAccess(
             final List<? extends TALFieldSegment> fieldSegments,
             final Class<?> rootType,
@@ -756,50 +1070,39 @@ public final class TALValueCodegen {
             final boolean rootCanBeNull,
             final TALGenCtx genCtx) {
         genCtx.usedProtoAccess = true;
+        genCtx.lastResolvedElementType = null;
 
         if (fieldSegments.isEmpty()) {
             return rootExpr;
         }
 
         final String typeName = rootType.getName();
-        final StringBuilder chainKey = new StringBuilder();
-        String prevVar = rootExpr;
+        String prev = rootExpr;
         Class<?> currentType = rootType;
         boolean prevCanBeNull = rootCanBeNull;
 
         for (int i = 0; i < fieldSegments.size(); i++) {
             final TALFieldSegment seg = fieldSegments.get(i);
             final String field = seg.getName();
-            final String getterName = "get" + Character.toUpperCase(field.charAt(0))
-                + field.substring(1);
-
-            final Method getter;
-            try {
-                getter = currentType.getMethod(getterName);
-            } catch (NoSuchMethodException e) {
+            final Method getter = TALCodegenHelper.resolveGetter(currentType, field);
+            if (getter == null) {
                 throw new IllegalArgumentException(
                     "Cannot resolve getter " + currentType.getSimpleName()
-                        + "." + getterName + "() for type "
+                        + "." + field + " for type "
                         + typeName + ". Check the field path in the TAL rule.");
             }
             final Class<?> returnType = getter.getReturnType();
-
-            if (chainKey.length() > 0) {
-                chainKey.append(".");
-            }
-            chainKey.append(field);
-            final String key = chainKey.toString();
             final boolean isLast = i == fieldSegments.size() - 1;
+            final String rawAccess = prev + "." + getter.getName() + "()";
 
-            // Primitive final segment: return inline expression, no variable
+            // Primitive final segment: return inline expression
             if (isLast && returnType.isPrimitive()) {
-                final String rawAccess = prevVar + "." + getterName + "()";
                 genCtx.lastResolvedType = returnType;
                 genCtx.lastRawChain = rawAccess;
                 final String boxName = TALCodegenHelper.boxTypeName(returnType);
                 if (seg.isSafeNav() && prevCanBeNull) {
-                    genCtx.lastNullChecks = prevVar + " == null";
-                    return "(" + prevVar + " == null ? null : "
+                    genCtx.lastNullChecks = prev + " == null";
+                    return "(" + prev + " == null ? null : "
                         + boxName + ".valueOf(" + rawAccess + "))";
                 } else {
                     genCtx.lastNullChecks = null;
@@ -807,44 +1110,23 @@ public final class TALValueCodegen {
                 }
             }
 
-            // Reuse existing variable (dedup)
-            final String existingVar = genCtx.protoVars.get(key);
-            if (existingVar != null) {
-                prevVar = existingVar;
-                currentType = returnType;
-                prevCanBeNull = true;
-                continue;
-            }
-
-            // Create new local variable declaration
-            final String newVar = "_t" + genCtx.protoVarCounter++;
-            final String returnTypeName = returnType.getName();
             if (seg.isSafeNav() && prevCanBeNull) {
-                genCtx.protoVarDecls.append("  ").append(returnTypeName)
-                    .append(" ").append(newVar).append(" = ")
-                    .append(prevVar).append(" == null ? null : ")
-                    .append(prevVar).append(".").append(getterName).append("();\n");
+                prev = "(" + prev + " == null ? null : " + rawAccess + ")";
                 prevCanBeNull = true;
             } else {
-                genCtx.protoVarDecls.append("  ").append(returnTypeName)
-                    .append(" ").append(newVar).append(" = ")
-                    .append(prevVar).append(".").append(getterName).append("();\n");
+                prev = rawAccess;
                 prevCanBeNull = !returnType.isPrimitive();
             }
-            genCtx.protoVars.put(key, newVar);
-            genCtx.protoLvtVars.add(new String[]{
-                newVar, "L" + returnTypeName.replace('.', '/') + ";"
-            });
-
-            prevVar = newVar;
             currentType = returnType;
+            if (isLast) {
+                genCtx.lastResolvedElementType = TALCodegenHelper.listElementType(getter.getGenericReturnType());
+            }
         }
 
-        // Non-primitive final result — null checks are in declarations
         genCtx.lastResolvedType = currentType;
-        genCtx.lastRawChain = prevVar;
+        genCtx.lastRawChain = prev;
         genCtx.lastNullChecks = null;
-        return prevVar;
+        return prev;
     }
 
     // ==================== Utility methods ====================
@@ -953,6 +1235,10 @@ public final class TALValueCodegen {
             // Pure grouping (no cast): the parens just preserve precedence.
             return inferType(part.getParenInner(), genCtx);
         }
+        // `(span.name).length()`: the type the chain's own code resolves to.
+        if (part.getParenInner() != null) {
+            return generatedType(part, genCtx);
+        }
         // Nested binary expression: recompute via its parts/ops.
         if (!part.getConcatParts().isEmpty()) {
             return inferBinaryType(part.getConcatParts(), part.getConcatOps(), genCtx);
@@ -964,15 +1250,27 @@ public final class TALValueCodegen {
             if (lv != null && part.getChain().isEmpty()) {
                 return exprTypeFromClass(lv.resolvedType);
             }
+            if (lv != null) {
+                // `pricing.inputEstimatedCostPerM`: the type the chain's own code resolves to.
+                return generatedType(part, genCtx);
+            }
         }
         // A built-in's return type is the DSL's to declare; without it the expression would fall back to string
         // concatenation and a numeric built-in could not take part in arithmetic.
         if (part.getFunctionCallName() != null) {
-            final ExprType declared = genCtx.resolver.functionReturnType(part.getFunctionCallName());
+            final ExprType declared = genCtx.resolver.functionReturnType(part, genCtx);
+            final Class<?> returnClass = declared == ExprType.OBJECT
+                ? genCtx.resolver.functionReturnClass(part, genCtx) : null;
             if (part.getChain().isEmpty()) {
+                // An object result that is a boxed number takes part in arithmetic as that number.
+                if (returnClass != null) {
+                    return exprTypeFromClass(returnClass);
+                }
                 if (declared != null) {
                     return declared;
                 }
+            } else if (returnClass != null) {
+                return generatedType(part, genCtx);
             } else if (declared == ExprType.STRING) {
                 // `attr("x").length()`: the methods after a String built-in are resolved on String.
                 final Class<?> type = walkChainType(part.getChain(), String.class);
@@ -994,6 +1292,11 @@ public final class TALValueCodegen {
         // numeric leaves participate in arithmetic and don't fall through
         // to string concat. Mirrors {@link #generateTypedChainAccess} but
         // does not emit code or local variables.
+        // `span.name.length()`: a method after the fields resolves only in the chain's own code.
+        if (part.isInputRef() && genCtx.inputType != null
+                && part.getChain().stream().anyMatch(seg -> !(seg instanceof TALFieldSegment))) {
+            return generatedType(part, genCtx);
+        }
         if (part.isInputRef()
                 && genCtx.resolver.isTypedInputActive()
                 && genCtx.inputType != null) {
@@ -1019,7 +1322,8 @@ public final class TALValueCodegen {
      * and replaces what was two parallel if/else ladders.
      */
     private static ExprType exprTypeFromClass(final Class<?> c) {
-        if (c == int.class || c == Integer.class) {
+        if (c == int.class || c == Integer.class || c == short.class || c == Short.class || c == byte.class
+            || c == Byte.class) {
             return ExprType.INT;
         }
         if (c == long.class || c == Long.class) {
@@ -1108,6 +1412,16 @@ public final class TALValueCodegen {
             current = resolved.getReturnType();
         }
         return current;
+    }
+
+    /**
+     * The type an operand's own code resolves to, generated into a scratch buffer, so arithmetic infers the type of the
+     * very method the emitted code calls, overloads and indexes included.
+     */
+    private static ExprType generatedType(final TALValueAccess part, final TALGenCtx genCtx) {
+        generateValueAccess(new StringBuilder(), part, genCtx);
+        final Class<?> type = genCtx.lastResolvedType;
+        return type == null ? ExprType.UNKNOWN : exprTypeFromClass(type);
     }
 
     private static ExprType castToType(final String cast) {
@@ -1272,6 +1586,9 @@ public final class TALValueCodegen {
             if (partType.isNumeric() && resolved != null && resolved.isPrimitive()
                     && genCtx.lastRawChain != null) {
                 sb.append(genCtx.lastRawChain);
+            } else if (partType.isNumeric()) {
+                // A grouped boxed number, such as a def variable's: unboxed for the arithmetic.
+                sb.append(wrapAsPrimitive(inner.toString(), partType));
             } else {
                 sb.append(inner);
             }
@@ -1328,9 +1645,9 @@ public final class TALValueCodegen {
         if (ms.isSafeNav()) {
             // Special-cased helpers for common safe-nav methods on Object
             if ("toString".equals(mn)) {
-                return "h.toString(" + current + ")";
+                return TALRuntimeRoles.method("toString") + "(" + current + ")";
             } else if ("trim".equals(mn)) {
-                return "h.trim(" + current + ")";
+                return TALRuntimeRoles.method("trim") + "(" + current + ")";
             }
             // General safe-nav: null guard with ternary
             return "(" + current + " == null ? null : "

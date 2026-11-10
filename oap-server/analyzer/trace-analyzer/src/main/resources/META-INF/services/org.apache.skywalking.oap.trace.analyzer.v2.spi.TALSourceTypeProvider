@@ -17,3 +17,4 @@
 
 
 org.apache.skywalking.oap.trace.analyzer.v2.spi.OtlpTALSourceTypeProvider
+org.apache.skywalking.oap.trace.analyzer.v2.spi.SwNativeTALSourceTypeProvider

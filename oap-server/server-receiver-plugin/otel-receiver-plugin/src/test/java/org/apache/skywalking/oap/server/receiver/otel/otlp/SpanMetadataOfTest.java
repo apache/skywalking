@@ -23,6 +23,7 @@ import io.opentelemetry.proto.trace.v1.SpanFlags;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.server.receiver.otel.OtelMetricReceiverConfig;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +32,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class SpanMetadataOfTest {
     private static final long START_MILLIS = 1_700_000_000_390L;
     private static final long END_MILLIS = 1_700_000_000_500L;
+
+    @Test
+    void theStorageModeIsWhatTheReceiverPassed() {
+        final Span span = Span.newBuilder().setStartTimeUnixNano(1L).setEndTimeUnixNano(2L).build();
+        assertEquals(OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN, OpenTelemetryTraceHandler.spanMetadataOf(
+            span, "frontend", Collections.emptyMap(), "", "", OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_ZIPKIN)
+            .getTraceStorage());
+        assertEquals("", SpanMetadata.builder().build().getTraceStorage(), "empty for a span no OTLP receiver stores");
+    }
 
     @Test
     void aMissingTimeIsReplacedByTheOtherOne() {
@@ -79,11 +89,12 @@ class SpanMetadataOfTest {
         return OpenTelemetryTraceHandler.spanMetadataOf(
             span.setStartTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(START_MILLIS))
                 .setEndTimeUnixNano(TimeUnit.MILLISECONDS.toNanos(END_MILLIS)).build(),
-            "frontend", Collections.emptyMap(), "", "");
+            "frontend", Collections.emptyMap(), "", "", OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP);
     }
 
     private static SpanMetadata metaOf(final long startNanos, final long endNanos) {
         final Span span = Span.newBuilder().setStartTimeUnixNano(startNanos).setEndTimeUnixNano(endNanos).build();
-        return OpenTelemetryTraceHandler.spanMetadataOf(span, "frontend", Collections.emptyMap(), "", "");
+        return OpenTelemetryTraceHandler.spanMetadataOf(span, "frontend", Collections.emptyMap(), "", "",
+            OtelMetricReceiverConfig.OTLP_TRACE_STORAGE_OTLP);
     }
 }

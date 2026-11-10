@@ -111,7 +111,7 @@ class TALShippedRuleCompileTest {
         generator.setMetricPrefix("otlp");
         generator.setSourceRef(ShippedRules.ref("otlp-slow-sql"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-        generator.setOutputType(TestSlowStatementBuilder.class);
+        ShippedRules.declareSlowStatementScope();
 
         assertNotNull(generator.compile(ShippedRules.dsl("otlp-slow-sql")));
         assertTrue(generator.getMetricDeclarations().isEmpty(),

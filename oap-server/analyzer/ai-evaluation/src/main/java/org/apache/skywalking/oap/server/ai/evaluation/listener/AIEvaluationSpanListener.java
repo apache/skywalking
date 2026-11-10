@@ -23,9 +23,6 @@ import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.ai.evaluation.AIEvaluationModule;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
 import org.apache.skywalking.oap.server.ai.evaluation.service.IAIEvaluationService;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.trace.SpanListener;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
@@ -37,11 +34,14 @@ import org.apache.skywalking.oap.server.library.util.genai.GenAISemanticAttribut
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
+/**
+ * Samples the GenAI spans of Zipkin traces for evaluation, OTLP spans the receiver stores as Zipkin spans included.
+ * The TAL rules sample the others: {@code otlp-ai-evaluation} the natively stored OTLP spans, and
+ * {@code native-ai-evaluation} the segments SkyWalking agents send.
+ */
 public class AIEvaluationSpanListener implements SpanListener {
     private static final String ERROR_TAG = "error";
-    private static final String STATUS_CODE_ERROR = "STATUS_CODE_ERROR";
     private static final long MILLIS_PER_MICRO = 1_000L;
     private static final String[] REQUIRED_TAG_KEYS = new String[]{
             GenAISemanticAttributes.RESPONSE_MODEL,
@@ -54,13 +54,11 @@ public class AIEvaluationSpanListener implements SpanListener {
     };
 
     private IAIEvaluationService evaluationService;
-    private NamingControl namingControl;
 
     @Override
     public String[] requiredModules() {
         return new String[]{
-                AIEvaluationModule.NAME,
-                CoreModule.NAME
+                AIEvaluationModule.NAME
         };
     }
 
@@ -69,9 +67,6 @@ public class AIEvaluationSpanListener implements SpanListener {
         evaluationService = moduleManager.find(AIEvaluationModule.NAME)
                 .provider()
                 .getService(IAIEvaluationService.class);
-        namingControl = moduleManager.find(CoreModule.NAME)
-                .provider()
-                .getService(NamingControl.class);
     }
 
     @Override
@@ -92,48 +87,6 @@ public class AIEvaluationSpanListener implements SpanListener {
                 span.getTimestampMillis() + span.getDuration() / MILLIS_PER_MICRO,
                 tags,
                 "true".equalsIgnoreCase(tags.get(ERROR_TAG)));
-        return SpanListenerResult.CONTINUE;
-    }
-
-    /**
-     * The same sampling over a natively stored OTLP span, which never becomes a Zipkin span. The {@code error}
-     * tag the Zipkin conversion writes is derived from the span status here, so the evaluation context reads the
-     * same on both paths.
-     */
-    @Override
-    public SpanListenerResult onNativeOTLPSpan(final OTLPSpanReader span,
-                                               final String serviceName,
-                                               final Map<String, String> resourceAttributes,
-                                               final String scopeName,
-                                               final String scopeVersion) {
-        final Map<String, String> attributes = span.attributes();
-        final Map<String, String> tags = new HashMap<>();
-        for (String requiredKey : REQUIRED_TAG_KEYS) {
-            final String value = attributes.get(requiredKey);
-            if (StringUtil.isNotEmpty(value)) {
-                tags.put(requiredKey, value);
-            }
-        }
-        final boolean error = STATUS_CODE_ERROR.equals(span.statusCode());
-        if (error) {
-            tags.put(ERROR_TAG, "true");
-        }
-        if (!isGenAISpan(tags)) {
-            return SpanListenerResult.CONTINUE;
-        }
-        if (!shouldSample(span.traceId())) {
-            return SpanListenerResult.CONTINUE;
-        }
-        sample(GenAITraceRefType.OTLP,
-                span.traceId(),
-                span.spanId(),
-                // Through the naming rules, as the stored span's service is, so the record joins back to it.
-                namingControl.formatServiceName(serviceName),
-                span.spanName(),
-                TimeUnit.NANOSECONDS.toMillis(span.startTimeNanos()),
-                TimeUnit.NANOSECONDS.toMillis(span.endTimeNanos()),
-                tags,
-                error);
         return SpanListenerResult.CONTINUE;
     }
 

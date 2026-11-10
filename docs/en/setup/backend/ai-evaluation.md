@@ -26,6 +26,12 @@ For Spring AI instrumented by the SkyWalking Java agent, enable message collecti
 
 For OTLP and Zipkin ingestion, ensure the instrumentation exports the equivalent `gen_ai.input.messages` and `gen_ai.output.messages` attributes.
 
+Which spans are sampled depends on how they arrive:
+
+- **SkyWalking native tracing:** the `native-ai-evaluation` [TAL](../../concepts-and-designs/tal.md) rule, listed in `trace-analyzer`'s `nativeTalFiles`, samples every GenAI span of the segments the agents send.
+- **OTLP stored natively** (`otlpTraceStorage: otlp`, the default): the `otlp-ai-evaluation` TAL rule, listed in `talFiles`, samples the GenAI spans of the services whose resource sets `service.layer=OTLP_GENERAL`, as every OTLP rule sees only the spans of its layer. Set the attribute on the GenAI application, for example `OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL`; a span of a service that sets none is not evaluated. The rule runs with the other TAL rules, before the receiver decides whether to store the span, so a span that another rule's `persist {}` or a span listener keeps out of storage is still evaluated, and with `trace-analyzer`'s `dedupWindow` above 0 a span an exporter sends again to the same OAP node, while the node still remembers it, is not evaluated again.
+- **Zipkin, and OTLP stored as Zipkin spans** (`otlpTraceStorage: zipkin`): the module's span listener samples every GenAI span.
+
 These attributes may contain user prompts and model responses, and the module sends their content to the configured judge endpoint. Review the endpoint's data handling, privacy requirements, and estimated model cost before enabling collection in production.
 
 ## Basic configuration

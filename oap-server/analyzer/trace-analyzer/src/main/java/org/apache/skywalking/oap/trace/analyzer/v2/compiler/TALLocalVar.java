@@ -18,17 +18,38 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 /**
- * A local variable a {@code def} statement declared: the Java name the generated method uses, the type inferred
- * from its initializer, and that type's JVM descriptor for the local-variable table.
+ * A local variable a {@code def} or a {@code segmentDef} statement declared: the Java name the generated method uses,
+ * the type inferred from its initializer, and that type's JVM descriptor for the local-variable table.
  */
 public class TALLocalVar {
     public final String javaVarName;
     public final Class<?> resolvedType;
     public final String descriptor;
+    /**
+     * The element type when the variable holds a generic {@code List}, so a {@code foreach} over it types its loop
+     * variable; null otherwise.
+     */
+    public final Class<?> elementType;
+    /**
+     * The variable's slot in the segment's array when a {@code segmentDef} declared it, whose assignments write the
+     * slot too; -1 for a {@code def}.
+     */
+    public final int segmentSlot;
 
     public TALLocalVar(final String javaVarName, final Class<?> resolvedType) {
+        this(javaVarName, resolvedType, null);
+    }
+
+    public TALLocalVar(final String javaVarName, final Class<?> resolvedType, final Class<?> elementType) {
+        this(javaVarName, resolvedType, elementType, -1);
+    }
+
+    public TALLocalVar(final String javaVarName, final Class<?> resolvedType, final Class<?> elementType,
+                       final int segmentSlot) {
         this.javaVarName = javaVarName;
         this.resolvedType = resolvedType;
-        this.descriptor = "L" + resolvedType.getName().replace('.', '/') + ";";
+        this.descriptor = TALCodegenHelper.descriptor(resolvedType);
+        this.elementType = elementType;
+        this.segmentSlot = segmentSlot;
     }
 }

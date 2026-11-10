@@ -19,16 +19,10 @@
 package org.apache.skywalking.oap.server.ai.evaluation.listener;
 
 import com.google.gson.JsonObject;
-import java.util.Collections;
-import java.util.Map;
 import org.apache.skywalking.oap.server.ai.evaluation.AIEvaluationModule;
 import org.apache.skywalking.oap.server.ai.evaluation.context.AIEvaluationContext;
 import org.apache.skywalking.oap.server.ai.evaluation.service.IAIEvaluationService;
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.config.NamingControl;
-import org.apache.skywalking.oap.server.core.config.group.EndpointNameGrouping;
 import org.apache.skywalking.oap.server.core.query.enumeration.GenAITraceRefType;
-import org.apache.skywalking.oap.server.core.trace.OTLPSpanReader;
 import org.apache.skywalking.oap.server.core.zipkin.source.ZipkinSpan;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -62,12 +56,6 @@ class AIEvaluationSpanListenerTest {
         when(module.provider()).thenReturn(provider);
         final ModuleManager moduleManager = mock(ModuleManager.class);
         when(moduleManager.find(AIEvaluationModule.NAME)).thenReturn(module);
-        final ModuleServiceHolder coreProvider = mock(ModuleServiceHolder.class);
-        when(coreProvider.getService(NamingControl.class))
-            .thenReturn(new NamingControl(70, 100, 100, new EndpointNameGrouping()));
-        final ModuleProviderHolder core = mock(ModuleProviderHolder.class);
-        when(core.provider()).thenReturn(coreProvider);
-        when(moduleManager.find(CoreModule.NAME)).thenReturn(core);
         listener = new AIEvaluationSpanListener();
         listener.init(moduleManager);
     }
@@ -86,59 +74,6 @@ class AIEvaluationSpanListenerTest {
         final AIEvaluationContext context = sampledContext();
         assertEquals(GenAITraceRefType.ZIPKIN, context.getTraceRefType());
         assertEquals(SPAN_ID, context.getSpanId());
-    }
-
-    @Test
-    void recordsANativeOtlpSpanAsStoredInOtlp() {
-        final OTLPSpanReader span = new OTLPSpanReader() {
-            @Override
-            public String traceId() {
-                return TRACE_ID;
-            }
-
-            @Override
-            public String spanId() {
-                return SPAN_ID;
-            }
-
-            @Override
-            public String spanName() {
-                return "chat " + MODEL;
-            }
-
-            @Override
-            public String spanKind() {
-                return "SPAN_KIND_CLIENT";
-            }
-
-            @Override
-            public long startTimeNanos() {
-                return 0;
-            }
-
-            @Override
-            public long endTimeNanos() {
-                return 0;
-            }
-
-            @Override
-            public String getAttribute(final String key) {
-                return attributes().get(key);
-            }
-
-            @Override
-            public Map<String, String> attributes() {
-                return Collections.singletonMap(GenAISemanticAttributes.RESPONSE_MODEL, MODEL);
-            }
-        };
-
-        listener.onNativeOTLPSpan(span, "shop::chatbot", Collections.emptyMap(),
-                                  "opentelemetry.instrumentation.openai_v2", "2.0");
-
-        final AIEvaluationContext context = sampledContext();
-        assertEquals(GenAITraceRefType.OTLP, context.getTraceRefType());
-        assertEquals(SPAN_ID, context.getSpanId());
-        assertEquals("shop::chatbot", context.getServiceName(), "the grouped service the span is stored under");
     }
 
     private AIEvaluationContext sampledContext() {

@@ -25,8 +25,6 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -34,6 +32,8 @@ import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
 
 @Slf4j
 public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceGrpc.TraceSegmentReportServiceImplBase implements GRPCHandler {
@@ -43,7 +43,7 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
     private ISegmentParserService segmentParserService;
 
     public TraceSegmentReportServiceHandler(ModuleManager moduleManager) {
-        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+        this.segmentParserService = moduleManager.find(TraceAnalyzerModule.NAME)
                                                  .provider()
                                                  .getService(ISegmentParserService.class);
 

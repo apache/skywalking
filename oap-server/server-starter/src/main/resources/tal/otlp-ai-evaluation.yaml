@@ -1,0 +1,105 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The AI evaluation sampling of OpenTelemetry spans, which AIEvaluationSpanListener made for a natively stored OTLP
+# span, as a TAL rule. Loaded only with the ai-evaluation module. Like every OTLP rule, it sees the spans of its
+# layer's services: those whose service.layer is OTLP_GENERAL. A span the receiver stores as a Zipkin span
+# (otlpTraceStorage: zipkin) is sampled on the Zipkin path instead, which files the record under the Zipkin trace.
+#
+# The sample is a GenAIEvaluationSample source, sent at its statement. ai-evaluation's dispatcher builds the
+# AIEvaluationContext from the fields below and calls IAIEvaluationService.sample on the same thread; it hands the
+# context to the evaluation queue and stores nothing.
+
+requiredModules:
+  - ai-evaluation
+
+rules:
+  - name: otlp-ai-evaluation
+    layer: OTLP_GENERAL
+    inputType: otlp
+    dsl: |
+      filter {
+        if (meta.traceStorage == "zipkin") {
+          abort {}
+        }
+        // A GenAI span names the model that answered
+        if (isBlank(attr("gen_ai.response.model"))) {
+          abort {}
+        }
+        // IAIEvaluationService.shouldSample. ai-evaluation is inactive, and samples nothing, when its judge
+        // configuration is incomplete
+        if (!evaluationActive()) {
+          abort {}
+        }
+        // DefaultAIEvaluationSamplingPolicy: a non-empty trace id whose murmur3-128 hash, taken as a long, falls below
+        // sampleRate in a space of 1,000,000
+        if (meta.traceId == "" || floorMod(murmur3Hash(meta.traceId), 1000000L) >= evaluationSampleRate()) {
+          abort {}
+        }
+        extractor {
+          // The attributes the judge reads, each one present with a value, then the span's error status
+          def evaluationTags = emptyMap()
+          if (attr("gen_ai.response.model") != "") {
+            def replaced = evaluationTags.put("gen_ai.response.model", attr("gen_ai.response.model"))
+          }
+          if (attr("gen_ai.provider.name") != "") {
+            replaced = evaluationTags.put("gen_ai.provider.name", attr("gen_ai.provider.name"))
+          }
+          if (attr("gen_ai.system") != "") {
+            replaced = evaluationTags.put("gen_ai.system", attr("gen_ai.system"))
+          }
+          if (attr("gen_ai.operation.name") != "") {
+            replaced = evaluationTags.put("gen_ai.operation.name", attr("gen_ai.operation.name"))
+          }
+          if (attr("gen_ai.input.messages") != "") {
+            replaced = evaluationTags.put("gen_ai.input.messages", attr("gen_ai.input.messages"))
+          }
+          if (attr("gen_ai.output.messages") != "") {
+            replaced = evaluationTags.put("gen_ai.output.messages", attr("gen_ai.output.messages"))
+          }
+          if (attr("error") != "") {
+            replaced = evaluationTags.put("error", attr("error"))
+          }
+          def error = false
+          if (meta.statusCode == "ERROR") {
+            error = true
+            replaced = evaluationTags.put("error", "true")
+          }
+          // GenAIContextResolver.resolve: the declared provider, else the legacy gen_ai.system, else the provider
+          // gen-ai-config.yml names for the model
+          def providerName = matchGenAIModel(attr("gen_ai.response.model")).provider
+          if (!isBlank(attr("gen_ai.provider.name"))) {
+            providerName = attr("gen_ai.provider.name")
+          } else if (!isBlank(attr("gen_ai.system"))) {
+            providerName = attr("gen_ai.system")
+          }
+          source GenAIEvaluationSample {
+            traceId meta.traceId
+            traceRefType "OTLP"
+            spanId meta.spanId
+            // Through the naming rules, as the stored span's service is, so the record joins back to it
+            serviceName formatServiceName(meta.service)
+            operationName span.name
+            providerName providerName
+            modelName attr("gen_ai.response.model")
+            // The times the span carries; meta's stand one in for the other when the sender left one out
+            startTimeMillis span.startTimeUnixNano / 1000000
+            endTimeMillis span.endTimeUnixNano / 1000000
+            error error
+            tags evaluationTags
+            timeBucket recordTimeBucket(meta.startTime)
+          }
+        }
+      }

@@ -266,13 +266,20 @@ log-analyzer:
     malFiles: ${SW_LOG_MAL_FILES:"nginx,miniprogram-wechat,miniprogram-alipay"}
 
 trace-analyzer:
-  # `-` removes the module; the OTLP trace receiver then stores the spans without analysis. An empty `talFiles`
-  # keeps the module and analyzes nothing, which is the same for the data.
+  # Analyzes OTLP spans with `talFiles` and the segments SkyWalking agents send with `nativeTalFiles`. `-` removes
+  # the module, which fails the boot while the native trace receiver or the Kafka fetcher is loaded, as both require
+  # it; with neither, the OTLP trace receiver then stores the spans without analysis. An empty `talFiles` keeps the
+  # module and analyzes no OTLP span.
   selector: ${SW_TRACE_ANALYZER:default}
   default:
-    # TAL rule files under `tal/`, without extension, comma separated. Empty disables span analysis while keeping
-    # the module loaded.
-    talFiles: ${SW_TRACE_TAL_FILES:otlp-general}
+    # TAL rule files under `tal/` for spans that SkyWalking agents send, without extension, comma separated, in the
+    # order their rules run. The default reproduces the agent path.
+    nativeTalFiles: ${SW_TRACE_NATIVE_TAL_FILES:native-rpc,native-endpoint-cross-thread,native-network-alias,native-segment,native-virtual-service,native-virtual-genai,native-ai-evaluation}
+    # OpenTelemetry (OTLP) spans: the settings from here to the end of this section apply to OTLP spans only.
+    #
+    # TAL rule files under `tal/` for OTLP spans, without extension, comma separated. Empty disables OTLP span
+    # analysis while keeping the module loaded.
+    talFiles: ${SW_TRACE_TAL_FILES:otlp-general,otlp-ai-evaluation}
     # Spans seen within this window (seconds) are analyzed once, so an exporter that retries a batch after a
     # transport timeout does not count a request twice. 0, the default, keeps no set at all and treats every
     # arrival as new, which is what OTLP logs do today. Set it longer than the exporter's retry budget; the OTLP

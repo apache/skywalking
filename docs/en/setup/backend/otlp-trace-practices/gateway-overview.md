@@ -4,7 +4,7 @@ The [trace analysis](../trace-analyzer.md) names a peer that a CLIENT span reach
 `172.19.0.19:8080`, after the service that answered, by pairing the caller and the callee of one call: the callee's
 SERVER span names the caller's span as its parent. The alias it learns is keyed by the caller and the address it dialed,
 `frontend->cart:7070`. The mechanism is described under [Address-named
-peers](../../../concepts-and-designs/tal.md#address-named-peers). A gateway or a proxy between the caller and the
+peers](../../../concepts-and-designs/tal-otlp.md#address-named-peers). A gateway or a proxy between the caller and the
 callee changes which spans meet; this page tells which setup fits the gateway in front of your services, and the pages
 next to it show how each one behaves and what to change when it does not draw what you expect.
 

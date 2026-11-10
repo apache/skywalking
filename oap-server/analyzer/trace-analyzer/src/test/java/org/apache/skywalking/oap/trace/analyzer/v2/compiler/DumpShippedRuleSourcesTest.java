@@ -63,6 +63,7 @@ class DumpShippedRuleSourcesTest {
     @Test
     void dumpEveryShippedRule() throws Exception {
         clear();
+        ShippedRules.declareSlowStatementScope();
 
         final List<TALConfig> rules = ShippedRules.configs().getRules();
         for (final TALConfig rule : rules) {
@@ -73,9 +74,6 @@ class DumpShippedRuleSourcesTest {
             generator.setInputType(TestSpanInput.class);
             generator.setSourceRef(ShippedRules.ref(rule.getName()));
             generator.setClassOutputDir(OUTPUT_DIR);
-            if (rule.getOutputType() != null) {
-                generator.setOutputType(AttributionSlowStatement.class);
-            }
             assertNotNull(generator.compile(rule.getDsl()), rule.getName() + " compiles");
         }
 

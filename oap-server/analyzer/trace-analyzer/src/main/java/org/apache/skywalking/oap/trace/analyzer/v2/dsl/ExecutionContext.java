@@ -17,17 +17,20 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.dsl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
-import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.SwNativeSegmentState;
+import org.apache.skywalking.oap.trace.analyzer.v2.spi.OtlpTALSourceTypeProvider;
 import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider;
 
 /**
@@ -37,6 +40,8 @@ import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider;
  * disturb the next rule's view of the same span.
  */
 public class ExecutionContext {
+    private static final Object[] NO_SEGMENT_DEFS = new Object[0];
+
     @Getter
     private SpanMetadata meta;
 
@@ -67,9 +72,9 @@ public class ExecutionContext {
     private Map<String, String> attributeIndex;
 
     /**
-     * The instrumentation scope's attributes, indexed on first use like {@link #attributeIndex}.
+     * The instrumentation scope's attributes the receiver passed to {@link #init}.
      */
-    private Map<String, String> scopeAttributeIndex;
+    private Map<String, String> scopeAttributeIndex = Collections.emptyMap();
 
     /**
      * Set by {@code abort {}}: the rule stops and writes nothing, and its votes do not count.
@@ -116,34 +121,6 @@ public class ExecutionContext {
     private boolean enforced;
 
     /**
-     * Whether a {@code sink {}} block ran; a record is written only then.
-     */
-    private boolean sinkRan;
-
-    /**
-     * Set by {@code dropper {}} in a {@code sink {}} block. It wins over everything else in the rule.
-     */
-    private boolean recordDropped;
-
-    /**
-     * Set by a {@code rateLimit} in a {@code sink {}} block that ran out of budget.
-     */
-    private boolean recordSampledOut;
-
-    /**
-     * Set by an {@code enforcer {}} in a {@code sink {}} block: keep the record past this rule's samplers.
-     */
-    @Getter
-    private boolean recordEnforced;
-
-    /**
-     * The record under construction, an instance of the rule's {@code outputType}.
-     */
-    @Getter
-    @Setter
-    private Object output;
-
-    /**
      * Tags the rule appended to the span, in the order they were written.
      */
     @Getter
@@ -157,12 +134,32 @@ public class ExecutionContext {
     private final Set<String> traffickedEntities = new HashSet<>();
 
     /**
+     * The rule's {@code segmentDef} values for the segment this run belongs to, one array that every run of the rule
+     * on that segment reads and writes; see {@link #bindNativeRun}.
+     */
+    @Getter
+    private Object[] segmentDefs = NO_SEGMENT_DEFS;
+    /**
+     * The native input's segment run: the segment the agent sent and what the runner derived from it; null for
+     * another input. Set by the native runner beside the span, the input, for every run of the segment.
+     */
+    @Getter
+    private SwNativeSegmentState nativeSegment;
+
+    /**
+     * The {@code build {}} blocks this run queued, in the order it reached them. The runner keeps them for the
+     * segment's build phase only when the run was not aborted.
+     */
+    @Getter
+    private final List<QueuedBuild> queuedBuilds = new ArrayList<>();
+
+    /**
      * Start a new execution against one span.
      *
      * @param meta               the span's metadata view; the rule may overwrite its identity fields
      * @param input              the wire object
      * @param resourceAttributes the resource attributes as strings
-     * @param scopeAttributes    the instrumentation scope's attributes, or null to read them from the provider
+     * @param scopeAttributes    the instrumentation scope's attributes, or null when the input has none
      * @return this context, ready to run
      */
     public ExecutionContext init(final SpanMetadata meta,
@@ -173,7 +170,7 @@ public class ExecutionContext {
         this.input = input;
         this.resourceAttributes = resourceAttributes == null ? Collections.emptyMap() : resourceAttributes;
         this.attributeIndex = null;
-        this.scopeAttributeIndex = scopeAttributes;
+        this.scopeAttributeIndex = scopeAttributes == null ? Collections.emptyMap() : scopeAttributes;
         this.aborted = false;
         this.networkAliasRequested = false;
         this.networkAliasPeer = null;
@@ -181,14 +178,47 @@ public class ExecutionContext {
         this.spanDropped = false;
         this.spanSampledOut = false;
         this.enforced = false;
-        this.sinkRan = false;
-        this.recordDropped = false;
-        this.recordSampledOut = false;
-        this.recordEnforced = false;
-        this.output = null;
         this.additionalTags.clear();
         this.traffickedEntities.clear();
         return this;
+    }
+
+    /**
+     * Start one native rule's run on a span, in place of {@link #init}, on a context only native runs use. A native
+     * rule has the language's statements and the native input's ({@code TALConstruct.NATIVE_SEGMENT}) only, which
+     * change no more than whether the run aborted, the builds it queued and the entities its {@code metrics {}}
+     * marked; so only those are reset, and the state the other inputs' statements set stays as a new context has it.
+     * A segment runs every rule on every span, most runs abort at their first line, and this costs a few stores.
+     *
+     * @param meta        the span's metadata, which the engine reads and a native rule cannot write
+     * @param span        the span
+     * @param segment     the segment run
+     * @param segmentDefs the array of {@code TalExpression.segmentDefCount()} values the rule's runs on the segment
+     *                    share
+     */
+    public void bindNativeRun(final SpanMetadata meta, final Object span, final SwNativeSegmentState segment,
+                              final Object[] segmentDefs) {
+        this.meta = meta;
+        this.input = span;
+        this.nativeSegment = segment;
+        this.segmentDefs = segmentDefs;
+        this.aborted = false;
+        if (!queuedBuilds.isEmpty()) {
+            queuedBuilds.clear();
+        }
+        if (!traffickedEntities.isEmpty()) {
+            traffickedEntities.clear();
+        }
+    }
+
+    /**
+     * {@code build {}} — queue the block, with the values of the variables the run has here and the run's input.
+     *
+     * @param index    the block, numbered in the rule
+     * @param captured the values of the {@code def} variables in scope, in the order the block's method reads them
+     */
+    public void queueBuild(final int index, final Object[] captured) {
+        queuedBuilds.add(new QueuedBuild(index, captured, input));
     }
 
     /**
@@ -209,25 +239,30 @@ public class ExecutionContext {
     }
 
     /**
-     * @return the span's attributes, built on first use from the input's provider
+     * @return the OTLP span's attributes, built on first use from the OTLP provider; empty for another input
      */
     public Map<String, String> spanAttributes() {
         if (attributeIndex == null) {
-            attributeIndex = sourceTypeProvider == null || input == null
-                ? Collections.emptyMap() : sourceTypeProvider.spanAttributes(input);
+            attributeIndex = otlpProvider() == null || input == null
+                ? Collections.emptyMap() : otlpProvider().spanAttributes(input);
         }
         return attributeIndex;
     }
 
     /**
-     * @return the instrumentation scope's attributes, built on first use
+     * @return the instrumentation scope's attributes the receiver passed, which the enclosing {@code ScopeSpans}
+     * carries rather than the span; empty when it passed none
      */
     public Map<String, String> scopeAttributes() {
-        if (scopeAttributeIndex == null) {
-            scopeAttributeIndex = sourceTypeProvider == null || input == null
-                ? Collections.emptyMap() : sourceTypeProvider.scopeAttributes(input);
-        }
         return scopeAttributeIndex;
+    }
+
+    /**
+     * @return the input's provider when the input is an OTLP span, which reads the span's attributes; null otherwise
+     */
+    private OtlpTALSourceTypeProvider otlpProvider() {
+        return sourceTypeProvider instanceof OtlpTALSourceTypeProvider
+            ? (OtlpTALSourceTypeProvider) sourceTypeProvider : null;
     }
 
     public void abort() {
@@ -289,36 +324,6 @@ public class ExecutionContext {
         return !spanDropped && (enforced || !spanSampledOut);
     }
 
-    /**
-     * A {@code sink {}} block started running, which is what lets the record be written.
-     */
-    public void runSink() {
-        this.sinkRan = true;
-    }
-
-    public void dropRecord() {
-        this.recordDropped = true;
-    }
-
-    /**
-     * A {@code rateLimit} in {@code sink {}} ran out of budget; an {@code enforcer {}} of the rule overrides it.
-     */
-    public void sampleOutRecord() {
-        this.recordSampledOut = true;
-    }
-
-    public void enforceRecord() {
-        this.recordEnforced = true;
-    }
-
-    /**
-     * @return whether the record the rule built is written: only when a {@code sink {}} ran, no {@code dropper {}}
-     * dropped it, and either no sampler dropped it or an {@code enforcer {}} kept it
-     */
-    public boolean isSinkKept() {
-        return sinkRan && !recordDropped && (recordEnforced || !recordSampledOut);
-    }
-
     public void addTag(final String key, final String value) {
         if (key != null && value != null) {
             additionalTags.put(key, value);
@@ -331,12 +336,5 @@ public class ExecutionContext {
      */
     public boolean markTrafficked(final MeterEntity entity) {
         return traffickedEntities.add(entity.getScopeType() + "/" + entity.id());
-    }
-
-    /**
-     * @return the record under construction, typed as a builder
-     */
-    public TALOutputBuilder outputAsBuilder() {
-        return output instanceof TALOutputBuilder ? (TALOutputBuilder) output : null;
     }
 }

@@ -37,6 +37,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 
 @Slf4j
 public class KafkaFetcherProvider extends ModuleProvider {
@@ -100,6 +101,7 @@ public class KafkaFetcherProvider extends ModuleProvider {
         return new String[] {
             TelemetryModule.NAME,
             AnalyzerModule.NAME,
+            TraceAnalyzerModule.NAME,
             LogAnalyzerModule.NAME,
             CoreModule.NAME
         };

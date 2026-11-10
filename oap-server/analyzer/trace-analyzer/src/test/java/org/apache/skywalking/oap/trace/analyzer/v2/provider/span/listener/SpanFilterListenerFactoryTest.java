@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener;
 
-import org.apache.skywalking.oap.server.core.source.DatabaseAccess;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfig;
@@ -59,24 +58,6 @@ class SpanFilterListenerFactoryTest {
 
         final ModuleStartException refused = assertThrows(ModuleStartException.class, () -> factory.compile(rule));
         assertTrue(refused.getMessage().contains("no-layer") && refused.getMessage().contains("declares no layer"),
-            refused.getMessage());
-    }
-
-    @Test
-    void anOutputTypeThatIsNotABuilderIsRefused() {
-        // The generated code binds the span to the record through TALOutputBuilder; a plain Source would compile
-        // and then fail on every span.
-        final SpanFilterListener.Factory factory =
-            new SpanFilterListener.Factory(mock(ModuleManager.class), new TraceAnalyzerModuleConfig());
-        final TALConfig rule = new TALConfig();
-        rule.setName("plain-source");
-        rule.setLayer("OTLP_GENERAL");
-        rule.setInputType("otlp");
-        rule.setOutputType(DatabaseAccess.class.getName());
-        rule.setDsl("filter { }");
-
-        final ModuleStartException refused = assertThrows(ModuleStartException.class, () -> factory.compile(rule));
-        assertTrue(refused.getMessage().contains("plain-source") && refused.getMessage().contains("TALOutputBuilder"),
             refused.getMessage());
     }
 }

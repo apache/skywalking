@@ -19,7 +19,6 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFieldSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFunctionArg;
@@ -29,26 +28,15 @@ import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccess
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccessSegment;
 
 /**
- * What TAL contributes to {@link TALValueCodegen}: the {@code span} and {@code meta} roots, the attribute
- * functions the semantic conventions are read through, and the lookups a peer's name goes through,
- * {@code component}, {@code callerScopedAddress}, {@code resolveNetworkAlias} and {@code isGateway}.
+ * What TAL contributes to {@link TALValueCodegen}: the {@code span} and {@code meta} roots, and every function call,
+ * resolved through the {@link TALFunctionRegistry}: an input's own functions, the OTLP span's and the native span's,
+ * the helper functions its provider hands over, and those modules contribute.
  *
  * <p>The entity constructors are function calls too, but they are not resolved here: only a {@code def} or a
  * {@code scope} may hold one, so {@link TALBlockCodegen} recognizes them by name where they are legal, and
  * anywhere else they fall through to the "no matching codegen path" error.
  */
 public class TALSpanRootResolver implements TALRootResolver {
-    /**
-     * The attribute functions, each taking one or more keys and returning a string.
-     */
-    private static final List<String> STRING_FUNCTIONS = List.of("attr", "resource", "scopeAttr");
-
-    /**
-     * The most keys the runtime helper has a spelled-out overload for; {@code eventAttr} has one fewer, since its
-     * first argument is the event name.
-     */
-    private static final int MAX_SPELLED_KEYS = 4;
-
     /**
      * The entity constructors, which only {@link TALBlockCodegen} may emit.
      */
@@ -60,72 +48,108 @@ public class TALSpanRootResolver implements TALRootResolver {
      */
     private final String inputTypeName;
 
+    /**
+     * The contributed functions, and the alias of the rule's input they are resolved for.
+     */
+    private final TALFunctionRegistry functions;
+    private final String inputAlias;
+
     public TALSpanRootResolver(final Class<?> inputType) {
-        this.inputTypeName = inputType == null ? "<none>" : inputType.getName();
+        this(inputType, null, null);
     }
 
+    public TALSpanRootResolver(final Class<?> inputType, final TALFunctionRegistry functions,
+                               final String inputAlias) {
+        this.inputTypeName = inputType == null ? "<none>" : inputType.getName();
+        this.functions = functions == null ? TALFunctionRegistry.defaults() : functions;
+        this.inputAlias = inputAlias;
+    }
+
+    /**
+     * Every function a rule calls is one the registry binds: the input's own, its provider's helpers, and the modules'.
+     */
     @Override
     public boolean generateFunctionCall(final StringBuilder sb, final TALValueAccess value,
                                         final TALGenCtx genCtx) {
-        final String name = value.getFunctionCallName();
-        if (STRING_FUNCTIONS.contains(name)) {
-            appendKeyedCall(sb, "h." + name, value, 1);
-            return true;
-        }
-        if ("hasAttr".equals(name)) {
-            appendKeyedCall(sb, "h.hasAttr", value, 1);
-            return true;
-        }
-        if ("event".equals(name)) {
-            requireKeys(value, name, 1, 1);
-            sb.append("h.event(\"").append(literalArg(value, 0)).append("\")");
-            return true;
-        }
-        if ("eventAttr".equals(name)) {
-            requireKeys(value, name, 2, Integer.MAX_VALUE);
-            final int count = value.getFunctionCallArgs().size();
-            final boolean asArray = count > MAX_SPELLED_KEYS;
-            sb.append("h.eventAttr(\"").append(literalArg(value, 0)).append("\"")
-              .append(asArray ? ", new String[] {" : "");
-            for (int i = 1; i < count; i++) {
-                sb.append(i > 1 || !asArray ? ", " : "").append("\"").append(literalArg(value, i)).append("\"");
-            }
-            sb.append(asArray ? "})" : ")");
-            return true;
-        }
-        if ("callerScopedAddress".equals(name)) {
-            requireKeys(value, name, 2, 2);
-            sb.append("h.callerScopedAddress(");
-            TALValueCodegen.generateStringValueAccess(
-                sb, value.getFunctionCallArgs().get(0).getValue(), null, genCtx);
-            sb.append(", ");
-            TALValueCodegen.generateStringValueAccess(
-                sb, value.getFunctionCallArgs().get(1).getValue(), null, genCtx);
-            sb.append(")");
-            return true;
-        }
-        if ("findServerClusterName".equals(name)) {
-            // The address, then optionally the kind a cluster lists in server-clusters.yml.
-            requireKeys(value, name, 1, 2);
-            sb.append("h.findServerClusterName(");
-            for (int i = 0; i < value.getFunctionCallArgs().size(); i++) {
-                sb.append(i > 0 ? ", " : "");
-                TALValueCodegen.generateStringValueAccess(
-                    sb, value.getFunctionCallArgs().get(i).getValue(), null, genCtx);
-            }
-            sb.append(")");
-            return true;
-        }
-        if ("component".equals(name) || "resolveNetworkAlias".equals(name) || "urlHost".equals(name)
-            || "isGateway".equals(name)) {
-            requireKeys(value, name, 1, 1);
-            sb.append("h.").append(name).append("(");
-            TALValueCodegen.generateStringValueAccess(
-                sb, value.getFunctionCallArgs().get(0).getValue(), null, genCtx);
-            sb.append(")");
+        final TALFunctionRegistry.Resolved contributed = contributed(value, genCtx);
+        if (contributed != null) {
+            generateContributedCall(sb, contributed, value, genCtx);
             return true;
         }
         return false;
+    }
+
+    /**
+     * {@code _fnN.name(h, args...)}: the bound function object, looked up once per generated method, the run's
+     * context first when the method takes it, each argument converted to its parameter's type, and the arguments a
+     * variable-length tail takes passed as the array Java hands it, since Javassist does not adapt varargs.
+     */
+    private static void generateContributedCall(final StringBuilder sb,
+                                                final TALFunctionRegistry.Resolved fn,
+                                                final TALValueAccess value,
+                                                final TALGenCtx genCtx) {
+        // A byte or short result is widened here, so the call is the int the rule reads it as.
+        final boolean narrow = isNarrowInteger(fn.getMethod().getReturnType());
+        sb.append(narrow ? "((int) " : "")
+          .append(genCtx.functionObjectVar(fn.getOwnerKey(), fn.getOwner().getClass().getName())).append(".")
+          .append(fn.getMethod().getName()).append("(");
+        final List<? extends TALFunctionArg> args = value.getFunctionCallArgs();
+        final int fixed = fn.ruleArgumentCount();
+        boolean first = true;
+        if (fn.isTakesContext()) {
+            sb.append("h");
+            first = false;
+        }
+        for (int i = 0; i < args.size(); i++) {
+            if (i == fixed && fn.isVarArgs()) {
+                sb.append(first ? "" : ", ").append("new ")
+                  .append(TALCodegenHelper.javaTypeName(fn.parameterFor(i))).append("[] {");
+                first = true;
+            } else if (!first) {
+                sb.append(", ");
+            }
+            first = false;
+            final TALFunctionArg arg = args.get(i);
+            TALValueCodegen.generateArgumentFor(sb, arg.getValue(), arg.getCastType(), fn.parameterFor(i),
+                "argument " + (i + 1) + " of " + fn.getMethod().getName() + "()", genCtx);
+        }
+        if (fn.isVarArgs()) {
+            if (args.size() == fixed) {
+                sb.append(first ? "" : ", ").append("new ")
+                  .append(TALCodegenHelper.javaTypeName(fn.parameterFor(fixed))).append("[0]");
+            } else {
+                sb.append("}");
+            }
+        }
+        sb.append(narrow ? "))" : ")");
+    }
+
+    private static boolean isNarrowInteger(final Class<?> type) {
+        return type == short.class || type == byte.class;
+    }
+
+    /**
+     * The overload a contributed call resolves to, chosen once per call site so its code and its typing agree: by
+     * the number of arguments, then, among overloads of that arity, by the arguments' compile-time types.
+     *
+     * @return the overload, or null when no bound provider serves the name for the rule's input
+     */
+    private TALFunctionRegistry.Resolved contributed(final TALValueAccess call, final TALGenCtx genCtx) {
+        final TALFunctionRegistry.Resolved known = genCtx.resolvedCalls.get(call);
+        if (known != null) {
+            return known;
+        }
+        final String name = call.getFunctionCallName();
+        final List<TALFunctionRegistry.Resolved> candidates =
+            functions.candidates(name, call.getFunctionCallArgs().size(), inputAlias);
+        if (candidates == null) {
+            return null;
+        }
+        final TALFunctionRegistry.Resolved chosen = candidates.size() == 1 ? candidates.get(0)
+            : TALFunctionRegistry.select(name, candidates,
+                TALValueCodegen.argumentTypes(call.getFunctionCallArgs(), genCtx));
+        genCtx.resolvedCalls.put(call, chosen);
+        return chosen;
     }
 
     /**
@@ -154,22 +178,41 @@ public class TALSpanRootResolver implements TALRootResolver {
     }
 
     @Override
-    public ExprType functionReturnType(final String functionName) {
-        if (STRING_FUNCTIONS.contains(functionName)) {
-            return ExprType.STRING;
+    public ExprType functionReturnType(final TALValueAccess call, final TALGenCtx genCtx) {
+        if (ENTITY_CONSTRUCTORS.contains(call.getFunctionCallName())) {
+            return null;
         }
-        if ("hasAttr".equals(functionName) || "isGateway".equals(functionName)) {
-            return ExprType.BOOLEAN;
+        final TALFunctionRegistry.Resolved contributed = contributed(call, genCtx);
+        if (contributed == null) {
+            return null;
         }
-        if ("eventAttr".equals(functionName) || "resolveNetworkAlias".equals(functionName)
-            || "callerScopedAddress".equals(functionName) || "urlHost".equals(functionName)
-            || "findServerClusterName".equals(functionName)) {
-            return ExprType.STRING;
+        final Class<?> returns = contributed.getMethod().getReturnType();
+        return returns == String.class ? ExprType.STRING
+            : returns == long.class ? ExprType.LONG
+            : returns == int.class || isNarrowInteger(returns) ? ExprType.INT
+            : returns == double.class ? ExprType.DOUBLE
+            : returns == float.class ? ExprType.FLOAT
+            : returns == boolean.class ? ExprType.BOOLEAN
+            : ExprType.OBJECT;
+    }
+
+    @Override
+    public Class<?> functionReturnClass(final TALValueAccess call, final TALGenCtx genCtx) {
+        if (ENTITY_CONSTRUCTORS.contains(call.getFunctionCallName())) {
+            return null;
         }
-        if ("component".equals(functionName)) {
-            return ExprType.INT;
+        final TALFunctionRegistry.Resolved contributed = contributed(call, genCtx);
+        return contributed == null ? null : contributed.getMethod().getReturnType();
+    }
+
+    @Override
+    public Class<?> functionReturnElementType(final TALValueAccess call, final TALGenCtx genCtx) {
+        if (ENTITY_CONSTRUCTORS.contains(call.getFunctionCallName())) {
+            return null;
         }
-        return null;
+        final TALFunctionRegistry.Resolved contributed = contributed(call, genCtx);
+        return contributed == null ? null
+            : TALCodegenHelper.listElementType(contributed.getMethod().getGenericReturnType());
     }
 
     /**
@@ -216,7 +259,20 @@ public class TALSpanRootResolver implements TALRootResolver {
         String current = cacheable
             ? TALValueCodegen.generateTypedChainAccess(fieldSegments, rootType, rootExpr, rootCanBeNull, genCtx)
             : TALValueCodegen.generateInlineChainAccess(fieldSegments, rootType, rootExpr, genCtx);
+        if (fieldSegments.isEmpty()) {
+            // The root on its own, as `(span)` reads it.
+            genCtx.clearExtraLogResult();
+            genCtx.lastResolvedType = rootType;
+        }
 
+        final Class<?> fieldsType = fieldSegments.isEmpty() ? rootType : genCtx.lastResolvedType;
+        if (tailStart >= 0 && fieldsType != null && !fieldsType.isPrimitive() && fieldsType != Object.class) {
+            // The methods after the fields resolve by reflection on what the fields lead to, so the result is typed.
+            final StringBuilder tail = new StringBuilder();
+            TALDefCodegen.generateDefVarChain(tail, new TALLocalVar(current, fieldsType),
+                chain.subList(tailStart, chain.size()), genCtx);
+            return tail.toString();
+        }
         if (tailStart >= 0) {
             for (int i = tailStart; i < chain.size(); i++) {
                 final TALValueAccessSegment seg = chain.get(i);
@@ -228,47 +284,10 @@ public class TALSpanRootResolver implements TALRootResolver {
                     current = current + "." + ((TALFieldSegment) seg).getName();
                 }
             }
+            // What the segments above return is not resolved, so the result's type is unknown, whatever the
+            // arguments' code left behind.
+            genCtx.clearExtraLogResult();
         }
         return current;
-    }
-
-    /**
-     * Emit a call whose arguments are all string-literal keys, which every attribute function takes.
-     */
-    private static void appendKeyedCall(final StringBuilder sb, final String method,
-                                        final TALValueAccess value, final int minKeys) {
-        requireKeys(value, value.getFunctionCallName(), minKeys, Integer.MAX_VALUE);
-        final int count = value.getFunctionCallArgs().size();
-        // Javassist does not adapt varargs: up to four keys reach a spelled-out overload, more go as the array
-        // the varargs method takes.
-        final boolean asArray = count > MAX_SPELLED_KEYS;
-        sb.append(method).append(asArray ? "(new String[] {" : "(");
-        for (int i = 0; i < count; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append("\"").append(literalArg(value, i)).append("\"");
-        }
-        sb.append(asArray ? "})" : ")");
-    }
-
-    private static String literalArg(final TALValueAccess value, final int index) {
-        final TALFunctionArg arg = value.getFunctionCallArgs().get(index);
-        if (!arg.getValue().isStringLiteral()) {
-            throw new IllegalArgumentException(
-                value.getFunctionCallName() + "() takes string literal arguments; got "
-                    + arg.getValue().toPathString());
-        }
-        return DslJavaSourceText.toLiteral(arg.getValue().getSegments().get(0));
-    }
-
-    private static void requireKeys(final TALValueAccess value, final String name,
-                                    final int min, final int max) {
-        final int count = value.getFunctionCallArgs().size();
-        if (count < min || count > max) {
-            throw new IllegalArgumentException(
-                name + "() expects " + (min == max ? String.valueOf(min) : "at least " + min)
-                    + " argument(s), got " + count);
-        }
     }
 }

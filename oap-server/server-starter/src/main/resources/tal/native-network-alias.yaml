@@ -1,0 +1,49 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# NetworkAddressAliasMappingListener, as a TAL rule for spans that SkyWalking agents send.
+#
+# The sw8 header carries the address the caller dialed, so an entry span alone names its own service as that
+# address. The row is sent during the span loop, as the listener sends it, not in the build phase.
+
+rules:
+  - name: native-network-alias
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!traceAnalysis() || span.spanType != "Entry" || span.skipAnalysis) {
+          abort {}
+        }
+        // Logged for every entry span the listener does not skip, before its MQ check
+        log debug "service instance mapping listener parse reference"
+        if (span.spanLayer == "MQ") {
+          abort {}
+        }
+        extractor {
+          foreach (ref in span.refsList) {
+            if (ref.refType == "CrossProcess") {
+              // Formatted as a service name before the gateway check, as the listener does
+              def address = formatServiceName(ref.networkAddressUsedAtPeer)
+              if (!isGateway(address)) {
+                // NetworkAddressAliasSetup: this address, formatServiceName(segment().service),
+                // formatInstanceName(segment().serviceInstance), representServiceNormal true, the minute of the
+                // span's start; sent at this statement
+                writeNetworkAlias address
+              }
+            }
+          }
+        }
+      }

@@ -8,8 +8,10 @@ The handler stores them in one of two ways, selected by `receiver-otel.default.o
 | `otlp` (default)   | The span as it arrived, with its resource and instrumentation scope, in the `otlp_span` record; only the resource's `service.layer` is set to the registered layer, `UNDEFINED` otherwise. | The TraceQL `/otlp` datasource, served to Grafana Tempo as native OTLP.                     |
 | `zipkin`           | Spans converted to Zipkin v2 and handed to the Zipkin receiver, the only mode of earlier releases. Follows the [Zipkin Exporter](https://opentelemetry.io/docs/specs/otel/trace/sdk_exporters/zipkin/#summary) conversion rules. | [Zipkin query API](./zipkin-trace.md#zipkin-query), Lens UI, and the TraceQL `/zipkin` datasource. |
 
-Span listeners such as the GenAI analyzer and AI evaluation run in both modes. In `otlp` mode they read the
-OTLP span directly instead of its Zipkin conversion.
+Span listeners such as the GenAI analyzer run in both modes. In `otlp` mode they read the OTLP span directly
+instead of its Zipkin conversion. [AI evaluation](ai-evaluation.md) samples a span through the `otlp-ai-evaluation`
+TAL rule in `otlp` mode, for the services that set `service.layer=OTLP_GENERAL`, and through its span listener, on
+the Zipkin conversion, in `zipkin` mode.
 
 ## Supported Protocols
 
@@ -124,13 +126,13 @@ namespace names are always lower case.
 A caller that dials the host `cart` still reaches the grouped `cart`: the trace analyzer learns a network address alias
 from the two spans of a call, keyed by the caller and the address it dialed, so `shop::frontend` dialing `cart:7070`
 reaches `shop::cart` and `outlet::frontend` dialing the same `cart:7070` reaches `outlet::cart`, see [Address-named
-peers](../../concepts-and-designs/tal.md#address-named-peers). No host is matched against service names or
+peers](../../concepts-and-designs/tal-otlp.md#address-named-peers). No host is matched against service names or
 Kubernetes DNS, so the group needs no particular relation to the namespace for this, and a callee is named only once
 one of its caller's calls has been paired; the calls before then are drawn to the address-named node, which the
 topology query folds onto the service once the row lands. To pin which TAL rules analyze the
 spans, set their resource's `service.layer` to a registered layer name and declare TAL rules for that layer. Only
 those rules run. An unknown layer name is logged and its spans are not
-analyzed. See [Layer](../../concepts-and-designs/tal.md#layer). The group has no cluster part either: the namespace `shop` of two Kubernetes
+analyzed. See [Layer](../../concepts-and-designs/tal-otlp.md#layer). The group has no cluster part either: the namespace `shop` of two Kubernetes
 clusters groups both clusters' `cart` as one `shop::cart`.
 
 Pick an attribute that holds one low-cardinality value per service, such as `service.namespace`,
@@ -167,8 +169,8 @@ The status module exposes the same queries with the execution trace for debuggin
 
 ## Analysis
 
-Every accepted span also goes through the [Trace Analysis Language](../../concepts-and-designs/tal.md) rules of the
-`trace-analyzer` module, in both storage modes and before the head sampling and the rate limit above. The shipped
+Every accepted span also goes through the [Trace Analysis Language](../../concepts-and-designs/tal.md) rules for
+[OpenTelemetry spans](../../concepts-and-designs/tal-otlp.md) of the `trace-analyzer` module, in both storage modes and before the head sampling and the rate limit above. The shipped
 rule file analyzes the spans whose resource carries `service.layer=OTLP_GENERAL`, and registers their services under
 that layer with their metrics, topology and slow statements; every other span is only stored. See [OpenTelemetry
 Trace Analysis](trace-analyzer.md#enabling-the-analysis-for-an-application) for how an application enables it, the

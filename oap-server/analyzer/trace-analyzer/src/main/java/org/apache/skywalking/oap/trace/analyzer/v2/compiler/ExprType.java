@@ -20,15 +20,15 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 /**
  * The static type the compiler infers for an expression, driving arithmetic promotion, comparison widening and
  * cast emission. Each numeric variant carries its Java keyword, its wrapper class name, its primitive
- * {@link Class} and the runtime-helper method that converts an arbitrary object to that primitive.
+ * {@link Class} and the conversion that turns an arbitrary object into that primitive, see {@link TALRuntimeRoles}.
  */
 public enum ExprType {
-    INT("int", "Integer", int.class, "h.toInt"),
-    LONG("long", "Long", long.class, "h.toLong"),
-    FLOAT("float", "Float", float.class, "h.toFloat"),
-    DOUBLE("double", "Double", double.class, "h.toDouble"),
-    STRING(null, null, null, "h.toStr"),
-    BOOLEAN(null, null, null, "h.toBool"),
+    INT("int", "Integer", int.class, TALRuntimeRoles.method("toInt")),
+    LONG("long", "Long", long.class, TALRuntimeRoles.method("toLong")),
+    FLOAT("float", "Float", float.class, TALRuntimeRoles.method("toFloat")),
+    DOUBLE("double", "Double", double.class, TALRuntimeRoles.method("toDouble")),
+    STRING(null, null, null, TALRuntimeRoles.method("toStr")),
+    BOOLEAN(null, null, null, TALRuntimeRoles.method("toBool")),
     OBJECT(null, null, null, null),
     UNKNOWN(null, null, null, null);
 

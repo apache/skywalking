@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.analyzer.provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.ServiceLoader;
 import lombok.Getter;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.meter.analyzer.v2.prometheus.rule.Rule;
@@ -32,17 +31,10 @@ import org.apache.skywalking.oap.server.analyzer.provider.meter.process.MeterPro
 import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheReadLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.CacheWriteLatencyThresholdsAndWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.DBLatencyThresholdsAndWatcher;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.NativeTraceAnalysisConfig;
+import org.apache.skywalking.oap.server.analyzer.provider.trace.NativeTraceAnalysisConfigImpl;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.TraceSamplingPolicyWatcher;
 import org.apache.skywalking.oap.server.analyzer.provider.trace.UninstrumentedGatewaysConfig;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserListenerManager;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.SegmentParserServiceImpl;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.AnalysisListenerFactory;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.EndpointDepFromCrossThreadAnalysisListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.NetworkAddressAliasMappingListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.RPCAnalysisListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.SegmentAnalysisListener;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.listener.VirtualServiceAnalysisListener;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -65,8 +57,6 @@ public class AnalyzerModuleProvider extends ModuleProvider {
     private CacheWriteLatencyThresholdsAndWatcher cacheWriteLatencyThresholdsAndWatcher;
     @Getter
     private UninstrumentedGatewaysConfig uninstrumentedGatewaysConfig;
-    @Getter
-    private SegmentParserServiceImpl segmentParserService;
     @Getter
     private TraceSamplingPolicyWatcher traceSamplingPolicyWatcher;
 
@@ -112,15 +102,14 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         moduleConfig.setCacheReadLatencyThresholdsAndWatcher(cacheReadLatencyThresholdsAndWatcher);
         moduleConfig.setCacheWriteLatencyThresholdsAndWatcher(cacheWriteLatencyThresholdsAndWatcher);
 
-        segmentParserService = new SegmentParserServiceImpl(getManager(), moduleConfig);
-        this.registerServiceImplementation(ISegmentParserService.class, segmentParserService);
-
         processService = new MeterProcessService(getManager());
         this.registerServiceImplementation(IMeterProcessService.class, processService);
         // Same instance under both contracts: IMeterProcessService is the ingest-side view
         // (receiver + Kafka fetcher), MalConverterRegistry is the runtime-rule hot-update view.
         this.registerServiceImplementation(MalConverterRegistry.class, processService);
         this.registerServiceImplementation(UninstrumentedGatewaysConfig.class, uninstrumentedGatewaysConfig);
+        this.registerServiceImplementation(
+            NativeTraceAnalysisConfig.class, new NativeTraceAnalysisConfigImpl(moduleConfig));
     }
 
     @Override
@@ -140,8 +129,6 @@ public class AnalyzerModuleProvider extends ModuleProvider {
         dynamicConfigurationService.registerConfigChangeWatcher(traceSamplingPolicyWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(cacheReadLatencyThresholdsAndWatcher);
         dynamicConfigurationService.registerConfigChangeWatcher(cacheWriteLatencyThresholdsAndWatcher);
-
-        segmentParserService.setListenerManager(listenerManager());
 
         processService.start(loadMeterRules());
     }
@@ -191,20 +178,5 @@ public class AnalyzerModuleProvider extends ModuleProvider {
             // otel / telegraf / envoy / log-analyzer providers carry.
             StorageModule.NAME
         };
-    }
-
-    private SegmentParserListenerManager listenerManager() {
-        SegmentParserListenerManager listenerManager = new SegmentParserListenerManager();
-        if (moduleConfig.isTraceAnalysis()) {
-            listenerManager.add(new RPCAnalysisListener.Factory(getManager()));
-            listenerManager.add(new EndpointDepFromCrossThreadAnalysisListener.Factory(getManager()));
-            listenerManager.add(new NetworkAddressAliasMappingListener.Factory(getManager()));
-        }
-        listenerManager.add(new SegmentAnalysisListener.Factory(getManager(), moduleConfig));
-        listenerManager.add(new VirtualServiceAnalysisListener.Factory(getManager()));
-        ServiceLoader.load(AnalysisListenerFactory.class)
-                     .forEach(listenerManager::add);
-
-        return listenerManager;
     }
 }

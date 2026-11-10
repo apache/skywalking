@@ -24,14 +24,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
-import org.apache.skywalking.oap.server.analyzer.module.AnalyzerModule;
-import org.apache.skywalking.oap.server.analyzer.provider.trace.parser.ISegmentParserService;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
+import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
+import org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace.ISegmentParserService;
 
 /**
  * A handler deserializes the message of the trace segment data and pushes it to downstream.
@@ -46,7 +46,7 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
 
     public TraceSegmentHandler(ModuleManager moduleManager, KafkaFetcherConfig config) {
         super(moduleManager, config);
-        this.segmentParserService = moduleManager.find(AnalyzerModule.NAME)
+        this.segmentParserService = moduleManager.find(TraceAnalyzerModule.NAME)
                                                  .provider()
                                                  .getService(ISegmentParserService.class);
 

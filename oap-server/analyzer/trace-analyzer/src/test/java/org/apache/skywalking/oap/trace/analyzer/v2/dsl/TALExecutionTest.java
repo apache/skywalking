@@ -50,6 +50,7 @@ import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogServ
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.config.ServerClusterConfig;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
+import org.apache.skywalking.oap.server.core.source.DatabaseSlowStatement;
 import org.apache.skywalking.oap.server.core.source.DetectPoint;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.server.core.source.NetworkAddressAliasSetup;
@@ -63,8 +64,6 @@ import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.apache.skywalking.oap.trace.analyzer.v2.ShippedRules;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALClassGenerator;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.spec.FilterSpec;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.ShippedSlowStatement;
-import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.PairingFact;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -152,8 +151,8 @@ class TALExecutionTest {
             received.add(source);
             return null;
         }).when(sourceReceiver).receive(any());
-        filterSpec = new FilterSpec(moduleManager, new TraceAnalyzerModuleConfig(),
-            meterSystem, namingControl, sourceReceiver);
+        filterSpec = TALTestModules.filterSpec(moduleManager, coreProvider, meterSystem, namingControl,
+            sourceReceiver);
     }
 
     @AfterEach
@@ -1090,33 +1089,49 @@ class TALExecutionTest {
     @Test
     void theShippedSlowStatementIsKeyedByTraceAndSpan() throws Exception {
         // A span id is unique only within its trace, and the record id is the JDBC primary key.
-        final ExecutionContext ctx = execute(compileShippedSlowSql(), slowClientSpan(), new TestSpanInput()
+        execute(compileShippedSlowSql(), slowClientSpan(), new TestSpanInput()
             .attribute("db.statement", "SELECT 1").attribute("server.address", "db").attribute("server.port", "5432"));
-        final ShippedSlowStatement record = (ShippedSlowStatement) ctx.outputAsBuilder();
+        final DatabaseSlowStatement record = onlySlowStatement();
         assertEquals("aabb-eeff", record.getId());
+        assertEquals("aabb", record.getTraceId());
         assertEquals("SELECT 1", record.getStatement());
-        assertEquals("db:5432", ctx.getMeta().getService());
-        assertEquals("OTLP_VIRTUAL_DATABASE", ctx.getMeta().getLayer());
+        assertEquals(500L, record.getLatency());
+        assertEquals(IDManager.ServiceID.buildId("db:5432", false), record.getDatabaseServiceId(),
+            "the database's node, of a layer that is not a normal one");
+        assertEquals(SPAN_END_MILLIS, record.getTimestamp());
+        assertEquals(TimeBucket.getRecordTimeBucket(SPAN_END_MILLIS), record.getTimeBucket());
+    }
+
+    @Test
+    void theShippedSlowStatementCutsTheStatementToItsColumn() throws Exception {
+        final StringBuilder statement = new StringBuilder("SELECT ");
+        while (statement.length() < 2100) {
+            statement.append("x, ");
+        }
+        execute(compileShippedSlowSql(), slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", statement.toString()).attribute("server.address", "db"));
+        assertEquals(statement.substring(0, 2000), onlySlowStatement().getStatement());
     }
 
     @Test
     void theShippedSlowStatementNamesTheDatabaseAsTheTopologyDoes() throws Exception {
         final TalExpression rule = compileShippedSlowSql();
         // A database without an address, as an embedded one is, by its system and namespace.
-        assertEquals("h2/mem-db", execute(rule, slowClientSpan(), new TestSpanInput()
-            .attribute("db.statement", "SELECT 1").attribute("db.system", "h2").attribute("db.name", "mem-db"))
-            .getMeta().getService());
+        execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("db.system", "h2").attribute("db.name", "mem-db"));
+        assertEquals(IDManager.ServiceID.buildId("h2/mem-db", false), onlySlowStatement().getDatabaseServiceId());
         // Envoy's spelling of the address.
-        assertEquals("10.0.0.7:5432", execute(rule, slowClientSpan(), new TestSpanInput()
-            .attribute("db.statement", "SELECT 1").attribute("peer.address", "10.0.0.7:5432"))
-            .getMeta().getService());
+        execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("db.statement", "SELECT 1").attribute("peer.address", "10.0.0.7:5432"));
+        assertEquals(IDManager.ServiceID.buildId("10.0.0.7:5432", false), onlySlowStatement().getDatabaseServiceId());
         // A database answers with no SERVER span, so no alias names it: even a row for this caller and address,
         // which no pair could have built, leaves the record under the address the topology draws.
         aliasRow("frontend->orders-db.prod.svc:5432", "orders-db");
-        assertEquals("orders-db.prod.svc:5432", execute(rule, slowClientSpan(), new TestSpanInput()
+        execute(rule, slowClientSpan(), new TestSpanInput()
             .attribute("db.statement", "SELECT 1").attribute("db.system", "postgresql")
-            .attribute("server.address", "orders-db.prod.svc").attribute("server.port", "5432"))
-            .getMeta().getService());
+            .attribute("server.address", "orders-db.prod.svc").attribute("server.port", "5432"));
+        assertEquals(IDManager.ServiceID.buildId("orders-db.prod.svc:5432", false),
+            onlySlowStatement().getDatabaseServiceId());
     }
 
     /**
@@ -1132,14 +1147,15 @@ class TALExecutionTest {
             EventType.MODIFY));
         Mockito.when(coreProvider.getService(ServerClusterConfig.class)).thenReturn(clusters);
         final TalExpression rule = compileShippedSlowSql();
-        assertEquals("orders-db", execute(rule, slowClientSpan(), new TestSpanInput()
+        execute(rule, slowClientSpan(), new TestSpanInput()
             .attribute("db.query.text", "SELECT 1").attribute("db.system.name", "postgresql")
-            .attribute("server.address", "pg-1:5432,pg-0:5432"))
-            .getMeta().getService());
-        assertEquals("orders", execute(rule, slowClientSpan(), new TestSpanInput()
+            .attribute("server.address", "pg-1:5432,pg-0:5432"));
+        assertEquals(IDManager.ServiceID.buildId("orders-db", false), onlySlowStatement().getDatabaseServiceId());
+        execute(rule, slowClientSpan(), new TestSpanInput()
             .attribute("db.query.text", "SELECT 1").attribute("db.system.name", "postgresql")
-            .attribute("peer.service", "orders"))
-            .getMeta().getService(), "a logical peer name is not looked up");
+            .attribute("peer.service", "orders"));
+        assertEquals(IDManager.ServiceID.buildId("orders", false), onlySlowStatement().getDatabaseServiceId(),
+            "a logical peer name is not looked up");
     }
 
     @Test
@@ -1148,7 +1164,7 @@ class TALExecutionTest {
             .attribute("db.system.name", "redis").attribute("db.query.text", "GET cart:42")
             .attribute("server.address", "redis").attribute("server.port", "6379"));
         assertTrue(ctx.isAborted(), "a Redis command is a cache access, not a slow statement");
-        assertFalse(ctx.isSinkKept());
+        assertTrue(received.isEmpty(), "no record: " + received);
     }
 
     @Test
@@ -1194,21 +1210,7 @@ class TALExecutionTest {
     }
 
     @Test
-    void aRecordIsWrittenOnlyWhenASinkRan() throws Exception {
-        final TalExpression rule = compileWithOutput("filter {\n"
-            + "  extractor { statement \"SELECT 1\" }\n"
-            + "  if (meta.latency > 100) { sink {} }\n"
-            + "}");
-        assertFalse(execute(rule, clientSpan(), new TestSpanInput()).isSinkKept(), "a 20 ms span runs no sink");
-        assertTrue(execute(rule, slowClientSpan(), new TestSpanInput()).isSinkKept());
-    }
-
-    @Test
     void anEnforcerDoesNotUndoADropper() throws Exception {
-        assertFalse(execute(compileWithOutput("filter {\n"
-            + "  extractor { statement \"SELECT 1\" }\n"
-            + "  sink { if (meta.latency > 0) { dropper {} }\n enforcer {} }\n"
-            + "}"), clientSpan(), new TestSpanInput()).isSinkKept(), "the record");
         assertFalse(run("filter { persist { dropper {}\n enforcer {} } }", serverSpan(), new TestSpanInput())
             .isPersist(), "the span, the dropper first");
         assertFalse(run("filter { persist { enforcer {}\n dropper {} } }", serverSpan(), new TestSpanInput())
@@ -1235,26 +1237,23 @@ class TALExecutionTest {
         assertTrue(traffic.isEmpty(), "no entity is registered for a metric that was not counted: " + traffic);
     }
 
-    private TalExpression compileWithOutput(final String dsl) throws Exception {
-        final TALClassGenerator generator = new TALClassGenerator();
-        generator.setClassNameHint("exec_out_" + Math.abs(dsl.hashCode()));
-        generator.setMetricPrefix("tal_exec_test");
-        generator.setInputType(TestSpanInput.class);
-        generator.setOutputType(ShippedSlowStatement.class);
-        generator.setSourceRef(DslSourceRef.ofRule("tal/test.yaml", 1));
-        generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-        return generator.compile(dsl);
-    }
-
     private TalExpression compileShippedSlowSql() throws Exception {
+        ShippedRules.declareSlowStatementScope();
         final TALClassGenerator generator = new TALClassGenerator();
         generator.setClassNameHint("exec_shipped_slow_sql");
         generator.setMetricPrefix("tal_exec_test");
         generator.setInputType(TestSpanInput.class);
-        generator.setOutputType(ShippedSlowStatement.class);
         generator.setSourceRef(ShippedRules.ref("otlp-slow-sql"));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
         return generator.compile(ShippedRules.dsl("otlp-slow-sql"));
+    }
+
+    /**
+     * @return the one source the run sent, a slow statement, taken off the list so the next run starts empty
+     */
+    private DatabaseSlowStatement onlySlowStatement() {
+        assertEquals(1, received.size(), "one record: " + received);
+        return (DatabaseSlowStatement) received.remove(0);
     }
 
     private void aliasRow(final String address, final String service) {

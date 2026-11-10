@@ -73,9 +73,7 @@ class TALSourceAttributionTest {
         generator.setInputType(TestSpanInput.class);
         generator.setSourceRef(ShippedRules.ref(ruleName));
         generator.setClassOutputDir(DslClassOutput.unitTestDir("tal"));
-        if (rule.getOutputType() != null) {
-            generator.setOutputType(AttributionSlowStatement.class);
-        }
+        ShippedRules.declareSlowStatementScope();
         assertNotNull(generator.compile(rule.getDsl()));
 
         // The generated class is named {yamlFile}_L{line}_{hint}; the line has to be the rule's own.

@@ -20,18 +20,19 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALFunctionRegistry;
+import lombok.Getter;
 import java.util.Set;
 import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
-import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.TALFunctionProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
@@ -87,13 +88,16 @@ public class SpanFilterListener {
         private final Map<String, TALSourceTypeProvider> inputProviders = new LinkedHashMap<>();
 
         /**
-         * Output builders by the short name a rule writes in {@code outputType}.
-         */
-        private final Map<String, Class<?>> outputBuilders = new HashMap<>();
-        /**
          * The shape of every metric the rules this factory loaded declare, across files.
          */
         private final TALMetricShapes metricShapes = new TALMetricShapes();
+        /**
+         * The function providers found on the class path; those of loaded modules are bound before the first
+         * rule compiles.
+         */
+        @Getter
+        private final TALFunctionRegistry functionRegistry;
+        private boolean functionsBound;
 
         public Factory(final ModuleManager moduleManager, final TraceAnalyzerModuleConfig config) {
             this.moduleManager = moduleManager;
@@ -101,8 +105,17 @@ public class SpanFilterListener {
             for (final TALSourceTypeProvider provider : ServiceLoader.load(TALSourceTypeProvider.class)) {
                 inputProviders.put(provider.alias(), provider);
             }
-            for (final TALOutputBuilder builder : ServiceLoader.load(TALOutputBuilder.class)) {
-                outputBuilders.put(builder.name(), builder.getClass());
+            this.functionRegistry = TALFunctionRegistry.discover();
+        }
+
+        /**
+         * Bind the function providers of the loaded modules, once, before any rule compiles. Runs in
+         * {@code start()}, where reaching other modules is allowed.
+         */
+        public synchronized void bindFunctions() {
+            if (!functionsBound) {
+                functionRegistry.bind(moduleManager, inputProviders.values());
+                functionsBound = true;
             }
         }
 
@@ -113,6 +126,7 @@ public class SpanFilterListener {
          * @throws Exception when a file cannot be read or a rule does not compile
          */
         public void loadStaticRules() throws Exception {
+            bindFunctions();
             final List<TALConfigs> files = TALConfigs.load(config.getTalPath(), config.talFiles(), moduleManager);
             for (final TALConfigs file : files) {
                 for (final TALConfig rule : file.getRules()) {
@@ -127,7 +141,39 @@ public class SpanFilterListener {
         }
 
         /**
-         * Compile one rule, resolving its input and output types first.
+         * Compile the native rule files, {@code nativeTalFiles}, in the order listed, for the native rule runner.
+         * They are not filed under a layer: the runner runs every one of them on every span of a segment.
+         *
+         * @return the rules, in file order and within a file in the order written
+         * @throws Exception when a file does not exist, a rule does not compile, a rule declares another input, or
+         *                   two rules share a name
+         */
+        public List<TalDSL> compileNativeRules() throws Exception {
+            bindFunctions();
+            final List<TalDSL> rules = new ArrayList<>();
+            final Set<String> names = new HashSet<>();
+            for (final TALConfigs file : TALConfigs.loadInOrder(
+                config.getTalPath(), config.nativeTalFiles(), moduleManager)) {
+                for (final TALConfig rule : file.getRules()) {
+                    final CompiledTAL compiled = compile(rule);
+                    if (!TALFunctionProvider.SW_NATIVE_INPUT_TYPE.equals(compiled.provider.alias())) {
+                        throw new ModuleStartException(
+                            "TAL rule " + rule.getName() + " of " + rule.getSourcePath() + " declares inputType "
+                                + compiled.provider.alias() + "; every rule of nativeTalFiles declares "
+                                + TALFunctionProvider.SW_NATIVE_INPUT_TYPE);
+                    }
+                    if (!names.add(rule.getName())) {
+                        throw new ModuleStartException("two native TAL rules are named " + rule.getName());
+                    }
+                    rules.add(compiled.dsl);
+                }
+            }
+            log.info("TAL loaded {} native rule(s) from {}", rules.size(), config.getTalPath());
+            return rules;
+        }
+
+        /**
+         * Compile one rule, resolving its input type first.
          *
          * @param rule              the rule as loaded from YAML
          * @param pool              a pool scoped to {@code targetClassLoader}, or null for the default pool
@@ -145,12 +191,12 @@ public class SpanFilterListener {
                         + " input types; the span root can only be typed to one");
             }
             final TALSourceTypeProvider provider = resolveInput(rule, declaredInputs.get(0));
-            final Class<?> outputType = resolveOutput(rule);
             final Layer layer = resolveLayer(rule);
 
             final TalDSL dsl = TalDSL.of(moduleManager, config, rule.getDsl(),
-                provider.inputType(), outputType, rule.getName(), rule.getMetricPrefix(),
-                DslSourceRef.ofRule(rule.getSourcePath(), rule.getLineNo()), metricShapes, pool, targetClassLoader);
+                provider.inputType(), provider.alias(), functionRegistry, rule.getName(),
+                rule.getMetricPrefix(), DslSourceRef.ofRule(rule.getSourcePath(), rule.getLineNo()), metricShapes,
+                pool, targetClassLoader);
             return new CompiledTAL(layer, rule.getName(), dsl, provider);
         }
 
@@ -186,30 +232,6 @@ public class SpanFilterListener {
                 "TAL rule " + rule.getName() + " declares inputType '" + declared
                     + "' which no TALSourceTypeProvider claims; registered aliases are "
                     + inputProviders.keySet());
-        }
-
-        private Class<?> resolveOutput(final TALConfig rule) throws ModuleStartException {
-            if (rule.getOutputType() == null || rule.getOutputType().isEmpty()) {
-                return null;
-            }
-            final Class<?> byName = outputBuilders.get(rule.getOutputType());
-            if (byName != null) {
-                return byName;
-            }
-            try {
-                final Class<?> clazz = Class.forName(rule.getOutputType());
-                if (!TALOutputBuilder.class.isAssignableFrom(clazz)) {
-                    throw new ModuleStartException(
-                        "TAL rule " + rule.getName() + " outputType " + rule.getOutputType()
-                            + " is not a TALOutputBuilder");
-                }
-                return clazz;
-            } catch (final ClassNotFoundException e) {
-                throw new ModuleStartException(
-                    "TAL rule " + rule.getName() + " outputType '" + rule.getOutputType()
-                        + "' is neither a registered builder name nor a class; registered names are "
-                        + outputBuilders.keySet(), e);
-            }
         }
 
         /**

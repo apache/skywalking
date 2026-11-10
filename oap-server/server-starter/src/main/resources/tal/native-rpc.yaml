@@ -1,0 +1,609 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# RPCAnalysisListener, as TAL rules for spans that SkyWalking agents send.
+#
+# RPCAnalysisListener.build() sends every entry builder's sources, then every exit builder's, then every logic
+# endpoint's. The listener is therefore three rules, whose build {} blocks the runner flushes in this order. One queued
+# build {} is one builder: the span run fills it as parseEntry, parseExit or parseLocal does, and the block formats its
+# names as RPCTrafficSourceBuilder.prepare() does and sends its sources as build() does, in the same order.
+#
+# The rules log under org.apache.skywalking.trace.analysis.script.native-rpc, parseStatusCode's warning included.
+
+rules:
+  # parseEntry: one builder per reference, whatever the reference type. Without a reference, one builder from an MQ
+  # consumer's peer, or from `User`.
+  - name: native-rpc-entry
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!traceAnalysis() || span.spanType != "Entry" || span.skipAnalysis) {
+          abort {}
+        }
+        extractor {
+          // identifyServiceLayer: FAAS for a FaaS span, GENERAL for any other
+          def calleeLayer = "GENERAL" as Layer
+          if (span.spanLayer == "FAAS") {
+            calleeLayer = "FAAS" as Layer
+          }
+
+          // setPublicAttrs' plain values, the same for every builder of the span
+          def bucket = minuteTimeBucket(span.startTime)
+          def latency = (span.endTime - span.startTime) as Integer
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          def type = "RPC" as RequestType
+          if (span.spanLayer == "Http") {
+            type = "HTTP" as RequestType
+          } else if (span.spanLayer == "Database") {
+            type = "DATABASE" as RequestType
+          } else if (span.spanLayer == "MQ") {
+            type = "MQ" as RequestType
+          } else if (span.spanLayer == "GenAI") {
+            type = "GenAI" as RequestType
+          }
+
+          if (!isEmpty(span.refsList)) {
+            foreach (ref in span.refsList) {
+              // One builder per reference, whatever the reference type
+              def callerEndpoint = "User"
+              if (ref.parentEndpoint) {
+                callerEndpoint = ref.parentEndpoint
+              }
+              def caller = null as String
+              def callerInstance = null as String
+              def callerLayer = null as Layer
+              def owner = null as String
+              def ownerLayer = null as Layer
+              if (span.spanLayer == "MQ" || isGateway(ref.networkAddressUsedAtPeer)) {
+                // The broker, or the uninstrumented gateway, is the caller; the parent service owns the endpoint
+                caller = ref.networkAddressUsedAtPeer
+                callerLayer = "VIRTUAL_GATEWAY" as Layer
+                if (span.spanLayer == "MQ") {
+                  caller = clusterNameOrAddress(ref.networkAddressUsedAtPeer)
+                  callerLayer = "VIRTUAL_MQ" as Layer
+                }
+                callerInstance = caller
+                owner = ref.parentService
+                ownerLayer = "GENERAL" as Layer
+              } else {
+                caller = ref.parentService
+                callerInstance = ref.parentServiceInstance
+                callerLayer = "GENERAL" as Layer
+              }
+
+              // setPublicAttrs, per builder: its own tag containers, and its own parse of the status codes, a warning
+              // included
+              def httpCode = 0
+              def rpcCode = null as String
+              def tags = tagList()
+              def originalTags = tagMap()
+              foreach (spanTag in span.tagsList) {
+                if (spanTag.key == "status_code" || spanTag.key == "http.status_code") {
+                  // Each one is parsed; one that does not parse is logged and skipped, so the last valid one wins
+                  def parsed = parseStatusCode(spanTag.value)
+                  if (parsed != null) {
+                    httpCode = parsed
+                  }
+                } else if (spanTag.key == "rpc.status_code") {
+                  rpcCode = spanTag.value
+                }
+              }
+
+              build {
+                // RPCTrafficSourceBuilder#prepare: the same calls in the same order. A captured value is this block's
+                // own copy: assigning it here changes it for this block only. owner is null outside the MQ and gateway
+                // branch, and formatServiceName(null) is null, as in the Java.
+                caller = formatServiceName(caller)
+                owner = formatServiceName(owner)
+                callerInstance = formatInstanceName(callerInstance)
+                callerEndpoint = formatEndpointName(caller, callerEndpoint)
+                def callee = formatServiceName(segment().service)
+                def calleeInstance = formatInstanceName(segment().serviceInstance)
+                def calleeEndpoint = formatEndpointName(callee, span.operationName)
+
+                // build(): each source is sent at its statement
+                source Service {
+                  name callee
+                  serviceInstanceName calleeInstance
+                  endpointName calleeEndpoint
+                  layer calleeLayer
+                  latency latency
+                  status ok
+                  httpResponseStatusCode httpCode
+                  rpcStatusCode rpcCode
+                  type type
+                  tags tags
+                  originalTags originalTags
+                  timeBucket bucket
+                }
+                source ServiceInstance {
+                  name calleeInstance
+                  serviceName callee
+                  serviceLayer calleeLayer
+                  endpointName calleeEndpoint
+                  latency latency
+                  status ok
+                  httpResponseStatusCode httpCode
+                  rpcStatusCode rpcCode
+                  type type
+                  tags tags
+                  originalTags originalTags
+                  timeBucket bucket
+                }
+                source ServiceRelation {
+                  sourceServiceName caller
+                  sourceServiceInstanceName callerInstance
+                  sourceLayer callerLayer
+                  destServiceName callee
+                  destServiceInstanceName calleeInstance
+                  destLayer calleeLayer
+                  endpoint calleeEndpoint
+                  componentId span.componentId
+                  latency latency
+                  status ok
+                  httpResponseStatusCode httpCode
+                  rpcStatusCode rpcCode
+                  type type
+                  detectPoint "SERVER"
+                  timeBucket bucket
+                }
+                if (callerInstance && calleeInstance) {
+                  source ServiceInstanceRelation {
+                    sourceServiceName caller
+                    sourceServiceInstanceName callerInstance
+                    sourceServiceLayer callerLayer
+                    destServiceName callee
+                    destServiceInstanceName calleeInstance
+                    destServiceLayer calleeLayer
+                    endpoint calleeEndpoint
+                    componentId span.componentId
+                    latency latency
+                    status ok
+                    httpResponseStatusCode httpCode
+                    rpcStatusCode rpcCode
+                    type type
+                    detectPoint "SERVER"
+                    timeBucket bucket
+                  }
+                }
+                // A FaaS function is its own endpoint: neither Endpoint nor EndpointRelation
+                if (calleeLayer != "FAAS") {
+                  source Endpoint {
+                    name calleeEndpoint
+                    serviceName callee
+                    serviceLayer calleeLayer
+                    serviceInstanceName calleeInstance
+                    latency latency
+                    status ok
+                    httpResponseStatusCode httpCode
+                    rpcStatusCode rpcCode
+                    type type
+                    tags tags
+                    originalTags originalTags
+                    timeBucket bucket
+                  }
+                  if (callerEndpoint && calleeEndpoint) {
+                    // The endpoint's owner when one was set, even an empty one; the caller otherwise
+                    def relationService = caller
+                    def relationLayer = callerLayer
+                    if (owner != null) {
+                      relationService = owner
+                      relationLayer = ownerLayer
+                    }
+                    source EndpointRelation {
+                      endpoint callerEndpoint
+                      serviceName relationService
+                      serviceLayer relationLayer
+                      serviceInstanceName callerInstance
+                      childEndpoint calleeEndpoint
+                      childServiceName callee
+                      childServiceLayer calleeLayer
+                      childServiceInstanceName calleeInstance
+                      componentId span.componentId
+                      rpcLatency latency
+                      status ok
+                      httpResponseStatusCode httpCode
+                      rpcStatusCode rpcCode
+                      type type
+                      detectPoint "SERVER"
+                      timeBucket bucket
+                    }
+                  }
+                }
+              }
+            }
+          } else {
+            // Without a reference, one builder, which owns no endpoint
+            def caller = null as String
+            def callerInstance = null as String
+            def callerEndpoint = null as String
+            def callerLayer = null as Layer
+            def owner = null as String
+            def ownerLayer = null as Layer
+            if (span.spanLayer == "MQ" && !isBlank(span.peer)) {
+              // A consumer without a producer reference: the broker its peer names, and no caller endpoint
+              caller = clusterNameOrAddress(span.peer)
+              callerInstance = caller
+              callerLayer = "VIRTUAL_MQ" as Layer
+            } else {
+              caller = "User"
+              callerInstance = "User"
+              callerEndpoint = "User"
+              callerLayer = "UNDEFINED" as Layer
+            }
+
+            // setPublicAttrs, per builder: its own tag containers, and its own parse of the status codes, a warning
+            // included
+            def httpCode = 0
+            def rpcCode = null as String
+            def tags = tagList()
+            def originalTags = tagMap()
+            foreach (spanTag in span.tagsList) {
+              if (spanTag.key == "status_code" || spanTag.key == "http.status_code") {
+                // Each one is parsed; one that does not parse is logged and skipped, so the last valid one wins
+                def parsed = parseStatusCode(spanTag.value)
+                if (parsed != null) {
+                  httpCode = parsed
+                }
+              } else if (spanTag.key == "rpc.status_code") {
+                rpcCode = spanTag.value
+              }
+            }
+
+            build {
+              // RPCTrafficSourceBuilder#prepare: the same calls in the same order. A captured value is this block's
+              // own copy: assigning it here changes it for this block only. owner is null here, and
+              // formatServiceName(null) is null, as in the Java.
+              caller = formatServiceName(caller)
+              owner = formatServiceName(owner)
+              callerInstance = formatInstanceName(callerInstance)
+              callerEndpoint = formatEndpointName(caller, callerEndpoint)
+              def callee = formatServiceName(segment().service)
+              def calleeInstance = formatInstanceName(segment().serviceInstance)
+              def calleeEndpoint = formatEndpointName(callee, span.operationName)
+
+              // build(): each source is sent at its statement
+              source Service {
+                name callee
+                serviceInstanceName calleeInstance
+                endpointName calleeEndpoint
+                layer calleeLayer
+                latency latency
+                status ok
+                httpResponseStatusCode httpCode
+                rpcStatusCode rpcCode
+                type type
+                tags tags
+                originalTags originalTags
+                timeBucket bucket
+              }
+              source ServiceInstance {
+                name calleeInstance
+                serviceName callee
+                serviceLayer calleeLayer
+                endpointName calleeEndpoint
+                latency latency
+                status ok
+                httpResponseStatusCode httpCode
+                rpcStatusCode rpcCode
+                type type
+                tags tags
+                originalTags originalTags
+                timeBucket bucket
+              }
+              source ServiceRelation {
+                sourceServiceName caller
+                sourceServiceInstanceName callerInstance
+                sourceLayer callerLayer
+                destServiceName callee
+                destServiceInstanceName calleeInstance
+                destLayer calleeLayer
+                endpoint calleeEndpoint
+                componentId span.componentId
+                latency latency
+                status ok
+                httpResponseStatusCode httpCode
+                rpcStatusCode rpcCode
+                type type
+                detectPoint "SERVER"
+                timeBucket bucket
+              }
+              if (callerInstance && calleeInstance) {
+                source ServiceInstanceRelation {
+                  sourceServiceName caller
+                  sourceServiceInstanceName callerInstance
+                  sourceServiceLayer callerLayer
+                  destServiceName callee
+                  destServiceInstanceName calleeInstance
+                  destServiceLayer calleeLayer
+                  endpoint calleeEndpoint
+                  componentId span.componentId
+                  latency latency
+                  status ok
+                  httpResponseStatusCode httpCode
+                  rpcStatusCode rpcCode
+                  type type
+                  detectPoint "SERVER"
+                  timeBucket bucket
+                }
+              }
+              // A FaaS function is its own endpoint: neither Endpoint nor EndpointRelation
+              if (calleeLayer != "FAAS") {
+                source Endpoint {
+                  name calleeEndpoint
+                  serviceName callee
+                  serviceLayer calleeLayer
+                  serviceInstanceName calleeInstance
+                  latency latency
+                  status ok
+                  httpResponseStatusCode httpCode
+                  rpcStatusCode rpcCode
+                  type type
+                  tags tags
+                  originalTags originalTags
+                  timeBucket bucket
+                }
+                if (callerEndpoint && calleeEndpoint) {
+                  // The endpoint's owner when one was set, even an empty one; the caller otherwise
+                  def relationService = caller
+                  def relationLayer = callerLayer
+                  if (owner != null) {
+                    relationService = owner
+                    relationLayer = ownerLayer
+                  }
+                  source EndpointRelation {
+                    endpoint callerEndpoint
+                    serviceName relationService
+                    serviceLayer relationLayer
+                    serviceInstanceName callerInstance
+                    childEndpoint calleeEndpoint
+                    childServiceName callee
+                    childServiceLayer calleeLayer
+                    childServiceInstanceName calleeInstance
+                    componentId span.componentId
+                    rpcLatency latency
+                    status ok
+                    httpResponseStatusCode httpCode
+                    rpcStatusCode rpcCode
+                    type type
+                    detectPoint "SERVER"
+                    timeBucket bucket
+                  }
+                }
+              }
+            }
+          }
+          // parseEntry ends with the span's logic endpoints: rule native-rpc-logic-endpoint
+        }
+      }
+
+  # parseExit: one builder per exit span that names a peer.
+  - name: native-rpc-exit
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!traceAnalysis() || span.spanType != "Exit" || span.skipAnalysis) {
+          abort {}
+        }
+        // An empty peer is skipped; a peer of spaces is not
+        if (!span.peer) {
+          abort {}
+        }
+        extractor {
+          // identifyServiceLayer, for this service as the caller: FAAS for a FaaS span, GENERAL for any other
+          def callerLayer = "GENERAL" as Layer
+          if (span.spanLayer == "FAAS") {
+            callerLayer = "FAAS" as Layer
+          }
+          // The alias row of the peer as reported; both of its ids are decoded, so a malformed one fails here
+          def alias = findNetworkAlias(span.peer)
+          def callee = null as String
+          def calleeInstance = null as String
+          def calleeLayer = null as Layer
+          if (alias == null) {
+            // A database, a cache or a broker no alias maps is named as the cluster server-clusters.yml lists
+            callee = span.peer
+            if (span.spanLayer == "Database" || span.spanLayer == "Cache" || span.spanLayer == "MQ") {
+              callee = clusterNameOrAddress(span.peer)
+            }
+            calleeInstance = callee
+            // identifyRemoteServiceLayer, from the peer as reported
+            calleeLayer = "UNDEFINED" as Layer
+            if (span.spanLayer == "Database") {
+              calleeLayer = "VIRTUAL_DATABASE" as Layer
+            } else if (span.spanLayer == "RPCFramework") {
+              calleeLayer = "GENERAL" as Layer
+            } else if (span.spanLayer == "Http") {
+              calleeLayer = "GENERAL" as Layer
+              if (isGateway(span.peer)) {
+                calleeLayer = "VIRTUAL_GATEWAY" as Layer
+              }
+            } else if (span.spanLayer == "MQ") {
+              calleeLayer = "VIRTUAL_MQ" as Layer
+            } else if (span.spanLayer == "Cache") {
+              calleeLayer = "VIRTUAL_CACHE" as Layer
+            } else if (span.spanLayer == "FAAS") {
+              calleeLayer = "FAAS" as Layer
+            } else if (span.spanLayer == "GenAI") {
+              calleeLayer = "VIRTUAL_GENAI" as Layer
+            }
+            // Unknown and UNRECOGNIZED stay UNDEFINED; the Java switch covers every SpanLayer constant
+          } else {
+            // The alias names a real service. Its instance only when the agent reports the upstream's real address
+            // and the row names an instance; calleeInstance stays null otherwise, so no instance relation follows.
+            callee = alias.service
+            if (!isNoUpstreamRealAddressAgent(span.componentId) && alias.instance != "_blank") {
+              calleeInstance = alias.instance
+            }
+            calleeLayer = "GENERAL" as Layer
+          }
+
+          // setPublicAttrs. The exit builder's tag containers are built by the Java but read by none of its sources,
+          // and building them neither logs nor keeps state, so this rule does not build them.
+          def bucket = minuteTimeBucket(span.startTime)
+          def latency = (span.endTime - span.startTime) as Integer
+          def httpCode = 0
+          def rpcCode = null as String
+          foreach (spanTag in span.tagsList) {
+            if (spanTag.key == "status_code" || spanTag.key == "http.status_code") {
+              def parsed = parseStatusCode(spanTag.value)
+              if (parsed != null) {
+                httpCode = parsed
+              }
+            } else if (spanTag.key == "rpc.status_code") {
+              rpcCode = spanTag.value
+            }
+          }
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          def type = "RPC" as RequestType
+          if (span.spanLayer == "Http") {
+            type = "HTTP" as RequestType
+          } else if (span.spanLayer == "Database") {
+            type = "DATABASE" as RequestType
+          } else if (span.spanLayer == "MQ") {
+            type = "MQ" as RequestType
+          } else if (span.spanLayer == "GenAI") {
+            type = "GenAI" as RequestType
+          }
+
+          build {
+            // RPCTrafficSourceBuilder#prepare, all seven calls. An exit builder sets no endpoint owner, caller endpoint
+            // or callee endpoint, so those three calls get null and return it without reaching the endpoint grouping,
+            // and the relations carry no endpoint.
+            def caller = formatServiceName(segment().service)
+            def owner = formatServiceName(null as String)
+            def callerInstance = formatInstanceName(segment().serviceInstance)
+            def callerEndpoint = formatEndpointName(caller, null as String)
+            callee = formatServiceName(callee)
+            calleeInstance = formatInstanceName(calleeInstance)
+            def calleeEndpoint = formatEndpointName(callee, null as String)
+
+            source ServiceRelation {
+              sourceServiceName caller
+              sourceServiceInstanceName callerInstance
+              sourceLayer callerLayer
+              destServiceName callee
+              destServiceInstanceName calleeInstance
+              destLayer calleeLayer
+              componentId span.componentId
+              latency latency
+              status ok
+              httpResponseStatusCode httpCode
+              rpcStatusCode rpcCode
+              type type
+              detectPoint "CLIENT"
+              timeBucket bucket
+            }
+            if (callerInstance && calleeInstance) {
+              source ServiceInstanceRelation {
+                sourceServiceName caller
+                sourceServiceInstanceName callerInstance
+                sourceServiceLayer callerLayer
+                destServiceName callee
+                destServiceInstanceName calleeInstance
+                destServiceLayer calleeLayer
+                componentId span.componentId
+                latency latency
+                status ok
+                httpResponseStatusCode httpCode
+                rpcStatusCode rpcCode
+                type type
+                detectPoint "CLIENT"
+                timeBucket bucket
+              }
+            }
+          }
+        }
+      }
+
+  # parseLogicEndpoints, from parseEntry (after the entry's references) and from parseLocal: one Endpoint per accepted
+  # `x-le` tag, in tag order.
+  - name: native-rpc-logic-endpoint
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!traceAnalysis()) {
+          abort {}
+        }
+        // parseEntry returns early for a span marked skipAnalysis; parseLocal reads its logic endpoints whatever the
+        // mark
+        if (span.spanType != "Local" && !(span.spanType == "Entry" && !span.skipAnalysis)) {
+          abort {}
+        }
+        extractor {
+          foreach (spanTag in span.tagsList) {
+            if (spanTag.key == "x-le") {
+              // Gson.fromJson(value, JsonObject.class): blank text gives null, and the has() below then throws;
+              // text that is not a JSON object throws here. The getters are Gson's own, in the Java's order.
+              def logicJson = parseJsonObject(spanTag.value)
+              def accepted = false
+              // Read only under if (accepted), where both branches set them
+              def logicName = null as String
+              def logicLatency = 0
+              def logicOk = false
+              if (span.spanType == "Local" && logicJson.has("logic-span") && logicJson.get("logic-span").getAsBoolean()) {
+                accepted = true
+                logicName = span.operationName
+                logicLatency = (span.endTime - span.startTime) as Integer
+                logicOk = true
+                if (span.isError) {
+                  logicOk = false
+                }
+              } else if (logicJson.has("name") && logicJson.has("latency") && logicJson.has("status")) {
+                accepted = true
+                logicName = logicJson.get("name").getAsString()
+                logicLatency = logicJson.get("latency").getAsInt()
+                logicOk = logicJson.get("status").getAsBoolean()
+              }
+              // A tag without the keys is skipped
+              if (accepted) {
+                // The builder starts with empty tag containers and is filled during the span loop, as the Java does
+                def tags = emptyList()
+                def originalTags = emptyMap()
+                def bucket = minuteTimeBucket(span.startTime)
+                build {
+                  // EndpointSourceBuilder#prepare
+                  def callee = formatServiceName(segment().service)
+                  def calleeInstance = formatInstanceName(segment().serviceInstance)
+                  def calleeEndpoint = formatEndpointName(callee, logicName)
+                  // A logic endpoint carries none of the span's public attributes: HTTP 0, no RPC code, no tags
+                  source Endpoint {
+                    name calleeEndpoint
+                    serviceName callee
+                    serviceLayer "GENERAL"
+                    serviceInstanceName calleeInstance
+                    latency logicLatency
+                    status logicOk
+                    httpResponseStatusCode 0
+                    type "LOGIC"
+                    tags tags
+                    originalTags originalTags
+                    timeBucket bucket
+                  }
+                }
+              }
+            }
+          }
+        }
+      }

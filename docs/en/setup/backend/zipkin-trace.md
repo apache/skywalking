@@ -40,6 +40,31 @@ receiver-zipkin:
 
 ```
 
+### Zipkin receiver sampling
+
+The [trace sampling](trace-sampling.md) of `agent-analyzer` covers the segments SkyWalking agents send, not Zipkin
+spans, so they are sampled by the receiver instead, at ingest and before storage.
+
+```yaml
+receiver-zipkin:
+  default:
+    # The sample rate precision is 1/10000, should be between 0 and 10000
+    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
+    # The maximum spans to be collected per second. 0 means no limit. Spans exceeding this threshold will be dropped.
+    maxSpansPerSecond: ${SW_ZIPKIN_MAX_SPANS_PER_SECOND:0}
+```
+
+`sampleRate` keeps a span when `abs(traceId) <= Long.MAX_VALUE * sampleRate / 10000`. Because the
+boundary is derived from the trace ID, every span of a given trace is kept or dropped together.
+A span with `debug=true` is always kept, ignoring the sample rate.
+
+`maxSpansPerSecond` is a rate limiter applied **per span**, before the rate check. Unlike the
+other mechanisms it is not trace-consistent: when the limit is hit it can drop some spans of a
+trace while keeping others, leaving partial traces in storage.
+
+Both decide at ingest. BanyanDB can also discard traces after storage, see [Trace Tail
+Sampling](../../banyandb/tail-sampling.md).
+
 ## Zipkin query
 The Zipkin receiver makes the OAP server work as an alternative Zipkin server implementation for query traces. 
 It implemented `ZipkinQueryApiV2` through the HTTP service, supporting Zipkin-lens UI.

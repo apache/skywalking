@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TestSpanInput;
@@ -59,7 +58,7 @@ class TraceAnalyzerServiceImplTest {
         Mockito.when(factory.hasRules()).thenReturn(true);
         final SpanPairing pairing = new SpanPairing();
         pairing.setTransport(pairingFacts::add);
-        service = new TraceAnalyzerServiceImpl(mock(ModuleManager.class), factory, pairing,
+        service = new TraceAnalyzerServiceImpl(factory, pairing,
             new SeenSpans(0, 1));
     }
 
@@ -72,6 +71,19 @@ class TraceAnalyzerServiceImplTest {
         assertTrue(result.isPersist());
         assertTrue(pairingFacts.isEmpty(), "no pairing fact without rules: " + pairingFacts);
         Mockito.verify(factory, Mockito.never()).rulesFor(any(), any());
+    }
+
+    @Test
+    void everyRuleReadsHowTheReceiverStoresTheSpan() {
+        // otlp-ai-evaluation leaves a span stored as a Zipkin span to the Zipkin path by reading meta.traceStorage, so
+        // each rule's own copy of the metadata carries it.
+        final List<String> seen = new ArrayList<>();
+        given(rule(ctx -> seen.add(ctx.getMeta().getTraceStorage())),
+              rule(ctx -> seen.add(ctx.getMeta().getTraceStorage())));
+        final SpanMetadata meta = spanMetadata();
+        meta.setTraceStorage("zipkin");
+        service.doAnalysis(meta, new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
+        assertEquals(List.of("zipkin", "zipkin"), seen);
     }
 
     @Test
@@ -126,7 +138,7 @@ class TraceAnalyzerServiceImplTest {
         final int[] runs = {0};
         given(rule(ctx -> runs[0]++));
         final TraceAnalyzerServiceImpl deduping = new TraceAnalyzerServiceImpl(
-            mock(ModuleManager.class), factory, new SpanPairing(), new SeenSpans(60, 1000));
+            factory, new SpanPairing(), new SeenSpans(60, 1000));
         deduping.doAnalysis(spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         final SpanAnalysisResult retry = deduping.doAnalysis(
             spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
@@ -219,7 +231,7 @@ class TraceAnalyzerServiceImplTest {
     void aRetriedSpanGetsTheVerdictOfItsFirstDelivery() {
         given(rule(ctx -> ctx.votePersist(false)));
         final TraceAnalyzerServiceImpl deduping = new TraceAnalyzerServiceImpl(
-            mock(ModuleManager.class), factory, new SpanPairing(), new SeenSpans(60, 1000));
+            factory, new SpanPairing(), new SeenSpans(60, 1000));
         final SpanAnalysisResult first = deduping.doAnalysis(
             spanMetadata(), new TestSpanInput(), Collections.emptyMap(), Collections.emptyMap());
         final SpanAnalysisResult retry = deduping.doAnalysis(

@@ -19,12 +19,12 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.ExtractorBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.FieldType;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.IfBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.MetricsBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.PersistBlock;
-import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALScriptModel.SinkBlock;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.LogicalOp;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALExprCondition;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALLogicalCondition;
@@ -190,14 +190,13 @@ class TALScriptParserTest {
     }
 
     @Test
-    void parseSinkAndPersistTakeTheSameStatements() {
+    void parsePersistTakesTheVoteStatements() {
         final TALScriptModel model = TALScriptParser.parse(
-            "filter { sink { sampler { rateLimit(\"id\") { rpm 6000 } } } persist { enforcer {} } }");
-        assertEquals(2, model.getStatements().size());
-        final SinkBlock sink = (SinkBlock) model.getStatements().get(0);
-        assertInstanceOf(TALScriptModel.SamplerBlock.class, sink.getStatements().get(0));
-        final PersistBlock persist = (PersistBlock) model.getStatements().get(1);
-        assertInstanceOf(TALScriptModel.EnforcerStatement.class, persist.getStatements().get(0));
+            "filter { persist { sampler { rateLimit(\"id\") { rpm 6000 } }\n enforcer {} } }");
+        assertEquals(1, model.getStatements().size());
+        final PersistBlock persist = (PersistBlock) model.getStatements().get(0);
+        assertInstanceOf(TALScriptModel.SamplerBlock.class, persist.getStatements().get(0));
+        assertInstanceOf(TALScriptModel.EnforcerStatement.class, persist.getStatements().get(1));
     }
 
     @Test
@@ -222,14 +221,17 @@ class TALScriptParserTest {
     }
 
     @Test
-    void parseOutputFieldStatement() {
+    void parseSourceBlock() {
         final TALScriptModel model = TALScriptParser.parse(
-            "filter { extractor { statement attr(\"db.query.text\"); latency meta.latency } }");
+            "filter { extractor { source DatabaseSlowStatement { statement attr(\"db.query.text\"); "
+                + "latency meta.latency } } }");
         final List<TALScriptModel.ExtractorStatement> stmts =
             ((ExtractorBlock) model.getStatements().get(0)).getStatements();
-        assertEquals(2, stmts.size());
-        assertEquals("statement", ((TALScriptModel.OutputFieldAssignment) stmts.get(0)).getFieldName());
-        assertEquals("latency", ((TALScriptModel.OutputFieldAssignment) stmts.get(1)).getFieldName());
+        assertEquals(1, stmts.size());
+        final TALScriptModel.SourceBlock source = (TALScriptModel.SourceBlock) stmts.get(0);
+        assertEquals("DatabaseSlowStatement", source.getName());
+        assertEquals(List.of("statement", "latency"), source.getFields().stream()
+            .map(TALScriptModel.SourceField::getField).collect(Collectors.toList()));
     }
 
     @Test
@@ -296,8 +298,6 @@ class TALScriptParserTest {
                 out.add((MetricsBlock) s);
             } else if (s instanceof ExtractorBlock) {
                 collectMetrics(((ExtractorBlock) s).getStatements(), out);
-            } else if (s instanceof SinkBlock) {
-                collectMetrics(((SinkBlock) s).getStatements(), out);
             } else if (s instanceof PersistBlock) {
                 collectMetrics(((PersistBlock) s).getStatements(), out);
             } else if (s instanceof IfBlock) {

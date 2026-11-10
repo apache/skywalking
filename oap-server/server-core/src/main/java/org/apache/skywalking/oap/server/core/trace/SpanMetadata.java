@@ -91,6 +91,12 @@ public class SpanMetadata {
     private String scopeName = "";
     @Builder.Default
     private String scopeVersion = "";
+    /**
+     * How the OTLP receiver stores the span, its {@code otlpTraceStorage}: {@code otlp}, natively, or {@code zipkin},
+     * converted to a Zipkin span; empty for a span no OTLP receiver stores.
+     */
+    @Builder.Default
+    private String traceStorage = "";
 
     /**
      * @param protoEnumName the OTLP {@code SpanKind} enum name, such as {@code SPAN_KIND_CLIENT}

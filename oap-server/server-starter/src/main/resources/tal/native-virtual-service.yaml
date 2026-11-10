@@ -1,0 +1,293 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# VirtualServiceAnalysisListener's cache, database and MQ processors, as TAL rules for spans that SkyWalking agents
+# send, in the listener's processor order. A processor prepares its sources during the span loop and the
+# listener sends them in build(), so each rule prepares every value in the span run, in the processor's order, and
+# only sends from build {}.
+#
+# The listener is called for entry, exit and local spans, with no skipAnalysis or traceAnalysis check.
+
+rules:
+  # VirtualCacheProcessor
+  - name: native-virtual-cache
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!(span.spanType == "Entry" || span.spanType == "Exit" || span.spanType == "Local") || span.spanLayer != "Cache") {
+          abort {}
+        }
+        extractor {
+          // The raw tags; a key is not expected to repeat, and when it does the first value is kept
+          def cacheTags = tagMap()
+          def cacheType = cacheTags.get("cache.type") as String
+          if (isBlank(cacheType)) {
+            abort {}
+          }
+          // The thresholds are looked up by the type in the JVM's default-locale lower case
+          def thresholdType = cacheType.toLowerCase()
+          def peer = span.peer
+          if (isBlank(peer)) {
+            // A local cache, named after its type as the span spelled it, with no server-clusters lookup
+            peer = cacheType + "-local"
+          } else {
+            peer = clusterNameOrAddress(span.peer)
+          }
+          def bucket = minuteTimeBucket(span.startTime)
+          def cacheService = formatServiceName(peer)
+          def latency = (span.endTime - span.startTime) as Integer
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          def opTag = cacheTags.get("cache.op") as String
+          def operation = "Others" as VirtualCacheOperation
+          if (opTag == "write") {
+            operation = "Write" as VirtualCacheOperation
+          } else if (opTag == "read") {
+            operation = "Read" as VirtualCacheOperation
+          }
+          def slow = false
+          if (operation == "Write" && latency > slowCacheWriteThreshold(thresholdType)) {
+            slow = true
+          } else if (operation == "Read" && latency > slowCacheReadThreshold(thresholdType)) {
+            slow = true
+          }
+          if (slow) {
+            // The slow record's values, prepared in the processor's order; a missing command or key stays null
+            def slowServiceId = buildServiceId(cacheService, false)
+            def slowRecordId = segment().traceSegmentId + "-" + span.spanId
+            def command = cacheTags.get("cache.cmd") as String
+            def cacheKey = cacheTags.get("cache.key") as String
+            def recordBucket = recordTimeBucket(span.startTime)
+          }
+
+          build {
+            source ServiceMeta {
+              name cacheService
+              layer "VIRTUAL_CACHE"
+              timeBucket bucket
+            }
+            if (slow) {
+              source VirtualCacheSlowAccess {
+                cacheServiceId slowServiceId
+                latency latency
+                id slowRecordId
+                status ok
+                traceId segment().traceId
+                command command
+                key cacheKey
+                timeBucket recordBucket
+                timestamp span.startTime
+                operation operation
+              }
+            }
+            source CacheAccess {
+              cacheTypeId span.componentId
+              latency latency
+              name cacheService
+              status ok
+              timeBucket bucket
+              operation operation
+            }
+          }
+        }
+      }
+
+  # VirtualDatabaseProcessor
+  - name: native-virtual-database
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!(span.spanType == "Entry" || span.spanType == "Exit" || span.spanType == "Local") || span.spanLayer != "Database") {
+          abort {}
+        }
+        extractor {
+          def bucket = minuteTimeBucket(span.startTime)
+          // A database reached at an address server-clusters.yml lists is named as its cluster; no blank-peer guard
+          def db = formatServiceName(clusterNameOrAddress(span.peer))
+          def latency = (span.endTime - span.startTime) as Integer
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          // readStatementIfSlow: every statement is cut and the last one wins; every db.type looks up its threshold,
+          // and any one exceeded makes the call slow
+          def statement = null as String
+          def slow = false
+          foreach (spanTag in span.tagsList) {
+            if (spanTag.key == "db.statement") {
+              statement = cut(spanTag.value, maxSlowSQLLength())
+            } else if (spanTag.key == "db.type" && latency > slowDBAccessThreshold(spanTag.value)) {
+              slow = true
+            }
+          }
+          // The two slow records' values, prepared in the processor's order
+          def writeSlow = false
+          if (slow && !isBlank(statement)) {
+            writeSlow = true
+            def dbRecordId = segment().traceSegmentId + "-" + span.spanId
+            def dbServiceId = buildServiceId(db, false)
+            def dbRecordBucket = recordTimeBucket(span.startTime)
+            def callerRecordId = segment().traceSegmentId + "-" + span.spanId
+            // The calling service's id from the segment's service as the agent sent it, not formatted
+            def callerServiceId = buildServiceId(segment().service, true)
+            def callerRecordBucket = recordTimeBucket(span.startTime)
+          }
+
+          build {
+            source ServiceMeta {
+              name db
+              layer "VIRTUAL_DATABASE"
+              timeBucket bucket
+            }
+            source DatabaseAccess {
+              databaseTypeId span.componentId
+              latency latency
+              name db
+              status ok
+              timeBucket bucket
+            }
+            if (writeSlow) {
+              source DatabaseSlowStatement {
+                id dbRecordId
+                traceId segment().traceId
+                databaseServiceId dbServiceId
+                statement statement
+                latency latency
+                timeBucket dbRecordBucket
+                timestamp span.startTime
+              }
+              source ServiceDatabaseSlowStatement {
+                id callerRecordId
+                traceId segment().traceId
+                serviceId callerServiceId
+                statement statement
+                latency latency
+                timeBucket callerRecordBucket
+                timestamp span.startTime
+              }
+            }
+          }
+        }
+      }
+
+  # VirtualMQProcessor
+  - name: native-virtual-mq
+    layer: GENERAL
+    inputType: sw-native
+    dsl: |
+      filter {
+        if (!(span.spanType == "Entry" || span.spanType == "Exit") || span.spanLayer != "MQ") {
+          abort {}
+        }
+        extractor {
+          def operation = null as MQOperation
+          def peer = null as String
+          if (span.spanType == "Entry") {
+            // A consumer: the first reference's address when it is not blank, the span's peer otherwise; a later
+            // reference is never read
+            operation = "Consume" as MQOperation
+            peer = span.peer
+            def firstRead = false
+            foreach (ref in span.refsList) {
+              if (!firstRead) {
+                firstRead = true
+                if (!isBlank(ref.networkAddressUsedAtPeer)) {
+                  peer = ref.networkAddressUsedAtPeer
+                }
+              }
+            }
+          } else {
+            operation = "Produce" as MQOperation
+            peer = span.peer
+          }
+          // A blank broker returns before any tag is read
+          if (isBlank(peer)) {
+            abort {}
+          }
+          // collectTags: the last topic and queue win; every transmission.latency is parsed in turn, blank as 0, and
+          // one Long.parseLong rejects fails the segment, even when a later one is valid
+          def topic = null as String
+          def queue = null as String
+          def transmissionLatency = 0L
+          foreach (spanTag in span.tagsList) {
+            if (spanTag.key == "mq.topic") {
+              topic = spanTag.value
+            } else if (spanTag.key == "mq.queue") {
+              queue = spanTag.value
+            } else if (spanTag.key == "transmission.latency") {
+              transmissionLatency = 0L
+              if (!isBlank(spanTag.value)) {
+                transmissionLatency = spanTag.value as Long
+              }
+            }
+          }
+          def broker = formatServiceName(clusterNameOrAddress(peer))
+          def bucket = minuteTimeBucket(span.startTime)
+          def ok = true
+          if (span.isError) {
+            ok = false
+          }
+          // buildEndpointName: the non-blank of topic and queue, joined by "/", raw
+          def mqEndpoint = ""
+          if (!isBlank(topic) && !isBlank(queue)) {
+            mqEndpoint = topic + "/" + queue
+          } else if (!isBlank(topic)) {
+            mqEndpoint = topic
+          } else if (!isBlank(queue)) {
+            mqEndpoint = queue
+          }
+          if (mqEndpoint) {
+            // Named during the span loop, as the processor names it
+            def mqEndpointName = formatEndpointName(broker, mqEndpoint)
+          }
+
+          build {
+            source ServiceMeta {
+              name broker
+              layer "VIRTUAL_MQ"
+              timeBucket bucket
+            }
+            source MQAccess {
+              typeId span.componentId
+              transmissionLatency transmissionLatency
+              name broker
+              status ok
+              timeBucket bucket
+              operation operation
+            }
+            if (mqEndpoint) {
+              source EndpointMeta {
+                serviceName broker
+                serviceNormal false
+                endpoint mqEndpointName
+                timeBucket bucket
+              }
+              source MQEndpointAccess {
+                typeId span.componentId
+                transmissionLatency transmissionLatency
+                status ok
+                timeBucket bucket
+                operation operation
+                serviceName broker
+                endpoint mqEndpointName
+              }
+            }
+          }
+        }
+      }

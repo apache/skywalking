@@ -76,12 +76,14 @@ A span that reports no address, whose server is named after its messaging or dat
 
 ## Where the rename applies
 
-- The native trace analysis, for the spans of the SkyWalking agents: the database, cache or broker an exit span
-  calls, the broker a consumer's message came through, and the virtual database, cache and message queue services
-  with their topics, queues, slow statements and slow commands, whatever the cluster's kinds. An exit span whose
-  address a network alias maps to an instrumented service keeps that service as its destination.
+- The [native trace analysis](native-trace-analysis.md), for the spans of the SkyWalking agents: the database, cache
+  or broker an exit span calls, the broker a consumer's message came through, and the virtual database, cache and
+  message queue services with their topics, queues, slow statements and slow commands, whatever the cluster's kinds.
+  The shipped native rules ask it through
+  [`clusterNameOrAddress(address)`](../../concepts-and-designs/tal-sw-native.md#functions-of-the-native-input). An exit
+  span whose address a network alias maps to an instrumented service keeps that service as its destination.
 - The OpenTelemetry trace analysis, wherever a TAL rule calls
-  [`findServerClusterName(address)`](../../concepts-and-designs/tal.md#global-functions), or
+  [`findServerClusterName(address)`](../../concepts-and-designs/tal-otlp.md#functions-of-the-otlp-input), or
   `findServerClusterName(address, kind)` to match only the clusters of a kind. The shipped
   `tal/otlp-general.yaml` calls it, without a kind, for the broker of a producer and of a consumer, and for the
   database or cache a client span calls, and `otlp-slow-sql` for the database a slow statement is filed under. It

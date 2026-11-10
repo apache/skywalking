@@ -23,14 +23,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
-import org.apache.skywalking.oap.server.core.source.SourceReceiver;
-import org.apache.skywalking.oap.server.core.source.TALOutputBuilder;
 import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
-import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
@@ -58,32 +54,16 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
      */
     private static final Set<String> REPORTED_UNLAYERED_SERVICES = ConcurrentHashMap.newKeySet();
 
-    private final ModuleManager moduleManager;
     private final SpanFilterListener.Factory factory;
     private final SpanPairing spanPairing;
     private final SeenSpans seenSpans;
 
-    /**
-     * Resolved on the first record a rule writes rather than at construction: the service is registered in
-     * {@code prepare()}, where reaching another module is not yet allowed.
-     */
-    private volatile SourceReceiver sourceReceiver;
-
-    public TraceAnalyzerServiceImpl(final ModuleManager moduleManager,
-                                    final SpanFilterListener.Factory factory,
+    public TraceAnalyzerServiceImpl(final SpanFilterListener.Factory factory,
                                     final SpanPairing spanPairing,
                                     final SeenSpans seenSpans) {
-        this.moduleManager = moduleManager;
         this.factory = factory;
         this.spanPairing = spanPairing;
         this.seenSpans = seenSpans;
-    }
-
-    private SourceReceiver sourceReceiver() {
-        if (sourceReceiver == null) {
-            sourceReceiver = moduleManager.find(CoreModule.NAME).provider().getService(SourceReceiver.class);
-        }
-        return sourceReceiver;
     }
 
     @Override
@@ -180,7 +160,6 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
                 clientPeer = ctx.getNetworkAliasPeer();
                 clientMeta = ruleMeta;
             }
-            writeRecord(ctx, ruleMeta, span);
             tags.putAll(ctx.getAdditionalTags());
             if (ctx.isPersistVoted()) {
                 persist = persist && ctx.isPersist();
@@ -223,23 +202,6 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
     }
 
     /**
-     * Dispatch the record a rule with an {@code outputType} built, when a {@code sink {}} of the rule ran and its
-     * votes kept the record.
-     */
-    private void writeRecord(final ExecutionContext ctx, final SpanMetadata meta, final Object span) {
-        final TALOutputBuilder builder = ctx.outputAsBuilder();
-        if (builder == null || !ctx.isSinkKept()) {
-            return;
-        }
-        try {
-            builder.init(meta, span, moduleManager);
-            builder.complete(sourceReceiver());
-        } catch (final RuntimeException e) {
-            log.warn("A TAL rule's output record could not be written", e);
-        }
-    }
-
-    /**
      * @param meta the span's layer name as the receiver read it
      * @return the layer; null when the span carries none or the name is not registered, neither of which a rule
      * serves, as {@link #doAnalysis} reports. {@code Layer.nameOf} is not used here because it answers
@@ -275,6 +237,7 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
                            .parentLocation(meta.getParentLocation())
                            .scopeName(meta.getScopeName())
                            .scopeVersion(meta.getScopeVersion())
+                           .traceStorage(meta.getTraceStorage())
                            .build();
     }
 }

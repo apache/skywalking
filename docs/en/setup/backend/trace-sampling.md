@@ -60,27 +60,8 @@ When you enable sampling, the actual sample rate may exceed sampleRate. The reas
 
 Note that if most of the accesses have failed or are slow, the sampling rate would be close to 100%. This may cause the backend or storage clusters to crash.
 
-# Zipkin receiver sampling
-Zipkin spans do not pass through `agent-analyzer`, so they are sampled by the receiver instead,
-also at ingest and before storage.
-
-```yaml
-receiver-zipkin:
-  default:
-    # The sample rate precision is 1/10000, should be between 0 and 10000
-    sampleRate: ${SW_ZIPKIN_SAMPLE_RATE:10000}
-    # The maximum spans to be collected per second. 0 means no limit. Spans exceeding this threshold will be dropped.
-    maxSpansPerSecond: ${SW_ZIPKIN_MAX_SPANS_PER_SECOND:0}
-```
-
-`sampleRate` keeps a span when `abs(traceId) <= Long.MAX_VALUE * sampleRate / 10000`. Because the
-boundary is derived from the trace ID, every span of a given trace is kept or dropped together.
-A span with `debug=true` is always kept, ignoring the sample rate.
-
-`maxSpansPerSecond` is a rate limiter applied **per span**, before the rate check. Unlike the
-other mechanisms it is not trace-consistent: when the limit is hit it can drop some spans of a
-trace while keeping others, leaving partial traces in storage.
-
 # See also
 
-Both mechanisms above decide at **ingest**, before the trace is written. BanyanDB can also discard traces *after* storage, during its own compaction, which lets the decision consider the whole trace and reclaim space already written — see [Trace Tail Sampling](../../banyandb/tail-sampling.md). The two are independent gates, so enabling both multiplies the drop rate.
+The sampling above decides at **ingest**, before the trace is written, for the traces SkyWalking agents send. The
+other sources are sampled by their own receivers: [Zipkin](zipkin-trace.md#zipkin-receiver-sampling), and
+[OpenTelemetry](otlp-trace.md). BanyanDB can also discard traces *after* storage, during its own compaction, which lets the decision consider the whole trace and reclaim space already written — see [Trace Tail Sampling](../../banyandb/tail-sampling.md). The two are independent gates, so with both enabled a trace is kept only when both keep it.
