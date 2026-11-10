@@ -57,3 +57,10 @@
       expected: expected/metrics-has-value-label-alarm-delivery-status.yml
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_latency_percentile{p='50,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value-percentile-alarm-delivery.yml
+
+    # gRPC alarm so11y (AlarmGrpcHookServer :9898) on shared alarm delivery meters. The gRPC hook delivers in the same
+    # alarm round as the webhook above, so this case needs no extra wait.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_count{hook_type='gRPC',result='success'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-label-alarm-grpc-hook-delivery.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_alarm_http_delivery_latency_percentile{hook_type='gRPC',p='50,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-percentile-alarm-grpc-hook-delivery.yml

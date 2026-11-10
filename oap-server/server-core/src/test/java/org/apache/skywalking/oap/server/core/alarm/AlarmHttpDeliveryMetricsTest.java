@@ -18,6 +18,9 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import io.grpc.Status;
+import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
@@ -35,6 +38,62 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AlarmHttpDeliveryMetricsTest {
+
+    @Test
+    public void resultOfGrpcErrorMapsStatusCodes() {
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_TIMEOUT,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new StatusRuntimeException(Status.DEADLINE_EXCEEDED))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_IO_ERROR,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new StatusRuntimeException(Status.UNAVAILABLE))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_REJECTED,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new StatusRuntimeException(Status.CANCELLED))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new StatusRuntimeException(Status.INTERNAL))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_SERVER_ERROR,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new RuntimeException("boom"))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_TIMEOUT,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new StatusException(Status.DEADLINE_EXCEEDED))
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_IO_ERROR,
+            AlarmHttpDeliveryMetrics.resultOfGrpcError(new RuntimeException("wrap", new StatusException(Status.UNAVAILABLE)))
+        );
+    }
+
+    @Test
+    public void classifyGrpcDeliveryResultPrefersInterrupt() {
+        final StatusRuntimeException deadline =
+            new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription("deadline"));
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_INTERRUPTED,
+            AlarmHttpDeliveryMetrics.classifyGrpcDeliveryResult(true, deadline)
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_TIMEOUT,
+            AlarmHttpDeliveryMetrics.classifyGrpcDeliveryResult(false, deadline)
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_SUCCESS,
+            AlarmHttpDeliveryMetrics.classifyGrpcDeliveryResult(false, null)
+        );
+        assertEquals(
+            AlarmHttpDeliveryMetrics.RESULT_REJECTED,
+            AlarmHttpDeliveryMetrics.classifyGrpcDeliveryResult(
+                false, new StatusRuntimeException(Status.CANCELLED)
+            )
+        );
+    }
 
     @Test
     public void statusClassOfMapsHttpRanges() {

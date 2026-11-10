@@ -64,20 +64,23 @@ public class NotifyHandler implements MetricsNotify {
     private final ModuleManager manager;
     private final HttpClient httpClient;
     private final Duration httpTimeout;
+    private final long grpcTimeoutSeconds;
     private AlarmHttpDeliveryMetrics deliveryMetrics;
     private MetadataQueryService metadataQueryService;
 
     public NotifyHandler(final AlarmRulesWatcher alarmRulesWatcher, final ModuleManager manager,
-                         final HttpClient httpClient, final Duration httpTimeout) {
+                         final HttpClient httpClient, final Duration httpTimeout,
+                         final long grpcTimeoutSeconds) {
         this.alarmRulesWatcher = alarmRulesWatcher;
         core = new AlarmCore(alarmRulesWatcher);
         this.manager = manager;
         this.httpClient = httpClient;
         this.httpTimeout = httpTimeout;
+        this.grpcTimeoutSeconds = grpcTimeoutSeconds;
     }
 
     /**
-     * Bind delivery so11y once before HTTP hooks are built in {@link #init}.
+     * Bind delivery so11y once before the hooks are built in {@link #init}.
      */
     public void setDeliveryMetrics(final AlarmHttpDeliveryMetrics deliveryMetrics) {
         this.deliveryMetrics = Objects.requireNonNull(deliveryMetrics, "deliveryMetrics");
@@ -258,7 +261,7 @@ public class NotifyHandler implements MetricsNotify {
         Objects.requireNonNull(deliveryMetrics, "delivery metrics must be bound before building hooks");
         final List<AlarmCallback> allCallbacks = new ArrayList<>(Arrays.asList(callbacks));
         allCallbacks.add(new WebhookCallback(alarmRulesWatcher, httpClient, httpTimeout, deliveryMetrics));
-        allCallbacks.add(new GRPCCallback(alarmRulesWatcher));
+        allCallbacks.add(new GRPCCallback(alarmRulesWatcher, deliveryMetrics, grpcTimeoutSeconds));
         allCallbacks.add(new SlackhookCallback(alarmRulesWatcher, httpClient, httpTimeout, deliveryMetrics));
         allCallbacks.add(new WechatHookCallback(alarmRulesWatcher, httpClient, httpTimeout, deliveryMetrics));
         allCallbacks.add(new DingtalkHookCallback(alarmRulesWatcher, httpClient, httpTimeout, deliveryMetrics));

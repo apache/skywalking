@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm;
 
+import io.grpc.Status;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
@@ -28,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Process-local HTTP alarm hook delivery metrics ({@code telemetry.prometheus}).
- * Labels are hook type / result / status class only.
+ * Process-local alarm hook delivery metrics ({@code telemetry.prometheus}).
+ * Labels are hook type / result; HTTP hooks also record {@code status_class}.
  */
 public final class AlarmHttpDeliveryMetrics {
     public static final String RESULT_SUCCESS = "success";
@@ -77,7 +78,7 @@ public final class AlarmHttpDeliveryMetrics {
             final String outcome = Objects.requireNonNull(result, "result");
             deliveryTotals.computeIfAbsent(type + '\0' + outcome, ignored -> metricsCreator.createCounter(
                 "alarm_http_delivery_total",
-                "HTTP alarm hook delivery attempts by hook type and result",
+                "Alarm hook delivery attempts by hook type and result",
                 new MetricsTag.Keys("hook_type", "result"),
                 new MetricsTag.Values(type, outcome)
             )).inc();
@@ -93,7 +94,7 @@ public final class AlarmHttpDeliveryMetrics {
 
             latencies.computeIfAbsent(type, ignored -> metricsCreator.createHistogramMetric(
                 "alarm_http_delivery_latency_seconds",
-                "HTTP alarm hook delivery latency in seconds",
+                "Alarm hook delivery latency in seconds",
                 new MetricsTag.Keys("hook_type"),
                 new MetricsTag.Values(type),
                 .005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10, 30
@@ -137,5 +138,49 @@ public final class AlarmHttpDeliveryMetrics {
             return STATUS_5XX;
         }
         return STATUS_OTHER;
+    }
+
+    /**
+     * Classify a finished gRPC alarm hook stream. An OAP wait interrupted wins over the stream status
+     * (for example {@code DEADLINE_EXCEEDED} arriving after cancellation).
+     */
+    public static String classifyGrpcDeliveryResult(final boolean interrupted, final Throwable streamError) {
+        if (interrupted) {
+            return RESULT_INTERRUPTED;
+        }
+        if (streamError != null) {
+            return resultOfGrpcError(streamError);
+        }
+        return RESULT_SUCCESS;
+    }
+
+    /**
+     * Map a gRPC stream failure to a delivery {@code result} label:
+     * {@code DEADLINE_EXCEEDED} → {@link #RESULT_TIMEOUT};
+     * {@code UNAVAILABLE} → {@link #RESULT_IO_ERROR};
+     * {@code UNAUTHENTICATED} / {@code PERMISSION_DENIED} → {@link #RESULT_AUTH_FAILED};
+     * {@code RESOURCE_EXHAUSTED} → {@link #RESULT_RATE_LIMITED};
+     * {@code UNKNOWN} / {@code INTERNAL} / {@code DATA_LOSS} / {@code UNIMPLEMENTED} → {@link #RESULT_SERVER_ERROR};
+     * any other code (including peer {@code CANCELLED}) → {@link #RESULT_REJECTED}.
+     */
+    public static String resultOfGrpcError(final Throwable error) {
+        switch (Status.fromThrowable(error).getCode()) {
+            case DEADLINE_EXCEEDED:
+                return RESULT_TIMEOUT;
+            case UNAVAILABLE:
+                return RESULT_IO_ERROR;
+            case UNAUTHENTICATED:
+            case PERMISSION_DENIED:
+                return RESULT_AUTH_FAILED;
+            case RESOURCE_EXHAUSTED:
+                return RESULT_RATE_LIMITED;
+            case UNKNOWN:
+            case INTERNAL:
+            case DATA_LOSS:
+            case UNIMPLEMENTED:
+                return RESULT_SERVER_ERROR;
+            default:
+                return RESULT_REJECTED;
+        }
     }
 }

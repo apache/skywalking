@@ -117,6 +117,7 @@ services:
       - e2e
     expose:
       - 9090
+      - 9898
       - 5005
     environment:
       SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11800

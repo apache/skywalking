@@ -13,14 +13,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Fires for every service with traffic, so the webhook below delivers and OAP's alarm_http_delivery_* metrics reach
-# the meter_oap_instance_alarm_http_delivery_* rules in otel-rules/oap.yaml.
+# Fires for every service with traffic, so the webhook and gRPC hooks below deliver and OAP's alarm_http_delivery_*
+# metrics reach the meter_oap_instance_alarm_http_delivery_* rules in otel-rules/oap.yaml. The gRPC hook delivers to
+# AlarmGrpcHookServer in the provider service (port 9898).
 rules:
   service_resp_time_rule:
     expression: sum(service_resp_time > 0) >= 1
     period: 5
     silence-period: 1
     message: Response time of service {name} is more than 0ms.
+    hooks:
+      - webhook.default
+      - gRPC.default
 
 hooks:
   webhook:
@@ -28,3 +32,9 @@ hooks:
       is-default: true
       urls:
         - http://provider:9090/alarm/receive
+  # Key must be gRPC (not lowercase grpc).
+  gRPC:
+    default:
+      is-default: true
+      target-host: provider
+      target-port: 9898

@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.alarm.provider.grpc;
 
+import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
 import java.util.ArrayList;
@@ -26,15 +27,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.alarm.AlarmCallback;
+import org.apache.skywalking.oap.server.core.alarm.AlarmHttpDeliveryMetrics;
 import org.apache.skywalking.oap.server.core.alarm.AlarmMessage;
 import org.apache.skywalking.oap.server.core.alarm.AlarmRecoveryMessage;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmServiceGrpc;
 import org.apache.skywalking.oap.server.core.alarm.grpc.AlarmTags;
 import org.apache.skywalking.oap.server.core.alarm.grpc.KeyStringValuePair;
 import org.apache.skywalking.oap.server.core.alarm.grpc.Response;
+import org.apache.skywalking.oap.server.core.alarm.provider.AlarmHooksType;
 import org.apache.skywalking.oap.server.core.alarm.provider.AlarmRulesWatcher;
 import org.apache.skywalking.oap.server.library.client.grpc.GRPCClient;
 import org.apache.skywalking.oap.server.library.util.GRPCStreamStatus;
@@ -47,12 +51,20 @@ public class GRPCCallback implements AlarmCallback {
 
     private final AlarmRulesWatcher alarmRulesWatcher;
 
+    private final AlarmHttpDeliveryMetrics deliveryMetrics;
+
+    private final long deadlineSeconds;
+
     private final Map<String, AlarmServiceGrpc.AlarmServiceStub> alarmServiceStubMap;
 
     private final Map<String, GRPCClient> grpcClientMap;
 
-    public GRPCCallback(AlarmRulesWatcher alarmRulesWatcher) {
+    public GRPCCallback(final AlarmRulesWatcher alarmRulesWatcher,
+                        final AlarmHttpDeliveryMetrics deliveryMetrics,
+                        final long deadlineSeconds) {
         this.alarmRulesWatcher = alarmRulesWatcher;
+        this.deliveryMetrics = Objects.requireNonNull(deliveryMetrics, "deliveryMetrics");
+        this.deadlineSeconds = deadlineSeconds;
         this.alarmServiceStubMap = new HashMap<>();
         this.grpcClientMap = new HashMap<>();
         onGRPCAlarmSettingUpdated(alarmRulesWatcher.getGrpchookSetting());
@@ -76,170 +88,191 @@ public class GRPCCallback implements AlarmCallback {
         if (settinsMap == null || settinsMap.isEmpty()) {
             return;
         }
-        Map<String, List<AlarmMessage>> groupedMessages = groupMessagesByHook(alarmMessages);
 
-        groupedMessages.forEach((hook, messages) -> {
-            final AlarmServiceGrpc.AlarmServiceStub stub = alarmServiceStubMap.get(hook);
+        groupMessagesByHook(alarmMessages).forEach((hook, messages) -> {
             final GRPCAlarmSetting setting = settinsMap.get(hook);
-            if (stub == null || setting == null) {
+            if (setting == null) {
                 return;
             }
-            if (!isRecovery) {
-                sendAlarmMessages(stub, messages, setting);
+            final AlarmServiceGrpc.AlarmServiceStub stub = alarmServiceStubMap.get(hook);
+            if (stub == null) {
+                return;
+            }
+            sendMessages(stub, messages, setting, isRecovery);
+        });
+    }
+
+    /** Open the alarm or recovery stream, wait (or cancel on interrupt), then record so11y. */
+    private void sendMessages(final AlarmServiceGrpc.AlarmServiceStub alarmServiceStub,
+                              final List<AlarmMessage> alarmMessages,
+                              final GRPCAlarmSetting alarmSetting,
+                              final boolean recovery) {
+        final long startedNanos = System.nanoTime();
+        final GRPCStreamStatus status = new GRPCStreamStatus();
+        final AtomicReference<Throwable> streamError = new AtomicReference<>();
+        boolean interrupted = false;
+        final String label = recovery ? "alarm recovery" : "alarm";
+        try {
+            final AlarmServiceGrpc.AlarmServiceStub timed =
+                alarmServiceStub.withDeadlineAfter(deadlineSeconds, TimeUnit.SECONDS);
+            final StreamObserver<?> requestObserver;
+            if (recovery) {
+                final StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage> out =
+                    timed.doAlarmRecovery(responseObserver(streamError, status, label));
+                for (AlarmMessage message : alarmMessages) {
+                    out.onNext(toGrpcRecoveryMessage((AlarmRecoveryMessage) message));
+                }
+                out.onCompleted();
+                requestObserver = out;
             } else {
-                sendAlarmRecoveryMessages(stub, messages, setting);
+                final StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> out =
+                    timed.doAlarm(responseObserver(streamError, status, label));
+                for (AlarmMessage message : alarmMessages) {
+                    out.onNext(toGrpcAlarmMessage(message));
+                }
+                out.onCompleted();
+                requestObserver = out;
             }
-        });
-
+            interrupted = waitUntilDone(
+                status, alarmMessages.size(), alarmSetting, label, cancelOnInterrupt(requestObserver, status));
+        } catch (Throwable throwable) {
+            streamError.compareAndSet(null, throwable);
+            status.done();
+            log.warn("Send {} message failed before the peer replied: {}", label, throwable.getMessage());
+        } finally {
+            recordDelivery(startedNanos, interrupted, streamError.get());
+        }
     }
 
-    private void sendAlarmMessages(AlarmServiceGrpc.AlarmServiceStub alarmServiceStub,
-                                   List<AlarmMessage> alarmMessages,
-                                   GRPCAlarmSetting alarmSetting) {
-        GRPCStreamStatus status = new GRPCStreamStatus();
+    private static StreamObserver<Response> responseObserver(final AtomicReference<Throwable> streamError,
+                                                             final GRPCStreamStatus status,
+                                                             final String label) {
+        return new StreamObserver<Response>() {
+            @Override
+            public void onNext(Response response) {
+                // ignore empty response
+            }
 
-        StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage> streamObserver =
-                alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarm(new StreamObserver<Response>() {
-                    @Override
-                    public void onNext(Response response) {
-                        // ignore empty response
-                    }
+            @Override
+            public void onError(Throwable throwable) {
+                streamError.set(throwable);
+                status.done();
+                log.warn("Send {} message failed: {}", label, throwable.getMessage());
+            }
 
-                    @Override
-                    public void onError(Throwable throwable) {
-                        status.done();
-                        log.warn("Send alarm message failed: {}", throwable.getMessage());
-                    }
+            @Override
+            public void onCompleted() {
+                status.done();
+                if (log.isDebugEnabled()) {
+                    log.debug("Send {} message successful.", label);
+                }
+            }
+        };
+    }
 
-                    @Override
-                    public void onCompleted() {
-                        status.done();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Send alarm message successful.");
-                        }
-                    }
-                });
+    private static org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage toGrpcAlarmMessage(
+        final AlarmMessage message) {
+        return org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage.newBuilder()
+            .setScopeId(message.getScopeId())
+            .setScope(message.getScope())
+            .setName(message.getName())
+            .setId0(message.getId0())
+            .setId1(message.getId1())
+            .setRuleName(message.getRuleName())
+            .setAlarmMessage(message.getAlarmMessage())
+            .setStartTime(message.getStartTime())
+            .setUuid(message.getUuid())
+            .setTags(toAlarmTags(message))
+            .build();
+    }
 
-        alarmMessages.forEach(message -> {
-            org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage.Builder builder =
-                    org.apache.skywalking.oap.server.core.alarm.grpc.AlarmMessage.newBuilder();
+    private static org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage toGrpcRecoveryMessage(
+        final AlarmRecoveryMessage message) {
+        return org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage.newBuilder()
+            .setScopeId(message.getScopeId())
+            .setScope(message.getScope())
+            .setName(message.getName())
+            .setId0(message.getId0())
+            .setId1(message.getId1())
+            .setRuleName(message.getRuleName())
+            .setAlarmMessage(message.getAlarmMessage())
+            .setStartTime(message.getStartTime())
+            .setUuid(message.getUuid())
+            .setRecoveryTime(message.getRecoveryTime())
+            .setTags(toAlarmTags(message))
+            .build();
+    }
 
-            builder.setScopeId(message.getScopeId());
-            builder.setScope(message.getScope());
-            builder.setName(message.getName());
-            builder.setId0(message.getId0());
-            builder.setId1(message.getId1());
-            builder.setRuleName(message.getRuleName());
-            builder.setAlarmMessage(message.getAlarmMessage());
-            builder.setStartTime(message.getStartTime());
-            builder.setUuid(message.getUuid());
-            AlarmTags.Builder alarmTagsBuilder = AlarmTags.newBuilder();
-            message.getTags().forEach(m -> alarmTagsBuilder.addData(KeyStringValuePair.newBuilder().setKey(m.getKey()).setValue(m.getValue()).build()));
-            builder.setTags(alarmTagsBuilder.build());
-            streamObserver.onNext(builder.build());
-        });
+    private static AlarmTags toAlarmTags(final AlarmMessage message) {
+        final AlarmTags.Builder alarmTagsBuilder = AlarmTags.newBuilder();
+        message.getTags().forEach(m ->
+            alarmTagsBuilder.addData(KeyStringValuePair.newBuilder().setKey(m.getKey()).setValue(m.getValue()).build())
+        );
+        return alarmTagsBuilder.build();
+    }
 
-        streamObserver.onCompleted();
-
+    private boolean waitUntilDone(final GRPCStreamStatus status,
+                                  final int messageCount,
+                                  final GRPCAlarmSetting alarmSetting,
+                                  final String label,
+                                  final Runnable cancelOnInterrupt) {
         long sleepTime = 0;
         long cycle = 100L;
+        boolean interrupted = false;
 
-        // For memory safe of oap, we must wait for the peer confirmation.
+        // For memory safe of oap, we must wait for the peer confirmation unless interrupted.
         while (!status.isDone()) {
             try {
                 sleepTime += cycle;
                 Thread.sleep(cycle);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                // Leave interrupt cleared so later hooks on this AlarmCore thread still run.
+                interrupted = true;
+                if (cancelOnInterrupt != null) {
+                    try {
+                        cancelOnInterrupt.run();
+                    } catch (Throwable ignored) {
+                        // ignore cancel failures
+                    }
+                }
+                break;
             }
 
             if (log.isDebugEnabled()) {
-                log.debug("Send {} alarm message to {}:{}.", alarmMessages.size(),
-                        alarmSetting.getTargetHost(), alarmSetting.getTargetPort()
+                log.debug("Send {} {} message to {}:{}.", messageCount, label,
+                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort()
                 );
             }
 
             if (sleepTime > 2000L) {
-                log.warn("Send {} alarm message to {}:{}, wait {} milliseconds.", alarmMessages.size(),
-                        alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
+                log.warn("Send {} {} message to {}:{}, wait {} milliseconds.", messageCount, label,
+                    alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
                 );
                 cycle = 2000L;
             }
         }
+        return interrupted;
     }
 
-    private void sendAlarmRecoveryMessages(AlarmServiceGrpc.AlarmServiceStub alarmServiceStub,
-                                           List<AlarmMessage> alarmMessages,
-                                           GRPCAlarmSetting alarmSetting) {
-        GRPCStreamStatus status = new GRPCStreamStatus();
-
-        StreamObserver<org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage> streamObserver =
-                alarmServiceStub.withDeadlineAfter(10, TimeUnit.SECONDS).doAlarmRecovery(new StreamObserver<Response>() {
-                    @Override
-                    public void onNext(Response response) {
-                        // ignore empty response
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        status.done();
-                        log.warn("Send alarm recovery message failed: {}", throwable.getMessage());
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        status.done();
-                        if (log.isDebugEnabled()) {
-                            log.debug("Send alarm recovery message successful.");
-                        }
-                    }
-                });
-
-        alarmMessages.forEach(message -> {
-            org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage.Builder builder =
-                    org.apache.skywalking.oap.server.core.alarm.grpc.AlarmRecoveryMessage.newBuilder();
-            AlarmRecoveryMessage recoveryMessage = (AlarmRecoveryMessage) message;
-            builder.setScopeId(recoveryMessage.getScopeId());
-            builder.setScope(recoveryMessage.getScope());
-            builder.setName(recoveryMessage.getName());
-            builder.setId0(recoveryMessage.getId0());
-            builder.setId1(recoveryMessage.getId1());
-            builder.setRuleName(recoveryMessage.getRuleName());
-            builder.setAlarmMessage(recoveryMessage.getAlarmMessage());
-            builder.setStartTime(recoveryMessage.getStartTime());
-            builder.setUuid(recoveryMessage.getUuid());
-            builder.setRecoveryTime(recoveryMessage.getRecoveryTime());
-            AlarmTags.Builder alarmTagsBuilder = AlarmTags.newBuilder();
-            message.getTags().forEach(m -> alarmTagsBuilder.addData(KeyStringValuePair.newBuilder().setKey(m.getKey()).setValue(m.getValue()).build()));
-            builder.setTags(alarmTagsBuilder.build());
-            streamObserver.onNext(builder.build());
-        });
-
-        streamObserver.onCompleted();
-
-        long sleepTime = 0;
-        long cycle = 100L;
-
-        // For memory safe of oap, we must wait for the peer confirmation.
-        while (!status.isDone()) {
-            try {
-                sleepTime += cycle;
-                Thread.sleep(cycle);
-            } catch (InterruptedException ignored) {
+    private static Runnable cancelOnInterrupt(final StreamObserver<?> streamObserver,
+                                              final GRPCStreamStatus status) {
+        return () -> {
+            if (streamObserver instanceof ClientCallStreamObserver) {
+                ((ClientCallStreamObserver<?>) streamObserver).cancel("alarm delivery interrupted", null);
             }
+            status.done();
+        };
+    }
 
-            if (log.isDebugEnabled()) {
-                log.debug("Send {} alarm recovery message to {}:{}.", alarmMessages.size(),
-                        alarmSetting.getTargetHost(), alarmSetting.getTargetPort()
-                );
-            }
-
-            if (sleepTime > 2000L) {
-                log.warn("Send {} alarm recovery message to {}:{}, wait {} milliseconds.", alarmMessages.size(),
-                        alarmSetting.getTargetHost(), alarmSetting.getTargetPort(), sleepTime
-                );
-                cycle = 2000L;
-            }
-        }
+    private void recordDelivery(final long startedNanos,
+                                final boolean interrupted,
+                                final Throwable streamError) {
+        deliveryMetrics.record(
+            AlarmHooksType.gRPC.name(),
+            AlarmHttpDeliveryMetrics.classifyGrpcDeliveryResult(interrupted, streamError),
+            null,
+            (System.nanoTime() - startedNanos) / 1.0E9D
+        );
     }
 
     private void onGRPCAlarmSettingUpdated(Map<String, GRPCAlarmSetting> newAlarmSettingMap) {
