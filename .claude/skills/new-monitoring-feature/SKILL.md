@@ -93,10 +93,11 @@ SkyWalking OAP ingests traces through two distinct entry points. Pick based on s
 > flow through the existing native rules: `native-rpc-exit` (`tal/native-rpc.yaml`) produces
 > the outbound `ServiceRelation` edges, the backend-side agent produces the inbound
 > metrics via `native-rpc-entry`; OTLP spans go through the OTLP TAL rules of `talFiles` instead, and the new-layer Service / Instance / Endpoint
-> entities come from **MAL + LAL**, not from trace analysis. This is how browser
-> (`Layer.BROWSER`), iOS (`Layer.IOS`), mobile mini-programs
-> (`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`), and most
-> scraped-metric layers work.
+> entities come from **MAL + LAL**, not from trace analysis. This is how mobile mini-programs
+> (`Layer.WECHAT_MINI_PROGRAM` / `Layer.ALIPAY_MINI_PROGRAM`) and most scraped-metric layers
+> work. Browser (`Layer.BROWSER`) has its own receiver and OAL sources (`browser.oal`), and iOS
+> (`Layer.IOS`) has its own OTLP span listeners: `IOSHTTPSpanListener` sends core OAL sources,
+> `IOSMetricKitSpanListener` sends MAL samples, and LAL reads its diagnostics.
 >
 > Extend trace analysis **only** when the feature genuinely needs per-span
 > interpretation that the existing pipeline cannot express:
@@ -113,7 +114,7 @@ SkyWalking OAP ingests traces through two distinct entry points. Pick based on s
 > the native trace analysis to assign a client-side layer to exit-only segments. This
 > does not produce inbound metrics anyway (no entry spans → no
 > `service_cpm` / `endpoint_cpm` from OAL), and it is orthogonal to the Service entity
-> layer (which MAL / LAL sets). Mirror the browser pattern instead: ship `Layer` +
+> layer (which MAL / LAL sets). Mirror the mini-program pattern instead: ship `Layer` +
 > `component-libraries.yml` + MAL + LAL + dashboards, and leave the native rules
 > alone.
 
@@ -166,7 +167,7 @@ Return `SpanListenerResult.builder().shouldPersist(false).build()` to prevent a 
 
 `oap-server/server-starter/src/main/resources/oal/core.oal` already defines the standard `service_cpm`, `service_resp_time`, `service_sla`, `endpoint_cpm`, etc. — keyed off the `Service`, `ServiceInstance`, `Endpoint` source scopes. If your new layer emits those entities with the right `Layer`, you get the core metrics for free.
 
-**Who emits those entities matters.** `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time` come from the `native-rpc-entry` rule's `source Service {}` / `source Endpoint {}` (`tal/native-rpc.yaml`). That only fires on **inbound entry spans**. Client-side / edge layers (browser, iOS, mini-programs) only emit exit spans, so these OAL metrics do **not** populate under those layers — their Service entities are produced by MAL / LAL, and their dashboards use MAL metrics (`meter_<layer>_*`) for load / latency, not `service_cpm` / `service_resp_time`. Don't wire dashboards to OAL-derived metrics that the layer never produces.
+**Who emits those entities matters.** `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` / `endpoint_resp_time` come from the `native-rpc-entry` rule's `source Service {}` / `source Endpoint {}` (`tal/native-rpc.yaml`). That only fires on **inbound entry spans**. Client-side / edge layers only emit exit spans, so `native-rpc-entry` never sends these sources for them. Mini-programs get their entities from MAL / LAL and use MAL metrics (`meter_<layer>_*`) for load / latency; browser uses its own OAL sources and metrics (`browser_app_*` in `browser.oal`). iOS is the exception: `IOSHTTPSpanListener` sends the core `Service` / `Endpoint` sources itself for each URLSession HTTP call (an `NSURLSession`-scope CLIENT span from an iOS / iPadOS resource with a non-empty `service.name`, carrying an HTTP method and a peer domain), and `ServiceInstance` when the resource carries a non-empty `service.version`, so `service_cpm` / `service_resp_time` / `service_sla` / `endpoint_cpm` do populate under `IOS`. Don't wire dashboards to OAL-derived metrics that the layer never produces.
 
 Additional OAL rules go in the same file. OAL grammar: `oap-server/oal-grammar/src/main/antlr4/OALParser.g4`. Syntax and examples: [`docs/en/concepts-and-designs/oal.md`](../../../docs/en/concepts-and-designs/oal.md).
 
@@ -307,7 +308,7 @@ Run in order; each has a dedicated skill:
 |---|---|---|
 | Layer folder named with hyphens | `ui-initialized-templates/my-layer/*.json` on disk but dashboard empty | Folder must be `Layer.name().toLowerCase()` (underscores). `wechat_mini_program/`, not `wechat-mini-program/` |
 | Extending the native trace rules for a client-side layer | Added componentId → layer mapping "to get topology for free"; then `service_cpm` etc. don't populate anyway | Client-side (exit-only) layers don't need trace-analysis changes. Ship `Layer` + `component-libraries.yml` + MAL + LAL. See §2 header for when extending trace analysis is actually justified |
-| Dashboards wired to OAL-derived metrics on a client-side layer | Charts stay empty — `service_cpm` / `service_resp_time` / `endpoint_cpm` never populate | Those come from inbound `parseEntry`, which mini-program / browser / iOS don't emit. Use MAL metrics (`meter_<layer>_*`) instead |
+| Dashboards wired to OAL-derived metrics on a client-side layer | Charts stay empty — `service_cpm` / `service_resp_time` / `endpoint_cpm` never populate | Those come from the `native-rpc-entry` rule's inbound entry spans, which mini-program / browser don't emit. Use the layer's own metrics instead: MAL `meter_<layer>_*` for mini-programs, `browser_app_*` (`browser.oal`) for browser. iOS does get them, from `IOSHTTPSpanListener`'s own `Service` / `Endpoint` sources |
 | LAL `#` comment in DSL body | OAP boot fails with `extraneous input 'metrics'` at the `#` line | LAL grammar accepts `//` and `/* */` only. No `#` comments |
 | LAL bare def-var value access — `tag 'x': myvar` | OAP boot fails with `Cannot resolve expression '[myvar]'` | `LALValueCodegen` only treats def-vars as valid when there's a method chain (`myvar?.foo`). Inline `sourceAttribute(...)` or `tag(...)` in the three value-access sites instead of storing to a def, or add a no-op chain like `myvar.toString()`. Conditions (`if (myvar == ...)`) go through a different codegen path and DO handle bare def refs |
 | MAL rule file with multi-doc YAML (`---` separator) | `MALFilterExecutionTest` fails with `expected a single document`; OAP would also fail at startup via `Rules.loadRules` (calls `Yaml.loadAs`, single-doc) | Split into one file per top-level `expSuffix` / `filter` / `metricPrefix` combo. Reference each file by name in `application.yml` (`lalFiles`, `malFiles`, `enabledOtelMetricsRules`) |

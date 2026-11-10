@@ -26,7 +26,17 @@ if ! command -v curl &> /dev/null; then
     apt update -y && apt install -y curl
 fi
 
-if ! curl -Lo "${LIB_HOME}/${MYSQL_DRIVER}" ${MYSQL_URL}; then
-    echo "Fail to download ${MYSQL_DRIVER}."
-    exit 1
-fi
+# --fail so an HTTP error, such as a 429 from Maven Central, is not saved as the jar, and --max-time bounds each
+# attempt. The attempts are retried here, not with curl's --retry, which sleeps for as long as a 429's Retry-After
+# asks. After curl is installed, the download takes at most about 320 seconds, and if every attempt fails the script
+# exits non-zero, so the OAP does not start.
+for attempt in 1 2 3 4 5; do
+    if [ "${attempt}" -gt 1 ]; then
+        sleep 5
+    fi
+    if curl --fail --location --connect-timeout 10 --max-time 60 -o "${LIB_HOME}/${MYSQL_DRIVER}" "${MYSQL_URL}"; then
+        exit 0
+    fi
+done
+echo "Fail to download ${MYSQL_DRIVER}."
+exit 1

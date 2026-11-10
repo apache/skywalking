@@ -103,10 +103,23 @@ public class AliasRegistrar {
             return end > 0 ? trimmed.substring(1, end) : trimmed;
         }
         final int colon = trimmed.lastIndexOf(':');
-        if (colon > 0 && trimmed.indexOf(':') == colon
-                && trimmed.substring(colon + 1).chars().allMatch(Character::isDigit)) {
+        if (colon > 0 && trimmed.indexOf(':') == colon && allDigits(trimmed, colon + 1)) {
             return trimmed.substring(0, colon);
         }
         return trimmed;
+    }
+
+    /**
+     * The port check of {@link #hostOf}, done in place, without a substring or a stream.
+     *
+     * @return whether every character from {@code from} on is a digit; true when there is none
+     */
+    private static boolean allDigits(final String text, final int from) {
+        for (int i = from; i < text.length(); i++) {
+            if (!Character.isDigit(text.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

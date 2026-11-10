@@ -75,7 +75,7 @@ The following metrics are available at the **model** (service instance) level:
 The tag keys used in Virtual GenAI follow the **OpenTelemetry GenAI Semantic Conventions**. SkyWalking OAP identifies GenAI-related spans based on the following criteria depending on the data source:
 
 * **SkyWalking Native Agent**: Requires an **Exit** span with `SpanLayer == GENAI` and relevant `gen_ai.*` tags.
-* **OTLP / Zipkin Traces**: Any span containing the `gen_ai.response.model` tag will be identified as a GenAI operation.
+* **OTLP / Zipkin Traces**: Any span containing the `gen_ai.response.model` tag will be identified as a GenAI operation, whatever `service.layer` its resource sets, if any.
 
 **Note on OTLP / Zipkin Provider Identification**:
 To ensure broad compatibility with different OpenTelemetry instrumentation versions, SkyWalking OAP identifies the GenAI provider using the following prioritized logic:
@@ -83,3 +83,6 @@ To ensure broad compatibility with different OpenTelemetry instrumentation versi
 1. **`gen_ai.provider.name`**: SkyWalking first looks for this tag (the latest OTel semantic convention).
 2. **`gen_ai.system`**: If the above is missing, it falls back to this legacy tag for backward compatibility with older instrumentation (e.g., current OTel Python auto-instrumentation).
 3. **Prefix Matching**: If neither tag is present, SkyWalking attempts to identify the provider by matching the model name against the `prefix-match` rules defined in the `gen-ai-config.yml`.
+
+**Note on AI evaluation of OTLP spans**:
+[AI evaluation](../backend/ai-evaluation.md) of OTLP spans stored natively (`otlpTraceStorage: otlp`, the default) is made by the `otlp-ai-evaluation` TAL rule. A TAL rule sees only the spans of the layer it is declared for, and this one is declared for `OTLP_GENERAL`, so it sees only the spans of services whose resource sets `service.layer=OTLP_GENERAL`. A GenAI application whose spans should be evaluated sets it, for example `OTEL_RESOURCE_ATTRIBUTES=service.layer=OTLP_GENERAL`. The Virtual GenAI metrics do not need it, and neither does the evaluation of Zipkin spans or of OTLP spans stored as Zipkin spans.
