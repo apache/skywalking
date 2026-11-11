@@ -47,6 +47,23 @@
         awk -v v="$val" 'BEGIN { if ((v+0) <= 0) exit 1 }';
         echo alarm-http-delivery-so11y-ok
       expected: expected/alarm-http-delivery-so11y.yml
+    # so11y: gRPC success path → provider:9898 exposes alarm_http_delivery hook_type=gRPC on :1234
+    - query: |
+        m=$(curl -s http://${oap_host}:${oap_1234});
+        echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="gRPC"' | grep 'result="success"' >/dev/null;
+        echo "$m" | grep 'alarm_http_delivery_latency_seconds_count{' | grep 'hook_type="gRPC"' >/dev/null;
+        val=$(echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="gRPC"' | grep 'result="success"' | awk '{print $2}' | head -1);
+        awk -v v="$val" 'BEGIN { if ((v+0) <= 0) exit 1 }';
+        echo alarm-grpc-delivery-so11y-ok
+      expected: expected/alarm-grpc-delivery-so11y.yml
+    # so11y: gRPC.down → result=io_error
+    - query: |
+        m=$(curl -s http://${oap_host}:${oap_1234});
+        echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="gRPC"' | grep 'result="io_error"' >/dev/null;
+        val=$(echo "$m" | grep 'alarm_http_delivery_total{' | grep 'hook_type="gRPC"' | grep 'result="io_error"' | awk '{print $2}' | head -1);
+        awk -v v="$val" 'BEGIN { if ((v+0) <= 0) exit 1 }';
+        echo alarm-grpc-delivery-unavailable-so11y-ok
+      expected: expected/alarm-grpc-delivery-unavailable-so11y.yml
     # after silence alarm list WARNING,receivers=lisi
     - query: |
         sleep 30;

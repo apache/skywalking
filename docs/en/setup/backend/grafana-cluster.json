@@ -7321,7 +7321,7 @@
       },
       "id": 156,
       "panels": [],
-      "title": "Alarm HTTP Delivery",
+      "title": "Alarm Delivery",
       "type": "row"
     },
     {
@@ -7421,7 +7421,7 @@
           "refId": "A"
         }
       ],
-      "title": "Alarm HTTP Delivery Count (Increment) / Minute",
+      "title": "Alarm Delivery Count (Increment) / Minute",
       "type": "timeseries"
     },
     {
@@ -7678,7 +7678,7 @@
           "refId": "E"
         }
       ],
-      "title": "Alarm HTTP Delivery Latency",
+      "title": "Alarm Delivery Latency",
       "type": "timeseries"
     }
   ],

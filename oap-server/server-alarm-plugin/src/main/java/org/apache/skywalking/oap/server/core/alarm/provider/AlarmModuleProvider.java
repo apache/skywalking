@@ -80,8 +80,10 @@ public class AlarmModuleProvider extends ModuleProvider {
     public void prepare() throws ServiceNotProvidedException, ModuleStartException {
         alarmRulesWatcher = new AlarmRulesWatcher(new Rules(), this, getManager());
         final Duration httpTimeout = httpTimeout(moduleConfig.getHttpTimeout());
+        final long grpcTimeoutSeconds = grpcTimeout(moduleConfig.getGrpcTimeout());
         notifyHandler = new NotifyHandler(
-            alarmRulesWatcher, getManager(), HttpAlarmCallback.newHttpClient(httpTimeout), httpTimeout);
+            alarmRulesWatcher, getManager(), HttpAlarmCallback.newHttpClient(httpTimeout), httpTimeout,
+            grpcTimeoutSeconds);
         this.registerServiceImplementation(MetricsNotify.class, notifyHandler);
         this.registerServiceImplementation(AlarmRulesWatcherService.class, alarmRulesWatcher);
         this.registerServiceImplementation(AlarmStatusWatcherService.class, new AlarmStatusWatcher(getManager()));
@@ -109,7 +111,7 @@ public class AlarmModuleProvider extends ModuleProvider {
         RulesReader reader = new RulesReader(applicationReader, getManager());
         Rules rules = reader.readRules();
         alarmRulesWatcher.initConfig(rules);
-        // Bind once, immediately before HTTP hooks are built in init().
+        // Bind once, immediately before hooks are built in init().
         bindDeliveryMetrics();
         notifyHandler.init(new AlarmStandardPersistence(getManager()));
     }
@@ -130,6 +132,14 @@ public class AlarmModuleProvider extends ModuleProvider {
             return Duration.ofSeconds(AlarmModuleConfig.DEFAULT_HTTP_TIMEOUT_SECONDS);
         }
         return Duration.ofSeconds(Math.min(seconds, MAX_HTTP_TIMEOUT_SECONDS));
+    }
+
+    /** {@code <= 0} → default; otherwise capped like {@link #httpTimeout(long)}. */
+    static long grpcTimeout(final long seconds) {
+        if (seconds <= 0) {
+            return AlarmModuleConfig.DEFAULT_GRPC_TIMEOUT_SECONDS;
+        }
+        return Math.min(seconds, MAX_HTTP_TIMEOUT_SECONDS);
     }
 
     @Override

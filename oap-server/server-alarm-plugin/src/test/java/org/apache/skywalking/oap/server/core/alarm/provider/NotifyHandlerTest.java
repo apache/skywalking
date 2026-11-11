@@ -267,7 +267,8 @@ public class NotifyHandlerTest {
         ModuleManager moduleManager = mock(ModuleManager.class);
 
         notifyHandler = new NotifyHandler(
-            new AlarmRulesWatcher(rules, null, moduleManager), moduleManager, HttpClient.newHttpClient(), Duration.ofSeconds(12));
+            new AlarmRulesWatcher(rules, null, moduleManager), moduleManager, HttpClient.newHttpClient(),
+            Duration.ofSeconds(12), AlarmModuleConfig.DEFAULT_GRPC_TIMEOUT_SECONDS);
         notifyHandler.setDeliveryMetrics(new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
 
         notifyHandler.init(new AlarmCallback() {

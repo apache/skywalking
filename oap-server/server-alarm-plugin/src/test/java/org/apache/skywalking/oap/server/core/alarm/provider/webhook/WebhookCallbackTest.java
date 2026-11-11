@@ -38,6 +38,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -138,5 +140,35 @@ public class WebhookCallbackTest {
         webhookCallback.doAlarmRecovery(alarmRecoveryMessages);
         Assertions.assertTrue(IS_SUCCESS.get());
         Assertions.assertEquals(3, COUNTER.get());
+    }
+
+    /** Skip foreign hooks (e.g. gRPC) without NPE. */
+    @Test
+    public void ignoresForeignHooksWithoutNpe() throws Exception {
+        List<String> remoteEndpoints = new ArrayList<>();
+        remoteEndpoints.add("http://127.0.0.1:" + SERVER.httpPort() + "/webhook/receiveAlarm");
+        Rules rules = new Rules();
+        WebhookSettings webhook = new WebhookSettings("custom", AlarmHooksType.webhook, false);
+        webhook.setUrls(remoteEndpoints);
+        rules.getWebhookSettingsMap().put(webhook.getFormattedName(), webhook);
+        AlarmRulesWatcher alarmRulesWatcher = new AlarmRulesWatcher(rules, null, null);
+        WebhookCallback webhookCallback = new WebhookCallback(
+            alarmRulesWatcher, HttpClient.newHttpClient(), Duration.ofSeconds(12),
+            new AlarmHttpDeliveryMetrics(new MetricsCreatorNoop()));
+
+        COUNTER.set(0);
+        IS_SUCCESS.set(false);
+        AlarmMessage alarmMessage = new AlarmMessage();
+        alarmMessage.setId0("1");
+        alarmMessage.setScopeId(DefaultScopeDefine.SERVICE);
+        alarmMessage.setRuleName("service_resp_time_rule");
+        alarmMessage.setAlarmMessage("alarm with webhook + gRPC hooks");
+        alarmMessage.getHooks().add(webhook.getFormattedName());
+        alarmMessage.getHooks().add(AlarmHooksType.gRPC.name() + ".default");
+        alarmMessage.getHooks().add(AlarmHooksType.gRPC.name() + ".down");
+
+        assertDoesNotThrow(() -> webhookCallback.doAlarm(List.of(alarmMessage)));
+        Assertions.assertTrue(IS_SUCCESS.get());
+        Assertions.assertEquals(1, COUNTER.get());
     }
 }

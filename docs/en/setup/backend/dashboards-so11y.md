@@ -46,9 +46,9 @@ Self observability monitoring provides monitoring of the status and resources of
 | Count per minute | meter_oap_instance_trace_analysis_error_count     | Trace Analysis Count (Per Minute) | oap self observability |
 | Percentage | meter_oap_instance_cpu_percentage                 | CPU (%) | oap self observability |
 | Count | meter_oap_instance_metrics_persistent_cache       | count of metrics cache hit and no-hit |oap self observability|
-| Count per minute | meter_oap_instance_alarm_http_delivery_count | HTTP alarm hook deliveries by `hook_type` and `result` (Per Minute) | oap self observability |
+| Count per minute | meter_oap_instance_alarm_http_delivery_count | Alarm hook deliveries by `hook_type` and `result` (Per Minute), including `gRPC` | oap self observability |
 | Count per minute | meter_oap_instance_alarm_http_delivery_status_count | HTTP alarm hook responses by `hook_type` and `status_class` (Per Minute) | oap self observability |
-| ms | meter_oap_instance_alarm_http_delivery_latency_percentile | HTTP alarm hook delivery latency by `hook_type` (ms) | oap self observability |
+| ms | meter_oap_instance_alarm_http_delivery_latency_percentile | Alarm hook delivery latency by `hook_type` (ms), including `gRPC` | oap self observability |
 
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.

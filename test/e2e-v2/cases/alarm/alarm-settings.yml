@@ -25,6 +25,7 @@ rules:
       receivers: lisi
     hooks:
       - webhook.custom
+      - gRPC.default
   # service_percentile > 10ms
   service_percentile_rule:
     expression: sum(service_percentile{p='50,75,90,95,99'} > 100) >= 3
@@ -36,6 +37,7 @@ rules:
       receivers: lisi
     hooks:
       - webhook.custom
+      - gRPC.down # refused; so11y result=io_error
   comp_rule:
     expression: sum((service_resp_time > 100) && (service_sla > 1)) >= 1
     period: 5
@@ -63,3 +65,12 @@ hooks:
         - http://none:9090/alarm/receive
       recovery-urls:
         - http://none:9090/alarm/receive
+  # Key must be gRPC (not lowercase grpc).
+  gRPC:
+    default:
+      is-default: true
+      target-host: provider
+      target-port: 9898
+    down:
+      target-host: 127.0.0.1
+      target-port: 1

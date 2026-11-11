@@ -525,9 +525,20 @@ alarm:
 
 The default is `12` seconds. Values `<= 0` fall back to `12`.
 
-### HTTP delivery so11y metrics
+### gRPC delivery timeout
+Each gRPC alarm/recovery stream uses one deadline (connect + wait for the peer). It does not use `httpTimeout`.
+
+```yaml
+alarm:
+  default:
+    grpcTimeout: ${SW_ALARM_GRPC_TIMEOUT:10} # seconds
+```
+
+Default `10` seconds; `<= 0` falls back to `10`. Set in `config/application.yml` (not `alarm-settings.yml`), so it is not dynamic.
+
+### Alarm delivery so11y metrics
 When the OAP [telemetry](backend-telemetry.md) selector is `prometheus` (process-local scrape, default port `:1234`),
-each finished HTTP hook delivery records three metric families:
+each finished alarm hook delivery records up to three metric families:
 
 | Metric | Labels | Meaning |
 | --- | --- | --- |
@@ -536,9 +547,10 @@ each finished HTTP hook delivery records three metric families:
 | `alarm_http_delivery_latency_seconds` | `hook_type` | Histogram of delivery wall time in seconds (`_bucket` / `_count` / `_sum`) |
 
 Every series also carries `sw_backend_instance`.
-`hook_type` is one of `webhook` / `slack` / `wechat` / `dingtalk` / `feishu` / `welink` / `pagerduty` / `discord`.
-`status_class` is one of `2xx` / `3xx` / `4xx` / `5xx` / `other`. It is recorded only after the whole response body has
-been read; after a redirect it describes the final response. `result` says why a delivery succeeded or failed:
+`hook_type` is one of `webhook` / `slack` / `wechat` / `dingtalk` / `feishu` / `welink` / `pagerduty` / `discord` / `gRPC`.
+`status_class` is one of `2xx` / `3xx` / `4xx` / `5xx` / `other`. HTTP hooks record it after the whole response body has
+been read; after a redirect it describes the final response. gRPC hooks do not record `alarm_http_delivery_status_total`.
+`result` says why a delivery succeeded or failed:
 
 | `result` | Meaning |
 | --- | --- |
@@ -551,6 +563,13 @@ been read; after a redirect it describes the final response. `result` says why a
 | `timeout` | No complete response within `httpTimeout` |
 | `io_error` | The request failed without a response, for example a refused or reset connection, or a DNS or TLS failure |
 | `interrupted` | The delivery thread was interrupted |
+
+For `hook_type=gRPC`, each finished alarm or recovery stream is one delivery attempt (alarms and recoveries share the
+same `hook_type`). A failed stream maps gRPC status codes to the same `result` labels: `DEADLINE_EXCEEDED` → `timeout`;
+`UNAVAILABLE` → `io_error`; `UNAUTHENTICATED` / `PERMISSION_DENIED` → `auth_failed`; `RESOURCE_EXHAUSTED` →
+`rate_limited`; `UNKNOWN` / `INTERNAL` / `DATA_LOSS` / `UNIMPLEMENTED` → `server_error`; any other code (including peer
+`CANCELLED`) → `rejected`. An OAP wait interrupted is `interrupted` and wins over a concurrent stream status such as
+`DEADLINE_EXCEEDED`.
 
 DingTalk, WeCom (`wechat`), Feishu and WeLink answer a message they refuse with an error code in the body, often with
 HTTP 200. Such a response counts by its error code, with the `status_class` of its HTTP status, and is logged as a

@@ -233,6 +233,8 @@ alarm:
     # Deadline (seconds) of each HTTP request an HTTP-based alarm hook (every hook except gRPC) sends,
     # covering connecting, waiting for the response and reading the response body. Values <= 0 fall back to 12.
     httpTimeout: ${SW_ALARM_HTTP_TIMEOUT:12}
+    # gRPC alarm/recovery stream deadline (seconds); <= 0 falls back to 10
+    grpcTimeout: ${SW_ALARM_GRPC_TIMEOUT:10}
 
 telemetry:
   selector: ${SW_TELEMETRY:none}
