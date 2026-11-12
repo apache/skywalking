@@ -802,13 +802,13 @@ ai-pipeline:
 
 # *****************************************************************************
 # *                                                                           *
-# *           ADMIN APIs — DISABLED BY DEFAULT, READ BEFORE ENABLING          *
+# *           ADMIN APIs — ENABLED BY DEFAULT, READ BEFORE DEPLOYING          *
 # *                                                                           *
 # * Every section below mounts on the admin-server HTTP host (port 17128).    *
 # * The host has NO BUILT-IN AUTHENTICATION. Endpoints are read/write and     *
 # * directly mutate runtime state (rule hot-update, debug capture).           *
 # *                                                                           *
-# * BEFORE ENABLING IN ANY ENVIRONMENT:                                       *
+# * BEFORE DEPLOYING IN ANY ENVIRONMENT:                                      *
 # *   - bind admin-server to a private interface, never the public internet  *
 # *   - put it behind an authenticating reverse proxy or service mesh         *
 # *   - apply an IP allow-list at the gateway                                 *
@@ -817,12 +817,14 @@ ai-pipeline:
 # *****************************************************************************
 
 # admin-server is the shared HTTP host for admin / on-demand write APIs. Feature
-# modules (receiver-runtime-rule, dsl-debugging, inspect, status) register their
-# REST routes onto this single port. Enabled by default so the status feature
-# module is reachable out-of-the-box; the host binds to 0.0.0.0:17128 by
+# modules (receiver-runtime-rule, dsl-debugging, inspect, status, ui-management)
+# register their REST routes onto this single port. Enabled by default so the
+# status feature module is reachable out-of-the-box; the host binds to 0.0.0.0:17128 by
 # default and has NO built-in authentication — operators MUST gateway-protect
 # it with an IP allow-list and authenticating reverse proxy, or bind it to a
-# private interface only. Set SW_ADMIN_SERVER empty to disable.
+# private interface only. To disable it, set SW_ADMIN_SERVER=- together with
+# SW_RECEIVER_RUNTIME_RULE, SW_DSL_DEBUGGING, SW_INSPECT, SW_STATUS and
+# SW_UI_MANAGEMENT set to -. An empty value stops OAP from starting.
 admin-server:
   selector: ${SW_ADMIN_SERVER:default}
   default:
@@ -857,7 +859,7 @@ admin-server:
 
 # Runtime rule admin surface for hot-update of MAL / LAL rule files. Enabled by
 # default — mounts onto admin-server (also on by default). Set
-# SW_RECEIVER_RUNTIME_RULE= empty to disable.
+# SW_RECEIVER_RUNTIME_RULE=- to disable.
 receiver-runtime-rule:
   selector: ${SW_RECEIVER_RUNTIME_RULE:default}
   default:
@@ -875,7 +877,7 @@ receiver-runtime-rule:
 
 # DSL Debug API — sampling debugger for MAL / LAL / OAL rules. Read-only OAL
 # listing under /runtime/oal/*; session control plane under /dsl-debugging/*.
-# Enabled by default; mounts onto admin-server. Set SW_DSL_DEBUGGING= empty to disable.
+# Enabled by default; mounts onto admin-server. Set SW_DSL_DEBUGGING=- to disable.
 #
 # injectionEnabled is a BOOT-TIME codegen switch. Default is true — MAL / LAL /
 # OAL classes are generated WITH probe call sites + the GateHolder field, so debug
@@ -895,7 +897,7 @@ dsl-debugging:
 # exception is `/status/config/ttl`, which is also bound on the public REST host
 # (default :12800) so ecosystem tools that discover TTL via REST before issuing
 # /graphql don't have to know about the admin port. Enabled by default; set
-# SW_STATUS= empty to disable.
+# SW_STATUS=- to disable.
 status:
   selector: ${SW_STATUS:default}
   default:
@@ -904,7 +906,7 @@ status:
 
 # Inspect API — admin-only metric catalog + per-metric entity enumeration.
 # Routes live under /inspect/*. Enabled by default; mounts onto admin-server
-# (also on by default). Set SW_INSPECT= empty to disable. Operator reference:
+# (also on by default). Set SW_INSPECT=- to disable. Operator reference:
 # docs/en/setup/backend/admin-api/inspect.md.
 inspect:
   selector: ${SW_INSPECT:default}
@@ -913,7 +915,7 @@ inspect:
 # UI Management REST surface — add / change / disable / list dashboard
 # templates. Mounts onto admin-server (admin-host only). The sidebar menu
 # is NOT served from OAP in 11.0.0+; Horizon UI owns it client-side.
-# Enabled by default; set SW_UI_MANAGEMENT= empty to disable. Operator
+# Enabled by default; set SW_UI_MANAGEMENT=- to disable. Operator
 # reference: docs/en/setup/backend/admin-api/ui-management.md.
 ui-management:
   selector: ${SW_UI_MANAGEMENT:default}

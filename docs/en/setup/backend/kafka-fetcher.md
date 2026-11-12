@@ -48,3 +48,7 @@ kafka-fetcher:
       enable.auto.commit: true
       ...
 ```
+
+If `kafkaConsumerConfig` carries credentials, such as `sasl.jaas.config`, add keywords that match those property keys
+(for example `jaas`) to the configuration dump's masking keywords, as described in
+[Configuration dump and secrets](../../security/README.md#configuration-dump-and-secrets).

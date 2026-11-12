@@ -51,6 +51,8 @@ Stream service. All subscribed metrics will be sent here based on the OAP core s
 this method will be called concurrently.
 
 ## Kafka Exporter
+The trace and log Kafka exporters share `kafkaProducerConfig`. If it carries credentials, such as `sasl.jaas.config`, add `kafkaProducerConfig` to the configuration dump's masking keywords, as described in [Configuration dump and secrets](../../security/README.md#configuration-dump-and-secrets).
+
 ### Trace Kafka Exporter
 Trace kafka exporter pushes messages to the Kafka Broker and Topic `skywalking-export-trace` to export the trace. Here is the message:
 ```
