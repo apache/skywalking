@@ -37,6 +37,7 @@ public class LogRecordDispatcher implements SourceDispatcher<Log> {
         record.setTraceId(source.getTraceId());
         record.setTraceSegmentId(source.getTraceSegmentId());
         record.setSpanId(source.getSpanId());
+        record.setOtlpSpanId(source.getOtlpSpanId());
         record.setContentType(source.getContentType().value());
         record.setContent(new LongText(source.getContent()));
         record.setTagsRawData(source.getTagsRawData());

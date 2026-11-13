@@ -73,6 +73,8 @@ public class LogBuilder implements LALOutputBuilder {
     private String traceId;
     @Setter
     private String segmentId;
+    @Setter
+    private String otlpSpanId;
     @Getter
     @Setter
     private long timestamp;
@@ -159,6 +161,9 @@ public class LogBuilder implements LALOutputBuilder {
             if (this.spanId < 0) {
                 this.spanId = tc.getSpanId();
             }
+            if (this.otlpSpanId == null) {
+                this.otlpSpanId = tc.getOtlpSpanId();
+            }
         }
         if (this.timestamp == 0) {
             this.timestamp = metadata.getTimestamp();
@@ -205,6 +210,9 @@ public class LogBuilder implements LALOutputBuilder {
             if (spanId >= 0) {
                 log.setSpanId(spanId);
             }
+        }
+        if (StringUtil.isNotEmpty(otlpSpanId)) {
+            log.setOtlpSpanId(otlpSpanId);
         }
         // content (only when input is LogData)
         if (logData != null) {
@@ -308,6 +316,9 @@ public class LogBuilder implements LALOutputBuilder {
         obj.addProperty("segmentId", segmentId);
         if (spanId >= 0) {
             obj.addProperty("spanId", spanId);
+        }
+        if (StringUtil.isNotEmpty(otlpSpanId)) {
+            obj.addProperty("otlpSpanId", otlpSpanId);
         }
         obj.addProperty("timestamp", timestamp);
         appendBodyContent(obj);

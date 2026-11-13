@@ -474,8 +474,9 @@ debuggingTrace:
   | serviceInstance            | The service instance name                                               | No, require service           |               
   | endpoint                   | The endpoint name                                                       | No, require service           |               
   | traceId                    | The trace ID                                                            | No                            |               
-  | segmentId                  | The segment ID                                                          | No, require traceId           |
-  | spanId                     | The span ID                                                             | No, require traceId           | 
+  | segmentId                  | The segment ID                                                          | No, require traceId and spanId |
+  | spanId                     | The span ID                                                             | No, require traceId and segmentId |
+  | otlpSpanId                 | The OTLP or Zipkin span ID, 16 lowercase hex characters                 | No, require traceId; not with segmentId or spanId |
   | queryOrder                 | The order of the query result, `ASC`, `DES`                             | No, default `DES`             |               
   | tags                       | The tags of the trace, `key1=value1,key2=value2`                        | No                            |  
   | pageNum                    | The page number of the query result                                     | Yes                           |

@@ -97,6 +97,9 @@ public class BanyanDBLogQueryDAO extends AbstractBanyanDBDAO implements ILogQuer
             if (Objects.nonNull(relatedTrace.getSpanId())) {
                 where.eq(AbstractLogRecord.SPAN_ID, (long) relatedTrace.getSpanId());
             }
+            if (StringUtil.isNotEmpty(relatedTrace.getOtlpSpanId())) {
+                where.eq(AbstractLogRecord.OTLP_SPAN_ID, relatedTrace.getOtlpSpanId());
+            }
         }
         if (CollectionUtils.isNotEmpty(tags)) {
             List<String> tagsConditions = new ArrayList<>(tags.size());

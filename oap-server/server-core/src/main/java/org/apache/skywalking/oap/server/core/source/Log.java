@@ -43,6 +43,7 @@ public class Log extends AbstractLog {
         obj.addProperty("traceId", getTraceId());
         obj.addProperty("traceSegmentId", getTraceSegmentId());
         obj.addProperty("spanId", getSpanId());
+        obj.addProperty("otlpSpanId", getOtlpSpanId());
         obj.addProperty("contentType", contentType == null ? null : contentType.name());
         obj.addProperty("content", getContent());
         obj.addProperty("error", isError());

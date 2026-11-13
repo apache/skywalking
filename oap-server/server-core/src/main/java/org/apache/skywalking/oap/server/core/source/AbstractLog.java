@@ -38,6 +38,7 @@ public abstract class AbstractLog extends Source {
     private String traceId;
     private String traceSegmentId;
     private int spanId;
+    private String otlpSpanId;
     private ContentType contentType = ContentType.NONE;
     private String content;
     private byte[] tagsRawData;

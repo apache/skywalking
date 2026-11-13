@@ -154,6 +154,19 @@ class JDBCLogQueryDAOTest {
     }
 
     @Test
+    void buildSQL_withOtlpSpanId_shouldIncludeItsCondition() {
+        final TraceScopeCondition traceCondition = new TraceScopeCondition();
+        traceCondition.setTraceId("trace-abc");
+        traceCondition.setOtlpSpanId("0123456789abcdef");
+
+        final SQLAndParameters result = dao.buildSQL(
+            null, null, null, traceCondition, Order.DES, 0, 10, null, null, null, null, TABLE);
+
+        assertThat(result.sql()).contains("and " + AbstractLogRecord.OTLP_SPAN_ID + " = ?");
+        assertThat(result.parameters()).contains("0123456789abcdef");
+    }
+
+    @Test
     void buildSQL_withSingleTag_shouldUseInnerJoin() {
         final List<Tag> tags = Collections.singletonList(new Tag("level", "ERROR"));
 

@@ -551,6 +551,7 @@ public class DebuggingHTTPHandler {
                             @Param("traceId") Optional<String> traceId,
                             @Param("segmentId") Optional<String> segmentId,
                             @Param("spanId") Optional<Integer> spanId,
+                            @Param("otlpSpanId") Optional<String> otlpSpanId,
                             @Param("tags") Optional<String> tags,
                             @Param("pageNum") int pageNum,
                             @Param("pageSize") int pageSize,
@@ -559,11 +560,15 @@ public class DebuggingHTTPHandler {
                             @Param("queryOrder") Optional<String> queryOrder) {
         LogQueryCondition condition = new LogQueryCondition();
         condition.setPaging(new Pagination(pageNum, pageSize));
+        if (traceId.isEmpty() && (segmentId.isPresent() || spanId.isPresent() || otlpSpanId.isPresent())) {
+            return "traceId is required with segmentId, spanId or otlpSpanId";
+        }
         if (traceId.isPresent()) {
             TraceScopeCondition traceScopeCondition = new TraceScopeCondition();
             traceScopeCondition.setTraceId(traceId.get());
             segmentId.ifPresent(traceScopeCondition::setSegmentId);
             spanId.ifPresent(traceScopeCondition::setSpanId);
+            otlpSpanId.ifPresent(traceScopeCondition::setOtlpSpanId);
             condition.setRelatedTrace(traceScopeCondition);
         } else {
             if (startTime.isEmpty() || endTime.isEmpty() || step.isEmpty()) {

@@ -67,6 +67,7 @@ import static org.apache.skywalking.oap.server.core.analysis.manual.log.Abstract
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TIMESTAMP;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_ID;
 import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.TRACE_SEGMENT_ID;
+import static org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord.OTLP_SPAN_ID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -236,6 +237,10 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
             if (nonNull(relatedTrace.getSpanId())) {
                 sql.append(" and ").append(SPAN_ID).append(" = ?");
                 parameters.add(relatedTrace.getSpanId());
+            }
+            if (StringUtil.isNotEmpty(relatedTrace.getOtlpSpanId())) {
+                sql.append(" and ").append(OTLP_SPAN_ID).append(" = ?");
+                parameters.add(relatedTrace.getOtlpSpanId());
             }
         }
 

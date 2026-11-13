@@ -69,6 +69,7 @@ public class LogQueryService implements Service {
                           final List<Tag> tags,
                           List<String> keywordsOfContent,
                           List<String> excludingKeywordsOfContent) throws IOException {
+        validateRelatedTrace(relatedTrace);
         DebuggingTraceContext traceContext = TRACE_CONTEXT.get();
         DebuggingSpan span = null;
         try {
@@ -95,6 +96,32 @@ public class LogQueryService implements Service {
             if (traceContext != null) {
                 traceContext.stopSpan(span);
             }
+        }
+    }
+
+    /**
+     * A related trace is one of three forms: {@code traceId} alone for the whole trace, {@code traceId} +
+     * {@code segmentId} + {@code spanId} for a SkyWalking native span, or {@code traceId} + {@code otlpSpanId} for an
+     * OTLP or Zipkin span. Any other mix names a partial or contradictory span, which would answer "no logs", or a
+     * different set of logs, rather than report the mistake. A condition with nothing set, as the LogQL handler passes
+     * without a trace ID label, is no condition.
+     */
+    static void validateRelatedTrace(final TraceScopeCondition relatedTrace) {
+        if (relatedTrace == null) {
+            return;
+        }
+        final boolean segment = StringUtil.isNotEmpty(relatedTrace.getSegmentId());
+        final boolean span = nonNull(relatedTrace.getSpanId());
+        final boolean otlpSpan = StringUtil.isNotEmpty(relatedTrace.getOtlpSpanId());
+        if (!segment && !span && !otlpSpan) {
+            return;
+        }
+        final boolean nativeSpan = segment && span && !otlpSpan;
+        final boolean otlpSpanOnly = otlpSpan && !segment && !span;
+        if (StringUtil.isEmpty(relatedTrace.getTraceId()) || !(nativeSpan || otlpSpanOnly)) {
+            throw new IllegalArgumentException(
+                "relatedTrace takes traceId alone, traceId with segmentId and spanId for a SkyWalking native span, "
+                    + "or traceId with otlpSpanId for an OTLP or Zipkin span");
         }
     }
 

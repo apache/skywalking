@@ -24,6 +24,7 @@ import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceRequest;
 import io.opentelemetry.proto.collector.logs.v1.ExportLogsServiceResponse;
 import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
 import io.opentelemetry.proto.common.v1.KeyValue;
+import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.logs.v1.LogRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,8 @@ import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
+import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.ILogAnalyzerService;
@@ -70,6 +73,12 @@ public class OpenTelemetryLogHandler
      */
     private List<String> serviceGroupKeys = Collections.emptyList();
 
+    /**
+     * Whether this OAP stores OTLP spans as Zipkin spans ({@code otlpTraceStorage: zipkin}), which shortens a
+     * trace ID whose upper 64 bits are zero; a log's trace ID has to be written the way its trace is.
+     */
+    private boolean zipkinTraceIds;
+
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
 
@@ -85,6 +94,7 @@ public class OpenTelemetryLogHandler
     public void init(ModuleManager manager, OtelMetricReceiverConfig config) {
         this.manager = manager;
         this.serviceGroupKeys = config.getOtlpServiceGroupKeys();
+        this.zipkinTraceIds = !config.isOtlpTraceStorageNative();
     }
 
     @Override
@@ -162,11 +172,45 @@ public class OpenTelemetryLogHandler
                 .setTags(buildTags(logRecord))
                 .setBody(buildBody(logRecord))
                 .setLayer(layer);
-            logAnalyzerService().doAnalysis(
-                LogMetadataUtils.fromLogData(builder, resourceAttributes), builder);
+            final String traceId = traceIdOf(logRecord.getTraceId());
+            if (!traceId.isEmpty()) {
+                builder.setTraceContext(TraceContext.newBuilder().setTraceId(traceId));
+            }
+            final LogMetadata metadata = LogMetadataUtils.fromLogData(builder, resourceAttributes);
+            final String spanId = idOf(logRecord.getSpanId());
+            if (!spanId.isEmpty()) {
+                // A new context: the one a log without a trace id gets is a shared constant.
+                metadata.setTraceContext(LogMetadata.TraceContext.builder()
+                                                                 .traceId(traceId)
+                                                                 .otlpSpanId(spanId)
+                                                                 .build());
+            }
+            logAnalyzerService().doAnalysis(metadata, builder);
         } catch (Exception e) {
             log.error("Failed to analyze logs", e);
         }
+    }
+
+    /**
+     * The hex form of an OTLP trace or span id, or empty when the record carries none — the
+     * protocol marks an absent id as empty or all-zero bytes.
+     */
+    static String idOf(final ByteString id) {
+        for (int i = 0; i < id.size(); i++) {
+            if (id.byteAt(i) != 0) {
+                return OTLPValues.hexId(id);
+            }
+        }
+        return "";
+    }
+
+    /**
+     * The trace ID as the store of this OAP's OTLP traces writes it: Zipkin keeps only the lower 64 bits of an ID
+     * whose upper 64 are zero.
+     */
+    private String traceIdOf(final ByteString id) {
+        final String hex = idOf(id);
+        return zipkinTraceIds && hex.length() == 32 && hex.startsWith("0000000000000000") ? hex.substring(16) : hex;
     }
 
     private static LogDataBody buildBody(LogRecord logRecord) {

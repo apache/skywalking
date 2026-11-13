@@ -44,6 +44,7 @@ public abstract class AbstractLogRecord extends Record {
     public static final String TRACE_ID = "trace_id";
     public static final String TRACE_SEGMENT_ID = "trace_segment_id";
     public static final String SPAN_ID = "span_id";
+    public static final String OTLP_SPAN_ID = "otlp_span_id";
     public static final String CONTENT_TYPE = "content_type";
     public static final String CONTENT = "content";
     public static final String TAGS_RAW_DATA = "tags_raw_data";
@@ -79,6 +80,16 @@ public abstract class AbstractLogRecord extends Record {
     @Column(name = SPAN_ID)
     @BanyanDB.NoIndexing
     private int spanId;
+    /**
+     * The span that wrote the log when it is an OTLP or Zipkin span: its 16 lowercase hex characters.
+     * A SkyWalking native span is {@link #traceSegmentId} + {@link #spanId} instead, as a native span id
+     * is a number counted within its segment.
+     */
+    @Setter
+    @Getter
+    @Column(name = OTLP_SPAN_ID, length = 64)
+    @BanyanDB.NoIndexing
+    private String otlpSpanId;
     @Setter
     @Getter
     @Column(name = CONTENT_TYPE, storageOnly = true)
@@ -120,6 +131,7 @@ public abstract class AbstractLogRecord extends Record {
             record.setTraceId((String) converter.get(TRACE_ID));
             record.setTraceSegmentId((String) converter.get(TRACE_SEGMENT_ID));
             record.setSpanId(((Number) converter.get(SPAN_ID)).intValue());
+            record.setOtlpSpanId((String) converter.get(OTLP_SPAN_ID));
             record.setContentType(((Number) converter.get(CONTENT_TYPE)).intValue());
             record.setContent(new LongText((String) converter.get(CONTENT)));
             record.setTimestamp(((Number) converter.get(TIMESTAMP)).longValue());
@@ -134,6 +146,7 @@ public abstract class AbstractLogRecord extends Record {
             converter.accept(TRACE_ID, record.getTraceId());
             converter.accept(TRACE_SEGMENT_ID, record.getTraceSegmentId());
             converter.accept(SPAN_ID, record.getSpanId());
+            converter.accept(OTLP_SPAN_ID, record.getOtlpSpanId());
             converter.accept(TIME_BUCKET, record.getTimeBucket());
             converter.accept(CONTENT_TYPE, record.getContentType());
             converter.accept(CONTENT, record.getContent());

@@ -51,12 +51,18 @@ public class LogMetadata {
     @Builder
     public static class TraceContext {
         static final TraceContext EMPTY =
-            TraceContext.builder().traceId("").traceSegmentId("").spanId(0).build();
+            TraceContext.builder().traceId("").traceSegmentId("").spanId(0).otlpSpanId("").build();
 
         @Builder.Default
         private String traceId = "";
         @Builder.Default
         private String traceSegmentId = "";
         private int spanId;
+        /**
+         * An OTLP or Zipkin span id, hex. No native protocol carries one; a receiver of those
+         * protocols sets it.
+         */
+        @Builder.Default
+        private String otlpSpanId = "";
     }
 }

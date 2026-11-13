@@ -106,6 +106,9 @@ public class LogQueryEsDAO extends EsDAO implements ILogQueryDAO {
             if (nonNull(relatedTrace.getSpanId())) {
                 query.must(Query.term(AbstractLogRecord.SPAN_ID, relatedTrace.getSpanId()));
             }
+            if (isNotEmpty(relatedTrace.getOtlpSpanId())) {
+                query.must(Query.term(AbstractLogRecord.OTLP_SPAN_ID, relatedTrace.getOtlpSpanId()));
+            }
         }
 
         if (CollectionUtils.isNotEmpty(tags)) {
