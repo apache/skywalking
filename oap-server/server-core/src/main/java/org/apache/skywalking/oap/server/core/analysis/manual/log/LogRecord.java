@@ -33,7 +33,7 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @SuperDataset
-@Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class)
+@Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class, allowBootReshape = true)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AbstractLogRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.TimestampColumn(AbstractLogRecord.TIMESTAMP)
 @BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_LOG)

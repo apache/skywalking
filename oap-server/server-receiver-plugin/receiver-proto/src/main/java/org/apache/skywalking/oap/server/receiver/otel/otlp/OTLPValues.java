@@ -102,8 +102,8 @@ public final class OTLPValues {
         "spanId", "parentSpanId", "span_id", "parent_span_id");
 
     /**
-     * Rewrite the ids of an OTLP/JSON trace body from hex to base64, so protobuf's JSON parser reads them. OTLP/JSON
-     * encodes {@code traceId}, {@code spanId} and {@code parentSpanId} as hex, unlike the standard protobuf JSON
+     * Rewrite the ids of an OTLP/JSON trace or log body from hex to base64, so protobuf's JSON parser reads them.
+     * OTLP/JSON encodes {@code traceId}, {@code spanId} and {@code parentSpanId} as hex, unlike the standard protobuf JSON
      * mapping, which reads every {@code bytes} field as base64. Hex digits are base64 characters too, so the
      * unconverted body parses without an error, into ids of the wrong length that match nothing the SDK logged and
      * nothing a protobuf sender reports for the same trace.

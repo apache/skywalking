@@ -48,3 +48,4 @@ verify:
     - includes:
         - ../traceql-cases.yaml
         - ../tal-cases.yaml
+        - ../log-cases.yaml

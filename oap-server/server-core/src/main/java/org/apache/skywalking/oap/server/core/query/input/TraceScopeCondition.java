@@ -29,4 +29,5 @@ public class TraceScopeCondition {
     private String traceId;
     private String segmentId;
     private Integer spanId;
+    private String otlpSpanId;
 }

@@ -270,6 +270,30 @@ trace-context-read:
     save: true
     abort: false
 
+trace-otlp-span-read:
+  body-type: json
+  body: '{"service":"trace-svc"}'
+  trace-id: 0a1b2c3d4e5f60718293a4b5c6d7e8f9
+  otlp-span-id: 0123456789abcdef
+  expect:
+    service: trace-svc
+    tag.osid: 0123456789abcdef
+    traceId: 0a1b2c3d4e5f60718293a4b5c6d7e8f9
+    outputField.otlpSpanId: 0123456789abcdef
+    save: true
+    abort: false
+
+trace-otlp-span-write:
+  body-type: json
+  body: '{"service":"trace-svc","tid":"4bf92f3577b34da6a3ce929d0e0e4736","osp":"00f067aa0ba902b7"}'
+  otlp-span-id: 0123456789abcdef
+  expect:
+    service: trace-svc
+    traceId: 4bf92f3577b34da6a3ce929d0e0e4736
+    outputField.otlpSpanId: 00f067aa0ba902b7
+    save: true
+    abort: false
+
 trace-segment-override:
   body-type: json
   body: '{"service":"trace-svc","seg":"segment-from-body"}'

@@ -394,7 +394,30 @@ not dropped) and is used to associate with traces / metrics.
 - `spanId`
 
 `spanId` extracts the span ID from the `parsed` result, and set it into the `LogData`, which will be persisted (if not
-dropped) and is used to associate with traces / metrics.
+dropped) and is used to associate with traces / metrics. It is a SkyWalking span ID: a number, counted within the segment
+`segmentId` names.
+
+- `otlpSpanId`
+
+`otlpSpanId` sets the span ID of an OTLP or Zipkin span, 16 lowercase hex characters, which `spanId` cannot hold. It is
+persisted with the log, so the log can be queried by the span through `relatedTrace { traceId, otlpSpanId }`. It is an
+[output field](#output-fields) of the default output type rather than a keyword, so it works in rules without a custom
+`outputType`:
+
+```
+filter {
+    text {
+        regexp $/trace_id=(?<traceId>[0-9a-f]{32}) span_id=(?<spanId>[0-9a-f]{16})/$
+    }
+    extractor {
+        traceId parsed.traceId as String
+        otlpSpanId parsed.spanId as String
+    }
+}
+```
+
+The [OTLP log receiver](../setup/backend/log-otlp.md) sets it from the record's own `span_id`; a rule reads it as
+`log.traceContext.otlpSpanId`.
 
 - `timestamp`
 

@@ -417,6 +417,36 @@ rules:
         sink {}
       }
 
+  # An OTLP or Zipkin span id has no keyword: it is an output field of the default output
+  # type, LogBuilder (setOtlpSpanId). Read it from the metadata's TraceContext, where the OTLP
+  # receiver puts it, and let LogBuilder copy it into the output untouched.
+  - name: trace-otlp-span-read
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          tag 'osid': log.traceContext.otlpSpanId
+        }
+        sink {}
+      }
+
+  # The write direction: a span id written into the log text — a Zipkin or OpenTelemetry
+  # logging context — wins over the one the metadata carries.
+  - name: trace-otlp-span-write
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          service parsed.service as String
+          traceId parsed.tid as String
+          otlpSpanId parsed.osp as String
+        }
+        sink {}
+      }
+
   # segmentId alone — the single-statement shape that used to NPE.
   - name: trace-segment-override
     layer: GENERAL

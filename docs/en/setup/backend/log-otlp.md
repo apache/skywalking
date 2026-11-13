@@ -55,3 +55,12 @@ And several attributes are optional as add-on information for the logs before an
 Note, that these attributes should be set manually through OpenTelemetry SDK or through [attribute#insert in OpenTelemetry Collector](https://github.com/open-telemetry/opentelemetry-collector-contrib/blob/main/processor/attributesprocessor/README.md).
 
 The OTLP log record body is delivered to [LAL](../../concepts-and-designs/lal.md) as a plain-text body, even when the string content is JSON-shaped. A LAL rule can still parse such content with the `json {}` parser — when the JSON body is empty and a text body is present, `json {}` tries the text as JSON. On a successful parse the log is normalized to a JSON body, so it is stored and rendered as JSON. See [`json`](../../concepts-and-designs/lal.md#json) for details.
+
+A log record written inside a span carries that span's `trace_id` and `span_id`. Both are stored with the log, as
+lowercase hex: the trace ID as the log's trace ID, and the span ID as its OTLP span ID — not the `spanId`, which is a
+SkyWalking span's number within its segment. So the log can be queried by the trace that wrote it, through
+`relatedTrace { traceId }`, and by the span, through `relatedTrace { traceId, otlpSpanId }`. A LAL rule reads the span ID as
+`log.traceContext.otlpSpanId`, and may set it with [`otlpSpanId`](../../concepts-and-designs/lal.md#extractor).
+
+The trace ID is written the way this OAP stores the OTLP trace itself: with `otlpTraceStorage: zipkin`, an ID whose upper
+64 bits are zero — a trace started by a tracer with 64-bit IDs — keeps only its lower 16 hex characters, as Zipkin does.

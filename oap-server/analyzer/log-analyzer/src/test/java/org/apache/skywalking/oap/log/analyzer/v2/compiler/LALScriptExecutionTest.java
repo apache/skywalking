@@ -38,6 +38,7 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.source.LALOutputBuilder;
+import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
@@ -188,6 +189,18 @@ class LALScriptExecutionTest {
                     srcAttrs != null
                         ? org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLogBuilder, srcAttrs)
                         : org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLog);
+                final Object otlpSpanId = inputData != null ? inputData.get("otlp-span-id") : null;
+                if (otlpSpanId != null) {
+                    // No native protocol carries an OTLP span id; the OTLP receiver puts it on the metadata.
+                    final LogMetadata.TraceContext tc = v2Metadata.getTraceContext();
+                    v2Metadata.setTraceContext(
+                        LogMetadata.TraceContext.builder()
+                            .traceId(tc.getTraceId())
+                            .traceSegmentId(tc.getTraceSegmentId())
+                            .spanId(tc.getSpanId())
+                            .otlpSpanId(String.valueOf(otlpSpanId))
+                            .build());
+                }
                 final Object v2Input = extraLog != null ? extraLog : testLogBuilder;
                 v2Ctx = new org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext();
                 v2Ctx.init(v2Metadata, v2Input);

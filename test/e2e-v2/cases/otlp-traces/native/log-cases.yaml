@@ -1,0 +1,35 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cases:
+  # An OTLP log record written in a span keeps the span's trace ID and span ID, so the log is read by its span
+  # (relatedTrace.otlpSpanId) and not by another span of the same trace. Sent as OTLP/JSON, whose IDs are hex
+  # rather than the base64 protobuf's JSON mapping reads. A condition naming an OTLP span and a native span at
+  # once is refused: the two address a span in conflicting ways.
+  - query: |
+      curl -s -X POST http://${oap_host}:${oap_12800}/v1/logs -H 'Content-Type: application/json' \
+        -d '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"e2e-otlp-log"}}]},"scopeLogs":[{"logRecords":[{"timeUnixNano":"'$(date +%s)'000000000","body":{"stringValue":"a line written in a span"},"traceId":"0af7651916cd43dd8448eb211c80319c","spanId":"b7ad6b7169203331"}]}]}]}' > /dev/null
+      sleep 5
+      logs_of_span() {
+        curl -s -X POST http://${oap_host}:${oap_12800}/graphql -H 'Content-Type: application/json' \
+          -d '{"query":"query($c: LogQueryCondition){ queryLogs(condition: $c){ logs { serviceName traceId content } } }","variables":{"c":{"relatedTrace":{"traceId":"0af7651916cd43dd8448eb211c80319c","otlpSpanId":"'"$1"'"'"$2"'},"paging":{"pageNum":1,"pageSize":10}}}}'
+      }
+      jq -n --argjson span "$(logs_of_span b7ad6b7169203331)" --argjson other "$(logs_of_span 00f067aa0ba902b7)" \
+        --argjson mixed "$(logs_of_span b7ad6b7169203331 ',"segmentId":"a-segment","spanId":0')" \
+        '{errors: ((($span.errors // []) + ($other.errors // [])) | length),
+          bySpanCount: (($span.data.queryLogs.logs // []) | length), bySpan: ($span.data.queryLogs.logs // []),
+          byOtherSpan: (($other.data.queryLogs.logs // []) | length),
+          mixedRefused: ((($mixed.errors // []) | length) > 0 and ($mixed.data.queryLogs == null))}' | yq -P
+    expected: expected/logs-by-otlp-span.yml

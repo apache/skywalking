@@ -53,6 +53,7 @@ final class LALCodegenHelper {
         METADATA_TRACE_GETTERS.put("traceId", "getTraceId");
         METADATA_TRACE_GETTERS.put("traceSegmentId", "getTraceSegmentId");
         METADATA_TRACE_GETTERS.put("spanId", "getSpanId");
+        METADATA_TRACE_GETTERS.put("otlpSpanId", "getOtlpSpanId");
 
         LOG_GETTERS.put("body", "getBody");
         LOG_GETTERS.put("tags", "getTags");
