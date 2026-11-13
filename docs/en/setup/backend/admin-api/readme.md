@@ -18,8 +18,9 @@ endpoint hosted there.
 >    authenticating reverse proxy (sidecar, gateway, mTLS terminator).
 >    SkyWalking ships `admin-server` **enabled by default** so the status
 >    feature module is reachable out of the box; the host binds to
->    `0.0.0.0:17128` by default. Set `SW_ADMIN_SERVER=` (empty) to disable
->    entirely.
+>    `0.0.0.0:17128` by default. To close it entirely, set
+>    `SW_ADMIN_SERVER=-` and `-` for every feature module on it; see
+>    [Enabling](#enabling).
 > 2. **Bind to a private interface.** Set `SW_ADMIN_SERVER_HOST` to a private
 >    address (or `127.0.0.1`) — never the public-facing interface.
 > 3. **Never expose the admin port to the public internet.** No exception.
@@ -31,11 +32,16 @@ endpoint hosted there.
 > including raw log bodies, parsed maps, extracted output fields, and
 > typed builder state. Treat the admin port as authenticated infrastructure
 > and the captured payloads as sensitive data.
+>
+> The Status API (below) returns the effective booting configuration through
+> `/debugging/config/dump`. Only values whose key names match a masking
+> keyword are masked; see
+> [Configuration dump and secrets](../../../security/README.md#configuration-dump-and-secrets).
 
 ## Endpoints by feature
 
 `admin-server` itself only provides the HTTP host. Each feature module
-registers its own routes on it. Today there are four:
+registers its own routes on it. Today there are five:
 
 ### [Runtime Rule Hot-Update API](runtime-rule.md)
 
@@ -79,7 +85,7 @@ Operators browse the live metric catalog and the entities currently emitting
 values for a given metric, getting MQE-ready output that pastes directly into
 the public GraphQL `execExpression` mutation. Routes live under `/inspect/*`.
 Enabled by default (both `SW_INSPECT=default` and `SW_ADMIN_SERVER=default` are on
-by default); set `SW_INSPECT=` (empty) to disable.
+by default); set `SW_INSPECT=-` to disable.
 
 Common operations:
 
@@ -144,21 +150,24 @@ choice.
 
 ## Enabling
 
-`admin-server` itself is enabled by default; the feature modules that
-mount onto it are individually opt-in. Enable the features the deployment
-needs:
+`admin-server` and every feature module that mounts onto it are enabled by
+default. Remove the features the deployment does not need by setting their
+variables to `-`:
 
 ```bash
-# SW_ADMIN_SERVER=default is on by default — see security notice above.
-# SW_STATUS=default is on by default — see [Status API](status.md).
-# SW_INSPECT=default is on by default — see [Inspect API](inspect.md).
-export SW_RECEIVER_RUNTIME_RULE=default   # to use /runtime/rule/*
-export SW_DSL_DEBUGGING=default           # to use /dsl-debugging/* and /runtime/oal/*
+export SW_STATUS=-                  # /status/* and /debugging/*
+export SW_INSPECT=-                 # /inspect/*
+export SW_UI_MANAGEMENT=-           # /ui-management/*
+export SW_RECEIVER_RUNTIME_RULE=-   # /runtime/rule/*, /runtime/mal/*, /runtime/lal/*
+export SW_DSL_DEBUGGING=-           # /dsl-debugging/* and /runtime/oal/*
+export SW_ADMIN_SERVER=-            # the admin host itself, only with all of the above
 ```
 
-If a feature module is enabled without `admin-server`, OAP fails fast at
-startup with a `ModuleNotFoundException: admin-server` — same mechanism
-that gates every other module dependency in OAP.
+An empty value, such as `SW_STATUS=`, does not remove a module: OAP fails
+fast at startup with a `ProviderNotFoundException`. If a feature module is
+enabled without `admin-server`, OAP fails fast at startup with a
+`ModuleNotFoundException: admin-server` — same mechanism that gates every
+other module dependency in OAP.
 
 ## Configuration
 

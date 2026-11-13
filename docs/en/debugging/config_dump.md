@@ -64,9 +64,9 @@ This API also provides the response in JSON format, which is more friendly for p
 
 ## Protect The Secrets
 
-Some of the configurations contain sensitive values, such as username, password, token, etc. These values would be
-masked
-in the dump result. For example, the `storage.elasticsearch.password` in the following configurations,
+Some of the configurations contain sensitive values, such as usernames, passwords, and tokens. A value is masked in
+the dump result when its key name contains one of the masking keywords listed below (case-insensitive). For example,
+the `storage.elasticsearch.password` in the following configurations,
 
 ```yaml
 storage:
@@ -90,6 +90,13 @@ By default, we mask the config keys through the following configurations.
 # Include the list of keywords to filter configurations including secrets. Separate keywords by a comma.
 keywords4MaskingSecretsOfConfig: ${SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS:user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication}
 ```
+
+Only the key name is checked, never the value. A secret stored under a key that contains no keyword, such as the
+Kafka client property `sasl.jaas.config`, is returned in clear text unless you add a matching keyword.
+`SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS` replaces the whole list, so keep the default keywords when you set
+it. See [Configuration dump and secrets](../security/README.md#configuration-dump-and-secrets) in the security notice
+for the settings that need extra keywords. Masking is not an access control: the admin port that serves this API must
+be reachable only by the operator team.
 
 ## BanyanDB Storage Configurations
 

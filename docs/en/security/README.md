@@ -17,7 +17,7 @@ Examples of surfaces that routinely carry attacker-controllable strings (non-exh
 - **Logs**: log body, structured fields.
 - **Profiling**: profiling results (eBPF / async-profiler / JFR samples), captured stack
   frames, symbol names.
-- **HTTP capture **: HTTP request and response bodies, headers, query
+- **HTTP capture**: HTTP request and response bodies, headers, query
   strings, and dumps collected by agent-side body-capture profiling plugins.
 
 A request URI, a header value, an exception message from poisoned input, or any other
@@ -53,14 +53,37 @@ and UI services.
 
 ## Admin API Surface (ports 17128 + 17129)
 
-The `admin-server` module hosts a shared HTTP port (default `17128`) for admin / on-demand
-write APIs. Today this includes the **Runtime Rule Hot-Update API** (add, override, inactivate,
-delete MAL/LAL rule files at runtime — rules are compiled and loaded into the OAP JVM on the
-fly) and the **DSL Debug API** (sampling debugger that captures live MAL/LAL/OAL rule
-executions, including the raw payloads each rule processed). This surface is **far more
-powerful than the telemetry receiver ports** — a request can register new Javassist-compiled
-bytecode, mutate `MeterSystem` state, drop backend schema (BanyanDB measures), or inspect
-operationally-sensitive payloads (raw log bodies, parsed maps, metric source events).
+The `admin-server` module hosts a shared HTTP port (default `17128`) for the admin, status,
+and debugging REST APIs of the OAP server. Every route on this port must be reachable only by
+the operator team. The feature modules mounted on it serve these routes:
+
+| Routes | Module | What a caller can do |
+|--------|--------|----------------------|
+| `/status/*` | `status` | Read the cluster node list, the alarm rules and alarm runtime state, and the TTL settings. |
+| `/debugging/config/dump` | `status` | Read the boot-time configuration of the loaded modules, including the storage, cluster, and Kafka client settings. See [Configuration dump and secrets](#configuration-dump-and-secrets). |
+| `/debugging/query/*` | `status` | Run trace, log, topology, and MQE queries with debug tracing, and read their results. |
+| `/inspect/*` | `inspect` | Browse the metric catalog, the entities holding values, and the metric values. |
+| `/ui-management/*` | `ui-management` | Read, add, update, and disable UI dashboard templates. |
+| `/runtime/rule`, `/runtime/rule/*`, `/runtime/mal/*`, `/runtime/lal/*` | `receiver-runtime-rule` | List, dump, add, override, inactivate, and delete MAL/LAL rule files, which are compiled and loaded into the OAP JVM on the fly. |
+| `/dsl-debugging/*` | `dsl-debugging` | Start, read, and stop sampling sessions that capture live MAL/LAL/OAL rule executions, including the payloads each sampled rule processed. |
+| `/runtime/oal/*` | `dsl-debugging` | List the loaded OAL files and read their rules. |
+
+Of these routes, only `/status/config/ttl` is also served on the public REST port
+(`core.restPort`, default `12800`), and it returns the TTL settings only. The admin port also
+serves Armeria's `/docs` page, which describes the services registered on that port.
+
+This surface is **far more powerful than the telemetry receiver ports** — a request can
+register new Javassist-compiled bytecode, mutate `MeterSystem` state, drop backend schema
+(BanyanDB measures), inspect operationally-sensitive payloads (raw log bodies, parsed maps,
+metric source events), or read the server's effective configuration.
+
+Before 11.0.0, the status and debugging APIs were served on the core REST port
+(`core.restPort`, default `12800`), next to the GraphQL query API. The configuration dump was
+added in 9.7.0 by the `debugging-query` module (`SW_DEBUGGING_QUERY`), and the
+`/debugging/query/*` routes in 10.1.0. In 10.2.0 the module became `status-query`
+(`SW_STATUS_QUERY`) and added the `/status/*` routes. On those versions, block `/status/*` and
+`/debugging/*` at the gateway in front of port `12800`, or remove the module by setting its
+variable to `-` if it is not needed.
 
 `admin-server` also opens an **admin-internal gRPC bus** (default `17129`) for peer-to-peer
 cluster RPCs between OAP nodes — runtime-rule `Suspend / Resume / Forward`, DSL debug
@@ -71,8 +94,16 @@ to submit telemetry MUST NOT be able to invoke privileged admin RPCs.
 `admin-server` is **enabled by default** so the bundled `status` and `inspect` feature
 modules are reachable out of the box. Both ports open with **no built-in authentication**
 — the design goal is a simple admin socket that a gateway / service mesh wraps with the
-operator's existing auth story. Set `SW_ADMIN_SERVER=` (empty) to keep the host closed
-if no admin-side API is needed.
+operator's existing auth story.
+
+To remove a feature, set its module variable to `-`, such as `SW_STATUS=-` for the status and
+debugging routes (including `/status/config/ttl` on port `12800`). An empty value does not
+remove a module: OAP fails to start with a `ProviderNotFoundException`. To close the admin
+port entirely, set `SW_ADMIN_SERVER=-` together with `SW_STATUS=-`, `SW_INSPECT=-`,
+`SW_UI_MANAGEMENT=-`, `SW_RECEIVER_RUNTIME_RULE=-`, and `SW_DSL_DEBUGGING=-`, as a feature
+module left on without `admin-server` stops OAP from starting. Horizon UI reads `/status/*`
+and the configuration dump, so keep `status` when Horizon UI is deployed, and restrict the
+port instead.
 
 Required operator actions:
 
@@ -89,9 +120,55 @@ Required operator actions:
    `POST /runtime/rule/*` and `POST /dsl-debugging/*` as equivalent to shell access on the
    OAP host.
 
-Without these protections an attacker with network reach to port 17128 or 17129 can execute
-arbitrary code inside the OAP JVM. See `docs/en/setup/backend/admin-api/readme.md` for the
-full security notice and per-feature API surface.
+Without these protections, an attacker with network reach to port 17128 can submit MAL/LAL
+rules that are compiled and run inside the OAP JVM, and read the configuration, captured
+payloads, and other operational data that the status, debugging, inspect, and DSL debug APIs
+return. An attacker who reaches port 17129 can submit rules the same way through the
+runtime-rule `Forward` RPC, and install DSL debug sessions on the OAP nodes and collect their
+samples. See the
+[Admin API](../setup/backend/admin-api/readme.md) doc for the full security notice and
+per-feature API surface.
+
+### Configuration dump and secrets
+
+`GET /debugging/config/dump` returns the boot-time settings of the loaded modules, as resolved
+from `application.yml` and the environment, plus the BanyanDB settings from `bydb.yml` and
+`bydb-topn.yml` when BanyanDB is the storage. A value is replaced by `******` only when its key
+contains one of the keywords listed in `status.default.keywords4MaskingSecretsOfConfig`
+(case-insensitive):
+
+- A module setting is matched by its own name, such as `password` in
+  `storage.elasticsearch.password`.
+- A setting inside a map, such as a Kafka client property under the Kafka fetcher's
+  `kafkaConsumerConfig`, is matched by its own name inside the map, such as `sasl.jaas.config`,
+  not by the name of the map.
+- A BanyanDB setting is matched by its full key, such as `storage.banyandb.global.password`.
+
+The value itself is never inspected, so a credential stored under a key that contains no
+keyword is returned in clear text. Settings that can carry a credential under such a key include:
+
+- The Kafka fetcher's client properties (`kafka-fetcher.default.kafkaConsumerConfig.*`), such as
+  `sasl.jaas.config`, which carries the SASL username and password or the OAuth client secret,
+  and `ssl.keystore.key`, which carries a private key.
+- The Kafka client settings written as one JSON string: the Zipkin receiver's
+  `kafkaConsumerConfig` and the exporter's `kafkaProducerConfig`. A keyword that matches
+  `kafkaConsumerConfig` or `kafkaProducerConfig` masks the whole string.
+- The ZooKeeper cluster coordinator's ACL `expression` (`SW_ZK_EXPRESSION`), which holds
+  `user:password` when `enableACL` is on.
+- A JDBC URL (`jdbcUrl`) that includes credentials.
+
+When a configuration carries credentials, add keywords that match its keys. A keyword for a
+JSON-string setting or for `jdbcUrl` hides the whole value, including the parts that are not
+secret. `SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS` replaces the whole list, so keep the
+default keywords when you set it, and separate the keywords with commas only, without spaces:
+
+```shell
+export SW_DEBUGGING_QUERY_KEYWORDS_FOR_MASKING_SECRETS=user,password,trustStorePass,keyStorePass,token,accessKey,secretKey,authentication,jaas,keystore.key,expression,kafkaConsumerConfig,kafkaProducerConfig,jdbcUrl
+```
+
+Masking hides only the values whose keys match a keyword, so review a dump before sharing it.
+It is not an access control: anyone who can reach the admin port can read every value the
+keywords miss, so restricting the port, as required above, is what protects the dump.
 
 ## Client-Side Monitoring
 

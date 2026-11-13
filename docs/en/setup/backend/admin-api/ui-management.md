@@ -15,14 +15,15 @@ metadata query surface for dynamic "layer has services" gating.
 Routes mount on admin-server's REST register only. There is no public-REST
 mirror — write operations are operator-only and gated behind the admin
 gateway, same posture as `runtime-rule` and `dsl-debugging`. Admin-server
-ships **enabled by default**; set `SW_UI_MANAGEMENT=` empty to close the
-UI surface without closing the rest of admin-server.
+ships **enabled by default**; set `SW_UI_MANAGEMENT=-` to close the
+UI surface without closing the rest of admin-server. An empty value does not
+close it: OAP fails to start.
 
 **Template writes (`POST` / `PUT` / `POST /disable`) are enabled by default.**
 The REST endpoints accept writes unconditionally when the module is
 loaded; the admin host's gateway / IP allow-list is the auth boundary.
 Operators who want to lock writes down disable the entire module
-(`SW_UI_MANAGEMENT=`).
+(`SW_UI_MANAGEMENT=-`).
 
 ```yaml
 ui-management:
@@ -111,7 +112,7 @@ curl -s -X POST "http://oap:17128/ui-management/templates/<uuid>/disable"
 
 | Key | Default | Purpose |
 |---|---|---|
-| `SW_UI_MANAGEMENT` | `default` | Selector. Set empty to disable the UI management surface. |
+| `SW_UI_MANAGEMENT` | `default` | Selector. Set `-` to disable the UI management surface. |
 | `SW_ADMIN_SERVER` | `default` | Underlying admin host. Must be on for `ui-management` to reach its handlers. |
 
 ## Security

@@ -144,8 +144,8 @@ table. The DSL-debug-relevant keys:
 
 | Key                                  | Default | Purpose                                                       |
 |--------------------------------------|---------|---------------------------------------------------------------|
-| `SW_ADMIN_SERVER`                    | `default` | Shared admin HTTP host. On by default; set empty to disable.  |
-| `SW_DSL_DEBUGGING`                   | (empty) | Enables the DSL debug API.                                    |
+| `SW_ADMIN_SERVER`                    | `default` | Shared admin HTTP host. On by default; set `-` to disable, together with every feature module on it. |
+| `SW_DSL_DEBUGGING`                   | `default` | Enables the DSL debug API. On by default; set `-` to disable. |
 | `SW_DSL_DEBUGGING_INJECTION_ENABLED` | `true`  | Boot-time codegen switch. Set `false` to disable probes.      |
 
 > SECURITY: capture payloads include sensitive operational state (raw log

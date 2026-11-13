@@ -15,10 +15,12 @@ issuing `/graphql` can fetch it without being aware of the admin port.
 `17128`). Both `status` and `admin-server` are enabled by default, so the
 surface is reachable out of the box. The admin port is gateway-protected per
 the [admin-server security notice](readme.md#security-notice). To disable
-status explicitly, unset `SW_STATUS`:
+status explicitly, set `SW_STATUS` to `-`. This also removes
+`/status/config/ttl` from the public REST host. An empty value does not
+disable it: OAP fails to start.
 
 ```bash
-export SW_STATUS=                       # disable
+export SW_STATUS=-                      # disable
 export SW_STATUS=default                # default (enabled)
 ```
 
@@ -433,6 +435,12 @@ curl -X GET "http://oap:17128/status/config/ttl" \
 Dumps the effective configuration that was applied at boot. Values whose
 key contains any substring listed in `keywords4MaskingSecretsOfConfig` are
 redacted. Output is YAML-shaped key=value lines.
+
+Only the key is checked, not the value, so a credential under a key that
+contains no keyword, such as the Kafka client property `sasl.jaas.config`,
+is returned in clear text. See
+[Configuration dump and secrets](../../../security/README.md#configuration-dump-and-secrets)
+for the settings that need extra keywords.
 
 The Inspect API uses this endpoint as its REST-URL discovery primitive —
 clients parse the dump for `core.restHost` / `core.restPort` (or the

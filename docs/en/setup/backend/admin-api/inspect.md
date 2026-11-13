@@ -20,13 +20,15 @@ Enabled by default. Both `SW_ADMIN_SERVER=default` and `SW_INSPECT=default`
 are on out of the box; no opt-in required. To disable:
 
 ```bash
-export SW_INSPECT=                          # disable inspect only
-export SW_ADMIN_SERVER=                     # close the admin host entirely
+export SW_INSPECT=-                         # disable inspect only
 ```
 
-If `SW_INSPECT=default` is explicitly kept while `SW_ADMIN_SERVER=` is set
-empty, OAP fails fast at startup with a `ModuleNotFoundException: admin-server`
-— same gate that protects every other admin feature module.
+An empty value, such as `SW_INSPECT=`, does not disable it: OAP fails to
+start. Closing the admin host entirely takes `SW_ADMIN_SERVER=-` together with
+`-` for every admin feature module; see [Admin API](readme.md#enabling). If
+inspect stays enabled while `SW_ADMIN_SERVER=-`, OAP fails fast at startup
+with a `ModuleNotFoundException: admin-server` — same gate that protects
+every other admin feature module.
 
 ## Security
 

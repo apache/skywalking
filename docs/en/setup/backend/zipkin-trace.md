@@ -40,6 +40,10 @@ receiver-zipkin:
 
 ```
 
+If `kafkaConsumerConfig` carries credentials, such as `sasl.jaas.config`, add `kafkaConsumerConfig` to the
+configuration dump's masking keywords, as described in
+[Configuration dump and secrets](../../security/README.md#configuration-dump-and-secrets).
+
 ### Zipkin receiver sampling
 
 The [trace sampling](trace-sampling.md) of `agent-analyzer` covers the segments SkyWalking agents send, not Zipkin
