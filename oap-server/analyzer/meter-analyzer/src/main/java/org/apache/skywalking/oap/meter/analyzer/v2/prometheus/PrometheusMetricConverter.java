@@ -18,16 +18,11 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.prometheus;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.meter.analyzer.v2.dsl.Sample;
@@ -52,18 +47,6 @@ import static org.apache.skywalking.oap.meter.analyzer.v2.Analyzer.NIL;
  */
 @Slf4j
 public class PrometheusMetricConverter {
-    private static final Pattern METRICS_NAME_ESCAPE_PATTERN = Pattern.compile("[/.]");
-
-    private static final LoadingCache<String, String> ESCAPED_METRICS_NAME_CACHE =
-        CacheBuilder.newBuilder()
-                    .maximumSize(1000)
-                    .build(new CacheLoader<String, String>() {
-                        @Override
-                        public String load(final String name) {
-                            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
-                        }
-                    });
-
     public static ImmutableMap<String, SampleFamily> convertPromMetricToSampleFamily(Stream<Metric> metricStream) {
         return metricStream
             .peek(metric -> log.debug("Prom metric to be convert to SampleFamily: {}", metric))
@@ -142,11 +125,6 @@ public class PrometheusMetricConverter {
 
     // Returns the escaped name of the given one, with "." and "/" replaced by "_"
     protected static String escapedName(final String name) {
-        try {
-            return ESCAPED_METRICS_NAME_CACHE.get(name);
-        } catch (ExecutionException e) {
-            log.error("Failed to get escaped metrics name from cache", e);
-            return METRICS_NAME_ESCAPE_PATTERN.matcher(name).replaceAll("_");
-        }
+        return name.replace('.', '_').replace('/', '_');
     }
 }
