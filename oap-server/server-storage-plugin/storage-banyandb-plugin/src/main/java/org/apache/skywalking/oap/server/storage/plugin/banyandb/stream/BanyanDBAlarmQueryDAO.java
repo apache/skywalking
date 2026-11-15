@@ -119,10 +119,12 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
         // limit+from rows so pagination still terminates after dedupe.
         // Results are dedupe-by-uuid'd, sorted by startTime DESC, then
         // paged in memory. Common case (1-2 entities) = 1-4 queries,
-        // each cheap.
+        // each cheap. Without entities, the one query pages in storage.
         final LinkedHashMap<String, AlarmRecord> merged = new LinkedHashMap<>();
+        final int skip;
         if (entityConstraints.isEmpty()) {
             collect(merged, isColdStage, duration, condition, null, limit, from);
+            skip = 0;
         } else {
             // Per-constraint query — over-fetch (limit + from) per slice so
             // the global dedupe-sort-page step has enough data.
@@ -130,13 +132,14 @@ public class BanyanDBAlarmQueryDAO extends AbstractBanyanDBDAO implements IAlarm
             for (final EntityIdConstraint c : entityConstraints) {
                 collect(merged, isColdStage, duration, condition, c, perQueryLimit, 0);
             }
+            skip = from;
         }
 
         final List<AlarmRecord> sorted = new ArrayList<>(merged.values());
         sorted.sort(Comparator.comparingLong(AlarmRecord::getStartTime).reversed());
 
         final Alarms alarms = new Alarms();
-        final int start = Math.min(from, sorted.size());
+        final int start = Math.min(skip, sorted.size());
         final int end = Math.min(start + limit, sorted.size());
         for (int i = start; i < end; i++) {
             final AlarmRecord alarmRecord = sorted.get(i);

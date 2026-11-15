@@ -43,7 +43,7 @@ public class ITBanyanDBCommonTests extends BanyanDBClientTestCI {
     @Test
     public void test_GetAPIVersion() throws BanyanDBException {
         BanyandbCommon.APIVersion version = this.client.getAPIVersion();
-        assertEquals("0.9", version.getVersion());
+        assertEquals("0.11", version.getVersion());
         assertFalse(Strings.isNullOrEmpty(version.getRevision()));
     }
 

@@ -20,6 +20,7 @@ package org.apache.skywalking.library.banyandb.v1.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
+import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.oap.server.library.it.BanyanDBTestContainer;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -27,12 +28,21 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Testcontainers
 public class BanyanDBClientTestCI {
     protected static final int GRPC_PORT = BanyanDBTestContainer.GRPC_PORT;
     protected static final int HTTP_PORT = BanyanDBTestContainer.HTTP_PORT;
+
+    /**
+     * The groups a BanyanDB server creates for its own bookkeeping at boot (its
+     * {@code api/common/internal_group.go}), listed by {@code findGroups} beside the user's.
+     */
+    private static final Set<String> SERVER_GROUPS = Set.of("_deletion_task", "_property_gossip");
 
     @Container
     public GenericContainer<?> banyanDB = new GenericContainer<>(
@@ -53,6 +63,13 @@ public class BanyanDBClientTestCI {
         if (this.client != null) {
             this.client.close();
         }
+    }
+
+    /** The groups the user defined: {@code findGroups} without the server's own. */
+    protected static List<BanyandbCommon.Group> userGroups(BanyanDBClient client) throws BanyanDBException {
+        return client.findGroups().stream()
+                     .filter(group -> !SERVER_GROUPS.contains(group.getMetadata().getName()))
+                     .collect(Collectors.toList());
     }
 
     protected BanyandbCommon.Group buildStreamGroup() {

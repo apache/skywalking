@@ -18,7 +18,6 @@
 
 package org.apache.skywalking.library.banyandb.v1.client;
 
-import org.apache.skywalking.banyandb.common.v1.BanyandbCommon;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.UnauthenticatedException;
 import org.apache.skywalking.oap.server.library.it.ITVersions;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -84,8 +82,7 @@ public class ITBanyanDBAuthTest extends BanyanDBClientTestCI {
             // get api version
             client.getAPIVersion();
             // list all groups
-            List<BanyandbCommon.Group> groupList = client.findGroups();
-            assertEquals(0, groupList.size());
+            assertEquals(0, userGroups(client).size());
         });
         client.close();
     }
@@ -116,7 +113,7 @@ public class ITBanyanDBAuthTest extends BanyanDBClientTestCI {
 
         await().atMost(10, TimeUnit.SECONDS).untilAsserted(() -> {
             client.getAPIVersion();
-            assertEquals(0, client.findGroups().size());
+            assertEquals(0, userGroups(client).size());
         });
         client.close();
     }

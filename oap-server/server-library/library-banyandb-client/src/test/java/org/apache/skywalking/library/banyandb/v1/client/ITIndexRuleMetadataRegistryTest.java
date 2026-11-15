@@ -58,6 +58,7 @@ public class ITIndexRuleMetadataRegistryTest extends BanyanDBClientTestCI {
         assertNotNull(getIndexRule);
         getIndexRule = getIndexRule.toBuilder()
                                    .clearUpdatedAt()
+                                   .clearCreatedAt()
                                    .setMetadata(getIndexRule.getMetadata()
                                                             .toBuilder()
                                                             .clearCreateRevision()
@@ -78,6 +79,7 @@ public class ITIndexRuleMetadataRegistryTest extends BanyanDBClientTestCI {
         IndexRule actualIndexRule = listIndexRule.get(0);
         actualIndexRule = actualIndexRule.toBuilder()
                                    .clearUpdatedAt()
+                                   .clearCreatedAt()
                                    .setMetadata(actualIndexRule.getMetadata()
                                                             .toBuilder()
                                                             .clearCreateRevision()

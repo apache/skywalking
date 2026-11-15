@@ -69,6 +69,7 @@ public class ITTraceMetadataRegistryTest extends BanyanDBClientTestCI {
         // Clear timestamps and revision fields for comparison
         actualTrace = actualTrace.toBuilder()
             .clearUpdatedAt()
+            .clearCreatedAt()
             .setMetadata(actualTrace.getMetadata().toBuilder()
                 .clearModRevision()
                 .clearCreateRevision())

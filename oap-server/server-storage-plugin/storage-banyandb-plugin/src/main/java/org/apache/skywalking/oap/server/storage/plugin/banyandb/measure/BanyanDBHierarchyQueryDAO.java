@@ -81,7 +81,7 @@ public class BanyanDBHierarchyQueryDAO extends AbstractBanyanDBDAO implements IH
     @Override
     public List<InstanceHierarchyRelationTraffic> readInstanceHierarchyRelations(final String instanceId,
                                                                                  final String layer) throws Exception {
-        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ServiceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
+        MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(InstanceHierarchyRelationTraffic.INDEX_NAME, DownSampling.Minute);
         int layerValue = Layer.valueOf(layer).value();
         MeasureQueryResponse resp = queryDebuggable(false, schema,
                                               INSTANCE_HIERARCHY_RELATION_TAGS,

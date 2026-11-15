@@ -56,7 +56,7 @@ public class ITTopNAggregationMetadataRegistryTest extends BanyanDBClientTestCI 
         TopNAggregation actualTopNAggregation = client.findTopNAggregation("sw_metric", "service_cpm_minute_topn");
         assertNotNull(actualTopNAggregation);
         assertNotNull(actualTopNAggregation.getUpdatedAt());
-        actualTopNAggregation = actualTopNAggregation.toBuilder().clearUpdatedAt().setMetadata(actualTopNAggregation.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualTopNAggregation = actualTopNAggregation.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualTopNAggregation.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedTopNAggregation, actualTopNAggregation);
     }
 

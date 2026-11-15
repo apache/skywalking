@@ -18,12 +18,11 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.CoreModuleProvider;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.manual.service.ServiceTraffic;
-import org.apache.skywalking.oap.server.core.config.ConfigService;
+import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Column;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBExtension;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
 import org.apache.skywalking.oap.server.core.storage.model.ColumnName;
 import org.apache.skywalking.oap.server.core.storage.model.ElasticSearchModelExtension;
@@ -33,7 +32,6 @@ import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseExtension;
 import org.apache.skywalking.oap.server.core.storage.model.SQLDatabaseModelExtension;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
-import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.TableMetaInfo;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
@@ -87,14 +85,6 @@ class JDBCHistoryDeleteDAOIT {
         tableHelper = new TableHelper(moduleManager, jdbcClient);
         tableInstaller = new JDBCTableInstaller(jdbcClient, moduleManager);
 
-        final var providerHolder = mock(ModuleProviderHolder.class);
-        final var coreModule = mock(CoreModuleProvider.class);
-        final var configService = mock(ConfigService.class);
-        when(moduleManager.find(CoreModule.NAME)).thenReturn(providerHolder);
-        when(providerHolder.provider()).thenReturn(coreModule);
-        when(coreModule.getService(ConfigService.class)).thenReturn(configService);
-        when(configService.getMetricsDataTTL()).thenReturn(3);
-
         final var serviceTrafficNameColumn = mock(Column.class);
         when(serviceTrafficNameColumn.name()).thenReturn("service_traffic_name");
         final var timeBucketColumn = mock(Column.class);
@@ -104,13 +94,20 @@ class JDBCHistoryDeleteDAOIT {
             "service_traffic",
             Arrays.asList(
                 new ModelColumn(new ColumnName(serviceTrafficNameColumn), String.class, String.class, false, false, false, 100,
-                    new SQLDatabaseExtension(), null, null),
+                    new SQLDatabaseExtension(), null, plainBanyanDBColumn()),
                 new ModelColumn(new ColumnName(timeBucketColumn), Long.class, Long.class, false, false, false, 0,
-                    new SQLDatabaseExtension(), null, null)
+                    new SQLDatabaseExtension(), null, plainBanyanDBColumn())
             ), 1, DownSampling.Minute, false, ServiceTraffic.class, false, false, new SQLDatabaseModelExtension(),
             new BanyanDBModelExtension(), new ElasticSearchModelExtension());
 
         TableMetaInfo.addModel(model);
+    }
+
+    /**
+     * What {@code StorageModels} gives a column with no BanyanDB annotation; {@code ModelColumn} requires one.
+     */
+    private static BanyanDBExtension plainBanyanDBColumn() {
+        return new BanyanDBExtension(-1, -1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, null, false);
     }
 
     @Test

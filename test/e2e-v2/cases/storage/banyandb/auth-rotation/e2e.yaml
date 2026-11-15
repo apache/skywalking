@@ -79,13 +79,14 @@ verify:
     # A file carrying only one half of the pair is applied like any other, so the mistake shows up
     # instead of being masked by credentials that silently keep working. A username and a password
     # are only ever sent together, so the requests go out unauthenticated and the server refuses
-    # them -- which is what proves the incomplete file reached the wire. The server's wording is
-    # matched rather than the word UNAUTHENTICATED, which the OAP's own message also contains.
+    # them -- which is what proves the incomplete file reached the wire. The server's wording
+    # (gRPC status UNAUTHENTICATED, description "unauthenticated") is matched rather than the word
+    # UNAUTHENTICATED alone, which the OAP's own message also contains.
     - query: |
         oap=$(docker ps -q --filter label=com.docker.compose.service=oap)
         docker exec $oap bash -c 'printf "user=admin\n" > /tmp/bydb-secrets.properties'
         docker logs $oap 2>&1 | grep -Fq "Applied incomplete credentials from /tmp/bydb-secrets.properties" \
-          && docker logs $oap 2>&1 | grep -Fq "UNAUTHENTICATED: Invalid credentials" \
+          && docker logs $oap 2>&1 | grep -Fq "UNAUTHENTICATED: unauthenticated" \
           && echo credentials-incomplete
       expected: expected/credentials-incomplete.yml
 
