@@ -23,7 +23,6 @@ import com.ctrip.framework.apollo.ConfigService;
 import com.google.common.base.Strings;
 import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 import org.apache.skywalking.oap.server.configuration.api.ConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.GroupConfigTable;
 import org.apache.skywalking.oap.server.configuration.api.ListeningConfigWatcherRegister;
@@ -79,37 +78,32 @@ public class ApolloConfigWatcherRegister extends ListeningConfigWatcherRegister 
                 }, Collections.singleton(key));
                 break;
             case GROUP:
-                String groupPrefix = key + ".";
-
                 // read initial group value before listening
-                Set<String> allKeys = this.configReader.getPropertyNames();
-                if (CollectionUtils.isNotEmpty(allKeys)) {
-                    GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
-
-                    allKeys.stream().filter(it -> it.startsWith(groupPrefix)).forEach(groupItemKey -> {
-                        String itemName = groupItemKey.substring(groupPrefix.length());
-                        String itemValue = this.configReader.getProperty(groupItemKey, null);
-                        groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
-                    });
-
-                    configChangeCallback.onGroupValuesChanged(holder, groupConfigItems);
+                if (CollectionUtils.isNotEmpty(this.configReader.getPropertyNames())) {
+                    configChangeCallback.onGroupValuesChanged(holder, readGroup(key));
                 }
 
-                // add change listener
-                this.configReader.addChangeListener(changeEvent -> {
-                    GroupConfigTable.GroupConfigItems newGroupConfigItems = new GroupConfigTable.GroupConfigItems(key);
-
-                    for (final String groupItemKey : changeEvent.changedKeys()) {
-                        String itemName = groupItemKey.substring(groupPrefix.length());
-                        String itemValue = changeEvent.getChange(groupItemKey).getNewValue();
-                        newGroupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
-                    }
-
-                    configChangeCallback.onGroupValuesChanged(holder, newGroupConfigItems);
-                }, Collections.emptySet(), Collections.singleton(key));
+                // A change event names only the keys that changed, but the callback takes the WHOLE group and
+                // deletes every item it is not given, so re-read the group. Apollo applies a change before it
+                // notifies the listeners.
+                this.configReader.addChangeListener(
+                    changeEvent -> configChangeCallback.onGroupValuesChanged(holder, readGroup(key)),
+                    Collections.emptySet(), Collections.singleton(key)
+                );
                 break;
             default:
                 throw new IllegalArgumentException("unsupported watcher type.");
         }
+    }
+
+    private GroupConfigTable.GroupConfigItems readGroup(final String key) {
+        final String groupPrefix = key + ".";
+        final GroupConfigTable.GroupConfigItems groupConfigItems = new GroupConfigTable.GroupConfigItems(key);
+        this.configReader.getPropertyNames().stream().filter(it -> it.startsWith(groupPrefix)).forEach(groupItemKey -> {
+            String itemName = groupItemKey.substring(groupPrefix.length());
+            String itemValue = this.configReader.getProperty(groupItemKey, null);
+            groupConfigItems.add(new ConfigTable.ConfigItem(itemName, itemValue));
+        });
+        return groupConfigItems;
     }
 }

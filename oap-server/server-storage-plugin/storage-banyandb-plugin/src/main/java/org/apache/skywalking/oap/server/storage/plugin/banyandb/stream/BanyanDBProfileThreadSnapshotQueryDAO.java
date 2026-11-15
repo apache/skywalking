@@ -45,7 +45,8 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
             ProfileThreadSnapshotRecord.SEGMENT_ID,
             ProfileThreadSnapshotRecord.DUMP_TIME,
             ProfileThreadSnapshotRecord.SEQUENCE,
-            ProfileThreadSnapshotRecord.STACK_BINARY);
+            ProfileThreadSnapshotRecord.STACK_BINARY,
+            ProfileThreadSnapshotRecord.LANGUAGE_TYPE);
 
     private static final Set<String> TAGS_TRACE = ImmutableSet.of(SegmentRecord.TRACE_ID,
             SegmentRecord.IS_ERROR,
@@ -109,14 +110,15 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
 
     @Override
     public List<ProfileThreadSnapshotRecord> queryRecords(String segmentId, int minSequence, int maxSequence) throws IOException {
+        // [minSequence, maxSequence): the analysis reads adjacent batches that meet at their ends.
         StreamQueryResponse resp = queryDebuggable(false, ProfileThreadSnapshotRecord.INDEX_NAME, TAGS_ALL,
                 null,
                 Conditions.create()
                     .eq(ProfileThreadSnapshotRecord.SEGMENT_ID, segmentId)
-                    .lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence)
+                    .lte(ProfileThreadSnapshotRecord.SEQUENCE, maxSequence - 1)
                     .gte(ProfileThreadSnapshotRecord.SEQUENCE, minSequence));
 
-        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(maxSequence - minSequence);
+        List<ProfileThreadSnapshotRecord> result = new ArrayList<>(Math.max(0, maxSequence - minSequence));
         for (final RowEntity rowEntity : resp.getElements()) {
             ProfileThreadSnapshotRecord record = this.builder.storage2Entity(
                     new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
@@ -139,6 +141,9 @@ public class BanyanDBProfileThreadSnapshotQueryDAO extends AbstractBanyanDBDAO i
                     new BanyanDBConverter.StorageToStream(ProfileThreadSnapshotRecord.INDEX_NAME, rowEntity));
 
             records.add(record);
+        }
+        if (records.isEmpty()) {
+            return -1;
         }
 
         switch (aggType) {

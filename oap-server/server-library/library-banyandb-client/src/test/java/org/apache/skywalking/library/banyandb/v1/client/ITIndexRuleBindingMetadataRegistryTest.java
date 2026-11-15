@@ -63,6 +63,7 @@ public class ITIndexRuleBindingMetadataRegistryTest extends BanyanDBClientTestCI
         assertNotNull(getIndexRuleBinding);
         getIndexRuleBinding = getIndexRuleBinding.toBuilder()
                                                  .clearUpdatedAt()
+                                                 .clearCreatedAt()
                                                  .setMetadata(getIndexRuleBinding.getMetadata()
                                                                                  .toBuilder()
                                                                                  .clearModRevision()
@@ -81,6 +82,7 @@ public class ITIndexRuleBindingMetadataRegistryTest extends BanyanDBClientTestCI
         IndexRuleBinding actualIndexRuleBinding = listIndexRuleBinding.get(0);
         actualIndexRuleBinding = actualIndexRuleBinding.toBuilder()
                                                  .clearUpdatedAt()
+                                                 .clearCreatedAt()
                                                  .setMetadata(actualIndexRuleBinding.getMetadata()
                                                                                  .toBuilder()
                                                                                  .clearModRevision()

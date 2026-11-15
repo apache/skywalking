@@ -370,8 +370,16 @@
                     </configuration>
                     <executions>
                         <execution>
+                            <!--
+                                `verify` is what fails the build on a failed IT, and it defaults to the
+                                `verify` phase, which `./mvnw integration-test` (the CI command) never
+                                reaches. Running it in the `integration-test` phase, after the ITs, makes
+                                a failed IT fail that command.
+                            -->
+                            <phase>integration-test</phase>
                             <goals>
                                 <goal>integration-test</goal>
+                                <goal>verify</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -384,7 +392,7 @@
                 </plugin>
                 <!--
                     maven-surefire-plugin will exclude integration tests (ITs)
-                    and leave them for maven-failsafe-plugin to run, which is bound to the `verify` goal.
+                    and leave them for maven-failsafe-plugin to run; a failed IT fails the build.
                     If you want to run the ITs please run ./mvnw integration-test,
                     e.g. you want to run the ITs in oap-server, run `./mvnw -Pbackend clean integration-test`
                  -->

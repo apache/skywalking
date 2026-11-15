@@ -38,3 +38,15 @@ TopN-Rules:
     groupByTagNames:
       - service_id
     sort: des
+  # The shipped endpoint_cpm rules, which the ITs read through the pre-built TopN.
+  # `attr0` is defined in the `EndpointDecorator` as the Layer.
+  - name: endpoint_cpm-layer
+    metricName: endpoint_cpm
+    groupByTagNames:
+      - attr0
+    sort: des
+  - name: endpoint_cpm-service
+    metricName: endpoint_cpm
+    groupByTagNames:
+      - service_id
+    sort: des

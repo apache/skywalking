@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 import com.google.common.collect.ImmutableSet;
 import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
 import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
+import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
@@ -33,29 +34,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BanyanDBEBPFProfilingDataDAO extends AbstractBanyanDBDAO implements IEBPFProfilingDataDAO {
+    /**
+     * Every row of the window in one query. The rows of one upload share its time, the only order BanyanDB keeps
+     * for them, so reading them in pages by offset could skip or repeat rows.
+     */
+    private static final int QUERY_MAX_SIZE = Integer.MAX_VALUE;
     private static final Set<String> TAGS = ImmutableSet.of(EBPFProfilingDataRecord.UPLOAD_TIME,
             EBPFProfilingDataRecord.SCHEDULE_ID,
             EBPFProfilingDataRecord.STACK_ID_LIST,
             EBPFProfilingDataRecord.TARGET_TYPE,
             EBPFProfilingDataRecord.DATA_BINARY,
             EBPFProfilingDataRecord.TASK_ID);
-    private final int profileDataQueryBatchSize;
 
-    public BanyanDBEBPFProfilingDataDAO(BanyanDBStorageClient client, int profileDataQueryBatchSize) {
+    public BanyanDBEBPFProfilingDataDAO(BanyanDBStorageClient client) {
         super(client);
-        this.profileDataQueryBatchSize = profileDataQueryBatchSize;
     }
 
     @Override
     public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) throws IOException {
         List<EBPFProfilingDataRecord> records = new ArrayList<>();
+        // [beginTime, endTime): the analysis reads windows that meet at their ends, so a row on the boundary belongs
+        // to the later one only. upload_time is also the element timestamp, so the window bounds the parts read.
+        final TimestampRange window = new TimestampRange(beginTime, endTime);
         for (final String scheduleId : scheduleIdList) {
             final Conditions where = Conditions.create()
                     .eq(EBPFProfilingDataRecord.SCHEDULE_ID, scheduleId)
                     .gte(EBPFProfilingDataRecord.UPLOAD_TIME, beginTime)
-                    .lte(EBPFProfilingDataRecord.UPLOAD_TIME, endTime)
-                    .limit(profileDataQueryBatchSize);
-            StreamQueryResponse resp = queryDebuggable(false, EBPFProfilingDataRecord.INDEX_NAME, TAGS, null, where);
+                    .lte(EBPFProfilingDataRecord.UPLOAD_TIME, endTime - 1)
+                    .limit(QUERY_MAX_SIZE);
+            StreamQueryResponse resp = queryDebuggable(false, EBPFProfilingDataRecord.INDEX_NAME, TAGS, window, where);
 
             records.addAll(resp.getElements().stream().map(this::buildDataRecord).collect(Collectors.toList()));
         }

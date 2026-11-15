@@ -89,7 +89,7 @@ public class ProfileThreadSnapshotRecord extends Record {
             snapshot.setSegmentId((String) converter.get(SEGMENT_ID));
             snapshot.setDumpTime(((Number) converter.get(DUMP_TIME)).longValue());
             snapshot.setSequence(((Number) converter.get(SEQUENCE)).intValue());
-            snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).intValue());
+            snapshot.setTimeBucket(((Number) converter.get(TIME_BUCKET)).longValue());
             snapshot.setStackBinary(converter.getBytes(STACK_BINARY));
             final Number languageTypeNum = (Number) converter.get(LANGUAGE_TYPE);
             snapshot.setLanguage(ProfileLanguageType.fromValue(languageTypeNum != null ? languageTypeNum.intValue() : 0));

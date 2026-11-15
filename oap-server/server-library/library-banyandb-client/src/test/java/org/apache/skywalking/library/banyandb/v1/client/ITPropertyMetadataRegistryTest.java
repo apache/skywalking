@@ -57,7 +57,7 @@ public class ITPropertyMetadataRegistryTest extends BanyanDBClientTestCI {
         Property actualProperty = client.findPropertyDefinition("sw_config", "ui_template");
         assertNotNull(actualProperty);
         assertNotNull(actualProperty.getUpdatedAt());
-        actualProperty = actualProperty.toBuilder().clearUpdatedAt().setMetadata(actualProperty.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualProperty = actualProperty.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualProperty.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedProperty, actualProperty);
     }
 
@@ -69,7 +69,7 @@ public class ITPropertyMetadataRegistryTest extends BanyanDBClientTestCI {
         assertNotNull(actualProperties);
         assertEquals(1, actualProperties.size());
         Property actualProperty = actualProperties.get(0);
-        actualProperty = actualProperty.toBuilder().clearUpdatedAt().setMetadata(actualProperty.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualProperty = actualProperty.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualProperty.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedProperty, actualProperty);
     }
 

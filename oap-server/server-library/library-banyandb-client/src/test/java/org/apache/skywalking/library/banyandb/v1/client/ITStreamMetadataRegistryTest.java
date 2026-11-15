@@ -60,7 +60,7 @@ public class ITStreamMetadataRegistryTest extends BanyanDBClientTestCI {
         Stream actualStream = client.findStream("sw_record", "record");
         assertNotNull(actualStream);
         assertNotNull(actualStream.getUpdatedAt());
-        actualStream = actualStream.toBuilder().clearUpdatedAt().setMetadata(actualStream.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualStream = actualStream.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualStream.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedStream, actualStream);
     }
 
@@ -91,7 +91,7 @@ public class ITStreamMetadataRegistryTest extends BanyanDBClientTestCI {
         assertNotNull(actualStreams);
         assertEquals(1, actualStreams.size());
         Stream actualStream = actualStreams.get(0);
-        actualStream = actualStream.toBuilder().clearUpdatedAt().setMetadata(actualStream.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualStream = actualStream.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualStream.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedStream, actualStream);
     }
 

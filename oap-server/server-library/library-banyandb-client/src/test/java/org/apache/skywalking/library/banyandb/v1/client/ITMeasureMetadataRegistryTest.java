@@ -65,7 +65,7 @@ public class ITMeasureMetadataRegistryTest extends BanyanDBClientTestCI {
         Measure actualMeasure = client.findMeasure("sw_metric", "service_cpm_minute");
         assertNotNull(actualMeasure);
         assertNotNull(actualMeasure.getUpdatedAt());
-        actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedMeasure, actualMeasure);
     }
 
@@ -81,7 +81,7 @@ public class ITMeasureMetadataRegistryTest extends BanyanDBClientTestCI {
         for (Measure actualMeasure : actualMeasures) {
             if (actualMeasure.getMetadata().getName().equals("service_cpm_minute")) {
                 found = true;
-                actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+                actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
                 assertEquals(expectedMeasure, actualMeasure);
             }
         }
@@ -150,7 +150,7 @@ public class ITMeasureMetadataRegistryTest extends BanyanDBClientTestCI {
         Measure actualMeasure = client.findMeasure("sw_metric", "service_traffic");
         assertNotNull(actualMeasure);
         assertNotNull(actualMeasure.getUpdatedAt());
-        actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualMeasure = actualMeasure.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualMeasure.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedMeasure, actualMeasure);
     }
 

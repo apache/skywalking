@@ -20,6 +20,7 @@ package org.apache.skywalking.library.banyandb.v1.client;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Group;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.Catalog;
 import org.apache.skywalking.banyandb.common.v1.BanyandbCommon.IntervalRule;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 public class ITGroupMetadataRegistryTest extends BanyanDBClientTestCI {
     @BeforeEach
@@ -54,7 +56,7 @@ public class ITGroupMetadataRegistryTest extends BanyanDBClientTestCI {
         Group actualGroup = client.findGroup("sw_metric");
         assertNotNull(actualGroup);
         assertNotNull(actualGroup.getUpdatedAt());
-        actualGroup = actualGroup.toBuilder().setMetadata(actualGroup.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualGroup = actualGroup.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualGroup.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedGroup, actualGroup);
     }
 
@@ -74,10 +76,11 @@ public class ITGroupMetadataRegistryTest extends BanyanDBClientTestCI {
                                         .build();
         this.client.update(updatedGroup);
         Group afterGroup = client.findGroup("sw_metric");
-        updatedGroup = updatedGroup.toBuilder().setMetadata(updatedGroup.getMetadata().toBuilder().clearModRevision()).build();
-        afterGroup = afterGroup.toBuilder().setMetadata(afterGroup.getMetadata().toBuilder().clearModRevision()).build();
         assertNotNull(afterGroup);
         assertNotNull(afterGroup.getUpdatedAt());
+        // An update moves updated_at and keeps created_at, so created_at is still compared.
+        updatedGroup = updatedGroup.toBuilder().clearUpdatedAt().setMetadata(updatedGroup.getMetadata().toBuilder().clearModRevision()).build();
+        afterGroup = afterGroup.toBuilder().clearUpdatedAt().setMetadata(afterGroup.getMetadata().toBuilder().clearModRevision()).build();
         assertEquals(updatedGroup, afterGroup);
     }
 
@@ -85,11 +88,10 @@ public class ITGroupMetadataRegistryTest extends BanyanDBClientTestCI {
     public void testGroupRegistry_createAndList() throws BanyanDBException {
         Group expectedGroup = buildGroup();
         this.client.define(buildGroup());
-        List<Group> actualGroups = client.findGroups();
-        assertNotNull(actualGroups);
+        List<Group> actualGroups = userGroups(client);
         assertEquals(1, actualGroups.size());
         Group actualGroup = actualGroups.get(0);
-        actualGroup = actualGroup.toBuilder().setMetadata(actualGroup.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
+        actualGroup = actualGroup.toBuilder().clearUpdatedAt().clearCreatedAt().setMetadata(actualGroup.getMetadata().toBuilder().clearModRevision().clearCreateRevision()).build();
         assertEquals(expectedGroup, actualGroup);
     }
 
@@ -98,7 +100,8 @@ public class ITGroupMetadataRegistryTest extends BanyanDBClientTestCI {
         this.client.define(buildGroup());
         boolean deleted = this.client.deleteGroup("sw_metric");
         assertTrue(deleted);
-        assertNull(client.findGroup("sw_metric"));
+        // The server deletes a group in a background task and answers before it finishes.
+        await().atMost(30, TimeUnit.SECONDS).untilAsserted(() -> assertNull(client.findGroup("sw_metric")));
     }
 
     @Test

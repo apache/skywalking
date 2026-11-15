@@ -53,7 +53,10 @@ verify:
     - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/spans?serviceName=productcatalogservice
       expected: expected/span-name.yml
     # traces
-    - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/traces\?limit\=1\&serviceName\=productcatalogservice\&spanName\=oteldemo.productcatalogservice/listproducts | yq e 'del(..|.tags?, ..|.annotations?)' -
+    # Each service exports its own spans, so a trace's frontend spans can reach storage well after the
+    # catalog's span; the newest trace is often still incomplete. endTs asks for the newest trace that
+    # started over a minute ago, when every span of it is stored.
+    - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/traces\?limit\=1\&serviceName\=productcatalogservice\&spanName\=oteldemo.productcatalogservice/listproducts\&endTs\=$(($(date +%s)*1000-60000)) | yq e 'del(..|.tags?, ..|.annotations?)' -
       expected: expected/traces.yml
     # autocomplete
     - query: curl http://${oap_host}:${oap_9412}/zipkin/api/v2/autocompleteValues?key=http.method

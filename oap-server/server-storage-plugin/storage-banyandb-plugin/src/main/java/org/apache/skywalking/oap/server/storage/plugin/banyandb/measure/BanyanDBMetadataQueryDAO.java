@@ -57,7 +57,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.apache.skywalking.oap.server.core.analysis.manual.instance.InstanceTraffic.PropertyUtil.LANGUAGE;
@@ -300,6 +299,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
     @Override
     public long getProcessCount(String serviceId, ProfilingSupportStatus profilingSupportStatus, long lastPingStartTimeBucket, long lastPingEndTimeBucket) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(ProcessTraffic.INDEX_NAME, DownSampling.Minute);
+        TimestampRange timestampRange = null;
+        if (lastPingEndTimeBucket > 0) {
+            // Created no later than the end, as listProcesses reads them.
+            timestampRange = new TimestampRange(0, TimeBucket.getTimestamp(lastPingEndTimeBucket));
+        }
         final Conditions where = Conditions.create()
                 .eq(ProcessTraffic.SERVICE_ID, serviceId)
                 .gte(ProcessTraffic.LAST_PING_TIME_BUCKET, lastPingStartTimeBucket)
@@ -309,13 +313,11 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
         MeasureQueryResponse resp = queryDebuggable(false, schema,
                 PROCESS_TRAFFIC_TAGS,
                 Collections.emptySet(),
-                null,
+                timestampRange,
                 where);
 
-        return resp.getDataPoints()
-                .stream()
-                .collect(Collectors.groupingBy((Function<DataPoint, String>) dataPoint -> dataPoint.getTagValue(ProcessTraffic.PROPERTIES)))
-                .size();
+        // One index-mode row per process, so two processes with the same properties are still two.
+        return resp.size();
     }
 
     @Override
@@ -331,10 +333,7 @@ public class BanyanDBMetadataQueryDAO extends AbstractBanyanDBDAO implements IMe
                 null,
                 where);
 
-        return resp.getDataPoints()
-                .stream()
-                .collect(Collectors.groupingBy((Function<DataPoint, String>) dataPoint -> dataPoint.getTagValue(ProcessTraffic.PROPERTIES)))
-                .size();
+        return resp.size();
     }
 
     @Override
