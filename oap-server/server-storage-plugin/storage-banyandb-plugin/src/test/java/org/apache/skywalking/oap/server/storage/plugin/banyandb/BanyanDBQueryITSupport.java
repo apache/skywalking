@@ -18,16 +18,30 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.MessageOrBuilder;
+import com.google.protobuf.TextFormat;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import lombok.Getter;
+import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
+import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
@@ -35,14 +49,19 @@ import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 import org.apache.skywalking.oap.server.core.storage.annotation.Storage;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.model.StorageModels;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
+import org.apache.skywalking.oap.server.library.client.request.UpdateRequest;
 import org.apache.skywalking.oap.server.library.it.BanyanDBTestContainer;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -53,6 +72,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDB
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMeasureUpdateRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetricsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBRecordDAO;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStorageDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.BanyanDBStreamInsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.trace.BanyanDBTraceInsertRequest;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -65,6 +85,7 @@ import org.mockito.Mockito;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
+import zipkin2.codec.SpanBytesDecoder;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -81,6 +102,8 @@ import static org.mockito.Mockito.when;
  * trace model (a {@code TraceGroup}) go to BanyanDB as trace spans, the rest as stream elements.
  */
 final class BanyanDBQueryITSupport implements Closeable {
+    private static final Gson JSON = new GsonBuilder().serializeNulls().disableHtmlEscaping().create();
+
     private final ModuleManager moduleManager;
     @Getter
     private final BanyanDBStorageConfig config;
@@ -238,6 +261,175 @@ final class BanyanDBQueryITSupport implements Closeable {
         for (final NoneStream row : rows) {
             dao.insert(model, row);
         }
+    }
+
+    /**
+     * OAP's model installer on this client, as the provider registers it.
+     */
+    BanyanDBIndexInstaller installer() {
+        return new BanyanDBIndexInstaller(client, moduleManager, config);
+    }
+
+    /**
+     * OAP's batch DAO on this client, with the bulk settings the provider gives it.
+     */
+    BanyanDBBatchDAO batchDAO() {
+        return new BanyanDBBatchDAO(client, config.getGlobal().getMaxBulkSize(), config.getGlobal().getFlushInterval(),
+                                    config.getGlobal().getConcurrentWriteThreads());
+    }
+
+    /**
+     * The request a record worker or a TopN worker prepares for a record, with the record DAO OAP's storage DAO gives
+     * it, to hand to the batch DAO.
+     */
+    InsertRequest prepareInsert(Model model, StorageBuilder<? extends Record> builder, Record record)
+        throws IOException {
+        return new BanyanDBStorageDAO(client).newRecordDao(builder).prepareBatchInsert(model, record);
+    }
+
+    /**
+     * The request a metrics worker prepares for a metric it writes for the first time, with the metrics DAO OAP's
+     * storage DAO gives it.
+     */
+    InsertRequest prepareMetricsInsert(Model model, StorageBuilder<? extends Metrics> builder, Metrics metrics,
+                                       SessionCacheCallback callback) throws IOException {
+        return new BanyanDBStorageDAO(client).newMetricsDao(builder).prepareBatchInsert(model, metrics, callback);
+    }
+
+    /**
+     * The request a metrics worker prepares for a metric it read back and combined, with the metrics DAO OAP's storage
+     * DAO gives it.
+     */
+    UpdateRequest prepareMetricsUpdate(Model model, StorageBuilder<? extends Metrics> builder, Metrics metrics)
+        throws IOException {
+        return new BanyanDBStorageDAO(client).newMetricsDao(builder).prepareBatchUpdate(model, metrics, null);
+    }
+
+    /**
+     * The record the trace receiver builds from an event attached to a span of a native trace.
+     */
+    static SWSpanAttachedEventRecord swEventRecord(SpanAttachedEvent event) {
+        final SWSpanAttachedEventRecord record = new SWSpanAttachedEventRecord();
+        record.setStartTimeSecond(event.getStartTime().getSeconds());
+        record.setStartTimeNanos(event.getStartTime().getNanos());
+        record.setEvent(event.getEvent());
+        record.setEndTimeSecond(event.getEndTime().getSeconds());
+        record.setEndTimeNanos(event.getEndTime().getNanos());
+        record.setTraceRefType(event.getTraceContext().getTypeValue());
+        record.setRelatedTraceId(event.getTraceContext().getTraceId());
+        record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
+        record.setTraceSpanId(event.getTraceContext().getSpanId());
+        record.setDataBinary(event.toByteArray());
+        final long timestamp = eventStartMillis(event);
+        record.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
+        record.setTimestamp(timestamp);
+        return record;
+    }
+
+    /**
+     * The record the trace receiver builds from an event attached to a span of a Zipkin trace.
+     */
+    static SpanAttachedEventRecord zkEventRecord(SpanAttachedEvent event) {
+        final SpanAttachedEventRecord record = new SpanAttachedEventRecord();
+        record.setStartTimeSecond(event.getStartTime().getSeconds());
+        record.setStartTimeNanos(event.getStartTime().getNanos());
+        record.setEvent(event.getEvent());
+        record.setEndTimeSecond(event.getEndTime().getSeconds());
+        record.setEndTimeNanos(event.getEndTime().getNanos());
+        record.setTraceRefType(event.getTraceContext().getTypeValue());
+        record.setRelatedTraceId(event.getTraceContext().getTraceId());
+        record.setTraceSegmentId(event.getTraceContext().getTraceSegmentId());
+        record.setTraceSpanId(event.getTraceContext().getSpanId());
+        record.setDataBinary(event.toByteArray());
+        final long timestamp = eventStartMillis(event);
+        record.setTimeBucket(TimeBucket.getRecordTimeBucket(timestamp));
+        record.setTimestamp(timestamp);
+        return record;
+    }
+
+    private static long eventStartMillis(SpanAttachedEvent event) {
+        return TimeUnit.SECONDS.toMillis(event.getStartTime().getSeconds())
+            + TimeUnit.NANOSECONDS.toMillis(event.getStartTime().getNanos());
+    }
+
+    /**
+     * Every column the storage builder stores for each entity, as text: whole entities, sorted, duplicates kept.
+     */
+    static <T extends StorageData> List<String> stored(StorageBuilder<T> builder, List<? extends StorageData> entities) {
+        return entities.stream().map(entity -> columns(builder, entity)).sorted().collect(Collectors.toList());
+    }
+
+    /**
+     * Every column the storage builder stores for an entity, as a JSON object: each value as it is, a null apart from
+     * the text "null".
+     */
+    static <T extends StorageData> String columns(StorageBuilder<T> builder, StorageData entity) {
+        return columns(columnMap(builder, entity));
+    }
+
+    /** Columns by name as a JSON object, rendered as {@link #columns(StorageBuilder, StorageData)} renders them. */
+    static String columns(Map<String, Object> columns) {
+        return JSON.toJson(columns);
+    }
+
+    /** Every column the storage builder stores for an entity, by column name. */
+    @SuppressWarnings("unchecked")
+    static <T extends StorageData> Map<String, Object> columnMap(StorageBuilder<T> builder, StorageData entity) {
+        final HashMapConverter.ToStorage columns = new HashMapConverter.ToStorage();
+        builder.entity2Storage((T) entity, columns);
+        return new TreeMap<>(columns.obtain());
+    }
+
+    /** Values as a JSON array: each as it is, nothing trimmed, collapsed or folded, a null apart from "null". */
+    static String json(Object... values) {
+        return JSON.toJson(Arrays.asList(values));
+    }
+
+    /** A message whole, on one line, in text format: strings are escaped, not reflowed, so every value is kept. */
+    static String text(MessageOrBuilder message) {
+        return TextFormat.printer().emittingSingleLine(true).printToString(message);
+    }
+
+    /**
+     * A Zipkin span whole: its JSON, which writes the debug and shared flags only when they are true, then both flags,
+     * so one set to false is told apart from one not set.
+     */
+    static String zipkin(zipkin2.Span span) {
+        return span + " debug=" + span.debug() + " shared=" + span.shared();
+    }
+
+    /**
+     * A span of a trace whole: its source, the service it was stored under, and its payload decoded by its source.
+     */
+    static String describe(SpanWrapper span) {
+        final String payload;
+        try {
+            switch (span.getSource()) {
+                case SKYWALKING:
+                    payload = text(SegmentObject.parseFrom(span.getSpan()));
+                    break;
+                case SKYWALKING_EVENT:
+                case ZIPKIN_EVENT:
+                    payload = text(SpanAttachedEvent.parseFrom(span.getSpan()));
+                    break;
+                case ZIPKIN:
+                    payload = zipkin(SpanBytesDecoder.PROTO3.decodeOne(span.getSpan().toByteArray()));
+                    break;
+                default:
+                    payload = Base64.getEncoder().encodeToString(span.getSpan().toByteArray());
+                    break;
+            }
+        } catch (InvalidProtocolBufferException e) {
+            throw new IllegalStateException(e);
+        }
+        return json(span.getSource().name(), span.getService(), payload);
+    }
+
+    /**
+     * The spans of a trace whole, sorted, duplicates kept: a trace read defines no order of its spans.
+     */
+    static List<String> describe(List<SpanWrapper> trace) {
+        return trace.stream().map(BanyanDBQueryITSupport::describe).sorted().collect(Collectors.toList());
     }
 
     /**

@@ -94,7 +94,9 @@ public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, 
     @Override
     public StorageID id() {
         return new StorageID()
+            .append(RELATED_TRACE_ID, relatedTraceId)
             .append(TRACE_SEGMENT_ID, traceSegmentId)
+            .append(TRACE_SPAN_ID, traceSpanId)
             .append(START_TIME_SECOND, startTimeSecond)
             .append(START_TIME_NANOS, startTimeNanos)
             .append(EVENT, event);

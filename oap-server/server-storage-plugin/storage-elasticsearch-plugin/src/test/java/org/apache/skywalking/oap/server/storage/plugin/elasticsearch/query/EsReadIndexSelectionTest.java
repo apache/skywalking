@@ -340,7 +340,6 @@ class EsReadIndexSelectionTest {
     void getTraces_searchesZipkinSpansRolledBySuperDatasetDayStep() {
         IndexNames.configure(1, 3);
         answerRangeSearch();
-        when(client.search(anyString(), any(Search.class), any(SearchParams.class))).thenReturn(new SearchResponse());
 
         final QueryRequest request = QueryRequest.newBuilder()
                                                  .endTs(millis(2020, 8, 10, 12))
@@ -356,7 +355,6 @@ class EsReadIndexSelectionTest {
     void getTraces_withAStartBefore1970_searchesTheWholeZipkinSpanIndexFamily() {
         IndexNames.configure(1, 3);
         answerRangeSearch();
-        when(client.search(anyString(), any(Search.class), any(SearchParams.class))).thenReturn(new SearchResponse());
 
         final QueryRequest request = QueryRequest.newBuilder()
                                                  .endTs(millis(2020, 8, 10, 12))

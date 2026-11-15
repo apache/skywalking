@@ -308,6 +308,10 @@ jobs:
         test:
           - name: ElasticSearch / OpenSearch
             class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
+          - name: Zipkin query on ElasticSearch / OpenSearch
+            class: ZipkinQueryEsDAO*IT
+          - name: Span attached events on ElasticSearch / OpenSearch
+            class: SpanAttachedEventQuery*IT
     steps:
       - uses: actions/checkout@v7
         with:
@@ -691,6 +695,9 @@ jobs:
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
           - name: Zipkin ES Sharding
             config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+          - name: Zipkin OpenSearch 3.0.0
+            config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
+            env: OPENSEARCH_VERSION=3.0.0
           - name: Zipkin MySQL
             config: test/e2e-v2/cases/zipkin/mysql/e2e.yaml
           - name: Zipkin Postgres

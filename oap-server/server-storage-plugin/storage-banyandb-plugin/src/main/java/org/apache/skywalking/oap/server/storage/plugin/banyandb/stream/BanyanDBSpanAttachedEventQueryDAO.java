@@ -18,87 +18,133 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
-import com.google.common.collect.ImmutableSet;
 import javax.annotation.Nullable;
-import org.apache.skywalking.library.banyandb.v1.client.RowEntity;
-import org.apache.skywalking.library.banyandb.v1.client.StreamQueryResponse;
+import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
+import org.apache.skywalking.banyandb.trace.v1.BanyandbTrace;
+import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
+import org.apache.skywalking.oap.server.core.analysis.manual.segment.SegmentRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
-import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
+import org.apache.skywalking.oap.server.core.storage.query.proto.Source;
+import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
+import org.apache.skywalking.oap.server.core.storage.type.Convert2Entity;
+import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * The events are spans of the trace they attach to, in the {@code segment} or {@code zipkin_span} trace, where
+ * {@code BanyanDBTrace.MergeTable} writes them: no stream of their own exists, and their spans carry only the event
+ * itself, from which the record is rebuilt.
+ */
 public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO implements ISpanAttachedEventQueryDAO {
-    private static final Set<String> ZK_TAGS = ImmutableSet.of(SpanAttachedEventRecord.START_TIME_SECOND,
-        SpanAttachedEventRecord.START_TIME_NANOS,
-        SpanAttachedEventRecord.EVENT,
-        SpanAttachedEventRecord.END_TIME_SECOND,
-        SpanAttachedEventRecord.END_TIME_NANOS,
-        SpanAttachedEventRecord.TRACE_REF_TYPE,
-        SpanAttachedEventRecord.RELATED_TRACE_ID,
-        SpanAttachedEventRecord.TRACE_SEGMENT_ID,
-        SpanAttachedEventRecord.TRACE_SPAN_ID,
-        SpanAttachedEventRecord.DATA_BINARY,
-        SpanAttachedEventRecord.TIMESTAMP);
+    private static final Comparator<EventColumns> BY_START_TIME =
+        Comparator.comparingLong((EventColumns columns) -> columns.event.getStartTime().getSeconds())
+                  .thenComparingInt(columns -> columns.event.getStartTime().getNanos());
 
-    private static final Set<String> SW_TAGS = ImmutableSet.of(SWSpanAttachedEventRecord.START_TIME_SECOND,
-        SWSpanAttachedEventRecord.START_TIME_NANOS,
-        SWSpanAttachedEventRecord.EVENT,
-        SWSpanAttachedEventRecord.END_TIME_SECOND,
-        SWSpanAttachedEventRecord.END_TIME_NANOS,
-        SWSpanAttachedEventRecord.TRACE_REF_TYPE,
-        SWSpanAttachedEventRecord.RELATED_TRACE_ID,
-        SWSpanAttachedEventRecord.TRACE_SEGMENT_ID,
-        SWSpanAttachedEventRecord.TRACE_SPAN_ID,
-        SWSpanAttachedEventRecord.DATA_BINARY,
-        SWSpanAttachedEventRecord.TIMESTAMP);
-
-    private final int batchSize;
-
-    public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client, int profileDataQueryBatchSize) {
+    public BanyanDBSpanAttachedEventQueryDAO(BanyanDBStorageClient client) {
         super(client);
-        this.batchSize = profileDataQueryBatchSize;
     }
 
     @Override
     public List<SWSpanAttachedEventRecord> querySWSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
-        final boolean isColdStage = duration != null && duration.isColdStage();
-        final StreamQueryResponse resp = queryDebuggable(
-                isColdStage, SWSpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
-                Conditions.create()
-                        .in(SWSpanAttachedEventRecord.RELATED_TRACE_ID, traceIds)
-                        .orderByAsc()
-                        .limit(batchSize));
-
-        return resp.getElements().stream().map(this::buildSWRecord).collect(Collectors.toList());
+        final List<SWSpanAttachedEventRecord> records = new ArrayList<>();
+        for (final EventColumns event : queryEvents(
+            SegmentRecord.INDEX_NAME, SegmentRecord.TRACE_ID, Source.SKYWALKING_EVENT, traceIds, duration)) {
+            records.add(new SWSpanAttachedEventRecord.Builder().storage2Entity(event));
+        }
+        return records;
     }
 
     @Override
     public List<SpanAttachedEventRecord> queryZKSpanAttachedEvents(List<String> traceIds, @Nullable Duration duration) throws IOException {
+        final List<SpanAttachedEventRecord> records = new ArrayList<>();
+        for (final EventColumns event : queryEvents(
+            ZipkinSpanRecord.INDEX_NAME, ZipkinSpanRecord.TRACE_ID, Source.ZIPKIN_EVENT, traceIds, duration)) {
+            records.add(new SpanAttachedEventRecord.Builder().storage2Entity(event));
+        }
+        return records;
+    }
+
+    /**
+     * Every event of the traces, in start-time order to the nanosecond, as the other storages return them. The limit
+     * counts traces, and a trace comes back with all its spans. The duration only tells BanyanDB where to look: it
+     * does not clip a lookup by trace id.
+     */
+    private List<EventColumns> queryEvents(String traceModelName, String traceIdColumn, Source eventSource,
+                                           List<String> traceIds, @Nullable Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(traceIds)) {
+            return Collections.emptyList();
+        }
         final boolean isColdStage = duration != null && duration.isColdStage();
-        final StreamQueryResponse resp = queryDebuggable(
-            isColdStage, SpanAttachedEventRecord.INDEX_NAME, ZK_TAGS, getTimestampRange(duration),
-            Conditions.create()
-                    .in(SpanAttachedEventRecord.RELATED_TRACE_ID, traceIds)
-                    .orderByAsc()
-                    .limit(batchSize));
-
-        return resp.getElements().stream().map(this::buildZKRecord).collect(Collectors.toList());
+        final TraceQueryResponse resp = queryTraceDebuggable(
+            isColdStage, traceModelName, getTimestampRange(duration),
+            Conditions.create().in(traceIdColumn, traceIds).limit(traceIds.size()));
+        final List<EventColumns> events = new ArrayList<>();
+        for (final BanyandbTrace.Trace trace : resp.getTraces()) {
+            for (final BanyandbTrace.Span span : trace.getSpansList()) {
+                final SpanWrapper wrapper = SpanWrapper.parseFrom(span.getSpan());
+                if (wrapper.getSource() == eventSource) {
+                    events.add(new EventColumns(
+                        SpanAttachedEvent.parseFrom(wrapper.getSpan()), wrapper.getSpan().toByteArray()));
+                }
+            }
+        }
+        events.sort(BY_START_TIME);
+        return events;
     }
 
-    private SpanAttachedEventRecord buildZKRecord(RowEntity row) {
-        final SpanAttachedEventRecord.Builder builder = new SpanAttachedEventRecord.Builder();
-        return builder.storage2Entity(new BanyanDBConverter.StorageToStream(SpanAttachedEventRecord.INDEX_NAME, row));
-    }
+    /**
+     * The columns of an event's record, filled from the event the way the trace receiver fills them. The native and
+     * the Zipkin record share their column names.
+     */
+    @RequiredArgsConstructor
+    private static final class EventColumns implements Convert2Entity {
+        private final SpanAttachedEvent event;
+        private final byte[] dataBinary;
 
-    private SWSpanAttachedEventRecord buildSWRecord(RowEntity row) {
-        final SWSpanAttachedEventRecord.Builder builder = new SWSpanAttachedEventRecord.Builder();
-        return builder.storage2Entity(new BanyanDBConverter.StorageToStream(SWSpanAttachedEventRecord.INDEX_NAME, row));
+        @Override
+        public Object get(String fieldName) {
+            switch (fieldName) {
+                case SWSpanAttachedEventRecord.START_TIME_SECOND:
+                    return event.getStartTime().getSeconds();
+                case SWSpanAttachedEventRecord.START_TIME_NANOS:
+                    return event.getStartTime().getNanos();
+                case SWSpanAttachedEventRecord.EVENT:
+                    return event.getEvent();
+                case SWSpanAttachedEventRecord.END_TIME_SECOND:
+                    return event.getEndTime().getSeconds();
+                case SWSpanAttachedEventRecord.END_TIME_NANOS:
+                    return event.getEndTime().getNanos();
+                case SWSpanAttachedEventRecord.TRACE_REF_TYPE:
+                    return event.getTraceContext().getTypeValue();
+                case SWSpanAttachedEventRecord.RELATED_TRACE_ID:
+                    return event.getTraceContext().getTraceId();
+                case SWSpanAttachedEventRecord.TRACE_SEGMENT_ID:
+                    return event.getTraceContext().getTraceSegmentId();
+                case SWSpanAttachedEventRecord.TRACE_SPAN_ID:
+                    return event.getTraceContext().getSpanId();
+                case SWSpanAttachedEventRecord.TIMESTAMP:
+                    return TimeUnit.SECONDS.toMillis(event.getStartTime().getSeconds())
+                        + TimeUnit.NANOSECONDS.toMillis(event.getStartTime().getNanos());
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public byte[] getBytes(String fieldName) {
+            return SWSpanAttachedEventRecord.DATA_BINARY.equals(fieldName) ? dataBinary : null;
+        }
     }
 }

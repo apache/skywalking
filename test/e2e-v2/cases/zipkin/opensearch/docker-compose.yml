@@ -15,7 +15,7 @@
 
 services:
   opensearch:
-    image: opensearchproject/opensearch:1.2.0
+    image: opensearchproject/opensearch:${OPENSEARCH_VERSION}
     expose:
       - 9200
     networks:
@@ -24,8 +24,10 @@ services:
       - discovery.type=single-node
       - cluster.routing.allocation.disk.threshold_enabled=false
       - plugins.security.ssl.http.enabled=false
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=SecurePass@2024!
     healthcheck:
-      test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/9200"]
+      # Authenticated, so it fails until the security plugin has initialized, not just once the port opens.
+      test: ["CMD", "bash", "-c", "curl -sf -u 'admin:SecurePass@2024!' http://127.0.0.1:9200/_cluster/health"]
       interval: 5s
       timeout: 60s
       retries: 120
@@ -38,7 +40,7 @@ services:
       SW_STORAGE: elasticsearch
       SW_STORAGE_ES_CLUSTER_NODES: opensearch:9200
       SW_ES_USER: admin
-      SW_ES_PASSWORD: admin
+      SW_ES_PASSWORD: SecurePass@2024!
       SW_QUERY_ZIPKIN: default
       SW_RECEIVER_ZIPKIN: default
     expose:

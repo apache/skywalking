@@ -224,6 +224,10 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
 
     @Override
     public List<List<Span>> getTraces(final Set<String> traceIds, @Nullable final Duration duration) {
+        // A search that matches nothing lands here with no IDs, and custom routing rejects an empty routing value.
+        if (CollectionUtils.isEmpty(traceIds)) {
+            return new ArrayList<>();
+        }
         String index = IndexController.LogicIndicesRegister.getPhysicalTableName(ZipkinSpanRecord.INDEX_NAME);
         BoolQueryBuilder query = Query.bool().must(Query.terms(ZipkinSpanRecord.TRACE_ID, new ArrayList<>(traceIds)));
         SearchBuilder search = Search.builder().query(query).sort(ZipkinSpanRecord.TIMESTAMP_MILLIS, Sort.Order.DESC)
@@ -235,9 +239,13 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         final Set<String> scrollIds = new HashSet<>();
         Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
         try {
-            while (response.getHits().getHits().size() != 0) {
+            while (true) {
+                // Recorded before the empty check: an empty first page still opened a scroll context.
                 String scrollId = response.getScrollId();
                 scrollIds.add(scrollId);
+                if (response.getHits().getHits().isEmpty()) {
+                    break;
+                }
                 buildTraces(response, groupedByTraceId);
                 if (response.getHits().getHits().size() < SCROLLING_BATCH_SIZE) {
                     break;

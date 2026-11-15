@@ -63,5 +63,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- The Zipkin query service, so the ITs read Zipkin traces with their attached events as the Zipkin API does. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>zipkin-query-plugin</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

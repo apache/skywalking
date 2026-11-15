@@ -463,7 +463,14 @@ public class TraceQueryService implements Service {
                 continue;
             }
             SpanAttachedEvent.SpanReference spanReference = event.getTraceContext();
-            final String spanMatcherKey = spanReference.getTraceSegmentId() + "_" + spanReference.getSpanId();
+            // if the event is server side, then needs to change to the upstream span
+            final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
+            final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
+            final boolean serverSide = ("request".equals(type) && "inbound".equals(direction))
+                || ("response".equals(type) && "outbound".equals(direction));
+            // One span's events can be on both sides, so the side is part of the key.
+            final String spanMatcherKey = spanReference.getTraceSegmentId() + "_" + spanReference.getSpanId()
+                + (serverSide ? "_server" : "");
             Span span = spanMatcher.get(spanMatcherKey);
             if (span == null) {
                 // find the matches span
@@ -474,11 +481,7 @@ public class TraceQueryService implements Service {
                     continue;
                 }
 
-                // if the event is server side, then needs to change to the upstream span
-                final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
-                final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
-
-                if (("request".equals(type) && "inbound".equals(direction)) || ("response".equals(type) && "outbound".equals(direction))) {
+                if (serverSide) {
                     final String parentSpanId = span.getSegmentSpanId();
                     span = spans.stream().filter(s -> s.getSegmentParentSpanId().equals(parentSpanId)
                         && Objects.equals(s.getType(), SpanType.Entry.name())).findFirst().orElse(span);
