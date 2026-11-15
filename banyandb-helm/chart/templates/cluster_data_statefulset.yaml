@@ -1,0 +1,793 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if and .Values.cluster.enabled .Values.cluster.data }}
+{{- $nodeDiscovery := .Values.cluster.nodeDiscovery | default dict }}
+{{- $nodeDiscoveryMode := default "dns" $nodeDiscovery.mode }}
+{{- $nodeDiscoveryFileMode := eq $nodeDiscoveryMode "file" }}
+{{- $nodeTemplate := .Values.cluster.data.nodeTemplate }}
+{{- range $roleName, $roleConfig := .Values.cluster.data.roles }}
+{{- /* Merge nodeTemplate with role-specific config */}}
+{{- $roleConfig := merge $roleConfig $nodeTemplate  }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels: {{ include "banyandb.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: data
+    app.kubernetes.io/role: {{ $roleName }}
+  name: {{ template "banyandb.fullname" $ }}-data-{{ $roleName }}
+spec:
+  serviceName: {{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless
+  replicas: {{ $roleConfig.replicas }}
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: data
+      app.kubernetes.io/role: {{ $roleName }}
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  template:
+    metadata:
+      labels: {{ include "banyandb.labels" $ | nindent 8 }}
+        app.kubernetes.io/component: data
+        app.kubernetes.io/role: {{ $roleName }}
+      {{- $mergedAnnotations := merge $.Values.cluster.data.nodeTemplate.podAnnotations $roleConfig.podAnnotations }}
+      {{- if $mergedAnnotations }}
+      annotations:
+{{ toYaml $mergedAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" $ }}
+      {{- $mergedSecurity := merge $.Values.cluster.data.nodeTemplate.securityContext $roleConfig.securityContext }}
+      {{- with $mergedSecurity }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ $roleConfig.priorityClassName }}
+      initContainers:
+        {{- if $roleConfig.volumePermissions.enabled }}
+        - name: volume-permissions
+          image: {{ default "busybox:1.36" $roleConfig.volumePermissions.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              {{- $chownUser := default 1000 $roleConfig.volumePermissions.chownUser -}}
+              {{- $chownGroup := default 1000 $roleConfig.volumePermissions.chownGroup -}}
+              {{- if $.Values.storage.data.enabled }}
+              {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+              {{- if eq $claim.nodeRole $roleName }}
+              {{- $mountName := (ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName))) }}
+              {{- range $mt := $claim.mountTargets }}
+              mkdir -p /mnt/{{ $mountName }}/{{ $mt }}
+              chown -R {{ $chownUser }}:{{ $chownGroup }} /mnt/{{ $mountName }}/{{ $mt }}
+              chmod -R 0770 /mnt/{{ $mountName }}/{{ $mt }}
+              {{- end }}
+              {{- end }}
+              {{- end }}
+              {{- end }}
+          {{- if $.Values.storage.data.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            - mountPath: /mnt/{{ ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName)) }}
+              name: {{ ternary $claim.existingClaimName $claim.claimName (not (empty $claim.existingClaimName)) }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if $roleConfig.restoreInitContainer.enabled }}
+        - name: restore-init
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            - "/restore"
+            - "run"
+            - "--source={{ $roleConfig.backupSidecar.dest }}"
+            {{- if $roleConfig.restoreInitContainer.customFlags }}
+            {{- range $flag := $roleConfig.restoreInitContainer.customFlags }}
+            - {{ $flag | quote }}
+            {{- end }}
+            {{- end }}
+          env:
+            - name: ORDINAL_NUMBER
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+            {{- range $env := $roleConfig.restoreInitContainer.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
+          {{- if $.Values.storage.data.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with $roleConfig.restoreInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- $plugins := $.Values.plugins | default dict -}}
+        {{- $pluginsMountMode := $plugins.mountMode | default "initContainer" -}}
+        {{- $pluginsImage := $plugins.image | default dict -}}
+        {{- $pluginsInitContainer := $plugins.initContainer | default dict -}}
+        {{- if and $plugins.enabled (eq $pluginsMountMode "initContainer") }}
+        - name: plugin-carrier
+          image: {{ include "banyandb.pluginsCarrierImage" $ }}
+          imagePullPolicy: {{ $pluginsImage.pullPolicy | default $.Values.image.pullPolicy }}
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /plugins-shared /plugins-shared/thirdparty
+              if [ -d /plugins ] && [ "$(ls -A /plugins)" ]; then
+                cp /plugins/*.so /plugins-shared/ 2>/dev/null || true
+              fi
+          volumeMounts:
+            - name: plugins-volume
+              mountPath: /plugins-shared
+          {{- with $pluginsInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+        {{- if and $plugins.enabled (eq $pluginsMountMode "initContainer") (include "banyandb.pluginsThirdPartyImage" $) }}
+        {{- $thirdParty := $plugins.thirdParty | default dict }}
+        - name: plugin-thirdparty
+          image: {{ include "banyandb.pluginsThirdPartyImage" $ }}
+          imagePullPolicy: {{ $thirdParty.pullPolicy | default "IfNotPresent" }}
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              mkdir -p /plugins-shared/thirdparty
+              if [ -d /plugins ] && [ "$(ls -A /plugins)" ]; then
+                cp /plugins/*.so /plugins-shared/thirdparty/ 2>/dev/null || true
+              fi
+          volumeMounts:
+            - name: plugins-volume
+              mountPath: /plugins-shared
+          {{- with $pluginsInitContainer.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      containers:
+        - name: data
+          {{- if $plugins.enabled }}
+          image: {{ include "banyandb.pluginsHostImage" $ }}
+          {{- else }}
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          {{- end }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- with $roleConfig.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            # Pod metadata for hostname construction
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            # Hostname configuration for headless service
+            - name: BYDB_NODE_HOST_PROVIDER
+              value: "flag"
+            - name: BYDB_NODE_HOST
+              value: "$(POD_NAME).{{ template "banyandb.fullname" $ }}-data-{{ $roleName }}-headless.$(POD_NAMESPACE)"
+            - name: BYDB_NODE_LABELS
+              value: "type={{ $roleName }}"
+            {{- if $roleConfig.tls}}
+            {{- if $roleConfig.tls.grpcSecretName }}
+            - name: BYDB_TLS
+              value: "true"
+            - name: BYDB_CERT_FILE
+              value: "/etc/tls/{{ $roleConfig.tls.grpcSecretName }}/tls.crt"
+            - name: BYDB_KEY_FILE
+              value: "/etc/tls/{{ $roleConfig.tls.grpcSecretName }}/tls.key"
+            - name: BYDB_HTTP_GRPC_CERT_FILE
+              value: "/etc/tls/{{ $roleConfig.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
+            {{- end }}
+            {{- $hasMetaRole := true }}
+            {{- if hasKey $roleConfig "hasMetaRole" }}
+              {{- $hasMetaRole = $roleConfig.hasMetaRole }}
+            {{- end }}
+            {{- if $hasMetaRole }}
+            {{- include "banyandb.schemaStoragePropertyServerEnv" $ | nindent 12 }}
+            {{- else }}
+            - name: BYDB_HAS_META_ROLE
+              value: "false"
+            {{- end }}
+            {{- include "banyandb.schemaStoragePropertyClientEnv" $ | nindent 12 }}
+            {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
+            {{- /* $roleConfig already inherits nodeTemplate.env when the role sets no env of its own, so merge by name:
+                   first-seen order is kept and a later (role) value overrides an earlier (nodeTemplate) one. Duplicate
+                   names are rejected by server-side apply (Helm 4). */}}
+            {{- $mergedEnv := concat $.Values.cluster.data.nodeTemplate.env $roleConfig.env }}
+            {{- $envValues := dict }}
+            {{- $envNames := list }}
+            {{- range $env := $mergedEnv }}
+            {{- if not (hasKey $envValues $env.name) }}
+            {{- $envNames = append $envNames $env.name }}
+            {{- end }}
+            {{- $_ := set $envValues $env.name $env.value }}
+            {{- end }}
+            {{- range $name := $envNames }}
+            - name: {{ $name }}
+              value: {{ index $envValues $name | toString | quote }}
+            {{- end }}
+            {{- if $.Values.cluster.fodc.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_ENABLED
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.enabled | quote }}
+            {{- if $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_DIR
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir | quote }}
+            - name: BYDB_PANIC_DIAGNOSTICS_MAX_ARTIFACTS
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.maxArtifacts | quote }}
+            - name: BYDB_MAX_DIAGNOSIS_MEMORY_USAGE_PERCENTAGE
+              value: {{ $.Values.cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent | quote }}
+            {{- end }}
+            {{- end }}
+
+          args:
+            - data
+            {{- if $plugins.enabled }}
+            - --trace-pipeline-native-plugin-enabled=true
+            - --trace-pipeline-trusted-plugin-dir=/plugins
+            {{- end }}
+          ports:
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http-healthz
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observability
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ $roleConfig.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $roleConfig.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $roleConfig.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ $roleConfig.readinessProbe.successThreshold }}
+            failureThreshold: {{ $roleConfig.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ $roleConfig.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $roleConfig.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ $roleConfig.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ $roleConfig.livenessProbe.successThreshold }}
+            failureThreshold: {{ $roleConfig.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              scheme: HTTP
+            initialDelaySeconds: {{ $roleConfig.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ $roleConfig.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ $roleConfig.startupProbe.timeoutSeconds }}
+            successThreshold: {{ $roleConfig.startupProbe.successThreshold }}
+            failureThreshold: {{ $roleConfig.startupProbe.failureThreshold }}
+          {{- if or $roleConfig.resources.requests $roleConfig.resources.limits }}
+          resources:
+            {{- if $roleConfig.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if $roleConfig.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+          {{- $schemaProperty := ($.Values.cluster.schemaStorage).property | default dict }}
+          {{- $schemaClientTls := $schemaProperty.tls | default dict }}
+          {{- $schemaServer := $schemaProperty.server | default dict }}
+          {{- $schemaServerTls := $schemaServer.tls | default dict }}
+          {{- $dataPlugins := $.Values.plugins | default dict -}}
+          {{- if or $.Values.storage.data.enabled $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) $dataPlugins.enabled }}
+          volumeMounts:
+            {{- if $.Values.storage.data.enabled }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if $roleConfig.tls }}
+            {{- if $roleConfig.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ $roleConfig.tls.grpcSecretName }}
+              name: {{ $roleConfig.tls.grpcSecretName }}-volume
+            {{- end }}
+            {{- end }}
+            {{- if $schemaClientTls.secretName }}
+            - mountPath: /etc/tls/{{ $schemaClientTls.secretName }}
+              name: {{ $schemaClientTls.secretName }}-volume
+            {{- end }}
+            {{- if $schemaServerTls.secretName }}
+            - mountPath: /etc/tls/{{ $schemaServerTls.secretName }}
+              name: {{ $schemaServerTls.secretName }}-volume
+            {{- end }}
+            {{- if $nodeDiscoveryFileMode }}
+            - mountPath: /etc/banyandb/node-discovery
+              name: node-discovery-file
+              readOnly: true
+            {{- end }}
+            {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+            {{- if $dataPlugins.enabled }}
+            - name: plugins-volume
+              mountPath: /plugins
+            {{- end }}
+          {{- end }}
+        {{- if and $.Values.cluster.enabled $.Values.cluster.fodc.enabled }}
+        - name: fodc-agent
+          image: {{ $.Values.cluster.fodc.agent.image.repository }}:{{ default $.Values.image.tag $.Values.cluster.fodc.agent.image.tag }}
+          imagePullPolicy: {{ $.Values.cluster.fodc.agent.image.pullPolicy }}
+          {{- with $.Values.cluster.fodc.agent.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - --proxy-addr={{ template "banyandb.fullname" $ }}-fodc-proxy-grpc:{{ $.Values.cluster.fodc.proxy.grpcSvc.port }}
+            - --pod-name=$(POD_NAME)
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
+            - --container-names=data,lifecycle
+            - --poll-metrics-ports=2121,17915
+            - --cluster-state-ports=17912,17914
+            {{- else }}
+            - --container-names=data
+            - --poll-metrics-ports=2121
+            - --cluster-state-ports=17912
+            {{- end }}
+            - --lifecycle-port=17912
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
+            - --lifecycle-report-dir={{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
+            {{- end }}
+            - --poll-metrics-interval={{ $.Values.cluster.fodc.agent.config.pollMetricsInterval }}
+            - --cluster-state-poll-interval={{ $.Values.cluster.fodc.agent.config.pollClusterStateInterval }}
+            - --prometheus-listen-addr=:{{ $.Values.cluster.fodc.agent.metricsPort }}
+            - --max-metrics-memory-usage-percentage={{ $.Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
+            - --heartbeat-interval={{ $.Values.cluster.fodc.agent.config.heartbeatInterval }}
+            - --reconnect-interval={{ $.Values.cluster.fodc.agent.config.reconnectInterval }}
+            {{- if $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - --crash-source-dir={{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+            {{- with $.Values.cluster.fodc.agent.pressureProfiler }}
+            {{- if .enabled }}
+            - --pressure-profiler-enabled=true
+            - --pressure-profiler-trigger-percent={{ .triggerPercent }}
+            - --pressure-profiler-pprof-port=6060
+            - --pressure-profiler-cooldown={{ .cooldown }}
+            - --pressure-profiler-dir={{ .dir }}
+            - --pressure-profiler-max-artifacts={{ .maxArtifacts }}
+            - --pressure-profiler-max-disk-bytes={{ include "banyandb.toBytes" .maxDiskSize }}
+            {{- else }}
+            - --pressure-profiler-enabled=false
+            {{- end }}
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- range $env := $.Values.cluster.fodc.agent.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+          ports:
+            - name: fodc-agent-http
+              containerPort: {{ $.Values.cluster.fodc.agent.metricsPort }}
+          {{- if and $.Values.cluster.fodc.agent.resources (or $.Values.cluster.fodc.agent.resources.requests $.Values.cluster.fodc.agent.resources.limits) }}
+          resources:
+            {{- if $.Values.cluster.fodc.agent.resources.requests }}
+            requests:
+              {{- range $request := $.Values.cluster.fodc.agent.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if $.Values.cluster.fodc.agent.resources.limits }}
+            limits:
+              {{- range $limit := $.Values.cluster.fodc.agent.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if or $roleConfig.lifecycleSidecar.enabled (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) (and $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled) }}
+          volumeMounts:
+            {{- if $roleConfig.lifecycleSidecar.enabled }}
+            - name: lifecycle-report-shared
+              mountPath: {{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
+            {{- end }}
+            {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ $.Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+            {{- if and $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled }}
+            - name: pressure-profiles
+              mountPath: {{ $.Values.cluster.fodc.agent.pressureProfiler.dir }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if $roleConfig.backupSidecar.enabled }}
+        - name: backup
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          command:
+            - "/backup"
+            - "--dest={{ $roleConfig.backupSidecar.dest }}"
+            - "--time-style={{ $roleConfig.backupSidecar.timeStyle }}"
+            - "--schedule={{ $roleConfig.backupSidecar.schedule }}"
+            - "--grpc-addr=127.0.0.1:17912"
+            {{- if $roleConfig.backupSidecar.customFlags }}
+            {{- range $flag := $roleConfig.backupSidecar.customFlags }}
+            - {{ $flag | quote }}
+            {{- end }}
+            {{- end }}
+          env:
+            - name: ORDINAL_NUMBER
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['apps.kubernetes.io/pod-index']
+            {{- range $env := $roleConfig.backupSidecar.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
+          {{- if $.Values.storage.data.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- with $roleConfig.backupSidecar.resources }}
+          resources:
+            {{- if $roleConfig.backupSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.backupSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.backupSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.backupSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- if $roleConfig.lifecycleSidecar.enabled }}
+        - name: lifecycle
+          image: {{ $.Values.image.repository }}:{{ required "banyandb.image.tag is required" $.Values.image.tag }}-slim
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            - name: BYDB_NODE_LABELS
+              value: "type={{ $roleName }}"
+            {{- include "banyandb.nodeDiscoveryEnv" (dict "root" $) | nindent 12 }}
+            {{- range $env := $roleConfig.lifecycleSidecar.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | toString | quote }}
+            {{- end }}
+          command:
+            - "/lifecycle"
+            - "--schedule={{ $roleConfig.lifecycleSidecar.schedule }}"
+            {{- if $roleConfig.lifecycleSidecar.progressFile }}
+            - "--progress-file={{ $roleConfig.lifecycleSidecar.progressFile }}"
+            {{- end }}
+            {{- if $roleConfig.lifecycleSidecar.reportDir }}
+            - "--report-dir={{ $roleConfig.lifecycleSidecar.reportDir }}"
+            {{- end }}
+          {{- if or $.Values.storage.data.enabled $.Values.cluster.fodc.enabled }}
+          volumeMounts:
+            {{- if $.Values.storage.data.enabled }}
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if $.Values.cluster.fodc.enabled }}
+            - name: lifecycle-report-shared
+              mountPath: {{ default "/tmp/lifecycle-reports" $roleConfig.lifecycleSidecar.reportDir }}
+            {{- end }}
+          {{- end }}
+          {{- with $roleConfig.lifecycleSidecar.resources }}
+          resources:
+            {{- if $roleConfig.lifecycleSidecar.resources.requests }}
+            requests:
+              {{- range $request := $roleConfig.lifecycleSidecar.resources.requests }}
+                {{ $request.key }}: {{ $request.value }}
+                {{- end }}
+            {{- end }}
+            {{- if $roleConfig.lifecycleSidecar.resources.limits }}
+            limits:
+              {{- range $limit := $roleConfig.lifecycleSidecar.resources.limits }}
+                {{ $limit.key }}: {{ $limit.value }}
+                {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        {{- range $sidecar := $roleConfig.sidecar }}
+        - name: {{ $sidecar.name }}
+          image: {{ $sidecar.image }}
+          imagePullPolicy: {{ $sidecar.imagePullPolicy }}
+          command:
+            {{- range $sidecar.commands.normal }}
+            - {{ . | quote }}
+            {{- end }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  {{- range $sidecar.commands.preStop }}
+                  - {{ . | quote }}
+                  {{- end }}
+          {{- if $.Values.storage.data.enabled }}
+          volumeMounts:
+            {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+            {{- if eq $claim.nodeRole $roleName }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+
+      {{- $volPlugins := $.Values.plugins | default dict -}}
+      {{- $volPluginsImage := $volPlugins.image | default dict -}}
+      {{- if or $roleConfig.tls $schemaClientTls.secretName $schemaServerTls.secretName $nodeDiscoveryFileMode (and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled) (and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled) $volPlugins.enabled }}
+      volumes:
+        {{- if $roleConfig.tls }}
+        {{- if $roleConfig.tls.grpcSecretName }}
+        - name: {{ $roleConfig.tls.grpcSecretName }}-volume
+          secret:
+            secretName: {{ $roleConfig.tls.grpcSecretName }}
+        {{- end }}
+        {{- end }}
+        {{- if $schemaClientTls.secretName }}
+        - name: {{ $schemaClientTls.secretName }}-volume
+          secret:
+            secretName: {{ $schemaClientTls.secretName }}
+        {{- end }}
+        {{- if $schemaServerTls.secretName }}
+        - name: {{ $schemaServerTls.secretName }}-volume
+          secret:
+            secretName: {{ $schemaServerTls.secretName }}
+        {{- end }}
+        {{- if $nodeDiscoveryFileMode }}
+        - name: node-discovery-file
+          configMap:
+            name: {{ include "banyandb.nodeDiscoveryFileConfigMapName" $ }}
+            items:
+              - key: {{ include "banyandb.nodeDiscoveryFileKey" $ }}
+                path: nodes.yaml
+        {{- end }}
+        {{- if and $roleConfig.lifecycleSidecar.enabled $.Values.cluster.fodc.enabled }}
+        - name: lifecycle-report-shared
+          emptyDir: {}
+        {{- end }}
+        {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.config.crashCollection.enabled }}
+        - name: crash-shared
+          emptyDir: {}
+        {{- end }}
+        {{- if and $.Values.cluster.fodc.enabled $.Values.cluster.fodc.agent.pressureProfiler $.Values.cluster.fodc.agent.pressureProfiler.enabled }}
+        - name: pressure-profiles
+          emptyDir: {}
+        {{- end }}
+        {{- if $volPlugins.enabled }}
+        {{- $volPluginsMode := $volPlugins.mountMode | default "initContainer" }}
+        {{- if eq $volPluginsMode "initContainer" }}
+        - name: plugins-volume
+          emptyDir: {}
+        {{- else if eq $volPluginsMode "imageVolume" }}
+        - name: plugins-volume
+          image:
+            reference: {{ include "banyandb.pluginsCarrierImage" $ }}
+            pullPolicy: {{ $volPluginsImage.pullPolicy | default $.Values.image.pullPolicy }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+
+      {{- if $roleConfig.tolerations }}
+      tolerations:
+        {{- range $toleration := $roleConfig.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if $roleConfig.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := $roleConfig.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if $roleConfig.affinity }}
+      affinity: {{ toYaml $roleConfig.affinity | nindent 8 }}
+      {{- else if or $roleConfig.podAffinityPreset $roleConfig.podAntiAffinityPreset }}
+      affinity:
+        {{- if and $roleConfig.podAffinityPreset (not (empty $roleConfig.podAffinityPreset)) }}
+        podAffinity:
+          {{- if eq $roleConfig.podAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 20 }}
+                    app.kubernetes.io/component: data
+                    app.kubernetes.io/role: {{ $roleName }}
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq $roleConfig.podAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 20 }}
+                    app.kubernetes.io/component: data
+                    app.kubernetes.io/role: {{ $roleName }}
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+        {{- if and $roleConfig.podAntiAffinityPreset (not (empty $roleConfig.podAntiAffinityPreset)) }}
+        podAntiAffinity:
+          {{- if eq $roleConfig.podAntiAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 20 }}
+                    app.kubernetes.io/component: data
+                    app.kubernetes.io/role: {{ $roleName }}
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq $roleConfig.podAntiAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" $ | nindent 20 }}
+                    app.kubernetes.io/component: data
+                    app.kubernetes.io/role: {{ $roleName }}
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+      {{- end }}
+  {{- if $.Values.storage.data.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := $.Values.storage.data.persistentVolumeClaims }}
+    {{- if eq $claim.nodeRole $roleName }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+    {{- end }}
+  {{- end }}
+---
+{{- end }}
+{{- end }}

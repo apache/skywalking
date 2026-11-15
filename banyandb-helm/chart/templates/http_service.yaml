@@ -1,0 +1,141 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if and .Values.standalone.enabled .Values.standalone.httpSvc }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-http
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+    {{- range $key, $value := .Values.standalone.httpSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:  
+    {{- range $key, $value := .Values.standalone.httpSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: {{ .Values.standalone.httpSvc.type }}
+  ports:
+    - port: {{ .Values.standalone.httpSvc.port }}
+      name: http
+    # observability endpoint, so the canopy console's MONITOR_TARGET can point
+    # at this service in standalone mode.
+    - port: 2121
+      name: observability
+  selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+  {{- if .Values.standalone.httpSvc.externalIPs }}
+  externalIPs:
+    {{- range $v := .Values.standalone.httpSvc.externalIPs }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.standalone.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.standalone.httpSvc.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.standalone.httpSvc.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $v := .Values.standalone.httpSvc.loadBalancerSourceRanges }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if and .Values.cluster.enabled }}
+{{- if .Values.cluster.liaison.httpSvc }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-http
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
+    {{- range $key, $value := .Values.cluster.liaison.httpSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:  
+    {{- range $key, $value := .Values.cluster.liaison.httpSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: {{ .Values.cluster.liaison.httpSvc.type }}
+  ports:
+    - port: {{ .Values.cluster.liaison.httpSvc.port }}
+      name: http
+    # observability endpoint, so the canopy console's MONITOR_TARGET can point
+    # at the liaison service in cluster mode.
+    - port: 2121
+      name: observability
+  selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
+  {{- if .Values.cluster.liaison.httpSvc.externalIPs }}
+  externalIPs:
+    {{- range $v := .Values.cluster.liaison.httpSvc.externalIPs }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cluster.liaison.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.cluster.liaison.httpSvc.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.cluster.liaison.httpSvc.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $v := .Values.cluster.liaison.httpSvc.loadBalancerSourceRanges }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
+{{- if and (eq .Values.cluster.ui.type "Standalone") .Values.cluster.ui.standalone.httpSvc }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "banyandb.fullname" . }}-ui
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+    {{- range $key, $value := .Values.cluster.ui.standalone.httpSvc.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  annotations:  
+    {{- range $key, $value := .Values.cluster.ui.standalone.httpSvc.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  type: {{ .Values.cluster.ui.standalone.httpSvc.type }}
+  ports:
+    - port: {{ .Values.cluster.ui.standalone.httpSvc.port }}
+      name: http
+  selector: {{ include "banyandb.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+  {{- if .Values.cluster.ui.standalone.httpSvc.externalIPs }}
+  externalIPs:
+    {{- range $v := .Values.cluster.ui.standalone.httpSvc.externalIPs }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+  {{- if .Values.cluster.ui.standalone.httpSvc.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.cluster.ui.standalone.httpSvc.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.cluster.ui.standalone.httpSvc.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- range $v := .Values.cluster.ui.standalone.httpSvc.loadBalancerSourceRanges }}
+    - {{ $v }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

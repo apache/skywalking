@@ -632,4 +632,20 @@ docker run -d \
 - **Cluster Mode**: Suitable for large-scale deployments.
     - **Configuration**: `targets` is the IP address/hostname and port of the `liaison` nodes, separated by commas. `Liaison` nodes are the entry points of the BanyanDB cluster.
 
-For more details, refer to the documentation of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/).
+### Canopy Web Console & Helm Deployment
+
+BanyanDB includes **Canopy**, a standalone web console (React SPA with Node.js BFF) that provides schema inspection, data querying, and observability for BanyanDB instances and clusters.
+
+#### Authentication Modes
+
+1. **Local Authentication (`auth.backend: local`)**:
+   Uses pre-hashed user credentials (bcrypt/argon2id) and a session secret. By default, the Helm chart automatically generates an admin user with a strong random password (stable across upgrades via `<release>-canopy-auth` Secret).
+
+2. **Single Sign-On (SSO via OIDC/OAuth2) & Break-Glass (`auth.backend: sso`)**:
+   Canopy supports enterprise SSO authentication using OIDC or OAuth2 identity providers (such as Okta, Keycloak, Google, GitHub):
+   - **Configuration (`CANOPY_AUTH_CONFIG`)**: The authentication configuration file (`auth.yaml`) defines identity providers (`auth.sso.providers`), scope mappings, and role bindings (`auth.sso.roles`).
+   - **Secret Protection (`clientSecretFile`)**: Provider client secrets are securely supplied from Kubernetes Secrets and mapped via `clientSecretFile` or `CANOPY_AUTH_SSO_<ID>_CLIENT_SECRET`, preventing credentials from leaking into plain manifests or config maps.
+   - **Break-Glass Emergency Fallback (`auth.breakGlass`)**: Designates emergency local admin accounts (Argon2id hashes) that are permitted to log in only when the primary SSO identity provider health check fails (`ssoHealthy: false`).
+   - **Replica Guidelines**: Because Canopy tracks sessions in process memory with sliding expiry, `canopy.replicas` should remain `1` unless sticky session routing is configured on the Ingress.
+
+For more details, refer to the documentation of [BanyanDB](https://skywalking.apache.org/docs/skywalking-banyandb/latest/readme/) and the [BanyanDB Helm Chart](https://github.com/apache/skywalking-banyandb-helm).

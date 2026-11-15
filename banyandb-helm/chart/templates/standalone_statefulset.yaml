@@ -1,0 +1,433 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if .Values.standalone.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+  name: {{ template "banyandb.fullname" . }}
+spec:
+  serviceName: banyandb
+  replicas: 1
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: standalone
+  template:
+    metadata:
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: standalone
+      {{- if .Values.standalone.podAnnotations }}
+      annotations:
+{{ toYaml .Values.standalone.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+      {{- with .Values.standalone.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.standalone.priorityClassName }}
+      {{- if or (and .Values.storage.standalone.enabled .Values.standalone.volumePermissions.enabled) .Values.auth.enabled }}
+      initContainers:
+        {{- if and .Values.storage.standalone.enabled .Values.standalone.volumePermissions.enabled }}
+        - name: volume-permissions
+          image: {{ default "busybox:1.36" .Values.standalone.volumePermissions.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              CHOWN_USER={{ default 1000 .Values.standalone.volumePermissions.chownUser }}
+              CHOWN_GROUP={{ default 1000 .Values.standalone.volumePermissions.chownGroup }}
+              {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
+              {{- range $mt := $claim.mountTargets }}
+              mkdir -p /mnt/{{ $claim.claimName }}/{{ $mt }}
+              chown -R ${CHOWN_USER}:${CHOWN_GROUP} /mnt/{{ $claim.claimName }}/{{ $mt }}
+              chmod -R 0770 /mnt/{{ $claim.claimName }}/{{ $mt }}
+              {{- end }}
+              {{- end }}
+          volumeMounts:
+            {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
+            - mountPath: /mnt/{{ $claim.claimName }}
+              name: {{ $claim.claimName }}
+            {{- end }}
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        - name: auth-config-prepare
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+              cp "/var/run/banyandb-auth/{{ .Values.auth.credentialsFileKey }}" "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+              CHOWN_UID={{ default 1000 .Values.standalone.securityContext.runAsUser }}
+              CHOWN_GID={{ default 1000 .Values.standalone.securityContext.runAsGroup }}
+              chown ${CHOWN_UID}:${CHOWN_GID} "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+              chmod 0600 "/etc/banyandb/{{ .Values.auth.credentialsFileKey }}"
+          volumeMounts:
+            - mountPath: /var/run/banyandb-auth
+              name: banyandb-auth
+              readOnly: true
+            - mountPath: /etc/banyandb
+              name: banyandb-auth-writable
+        {{- end }}
+      {{- end }}
+      containers:
+        - name: standalone
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.standalone.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.standalone.tls}}
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - name: BYDB_TLS
+              value: "true"
+            - name: BYDB_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            - name: BYDB_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.key"
+            - name: BYDB_HTTP_GRPC_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.grpcSecretName }}/tls.crt"
+            {{- end }}
+            {{- if .Values.standalone.tls.httpSecretName }}
+            - name: BYDB_HTTP_TLS
+              value: "true"
+            - name: BYDB_HTTP_CERT_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.crt"
+            - name: BYDB_HTTP_KEY_FILE
+              value: "/etc/tls/{{ .Values.standalone.tls.httpSecretName }}/tls.key"
+            {{- end }}
+            {{- end }}
+            {{- range $env := .Values.standalone.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+            {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_ENABLED
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.enabled | quote }}
+            {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: BYDB_PANIC_DIAGNOSTICS_DIR
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.dir | quote }}
+            - name: BYDB_PANIC_DIAGNOSTICS_MAX_ARTIFACTS
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.maxArtifacts | quote }}
+            - name: BYDB_MAX_DIAGNOSIS_MEMORY_USAGE_PERCENTAGE
+              value: {{ .Values.cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent | quote }}
+            {{- end }}
+            {{- end }}
+          args:
+            - standalone
+            {{- if .Values.auth.enabled }}
+            - --auth-config-file=/etc/banyandb/{{ .Values.auth.credentialsFileKey }}
+            {{- end }}
+          ports:
+            - containerPort: 17912
+              name: grpc
+            - containerPort: 17913
+              name: http
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observability
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.standalone.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.standalone.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.standalone.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.standalone.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.standalone.startupProbe.failureThreshold }}
+          {{- if.Values.standalone.resources }}
+          resources:
+            {{- if.Values.standalone.resources.requests }}
+            requests:
+              {{- range $request := .Values.standalone.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if.Values.standalone.resources.limits }}
+            limits:
+              {{- range $limit := .Values.standalone.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+          {{- if or .Values.storage.standalone.enabled .Values.standalone.tls .Values.auth.enabled (and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) }}
+          volumeMounts:
+            {{- if .Values.storage.standalone.enabled }}
+            {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
+            {{- if $claim.existingClaimName }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.existingClaimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- else }}
+            {{- range $claim.mountTargets }}
+            - mountPath: /tmp/{{ . }}
+              name: {{ $claim.claimName }}
+              subPath: {{ . }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+
+            {{- if .Values.standalone.tls -}}
+            {{- if .Values.standalone.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.grpcSecretName }}
+              name: {{ .Values.standalone.tls.grpcSecretName }}-volume
+            {{- end }}
+            {{- if and .Values.standalone.tls.httpSecretName (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName) }}
+            - mountPath: /etc/tls/{{ .Values.standalone.tls.httpSecretName }}
+              name: {{ .Values.standalone.tls.httpSecretName }}-volume
+            {{- end }}
+            {{- end -}}
+            {{- if .Values.auth.enabled }}
+            - mountPath: /etc/banyandb
+              name: banyandb-auth-writable
+            {{- end }}
+            {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - name: crash-shared
+              mountPath: {{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+          {{- end }}
+
+        {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+        - name: fodc-agent
+          image: {{ .Values.cluster.fodc.agent.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodc.agent.image.tag }}
+          imagePullPolicy: {{ .Values.cluster.fodc.agent.image.pullPolicy }}
+          {{- with .Values.cluster.fodc.agent.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - --proxy-addr={{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+            - --pod-name=$(POD_NAME)
+            - --container-names=standalone
+            - --poll-metrics-ports=2121
+            - --cluster-state-ports=17912
+            - --lifecycle-port=17912
+            - --cluster-state-poll-interval={{ .Values.cluster.fodc.agent.config.pollClusterStateInterval }}
+            - --poll-metrics-interval={{ .Values.cluster.fodc.agent.config.pollMetricsInterval }}
+            - --prometheus-listen-addr=:{{ .Values.cluster.fodc.agent.metricsPort }}
+            - --max-metrics-memory-usage-percentage={{ .Values.cluster.fodc.agent.config.ktmEnabled | ternary 20 10 }}
+            - --heartbeat-interval={{ .Values.cluster.fodc.agent.config.heartbeatInterval }}
+            - --reconnect-interval={{ .Values.cluster.fodc.agent.config.reconnectInterval }}
+            {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+            - --crash-source-dir={{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- range $env := .Values.cluster.fodc.agent.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+          ports:
+            - name: fodc-agent-http
+              containerPort: {{ .Values.cluster.fodc.agent.metricsPort }}
+          {{- if and .Values.cluster.fodc.agent.resources (or .Values.cluster.fodc.agent.resources.requests .Values.cluster.fodc.agent.resources.limits) }}
+          resources:
+            {{- if .Values.cluster.fodc.agent.resources.requests }}
+            requests:
+              {{- range $request := .Values.cluster.fodc.agent.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.cluster.fodc.agent.resources.limits }}
+            limits:
+              {{- range $limit := .Values.cluster.fodc.agent.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+          volumeMounts:
+            - name: crash-shared
+              mountPath: {{ .Values.cluster.fodc.agent.config.crashCollection.dir }}
+          {{- end }}
+        {{- end }}
+
+      {{- if or .Values.standalone.tls .Values.auth.enabled (and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled) }}
+      volumes:
+        {{- if .Values.standalone.tls }}
+        {{- if .Values.standalone.tls.grpcSecretName }}
+        - name: {{ .Values.standalone.tls.grpcSecretName }}-volume
+          secret:
+            secretName: {{ .Values.standalone.tls.grpcSecretName }}
+        {{- end }}
+        {{- if and .Values.standalone.tls.httpSecretName (or (not .Values.standalone.tls.grpcSecretName) (ne .Values.standalone.tls.httpSecretName .Values.standalone.tls.grpcSecretName)) }}
+        - name: {{ .Values.standalone.tls.httpSecretName }}-volume
+          secret:
+            secretName: {{ .Values.standalone.tls.httpSecretName }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.auth.enabled }}
+        {{- $useExisting := ne .Values.auth.existingSecret "" }}
+        {{- $authSecret := ternary .Values.auth.existingSecret (printf "%s-auth" (include "banyandb.fullname" .)) $useExisting }}
+        - name: banyandb-auth
+          secret:
+            secretName: {{ $authSecret }}
+            defaultMode: 0600
+            items:
+              - key: {{ .Values.auth.credentialsFileKey }}
+                path: {{ .Values.auth.credentialsFileKey }}
+                mode: 0600
+        - name: banyandb-auth-writable
+          emptyDir: {}
+        {{- end }}
+        {{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled .Values.cluster.fodc.agent.config.crashCollection.enabled }}
+        - name: crash-shared
+          emptyDir: {}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.standalone.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.standalone.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.standalone.affinity }}
+      {{- $affinity := .Values.standalone.affinity }}
+      affinity:
+        {{- if $affinity.nodeAffinity }}
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            {{- range $requirement := $affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms }}
+              {{- range $matchExpression := $requirement.matchExpressions }}
+                - matchExpressions:
+                    - key: {{ $matchExpression.key }}
+                      operator: {{ $matchExpression.operator }}
+                      values:
+                        {{- range $v := $matchExpression.values }}
+                        - {{ $v }}
+                        {{- end }}
+              {{- end }}
+            {{- end }}
+        {{- end }}
+
+        {{- if $affinity.podAffinity }}
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            {{- range $term := $affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
+            - topologyKey: {{ $term.topologyKey }}
+              namespaces:
+                {{- range $ns := $term.namespaces }}
+                - {{ $ns }}
+                {{- end }}
+              labelSelector:
+                matchLabels:
+                  {{- range $label := $term.labelSelector.matchLabels }}
+                  {{ $label.key }}: {{ $label.value }}
+                  {{- end }}
+            {{- end }}
+        {{- end }}
+      {{- end }}
+  {{- if .Values.storage.standalone.enabled }}
+  volumeClaimTemplates:
+    {{- range $claim := .Values.storage.standalone.persistentVolumeClaims }}
+    - metadata:
+        name: {{ $claim.claimName }}
+      spec:
+        {{- if $claim.accessModes }}
+        accessModes:
+          {{- range $claim.accessModes }}
+          - {{ . }}
+          {{- end }}
+        {{- end }}
+
+        {{- if $claim.size }}
+        resources:
+          requests:
+            storage: {{ $claim.size }}
+        {{- end }}
+
+        {{- if $claim.storageClass }}
+        storageClassName: {{ $claim.storageClass }}
+        {{- end }}
+
+        {{- if $claim.volumeMode }}
+        volumeMode: {{ $claim.volumeMode }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
+{{- end }}

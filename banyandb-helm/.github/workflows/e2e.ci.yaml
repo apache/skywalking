@@ -1,0 +1,119 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Test
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - '**.md'
+    branches:
+      - master
+
+env:
+  SKIP_TEST: true
+  ISTIO_VERSION: 1.24.0
+
+jobs:
+  als:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      # Matrix legs are independent scenarios — a flake in one (e.g. the
+      # wait-for-pods race on a cold kind node) must not cancel the rest.
+      fail-fast: false
+      matrix:
+        test:
+          - name: Run Skywalking E2E Test (standalone BanyanDB as database)
+            config: test/e2e/e2e-standalone.yaml
+          - name: Run Skywalking E2E Test (BanyanDB cluster as database)
+            config: test/e2e/e2e-cluster.yaml
+          - name: Run Skywalking E2E Test (BanyanDB lifecycle as database)
+            config: test/e2e/e2e-lifecycle.yaml
+          - name: Run Skywalking E2E Test (FODC Proxy Service)
+            config: test/e2e/e2e-fodc-proxy-service.yaml
+          - name: Run Skywalking E2E Test (BanyanDB DNS cluster state)
+            config: test/e2e/e2e-dns-cluster-state.yaml
+          - name: Run Canopy E2E Test (standalone BanyanDB + canopy console)
+            config: test/e2e/e2e-canopy-standalone.yaml
+          - name: Run Canopy E2E Test (BanyanDB cluster + canopy console)
+            config: test/e2e/e2e-canopy-cluster.yaml
+          - name: Run Skywalking E2E Test (BanyanDB trace-pipeline plugins)
+            config: test/e2e/e2e-plugins.yaml
+    name: ${{ matrix.test.name }}
+    env:
+      OAP_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617
+      OAP_REPO: ghcr.io/apache/skywalking/oap
+      UI_TAG: 65137fc27fd765bb44007bad7fcbe59a185fa617
+      UI_REPO: ghcr.io/apache/skywalking/ui
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Login to ghcr
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Clone skywalking-infra-e2e
+        run: |
+          git clone https://github.com/apache/skywalking-infra-e2e.git skywalking-infra-e2e-src
+          git -C skywalking-infra-e2e-src checkout 56ac8befeb5f910f2dc9339e65d07cd18953f90e
+      - name: Setup go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: '1.26'
+      - name: Install docker-compose
+        shell: bash
+        run: |
+          if ! command -v docker-compose >/dev/null 2>&1; then
+            echo "Installing docker-compose"
+            sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
+      - name: Install skywalking-infra-e2e
+        run: make -C skywalking-infra-e2e-src install DESTDIR=/usr/local/bin
+      - name: ${{ matrix.test.name }}
+        run: |
+          export SW_INFRA_E2E_LOG_DIR="${{ runner.temp }}/skywalking-infra-e2e/logs"
+          e2e run \
+            -c "$GITHUB_WORKSPACE/${{ matrix.test.config }}" \
+            -B \
+            -w "${{ runner.temp }}/skywalking-infra-e2e" \
+            -l "$SW_INFRA_E2E_LOG_DIR"
+      - if: ${{ failure() }}
+        run: |
+          df -h
+          du -sh .
+          for dir in $(find . -type d -not -name '.*'); do
+            du -sh $dir
+          done
+          docker images
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ failure() }}
+        name: Upload Logs
+        with:
+          name: logs-${{ github.run_id }}-${{ strategy.job-index }}
+          path: "${{ runner.temp }}/skywalking-infra-e2e/logs"
+
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [als]
+    steps:
+      - name: dummy
+        run: echo

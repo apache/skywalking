@@ -1,0 +1,198 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if .Values.canopy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: canopy
+  name: {{ template "banyandb.fullname" . }}-canopy
+spec:
+  replicas: {{ .Values.canopy.replicas }}
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: canopy
+  strategy: {{ toYaml .Values.canopy.updateStrategy | nindent 4 }}
+  template:
+    metadata:
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: canopy
+      {{- if .Values.canopy.podAnnotations }}
+      annotations:
+{{ toYaml .Values.canopy.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+      {{- with .Values.canopy.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.canopy.priorityClassName }}
+      containers:
+        - name: canopy
+          image: {{ include "banyandb.canopyImage" . }}
+          imagePullPolicy: {{ include "banyandb.canopyImagePullPolicy" . }}
+          env:
+            - name: PORT
+              value: "4000"
+            - name: NODE_ENV
+              value: "production"
+            - name: BANYANDB_TARGET
+              value: {{ include "banyandb.canopyTarget" . | quote }}
+            - name: MONITOR_TARGET
+              value: {{ include "banyandb.canopyMonitorTarget" . | quote }}
+            - name: SESSION_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "banyandb.canopyAuthSecret" . }}
+                  key: session-secret
+            {{- if eq (.Values.canopy.auth.backend | default "local") "sso" }}
+            - name: CANOPY_AUTH_BACKEND
+              value: "sso"
+            - name: CANOPY_AUTH_CONFIG
+              value: /etc/canopy/auth.yaml
+            {{- range $provider := (default list .Values.canopy.auth.sso.providers) }}
+            {{- if and $provider.clientSecretSecretRef $provider.clientSecretSecretRef.asEnv }}
+            - name: {{ printf "CANOPY_AUTH_SSO_%s_CLIENT_SECRET" ($provider.id | upper | replace "-" "_") }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $provider.clientSecretSecretRef.name }}
+                  key: {{ $provider.clientSecretSecretRef.key | default "clientSecret" }}
+            {{- end }}
+            {{- end }}
+            {{- else }}
+            - name: CANOPY_USERS
+              value: /etc/canopy/users.yaml
+            {{- end }}
+            {{- /*
+              BanyanDB basic auth (auth.enabled) makes every proxied call need
+              a service credential. Wire the first declared DB user through so
+              the console works out of the box; with auth.existingSecret or a
+              generated default DB password, set BANYANDB_UPSTREAM_* yourself
+              via canopy.env.
+            */}}
+            {{- if and .Values.auth.enabled .Values.auth.users }}
+            {{- $dbUser := index .Values.auth.users 0 }}
+            - name: BANYANDB_UPSTREAM_USERNAME
+              value: {{ required "auth.users[0].username is required when auth.enabled" $dbUser.username | quote }}
+            - name: BANYANDB_UPSTREAM_PASSWORD
+              value: {{ required "auth.users[0].password is required when auth.enabled" $dbUser.password | quote }}
+            {{- end }}
+            {{- range $env := .Values.canopy.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | quote }}
+            {{- end }}
+          ports:
+            - containerPort: 4000
+              name: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 4000
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 4000
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: 4000
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 30
+          {{- with .Values.canopy.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if eq (.Values.canopy.auth.backend | default "local") "sso" }}
+            - name: canopy-auth-config
+              mountPath: /etc/canopy/auth.yaml
+              subPath: auth.yaml
+              readOnly: true
+            {{- range $provider := (default list .Values.canopy.auth.sso.providers) }}
+            {{- if $provider.clientSecretSecretRef }}
+            - name: {{ printf "canopy-sso-secret-%s" $provider.id }}
+              mountPath: {{ printf "/etc/canopy/secrets/%s" $provider.id }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+            {{- if and .Values.canopy.auth.breakGlass .Values.canopy.auth.breakGlass.existingSecret }}
+            - name: canopy-break-glass
+              mountPath: /etc/canopy/break-glass
+              readOnly: true
+            {{- end }}
+            {{- else }}
+            - name: canopy-auth
+              mountPath: /etc/canopy/users.yaml
+              subPath: users.yaml
+              readOnly: true
+            {{- end }}
+      volumes:
+        {{- if eq (.Values.canopy.auth.backend | default "local") "sso" }}
+        - name: canopy-auth-config
+          secret:
+            secretName: {{ include "banyandb.canopyAuthConfigSecret" . }}
+        {{- range $provider := (default list .Values.canopy.auth.sso.providers) }}
+        {{- if $provider.clientSecretSecretRef }}
+        - name: {{ printf "canopy-sso-secret-%s" $provider.id }}
+          secret:
+            secretName: {{ $provider.clientSecretSecretRef.name }}
+            items:
+              - key: {{ $provider.clientSecretSecretRef.key | default "clientSecret" }}
+                path: {{ $provider.clientSecretSecretRef.key | default "clientSecret" }}
+        {{- end }}
+        {{- end }}
+        {{- if and .Values.canopy.auth.breakGlass .Values.canopy.auth.breakGlass.existingSecret }}
+        - name: canopy-break-glass
+          secret:
+            secretName: {{ .Values.canopy.auth.breakGlass.existingSecret }}
+        {{- end }}
+        {{- else }}
+        - name: canopy-auth
+          secret:
+            secretName: {{ include "banyandb.canopyAuthSecret" . }}
+        {{- end }}
+      {{- with .Values.canopy.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.canopy.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.canopy.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

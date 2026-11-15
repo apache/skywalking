@@ -1,0 +1,39 @@
+# Licensed to Apache Software Foundation (ASF) under one or more contributor
+# license agreements. See the NOTICE file distributed with
+# this work for additional information regarding copyright
+# ownership. Apache Software Foundation (ASF) licenses this file to you under
+# the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Standalone BanyanDB + canopy console for the canopy e2e scenario.
+# canopy.image.tag must point at a sha whose "<sha>-canopy" image is published
+# (pushed by the Canopy workflow on main).
+cluster:
+  enabled: false
+
+image:
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0
+  pullPolicy: IfNotPresent
+
+standalone:
+  enabled: true
+  name: banyandb
+  httpSvc:
+    type: ClusterIP
+
+canopy:
+  enabled: true
+  image:
+    tag: "36921708b3bd3e0cd0ca37db9761fadf685c99a1-canopy"
+  service:
+    type: ClusterIP

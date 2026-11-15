@@ -1,0 +1,207 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if and .Values.standalone.enabled .Values.standalone.ingress.enabled }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: standalone
+    {{- range $key, $value := .Values.standalone.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "banyandb.fullname" . }}
+  annotations:
+    {{- range $key, $value := .Values.standalone.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.standalone.ingress.rules }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .port }}
+            {{- else }}
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .port }}
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+  {{- if .Values.standalone.ingress.tls }}
+  tls:
+{{ toYaml .Values.standalone.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end }}
+
+{{- if and .Values.cluster.enabled  }}
+{{- if .Values.cluster.liaison.ingress.enabled }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: liaison
+    {{- range $key, $value := .Values.cluster.liaison.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "banyandb.fullname" . }}
+  annotations:
+    {{- range $key, $value := .Values.cluster.liaison.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.cluster.liaison.ingress.rules }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .port }}
+            {{- else }}
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .port }}
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+  {{- if .Values.cluster.liaison.ingress.tls }}
+  tls:
+{{ toYaml .Values.cluster.liaison.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end }}
+
+{{- if and (eq .Values.cluster.ui.type "Standalone") (and .Values.cluster.ui.standalone .Values.cluster.ui.standalone.ingress.enabled) }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+    {{- range $key, $value := .Values.cluster.ui.standalone.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "banyandb.fullname" . }}-ui
+  annotations:
+    {{- range $key, $value := .Values.cluster.ui.standalone.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+    {{- range .Values.cluster.ui.standalone.ingress.rules }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .port }}
+            {{- else }}
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .port }}
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+  {{- if .Values.cluster.ui.standalone.ingress.tls }}
+  tls:
+{{ toYaml .Values.cluster.ui.standalone.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end }}
+
+{{- if and .Values.cluster.fodc.enabled .Values.cluster.fodc.proxy.ingress.enabled }}
+---
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+apiVersion: networking.k8s.io/v1
+{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1/Ingress" }}
+apiVersion: networking.k8s.io/v1beta1
+{{- else }}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fodc-proxy
+  {{- range $key, $value := .Values.cluster.fodc.proxy.ingress.labels }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+  name: {{ template "banyandb.fullname" . }}-fodc-proxy
+  annotations:
+  {{- range $key, $value := .Values.cluster.fodc.proxy.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  rules:
+  {{- range .Values.cluster.fodc.proxy.ingress.rules }}
+    - host: {{ .host }}
+      http:
+        paths:
+        {{- range .paths }}
+        - path: {{ .path }}
+          pathType: Prefix
+          backend:
+            {{- if $.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress" }}
+            service:
+              name: {{ .serviceName }}
+              port:
+                number: {{ .port }}
+            {{- else }}
+            serviceName: {{ .serviceName }}
+            servicePort: {{ .port }}
+            {{- end }}
+        {{- end }}
+    {{- end -}}
+  {{- if .Values.cluster.fodc.proxy.ingress.tls }}
+  tls:
+{{ toYaml .Values.cluster.fodc.proxy.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end }}
+{{- end }}

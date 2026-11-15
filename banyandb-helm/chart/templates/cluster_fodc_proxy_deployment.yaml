@@ -1,0 +1,182 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "banyandb.fullname" . }}-fodc-proxy
+  labels:
+{{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: fodc-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+{{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: fodc-proxy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+{{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: fodc-proxy
+{{- if .Values.cluster.fodc.proxy.podAnnotations }}
+      annotations:
+{{ toYaml .Values.cluster.fodc.proxy.podAnnotations | indent 6 }}
+{{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+{{- with .Values.cluster.fodc.proxy.securityContext }}
+      securityContext:
+{{ toYaml . | nindent 6 }}
+{{- end }}
+      priorityClassName: {{ .Values.cluster.fodc.proxy.priorityClassName }}
+      containers:
+        - name: fodc-proxy
+          image: {{ .Values.cluster.fodc.proxy.image.repository }}:{{ default .Values.image.tag .Values.cluster.fodc.proxy.image.tag }}
+          imagePullPolicy: {{ .Values.cluster.fodc.proxy.image.pullPolicy }}
+{{- with .Values.cluster.fodc.proxy.containerSecurityContext }}
+          securityContext:
+{{ toYaml . | nindent 12 }}
+{{- end }}
+          env:
+{{- range $env := .Values.cluster.fodc.proxy.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value | quote }}
+{{- end }}
+          args:
+            - --grpc-listen-addr=:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+            - --http-listen-addr=:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
+            - --agent-heartbeat-timeout={{ .Values.cluster.fodc.proxy.config.agentHeartbeatTimeout }}
+            - --agent-cleanup-timeout={{ .Values.cluster.fodc.proxy.config.agentCleanupTimeout }}
+            - --max-agents={{ .Values.cluster.fodc.proxy.config.maxAgents }}
+            - --http-read-timeout={{ .Values.cluster.fodc.proxy.config.httpReadTimeout }}
+            - --http-write-timeout={{ .Values.cluster.fodc.proxy.config.httpWriteTimeout }}
+            - --heartbeat-interval={{ .Values.cluster.fodc.proxy.config.heartbeatInterval }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+            - name: http
+              containerPort: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.proxy.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.proxy.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.proxy.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.proxy.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.proxy.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.proxy.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.proxy.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.proxy.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.proxy.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.proxy.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: {{ .Values.cluster.fodc.proxy.httpSvc.port }}
+            initialDelaySeconds: {{ .Values.cluster.fodc.proxy.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.fodc.proxy.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.fodc.proxy.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.fodc.proxy.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.fodc.proxy.startupProbe.failureThreshold }}
+          {{- if and .Values.cluster.fodc.proxy.resources (or .Values.cluster.fodc.proxy.resources.requests .Values.cluster.fodc.proxy.resources.limits) }}
+          resources:
+            {{- if .Values.cluster.fodc.proxy.resources.requests }}
+            requests:
+              {{- range $request := .Values.cluster.fodc.proxy.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if .Values.cluster.fodc.proxy.resources.limits }}
+            limits:
+              {{- range $limit := .Values.cluster.fodc.proxy.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+      {{- if .Values.cluster.fodc.proxy.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.cluster.fodc.proxy.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.fodc.proxy.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.cluster.fodc.proxy.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.fodc.proxy.affinity }}
+      affinity:
+{{ toYaml .Values.cluster.fodc.proxy.affinity | nindent 6 }}
+      {{- else if or .Values.cluster.fodc.proxy.podAffinityPreset .Values.cluster.fodc.proxy.podAntiAffinityPreset }}
+      affinity:
+        {{- if and .Values.cluster.fodc.proxy.podAffinityPreset (not (empty .Values.cluster.fodc.proxy.podAffinityPreset)) }}
+        podAffinity:
+          {{- if eq .Values.cluster.fodc.proxy.podAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+{{ include "banyandb.selectorLabels" . | nindent 20 }}
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.fodc.proxy.podAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+{{ include "banyandb.selectorLabels" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+        {{- if and .Values.cluster.fodc.proxy.podAntiAffinityPreset (not (empty .Values.cluster.fodc.proxy.podAntiAffinityPreset)) }}
+        podAntiAffinity:
+          {{- if eq .Values.cluster.fodc.proxy.podAntiAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+{{ include "banyandb.selectorLabels" . | nindent 20 }}
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.fodc.proxy.podAntiAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+{{ include "banyandb.selectorLabels" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+      {{- end }}
+{{- end }}

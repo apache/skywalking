@@ -46,6 +46,7 @@
 * Fix the trace sampling doc's setting name, `default.rate`, and its example rates, and document the OpenTelemetry span metadata fallbacks, that metrics shared across TAL rules must also agree on `labelLimit`, and, on the Virtual GenAI page, the `service.layer=OTLP_GENERAL` that the AI evaluation of natively stored OpenTelemetry spans needs.
 * Clarify in the security notice that every admin-port route, including the status API and the configuration dump, must be reachable only by the operator team, and where the status and debugging routes were served before 11.0.0 (the core REST port, `12800`). Document that the configuration dump masks a value only when its key contains a masking keyword, and which settings, such as Kafka SASL properties and the ZooKeeper ACL `expression`, need extra keywords.
 * Fix the admin API docs and the `application.yml` comments that said an empty value, such as `SW_STATUS=`, disables an admin module: an empty value stops OAP from starting, and `-` removes the module. Closing the admin port takes `SW_ADMIN_SERVER=-` together with `-` for every admin feature module.
+* Document Canopy SSO (OIDC/OAuth2) and break-glass emergency fallback in the BanyanDB documentation (#14210).
 
 
 All issues and pull requests are [here](https://github.com/apache/skywalking/issues?q=milestone:11.2.0)

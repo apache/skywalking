@@ -1,0 +1,234 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# This file is used to test BanyanDB with lifecycle features enabled.
+
+setup:
+  env: kind
+  file: kind.yaml
+  init-system-environment: env
+  kind:
+    expose-ports:
+      - namespace: istio-system
+        resource: service/skywalking-ui
+        port: 80
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e/setup-e2e-shell/install.sh swctl
+    - name: install kubectl
+      command: bash test/e2e/setup-e2e-shell/install.sh kubectl
+    - name: install istio
+      command: |
+        bash test/e2e/setup-e2e-shell/install.sh istioctl
+        istioctl install -y --set profile=demo \
+          --set meshConfig.defaultConfig.envoyAccessLogService.address=skywalking-oap.istio-system:11800 \
+          --set meshConfig.enableEnvoyAccessLogService=true
+        kubectl label namespace default istio-injection=enabled
+    - name: Install helm
+      command: bash test/e2e/setup-e2e-shell/install.sh helm
+    - name: Install BanyanDB with lifecycle features
+      command: helm -n istio-system install --wait --timeout 20m banyandb chart/ -f test/e2e/values.lifecycle.yaml
+      wait:
+        - namespace: istio-system
+          resource: pod
+          for: condition=ready
+          label-selector: app.kubernetes.io/name=banyandb
+    - name: Install SkyWalking
+      command: |
+        helm -n istio-system install --timeout 10m skywalking oci://ghcr.io/apache/skywalking-helm/skywalking-helm \
+                       --version "$SW_HELM_VERSION" \
+                       --set fullnameOverride=skywalking \
+                       --set oap.env.SW_ENVOY_METRIC_ALS_HTTP_ANALYSIS=k8s-mesh \
+                       --set oap.env.SW_ENVOY_METRIC_ALS_TCP_ANALYSIS=k8s-mesh \
+                       --set oap.env.K8S_SERVICE_NAME_RULE='e2e::${service.metadata.name}' \
+                       --set oap.replicas=1 \
+                       --set ui.image.repository=$UI_REPO \
+                       --set ui.image.tag=$UI_TAG \
+                       --set oap.image.repository=$OAP_REPO \
+                       --set oap.image.tag=$OAP_TAG \
+                       --set oap.storageType=banyandb \
+                       --set elasticsearch.enabled=false \
+                       --set banyandb.enabled=false \
+                       -f test/e2e/values.yaml
+      wait:
+        - namespace: istio-system
+          resource: deployments/skywalking-oap
+          for: condition=available
+    - name: Deploy demo services
+      command: |
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/bookinfo-gateway.yaml
+        # Enable TCP services
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-ratings-v2.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/platform/kube/bookinfo-db.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/destination-rule-all.yaml
+        kubectl apply -f https://raw.githubusercontent.com/istio/istio/$ISTIO_VERSION/samples/bookinfo/networking/virtual-service-ratings-db.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+    - name: Generate traffic
+      path: traffic-gen.yaml
+      wait:
+        - namespace: default
+          resource: pod
+          for: condition=Ready
+  timeout: 35m
+
+verify:
+  retry:
+    count: 20
+    interval: 15s
+  cases:
+    # service list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql service ls
+      expected: expected/service.yml
+    # service instance list
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage
+      expected: expected/service-instance.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews
+      expected: expected/service-instance.yml
+    # service endpoint
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::productpage
+      expected: expected/service-endpoint-productpage.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql endpoint list --service-name=e2e::reviews
+      expected: expected/service-endpoint-reviews.yml
+
+    # service metrics: e2e::productpage
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sla --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_cpm --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_resp_time --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_apdex --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    # service metrics: e2e::reviews
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sla --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_cpm --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_resp_time --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_apdex --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sidecar_internal_req_latency_nanos --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_sidecar_internal_resp_latency_nanos --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    # service instance metrics: e2e::productpage
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_resp_time --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_cpm --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sla --service-name=e2e::productpage --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    # service instance metrics: e2e::reviews
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_resp_time --service-name=e2e::reviews --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_cpm --service-name=e2e::reviews --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sla --service-name=e2e::reviews --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sidecar_internal_req_latency_nanos --service-name=e2e::reviews --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_sidecar_internal_resp_latency_nanos --service-name=e2e::reviews --instance-name=$( \
+          swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' -
+        )
+      expected: expected/metrics-has-value.yml
+
+    # service endpoint metrics: e2e::productpage GET:/productpage
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=GET:/productpage --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=GET:/productpage --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_sla --endpoint-name=GET:/productpage --service-name=e2e::productpage
+      expected: expected/metrics-has-value.yml
+    # service endpoint metrics: e2e::reviews GET:/reviews/0
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_cpm --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_sla --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_sidecar_internal_req_latency_nanos --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=endpoint_sidecar_internal_resp_latency_nanos --endpoint-name=GET:/reviews/0 --service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+
+    # dependency service
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::productpage
+      expected: expected/dependency-services-productpage.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency service --service-name=e2e::reviews
+      expected: expected/dependency-services-reviews.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql dependency instance --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/dependency-services-instance-productpage.yml
+
+    # service relation metrics
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_relation_client_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_relation_server_cpm  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_client_sidecar_internal_req_latency_nanos  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_server_sidecar_internal_req_latency_nanos  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_client_sidecar_internal_resp_latency_nanos  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_server_sidecar_internal_resp_latency_nanos  --service-name=e2e::productpage --dest-service-name=e2e::reviews
+      expected: expected/metrics-has-value.yml
+    # service instance relation metrics, e2e::productpage -> e2e::reviews
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_relation_client_cpm \
+          --service-name=e2e::productpage --instance-name=$( \
+            swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) \
+          --dest-service-name=e2e::reviews --dest-instance-name=$( \
+            swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) \
+
+      expected: expected/metrics-has-value.yml
+    - query: |
+        swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql metrics exec --expression=service_instance_relation_server_cpm \
+          --service-name=e2e::productpage --instance-name=$( \
+            swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::productpage | yq e '.[0].name' - ) \
+          --dest-service-name=e2e::reviews --dest-instance-name=$( \
+            swctl --display yaml --base-url=http://${service_skywalking_ui_host}:${service_skywalking_ui_80}/graphql instance list --service-name=e2e::reviews | yq e '.[0].name' - ) \
+
+      expected: expected/metrics-has-value.yml 

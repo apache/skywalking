@@ -1,0 +1,1482 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Default values for banyandb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+## @section Common configuration
+##
+
+## @param fullnameOverride Override the full name of the chart
+## Keep this short enough that generated resource names stay within Kubernetes limits.
+## StatefulSet names must be <= 52 characters so the controller-revision-hash pod label
+## does not exceed 63 bytes. The chart will fail at render time if any generated name is
+## too long.
+##
+fullnameOverride: ""
+## @param nameOverride Override the name of the chart
+##
+nameOverride: "banyandb"
+
+## @section Container image configuration
+##
+image:
+  ## @param image.repository Docker repository for SkyWalking BanyanDB
+  ##
+  repository: docker.io/apache/skywalking-banyandb
+  ## @param image.tag Image tag/version. REQUIRED, deliberately no default — every install must set it explicitly; templates fail fast via `required` when empty.
+  ##
+  tag: ""
+  ## @param image.pullPolicy Image pull policy (e.g. IfNotPresent)
+  ##
+  pullPolicy: IfNotPresent
+
+## @section Trace-pipeline sampler plugin configuration
+##
+plugins:
+  ## @param plugins.enabled Enable trace-pipeline native sampler plugins on data nodes.
+  ## When enabled, the data-node container uses the -plugins host image and mounts
+  ## the carrier image at /plugins. Liaison and standalone pods never host plugins.
+  ##
+  enabled: false
+
+  ## Plugin carrier image configuration.
+  ## The carrier delivers first-party .so files and is mounted at /plugins.
+  ## Lockstep parity is required: the carrier must match the data-node host image tag.
+  ##
+  image:
+    ## @param plugins.image.repository Docker repository for the plugin carrier image.
+    ## Empty defaults to the main banyandb image repository to preserve lockstep parity.
+    ##
+    repository: ""
+    ## @param plugins.image.tag Carrier image tag (empty defaults to <main image tag>-plugins-carrier)
+    ##
+    tag: ""
+    ## @param plugins.image.pullPolicy Carrier image pull policy
+    ##
+    pullPolicy: IfNotPresent
+
+  ## @param plugins.mountMode How to deliver plugins into the data-node pod:
+  ## - "initContainer" (default, works on all Kubernetes versions): runs the carrier image as an
+  ##   initContainer that copies the first-party .so files into a shared emptyDir volume mounted
+  ##   at /plugins.
+  ## - "imageVolume" (Kubernetes >= 1.31, OCI image volume): mounts the carrier image filesystem
+  ##   directly at /plugins without an initContainer or shell.
+  ##
+  mountMode: initContainer
+
+  ## Init-container delivery configuration (used when mountMode=initContainer)
+  ##
+  initContainer:
+    ## @param plugins.initContainer.resources Resource requests/limits for the carrier copy init container
+    ##
+    resources: {}
+
+  ## Optional third-party plugin image mounted at /plugins/thirdparty.
+  ##
+  thirdParty:
+    ## @param plugins.thirdParty.repository Docker repository for third-party plugins
+    ##
+    repository: ""
+    ## @param plugins.thirdParty.tag Third-party plugin image tag
+    ##
+    tag: ""
+    ## @param plugins.thirdParty.pullPolicy Third-party plugin image pull policy
+    ##
+    pullPolicy: IfNotPresent
+
+## @section Authentication configuration for BanyanDB
+##
+auth:
+  ## @param auth.enabled Enable basic authentication (boolean)
+  ## Defaults to false. When enabled, the chart mounts a credentials file and
+  ## passes --auth-config-file to liaison/standalone.
+  ##
+  enabled: false
+
+  ## @param auth.existingSecret Use an existing Secret for credentials
+  ## If set, the chart will NOT create a Secret and will mount this Secret
+  ## instead. The Secret must contain a key specified by auth.credentialsFileKey
+  ## whose value is the YAML-formatted credentials content.
+  ##
+  existingSecret: ""
+
+  ## @param auth.credentialsFileKey Key name in the Secret that stores the
+  ## credentials YAML. This filename will also be used inside the pod via subPath.
+  ##
+  credentialsFileKey: "credentials.yaml"
+
+  ## @param auth.users List of users to configure when not using existingSecret
+  ## Each user item must include plaintext fields: username, password.
+  ## If empty and auth.enabled=true, a default 'admin' user with a random
+  ## password will be generated.
+  ## Example:
+  ## users:
+  ##   - username: admin
+  ##     password: "changeme"
+  ##   - username: viewer
+  ##     password: "123456"
+  ##
+  users: []
+
+## @section Canopy web console configuration
+## Canopy is the standalone web console for BanyanDB (SPA + BFF), intended to
+## replace the legacy embedded UI. It proxies /api and /monitoring to BanyanDB,
+## so a single ingress to canopy covers both the console and the HTTP API.
+##
+canopy:
+  ## @param canopy.enabled Deploy the canopy console (Deployment + Service).
+  enabled: false
+
+  image:
+    ## @param canopy.image.repository Canopy image repository. Empty defaults to image.repository (the console ships in the same repo with a "-canopy" tag suffix).
+    repository: ""
+    ## @param canopy.image.tag Canopy image tag. Empty defaults to "<image.tag>-canopy" (lockstep with the BanyanDB image, mirroring the plugins carrier pattern).
+    tag: ""
+    ## @param canopy.image.pullPolicy Canopy image pull policy. Empty defaults to image.pullPolicy.
+    pullPolicy: ""
+
+  ## @param canopy.replicas Number of canopy replicas. Should remain 1 because Canopy stores user sessions in process memory with sliding expiry (multi-replica requires sticky session routing at Ingress).
+  replicas: 1
+
+  ## @param canopy.env Extra environment variables appended to the canopy container
+  env: []
+
+  ## Console authentication. Supports local accounts (default) or Single Sign-On
+  ## (SSO via OIDC/OAuth2) with optional break-glass emergency login.
+  ## When backend is "sso", canopy reads CANOPY_AUTH_CONFIG pointing to
+  ## the mounted auth.yaml Secret. Session secret is always required for
+  ## signing cookies.
+  ## When nothing is provided the chart generates a default admin user with a
+  ## strong random password (stable across upgrades); retrieve it from NOTES or:
+  ##   kubectl get secret <release>-canopy-auth -o jsonpath='{.data.password}' | base64 -d
+  ##
+  auth:
+    ## @param canopy.auth.backend Console authentication backend: "local" (default) or "sso".
+    backend: local
+    ## @param canopy.auth.username Default admin username (generated user only in local mode)
+    username: admin
+    ## @param canopy.auth.password Default admin password. Empty generates a strong random one on install (reused on upgrades via the generated Secret).
+    password: ""
+    ## @param canopy.auth.sessionSecret Session signing secret (>= 32 chars). Empty generates a random one (also reused on upgrades).
+    sessionSecret: ""
+    ## @param canopy.auth.users Extra console users appended after the default admin, each {username, passwordHash (bcrypt), role (admin|readonly)}
+    users: []
+    ## @param canopy.auth.existingSecret Use an existing Secret instead of the generated one. Must contain keys "session-secret" and "users.yaml" (canopy users file format); may also carry "password" for NOTES output.
+    existingSecret: ""
+    ## @param canopy.auth.sso Single Sign-On (OIDC/OAuth2) configuration (active when canopy.auth.backend is "sso")
+    sso:
+      ## @param canopy.auth.sso.providers List of OIDC/OAuth2 identity providers {id, name, type, kind, displayName, issuer, clientId, clientSecretFile, clientSecretSecretRef, redirectUri, scopes, allowedDomains, roles}
+      providers: []
+      ## @param canopy.auth.sso.roles Role mapping configuration for SSO users
+      roles:
+        ## @param canopy.auth.sso.roles.default Default assigned role when no mapping rule matches ("viewer" or "readonly")
+        default: readonly
+        ## @param canopy.auth.sso.roles.mappings Explicit role mappings based on claims or groups
+        mappings: []
+    ## @param canopy.auth.breakGlass Emergency break-glass local login configuration (active only when primary SSO health probe reports unhealthy)
+    breakGlass:
+      ## @param canopy.auth.breakGlass.enabled Enable break-glass emergency login mechanism
+      enabled: false
+      ## @param canopy.auth.breakGlass.users List of emergency local users, each {username, passwordHash (argon2id|bcrypt), role (admin|readonly)}
+      users: []
+      ## @param canopy.auth.breakGlass.existingSecret Reference an existing Secret containing break-glass configuration
+      existingSecret: ""
+    ## @param canopy.auth.existingAuthConfigSecret Use an existing Kubernetes Secret containing "auth.yaml" instead of the chart-rendered auth configuration
+    existingAuthConfigSecret: ""
+
+  service:
+    ## @param canopy.service.labels Labels for the canopy service
+    labels: {}
+    ## @param canopy.service.annotations Annotations for the canopy service
+    annotations: {}
+    ## @param canopy.service.port Canopy service port
+    port: 4000
+    ## @param canopy.service.type Canopy service type
+    type: ClusterIP
+    ## @param canopy.service.externalIPs External IPs for the canopy service
+    externalIPs: []
+    ## @param canopy.service.loadBalancerIP Load balancer IP for the canopy service
+    loadBalancerIP: ""
+    ## @param canopy.service.loadBalancerSourceRanges Load balancer source ranges
+    loadBalancerSourceRanges: []
+
+  ## @param canopy.updateStrategy.type Update strategy type for canopy pods
+  ## @param canopy.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods for canopy update
+  ## @param canopy.updateStrategy.rollingUpdate.maxSurge Maximum surge pods for canopy update
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+
+  ## @param canopy.podAnnotations Pod annotations for canopy
+  podAnnotations: {}
+  ## @param canopy.securityContext Security context for canopy pods
+  securityContext: {}
+  ## @param canopy.priorityClassName Priority class name for canopy pods
+  priorityClassName: ""
+  ## @param canopy.podDisruptionBudget Pod disruption budget for canopy
+  podDisruptionBudget: {}
+  ## @param canopy.resources Resource requests/limits for canopy pods
+  resources: {}
+  ## @param canopy.tolerations Tolerations for canopy pods
+  tolerations: []
+  ## @param canopy.nodeSelector Node selector for canopy pods
+  nodeSelector: []
+  ## @param canopy.affinity Affinity rules for canopy pods
+  affinity: {}
+
+  ingress:
+    ## @param canopy.ingress.enabled Create an Ingress for the canopy console. Canopy proxies /api and /monitoring, so this single ingress exposes both the console UI and the BanyanDB HTTP API.
+    enabled: false
+    ## @param canopy.ingress.labels Labels for the canopy ingress
+    labels: {}
+    ## @param canopy.ingress.annotations Annotations for the canopy ingress
+    annotations: {}
+    ## @param canopy.ingress.tls TLS configuration for the canopy ingress
+    tls: []
+    ## @param canopy.ingress.rules Ingress rules; each path's backend defaults to the canopy service when serviceName/port are omitted.
+    rules: []
+
+## @section Configuration for standalone deployment
+##
+standalone:
+  ## @param standalone.enabled Enable standalone mode (boolean)
+  ##
+  enabled: false
+  ## @param standalone.podAnnotations Additional pod annotations
+  ##
+  podAnnotations: {}
+  ## @param standalone.securityContext Security context for the pod
+  ##
+  securityContext: {}
+  ## @param standalone.containerSecurityContext Container-level security context
+  ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+  containerSecurityContext: {}
+  ## @param standalone.tls TLS configuration for the standalone pod
+  ## When set, provide optional secret names to mount TLS materials.
+  ## Example:
+  ## tls:
+  ##   grpcSecretName: "my-grpc-tls"
+  ##   httpSecretName: "my-http-tls"
+  tls: {}
+  ## Volume permissions init container
+  ## @param standalone.volumePermissions.enabled Enable volume permissions init container
+  volumePermissions:
+    enabled: false
+    ## @param standalone.volumePermissions.chownUser User ID to chown the mounted volumes
+    chownUser: 1000
+    ## @param standalone.volumePermissions.chownGroup Group ID to chown the mounted volumes
+    chownGroup: 1000
+    ## @param standalone.volumePermissions.image Image for the volume permissions init container
+    image: busybox:1.36
+  ## @param standalone.env Environment variables for the pod
+  ##
+  env: []
+  ## @param standalone.priorityClassName Priority class name for the pod
+  ##
+  priorityClassName: ""
+  ## @param standalone.podDisruptionBudget Pod disruption budget configuration
+  ##
+  podDisruptionBudget: {}
+  ## @param standalone.tolerations Tolerations for pod scheduling
+  ##
+  tolerations: []
+  ## @param standalone.nodeSelector Node selector for pod scheduling
+  ##
+  nodeSelector: []
+  ## @param standalone.affinity Affinity rules for pod scheduling
+  ##
+  affinity: {}
+  ## @param standalone.resources Resource requests/limits for the pod
+  ##
+  resources: {}
+  ## GRPC service settings
+  ##
+  grpcSvc:
+    ## @param standalone.grpcSvc.labels Labels for GRPC service
+    ##
+    labels: {}
+    ## @param standalone.grpcSvc.annotations Annotations for GRPC service
+    ##
+    annotations: {}
+    ## @param standalone.grpcSvc.port Port number for GRPC service
+    ##
+    port: 17912
+  ## HTTP service settings
+  ##
+  httpSvc:
+    ## @param standalone.httpSvc.labels Labels for HTTP service
+    ##
+    labels: {}
+    ## @param standalone.httpSvc.annotations Annotations for HTTP service
+    ##
+    annotations: {}
+    ## @param standalone.httpSvc.port Port number for HTTP service
+    ##
+    port: 17913
+    ## @param standalone.httpSvc.type Service type (e.g., LoadBalancer)
+    ##
+    type: LoadBalancer
+    ## @param standalone.httpSvc.externalIPs External IP addresses for the service
+    ##
+    externalIPs: []
+    ## @param standalone.httpSvc.loadBalancerIP Load balancer IP address
+    ##
+    loadBalancerIP: null
+    ## @param standalone.httpSvc.loadBalancerSourceRanges Allowed source ranges for the load balancer
+    ##
+    loadBalancerSourceRanges: []
+  ## Ingress configuration
+  ##
+  ingress:
+    ## @param standalone.ingress.enabled Enable ingress (boolean)
+    ##
+    enabled: false
+    ## @param standalone.ingress.labels Labels for ingress
+    ##
+    labels: {}
+    ## @param standalone.ingress.annotations Annotations for ingress
+    ##
+    annotations: {}
+    ## @param standalone.ingress.rules Ingress routing rules
+    ##
+    rules: []
+    ## @param standalone.ingress.tls TLS configuration for ingress
+    ##
+    tls: []
+  ## @param standalone.sidecar Sidecar container configurations
+  ##
+  sidecar: []
+  ## Liveness probe configuration
+  ##
+  livenessProbe:
+    ## @param standalone.livenessProbe.initialDelaySeconds Initial delay for liveness probe
+    ##
+    initialDelaySeconds: 20
+    ## @param standalone.livenessProbe.periodSeconds Probe period in seconds
+    ##
+    periodSeconds: 30
+    ## @param standalone.livenessProbe.timeoutSeconds Probe timeout in seconds
+    ##
+    timeoutSeconds: 5
+    ## @param standalone.livenessProbe.successThreshold Number of successful probes
+    ##
+    successThreshold: 1
+    ## @param standalone.livenessProbe.failureThreshold Number of failed probes
+    ##
+    failureThreshold: 5
+  ## Readiness probe configuration
+  ##
+  readinessProbe:
+    ## @param standalone.readinessProbe.initialDelaySeconds Initial delay for readiness probe
+    ##
+    initialDelaySeconds: 20
+    ## @param standalone.readinessProbe.periodSeconds Probe period for readiness probe
+    ##
+    periodSeconds: 30
+    ## @param standalone.readinessProbe.timeoutSeconds Timeout in seconds for readiness probe
+    ##
+    timeoutSeconds: 5
+    ## @param standalone.readinessProbe.successThreshold Number of successful readiness probes
+    ##
+    successThreshold: 1
+    ## @param standalone.readinessProbe.failureThreshold Number of failed readiness probes before marked unready
+    ##
+    failureThreshold: 5
+  ## Startup probe configuration
+  ##
+  startupProbe:
+    ## @param standalone.startupProbe.initialDelaySeconds Initial delay for startup probe
+    ##
+    initialDelaySeconds: 0
+    ## @param standalone.startupProbe.periodSeconds Probe period for startup probe
+    ##
+    periodSeconds: 10
+    ## @param standalone.startupProbe.timeoutSeconds Timeout in seconds for startup probe
+    ##
+    timeoutSeconds: 5
+    ## @param standalone.startupProbe.successThreshold Number of successful startup probes
+    ##
+    successThreshold: 1
+    ## @param standalone.startupProbe.failureThreshold Number of failed startup probes before timeout
+    ##
+    failureThreshold: 60
+
+## @section Cluster mode configuration
+##
+cluster:
+  ## @param cluster.enabled Enable cluster mode (boolean)
+  ##
+  enabled: true
+
+  ## @section Schema Storage Configuration
+  ##
+  schemaStorage:
+    ## @param cluster.schemaStorage.mode Schema storage mode (only "property" is supported)
+    ##
+    mode: "property"
+    ## @section Property Mode Configuration
+    ##
+    property:
+      ## @param cluster.schemaStorage.property.serverRepairCron Cron schedule for metadata property server repair trigger
+      ## Default: "@every 10m"
+      ##
+      serverRepairCron: "@every 10m"
+      ## @param cluster.schemaStorage.property.clientSyncInterval Interval for property schema client synchronization
+      ## Default: "30s"
+      ##
+      clientSyncInterval: "30s"
+      ## @param cluster.schemaStorage.property.clientMaxRecvMsgSize Maximum gRPC receive message size for property schema client
+      ## Default: "" (uses program built-in 10MiB)
+      ##
+      clientMaxRecvMsgSize: ""
+      ##
+      tls:
+        ## @param cluster.schemaStorage.property.tls.secretName K8s Secret for schema client TLS (CA cert)
+        ## When set, auto-enables BYDB_SCHEMA_PROPERTY_CLIENT_TLS and mounts CA from /etc/tls/<secretName>/
+        ##
+        secretName: ""
+      ## @section Property Schema Server Configuration (data nodes only)
+      ##
+      server:
+        ## @param cluster.schemaStorage.property.server.grpcHost Schema server gRPC listen address
+        ## Default: ""
+        ##
+        grpcHost: ""
+        ## @param cluster.schemaStorage.property.server.grpcPort Schema server gRPC port
+        ## Default: 17916
+        ##
+        grpcPort: 17916
+        ## @param cluster.schemaStorage.property.server.flushTimeout Interval for flushing in-memory data to disk
+        ## Default: "5s"
+        ##
+        flushTimeout: "5s"
+        ## @param cluster.schemaStorage.property.server.expireDeleteTimeout Soft-delete expiration timeout
+        ## Default: "168h" (7 days)
+        ##
+        expireDeleteTimeout: "168h"
+        ## @param cluster.schemaStorage.property.server.maxRecvMsgSize Maximum gRPC receive message size for schema server
+        ## Default: "" (uses program built-in)
+        ##
+        maxRecvMsgSize: ""
+        ## @param cluster.schemaStorage.property.server.repairTreeSlotCount Number of repair tree slots
+        ## Default: "" (uses program built-in 32)
+        ##
+        repairTreeSlotCount: ""
+        ## @param cluster.schemaStorage.property.server.repairBuildTreeCron Cron expression for repair tree build
+        ## Default: "@every 1h"
+        ##
+        repairBuildTreeCron: "@every 1h"
+        ## @param cluster.schemaStorage.property.server.repairQuickBuildTreeTime Duration for quick tree build after startup
+        ## Default: "10m"
+        ##
+        repairQuickBuildTreeTime: "10m"
+        ## @param cluster.schemaStorage.property.server.maxFileSnapshotNum Maximum number of file snapshots
+        ## Default: "" (uses program built-in 10)
+        ##
+        maxFileSnapshotNum: ""
+        ## @param cluster.schemaStorage.property.server.minFileSnapshotAge Minimum age before a snapshot can be removed
+        ## Default: "1h"
+        ##
+        minFileSnapshotAge: "1h"
+        ## @section Property Schema Server TLS Configuration (data nodes only)
+        ##
+        tls:
+          ## @param cluster.schemaStorage.property.server.tls.secretName K8s Secret for schema server TLS (cert + key)
+          ## When set, auto-enables BYDB_SCHEMA_SERVER_TLS and mounts cert/key from /etc/tls/<secretName>/
+          ##
+          secretName: ""
+      ## @section Property Schema Client TLS Configuration (data + liaison nodes)
+
+  ## @section Node Discovery Configuration for Service Discovery
+  ##
+  nodeDiscovery:
+    ## @param cluster.nodeDiscovery.mode Node discovery mode (dns, file)
+    ## Default: dns
+    ##
+    mode: "dns"
+
+    ## @section DNS Mode Configuration
+    ##
+    dns:
+      ## @param cluster.nodeDiscovery.dns.fetchInitInterval Query interval during initialization
+      ## Default: 5s
+      ##
+      fetchInitInterval: "5s"
+
+      ## @param cluster.nodeDiscovery.dns.fetchInitDuration Duration of initialization phase
+      ## Default: 5m
+      ##
+      fetchInitDuration: "5m"
+
+      ## @param cluster.nodeDiscovery.dns.fetchInterval Query interval after initialization
+      ## Default: 15s
+      ##
+      fetchInterval: "15s"
+
+      ## @param cluster.nodeDiscovery.dns.grpcTimeout Timeout for gRPC metadata fetch
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
+    ## @section File Mode Configuration
+    ##
+    file:
+      ## @param cluster.nodeDiscovery.file.grpcTimeout Timeout for metadata fetches over gRPC while using file discovery
+      ## Default: 5s
+      ##
+      grpcTimeout: "5s"
+
+      ## @param cluster.nodeDiscovery.file.fetchInterval Interval to poll and reload the discovery file
+      ## Default: 5m
+      ##
+      fetchInterval: "5m"
+
+      ## @param cluster.nodeDiscovery.file.retryInitialInterval Initial retry interval for failed node fetches metadata
+      ## Default: 1s
+      ##
+      retryInitialInterval: "1s"
+
+      ## @param cluster.nodeDiscovery.file.retryMaxInterval Maximum retry interval for failed node fetches metadata
+      ## Default: 2m
+      ##
+      retryMaxInterval: "2m"
+
+      ## @param cluster.nodeDiscovery.file.retryMultiplier Backoff multiplier applied between retries fetches metadata
+      ## Default: 2.0
+      ##
+      retryMultiplier: 2.0
+
+      ## @section Discovery file ConfigMap settings
+      ##
+      configMap:
+        ## @param cluster.nodeDiscovery.file.configMap.existingName Existing ConfigMap name to mount as discovery file
+        ##
+        existingName: ""
+
+        ## @param cluster.nodeDiscovery.file.configMap.key Data key inside the ConfigMap that stores the discovery file
+        ## Default: nodes.yaml
+        ##
+        key: "nodes.yaml"
+
+        ## @param cluster.nodeDiscovery.file.configMap.content Inline YAML used to create the ConfigMap when existingName is empty
+        ## Example:
+        ## nodes:
+        ##   - name: liaison-0
+        ##     grpc_address: liaison:18912
+        ##
+        content: ""
+
+  ## @section Configuration for liaison component
+  ##
+  liaison:
+    ## @param cluster.liaison.replicas Number of liaison replicas
+    ##
+    replicas: 2
+    ## @param cluster.liaison.podAnnotations Pod annotations for liaison
+    ##
+    podAnnotations: {}
+    ## @param cluster.liaison.securityContext Security context for liaison pods
+    ##
+    securityContext: {}
+    ## @param cluster.liaison.containerSecurityContext Container-level security context for liaison
+    ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+    containerSecurityContext: {}
+    ## Volume permissions init container
+    ## @param cluster.liaison.volumePermissions.enabled Enable volume permissions init container for liaison
+    volumePermissions:
+      enabled: false
+      ## @param cluster.liaison.volumePermissions.chownUser User ID to chown the mounted volumes for liaison
+      chownUser: 1000
+      ## @param cluster.liaison.volumePermissions.chownGroup Group ID to chown the mounted volumes for liaison
+      chownGroup: 1000
+      ## @param cluster.liaison.volumePermissions.image Image for the volume permissions init container for liaison
+      image: busybox:1.36
+    ## @param cluster.liaison.env Environment variables for liaison pods
+    ##
+    env: []
+    ## @param cluster.liaison.priorityClassName Priority class name for liaison pods
+    ##
+    priorityClassName: ""
+    ## Update strategy for liaison pods
+    ##
+    updateStrategy:
+      ## @param cluster.liaison.updateStrategy.type Update strategy type for liaison pods
+      type: RollingUpdate
+      rollingUpdate:
+        ## @param cluster.liaison.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods during update
+        maxUnavailable: 1
+    ## @param cluster.liaison.podManagementPolicy Pod management policy for liaison StatefulSet
+    ##
+    podManagementPolicy: Parallel
+    ## @param cluster.liaison.podDisruptionBudget Pod disruption budget for liaison
+    ##
+    podDisruptionBudget: {}
+    ## @param cluster.liaison.tolerations Tolerations for liaison pods
+    ##
+    tolerations: []
+    ## @param cluster.liaison.nodeSelector Node selector for liaison pods
+    ##
+    nodeSelector: []
+    ## @param cluster.liaison.affinity Affinity rules for liaison pods
+    ##
+    affinity: {}
+    ## @param cluster.liaison.podAffinityPreset Pod affinity preset for liaison
+    ##
+    podAffinityPreset: ""
+    ## @param cluster.liaison.podAntiAffinityPreset Pod anti-affinity preset for liaison
+    ##
+    podAntiAffinityPreset: soft
+    ## Resource requests/limits for liaison
+    ##
+    resources:
+      ## @param cluster.liaison.resources.requests Resource requests for liaison pods
+      requests: []
+      ## @param cluster.liaison.resources.limits Resource limits for liaison pods
+      limits: []
+    ## GRPC service settings for liaison
+    ##
+    grpcSvc:
+      ## @param cluster.liaison.grpcSvc.labels Labels for GRPC service for liaison
+      labels: {}
+      ## @param cluster.liaison.grpcSvc.annotations Annotations for GRPC service for liaison
+      annotations: {}
+      ## @param cluster.liaison.grpcSvc.port Port number for GRPC service for liaison
+      port: 17912
+    ## @param cluster.liaison.sidecar Sidecar containers for liaison pods
+    ##
+    sidecar: []
+    ## HTTP service settings for liaison
+    ##
+    httpSvc:
+      ## @param cluster.liaison.httpSvc.labels Labels for HTTP service for liaison
+      labels: {}
+      ## @param cluster.liaison.httpSvc.annotations Annotations for HTTP service for liaison
+      annotations: {}
+      ## @param cluster.liaison.httpSvc.port Port number for HTTP service for liaison
+      port: 17913
+      ## @param cluster.liaison.httpSvc.type Service type for HTTP service for liaison
+      type: LoadBalancer
+      ## @param cluster.liaison.httpSvc.externalIPs External IP addresses for liaison HTTP service
+      externalIPs: []
+      ## @param cluster.liaison.httpSvc.loadBalancerIP Load balancer IP for liaison HTTP service
+      loadBalancerIP: null
+      ## @param cluster.liaison.httpSvc.loadBalancerSourceRanges Allowed source ranges for liaison HTTP service
+      loadBalancerSourceRanges: []
+    ## Ingress configuration for liaison
+    ##
+    ingress:
+      ## @param cluster.liaison.ingress.enabled Enable ingress for liaison
+      enabled: false
+      ## @param cluster.liaison.ingress.labels Labels for ingress of liaison
+      labels: {}
+      ## @param cluster.liaison.ingress.annotations Annotations for ingress of liaison
+      annotations: {}
+      ## @param cluster.liaison.ingress.rules Ingress rules for liaison
+      rules: []
+      ## @param cluster.liaison.ingress.tls TLS configuration for liaison ingress
+      tls: []
+    ## Liveness probe for liaison
+    ##
+    livenessProbe:
+      ## @param cluster.liaison.livenessProbe.initialDelaySeconds Initial delay for liaison liveness probe
+      initialDelaySeconds: 20
+      ## @param cluster.liaison.livenessProbe.periodSeconds Probe period for liaison liveness probe
+      periodSeconds: 30
+      ## @param cluster.liaison.livenessProbe.timeoutSeconds Timeout in seconds for liaison liveness probe
+      timeoutSeconds: 5
+      ## @param cluster.liaison.livenessProbe.successThreshold Success threshold for liaison liveness probe
+      successThreshold: 1
+      ## @param cluster.liaison.livenessProbe.failureThreshold Failure threshold for liaison liveness probe
+      failureThreshold: 5
+    ## Readiness probe for liaison
+    ##
+    readinessProbe:
+      ## @param cluster.liaison.readinessProbe.initialDelaySeconds Initial delay for liaison readiness probe
+      ##
+      initialDelaySeconds: 20
+      ## @param cluster.liaison.readinessProbe.periodSeconds Probe period for liaison readiness probe
+      ##
+      periodSeconds: 30
+      ## @param cluster.liaison.readinessProbe.timeoutSeconds Timeout in seconds for liaison readiness probe
+      ##
+      timeoutSeconds: 5
+      ## @param cluster.liaison.readinessProbe.successThreshold Success threshold for liaison readiness probe
+      ##
+      successThreshold: 1
+      ## @param cluster.liaison.readinessProbe.failureThreshold Failure threshold for liaison readiness probe
+      ##
+      failureThreshold: 5
+    ## Startup probe for liaison
+    ##
+    startupProbe:
+      ## @param cluster.liaison.startupProbe.initialDelaySeconds Initial delay for liaison startup probe
+      ##
+      initialDelaySeconds: 0
+      ## @param cluster.liaison.startupProbe.periodSeconds Probe period for liaison startup probe
+      ##
+      periodSeconds: 10
+      ## @param cluster.liaison.startupProbe.timeoutSeconds Timeout in seconds for liaison startup probe
+      ##
+      timeoutSeconds: 5
+      ## @param cluster.liaison.startupProbe.successThreshold Success threshold for liaison startup probe
+      ##
+      successThreshold: 1
+      ## @param cluster.liaison.startupProbe.failureThreshold Failure threshold for liaison startup probe
+      ##
+      failureThreshold: 60
+  ## @section Configuration for data component
+  ##
+  data:
+    ## Add nodeTemplate with common defaults
+    ##
+    nodeTemplate:
+      ## @param cluster.data.nodeTemplate.replicas Number of data replicas by default
+      ##
+      replicas: 2
+      ## @param cluster.data.nodeTemplate.podAnnotations Pod annotations for data pods
+      ##
+      podAnnotations: {}
+      ## @param cluster.data.nodeTemplate.securityContext Security context for data pods
+      ##
+      securityContext: {}
+      ## @param cluster.data.nodeTemplate.containerSecurityContext Container-level security context for data pods
+      ## e.g. { readOnlyRootFilesystem: true, allowPrivilegeEscalation: false, runAsNonRoot: true }
+      containerSecurityContext: {}
+      ## Volume permissions init container
+      ## @param cluster.data.nodeTemplate.volumePermissions.enabled Enable volume permissions init container for data pods
+      volumePermissions:
+        enabled: false
+        ## @param cluster.data.nodeTemplate.volumePermissions.chownUser User ID to chown the mounted volumes for data pods
+        chownUser: 1000
+        ## @param cluster.data.nodeTemplate.volumePermissions.chownGroup Group ID to chown the mounted volumes for data pods
+        chownGroup: 1000
+        ## @param cluster.data.nodeTemplate.volumePermissions.image Image for the volume permissions init container for data pods
+        image: busybox:1.36
+      ## @param cluster.data.nodeTemplate.env Environment variables for data pods
+      ##
+      env: []
+      ## @param cluster.data.nodeTemplate.priorityClassName Priority class name for data pods
+      ##
+      priorityClassName: ""
+      ## Pod disruption budget for data pods
+      ##
+      podDisruptionBudget:
+        ## @param cluster.data.nodeTemplate.podDisruptionBudget.maxUnavailable Maximum unavailable data pods
+        ##
+        maxUnavailable: 1
+      ## @param cluster.data.nodeTemplate.tolerations Tolerations for data pods
+      ##
+      tolerations: []
+      ## @param cluster.data.nodeTemplate.nodeSelector Node selector for data pods
+      ##
+      nodeSelector: []
+      ## @param cluster.data.nodeTemplate.affinity Affinity rules for data pods
+      ##
+      affinity: {}
+      ## @param cluster.data.nodeTemplate.podAffinityPreset Pod affinity preset for data pods
+      ##
+      podAffinityPreset: ""
+      ## @param cluster.data.nodeTemplate.podAntiAffinityPreset Pod anti-affinity preset for data pods
+      ##
+      podAntiAffinityPreset: soft
+      ## Resource requests/limits for data pods
+      ##
+      resources:
+        ## @param cluster.data.nodeTemplate.resources.requests Resource requests for data pods
+        ##
+        requests: []
+        ## @param cluster.data.nodeTemplate.resources.limits Resource limits for data pods
+        ##
+        limits: []
+      ## GRPC service settings for data pods
+      ##
+      grpcSvc:
+        ## @param cluster.data.nodeTemplate.grpcSvc.labels Labels for GRPC service for data pods
+        ##
+        labels: {}
+        ## @param cluster.data.nodeTemplate.grpcSvc.annotations Annotations for GRPC service for data pods
+        ##
+        annotations: {}
+        ## @param cluster.data.nodeTemplate.grpcSvc.port Port number for GRPC service for data pods
+        ##
+        port: 17912
+      ## @param cluster.data.nodeTemplate.sidecar Sidecar containers for data pods
+      ##
+      sidecar: []
+      ## Backup sidecar configuration for data pods
+      ##
+      backupSidecar:
+        ## @param cluster.data.nodeTemplate.backupSidecar.env Environment variables for the backup sidecar
+        ##
+        env: []
+        ## @param cluster.data.nodeTemplate.backupSidecar.enabled Enable backup sidecar for data pods (boolean)
+        ##
+        enabled: false
+        ## @param cluster.data.nodeTemplate.backupSidecar.dest Backup destination path for data pods
+        ##
+        dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+        ## @param cluster.data.nodeTemplate.backupSidecar.timeStyle Backup time style for data pods (e.g., daily)
+        ##
+        timeStyle: "daily"
+        ## @param cluster.data.nodeTemplate.backupSidecar.schedule Backup schedule for data pods (cron format)
+        schedule: "@hourly"
+        ## @param cluster.data.nodeTemplate.backupSidecar.customFlags Custom flags for backup sidecar (e.g., S3, Azure, GCS configuration)
+        ##
+        customFlags: []
+        ##
+        ## @param cluster.data.nodeTemplate.backupSidecar.resources Resources for backup sidecar for data pods
+        ##
+        resources: {}
+      ## Lifecycle sidecar configuration for data pods
+      ##
+      lifecycleSidecar:
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.env Environment variables for the lifecycle sidecar
+        ##
+        env: []
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.enabled Enable lifecycle sidecar for data pods (boolean)
+        ##
+        enabled: false
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.schedule Schedule for lifecycle sidecar (cron format)
+        ##
+        schedule: "@hourly"
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.progressFile Progress file path for lifecycle sidecar
+        ##
+        progressFile: ""
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.reportDir Report directory path for lifecycle sidecar
+        ##
+        reportDir: ""
+        ## @param cluster.data.nodeTemplate.lifecycleSidecar.resources Resources for lifecycle sidecar for data pods
+        ##
+        resources: {}
+      ## Restore init container configuration for data pods
+      ##
+      restoreInitContainer:
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.env Environment variables for the restore init container
+        ##
+        env: []
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.enabled Enable restore init container for data pods (boolean)
+        ##
+        enabled: false
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.customFlags Custom flags for restore init container (e.g., S3, Azure, GCS configuration)
+        ##
+        customFlags: []
+        ## @param cluster.data.nodeTemplate.restoreInitContainer.resources Resources for restore init container for data pods
+        ##
+        resources: {}
+      ## Liveness probe for data pods
+      ##
+      livenessProbe:
+        ## @param cluster.data.nodeTemplate.livenessProbe.initialDelaySeconds Initial delay for data liveness probe
+        ##
+        initialDelaySeconds: 20
+        ## @param cluster.data.nodeTemplate.livenessProbe.periodSeconds Probe period for data liveness probe
+        ##
+        periodSeconds: 30
+        ## @param cluster.data.nodeTemplate.livenessProbe.timeoutSeconds Timeout in seconds for data liveness probe
+        ##
+        timeoutSeconds: 5
+        ## @param cluster.data.nodeTemplate.livenessProbe.successThreshold Success threshold for data liveness probe
+        ##
+        successThreshold: 1
+        ## @param cluster.data.nodeTemplate.livenessProbe.failureThreshold Failure threshold for data liveness probe
+        ##
+        failureThreshold: 5
+      ## Readiness probe for data pods
+      ##
+      readinessProbe:
+        ## @param cluster.data.nodeTemplate.readinessProbe.initialDelaySeconds Initial delay for data readiness probe
+        ##
+        initialDelaySeconds: 20
+        ## @param cluster.data.nodeTemplate.readinessProbe.periodSeconds Probe period for data readiness probe
+        ##
+        periodSeconds: 30
+        ## @param cluster.data.nodeTemplate.readinessProbe.timeoutSeconds Timeout in seconds for data readiness probe
+        ##
+        timeoutSeconds: 5
+        ## @param cluster.data.nodeTemplate.readinessProbe.successThreshold Success threshold for data readiness probe
+        ##
+        successThreshold: 1
+        ## @param cluster.data.nodeTemplate.readinessProbe.failureThreshold Failure threshold for data readiness probe
+        ##
+        failureThreshold: 5
+      ## Startup probe for data pods
+      ##
+      startupProbe:
+        ## @param cluster.data.nodeTemplate.startupProbe.initialDelaySeconds Initial delay for data startup probe
+        ##
+        initialDelaySeconds: 0
+        ## @param cluster.data.nodeTemplate.startupProbe.periodSeconds Probe period for data startup probe
+        ##
+        periodSeconds: 10
+        ## @param cluster.data.nodeTemplate.startupProbe.timeoutSeconds Timeout in seconds for data startup probe
+        ##
+        timeoutSeconds: 5
+        ## @param cluster.data.nodeTemplate.startupProbe.successThreshold Success threshold for data startup probe
+        ##
+        successThreshold: 1
+        ## @param cluster.data.nodeTemplate.startupProbe.failureThreshold Failure threshold for data startup probe
+        ##
+        failureThreshold: 60
+
+    ## @extra cluster.data.roles List of data roles (hot, warm, cold)
+    ##
+    roles:
+      ## @extra cluster.data.roles.hot Hot data role
+      ##
+      hot:
+        ## @param cluster.data.roles.hot.hasMetaRole Whether this role serves as the metadata role when using native property server
+        hasMetaRole: true
+
+  ## @section Configuration for UI component
+  ##
+  ui:
+    ## @param cluster.ui.type UI deployment type (None, Standalone, Embedded)
+    ##
+    type: Embedded
+    ## Standalone UI configuration
+    ##
+    standalone:
+      ## @param cluster.ui.standalone.replicas Number of UI replicas
+      ##
+      replicas: 1
+      ## @param cluster.ui.standalone.podAnnotations Pod annotations for UI
+      ##
+      podAnnotations: {}
+      ## @param cluster.ui.standalone.securityContext Security context for UI pods
+      ##
+      securityContext: {}
+      ## @param cluster.ui.standalone.env Environment variables for UI pods
+      ##
+      env: []
+      ## @param cluster.ui.standalone.priorityClassName Priority class name for UI pods
+      ##
+      priorityClassName: ""
+      ## Update strategy for UI pods
+      ##
+      updateStrategy:
+        ## @param cluster.ui.standalone.updateStrategy.type Update strategy type for UI pods
+        type: RollingUpdate
+        rollingUpdate:
+          ## @param cluster.ui.standalone.updateStrategy.rollingUpdate.maxUnavailable Maximum unavailable pods for UI update
+          maxUnavailable: 1
+          ## @param cluster.ui.standalone.updateStrategy.rollingUpdate.maxSurge Maximum surge pods for UI update
+          maxSurge: 1
+      ## @param cluster.ui.standalone.podDisruptionBudget Pod disruption budget for UI
+      ##
+      podDisruptionBudget: {}
+      ## @param cluster.ui.standalone.tolerations Tolerations for UI pods
+      ##
+      tolerations: []
+      ## @param cluster.ui.standalone.nodeSelector Node selector for UI pods
+      ##
+      nodeSelector: []
+      ## @param cluster.ui.standalone.affinity Affinity rules for UI pods
+      ##
+      affinity: {}
+      ## @param cluster.ui.standalone.podAffinityPreset Pod affinity preset for UI
+      ##
+      podAffinityPreset: ""
+      ## @param cluster.ui.standalone.podAntiAffinityPreset Pod anti-affinity preset for UI
+      ##
+      podAntiAffinityPreset: soft
+      ## Resource requests/limits for UI
+      ##
+      resources:
+        ## @param cluster.ui.standalone.resources.requests Resource requests for UI pods
+        requests: []
+        ## @param cluster.ui.standalone.resources.limits Resource limits for UI pods
+        limits: []
+      ## HTTP service settings for UI
+      ##
+      httpSvc:
+        ## @param cluster.ui.standalone.httpSvc.labels Labels for UI HTTP service
+        labels: {}
+        ## @param cluster.ui.standalone.httpSvc.annotations Annotations for UI HTTP service
+        annotations: {}
+        ## @param cluster.ui.standalone.httpSvc.port Port for UI HTTP service
+        port: 17913
+        ## @param cluster.ui.standalone.httpSvc.type Service type for UI HTTP service
+        type: LoadBalancer
+        ## @param cluster.ui.standalone.httpSvc.externalIPs External IPs for UI HTTP service
+        externalIPs: []
+        ## @param cluster.ui.standalone.httpSvc.loadBalancerIP Load balancer IP for UI HTTP service
+        loadBalancerIP: null
+        ## @param cluster.ui.standalone.httpSvc.loadBalancerSourceRanges Allowed source ranges for UI HTTP service
+        loadBalancerSourceRanges: []
+      ## Ingress configuration for UI
+      ##
+      ingress:
+        ## @param cluster.ui.standalone.ingress.enabled Enable ingress for UI
+        enabled: false
+        ## @param cluster.ui.standalone.ingress.labels Labels for UI ingress
+        labels: {}
+        ## @param cluster.ui.standalone.ingress.annotations Annotations for UI ingress
+        annotations: {}
+        ## @param cluster.ui.standalone.ingress.rules Ingress rules for UI
+        rules: []
+        ## @param cluster.ui.standalone.ingress.tls TLS configuration for UI ingress
+        tls: []
+      ## Liveness probe for UI
+      ##
+      livenessProbe:
+        ## @param cluster.ui.standalone.livenessProbe.initialDelaySeconds Initial delay for UI liveness probe
+        initialDelaySeconds: 20
+        ## @param cluster.ui.standalone.livenessProbe.periodSeconds Probe period for UI liveness probe
+        periodSeconds: 30
+        ## @param cluster.ui.standalone.livenessProbe.timeoutSeconds Timeout in seconds for UI liveness probe
+        timeoutSeconds: 5
+        ## @param cluster.ui.standalone.livenessProbe.successThreshold Success threshold for UI liveness probe
+        successThreshold: 1
+        ## @param cluster.ui.standalone.livenessProbe.failureThreshold Failure threshold for UI liveness probe
+        failureThreshold: 5
+      ## Readiness probe for UI
+      ##
+      readinessProbe:
+        ## @param cluster.ui.standalone.readinessProbe.initialDelaySeconds Initial delay for UI readiness probe
+        ##
+        initialDelaySeconds: 20
+        ## @param cluster.ui.standalone.readinessProbe.periodSeconds Probe period for UI readiness probe
+        ##
+        periodSeconds: 30
+        ## @param cluster.ui.standalone.readinessProbe.timeoutSeconds Timeout in seconds for UI readiness probe
+        ##
+        timeoutSeconds: 5
+        ## @param cluster.ui.standalone.readinessProbe.successThreshold Success threshold for UI readiness probe
+        ##
+        successThreshold: 1
+        ## @param cluster.ui.standalone.readinessProbe.failureThreshold Failure threshold for UI readiness probe
+        ##
+        failureThreshold: 5
+      ## Startup probe for UI
+      ##
+      startupProbe:
+        ## @param cluster.ui.standalone.startupProbe.initialDelaySeconds Initial delay for UI startup probe
+        ##
+        initialDelaySeconds: 0
+        ## @param cluster.ui.standalone.startupProbe.periodSeconds Probe period for UI startup probe
+        ##
+        periodSeconds: 10
+        ## @param cluster.ui.standalone.startupProbe.timeoutSeconds Timeout in seconds for UI startup probe
+        ##
+        timeoutSeconds: 5
+        ## @param cluster.ui.standalone.startupProbe.successThreshold Success threshold for UI startup probe
+        ##
+        successThreshold: 1
+        ## @param cluster.ui.standalone.startupProbe.failureThreshold Failure threshold for UI startup probe
+        ##
+        failureThreshold: 60
+
+  ## @section Configuration for FODC (First Occurrence Data Collection)
+  ##
+  fodc:
+    ## @param cluster.fodc.enabled Enable FODC (both Agent and Proxy) (boolean)
+    enabled: true
+    ## @section FODC Proxy component
+    ##
+    proxy:
+      ## @param cluster.fodc.proxy.podAnnotations Pod annotations for Proxy
+      podAnnotations: {}
+      ## @param cluster.fodc.proxy.securityContext Security context for Proxy pods
+      securityContext: {}
+      ## @param cluster.fodc.proxy.containerSecurityContext Container-level security context for Proxy
+      containerSecurityContext: {}
+      ## @param cluster.fodc.proxy.env Environment variables for Proxy pods
+      env: []
+      ## @param cluster.fodc.proxy.priorityClassName Priority class name for Proxy pods
+      priorityClassName: ""
+      ## @param cluster.fodc.proxy.podDisruptionBudget Pod disruption budget for Proxy
+      podDisruptionBudget: {}
+      ## @param cluster.fodc.proxy.tolerations Tolerations for Proxy pods
+      tolerations: []
+      ## @param cluster.fodc.proxy.nodeSelector Node selector for Proxy pods
+      nodeSelector: []
+      ## @param cluster.fodc.proxy.affinity Affinity rules for Proxy pods
+      affinity: {}
+      ## @param cluster.fodc.proxy.podAffinityPreset Pod affinity preset for Proxy
+      podAffinityPreset: ""
+      ## @param cluster.fodc.proxy.podAntiAffinityPreset Pod anti-affinity preset for Proxy
+      podAntiAffinityPreset: soft
+      ## Resource requests/limits for Proxy
+      resources:
+        ## @param cluster.fodc.proxy.resources.requests Resource requests for Proxy pods
+        requests: []
+        ## @param cluster.fodc.proxy.resources.limits Resource limits for Proxy pods
+        limits: []
+      image:
+        ## @param cluster.fodc.proxy.image.repository Docker repository for FODC Proxy
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-proxy
+        ## @param cluster.fodc.proxy.image.tag Image tag/version for FODC Proxy (empty for latest)
+        tag: ""
+        ## @param cluster.fodc.proxy.image.pullPolicy Image pull policy for FODC Proxy
+        pullPolicy: IfNotPresent
+      grpcSvc:
+        ## @param cluster.fodc.proxy.grpcSvc.labels Labels for Proxy gRPC service
+        labels: {}
+        ## @param cluster.fodc.proxy.grpcSvc.annotations Annotations for Proxy gRPC service
+        annotations: {}
+        ## @param cluster.fodc.proxy.grpcSvc.port Port number for Proxy gRPC service (Agent connections)
+        port: 17912
+      httpSvc:
+        ## @param cluster.fodc.proxy.httpSvc.labels Labels for Proxy HTTP service
+        labels: {}
+        ## @param cluster.fodc.proxy.httpSvc.annotations Annotations for Proxy HTTP service
+        annotations: {}
+        ## @param cluster.fodc.proxy.httpSvc.port Port number for Proxy HTTP service
+        port: 17913
+        ## @param cluster.fodc.proxy.httpSvc.type Service type for Proxy HTTP service (ClusterIP, LoadBalancer, NodePort)
+        type: LoadBalancer
+        ## @param cluster.fodc.proxy.httpSvc.externalIPs External IP addresses for Proxy HTTP service
+        externalIPs: []
+        ## @param cluster.fodc.proxy.httpSvc.loadBalancerIP Load balancer IP for Proxy HTTP service
+        loadBalancerIP: null
+        ## @param cluster.fodc.proxy.httpSvc.loadBalancerSourceRanges Allowed source ranges for Proxy HTTP service
+        loadBalancerSourceRanges: []
+      ingress:
+        ## @param cluster.fodc.proxy.ingress.enabled Enable ingress for Proxy
+        enabled: false
+        ## @param cluster.fodc.proxy.ingress.labels Labels for Proxy ingress
+        labels: {}
+        ## @param cluster.fodc.proxy.ingress.annotations Annotations for Proxy ingress
+        annotations: {}
+        ## @param cluster.fodc.proxy.ingress.rules Ingress rules for Proxy
+        rules: []
+        ## @param cluster.fodc.proxy.ingress.tls TLS configuration for Proxy ingress
+        tls: []
+      config:
+        ## @param cluster.fodc.proxy.config.agentHeartbeatTimeout Timeout for considering agent offline
+        agentHeartbeatTimeout: 30s
+        ## @param cluster.fodc.proxy.config.agentCleanupTimeout Timeout for auto-unregistering offline agents
+        agentCleanupTimeout: 5m
+        ## @param cluster.fodc.proxy.config.maxAgents Maximum number of agents allowed to register
+        maxAgents: 1000
+        ## @param cluster.fodc.proxy.config.grpcMaxMsgSize Maximum gRPC message size in bytes
+        grpcMaxMsgSize: 4194304
+        ## @param cluster.fodc.proxy.config.httpReadTimeout HTTP read timeout
+        httpReadTimeout: 10s
+        ## @param cluster.fodc.proxy.config.httpWriteTimeout HTTP write timeout
+        httpWriteTimeout: 10s
+        ## @param cluster.fodc.proxy.config.heartbeatInterval Default heartbeat interval for agents
+        heartbeatInterval: 10s
+      livenessProbe:
+        ## @param cluster.fodc.proxy.livenessProbe.initialDelaySeconds Initial delay for Proxy liveness probe
+        initialDelaySeconds: 10
+        ## @param cluster.fodc.proxy.livenessProbe.periodSeconds Probe period for Proxy liveness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.proxy.livenessProbe.timeoutSeconds Timeout in seconds for Proxy liveness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.livenessProbe.successThreshold Success threshold for Proxy liveness probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.livenessProbe.failureThreshold Failure threshold for Proxy liveness probe
+        failureThreshold: 5
+      readinessProbe:
+        ## @param cluster.fodc.proxy.readinessProbe.initialDelaySeconds Initial delay for Proxy readiness probe
+        initialDelaySeconds: 10
+        ## @param cluster.fodc.proxy.readinessProbe.periodSeconds Probe period for Proxy readiness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.proxy.readinessProbe.timeoutSeconds Timeout in seconds for Proxy readiness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.readinessProbe.successThreshold Success threshold for Proxy readiness probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.readinessProbe.failureThreshold Failure threshold for Proxy readiness probe
+        failureThreshold: 5
+      startupProbe:
+        ## @param cluster.fodc.proxy.startupProbe.initialDelaySeconds Initial delay for Proxy startup probe
+        initialDelaySeconds: 0
+        ## @param cluster.fodc.proxy.startupProbe.periodSeconds Probe period for Proxy startup probe
+        periodSeconds: 10
+        ## @param cluster.fodc.proxy.startupProbe.timeoutSeconds Timeout in seconds for Proxy startup probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.proxy.startupProbe.successThreshold Success threshold for Proxy startup probe
+        successThreshold: 1
+        ## @param cluster.fodc.proxy.startupProbe.failureThreshold Failure threshold for Proxy startup probe
+        failureThreshold: 60
+
+    ## @section FODC Agent sidecar
+    ##
+    agent:
+      image:
+        ## @param cluster.fodc.agent.image.repository Docker repository for FODC Agent
+        repository: ghcr.io/apache/skywalking-banyandb-fodc-agent
+        ## @param cluster.fodc.agent.image.tag Image tag/version for FODC Agent (defaults to same as main image)
+        tag: ""
+        ## @param cluster.fodc.agent.image.pullPolicy Image pull policy for FODC Agent
+        pullPolicy: IfNotPresent
+      ## @param cluster.fodc.agent.env Environment variables for Agent sidecar
+      env: []
+      ## @param cluster.fodc.agent.containerSecurityContext Container-level security context for Agent
+      containerSecurityContext: {}
+      resources:
+        ## @extra cluster.fodc.agent.resources.requests Resource requests for Agent
+        ##
+        requests:
+          ## @param cluster.fodc.agent.resources.requests[0].key Resource request key
+          ## @param cluster.fodc.agent.resources.requests[0].value Resource request value
+          - key: memory
+            value: 256Mi
+        ## @extra cluster.fodc.agent.resources.limits Resource limits for Agent
+        ##
+        limits:
+          ## @param cluster.fodc.agent.resources.limits[0].key Resource limit key
+          ## @param cluster.fodc.agent.resources.limits[0].value Resource limit value
+          - key: memory
+            value: 256Mi
+      ## @param cluster.fodc.agent.metricsPort Metrics port for Agent sidecar (prometheus-listen-addr flag)
+      metricsPort: 9090
+      config:
+        ## @param cluster.fodc.agent.config.pollMetricsInterval Interval for polling BanyanDB metrics (poll-metrics-interval flag)
+        pollMetricsInterval: 15s
+        ## @param cluster.fodc.agent.config.heartbeatInterval Heartbeat interval to Proxy (heartbeat-interval flag)
+        heartbeatInterval: 10s
+        ## @param cluster.fodc.agent.config.reconnectInterval Reconnect interval when connection to Proxy is lost (reconnect-interval flag)
+        reconnectInterval: 10s
+        ## @param cluster.fodc.agent.config.ktmEnabled Enable Kernel Telemetry Module (affects max-metrics-memory-usage-percentage)
+        ktmEnabled: true
+        ## @param cluster.fodc.agent.config.pollClusterStateInterval Interval for polling cluster state from Proxy (poll-cluster-state-interval flag)
+        pollClusterStateInterval: 30s
+        ## Panic/crash diagnostics collection. Shares an emptyDir between the banyand
+        ## container (writes panic.json) and the fodc-agent (reads & reports it).
+        crashCollection:
+          ## @param cluster.fodc.agent.config.crashCollection.enabled Enable panic/crash diagnostics collection
+          enabled: true
+          ## @param cluster.fodc.agent.config.crashCollection.dir Shared path where banyand writes panic.json and fodc-agent reads it
+          dir: /tmp/crash
+          ## @param cluster.fodc.agent.config.crashCollection.maxArtifacts Max crash artifact directories banyand retains (oldest removed first; 0 disables pruning)
+          maxArtifacts: 10
+          ## @param cluster.fodc.agent.config.crashCollection.diagnosisMemoryPercent Set banyand GOMEMLIMIT to this percent of the cgroup memory limit, reserving headroom for post-panic diagnostics (0 disables)
+          diagnosisMemoryPercent: 50
+      ## Memory-pressure pprof capture. When a data container's RSS approaches its
+      ## cgroup memory limit, the agent pulls heap+goroutine pprof from the data
+      ## container's pprof endpoint (port 6060) onto an emptyDir mounted into the
+      ## fodc-agent, served by the proxy's HTTP API. Requires a data-container memory
+      ## limit to be effective.
+      pressureProfiler:
+        ## @param cluster.fodc.agent.pressureProfiler.enabled Enable automatic heap+goroutine pprof capture under memory pressure
+        enabled: true
+        ## @param cluster.fodc.agent.pressureProfiler.triggerPercent Capture when RSS / cgroup_limit reaches this percentage
+        triggerPercent: 75
+        ## @param cluster.fodc.agent.pressureProfiler.cooldown Minimum interval between two captures
+        cooldown: 5m
+        ## @param cluster.fodc.agent.pressureProfiler.dir Directory (on the writable volume) where captured profiles are stored; must equal the pressure-profiles mount path
+        dir: /tmp/pressure-profiles
+        ## @param cluster.fodc.agent.pressureProfiler.maxArtifacts Maximum number of capture events to retain (lowest-RSS evicted first)
+        maxArtifacts: 16
+        ## @param cluster.fodc.agent.pressureProfiler.maxDiskSize Maximum total on-disk size for retained events; case-insensitive, all suffixes are 1024-based (K/M/G/T, KB/MB/GB/TB, Ki/Mi/Gi/Ti), or a plain byte count; 0 disables the disk bound
+        maxDiskSize: 512Mi
+      ## Liveness probe for Agent
+      livenessProbe:
+        ## @param cluster.fodc.agent.livenessProbe.initialDelaySeconds Initial delay for Agent liveness probe
+        initialDelaySeconds: 90
+        ## @param cluster.fodc.agent.livenessProbe.periodSeconds Probe period for Agent liveness probe
+        periodSeconds: 30
+        ## @param cluster.fodc.agent.livenessProbe.timeoutSeconds Timeout in seconds for Agent liveness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.agent.livenessProbe.successThreshold Success threshold for Agent liveness probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.livenessProbe.failureThreshold Failure threshold for Agent liveness probe
+        failureThreshold: 5
+      ## Readiness probe for Agent
+      readinessProbe:
+        ## @param cluster.fodc.agent.readinessProbe.initialDelaySeconds Initial delay for Agent readiness probe
+        initialDelaySeconds: 60
+        ## @param cluster.fodc.agent.readinessProbe.periodSeconds Probe period for Agent readiness probe
+        periodSeconds: 10
+        ## @param cluster.fodc.agent.readinessProbe.timeoutSeconds Timeout in seconds for Agent readiness probe
+        timeoutSeconds: 5
+        ## @param cluster.fodc.agent.readinessProbe.successThreshold Success threshold for Agent readiness probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.readinessProbe.failureThreshold Failure threshold for Agent readiness probe
+        failureThreshold: 12
+      ## Startup probe for Agent
+      startupProbe:
+        ## @param cluster.fodc.agent.startupProbe.initialDelaySeconds Initial delay for Agent startup probe
+        initialDelaySeconds: 30
+        ## @param cluster.fodc.agent.startupProbe.periodSeconds Probe period for Agent startup probe
+        periodSeconds: 5
+        ## @param cluster.fodc.agent.startupProbe.timeoutSeconds Timeout in seconds for Agent startup probe
+        timeoutSeconds: 3
+        ## @param cluster.fodc.agent.startupProbe.successThreshold Success threshold for Agent startup probe
+        successThreshold: 1
+        ## @param cluster.fodc.agent.startupProbe.failureThreshold Failure threshold for Agent startup probe
+        failureThreshold: 60
+
+## @section Storage configuration for persistent volumes
+##
+storage:
+  ## Data node storage configuration
+  ##
+  data:
+    ## @param storage.data.enabled Enable persistent storage for data nodes (boolean)
+    ##
+    enabled: true
+    ## @extra storage.data.persistentVolumeClaims List of PVC configurations for data nodes
+    ##
+    persistentVolumeClaims:
+    ## @param storage.data.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+    ##
+    - mountTargets: [ "measure" ]
+      ## @param storage.data.persistentVolumeClaims[0].nodeRole Node role this PVC is bound to (hot, warm, cold)
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[0].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: hot-measure-data
+      ## @param storage.data.persistentVolumeClaims[0].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[1].mountTargets Mount targets for the PVC
+    - mountTargets: [ "stream" ]
+      ## @param storage.data.persistentVolumeClaims[1].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[1].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[1].claimName Name of the PVC
+      claimName: hot-stream-data
+      ## @param storage.data.persistentVolumeClaims[1].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[1].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[1].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[1].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[2].mountTargets Mount targets for the PVC
+    - mountTargets: [ "property" ]
+      ## @param storage.data.persistentVolumeClaims[2].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[2].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[2].claimName Name of the PVC
+      claimName: hot-property-data
+      ## @param storage.data.persistentVolumeClaims[2].size Size of the PVC
+      size: 5Gi
+      ## @param storage.data.persistentVolumeClaims[2].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[2].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[2].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[3].mountTargets Mount targets for the PVC
+    - mountTargets: [ "trace" ]
+      ## @param storage.data.persistentVolumeClaims[3].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[3].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[3].claimName Name of the PVC
+      claimName: hot-trace-data
+      ## @param storage.data.persistentVolumeClaims[3].size Size of the PVC
+      size: 50Gi
+      ## @param storage.data.persistentVolumeClaims[3].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[3].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[3].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+    ## @param storage.data.persistentVolumeClaims[4].mountTargets Mount targets for the PVC
+    - mountTargets: [ "schema-property" ]
+      ## @param storage.data.persistentVolumeClaims[4].nodeRole Node role this PVC is bound to
+      ##
+      nodeRole: hot
+      ## @param storage.data.persistentVolumeClaims[4].existingClaimName Existing PVC name (if any)
+      existingClaimName: null
+      ## @param storage.data.persistentVolumeClaims[4].claimName Name of the PVC
+      claimName: hot-schema-property-data
+      ## @param storage.data.persistentVolumeClaims[4].size Size of the PVC
+      size: 5Gi
+      ## @param storage.data.persistentVolumeClaims[4].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.data.persistentVolumeClaims[4].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.data.persistentVolumeClaims[4].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+
+  ## Liaison storage configuration
+  ##
+  liaison:
+    ## @param storage.liaison.enabled Enable persistent storage for liaison nodes (boolean)
+    ##
+    enabled: true
+    ## @extra storage.liaison.persistentVolumeClaims List of PVC configurations for liaison nodes
+    ##
+    persistentVolumeClaims:
+    ## @param storage.liaison.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+    ##
+    - mountTargets: [ "measure", "stream", "trace" ]
+      ## @param storage.liaison.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: liaison-data
+      ## @param storage.liaison.persistentVolumeClaims[0].size Size of the PVC
+      size: 10Gi
+      ## @param storage.liaison.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.liaison.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.liaison.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+
+  ## Standalone storage configuration
+  ##
+  standalone:
+    ## @param storage.standalone.enabled Enable persistent storage for standalone mode (boolean)
+    ##
+    enabled: false
+    ## @extra storage.standalone.persistentVolumeClaims List of PVC configurations for standalone
+    ##
+    persistentVolumeClaims:
+    ## @param storage.standalone.persistentVolumeClaims[0].mountTargets Mount targets for the PVC
+    ##
+    - mountTargets: [ "measure", "stream", "metadata", "property", "trace", "schema-property" ]
+      ## @param storage.standalone.persistentVolumeClaims[0].claimName Name of the PVC
+      claimName: standalone-data
+      ## @param storage.standalone.persistentVolumeClaims[0].size Size of the PVC
+      size: 200Gi
+      ## @param storage.standalone.persistentVolumeClaims[0].accessModes Access modes for the PVC
+      accessModes:
+      - ReadWriteOnce
+      ## @param storage.standalone.persistentVolumeClaims[0].storageClass Storage class for the PVC
+      storageClass: null
+      ## @param storage.standalone.persistentVolumeClaims[0].volumeMode Volume mode for the PVC
+      volumeMode: Filesystem
+
+## @section Service account configuration
+##
+serviceAccount:
+  ## @param serviceAccount.create Create a service account (boolean)
+  ##
+  create: true
+  ## @param serviceAccount.annotations Annotations for the service account
+  ##
+  annotations: {}
+  ## @param serviceAccount.name Name of the service account
+  ##
+  name: ""
+

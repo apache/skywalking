@@ -1,0 +1,131 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# E2E values for testing trace-pipeline sampler plugin deployment.
+
+image:
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0
+  pullPolicy: IfNotPresent
+
+cluster:
+  enabled: true
+  nodeDiscovery:
+    mode: "dns"
+  liaison:
+    replicas: 1
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop: ["ALL"]
+    volumePermissions:
+      enabled: true
+      chownUser: 1000
+      chownGroup: 1000
+      image: busybox:1.36
+    podDisruptionBudget: {}
+    updateStrategy:
+      type: RollingUpdate
+    podManagementPolicy: Parallel
+    resources:
+      requests: []
+      limits: []
+    grpcSvc:
+      port: 17912
+    httpSvc:
+      port: 17913
+      type: ClusterIP
+    livenessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+    startupProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+  data:
+    nodeTemplate:
+      replicas: 1
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+      volumePermissions:
+        enabled: true
+        chownUser: 1000
+        chownGroup: 1000
+        image: busybox:1.36
+      podDisruptionBudget: {}
+      resources:
+        requests: []
+        limits: []
+      backupSidecar:
+        enabled: false
+      restoreInitContainer:
+        enabled: false
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+    roles:
+      hot:
+        hasMetaRole: true
+
+  ui:
+    type: None
+
+  fodc:
+    enabled: false
+
+plugins:
+  enabled: true
+  mountMode: initContainer

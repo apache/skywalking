@@ -1,0 +1,475 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Default values for banyandb.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 998ce31226f94836234bd3d93bd25abade9c9f65
+  pullPolicy: IfNotPresent
+
+cluster:
+  enabled: true
+  nodeDiscovery:
+    mode: "dns"
+  liaison:
+    replicas: 2
+    podAnnotations:
+      example: banyandb-foo
+    securityContext: 
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop: ["ALL"]
+    volumePermissions:
+      enabled: true
+      chownUser: 1000
+      chownGroup: 1000
+      image: busybox:1.36
+    # runAsUser: 1000
+    # runAsGroup: 1000
+    # fsGroup: 1000
+    env: []
+    # - name: BANYANDB_FOO
+    #   value: "bar"
+    priorityClassName: ""
+    podDisruptionBudget: {}
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+    podManagementPolicy: Parallel
+    # minAvailable: 1
+    # maxUnavailable: 2
+    # matchLabels:
+    #   - key: foo
+    #     value: bar
+    # matchExpressions:
+    #   - key: foo
+    #     operator: In
+    #     values: [bar, baz]
+    # paused: false
+    tolerations: []
+    # - key: foo
+    #   value: bar
+    #   operator: Equal
+    #   effect: NoSchedule
+    nodeSelector: []
+    # - key: foo
+    #   value: bar
+    affinity: {}
+    # nodeAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     nodeSelectorTerms:
+    #       - matchExpressions:
+    #           - key: foo
+    #             operator: In
+    #             values:
+    #               - bar
+    #               - baz
+    # podAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     - labelSelector:
+    #         matchLabels:
+    #           - key: app
+    #             value: banyandb
+    #       topologyKey: "kubernetes.io/hostname"
+    #       namespaces: []
+    podAffinityPreset: ""
+    podAntiAffinityPreset: soft
+    resources:
+      requests: []
+      # - key: cpu
+      #   value: "100m"
+      # - key: memory
+      #   value: "256Mi"
+      limits: []
+      # - key: cpu
+      #   value: "500m"
+      # - key: memory
+      #   value: "512Mi"
+      # tls:
+      #   grpcSecretName: ""
+      #   httpSecretName: ""
+
+    grpcSvc:
+      labels: {}
+      annotations: {}
+      port: 17912
+
+    httpSvc:
+      labels: {}
+      annotations: {}
+      port: 17913
+      type: ClusterIP
+      externalIPs: []
+      loadBalancerIP: null
+      loadBalancerSourceRanges: []
+
+    ingress:
+      enabled: false
+      labels: {}
+      annotations: {}
+      rules: []
+      # - host: localhost
+      #   paths:
+      #     - path: /
+      #       port: 17913
+      #       serviceName: banyandb-http
+      tls: []
+      # - hosts:
+      #     - localhost
+      #   secretName: tls-secret
+
+    livenessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+    startupProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+  data:
+    nodeTemplate:
+      replicas: 2
+      podAnnotations:
+        example: banyandb-foo
+      securityContext: 
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+      volumePermissions:
+        enabled: true
+        chownUser: 1000
+        chownGroup: 1000
+        image: busybox:1.36
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+      env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+      priorityClassName: ""
+      podDisruptionBudget:
+        maxUnavailable: 1
+      # minAvailable: 1
+      # maxUnavailable: 2
+      # matchLabels:
+      #   - key: foo
+      #     value: bar
+      # matchExpressions:
+      #   - key: foo
+      #     operator: In
+      #     values: [bar, baz]
+      # paused: false
+      tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+      nodeSelector: []
+      # - key: foo
+      #   value: bar
+      affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+        limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+        # tls:
+        #   grpcSecretName: ""
+  
+      grpcSvc:
+        labels: {}
+        annotations: {}
+        port: 17912
+
+      sidecar: []
+      # - name: cleanup-sidecar
+      #   image: busybox:latest
+      #   imagePullPolicy: IfNotPresent
+      #   commands: 
+      #     normal: ["sh", "-c", "while true; do echo 'sidecar task'; sleep 60; done"]
+      #     preStop: ["sh", "-c", "echo cleanup"]
+      backupSidecar:
+        enabled: true
+        dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+        timeStyle: "daily"
+        schedule: "@every 10s"
+        customFlags: []
+        resources: {}
+      restoreInitContainer:
+        enabled: true
+        customFlags: []
+        resources: {}
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+    roles:
+      hot: {}
+  ui:
+    # Available UI type: 
+    # None: Disable UI
+    # Standalone: Standalone UI deployment
+    # Embedded: Embedded UI in Liaison
+    type: Embedded
+    standalone:
+      replicas: 1
+      podAnnotations: # example: banyandb-foo
+
+      securityContext: {}
+      # runAsUser: 1000
+      # runAsGroup: 1000
+      # fsGroup: 1000
+      env: []
+      # - name: BANYANDB_FOO
+      #   value: "bar"
+      priorityClassName: ""
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+      podDisruptionBudget: {}
+      #  minAvailable: 1
+      # maxUnavailable: 2
+      # paused: false
+      tolerations: []
+      # - key: foo
+      #   value: bar
+      #   operator: Equal
+      #   effect: NoSchedule
+      nodeSelector: []
+      # - key: foo
+      #   value: bar
+      affinity: {}
+      # nodeAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     nodeSelectorTerms:
+      #       - matchExpressions:
+      #           - key: foo
+      #             operator: In
+      #             values:
+      #               - bar
+      #               - baz
+      # podAffinity:
+      #   requiredDuringSchedulingIgnoredDuringExecution:
+      #     - labelSelector:
+      #         matchLabels:
+      #           - key: app
+      #             value: banyandb
+      #       topologyKey: "kubernetes.io/hostname"
+      #       namespaces: []
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        # - key: cpu
+        #   value: "100m"
+        # - key: memory
+        #   value: "256Mi"
+        limits: []
+        # - key: cpu
+        #   value: "500m"
+        # - key: memory
+        #   value: "512Mi"
+        # tls:
+        # grpcSecretName: ""
+        # httpSecretName: ""
+
+      httpSvc:
+        labels: {}
+        annotations: {}
+        port: 17913
+        type: ClusterIP
+        externalIPs: []
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+
+      ingress:
+        enabled: false
+        labels: {}
+        annotations: {}
+        rules: []
+        # - host: localhost
+        #   paths:
+        #     - path: /
+        #       port: 17913
+        #       serviceName: banyandb-ui
+        tls: []
+        # - hosts:
+        #     - localhost
+        #   secretName: tls-secret
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+  fodc:
+    enabled: false
+
+storage:
+  data:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "backups" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: backups
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  liaison:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "trace" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property", "trace", "schema-property" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+fullnameOverride: ""
+nameOverride: "banyandb"
+
+auth:
+  enabled: true
+  existingSecret: ""
+  credentialsFileKey: "credentials.yaml"
+  users:
+    - username: admin
+      password: banyandb
+
+canopy:
+  enabled: true
+  image:
+    tag: "36921708b3bd3e0cd0ca37db9761fadf685c99a1-canopy"
+  service:
+    type: ClusterIP

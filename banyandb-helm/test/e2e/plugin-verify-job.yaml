@@ -1,0 +1,99 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Temporary ClusterIP service to expose the data-node metrics port (2121)
+# so the verify Job can scrape sampler plugin metrics.
+apiVersion: v1
+kind: Service
+metadata:
+  name: banyandb-data-hot-metrics
+  namespace: istio-system
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: banyandb
+    app.kubernetes.io/instance: banyandb
+    app.kubernetes.io/component: data
+    app.kubernetes.io/role: hot
+  ports:
+    - name: metrics
+      port: 2121
+      targetPort: 2121
+
+---
+
+# Job that creates a trace group with a sampler pipeline and then scrapes
+# the data-node metrics to confirm the plugin loaded.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: banyandb-plugin-verify
+  namespace: istio-system
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: verify
+          image: curlimages/curl:8.5.0
+          command:
+            - sh
+            - -c
+            - |
+              set -euo pipefail
+
+              LIAISON_URL="http://banyandb-http.istio-system.svc.cluster.local:17913/api/v1/group/schema"
+              METRICS_URL="http://banyandb-data-hot-metrics.istio-system.svc.cluster.local:2121/metrics"
+              GROUP_NAME="e2e-plugins"
+
+              curl -fsS -o /dev/null -X POST "$LIAISON_URL" \
+                -H 'Content-Type: application/json' \
+                -d "{
+                  \"group\": {
+                    \"metadata\": {\"name\": \"$GROUP_NAME\", \"group\": \"$GROUP_NAME\"},
+                    \"catalog\": \"CATALOG_TRACE\",
+                    \"resourceOpts\": {
+                      \"shardNum\": 1,
+                      \"segmentInterval\": {\"unit\": \"UNIT_DAY\", \"num\": 1},
+                      \"ttl\": {\"unit\": \"UNIT_DAY\", \"num\": 1}
+                    },
+                    \"pipeline\": {
+                      \"enabled\": true,
+                      \"enabledEvents\": [\"PIPELINE_EVENT_MERGE\"],
+                      \"plugins\": [{
+                        \"name\": \"latency-status\",
+                        \"sampler\": {
+                          \"path\": \"latencystatussampler.so\",
+                          \"symbol\": \"NewSampler\",
+                          \"abiVersion\": 1,
+                          \"config\": {\"thresholdMs\": 500, \"successValue\": \"success\"}
+                        }
+                      }]
+                    }
+                  }
+                }"
+
+              for i in $(seq 1 60); do
+                if curl -fsS "$METRICS_URL" 2>/dev/null | grep -q "banyandb_trace_pipeline_sampler_active_count{group=\"$GROUP_NAME\"} 1"; then
+                  echo "plugin_loaded: true"
+                  exit 0
+                fi
+                sleep 2
+              done
+
+              echo "plugin_loaded: false"
+              echo "Metrics output:"
+              curl -fsS "$METRICS_URL" 2>/dev/null || true
+              exit 1

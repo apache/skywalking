@@ -1,0 +1,219 @@
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- if and .Values.cluster.enabled (eq .Values.cluster.ui.type "Standalone") }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels: {{ include "banyandb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: ui
+  name: {{ template "banyandb.fullname" . }}-ui
+spec:
+  replicas: {{ .Values.cluster.ui.standalone.replicas }}
+  selector:
+    matchLabels: {{ include "banyandb.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: ui
+  strategy: {{ toYaml .Values.cluster.ui.standalone.updateStrategy | nindent 4 }}
+  template:
+    metadata:
+      labels: {{ include "banyandb.labels" . | nindent 8 }}
+        app.kubernetes.io/component: ui
+      {{- if .Values.cluster.ui.standalone.podAnnotations }}
+      annotations:
+{{ toYaml .Values.cluster.ui.standalone.podAnnotations | indent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ template "banyandb.serviceAccountName" . }}
+      {{- with .Values.cluster.ui.standalone.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      priorityClassName: {{ .Values.cluster.ui.standalone.priorityClassName }}
+      containers:
+        - name: ui
+          image: {{ .Values.image.repository }}:{{ required "banyandb.image.tag is required" .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $env := .Values.cluster.ui.standalone.env }}
+            - name: {{ $env.name }}
+              value: {{ $env.value }}
+            {{- end }}
+            {{- if .Values.cluster.ui.standalone.tls }}
+            {{- if .Values.cluster.ui.standalone.tls.httpSecretName }}
+            - name: BYDB_HTTP_TLS
+              value: "true"
+            - name: BYDB_HTTP_CERT_FILE
+              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.crt"
+            - name: BYDB_HTTP_KEY_FILE
+              value: "/etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}/tls.key"
+            {{- end }}
+            {{- end }}
+          args:
+            - liaison
+          ports:
+            - containerPort: 17913
+              name: http
+            - containerPort: 6060
+              name: pprof
+            - containerPort: 2121
+              name: observability
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.ui.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.ui.standalone.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.ui.standalone.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.ui.standalone.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.ui.standalone.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.ui.standalone.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.ui.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.ui.standalone.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.ui.standalone.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.ui.standalone.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.ui.standalone.livenessProbe.failureThreshold }}
+          startupProbe:
+            httpGet:
+              path: /api/healthz
+              port: 17913
+              {{- if .Values.cluster.ui.standalone.tls }}
+              scheme: HTTPS
+              {{- else }}
+              scheme: HTTP
+              {{- end }}
+            initialDelaySeconds: {{ .Values.cluster.ui.standalone.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.cluster.ui.standalone.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.cluster.ui.standalone.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.cluster.ui.standalone.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.cluster.ui.standalone.startupProbe.failureThreshold }}
+          
+          {{- if.Values.cluster.ui.standalone.resources }}
+          resources:
+            {{- if.Values.cluster.ui.standalone.resources.requests }}
+            requests:
+              {{- range $request := .Values.cluster.ui.standalone.resources.requests }}
+              {{ $request.key }}: {{ $request.value }}
+              {{- end }}
+            {{- end }}
+            {{- if.Values.cluster.ui.standalone.resources.limits }}
+            limits:
+              {{- range $limit := .Values.cluster.ui.standalone.resources.limits }}
+              {{ $limit.key }}: {{ $limit.value }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+
+          {{- if .Values.cluster.ui.standalone.tls }}
+          volumeMounts:
+            {{- if .Values.cluster.ui.standalone.tls.grpcSecretName }}
+            - mountPath: /etc/tls/{{ .Values.cluster.ui.standalone.tls.grpcSecretName }}
+              name: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}-volume
+            {{- end }}
+            {{- if and .Values.cluster.ui.standalone.tls.httpSecretName (ne .Values.cluster.ui.standalone.tls.httpSecretName .Values.cluster.ui.standalone.tls.grpcSecretName) }}
+            - mountPath: /etc/tls/{{ .Values.cluster.ui.standalone.tls.httpSecretName }}
+              name: {{ .Values.cluster.ui.standalone.tls.httpSecretName }}-volume
+            {{- end }}
+          {{- end }}
+
+      {{- if .Values.cluster.ui.standalone.tls }}
+      volumes:
+        {{- if .Values.cluster.ui.standalone.tls.grpcSecretName }}
+        - name: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}-volume
+          secret:
+            secretName: {{ .Values.cluster.ui.standalone.tls.grpcSecretName }}
+        {{- end }}
+        {{- if and .Values.cluster.ui.standalone.tls.httpSecretName (ne .Values.cluster.ui.standalone.tls.httpSecretName .Values.cluster.ui.standalone.tls.grpcSecretName) }}
+        - name: {{ .Values.cluster.ui.standalone.tls.httpSecretName }}-volume
+          secret:
+            secretName: {{ .Values.cluster.ui.standalone.tls.httpSecretName }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.ui.standalone.tolerations }}
+      tolerations:
+        {{- range $toleration := .Values.cluster.ui.standalone.tolerations }}
+        - key: {{ $toleration.key }}
+          operator: {{ $toleration.operator }}
+          value: {{ $toleration.value }}
+          effect: {{ $toleration.effect }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.ui.standalone.nodeSelector }}
+      nodeSelector:
+        {{- range $selector := .Values.cluster.ui.standalone.nodeSelector }}
+        {{ $selector.key }}: {{ $selector.value }}
+        {{- end }}
+      {{- end }}
+
+      {{- if .Values.cluster.ui.standalone.affinity }}
+      affinity: {{ toYaml .Values.cluster.ui.standalone.affinity | nindent 8 }}
+      {{- else if or .Values.cluster.ui.standalone.podAffinityPreset .Values.cluster.ui.standalone.podAntiAffinityPreset }}
+      affinity:
+        {{- if and .Values.cluster.ui.standalone.podAffinityPreset (not (empty .Values.cluster.ui.standalone.podAffinityPreset)) }}
+        podAffinity:
+          {{- if eq .Values.cluster.ui.standalone.podAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: ui
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.ui.standalone.podAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: ui
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+        {{- if and .Values.cluster.ui.standalone.podAntiAffinityPreset (not (empty .Values.cluster.ui.standalone.podAntiAffinityPreset)) }}
+        podAntiAffinity:
+          {{- if eq .Values.cluster.ui.standalone.podAntiAffinityPreset "soft" }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: ui
+                topologyKey: kubernetes.io/hostname
+          {{- else if eq .Values.cluster.ui.standalone.podAntiAffinityPreset "hard" }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                labelSelector:
+                  matchLabels: {{ include "banyandb.selectorLabels" . | nindent 20 }}
+                    app.kubernetes.io/component: ui
+              topologyKey: kubernetes.io/hostname
+          {{- end }}
+        {{- end }}
+      {{- end }}
+{{- end }}

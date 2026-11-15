@@ -1,0 +1,453 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Lifecycle-enabled values for banyandb cluster mode.
+# This is a YAML-formatted file with lifecycle configuration enabled.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: ghcr.io/apache/skywalking-banyandb
+  tag: 32055eb1a069a8c6ab93b5e7de5bb72e7bf7dec0
+  pullPolicy: IfNotPresent
+
+cluster:
+  enabled: true
+  nodeDiscovery:
+    mode: "dns"
+  liaison:
+    replicas: 2
+    podAnnotations:
+      example: banyandb-foo
+    securityContext: 
+      runAsUser: 1000
+      runAsGroup: 1000
+      fsGroup: 1000
+    containerSecurityContext:
+      readOnlyRootFilesystem: true
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      capabilities:
+        drop: ["ALL"]
+    volumePermissions:
+      enabled: true
+      chownUser: 1000
+      chownGroup: 1000
+      image: busybox:1.36
+    env:
+      - name: BYDB_DATA_NODE_SELECTOR
+        value: "type=hot"
+    priorityClassName: ""
+    podDisruptionBudget: {}
+    updateStrategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 1
+    podManagementPolicy: Parallel
+    tolerations: []
+    nodeSelector: []
+    affinity: {}
+    podAffinityPreset: ""
+    podAntiAffinityPreset: soft
+    resources:
+      requests: []
+      limits: []
+
+    grpcSvc:
+      labels: {}
+      annotations: {}
+      port: 17912
+
+    httpSvc:
+      labels: {}
+      annotations: {}
+      port: 17913
+      type: ClusterIP
+      externalIPs: []
+      loadBalancerIP: null
+      loadBalancerSourceRanges: []
+
+    ingress:
+      enabled: false
+      labels: {}
+      annotations: {}
+      rules: []
+      tls: []
+
+    livenessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+    startupProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 60
+
+  data:
+    nodeTemplate:
+      replicas: 2
+      podAnnotations:
+        example: banyandb-foo
+      securityContext: 
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containerSecurityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        runAsNonRoot: true
+        capabilities:
+          drop: ["ALL"]
+      volumePermissions:
+        enabled: true
+        chownUser: 1000
+        chownGroup: 1000
+        image: busybox:1.36
+      env: []
+      priorityClassName: ""
+      podDisruptionBudget:
+        maxUnavailable: 1
+      tolerations: []
+      nodeSelector: []
+      affinity: {}
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        limits: []
+
+      grpcSvc:
+        labels: {}
+        annotations: {}
+        port: 17912
+
+      sidecar: []
+
+      backupSidecar:
+        enabled: true
+        dest: "file:///tmp/backups/data-$(ORDINAL_NUMBER)"
+        timeStyle: "daily"
+        schedule: "@hourly"
+        customFlags: []
+        resources: {}
+
+      lifecycleSidecar:
+        enabled: true
+        schedule: "@hourly"
+        progressFile: "/tmp/stream/lifecycle/progress.json"
+        reportDir: "/tmp/stream/lifecycle/reports"
+        resources: {}
+
+      restoreInitContainer:
+        enabled: true
+        customFlags: []
+        resources: {}
+
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+    roles:
+      hot:
+        hasMetaRole: true
+        lifecycleSidecar:
+          schedule: "@daily"
+          enabled: true
+          progressFile: "/tmp/stream/lifecycle/progress.json"
+          reportDir: "/tmp/stream/lifecycle/reports"
+          resources:
+            requests:
+              - key: cpu
+                value: 200m
+              - key: memory
+                value: 128Mi
+            limits:
+              - key: cpu
+                value: 500m
+              - key: memory
+                value: 512Mi
+      warm:
+        hasMetaRole: false
+        lifecycleSidecar:
+          schedule: "@daily"
+          enabled: true
+          progressFile: "/tmp/stream/lifecycle/progress.json"
+          reportDir: "/tmp/stream/lifecycle/reports"
+          resources:
+            requests:
+              - key: cpu
+                value: 200m
+              - key: memory
+                value: 128Mi
+            limits:
+              - key: cpu
+                value: 500m
+              - key: memory
+                value: 512Mi
+      cold:
+        hasMetaRole: false
+        replicas: 1
+
+  ui:
+    type: Embedded
+    standalone:
+      replicas: 1
+      podAnnotations:
+      securityContext: {}
+      env: []
+      priorityClassName: ""
+      updateStrategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+      podDisruptionBudget: {}
+      tolerations: []
+      nodeSelector: []
+      affinity: {}
+      podAffinityPreset: ""
+      podAntiAffinityPreset: soft
+      resources:
+        requests: []
+        limits: []
+
+      httpSvc:
+        labels: {}
+        annotations: {}
+        port: 17913
+        type: ClusterIP
+        externalIPs: []
+        loadBalancerIP: null
+        loadBalancerSourceRanges: []
+
+      ingress:
+        enabled: false
+        labels: {}
+        annotations: {}
+        rules: []
+        tls: []
+
+      livenessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+
+      readinessProbe:
+        initialDelaySeconds: 20
+        periodSeconds: 30
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 5
+
+      startupProbe:
+        initialDelaySeconds: 0
+        periodSeconds: 5
+        timeoutSeconds: 5
+        successThreshold: 1
+        failureThreshold: 60
+
+  fodc:
+    enabled: false
+
+storage:
+  data:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-measure-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-stream-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-property-data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-trace-data
+      size: 50Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "schema-property" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-schema-property-data
+      size: 5Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "measure" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-measure-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-stream-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-property-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: warm
+      existingClaimName: null
+      claimName: warm-trace-data
+      size: 100Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "measure" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-measure-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "stream" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-stream-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "property" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-property-data
+      size: 20Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "trace" ]
+      nodeRole: cold
+      existingClaimName: null
+      claimName: cold-trace-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+    - mountTargets: [ "backups" ]
+      nodeRole: hot
+      existingClaimName: null
+      claimName: hot-backups
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+
+  liaison:
+    enabled: true
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "trace" ]
+      claimName: liaison-data
+      size: 10Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+
+  standalone:
+    enabled: false
+    persistentVolumeClaims:
+    - mountTargets: [ "measure", "stream", "property", "schema-property" ]
+      claimName: standalone-data
+      size: 200Gi
+      accessModes:
+      - ReadWriteOnce
+      storageClass: null
+      volumeMode: Filesystem
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+fullnameOverride: ""
+nameOverride: "banyandb"

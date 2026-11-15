@@ -1,0 +1,54 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: Publish Snapshot Helm Chart
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  HUB: ghcr.io/apache/skywalking-banyandb-helm
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    timeout-minutes: 20
+    name: Publish Snapshot Helm Chart
+    strategy:
+      matrix:
+        chart:
+          - path: chart/
+            name: skywalking-banyandb-helm
+    steps:
+      - uses: actions/checkout@v7
+      - name: Log in to the Container registry
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ${{ env.HUB }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Deploy SkyWalking BanyanDB Helm Chart
+        run: |
+          VERSION=0.0.0-$(git rev-parse --short HEAD)
+          sed -i "s/^version: .*/version: $VERSION/" ${{ matrix.chart.path }}/Chart.yaml
+          helm dep up ${{ matrix.chart.path }}
+          helm package ${{ matrix.chart.path }}
+          helm push ${{ matrix.chart.name }}-$VERSION.tgz oci://${{ env.HUB }}

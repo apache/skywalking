@@ -1,0 +1,81 @@
+{{- if .Values.auth.enabled }}
+1. BanyanDB authentication is enabled.
+
+   Credentials file is mounted into liaison/standalone and picked by `--auth-config-file`.
+
+{{- $useExisting := ne .Values.auth.existingSecret "" -}}
+{{- $secretName := ternary .Values.auth.existingSecret (printf "%s-auth" (include "banyandb.fullname" .)) $useExisting -}}
+{{- $key := .Values.auth.credentialsFileKey -}}
+
+2. To view the credentials YAML stored in the Secret:
+
+   kubectl get secret {{ $secretName }} -n {{ .Release.Namespace }} -o jsonpath='{.data.{{- printf "%s" $key | replace "." "\\." -}}}' | base64 --decode | sed -e 's/^/    /'
+
+   Note: adjust the key if you changed `auth.credentialsFileKey`.
+{{- end }}
+
+{{- if and .Values.cluster.enabled .Values.cluster.fodc.enabled }}
+FODC (First Occurrence Data Collection) Proxy is enabled.
+
+The FODC Proxy provides:
+- Agent registry
+- Aggregated metrics endpoints (/metrics, /metrics-windows)
+
+Services:
+- gRPC (Agent connections): {{ template "banyandb.fullname" . }}-fodc-proxy-grpc:{{ .Values.cluster.fodc.proxy.grpcSvc.port }}
+- HTTP (Metrics & APIs): {{ template "banyandb.fullname" . }}-fodc-proxy-http:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
+
+To access the FODC Proxy metrics:
+   kubectl port-forward svc/{{ template "banyandb.fullname" . }}-fodc-proxy-http -n {{ .Release.Namespace }} {{ .Values.cluster.fodc.proxy.httpSvc.port }}:{{ .Values.cluster.fodc.proxy.httpSvc.port }}
+   curl http://localhost:{{ .Values.cluster.fodc.proxy.httpSvc.port }}/metrics
+{{- end }}
+{{/*
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+{{- if .Values.canopy.enabled }}
+Canopy console is deployed.
+
+  URL (in-cluster):
+    http://{{ template "banyandb.fullname" . }}-canopy.{{ .Release.Namespace }}:{{ .Values.canopy.service.port }}
+  Port-forward:
+    kubectl -n {{ .Release.Namespace }} port-forward svc/{{ template "banyandb.fullname" . }}-canopy {{ .Values.canopy.service.port }}:{{ .Values.canopy.service.port }}
+{{- if .Values.canopy.ingress.enabled }}
+  Ingress is enabled — check `kubectl -n {{ .Release.Namespace }} get ingress {{ template "banyandb.fullname" . }}-canopy` for the address.
+{{- end }}
+{{- if eq (.Values.canopy.auth.backend | default "local") "sso" }}
+
+  Authentication backend: SSO (OIDC/OAuth2).
+  {{- if and .Values.canopy.auth.breakGlass .Values.canopy.auth.breakGlass.enabled }}
+  Break-glass emergency login is enabled for designated local accounts when SSO is unhealthy.
+  {{- end }}
+  {{- if .Values.canopy.auth.existingAuthConfigSecret }}
+  SSO configuration is loaded from existing Secret "{{ .Values.canopy.auth.existingAuthConfigSecret }}".
+  {{- else }}
+  SSO configuration is loaded from Secret "{{ template "banyandb.fullname" . }}-canopy-auth-config".
+  {{- end }}
+{{- else }}
+{{- if .Values.canopy.auth.existingSecret }}
+
+  Credentials are managed by your existing Secret "{{ .Values.canopy.auth.existingSecret }}".
+{{- else }}
+  {{- if ne .Values.canopy.auth.username "" }}
+  Username: {{ .Values.canopy.auth.username }}
+  {{- end }}
+  Password (randomly generated if not set via canopy.auth.password — stable across upgrades):
+    kubectl -n {{ .Release.Namespace }} get secret {{ template "banyandb.fullname" . }}-canopy-auth -o jsonpath='{.data.password}' | base64 -d; echo
+{{- end }}
+{{- end }}
+{{- end }}
