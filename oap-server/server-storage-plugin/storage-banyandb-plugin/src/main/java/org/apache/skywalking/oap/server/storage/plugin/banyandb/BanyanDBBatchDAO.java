@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.storage.IBatchDAO;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.library.client.request.PrepareRequest;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
+import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.AbstractBulkWriteProcessor;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.MeasureBulkWriteProcessor;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.StreamBulkWriteProcessor;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.bulk.TraceBulkWriteProcessor;
@@ -98,16 +99,32 @@ public class BanyanDBBatchDAO extends AbstractDAO<BanyanDBStorageClient> impleme
      * The persistence timer has queued its round: its measures, and the TopN records of a TopN report, which are
      * streams. Send them now: left to the bulks' own schedule they wait up to flushInterval, and the timer schedules
      * the next round only once this one is answered. Traces are not written by the timer and keep their schedule.
-     * The flush returns when BanyanDB has answered.
+     * The flush returns when BanyanDB has answered. Each bulk is sent even when the other's batch fails, so a
+     * rejected measure batch does not leave the round's TopN records to the stream bulk's schedule; the first
+     * failure is rethrown once both are sent.
      */
     @Override
     public void endOfFlush() {
-        if (measureBulkWriteProcessor != null) {
-            measureBulkWriteProcessor.flush();
+        RuntimeException failure = flush(measureBulkWriteProcessor, null);
+        failure = flush(streamBulkWriteProcessor, failure);
+        if (failure != null) {
+            throw failure;
         }
-        if (streamBulkWriteProcessor != null) {
-            streamBulkWriteProcessor.flush();
+    }
+
+    private static RuntimeException flush(AbstractBulkWriteProcessor<?, ?> bulk, RuntimeException failure) {
+        if (bulk == null) {
+            return failure;
         }
+        try {
+            bulk.flush();
+        } catch (RuntimeException e) {
+            if (failure == null) {
+                return e;
+            }
+            failure.addSuppressed(e);
+        }
+        return failure;
     }
 
     private StreamBulkWriteProcessor getStreamBulkWriteProcessor() {
