@@ -84,10 +84,10 @@ public class ElasticSearchIT {
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
             },
             {
-                "ElasticSearch 8.1.0",
+                "ElasticSearch 8.19.25",
                 new ElasticsearchContainer(
                     DockerImageName.parse("docker.elastic.co/elasticsearch/elasticsearch")
-                        .withTag("8.1.0"))
+                        .withTag("8.19.25"))
                                 .withEnv("xpack.security.enabled", "false")
             },
             {
@@ -105,13 +105,18 @@ public class ElasticSearchIT {
                     .withEnv("xpack.security.enabled", "false")
             },
             {
-                "OpenSearch 1.0.0",
+                "OpenSearch 1.3.20",
                 new ElasticsearchContainer(
                     DockerImageName.parse("opensearchproject/opensearch")
-                                   .withTag("1.0.0")
+                                   .withTag("1.3.20")
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
+                    // The image starts the Performance Analyzer agent's JVM together with the launcher's. A JVM that
+                    // starts beside another can print an hsperfdata lock warning to stdout, which the launcher reads
+                    // as part of its JVM options, and OpenSearch then fails with "main class Cannot"
+                    // (opensearch-project/opensearch-build#3821). 2.4.0 has no switch for the agent.
+                    .withEnv("DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI", "true")
                     .withStartupTimeout(java.time.Duration.ofMinutes(5))
             },
             {
@@ -132,6 +137,7 @@ public class ElasticSearchIT {
                                    .asCompatibleSubstituteFor(
                                        "docker.elastic.co/elasticsearch/elasticsearch-oss"))
                     .withEnv("plugins.security.disabled", "true")
+                    .withEnv("DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI", "true")
                     .withStartupTimeout(java.time.Duration.ofMinutes(5))
             }
         });
