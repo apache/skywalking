@@ -33,12 +33,14 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInst
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.groupingBy;
 
 @RequiredArgsConstructor
 public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
@@ -51,44 +53,52 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
                                             final String valueColumnName,
                                             final Duration duration,
                                             final List<KeyValue> additionalConditions) {
-        final var results = new ArrayList<SelectedRecord>();
         final var tables = tableHelper.getTablesForRead(
             metrics.getName(), duration.getStartTimeBucket(), duration.getEndTimeBucket()
         );
-
+        // One table ranks and cuts in SQL. Across day tables the ranking needs each entity's mean over the whole
+        // range, so every table returns every entity's summation and sample count, kept exact until the division.
+        final Map<String, BigDecimal> summations = new HashMap<>();
+        final Map<String, Long> samples = new HashMap<>();
+        final boolean oneTable = tables.size() == 1;
         for (final var table : tables) {
-            final var sqlAndParameters = buildSQL(metrics, valueColumnName, duration, additionalConditions, table);
+            final var sqlAndParameters = oneTable
+                ? buildSQL(metrics, valueColumnName, duration, additionalConditions, table)
+                : buildSummationSQL(metrics, valueColumnName, duration, additionalConditions, table);
 
             jdbcClient.executeQuery(sqlAndParameters.sql(), resultSet -> {
                 while (resultSet.next()) {
-                    final var topNEntity = new SelectedRecord();
-                    topNEntity.setId(resultSet.getString(Metrics.ENTITY_ID));
-                    topNEntity.setValue(String.valueOf(resultSet.getInt("result")));
-                    results.add(topNEntity);
+                    final var entityId = resultSet.getString(Metrics.ENTITY_ID);
+                    if (oneTable) {
+                        summations.put(entityId, resultSet.getBigDecimal("result"));
+                        samples.put(entityId, 1L);
+                    } else {
+                        summations.merge(entityId, resultSet.getBigDecimal("summation"), BigDecimal::add);
+                        samples.merge(entityId, resultSet.getLong("samples"), Long::sum);
+                    }
                 }
                 return null;
             }, sqlAndParameters.parameters());
         }
 
-        final var comparator =
-            Order.ASC.equals(metrics.getOrder()) ?
-                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())) :
-                comparing((SelectedRecord it) -> Long.parseLong(it.getValue())).reversed();
-        return results
-            .stream()
-            .collect(groupingBy(SelectedRecord::getId))
-            .entrySet()
-            .stream()
-            .map(entry -> {
-                final var selectedRecord = new SelectedRecord();
-                final var average = (int) entry.getValue().stream().map(SelectedRecord::getValue).mapToLong(Long::parseLong).average().orElse(0);
-                selectedRecord.setId(entry.getKey());
-                selectedRecord.setValue(String.valueOf(average));
-                return selectedRecord;
-            })
-            .sorted(comparator)
-            .limit(metrics.getTopN())
-            .collect(Collectors.toList());
+        // Ranked by the exact mean, as the database ranks avg(): comparing summation x the other's samples keeps
+        // fractional means apart even where they truncate to the same value. The value returned is the truncated mean.
+        final Comparator<String> byMean = (a, b) -> summations.get(a).multiply(BigDecimal.valueOf(samples.get(b)))
+                                                              .compareTo(summations.get(b).multiply(
+                                                                  BigDecimal.valueOf(samples.get(a))));
+        return summations.keySet()
+                         .stream()
+                         .sorted(Order.ASC.equals(metrics.getOrder()) ? byMean : byMean.reversed())
+                         .limit(metrics.getTopN())
+                         .map(entityId -> {
+                             final var selectedRecord = new SelectedRecord();
+                             selectedRecord.setId(entityId);
+                             final BigDecimal mean = summations.get(entityId).divide(
+                                 BigDecimal.valueOf(samples.get(entityId)), 0, RoundingMode.DOWN);
+                             selectedRecord.setValue(String.valueOf(mean.longValue()));
+                             return selectedRecord;
+                         })
+                         .collect(Collectors.toList());
     }
 
     protected SQLAndParameters buildSQL(
@@ -103,8 +113,42 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
         sql.append("select result, ").append(Metrics.ENTITY_ID)
            .append(" from (select avg(").append(valueColumnName).append(") as result,")
            .append(Metrics.ENTITY_ID)
-           .append(" from ").append(table)
-           .append(" where ")
+           .append(" from ").append(table);
+        appendConditions(sql, parameters, metrics, duration, queries);
+        sql.append(" group by ").append(Metrics.ENTITY_ID);
+        sql.append(")  as T order by result")
+           .append(Order.ASC.equals(metrics.getOrder()) ? " asc" : " desc")
+           .append(" limit ")
+           .append(metrics.getTopN());
+        return new SQLAndParameters(sql.toString(), parameters);
+    }
+
+    /**
+     * The summation and sample count of every entity in one day table, unranked and uncut.
+     */
+    protected SQLAndParameters buildSummationSQL(
+        final TopNCondition metrics,
+        final String valueColumnName,
+        final Duration duration,
+        final List<KeyValue> queries,
+        final String table) {
+
+        final var sql = new StringBuilder();
+        final var parameters = new ArrayList<>(10);
+        sql.append("select sum(").append(valueColumnName).append(") as summation, count(")
+           .append(valueColumnName).append(") as samples, ").append(Metrics.ENTITY_ID)
+           .append(" from ").append(table);
+        appendConditions(sql, parameters, metrics, duration, queries);
+        sql.append(" group by ").append(Metrics.ENTITY_ID);
+        return new SQLAndParameters(sql.toString(), parameters);
+    }
+
+    private void appendConditions(final StringBuilder sql,
+                                  final List<Object> parameters,
+                                  final TopNCondition metrics,
+                                  final Duration duration,
+                                  final List<KeyValue> queries) {
+        sql.append(" where ")
            .append(JDBCTableInstaller.TABLE_COLUMN).append(" = ?")
            .append(" and ")
            .append(Metrics.TIME_BUCKET).append(" >= ? ")
@@ -130,11 +174,5 @@ public class JDBCAggregationQueryDAO implements IAggregationQueryDAO {
                 parameters.add(attr.getValue());
             });
         }
-        sql.append(" group by ").append(Metrics.ENTITY_ID);
-        sql.append(")  as T order by result")
-           .append(Order.ASC.equals(metrics.getOrder()) ? " asc" : " desc")
-           .append(" limit ")
-           .append(metrics.getTopN());
-        return new SQLAndParameters(sql.toString(), parameters);
     }
 }

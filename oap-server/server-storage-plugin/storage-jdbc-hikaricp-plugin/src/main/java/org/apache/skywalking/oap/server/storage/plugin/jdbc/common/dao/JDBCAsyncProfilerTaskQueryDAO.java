@@ -37,6 +37,7 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -96,12 +97,12 @@ public class JDBCAsyncProfilerTaskQueryDAO implements IAsyncProfilerTaskQueryDAO
                             condition.toArray(new Object[0]))
             );
         }
-        return limit == null ?
-                results :
-                results
-                        .stream()
-                        .limit(limit)
-                        .collect(toList());
+        // Each day table is sorted on its own: sort them together before the limit picks the newest.
+        return results
+            .stream()
+            .sorted(Comparator.comparingLong(AsyncProfilerTask::getCreateTime).reversed())
+            .limit(limit == null ? Long.MAX_VALUE : limit)
+            .collect(toList());
     }
 
     @Override

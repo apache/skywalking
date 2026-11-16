@@ -79,7 +79,7 @@ public class JDBCSQLExecutor {
             final var result = h2Client.executeQuery(
                 "SELECT * FROM " + table + " WHERE id = ?",
                 resultSet -> toStorageData(resultSet, modelName, storageBuilder),
-                TableHelper.generateId(modelName, id)
+                TableHelper.generateId(TableMetaInfo.get(modelName), id)
             );
             if (result != null) {
                 return result;

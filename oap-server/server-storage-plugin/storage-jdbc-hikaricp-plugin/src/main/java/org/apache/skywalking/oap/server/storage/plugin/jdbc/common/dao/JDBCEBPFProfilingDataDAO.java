@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingDataDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
@@ -34,6 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.joining;
@@ -46,6 +48,9 @@ public class JDBCEBPFProfilingDataDAO implements IEBPFProfilingDataDAO {
     @Override
     @SneakyThrows
     public List<EBPFProfilingDataRecord> queryData(List<String> scheduleIdList, long beginTime, long endTime) {
+        if (CollectionUtils.isEmpty(scheduleIdList)) {
+            return Collections.emptyList();
+        }
         final var tables = tableHelper.getTablesForRead(
             EBPFProfilingDataRecord.INDEX_NAME,
             TimeBucket.getTimeBucket(beginTime, DownSampling.Day),

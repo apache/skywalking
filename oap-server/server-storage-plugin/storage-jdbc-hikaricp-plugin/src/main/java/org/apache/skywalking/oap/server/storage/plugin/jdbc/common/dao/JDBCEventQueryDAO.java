@@ -214,8 +214,9 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
 
         final Duration time = condition.getTime();
         if (time != null) {
+            // The window is [start, end): end is the first millisecond after the last step of the duration.
             if (time.getStartTimestamp() > 0) {
-                conditions.add(Event.TIMESTAMP + ">?");
+                conditions.add(Event.TIMESTAMP + ">=?");
                 parameters.add(time.getStartTimestamp());
             }
             if (time.getEndTimestamp() > 0) {
@@ -226,7 +227,7 @@ public class JDBCEventQueryDAO implements IEventQueryDAO {
 
         if (!isNullOrEmpty(condition.getLayer())) {
             conditions.add(Event.LAYER + "=?");
-            parameters.add(String.valueOf(Layer.nameOf(condition.getLayer()).value()));
+            parameters.add(Layer.nameOf(condition.getLayer()).value());
         }
 
         return Tuple.of(conditions.build(), parameters.build());

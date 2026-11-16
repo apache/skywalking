@@ -43,12 +43,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
@@ -182,7 +184,7 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         );
         final long startTimeMillis = duration.getStartTimestamp();
         final long endTimeMillis = duration.getEndTimestamp();
-        final var traceIds = new HashSet<String>();
+        final Map<String, Long> firstMatchByTraceId = new HashMap<>();
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
@@ -260,12 +262,20 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
             sql.append(" limit ").append(request.limit());
             h2Client.executeQuery(sql.toString(), resultSet -> {
                 while (resultSet.next()) {
-                    traceIds.add(resultSet.getString(ZipkinSpanRecord.TRACE_ID));
+                    firstMatchByTraceId.merge(
+                        resultSet.getString(ZipkinSpanRecord.TRACE_ID), resultSet.getLong(2), Math::min);
                 }
                 return null;
             }, condition.toArray(new Object[0]));
         }
 
+        // Each day table answers its own top `limit`; the traces of every table are ranked together and cut once.
+        final Set<String> traceIds = firstMatchByTraceId.entrySet()
+                                                        .stream()
+                                                        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+                                                        .limit(request.limit())
+                                                        .map(Map.Entry::getKey)
+                                                        .collect(toCollection(LinkedHashSet::new));
         return getTraces(traceIds, duration);
     }
 
@@ -277,7 +287,8 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
         }
 
         final var tables = tableHelper.getTablesWithinTTL(ZipkinSpanRecord.INDEX_NAME);
-        final var traces = new ArrayList<List<Span>>();
+        // A trace that crosses midnight has spans in two day tables; they are grouped into one trace.
+        final Map<String, List<Span>> traces = new LinkedHashMap<>();
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
@@ -293,22 +304,15 @@ public class JDBCZipkinQueryDAO implements IZipkinQueryDAO {
 
             sql.append(" order by ").append(ZipkinSpanRecord.TIMESTAMP_MILLIS).append(" desc");
 
-            traces.addAll(
-                h2Client.executeQuery(sql.toString(), this::buildTraces, condition.toArray(new Object[0]))
-            );
+            h2Client.executeQuery(sql.toString(), resultSet -> {
+                while (resultSet.next()) {
+                    final Span span = buildSpan(resultSet);
+                    traces.computeIfAbsent(span.traceId(), traceId -> new ArrayList<>()).add(span);
+                }
+                return null;
+            }, condition.toArray(new Object[0]));
         }
-        return traces;
-    }
-
-    private List<List<Span>> buildTraces(ResultSet resultSet) throws SQLException {
-        Map<String, List<Span>> groupedByTraceId = new LinkedHashMap<String, List<Span>>();
-        while (resultSet.next()) {
-            Span span = buildSpan(resultSet);
-            String traceId = span.traceId();
-            groupedByTraceId.putIfAbsent(traceId, new ArrayList<>());
-            groupedByTraceId.get(traceId).add(span);
-        }
-        return new ArrayList<>(groupedByTraceId.values());
+        return new ArrayList<>(traces.values());
     }
 
     private Span buildSpan(ResultSet resultSet) throws SQLException {

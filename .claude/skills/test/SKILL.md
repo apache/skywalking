@@ -30,13 +30,19 @@ CI runs this on JDK 11, 17, 21, 25 (ubuntu only).
 
 ### `slow` — slow integration tests
 
+The slow matrix has two entries, each building the whole project once:
+
 ```bash
+# ElasticSearch / OpenSearch: the Elasticsearch client against Elasticsearch 7, 8 and 9, and OpenSearch 1 and 2
 ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true \
   -Dit.test=org.apache.skywalking.library.elasticsearch.ElasticSearchIT \
   -Dfailsafe.failIfNoSpecifiedTests=false
+
+# Elastic IT: the storage-elasticsearch-plugin ITs tagged @Tag("elastic-it") (Zipkin query, span-attached events)
+./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dgroups=elastic-it
 ```
 
-CI runs on JDK 11 (ubuntu only). Currently only ElasticSearch/OpenSearch IT is in the slow matrix.
+CI runs on JDK 11 (ubuntu only).
 
 ### Module name — single module tests
 
@@ -64,7 +70,7 @@ CI runs on JDK 11 (ubuntu only). Currently only ElasticSearch/OpenSearch IT is i
 
 ## Slow test tagging
 
-Tests tagged with `@Tag("slow")` are excluded from the normal integration-test job and run separately in the slow-integration-test job. Use this tag for tests that spin up external services (Elasticsearch, etc.) and take significant time.
+Tests tagged with `@Tag("slow")` are excluded from the normal integration-test job and run separately in the slow-integration-test job. Use this tag for tests that spin up external services (Elasticsearch, etc.) and take significant time. A slow IT must also be selected by a slow-matrix entry (by class, or by a second tag such as `@Tag("elastic-it")`), or it never runs in CI.
 
 ## CI retry behavior
 

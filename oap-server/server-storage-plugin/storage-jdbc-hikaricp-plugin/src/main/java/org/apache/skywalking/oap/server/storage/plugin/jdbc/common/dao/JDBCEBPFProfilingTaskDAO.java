@@ -26,6 +26,7 @@ import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilin
 import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.profiling.ebpf.IEBPFProfilingTaskDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
+import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.JDBCTableInstaller;
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParameters;
@@ -102,6 +103,10 @@ public class JDBCEBPFProfilingTaskDAO extends JDBCSQLExecutor implements IEBPFPr
     public List<EBPFProfilingTaskRecord> queryTasksByTargets(String serviceId, String serviceInstanceId, List<EBPFProfilingTargetType> targetTypes,
                                                              EBPFProfilingTriggerType triggerType, long taskStartTime, long latestUpdateTime) throws IOException {
         final var results = new ArrayList<EBPFProfilingTaskRecord>();
+        // No target type asked for (a continuous-profiling policy saved without targets): no task.
+        if (CollectionUtils.isEmpty(targetTypes)) {
+            return results;
+        }
         final var tables = tableHelper.getTablesWithinTTL(EBPFProfilingTaskRecord.INDEX_NAME);
 
         for (final var table : tables) {

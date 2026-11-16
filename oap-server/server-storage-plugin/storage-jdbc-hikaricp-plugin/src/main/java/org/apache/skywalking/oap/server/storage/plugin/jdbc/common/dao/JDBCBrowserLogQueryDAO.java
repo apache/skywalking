@@ -52,9 +52,10 @@ public class JDBCBrowserLogQueryDAO implements IBrowserLogQueryDAO {
                                                   int limit,
                                                   int from) {
         final var logs = new ArrayList<BrowserErrorLog>();
-        final var tables = tableHelper.getTablesForRead(
-            BrowserErrorLogRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket()
-        );
+        final var tables = nonNull(duration)
+            ? tableHelper.getTablesForRead(
+                BrowserErrorLogRecord.INDEX_NAME, duration.getStartTimeBucket(), duration.getEndTimeBucket())
+            : tableHelper.getTablesWithinTTL(BrowserErrorLogRecord.INDEX_NAME);
 
         for (String table : tables) {
             final var sqlAndParameters = buildSQL(
