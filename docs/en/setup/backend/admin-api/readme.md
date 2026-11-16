@@ -141,7 +141,8 @@ Operator reference: [UI Management API](ui-management.md).
 
 The official web UI is [Horizon UI](https://github.com/apache/skywalking-horizon-ui),
 a SkyWalking sub-project. Horizon UI consumes both the public query
-surface (GraphQL / MQE on `core.restPort`, default `12800`) and every
+surface (GraphQL / MQE on `core.restPort`, default `12800`, or on the
+[query server](../backend-expose.md#query-server) when it has its own port) and every
 admin host endpoint listed above (`/ui-management/*`, `/status/*`,
 `/inspect/*`, `/dsl-debugging/*`, `/runtime/rule/*` on the admin port,
 default `17128`). Operators who prefer not to deploy a web UI can drive

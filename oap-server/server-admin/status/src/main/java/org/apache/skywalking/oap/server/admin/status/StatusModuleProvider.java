@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.admin.status;
 
 import com.linecorp.armeria.common.HttpMethod;
 import java.util.Collections;
+import org.apache.skywalking.oap.query.server.QueryServerModule;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
@@ -69,8 +70,8 @@ public class StatusModuleProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         registerHandlers(adminRestRegister());
-        // /status/config/ttl stays on the public port too — kept from 10.x
-        // for ecosystem tools that discover TTL via REST before /graphql.
+        // /status/config/ttl is also bound next to /graphql on the query port, kept from
+        // 10.x for ecosystem tools that discover TTL via REST before /graphql.
         publicRestRegister().addHandler(
             new TTLConfigQueryHandler(getManager()),
             Collections.singletonList(HttpMethod.GET)
@@ -86,6 +87,7 @@ public class StatusModuleProvider extends ModuleProvider {
         return new String[] {
             CoreModule.NAME,
             AdminServerModule.NAME,
+            QueryServerModule.NAME,
             // The debugging queries reach the storage DAOs through the query services they construct.
             StorageModule.NAME,
         };
@@ -129,9 +131,9 @@ public class StatusModuleProvider extends ModuleProvider {
                            .getService(HTTPHandlerRegister.class);
     }
 
-    /** Public REST register (agent / GraphQL port, 12800 by default). */
+    /** Query REST register, where /graphql is served: core REST (12800) unless query-server has its own port. */
     HTTPHandlerRegister publicRestRegister() {
-        return getManager().find(CoreModule.NAME)
+        return getManager().find(QueryServerModule.NAME)
                            .provider()
                            .getService(HTTPHandlerRegister.class);
     }

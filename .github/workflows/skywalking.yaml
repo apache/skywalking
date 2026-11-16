@@ -669,6 +669,8 @@ jobs:
             config: test/e2e-v2/cases/simple/ssl/e2e.yaml
           - name: mTLS
             config: test/e2e-v2/cases/simple/mtls/e2e.yaml
+          - name: Separated Query Port
+            config: test/e2e-v2/cases/simple/query-port/e2e.yaml
           - name: Virtual Gateway
             config: test/e2e-v2/cases/gateway/e2e.yaml
           - name: Meter

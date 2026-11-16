@@ -58,7 +58,7 @@ import org.apache.skywalking.oap.query.graphql.resolver.TopNRecordsQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TopologyQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQuery;
 import org.apache.skywalking.oap.query.graphql.resolver.TraceQueryV2;
-import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.query.server.QueryServerModule;
 import org.apache.skywalking.oap.server.core.query.QueryModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
 import org.apache.skywalking.oap.server.library.module.ModuleDefine;
@@ -174,7 +174,7 @@ public class GraphQLQueryProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        HTTPHandlerRegister service = getManager().find(CoreModule.NAME)
+        HTTPHandlerRegister service = getManager().find(QueryServerModule.NAME)
                                                   .provider()
                                                   .getService(HTTPHandlerRegister.class);
         service.addHandler(
@@ -191,7 +191,8 @@ public class GraphQLQueryProvider extends ModuleProvider {
     @Override
     public String[] requiredModules() {
         return new String[] {
-            AIAgentConversationModule.NAME
+            AIAgentConversationModule.NAME,
+            QueryServerModule.NAME
         };
     }
 }

@@ -301,11 +301,12 @@ curl -X POST 'http://oap-admin:17128/inspect/values' \
 
 To keep the surface minimal, the inspect API does not introduce a separate
 discovery endpoint. Clients that need to learn which host:port serves the
-public GraphQL / MQE surface parse the response of the existing
+GraphQL / MQE surface parse the response of the existing
 [`/debugging/config/dump`](status.md#debuggingconfigdump) — also hosted by
-the relocated status feature module — for `core.restHost` / `core.restPort`
-(or the sharing-server overrides if configured). One curl + `jq` once at
-session start is enough.
+the relocated status feature module — for `query-server.default.restHost` /
+`query-server.default.restPort` when that port is greater than 0, otherwise
+for `core.default.restHost` / `core.default.restPort`. One curl + `jq` once
+at session start is enough.
 
 ## Errors
 
