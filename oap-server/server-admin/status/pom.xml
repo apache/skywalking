@@ -43,6 +43,15 @@
             <version>${project.version}</version>
         </dependency>
         <!--
+          query-server-plugin: /status/config/ttl is also bound on the query
+          server, next to /graphql.
+        -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>query-server-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!--
           query-graphql-plugin: status reuses the GraphQL resolvers' query
           services to render trace / topology / log / mqe debugging payloads
           on the HTTP debug-trace endpoints.

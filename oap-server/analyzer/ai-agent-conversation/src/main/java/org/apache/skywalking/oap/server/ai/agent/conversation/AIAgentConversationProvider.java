@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.ai.agent.conversation;
 import com.linecorp.armeria.common.HttpMethod;
 import java.time.Duration;
 import java.util.Collections;
+import org.apache.skywalking.oap.query.server.QueryServerModule;
 import org.apache.skywalking.oap.server.ai.agent.conversation.ingest.ConversationFileBuilder;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.ConversationQueryService;
 import org.apache.skywalking.oap.server.ai.agent.conversation.query.IConversationQueryService;
@@ -98,7 +99,7 @@ public class AIAgentConversationProvider extends ModuleProvider {
 
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
-        final HTTPHandlerRegister http = getManager().find(CoreModule.NAME)
+        final HTTPHandlerRegister http = getManager().find(QueryServerModule.NAME)
                                                      .provider()
                                                      .getService(HTTPHandlerRegister.class);
         final Duration timeout = Duration.ofSeconds(config.getViewRequestTimeout());
@@ -138,6 +139,7 @@ public class AIAgentConversationProvider extends ModuleProvider {
     public String[] requiredModules() {
         return new String[] {
             CoreModule.NAME,
+            QueryServerModule.NAME,
             StorageModule.NAME,
             TelemetryModule.NAME
         };

@@ -51,6 +51,25 @@ those fields, causing XSS or even Remote Code Execution (RCE) issues.
 For some sensitive environment, consider to limit the telemetry report frequency in case of DoS/DDoS for exposed OAP
 and UI services.
 
+## Query and Receiver Ports
+
+By default, the core servers carry the receiver, query and cluster traffic. The core REST port (`core.restPort`,
+default `12800`) serves the GraphQL query API next to the HTTP receivers, and the core gRPC port
+(`core.gRPCPort`, default `11800`) serves the gRPC receivers next to the cluster traffic between
+OAP nodes. A client that reports over HTTP, such as the browser monitoring SDK running in end
+users' browsers, then reaches the same port as the query API.
+
+Two modules split them, so each port can be bound, firewalled, and given TLS on its own:
+
+| Module | Setting | What moves to the new port |
+|--------|---------|----------------------------|
+| `receiver-sharing-server` | `SW_RECEIVER_GRPC_PORT`, `SW_RECEIVER_SHARING_REST_PORT` | The gRPC and HTTP receivers agents, Envoy, and OpenTelemetry report to. See [Setup External Communication Channels](../setup/backend/backend-expose.md). |
+| `query-server` | `SW_QUERY_SERVER_REST_PORT` | GraphQL, the AI agent conversation view and files, and `/status/config/ttl`. See [Query server](../setup/backend/backend-expose.md#query-server). |
+
+With the receiver ports and the query port all set, no receiver or query traffic is left on the core
+ports: the core gRPC port carries the cluster traffic between OAP nodes and the gRPC health check, and
+the core REST port the HTTP health check (`/healthcheck`).
+
 ## Admin API Surface (ports 17128 + 17129)
 
 The `admin-server` module hosts a shared HTTP port (default `17128`) for the admin, status,
@@ -68,8 +87,8 @@ the operator team. The feature modules mounted on it serve these routes:
 | `/dsl-debugging/*` | `dsl-debugging` | Start, read, and stop sampling sessions that capture live MAL/LAL/OAL rule executions, including the payloads each sampled rule processed. |
 | `/runtime/oal/*` | `dsl-debugging` | List the loaded OAL files and read their rules. |
 
-Of these routes, only `/status/config/ttl` is also served on the public REST port
-(`core.restPort`, default `12800`), and it returns the TTL settings only. The admin port also
+Of these routes, only `/status/config/ttl` is also served next to the GraphQL API on the query
+port (see [Query and Receiver Ports](#query-and-receiver-ports)), and it returns the TTL settings only. The admin port also
 serves Armeria's `/docs` page, which describes the services registered on that port.
 
 This surface is **far more powerful than the telemetry receiver ports** — a request can
@@ -97,7 +116,7 @@ modules are reachable out of the box. Both ports open with **no built-in authent
 operator's existing auth story.
 
 To remove a feature, set its module variable to `-`, such as `SW_STATUS=-` for the status and
-debugging routes (including `/status/config/ttl` on port `12800`). An empty value does not
+debugging routes (including `/status/config/ttl` on the query port). An empty value does not
 remove a module: OAP fails to start with a `ProviderNotFoundException`. To close the admin
 port entirely, set `SW_ADMIN_SERVER=-` together with `SW_STATUS=-`, `SW_INSPECT=-`,
 `SW_UI_MANAGEMENT=-`, `SW_RECEIVER_RUNTIME_RULE=-`, and `SW_DSL_DEBUGGING=-`, as a feature

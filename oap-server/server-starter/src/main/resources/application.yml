@@ -552,6 +552,24 @@ receiver-log:
   selector: ${SW_RECEIVER_LOG:default}
   default:
 
+# The HTTP server of the native query APIs: GraphQL (/graphql), the AI agent conversation view and
+# files (/ai-agent/conversations/*), and /status/config/ttl. With restPort 0 they stay on the core
+# REST server (core/restPort). A port above 0 moves them to a server of their own, so the query APIs
+# can be bound, firewalled and given TLS apart from the ports agents report to.
+query-server:
+  selector: ${SW_QUERY_SERVER:default}
+  default:
+    restHost: ${SW_QUERY_SERVER_REST_HOST:0.0.0.0}
+    restPort: ${SW_QUERY_SERVER_REST_PORT:0}
+    restContextPath: ${SW_QUERY_SERVER_REST_CONTEXT_PATH:/}
+    restIdleTimeOut: ${SW_QUERY_SERVER_REST_IDLE_TIMEOUT:30000}
+    restAcceptQueueSize: ${SW_QUERY_SERVER_REST_QUEUE_SIZE:0}
+    httpMaxRequestHeaderSize: ${SW_QUERY_SERVER_HTTP_MAX_REQUEST_HEADER_SIZE:8192}
+    # TLS for the query server; the cert and key are reloaded on rotation without a restart.
+    restSSLEnabled: ${SW_QUERY_SERVER_REST_SSL_ENABLED:false}
+    restSSLKeyPath: ${SW_QUERY_SERVER_REST_SSL_KEY_PATH:""}
+    restSSLCertChainPath: ${SW_QUERY_SERVER_REST_SSL_CERT_CHAIN_PATH:""}
+
 query:
   selector: ${SW_QUERY:graphql}
   graphql:
@@ -894,10 +912,10 @@ dsl-debugging:
 
 # Status feature module — cluster nodes / alarm runtime status / TTL config / debug
 # query trace endpoints. Mounts onto admin-server (default :17128). The single
-# exception is `/status/config/ttl`, which is also bound on the public REST host
-# (default :12800) so ecosystem tools that discover TTL via REST before issuing
-# /graphql don't have to know about the admin port. Enabled by default; set
-# SW_STATUS=- to disable.
+# exception is `/status/config/ttl`, which is also bound next to /graphql on the
+# query-server (core REST :12800 unless query-server/restPort is set) so ecosystem
+# tools that discover TTL via REST before issuing /graphql don't have to know about
+# the admin port. Enabled by default; set SW_STATUS=- to disable.
 status:
   selector: ${SW_STATUS:default}
   default:

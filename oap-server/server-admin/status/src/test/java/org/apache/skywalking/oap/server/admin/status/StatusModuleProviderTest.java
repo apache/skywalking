@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.admin.status;
 
 import java.util.Arrays;
 import java.util.List;
+import org.apache.skywalking.oap.query.server.QueryServerModule;
 import org.apache.skywalking.oap.server.admin.server.module.AdminServerModule;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -82,14 +83,14 @@ class StatusModuleProviderTest {
     }
 
     @Test
-    void publicRestRegisterResolvesViaCoreModule() {
-        when(moduleManager.find(CoreModule.NAME)).thenReturn(coreHolder);
+    void publicRestRegisterResolvesViaQueryServerModule() {
+        when(moduleManager.find(QueryServerModule.NAME)).thenReturn(coreHolder);
         when(coreHolder.provider()).thenReturn(stubProviderExposing(publicRegister));
 
         final HTTPHandlerRegister resolved = provider.publicRestRegister();
 
         assertSame(publicRegister, resolved,
-                   "/status/config/ttl is dual-bound — public binding must resolve via CoreModule");
+                   "/status/config/ttl is dual-bound — public binding must resolve via QueryServerModule");
     }
 
     @Test

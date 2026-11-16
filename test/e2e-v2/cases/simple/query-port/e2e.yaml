@@ -1,0 +1,80 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 20m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+
+trigger:
+  action: http
+  interval: 3s
+  times: -1
+  url: http://${consumer_host}:${consumer_9092}/users
+  method: POST
+  body: '{"id":"123","name":"skywalking"}'
+  headers:
+    "Content-Type": "application/json"
+
+verify:
+  retry:
+    count: 20
+    interval: 3s
+  cases:
+    # The agents report to the receiver port 11811; every query below goes to the query port 12810.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql service ls
+      expected: ../expected/service.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql instance list --service-name=e2e-service-provider
+      expected: ../expected/service-instance-provider.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql instance list --service-name=e2e-service-consumer
+      expected: ../expected/service-instance-consumer.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql endpoint list --keyword=users --service-name=e2e-service-provider
+      expected: ../expected/service-endpoint-provider.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql dependency service --service-name=e2e-service-provider
+      expected: ../expected/dependency-services-provider.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql dependency instance --service-name=e2e-service-consumer --dest-service-name=e2e-service-provider
+      expected: ../expected/dependency-instance.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql tv2 ls
+      expected: ../expected/traces-v2-list.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql metrics exec --expression=service_cpm --service-name=e2e-service-provider
+      expected: ../expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql metrics exec --expression=endpoint_resp_time --endpoint-name=POST:/users --service-name=e2e-service-consumer
+      expected: ../expected/metrics-has-value.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12810}/graphql metrics exec --expression=instance_jvm_memory_heap --instance-name=provider1 --service-name=e2e-service-provider
+      expected: ../expected/metrics-has-value.yml
+    # GraphQL, the TTL lookup and the conversation view answer on the query port and no longer on
+    # the core REST port. No handler left on the core REST port accepts POST, so its server answers
+    # every POST with 405. Prints the sentinel only when every check passes.
+    - query: |
+        code() { curl -s -o /dev/null -w '%{http_code}' "$@"; }
+        graphql='{"query":"query { version }"}'
+        check() { [ "$2" = "$3" ] || { echo "$1: got $2, want $3"; exit 1; }; }
+        check "graphql on query port" "$(code -X POST -H 'Content-Type: application/json' -d "$graphql" http://${oap_host}:${oap_12810}/graphql)" 200
+        check "graphql on core REST" "$(code -X POST -H 'Content-Type: application/json' -d "$graphql" http://${oap_host}:${oap_12800}/graphql)" 405
+        check "ttl on query port" "$(code http://${oap_host}:${oap_12810}/status/config/ttl)" 200
+        check "ttl on core REST" "$(code http://${oap_host}:${oap_12800}/status/config/ttl)" 404
+        check "conversation view on query port" "$(code http://${oap_host}:${oap_12810}/ai-agent/conversations/none/v1/view)" 400
+        check "conversation view on core REST" "$(code http://${oap_host}:${oap_12800}/ai-agent/conversations/none/v1/view)" 404
+        check "healthcheck on core REST" "$(code http://${oap_host}:${oap_12800}/healthcheck)" 200
+        echo query-port-ok
+      expected: expected/query-port-ok.yml

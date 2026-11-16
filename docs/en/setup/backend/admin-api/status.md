@@ -5,9 +5,11 @@ membership, alarm runtime state, effective configuration / TTL settings,
 and per-query debug traces. Hosted by the `status` feature module on the
 admin-server REST host (default `17128`), alongside `/ui-management/*`,
 `/inspect/*`, `/dsl-debugging/*`, and `/runtime/rule/*`. One handler —
-`/status/config/ttl` — is also bound on the public REST host
-(default `12800`) so ecosystem tools that discover TTL via REST before
-issuing `/graphql` can fetch it without being aware of the admin port.
+`/status/config/ttl` — is also bound next to `/graphql` on the query
+server (the core REST host, default `12800`, unless `query-server` has its
+own port, see [Query server](../backend-expose.md#query-server)) so ecosystem
+tools that discover TTL via REST before issuing `/graphql` can fetch it
+without being aware of the admin port.
 
 ## Hosting
 
@@ -16,7 +18,7 @@ issuing `/graphql` can fetch it without being aware of the admin port.
 surface is reachable out of the box. The admin port is gateway-protected per
 the [admin-server security notice](readme.md#security-notice). To disable
 status explicitly, set `SW_STATUS` to `-`. This also removes
-`/status/config/ttl` from the public REST host. An empty value does not
+`/status/config/ttl` from the query server. An empty value does not
 disable it: OAP fails to start.
 
 ```bash
@@ -343,9 +345,11 @@ If some errors occur when querying the status from OAP instances, the error mess
 ### /status/config/ttl
 
 Returns the effective TTL configuration the OAP loaded at boot.
-**Reachable on both ports** — `:17128` (admin) and `:12800` (public) —
-so ecosystem tools can call it without admin-port knowledge. Every
-other `/status/*` handler is admin-only.
+**Reachable on two ports**: the admin port (`:17128`) and the query port,
+next to `/graphql` (`:12800` unless `query-server` has its own port, see
+[Query server](../backend-expose.md#query-server)), so ecosystem tools can
+call it without admin-port knowledge. Every other `/status/*` handler is
+admin-only.
 
 Time To Live (TTL) mechanism has different behaviors according to different storage implementations. By default, the core module provides two TTL configurations: [`recordDataTTL` and `metricsDataTTL`](../ttl.md). But some storage implementations could override these settings and provide its own TTL configurations, for example, BanyanDB provides its native TTL mechanism to support [progressive TTL](../../../banyandb/ttl.md) feature and [Data Lifecycle Stages(Hot/Warm/Cold)](../../../banyandb/stages.md) feature.
 
@@ -443,9 +447,10 @@ is returned in clear text. See
 for the settings that need extra keywords.
 
 The Inspect API uses this endpoint as its REST-URL discovery primitive —
-clients parse the dump for `core.restHost` / `core.restPort` (or the
-sharing-server overrides) once at session start to learn where the public
-GraphQL / MQE surface lives.
+clients parse the dump once at session start to learn where the GraphQL /
+MQE surface lives: `query-server.default.restHost` /
+`query-server.default.restPort` when that port is greater than 0, otherwise
+`core.default.restHost` / `core.default.restPort`.
 
 ### /debugging/query/...
 

@@ -1,0 +1,67 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# The receivers report on their own ports (receiver-sharing-server) and the query APIs answer on
+# their own port (query-server), so no agent or query traffic is left on the core ports. Every
+# query in e2e.yaml goes to the query port, 12810.
+services:
+  oap:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      SW_RECEIVER_GRPC_PORT: 11811
+      SW_RECEIVER_SHARING_REST_PORT: 12811
+      SW_QUERY_SERVER_REST_PORT: 12810
+    expose:
+      - 11811
+      - 12811
+    ports:
+      - 12800
+      - 12810
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+    ports:
+      - 17912
+
+  provider:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: provider
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11811
+    ports:
+      - 9090
+    depends_on:
+      oap:
+        condition: service_healthy
+
+  consumer:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: consumer
+    environment:
+      SW_AGENT_COLLECTOR_BACKEND_SERVICES: oap:11811
+    ports:
+      - 9092
+    depends_on:
+      provider:
+        condition: service_healthy
+
+networks:
+  e2e:

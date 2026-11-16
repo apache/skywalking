@@ -42,6 +42,7 @@
     <artifactId>server-query-plugin</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>query-server-plugin</module>
         <module>query-graphql-plugin</module>
         <module>zipkin-query-plugin</module>
         <module>promql-plugin</module>

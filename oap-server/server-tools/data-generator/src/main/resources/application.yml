@@ -211,6 +211,13 @@ ai-agent-conversation:
     # The largest file stored; a larger one is rejected at ingest, under BanyanDB's 16 MiB message limit.
     maxFileBytes: ${SW_AI_AGENT_CONVERSATION_MAX_FILE_BYTES:15728640}
 
+query-server:
+  selector: ${SW_QUERY_SERVER:default}
+  default:
+    restHost: ${SW_QUERY_SERVER_REST_HOST:0.0.0.0}
+    restPort: ${SW_QUERY_SERVER_REST_PORT:0}
+    restContextPath: ${SW_QUERY_SERVER_REST_CONTEXT_PATH:/}
+
 query:
   selector: ${SW_QUERY:graphql}
   graphql:
