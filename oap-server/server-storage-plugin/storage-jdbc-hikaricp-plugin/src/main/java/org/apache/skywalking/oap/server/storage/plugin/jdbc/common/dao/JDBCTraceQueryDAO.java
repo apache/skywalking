@@ -255,6 +255,9 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @SneakyThrows
     @Override
     public List<SegmentRecord> queryBySegmentIdList(List<String> segmentIdList, @Nullable Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(segmentIdList)) {
+            return Collections.emptyList();
+        }
         final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
         final ArrayList<String> conditions = new ArrayList<>();

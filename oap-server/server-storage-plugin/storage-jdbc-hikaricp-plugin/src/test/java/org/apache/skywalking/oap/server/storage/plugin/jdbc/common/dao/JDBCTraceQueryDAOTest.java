@@ -39,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -98,6 +99,16 @@ class JDBCTraceQueryDAOTest {
         assertThat(sql).contains(JDBCTableInstaller.TABLE_COLUMN + " = ?");
         assertThat(sql).contains(SegmentRecord.SEGMENT_ID + " in (?,?,?)");
         assertThat(sql).doesNotContain(" or ");
+    }
+
+    @Test
+    void queryBySegmentIdList_withEmptyList_shouldReturnEmptyWithoutQuerying() throws Exception {
+        when(tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME))
+            .thenReturn(Collections.singletonList(TABLE));
+
+        assertThat(dao.queryBySegmentIdList(Collections.emptyList(), null)).isEmpty();
+
+        verifyNoInteractions(jdbcClient);
     }
 
     @Test
