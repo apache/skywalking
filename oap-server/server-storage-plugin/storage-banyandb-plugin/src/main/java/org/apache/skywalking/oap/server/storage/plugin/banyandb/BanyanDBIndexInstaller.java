@@ -526,12 +526,22 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             long primaryDeleteRev = StorageManipulationOpt.DEFAULT_MOD_REVISION;
             switch (metadata.getKind()) {
                 case MEASURE:
-                    // Drop the TopN aggregations first (if any), then index rule bindings, index rules, then the measure.
-                    try {
-                        opt.recordModRevision(client.deleteTopNAggregationWithRevision(group, name));
-                    } catch (BanyanDBException ex) {
-                        if (!Status.Code.NOT_FOUND.equals(ex.getStatus())) {
-                            log.warn("drop TopN aggregation {}:{} failed: {}", group, name, ex.getMessage());
+                    // Drop the TopN aggregations built on the measure first, then its index rule binding, then the
+                    // measure. A TopN aggregation is named after its bydb-topn.yml rule, not after the measure, so
+                    // they are found by their source. One that fails to drop stops the drop before the measure goes,
+                    // which would leave it orphaned; the model stays registered and the drop is tried again. Index
+                    // rules are shared by the group's measures and stay.
+                    for (final TopNAggregation topN : client.findTopNAggregations(group)) {
+                        if (!name.equals(topN.getSourceMeasure().getName())) {
+                            continue;
+                        }
+                        try {
+                            opt.recordModRevision(
+                                client.deleteTopNAggregationWithRevision(group, topN.getMetadata().getName()));
+                        } catch (BanyanDBException ex) {
+                            if (!Status.Code.NOT_FOUND.equals(ex.getStatus())) {
+                                throw ex;
+                            }
                         }
                     }
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);

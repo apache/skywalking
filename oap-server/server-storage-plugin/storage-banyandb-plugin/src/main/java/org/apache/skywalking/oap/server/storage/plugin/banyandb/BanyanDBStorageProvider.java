@@ -228,7 +228,7 @@ public class BanyanDBStorageProvider extends ModuleProvider {
         this.registerServiceImplementation(IRecordsQueryDAO.class, new BanyanDBRecordsQueryDAO(client));
         this.registerServiceImplementation(IZipkinQueryDAO.class, new BanyanDBZipkinQueryDAO(client));
         this.registerServiceImplementation(IOTLPTraceQueryDAO.class, new BanyanDBOTLPTraceQueryDAO(client));
-        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client, this.config.getGlobal().getProfileDataQueryBatchSize()));
+        this.registerServiceImplementation(ISpanAttachedEventQueryDAO.class, new BanyanDBSpanAttachedEventQueryDAO(client));
         this.registerServiceImplementation(IHierarchyQueryDAO.class, new BanyanDBHierarchyQueryDAO(client, this.config));
         this.registerServiceImplementation(
                 IAsyncProfilerTaskQueryDAO.class, new BanyanDBAsyncProfilerTaskQueryDAO(client,

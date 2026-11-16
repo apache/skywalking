@@ -239,7 +239,10 @@ public class ZipkinQueryService {
         final Map<String, List<SpanAttachedEvent>> namedEvents = events.stream()
                                                                        .collect(Collectors.groupingBy(SpanAttachedEvent::getEvent, Collectors.toList()));
 
-        final Map<String, Tuple2<Span.Builder, Integer>> spanCache = new HashMap<>();
+        // The span index each event goes to, by its span id and side, and one builder per span: a span takes its own
+        // events and the server-side events of its client span, and one span's events can be on both sides.
+        final Map<String, Integer> targets = new HashMap<>();
+        final Map<Integer, Span.Builder> builders = new HashMap<>();
         for (Map.Entry<String, List<SpanAttachedEvent>> namedEntry : namedEvents.entrySet()) {
             for (int i = 1; i <= namedEntry.getValue().size(); i++) {
                 final SpanAttachedEvent event = namedEntry.getValue().get(i - 1);
@@ -247,36 +250,38 @@ public class ZipkinQueryService {
                 String eventName = event.getEvent() + (namedEntry.getValue().size() == 1 ? "" : "-" + i);
                 // final SpanAttachedEvent event = SpanAttachedEvent.parseFrom(record.getDataBinary());
 
+                // if the event is server side, then needs to change to the upstream span
+                final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
+                final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
+                final boolean serverSide = ("request".equals(type) && "inbound".equals(direction))
+                    || ("response".equals(type) && "outbound".equals(direction));
+                final String targetKey = spanId + (serverSide ? "_server" : "");
+
                 // find matched span
-                Tuple2<Span.Builder, Integer> spanBuilder = spanCache.get(spanId);
-                if (spanBuilder == null) {
+                Integer target = targets.get(targetKey);
+                if (target == null) {
                     Tuple2<Integer, Span> matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.id(), spanId)).
                                                                      findFirst().orElse(null);
                     if (matchesSpan == null) {
                         continue;
                     }
 
-                    // if the event is server side, then needs to change to the upstream span
-                    final String direction = getSpanAttachedEventTagValue(event.getTagsList(), "data_direction");
-                    final String type = getSpanAttachedEventTagValue(event.getTagsList(), "data_type");
-                    if (("request".equals(type) && "inbound".equals(direction)) || ("response".equals(type) && "outbound".equals(direction))) {
+                    if (serverSide) {
                         final String parentSpanId = matchesSpan._2.id();
                         matchesSpan = spanWithIndex.stream().filter(s -> Objects.equals(s._2.parentId(), parentSpanId)
                             && Objects.equals(s._2.kind(), Span.Kind.SERVER)).findFirst().orElse(matchesSpan);
                     }
 
-                    spanBuilder = Tuple.of(matchesSpan._2.toBuilder(), matchesSpan._1);
-                    spanCache.put(spanId, spanBuilder);
+                    target = matchesSpan._1;
+                    targets.put(targetKey, target);
                 }
 
-                appendEventDebuggable(spanBuilder._1, eventName, event);
+                appendEventDebuggable(builders.computeIfAbsent(target, index -> spans.get(index).toBuilder()), eventName, event);
             }
         }
 
         // re-build modified spans
-        for (Map.Entry<String, Tuple2<Span.Builder, Integer>> entry : spanCache.entrySet()) {
-            spans.set(entry.getValue()._2, entry.getValue()._1.build());
-        }
+        builders.forEach((index, builder) -> spans.set(index, builder.build()));
     }
 
     private void appendEventDebuggable(Span.Builder span, String eventName, SpanAttachedEvent event) {
