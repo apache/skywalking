@@ -48,6 +48,7 @@ import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.library.util.StringUtil;
 import javassist.ClassPool;
 
 /**
@@ -172,14 +173,18 @@ public class LogFilterListener implements LogAnalysisListener {
          * reference observed by a reader is always fully-populated for its generation.
          */
         private volatile Map<Layer, Map<String, DSL>> dsls;
-        private volatile Map<String, DSL> autoDsls;
+        /**
+         * The auto rules and the {@code fallback: true} auto rules, published together so a rule whose flag
+         * a replace flips is in exactly one of the two for every reader.
+         */
+        private volatile AutoRules autoRules;
 
         /**
          * Suspended rule keys — encoded as {@code layer.name() + "|" + ruleName} for layer-keyed
          * rules and {@code "<auto>|" + ruleName} for auto-layer rules. When {@link #create} is
          * asked for a layer, it filters out entries whose key is in this set so samples arriving
          * during a hot-update Suspend window never hit the prior DSL. Volatile + CoW replace so
-         * readers stay lock-free — matches the {@link #dsls} / {@link #autoDsls} contract.
+         * readers stay lock-free — matches the {@link #dsls} / {@link #autoRules} contract.
          */
         private volatile Set<String> suspendedKeys = Collections.emptySet();
 
@@ -195,7 +200,7 @@ public class LogFilterListener implements LogAnalysisListener {
 
         /**
          * Two-phase init — the constructor wires fields and runs the SPI scan, leaving the
-         * {@code dsls} / {@code autoDsls} registry empty so this instance is safe to register
+         * {@code dsls} / {@code autoRules} registry empty so this instance is safe to register
          * as a module service from {@code prepare()}. The rule-compile pass — which calls
          * {@code RecordSinkListener.Factory.<init>} → {@code moduleManager.find()} and is
          * therefore illegal during the prepare stage — is deferred to
@@ -224,7 +229,7 @@ public class LogFilterListener implements LogAnalysisListener {
 
             // Empty registry — populated by {@link #loadStaticRules}.
             this.dsls = new HashMap<>();
-            this.autoDsls = new HashMap<>();
+            this.autoRules = new AutoRules(new HashMap<>(), new HashMap<>());
         }
 
         /**
@@ -241,17 +246,26 @@ public class LogFilterListener implements LogAnalysisListener {
         public void loadStaticRules() throws Exception {
             final Map<Layer, Map<String, DSL>> initDsls = new HashMap<>();
             final Map<String, DSL> initAutoDsls = new HashMap<>();
+            final Map<String, DSL> initFallbackDsls = new HashMap<>();
             final List<LALConfig> configList = LALConfigs.load(analyzerConfig.getLalPath(), analyzerConfig.lalFiles())
                                                          .stream()
                                                          .flatMap(it -> it.getRules().stream())
                                                          .collect(Collectors.toList());
             for (final LALConfig c : configList) {
+                if (!LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer()) && !isRegisteredLayer(c.getLayer())) {
+                    // Such a rule never ran (no log is routed to UNDEFINED); skip it rather than fail the boot.
+                    // A runtime rule declaring it is rejected instead, by compile's resolveLayer.
+                    log.warn("LAL rule {} in {} declares an unregistered layer: {}; the rule is skipped",
+                        c.getName(), c.getSourcePath(), c.getLayer());
+                    continue;
+                }
                 final CompiledLAL compiled = compile(c);
                 if (compiled.layer == null) {
-                    if (initAutoDsls.put(c.getName(), compiled.dsl) != null) {
+                    if (initAutoDsls.containsKey(c.getName()) || initFallbackDsls.containsKey(c.getName())) {
                         throw new ModuleStartException(
                             "Auto-layer rules have duplicate name: " + c.getName());
                     }
+                    (compiled.fallback ? initFallbackDsls : initAutoDsls).put(c.getName(), compiled.dsl);
                 } else {
                     final Map<String, DSL> layerDsls = initDsls.computeIfAbsent(compiled.layer, k -> new HashMap<>());
                     if (layerDsls.put(c.getName(), compiled.dsl) != null) {
@@ -266,7 +280,7 @@ public class LogFilterListener implements LogAnalysisListener {
             }
             // Publish: readers from now on see the startup-complete registry.
             this.dsls = initDsls;
-            this.autoDsls = initAutoDsls;
+            this.autoRules = new AutoRules(initAutoDsls, initFallbackDsls);
         }
 
         /**
@@ -288,7 +302,12 @@ public class LogFilterListener implements LogAnalysisListener {
                                    final ClassPool pool,
                                    final ClassLoader targetClassLoader) throws ModuleStartException {
             final boolean isAuto = LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer());
-            final Layer layer = isAuto ? null : Layer.nameOf(c.getLayer());
+            final Layer layer = isAuto ? null : resolveLayer(c);
+            if (c.isFallback() && !isAuto) {
+                throw new ModuleStartException(
+                    "LAL rule " + c.getName() + " in " + c.getSourcePath()
+                        + " declares fallback: true, which only a layer: auto rule may");
+            }
             final LALSourceTypeProvider spiProvider = isAuto ? null : spiProviders.get(layer);
             final Class<?> resolvedInputType = resolveInputType(c, spiProvider);
             final Class<?> resolvedOutputType = resolveOutputType(c, spiProvider);
@@ -300,7 +319,24 @@ public class LogFilterListener implements LogAnalysisListener {
                 // operator can open. sourceName is the debug registry's key and must not vary.
                 DslSourceRef.ofRule(c.getSourcePath(), c.getLineNo()),
                 pool, targetClassLoader);
-            return new CompiledLAL(layer, c.getName(), dsl);
+            return new CompiledLAL(layer, c.getName(), dsl, c.isFallback());
+        }
+
+        /**
+         * {@link Layer#nameOf} answers UNDEFINED for an unregistered name, which no log is routed to, so a
+         * misspelled or missing layer would leave its rule silently never running.
+         */
+        static Layer resolveLayer(final LALConfig c) throws ModuleStartException {
+            if (!isRegisteredLayer(c.getLayer())) {
+                throw new ModuleStartException(
+                    "LAL rule " + c.getName() + " in " + c.getSourcePath()
+                        + " declares an unregistered layer: " + c.getLayer());
+            }
+            return Layer.nameOf(c.getLayer());
+        }
+
+        static boolean isRegisteredLayer(final String name) {
+            return StringUtil.isNotEmpty(name) && Layer.nameOf(name) != Layer.UNDEFINED;
         }
 
         /**
@@ -313,9 +349,14 @@ public class LogFilterListener implements LogAnalysisListener {
         public void addOrReplace(final CompiledLAL compiled) {
             synchronized (writeLock) {
                 if (compiled.layer == null) {
-                    final Map<String, DSL> next = new HashMap<>(autoDsls);
-                    next.put(compiled.ruleName, compiled.dsl);
-                    autoDsls = next;
+                    // A replace may move the rule between the auto and the fallback auto rules.
+                    final AutoRules current = autoRules;
+                    final Map<String, DSL> nextAuto = new HashMap<>(current.auto);
+                    final Map<String, DSL> nextFallback = new HashMap<>(current.fallback);
+                    nextAuto.remove(compiled.ruleName);
+                    nextFallback.remove(compiled.ruleName);
+                    (compiled.fallback ? nextFallback : nextAuto).put(compiled.ruleName, compiled.dsl);
+                    autoRules = new AutoRules(nextAuto, nextFallback);
                 } else {
                     final Map<Layer, Map<String, DSL>> next = new HashMap<>(dsls);
                     final Map<String, DSL> layerMap =
@@ -334,7 +375,7 @@ public class LogFilterListener implements LogAnalysisListener {
          *
          * <p>Read-only — exposed so the dsl-debugging module can resolve a rule's
          * {@code GateHolder} via the live DSL right after the LAL apply path commits.
-         * No write lock; the volatile {@code dsls} / {@code autoDsls} fields are
+         * No write lock; the volatile {@code dsls} / {@code autoRules} fields are
          * publication-safe for snapshot reads.
          */
         public DSL find(final Layer layer, final String ruleName) {
@@ -342,7 +383,7 @@ public class LogFilterListener implements LogAnalysisListener {
                 return null;
             }
             if (layer == null) {
-                return autoDsls.get(ruleName);
+                return autoRules.get(ruleName);
             }
             final Map<String, DSL> layerMap = dsls.get(layer);
             return layerMap == null ? null : layerMap.get(ruleName);
@@ -352,12 +393,15 @@ public class LogFilterListener implements LogAnalysisListener {
         public void remove(final Layer layer, final String ruleName) {
             synchronized (writeLock) {
                 if (layer == null) {
-                    if (!autoDsls.containsKey(ruleName)) {
+                    final AutoRules current = autoRules;
+                    if (current.get(ruleName) == null) {
                         return;
                     }
-                    final Map<String, DSL> next = new HashMap<>(autoDsls);
-                    next.remove(ruleName);
-                    autoDsls = next;
+                    final Map<String, DSL> nextAuto = new HashMap<>(current.auto);
+                    final Map<String, DSL> nextFallback = new HashMap<>(current.fallback);
+                    nextAuto.remove(ruleName);
+                    nextFallback.remove(ruleName);
+                    autoRules = new AutoRules(nextAuto, nextFallback);
                 } else {
                     final Map<String, DSL> layerMap = dsls.get(layer);
                     if (layerMap == null || !layerMap.containsKey(ruleName)) {
@@ -380,7 +424,7 @@ public class LogFilterListener implements LogAnalysisListener {
          *  detect cross-file collisions before registering. */
         public boolean contains(final Layer layer, final String ruleName) {
             if (layer == null) {
-                return autoDsls.containsKey(ruleName);
+                return autoRules.get(ruleName) != null;
             }
             final Map<String, DSL> layerMap = dsls.get(layer);
             return layerMap != null && layerMap.containsKey(ruleName);
@@ -435,16 +479,39 @@ public class LogFilterListener implements LogAnalysisListener {
             return (layer == null ? AUTO_LAYER_PREFIX : layer.name() + "|") + ruleName;
         }
 
+        /** An immutable view of the auto rules and the fallback auto rules; a rule name is in at most one. */
+        private static final class AutoRules {
+            private final Map<String, DSL> auto;
+            private final Map<String, DSL> fallback;
+
+            private AutoRules(final Map<String, DSL> auto, final Map<String, DSL> fallback) {
+                this.auto = auto;
+                this.fallback = fallback;
+            }
+
+            private DSL get(final String ruleName) {
+                final DSL rule = auto.get(ruleName);
+                return rule != null ? rule : fallback.get(ruleName);
+            }
+        }
+
         /** Compact result of {@link #compile(LALConfig)} so callers don't handle Layer / DSL separately. */
         public static final class CompiledLAL {
             public final Layer layer;
             public final String ruleName;
             public final DSL dsl;
+            /** A {@code fallback: true} auto rule; always false with a non-null layer. */
+            public final boolean fallback;
 
             public CompiledLAL(final Layer layer, final String ruleName, final DSL dsl) {
+                this(layer, ruleName, dsl, false);
+            }
+
+            public CompiledLAL(final Layer layer, final String ruleName, final DSL dsl, final boolean fallback) {
                 this.layer = layer;
                 this.ruleName = ruleName;
                 this.dsl = dsl;
+                this.fallback = fallback;
             }
         }
 
@@ -564,18 +631,7 @@ public class LogFilterListener implements LogAnalysisListener {
             // mid-iteration. The reference is volatile + copy-on-write so this is lock-free.
             final Set<String> susp = suspendedKeys;
             if (layer == null) {
-                // null layer → route to auto-layer rules
-                if (autoDsls.isEmpty()) {
-                    return null;
-                }
-                final Collection<DSL> eligible = susp.isEmpty()
-                    ? autoDsls.values()
-                    : filterSuspended(autoDsls, susp, null);
-                if (eligible.isEmpty()) {
-                    return null;
-                }
-                // auto-mode crosses layers — no single SPI provider applies
-                return new LogFilterListener(eligible, true, null);
+                return autoListener(autoRules.auto, susp);
             }
             final Map<String, DSL> dsl = dsls.get(layer);
             if (dsl == null) {
@@ -588,6 +644,25 @@ public class LogFilterListener implements LogAnalysisListener {
                 return null;
             }
             return new LogFilterListener(eligible, false, spiProviders.get(layer));
+        }
+
+        @Override
+        public AutoListeners createAuto() {
+            final AutoRules rules = autoRules;
+            final Set<String> susp = suspendedKeys;
+            return new AutoListeners(autoListener(rules.auto, susp), autoListener(rules.fallback, susp));
+        }
+
+        private static LogAnalysisListener autoListener(final Map<String, DSL> rules, final Set<String> susp) {
+            if (rules.isEmpty()) {
+                return null;
+            }
+            final Collection<DSL> eligible = susp.isEmpty() ? rules.values() : filterSuspended(rules, susp, null);
+            if (eligible.isEmpty()) {
+                return null;
+            }
+            // auto-mode crosses layers — no single SPI provider applies
+            return new LogFilterListener(eligible, true, null);
         }
 
         private static Collection<DSL> filterSuspended(final Map<String, DSL> source,

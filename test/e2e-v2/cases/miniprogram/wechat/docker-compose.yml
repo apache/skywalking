@@ -39,7 +39,7 @@ services:
   # https://github.com/SkyAPM/mini-program-monitor). Drives realistic
   # OTLP logs + metrics + SW native trace segments against OAP.
   sim-wechat:
-    image: ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.1
+    image: ghcr.io/skyapm/mini-program-monitor/sim-wechat:9f59eb574addad78ffd2b84b8fc1de99c3071224
     depends_on:
       oap:
         condition: service_healthy

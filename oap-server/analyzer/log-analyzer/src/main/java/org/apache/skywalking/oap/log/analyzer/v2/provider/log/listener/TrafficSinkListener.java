@@ -65,12 +65,9 @@ public class TrafficSinkListener implements LogSinkListener {
     public LogSinkListener parse(final LogMetadata metadata,
                                  final Object input,
                                  final ExecutionContext ctx) {
-        Layer layer;
-        if (StringUtil.isNotEmpty(metadata.getLayer())) {
-            layer = Layer.valueOf(metadata.getLayer());
-        } else {
-            layer = Layer.GENERAL;
-        }
+        // Never empty here: a log without a layer is saved only by an auto rule, which must set one
+        // (FilterSpec#doSink drops the log otherwise).
+        final Layer layer = Layer.valueOf(metadata.getLayer());
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic
         String serviceName = namingControl.formatServiceName(metadata.getService());

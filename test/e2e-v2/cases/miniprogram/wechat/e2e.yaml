@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # WeChat Mini Program e2e test — drives the published
-# ghcr.io/skyapm/mini-program-monitor/sim-wechat:v0.4.1 image in MODE=timed
+# ghcr.io/skyapm/mini-program-monitor/sim-wechat:9f59eb574addad78ffd2b84b8fc1de99c3071224 image in MODE=timed
 # against OAP wired with the miniprogram MAL / LAL / log-MAL rules. The sim
 # emits realistic OTLP logs + metrics (perf gauges + request-duration
 # histogram + errors) plus SW native trace segments (/v3/segments) with

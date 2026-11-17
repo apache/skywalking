@@ -20,13 +20,15 @@
 # extraction switched bodies (not just the persisted rule row).
 rules:
   - name: e2e-rr-lal-live
-    layer: GENERAL
+    layer: auto
+    fallback: true
     dsl: |
       filter {
         text {
           regexp $/.*e2e_rr_lal_live.*/$
         }
         extractor {
+          layer "GENERAL"
           metrics {
             timestamp log.timestamp as Long
             labels service: log.service, service_instance_id: log.serviceInstance, step: 'v2'

@@ -117,9 +117,8 @@ class LALExpressionExecutionTest {
         final LALClassGenerator generator = new LALClassGenerator();
 
         final Path testLalDir = DslRuleLoader.findScriptsDir(
-            "test/script-cases/scripts/lal/test-lal",
-            "../../../test/script-cases/scripts/lal/test-lal",
-            "../../scripts/lal/test-lal");
+            "src/test/resources/scripts/lal/test-lal",
+            "oap-server/analyzer/log-analyzer/src/test/resources/scripts/lal/test-lal");
         if (testLalDir == null) {
             return tests;
         }
@@ -181,6 +180,18 @@ class LALExpressionExecutionTest {
         final LogMetadata metadata = sourceAttrs != null
             ? LogMetadataUtils.fromLogData(logData, sourceAttrs)
             : LogMetadataUtils.fromLogData(logData);
+        final Object otlpSpanId = input.get("otlp-span-id");
+        if (otlpSpanId != null) {
+            // No native protocol carries an OTLP span id; the OTLP receiver puts it on the metadata.
+            final LogMetadata.TraceContext tc = metadata.getTraceContext();
+            metadata.setTraceContext(
+                LogMetadata.TraceContext.builder()
+                                        .traceId(tc.getTraceId())
+                                        .traceSegmentId(tc.getTraceSegmentId())
+                                        .spanId(tc.getSpanId())
+                                        .otlpSpanId(String.valueOf(otlpSpanId))
+                                        .build());
+        }
 
         final Message extraLog = LalLogDataBuilder.buildExtraLog(input);
         final Object lalInput = extraLog != null ? extraLog : logData;
@@ -341,9 +352,12 @@ class LALExpressionExecutionTest {
         f.setAccessible(true);
         @SuppressWarnings("unchecked")
         final List<String[]> tags = (List<String[]>) f.get(output);
-        assertTrue(tags.stream().anyMatch(t -> key.equals(t[0]) && expected.equals(t[1])),
-            ruleName + ": expected tag " + key + "=" + expected + ", got: "
-                + tags.stream().map(t -> t[0] + "=" + t[1]).collect(Collectors.joining(", ")));
+        // An empty tag value is not added, so an absent tag reads as "".
+        final String actual = tags.stream()
+                                  .filter(t -> key.equals(t[0]))
+                                  .map(t -> t[1])
+                                  .findFirst().orElse("");
+        assertEquals(expected, actual, ruleName + ": expect.tag." + key + " mismatch");
     }
 
     private Map<String, Class<?>> outputBuilderNames;

@@ -14,7 +14,7 @@
 # limitations under the License.
 
 # Alipay Mini Program e2e test — drives the published
-# ghcr.io/skyapm/mini-program-monitor/sim-alipay:v0.4.1 image in MODE=timed
+# ghcr.io/skyapm/mini-program-monitor/sim-alipay:9f59eb574addad78ffd2b84b8fc1de99c3071224 image in MODE=timed
 # against OAP. Alipay emits a strict subset of metrics relative to WeChat
 # (no route / script / package_load / first_paint) so this case verifies
 # only the metrics Alipay actually produces.

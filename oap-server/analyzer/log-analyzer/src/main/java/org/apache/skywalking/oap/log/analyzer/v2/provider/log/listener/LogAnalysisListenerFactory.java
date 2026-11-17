@@ -25,5 +25,17 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
  */
 public interface LogAnalysisListenerFactory {
 
+    /**
+     * @param layer the layer of the log; null for the auto rules of a log without a layer
+     * @return the listener of the rules declared for the layer; null when there are none.
+     */
     LogAnalysisListener create(Layer layer);
+
+    /**
+     * @return the listeners of the two passes a log without a layer runs: the auto rules, then the
+     * {@code fallback} auto rules when no auto rule claimed it. Both come from one view of the rules.
+     */
+    default AutoListeners createAuto() {
+        return new AutoListeners(create(null), null);
+    }
 }

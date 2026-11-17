@@ -38,6 +38,12 @@ public class LALConfig {
     private String layer;
 
     /**
+     * Only with {@code layer: auto}: the rule runs on a log without a layer only when no other auto rule
+     * claimed it. A log no fallback rule claims either is dropped.
+     */
+    private boolean fallback;
+
+    /**
      * Fully qualified class name of the input type (the extra log proto/POJO)
      * for compile-time {@code parsed.*} getter resolution.
      */

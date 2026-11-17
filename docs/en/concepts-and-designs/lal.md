@@ -29,6 +29,28 @@ Use `tag 'key': sourceAttribute("attr")` in the extractor to selectively persist
 ## Layer
 Layer should be declared in the LAL script to represent the analysis scope of the logs.
 LAL rules are routed by layer — only rules matching the incoming log's layer are evaluated.
+A rule's `layer` must be a registered layer name (case-sensitive) or `auto`. A rule declaring an unregistered or
+missing layer is skipped with a warning at boot, and rejected when applied as a runtime rule.
+
+A log is routed as follows:
+
+1. A log whose layer is set, by the agent's `LogData.layer` or the OTLP `service.layer` resource attribute,
+   runs the rules declared for that layer. A log whose layer is not registered is dropped.
+2. A log without a layer runs the `layer: auto` rules, see [Auto layer](#auto-layer).
+3. When no `layer: auto` rule claims it, it runs the `layer: auto` rules declared `fallback: true`.
+4. When no fallback rule claims it either, it is dropped.
+
+The shipped `lal/default.yaml` declares:
+
+- `default` (`layer: GENERAL`), saving the logs that arrive with the `GENERAL` layer;
+- `default-fallback` (`layer: auto`, `fallback: true`), saving the logs without a layer under `GENERAL`. Edit
+  its extractor to file them under another layer, for example by `sourceAttribute(...)` or `tag(...)`;
+- `otlp-general` (`layer: OTLP_GENERAL`), saving the logs of the OpenTelemetry services that set
+  `service.layer=OTLP_GENERAL`, the layer their spans are analyzed under.
+
+A rule written for the logs without a layer declares `layer: auto`, with `fallback: true` when it is to take
+only what the other auto rules leave, and sets the layer in its extractor, e.g. `extractor { layer "GENERAL" }`.
+A `layer: GENERAL` rule sees only the logs that arrive with the `GENERAL` layer.
 
 ### Inline layer declarations (`layerDefinitions:`)
 
@@ -75,6 +97,8 @@ the built-in static fields in `Layer.java` for distribution layers. See
 [`Layer.java`](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java)
 javadoc for the full picture.
 
+### Auto layer
+
 When `layer: auto` is declared, the rule matches logs where `service.layer` is absent (common for OTLP
 sources that don't set this attribute). The script is expected to set the layer in the extractor:
 
@@ -98,14 +122,36 @@ rules:
 
 In `layer: auto` mode, `abort` and `drop` have distinct meanings:
 
-- **`abort {}`** — "not mine, let others try." If all auto rules abort, the log falls back to
-  `GENERAL` layer processing automatically.
-- **`drop {}`** — "mine, but sampled out." The rule claimed the log (no GENERAL fallback) but
+- **`abort {}`** — "not mine, let others try." If all auto rules abort, the log runs the fallback auto rules.
+- **`drop {}`** — "mine, but sampled out." The rule claimed the log (the fallback auto rules do not run) but
   chose not to persist it (e.g., sampling). Use this for rate limiting or conditional dropping
   within a recognized log type.
 
 If an auto rule claims the log (doesn't abort) but doesn't set a layer, the log is warned and
 dropped at persistence time.
+
+All the auto rules run on such a log, in no defined order, and each one that claims it saves a copy of
+its own, so an auto rule should claim only the logs it recognizes and `abort {}` on the others.
+
+A rule declaring `fallback: true` (allowed only with `layer: auto`) runs after the other auto rules, only when
+none of them claimed the log. It is the catch-all for the logs without a layer: `default-fallback` in
+`lal/default.yaml` files them under `GENERAL`. A fallback rule follows the same rules as any auto rule: it
+must set the layer, and `abort {}` leaves the log unclaimed, which drops it. Auto and fallback rule names
+share one name space.
+
+```yaml
+rules:
+  - name: default-fallback
+    layer: auto
+    fallback: true
+    dsl: |
+      filter {
+        extractor {
+          layer "GENERAL"
+        }
+        sink {}
+      }
+```
 
 ## Filter
 
