@@ -196,16 +196,19 @@ Rules with `layer: auto` match logs where `service.layer` is absent (empty). `Lo
 routes an empty-layer log in up to two passes, stopping at the first pass in which a rule claims it
 (`LogAnalysisListener.claimed()`: did not abort):
 
-1. The regular auto rules — `LogFilterListener.Factory.autoDsls`, via `create(null)`.
-2. The `fallback: true` auto rules — `Factory.fallbackDsls`, via `createFallback()`. Before this pass the
-   metadata layer is reset to the value received, since the rules share one `LogMetadata` and an aborted
-   auto rule may have set a layer on it.
+1. The regular auto rules.
+2. The `fallback: true` auto rules. Before this pass the metadata layer is reset to the value received,
+   since the rules share one `LogMetadata` and an aborted auto rule may have set a layer on it.
+
+Both groups live in one immutable `Factory.AutoRules` snapshot, replaced whole on every runtime change, so a
+rule whose `fallback` flag flips is never in neither (or both). `LogAnalyzer` takes both passes' listeners
+from one snapshot up front via `LogAnalysisListenerFactory.createAuto()` → `AutoListeners`.
 3. Nothing claimed it: the log is dropped (debug log). There is no fallback to the `GENERAL` rules;
    `lal/default.yaml` ships `default-fallback`, which sets `GENERAL`.
 
 Auto and fallback rules share one name space and rule key (`ruleKey(null, name)` → `<auto>|name`), so
 `find` / `contains` / `remove` / suspend / runtime-rule keys treat them alike; `addOrReplace` moves a rule
-between the two maps when its `fallback` flag changes. `fallback: true` on a non-auto rule fails compile.
+between the two groups when its `fallback` flag changes. `fallback: true` on a non-auto rule fails compile.
 
 The `autoLayerMode` flag on `ExecutionContext` (set for both passes) triggers a layer check in
 `FilterSpec.doSink()`: if the extractor didn't set a layer, the log is warned and dropped. Because of it,

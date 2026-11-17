@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log;
 
 import java.util.Collections;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.AutoListeners;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListenerFactory;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -53,8 +54,7 @@ class LogAnalyzerRoutingTest {
         auto = mock(LogAnalysisListener.class);
         fallback = mock(LogAnalysisListener.class);
         general = mock(LogAnalysisListener.class);
-        when(factory.create(null)).thenReturn(auto);
-        when(factory.createFallback()).thenReturn(fallback);
+        when(factory.createAuto()).thenReturn(new AutoListeners(auto, fallback));
         when(factory.create(Layer.GENERAL)).thenReturn(general);
         final ILogAnalysisListenerManager manager = mock(ILogAnalysisListenerManager.class);
         when(manager.getLogAnalysisListenerFactories()).thenReturn(Collections.singletonList(factory));
@@ -72,7 +72,7 @@ class LogAnalyzerRoutingTest {
         analyzer.doAnalysis(log(""), null);
 
         verify(auto).build();
-        verify(factory, never()).createFallback();
+        verify(fallback, never()).build();
         verify(general, never()).build();
     }
 
@@ -116,7 +116,6 @@ class LogAnalyzerRoutingTest {
 
         verify(general).parse(any(), any());
         verify(general).build();
-        verify(factory, never()).create(null);
-        verify(factory, never()).createFallback();
+        verify(factory, never()).createAuto();
     }
 }

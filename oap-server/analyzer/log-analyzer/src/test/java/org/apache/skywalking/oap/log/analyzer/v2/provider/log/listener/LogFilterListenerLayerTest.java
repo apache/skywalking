@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LALConfig;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfig;
@@ -99,11 +101,12 @@ class LogFilterListenerLayerTest {
         factory.addOrReplace(new LogFilterListener.Factory.CompiledLAL(null, "a", autoRule, false));
         factory.addOrReplace(new LogFilterListener.Factory.CompiledLAL(null, "f", fallbackRule, true));
 
-        evaluate(factory.create(null));
+        final AutoListeners passes = factory.createAuto();
+        evaluate(passes.getAuto());
         verify(autoRule).evaluate(any());
         verify(fallbackRule, never()).evaluate(any());
 
-        evaluate(factory.createFallback());
+        evaluate(passes.getFallback());
         verify(fallbackRule).evaluate(any());
 
         assertSame(fallbackRule, factory.find(null, "f"));
@@ -111,11 +114,53 @@ class LogFilterListenerLayerTest {
 
         // A replace that turns "a" into a fallback rule moves it between the groups.
         factory.addOrReplace(new LogFilterListener.Factory.CompiledLAL(null, "a", autoRule, true));
-        assertNull(factory.create(null));
+        assertNull(factory.createAuto().getAuto());
 
         factory.remove(null, "a");
         factory.remove(null, "f");
-        assertNull(factory.createFallback());
+        assertNull(factory.createAuto().getFallback());
+        assertFalse(factory.contains(null, "a"));
+    }
+
+    /**
+     * A rule whose {@code fallback} flag flips on a runtime replace moves between the two groups; a reader
+     * running at the same time must always find it in one of them, never in neither.
+     */
+    @Test
+    void ruleMovingBetweenAutoAndFallbackIsNeverMissing() throws Exception {
+        final LogFilterListener.Factory factory = factory();
+        final DSL rule = mock(DSL.class);
+        factory.addOrReplace(new LogFilterListener.Factory.CompiledLAL(null, "r", rule, false));
+
+        final AtomicBoolean stop = new AtomicBoolean();
+        final Thread mover = new Thread(() -> {
+            boolean fallback = false;
+            while (!stop.get()) {
+                fallback = !fallback;
+                factory.addOrReplace(new LogFilterListener.Factory.CompiledLAL(null, "r", rule, fallback));
+            }
+        });
+        mover.start();
+        int missed = 0;
+        int notExactlyOnePass = 0;
+        try {
+            final long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2);
+            while (System.nanoTime() < deadline) {
+                if (factory.find(null, "r") == null) {
+                    missed++;
+                }
+                // The two passes of one log come from one view: the rule is in exactly one of them.
+                final AutoListeners passes = factory.createAuto();
+                if ((passes.getAuto() == null) == (passes.getFallback() == null)) {
+                    notExactlyOnePass++;
+                }
+            }
+        } finally {
+            stop.set(true);
+            mover.join();
+        }
+        assertEquals(0, missed, "lookups that found the rule in neither group");
+        assertEquals(0, notExactlyOnePass, "createAuto() views with the rule in neither or both passes");
     }
 
     private static LogFilterListener.Factory factory() throws Exception {

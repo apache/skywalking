@@ -21,7 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.AutoListeners;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogAnalysisListenerFactory;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
@@ -67,15 +69,20 @@ public class LogAnalyzer {
             metadata.setTimestamp(System.currentTimeMillis());
         }
         if (metadata.getLayer() == null || metadata.getLayer().isEmpty()) {
-            // A log without a layer: the auto rules, then the fallback auto rules, until one claims it.
+            // A log without a layer: the auto rules, then the fallback auto rules, until one claims it. Both
+            // passes come from one view of the rules, taken before either runs.
+            final List<AutoListeners> passes = factoryManager.getLogAnalysisListenerFactories()
+                                                             .stream()
+                                                             .map(LogAnalysisListenerFactory::createAuto)
+                                                             .collect(Collectors.toList());
             final String arrivedLayer = metadata.getLayer();
-            if (analyzeUntilClaimed(metadata, input, factory -> factory.create(null))) {
+            if (analyzeUntilClaimed(metadata, input, passes, AutoListeners::getAuto)) {
                 return;
             }
             // The rules share this metadata, and an auto rule may have set a layer before it aborted
             // (LALBlockCodegen writes `layer` into it); the fallback rules start from the layer as received.
             metadata.setLayer(arrivedLayer);
-            if (analyzeUntilClaimed(metadata, input, LogAnalysisListenerFactory::createFallback)) {
+            if (analyzeUntilClaimed(metadata, input, passes, AutoListeners::getFallback)) {
                 return;
             }
             log.debug("No LAL rule claimed the log without a layer of service {}, dropping it", metadata.getService());
@@ -86,16 +93,21 @@ public class LogAnalyzer {
             log.warn("The Layer {} is not recognized, abandon the log.", metadata.getLayer());
             return;
         }
-        createAnalysisListeners(factory -> factory.create(layer));
+        factoryManager.getLogAnalysisListenerFactories()
+                      .stream()
+                      .map(factory -> factory.create(layer))
+                      .filter(Objects::nonNull)
+                      .forEach(listeners::add);
         notifyAnalysisListener(metadata, input);
         notifyAnalysisListenerToBuild();
     }
 
     private boolean analyzeUntilClaimed(final LogMetadata metadata,
                                         final Object input,
-                                        final Function<LogAnalysisListenerFactory, LogAnalysisListener> create) {
+                                        final List<AutoListeners> passes,
+                                        final Function<AutoListeners, LogAnalysisListener> pass) {
         listeners.clear();
-        createAnalysisListeners(create);
+        passes.stream().map(pass).filter(Objects::nonNull).forEach(listeners::add);
         if (listeners.isEmpty()) {
             return false;
         }
@@ -110,13 +122,5 @@ public class LogAnalyzer {
 
     private void notifyAnalysisListenerToBuild() {
         listeners.forEach(LogAnalysisListener::build);
-    }
-
-    private void createAnalysisListeners(final Function<LogAnalysisListenerFactory, LogAnalysisListener> create) {
-        factoryManager.getLogAnalysisListenerFactories()
-                      .stream()
-                      .map(create)
-                      .filter(Objects::nonNull)
-                      .forEach(listeners::add);
     }
 }
