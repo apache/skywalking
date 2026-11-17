@@ -22,3 +22,24 @@ rules:
         sink {
         }
       }
+  # The logs of a service whose OTLP resource sets `service.layer=OTLP_GENERAL`, as its spans do.
+  - name: otlp-general
+    layer: OTLP_GENERAL
+    dsl: |
+      filter {
+        sink {
+        }
+      }
+  # The logs that arrive without a layer and no other `layer: auto` rule claimed. Its extractor decides the
+  # layer the log and its service are filed under; a log no rule claims is dropped.
+  - name: default-fallback
+    layer: auto
+    fallback: true
+    dsl: |
+      filter {
+        extractor {
+          layer "GENERAL"
+        }
+        sink {
+        }
+      }

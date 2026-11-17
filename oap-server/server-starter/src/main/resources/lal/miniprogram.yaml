@@ -14,21 +14,16 @@
 # limitations under the License.
 
 # WeChat / Alipay Mini Program error-log processing.
-# One rule covers both runtimes — layer is decided script-side from the
-# miniprogram.platform resource attribute, using the SWIP-11 layer:auto
-# mechanism. Also emits a miniprogram_error_count counter sample for every
-# error log, picked up by log-mal-rules/miniprogram-{wechat,alipay}.yaml
-# which aggregate into per-platform error_count metrics.
+# The SDK (>= v0.5.0) sets the service.layer resource attribute, so its logs reach the rule of the
+# WECHAT_MINI_PROGRAM or ALIPAY_MINI_PROGRAM layer. Each rule emits a miniprogram_error_count counter
+# sample for every error log, picked up by log-mal-rules/miniprogram-{wechat,alipay}.yaml which
+# aggregate into per-platform error_count metrics.
 
 rules:
-  - name: miniprogram-errors
-    layer: auto
+  - name: miniprogram-errors-wechat
+    layer: WECHAT_MINI_PROGRAM
     dsl: |
       filter {
-        if (sourceAttribute("miniprogram.platform") != "wechat"
-            && sourceAttribute("miniprogram.platform") != "alipay") {
-          abort {}
-        }
         // LAL tag() returns "" (not null) for a missing tag, so guard on
         // both to short-circuit non-error logs cleanly.
         if (tag("exception.type") == null || tag("exception.type") == "") {
@@ -36,17 +31,39 @@ rules:
         }
 
         extractor {
-          if (sourceAttribute("miniprogram.platform") == "wechat") {
-            layer "WECHAT_MINI_PROGRAM"
-          } else if (sourceAttribute("miniprogram.platform") == "alipay") {
-            layer "ALIPAY_MINI_PROGRAM"
-          }
+          instance sourceAttribute("service.instance.id")
+          endpoint tag("miniprogram.page.path")
 
-          // Instance source matches what OTLP metrics use, so logs aggregate under
-          // the same OAP instance entity when operators follow the recommended
-          // serviceInstance == serviceVersion pattern (SDK >= v0.4.0). If absent,
-          // sourceAttribute() returns null/empty -> TrafficSinkListener skips the
-          // instance traffic, matching MAL's empty-dim behavior.
+          tag 'platform': sourceAttribute("miniprogram.platform")
+          tag 'exception.type': tag("exception.type")
+          tag 'exception.stacktrace': tag("exception.stacktrace")
+          tag 'http.method': tag("http.request.method")
+          tag 'http.status': tag("http.response.status_code")
+          tag 'server.address': tag("server.address")
+
+          metrics {
+            timestamp log.timestamp as Long
+            labels service_name: log.service, exception_type: tag("exception.type"), miniprogram_platform: sourceAttribute("miniprogram.platform")
+            name "miniprogram_error_count"
+            value 1
+          }
+        }
+
+        sink {
+        }
+      }
+
+  - name: miniprogram-errors-alipay
+    layer: ALIPAY_MINI_PROGRAM
+    dsl: |
+      filter {
+        // LAL tag() returns "" (not null) for a missing tag, so guard on
+        // both to short-circuit non-error logs cleanly.
+        if (tag("exception.type") == null || tag("exception.type") == "") {
+          abort {}
+        }
+
+        extractor {
           instance sourceAttribute("service.instance.id")
           endpoint tag("miniprogram.page.path")
 

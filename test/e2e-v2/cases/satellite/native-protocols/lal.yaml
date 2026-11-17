@@ -15,7 +15,8 @@
 
 rules:
   - name: example
-    layer: GENERAL
+    layer: auto
+    fallback: true
     dsl: |
       filter {
         text {
@@ -23,6 +24,7 @@ rules:
           regexp $/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$
         }
         extractor {
+          layer "GENERAL"
         }
         sink {
         }

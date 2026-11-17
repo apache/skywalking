@@ -21,3 +21,20 @@ default:
   expect:
     save: true
     abort: false
+
+default-fallback:
+  service: test-svc
+  body-type: text
+  body: 'a log without a layer'
+  expect:
+    save: true
+    abort: false
+    layer: GENERAL
+
+otlp-general:
+  service: test-svc
+  body-type: text
+  body: 'a log of an OTLP_GENERAL service'
+  expect:
+    save: true
+    abort: false

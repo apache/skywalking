@@ -19,10 +19,12 @@
 # would only show one extractor entry, masking line-mode behaviour.
 rules:
   - name: e2e-dsldbg-statement
-    layer: GENERAL
+    layer: auto
+    fallback: true
     dsl: |
       filter {
         extractor {
+          layer "GENERAL"
           tag stage: 'extractor'
           tag emitter: 'e2e-dsldbg'
           tag rule: 'multi-statement'

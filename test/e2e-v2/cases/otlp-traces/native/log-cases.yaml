@@ -33,3 +33,13 @@ cases:
           byOtherSpan: (($other.data.queryLogs.logs // []) | length),
           mixedRefused: ((($mixed.errors // []) | length) > 0 and ($mixed.data.queryLogs == null))}' | yq -P
     expected: expected/logs-by-otlp-span.yml
+  # An OTLP log whose resource sets service.layer=OTLP_GENERAL, as an application whose spans are analyzed sets it
+  # for all its signals, is saved by the otlp-general LAL rule and files its service under OTLP_GENERAL.
+  - query: |
+      curl -s -X POST http://${oap_host}:${oap_12800}/v1/logs -H 'Content-Type: application/json' \
+        -d '{"resourceLogs":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"e2e-otlp-general-log"}},{"key":"service.layer","value":{"stringValue":"OTLP_GENERAL"}}]},"scopeLogs":[{"logRecords":[{"timeUnixNano":"'$(date +%s)'000000000","body":{"stringValue":"a log of an OTLP_GENERAL service"}}]}]}]}' > /dev/null
+      sleep 5
+      swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql logs list --service-name=e2e-otlp-general-log
+    expected: expected/logs-otlp-general.yml
+  - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql service ly OTLP_GENERAL
+    expected: expected/services-otlp-general-log.yml

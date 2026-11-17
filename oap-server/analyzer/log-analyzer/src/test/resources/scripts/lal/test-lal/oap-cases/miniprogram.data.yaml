@@ -1,0 +1,69 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Mock input data for miniprogram.yaml rules.
+
+miniprogram-errors-wechat:
+  # An error log, routed here by service.layer=WECHAT_MINI_PROGRAM.
+  - service: my-mini-program
+    body-type: text
+    body: 'request:fail timeout'
+    source-attributes:
+      miniprogram.platform: "wechat"
+      service.layer: "WECHAT_MINI_PROGRAM"
+      service.instance.id: "v1.2.0"
+    tags:
+      exception.type: "ajax"
+      miniprogram.page.path: "pages/cart/cart"
+      http.request.method: "GET"
+      http.response.status_code: "500"
+      server.address: "api.example.com"
+    expect:
+      save: true
+      abort: false
+      instance: "v1.2.0"
+      endpoint: "pages/cart/cart"
+      tag.platform: "wechat"
+      tag.exception.type: "ajax"
+      tag.http.method: "GET"
+      tag.http.status: "500"
+      tag.server.address: "api.example.com"
+
+  # A log that is not an error is not saved.
+  - service: my-mini-program
+    body-type: text
+    body: 'page shown'
+    source-attributes:
+      miniprogram.platform: "wechat"
+      service.layer: "WECHAT_MINI_PROGRAM"
+    expect:
+      abort: true
+
+miniprogram-errors-alipay:
+  - service: my-mini-program
+    body-type: text
+    body: 'TypeError: x is undefined'
+    source-attributes:
+      miniprogram.platform: "alipay"
+      service.layer: "ALIPAY_MINI_PROGRAM"
+    tags:
+      exception.type: "js"
+      miniprogram.page.path: "pages/index/index"
+    expect:
+      save: true
+      abort: false
+      endpoint: "pages/index/index"
+      tag.platform: "alipay"
+      tag.exception.type: "js"

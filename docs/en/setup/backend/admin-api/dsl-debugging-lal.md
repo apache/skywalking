@@ -210,10 +210,13 @@ samples are the entry-point `input` and the terminal `output`.
 # /tmp/lal-multi.yaml
 rules:
   - name: app-extractor
-    layer: GENERAL
+    # Agent logs carry no layer, so a rule for them is a fallback auto rule that sets one.
+    layer: auto
+    fallback: true
     dsl: |
       filter {
         extractor {
+          layer "GENERAL"
           tag stage: 'extractor'
           tag emitter: 'demo'
           tag rule: 'multi-statement'

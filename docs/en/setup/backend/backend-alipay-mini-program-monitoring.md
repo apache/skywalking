@@ -109,11 +109,12 @@ metrics on the dashboard come from the `miniprogram.request.duration` histogram'
 
 ## Error Logs
 
-The LAL rule `lal/miniprogram.yaml` uses `layer: auto` mode and dispatches on the
-`miniprogram.platform` resource attribute — one rule file produces both the
-`WECHAT_MINI_PROGRAM` and `ALIPAY_MINI_PROGRAM` layers. For each error log, the extractor
-emits a `miniprogram_error_count` counter sample, which the log-MAL rule in
-`log-mal-rules/miniprogram.yaml` aggregates into the per-layer `error_count` metric.
+The LAL rules in `lal/miniprogram.yaml` handle the error logs. The SDK sets the `service.layer`
+resource attribute, so its logs reach the `miniprogram-errors-wechat` and `miniprogram-errors-alipay`
+rules, declared for the `WECHAT_MINI_PROGRAM` and `ALIPAY_MINI_PROGRAM` layers. For each error log,
+the extractor also emits a `miniprogram_error_count` counter sample, which the log-MAL rules in
+`log-mal-rules/miniprogram-wechat.yaml` and `log-mal-rules/miniprogram-alipay.yaml` aggregate into the
+per-layer `error_count` metric.
 
 Error categories (`exception.type` tag):
 
@@ -147,6 +148,10 @@ value.
   then handle absence differently: native segments produce a literal `-` instance entity; OTLP
   logs and metrics create no instance entity at all. Per-instance dashboards are meaningful
   only when the operator sets `serviceInstance`.
+- **SDK ≥ v0.5.0 is required.** It sets the `service.layer` resource attribute, which routes its
+  error logs to the LAL rules of the mini-program layers. An older SDK sets none, so its error logs
+  are filed under `GENERAL` and produce no `error_count` metric. Conversely, an OAP older than this
+  version has no LAL rule for these layers and drops the error logs of SDK ≥ v0.5.0.
 - The recommended pattern (SDK docs + e2e CI) is to set `serviceInstance` to a version-scoped
   value.
 
