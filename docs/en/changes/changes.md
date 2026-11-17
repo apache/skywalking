@@ -66,6 +66,7 @@
   - The table check at boot logged wrong table and column states.
 * Fix creating an async-profiler task for a service while another one runs on it: the check that refuses it never found the running task on the JDBC and Elasticsearch storage.
 * Fix the async-profiler task OAP sends to an agent whose service has two tasks created within five minutes of each other: it could send the older one.
+* Fix alarm windows retaining empty layers after an initial metadata lookup miss. Later metrics can supply the missing layers for subsequent alarms, allowing layer-filtered `queryAlarms` queries to match the persisted layer.
 
 #### UI
 

@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.apache.skywalking.oap.server.testing.util.ReflectUtil;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -129,6 +130,32 @@ public class RunningRuleTest {
         runningRule.in(getMetaInAlarm(123), getMetrics(timeInPeriod3, 74));
         alarmMessages = getAlarmFiringMessageList(runningRule.check());
         Assertions.assertEquals(1, alarmMessages.size());
+    }
+
+    @Test
+    public void testAlarmTakesTheLayersResolvedAfterTheFirstMetric() throws IllegalExpressionException {
+        AlarmRule alarmRule = new AlarmRule(null);
+        alarmRule.setAlarmRuleName("endpoint_percent_rule");
+        alarmRule.setExpression("sum(endpoint_percent < 75) >= 3");
+        alarmRule.getIncludeMetrics().add("endpoint_percent");
+        alarmRule.setPeriod(15);
+        alarmRule.setMessage("Successful rate of endpoint {name} is lower than 75%");
+        alarmRule.setTags(new HashMap<>());
+        RunningRule runningRule = new RunningRule(alarmRule, null);
+
+        DateTime startTime = DateTime.now();
+        // Simulate an initial metadata lookup miss followed by successful layer resolution for later metrics of the
+        // same entity.
+        runningRule.in(getMetaInAlarm(123, "endpoint_percent", Collections.emptyList()),
+            getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(6).getMillis()), 70));
+        runningRule.in(getMetaInAlarm(123, "endpoint_percent", List.of("GENERAL")),
+            getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(4).getMillis()), 71));
+        runningRule.in(getMetaInAlarm(123, "endpoint_percent", List.of("GENERAL")),
+            getMetrics(TimeBucket.getMinuteTimeBucket(startTime.minusMinutes(2).getMillis()), 74));
+
+        List<AlarmMessage> alarmMessages = getAlarmFiringMessageList(runningRule.check());
+        Assertions.assertEquals(1, alarmMessages.size());
+        Assertions.assertEquals(List.of("GENERAL"), alarmMessages.get(0).getLayers());
     }
 
     @Test
@@ -476,7 +503,16 @@ public class RunningRuleTest {
     }
 
     private MetaInAlarm getMetaInAlarm(int id, String metricName) {
+        return getMetaInAlarm(id, metricName, Collections.emptyList());
+    }
+
+    private MetaInAlarm getMetaInAlarm(int id, String metricName, List<String> layers) {
         return new MetaInAlarm() {
+            @Override
+            public List<String> getLayers() {
+                return layers;
+            }
+
             @Override
             public String getScope() {
                 return "SERVICE";
