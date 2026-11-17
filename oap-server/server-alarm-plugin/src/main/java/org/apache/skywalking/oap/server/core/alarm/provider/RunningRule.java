@@ -152,6 +152,7 @@ public class RunningRule {
 
         Window window = windows.computeIfAbsent(entity, ignored -> new Window(entity, this.period,
                 this.silencePeriod, this.recoveryObservationPeriod, this.additionalPeriod));
+        window.updateLayers(entity);
         window.add(meta.getMetricsName(), metrics);
     }
 
@@ -285,7 +286,8 @@ public class RunningRule {
         private AlarmMessage lastAlarmMessage;
         @Getter
         private JsonObject mqeMetricsSnapshot;
-        private AlarmEntity entity;
+        // Read by the alarm check thread, replaced by updateLayers on the metrics thread.
+        private volatile AlarmEntity entity;
 
         public Window(AlarmEntity entity, int period, int silencePeriod, int recoveryObservationPeriod,
                       int additionalPeriod) {
@@ -295,6 +297,20 @@ public class RunningRule {
             this.period = period;
             this.stateMachine = new AlarmStateMachine(silencePeriod, recoveryObservationPeriod);
             this.init();
+        }
+
+        /**
+         * Fill missing layers from a later metric's entity. An initial metadata lookup in {@code NotifyHandler} can
+         * miss a service whose traffic metadata is not yet queryable or visible in the metadata cache.
+         * {@link AlarmEntity} equality excludes layers, so otherwise the window retains the initially unresolved
+         * layers.
+         *
+         * @param latest the entity of the metric being added
+         */
+        void updateLayers(final AlarmEntity latest) {
+            if (CollectionUtils.isEmpty(entity.getLayers()) && CollectionUtils.isNotEmpty(latest.getLayers())) {
+                entity = latest;
+            }
         }
 
         public void moveTo(LocalDateTime current) {
