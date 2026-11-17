@@ -46,7 +46,6 @@ import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.measure.BanyanDBMetadataQueryDAO;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -181,7 +180,6 @@ public class BanyanDBMetadataQueryIT {
     }
 
     @Test
-    @Disabled("BanyanDB ignores timestamp ORDER BY on an index-mode measure: apache/skywalking#14218")
     public void findsTheNewestEndpointsUpToTheLimit() throws IOException {
         assertEquals(Arrays.asList("GET:/api/users", "POST:/api/orders"),
                      endpointNames(QUERY_DAO.findEndpoint(null, SERVICE_ID, 2, minutes(90, 110))));
