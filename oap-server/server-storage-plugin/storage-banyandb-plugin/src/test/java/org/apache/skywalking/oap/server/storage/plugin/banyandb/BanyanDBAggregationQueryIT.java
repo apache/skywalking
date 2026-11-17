@@ -45,7 +45,6 @@ import org.apache.skywalking.oap.server.core.query.type.SelectedRecord;
 import org.apache.skywalking.oap.server.core.storage.annotation.ValueColumnMetadata;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -149,8 +148,6 @@ public class BanyanDBAggregationQueryIT {
     }
 
     @Test
-    @Disabled("BanyanDB's pre-built TopN keeps one value per entity before it applies AGGREGATE BY, so MEAN over "
-        + "more than one window is not the mean: apache/skywalking#14217")
     public void ranksThroughThePreBuiltTopNOfAService() throws IOException {
         final List<String> expected = Arrays.asList(endpoint(1, 60), endpoint(0, 50), endpoint(2, 10));
         final List<KeyValue> ofService = Collections.singletonList(new KeyValue("service_id", SERVICE_ID));
@@ -162,8 +159,6 @@ public class BanyanDBAggregationQueryIT {
     }
 
     @Test
-    @Disabled("BanyanDB's pre-built TopN keeps one value per entity before it applies AGGREGATE BY, so MEAN over "
-        + "more than one window is not the mean: apache/skywalking#14217")
     public void ranksThroughThePreBuiltTopNOfALayer() throws IOException {
         final TopNCondition general = top(ENDPOINT_CPM, Scope.Endpoint, 10, Order.DES);
         general.setAttributes(Collections.singletonList(new AttrCondition("attr0", "GENERAL", true)));
