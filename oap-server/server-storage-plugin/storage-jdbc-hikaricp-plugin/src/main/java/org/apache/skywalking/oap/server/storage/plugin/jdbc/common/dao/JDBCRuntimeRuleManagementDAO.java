@@ -84,15 +84,8 @@ public class JDBCRuntimeRuleManagementDAO extends JDBCSQLExecutor implements Run
     public void save(final RuntimeRule rule) throws IOException {
         final Model model = TableMetaInfo.get(RuntimeRule.INDEX_NAME);
         final RuntimeRule.Builder builder = new RuntimeRule.Builder();
-        // The shared {@link JDBCSQLExecutor#getByID} is unusable for ManagementData like
-        // RuntimeRule: it always passes the lookup id through {@code TableHelper.generateId(
-        // String, String)} which prefixes with the model name, but the INSERT path uses
-        // {@code TableHelper.generateId(Model, String)} which returns the RAW id for
-        // non-record / non-function-metric types. RuntimeRule is non-record + non-metric, so
-        // its row is stored with the raw composite id while getByID looks up "runtimerule_<id>"
-        // and never finds it. Without this workaround the second save() always falls through
-        // to INSERT and trips the primary-key constraint, breaking every /addOrUpdate update
-        // and every /inactivate after the first persist.
+        // An upsert by the id the INSERT path stores: every /addOrUpdate after the first and every
+        // /inactivate must update the existing row rather than trip the primary-key constraint.
         final String storedId = TableHelper.generateId(model, rule.id().build());
         try (Connection connection = jdbcClient.getConnection()) {
             final boolean exists = rowExists(connection, storedId);
@@ -111,9 +104,7 @@ public class JDBCRuntimeRuleManagementDAO extends JDBCSQLExecutor implements Run
     }
 
     /**
-     * Probe every TTL-shadow table for a row with the given stored id. Direct SELECT on the
-     * id column rather than the shared getByID helper for the prefix-mismatch reason
-     * documented in {@link #save(RuntimeRule)}.
+     * Probe every TTL-shadow table for a row with the given stored id.
      */
     private boolean rowExists(final Connection connection, final String storedId) throws SQLException {
         final List<String> tables = tableHelper.getTablesWithinTTL(RuntimeRule.INDEX_NAME);

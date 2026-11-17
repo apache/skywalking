@@ -87,7 +87,8 @@ public class JDBCTableInstaller extends ModelInstaller {
                 .map(ModelColumn::getColumnName)
                 .map(ColumnName::getStorageName)
                 .anyMatch(not(databaseColumns::contains));
-        installInfo.setAllColumnsExist(isAnyColumnNotCreated);
+        installInfo.setTableExist(true);
+        installInfo.setAllColumnsExist(!isAnyColumnNotCreated);
         installInfo.setAllExist(!isAnyColumnNotCreated);
         return installInfo;
     }

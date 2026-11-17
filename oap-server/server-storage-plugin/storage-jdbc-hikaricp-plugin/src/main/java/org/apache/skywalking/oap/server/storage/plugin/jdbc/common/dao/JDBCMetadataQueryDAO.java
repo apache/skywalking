@@ -186,6 +186,8 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
     @Override
     public List<ServiceInstance> getInstances(List<String> instanceIds) throws IOException {
         final var tables = tableHelper.getTablesWithinTTL(InstanceTraffic.INDEX_NAME);
+        // An instance stays in the day table it was first stored in, so every table may hold some of the ids.
+        final var results = new ArrayList<ServiceInstance>();
 
         for (String table : tables) {
             StringBuilder sql = new StringBuilder();
@@ -200,13 +202,10 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             condition.addAll(instanceIds);
             sql.append(" limit ").append(instanceIds.size());
 
-            final var result = jdbcClient.executeQuery(sql.toString(), resultSet -> buildInstances(resultSet), condition.toArray(new Object[0]));
-            if (result != null) {
-                return result;
-            }
+            results.addAll(jdbcClient.executeQuery(sql.toString(), this::buildInstances, condition.toArray(new Object[0])));
         }
 
-        return null;
+        return results;
     }
 
     @Override
@@ -346,7 +345,7 @@ public class JDBCMetadataQueryDAO implements IMetadataQueryDAO {
             sql.append("select * from ").append(table);
             sql.append(" where ").append(JDBCTableInstaller.TABLE_COLUMN).append(" = ? ");
             condition.add(ProcessTraffic.INDEX_NAME);
-            appendProcessWhereQuery(sql, condition, null, null, agentId, null, 0, 0, false);
+            appendProcessWhereQuery(sql, condition, null, null, agentId, null, startPingTimeBucket, endPingTimeBucket, false);
             sql.append(" limit ").append(metadataQueryMaxSize);
 
             results.addAll(

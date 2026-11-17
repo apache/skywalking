@@ -290,17 +290,17 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
             duration.getStartTimeBucket(),
             duration.getEndTimeBucket()
         );
-        final var heatMap = new HeatMap();
+        final var pointOfTimes = duration.assembleDurationPoints();
+        final var entityId = condition.getEntity().buildId();
+        final var ids =
+            pointOfTimes
+                .stream()
+                .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
+                .collect(Collectors.toList());
+        final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
+        final var datasets = new HashMap<String, String>();
 
         for (String table : tables) {
-            final var pointOfTimes = duration.assembleDurationPoints();
-            final var entityId = condition.getEntity().buildId();
-            final var ids =
-                pointOfTimes
-                    .stream()
-                    .map(pointOfTime -> TableHelper.generateId(condition.getName(), pointOfTime.id(entityId)))
-                    .collect(Collectors.toList());
-
             final var sql = new StringBuilder("select id, " + valueColumnName + " dataset, id from " + table)
                 .append(" where id in ")
                 .append(
@@ -309,21 +309,27 @@ public class JDBCMetricsQueryDAO extends JDBCSQLExecutor implements IMetricsQuer
                        .collect(Collectors.joining(", ", "(", ")"))
                 );
 
-            final int defaultValue = ValueColumnMetadata.INSTANCE.getDefaultValue(condition.getName());
-
             jdbcClient.executeQuery(
                 sql.toString(),
                 resultSet -> {
                     while (resultSet.next()) {
-                        heatMap.buildColumn(
-                            resultSet.getString("id"), resultSet.getString("dataset"), defaultValue);
+                        datasets.put(resultSet.getString("id"), resultSet.getString("dataset"));
                     }
-                    heatMap.fixMissingColumns(ids, defaultValue);
-
                     return null;
                 },
                 ids.toArray(new Object[0]));
         }
+
+        // The points of a range can sit in several day tables; the columns follow the points, whichever table holds
+        // them, and the points no table holds are filled once all are read.
+        final var heatMap = new HeatMap();
+        for (final var id : ids) {
+            final var dataset = datasets.get(id);
+            if (dataset != null) {
+                heatMap.buildColumn(id, dataset, defaultValue);
+            }
+        }
+        heatMap.fixMissingColumns(ids, defaultValue);
 
         return heatMap;
     }

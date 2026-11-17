@@ -260,6 +260,13 @@ jobs:
       - name: Unit test
         run: ./mvnw clean test -q -B -D"checkstyle.skip" || ./mvnw clean test -q -B -D"checkstyle.skip"
 
+  # Every `*IT` not tagged `@Tag("slow")`, on each supported JDK. Each IT starts its own server in Docker
+  # (Testcontainers):
+  #   - BanyanDB storage: storage-banyandb-plugin's `BanyanDB*IT`, OAP's BanyanDB DAOs on a BanyanDB container.
+  #   - JDBC storage: storage-jdbc-hikaricp-plugin's `JDBC*PostgreSQLIT` and `JDBC*MariaDBIT`, OAP's JDBC DAOs on
+  #     PostgreSQL and on MariaDB, and `JDBCHistoryDeleteDAOIT`.
+  #   - Cluster coordinators and dynamic configuration: the ZooKeeper, etcd, Consul, Nacos and Apollo plugins' ITs.
+  #   - library-client's Elasticsearch bulk processor IT.
   integration-test:
     if: |
       ( always() && ! cancelled() ) &&
@@ -294,7 +301,13 @@ jobs:
           ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow || \
           ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -DexcludedGroups=slow
 
-  # Slow tests
+  # Slow tests: the `@Tag("slow")` ITs, all on Elasticsearch and OpenSearch containers, on JDK 11. Each matrix entry
+  # builds the whole project once and runs its own ITs:
+  #   - `ElasticSearchIT`, by class: library-elasticsearch-client against Elasticsearch 7, 8 and 9, and OpenSearch 1
+  #     and 2.
+  #   - Elastic IT, by the `@Tag("elastic-it")` the storage-elasticsearch-plugin's ITs also carry: the Zipkin query DAO
+  #     (`ZipkinQueryEsDAO*IT`) and the span-attached event queries (`SpanAttachedEventQuery*IT`), each on
+  #     Elasticsearch 8, 9 and 9 sharded, and OpenSearch 2, 3 and 3 sharded.
   slow-integration-test:
     if: |
       ( always() && ! cancelled() ) &&
@@ -307,11 +320,9 @@ jobs:
       matrix:
         test:
           - name: ElasticSearch / OpenSearch
-            class: org.apache.skywalking.library.elasticsearch.ElasticSearchIT
-          - name: Zipkin query on ElasticSearch / OpenSearch
-            class: ZipkinQueryEsDAO*IT
-          - name: Span attached events on ElasticSearch / OpenSearch
-            class: SpanAttachedEventQuery*IT
+            select: -Dit.test=org.apache.skywalking.library.elasticsearch.ElasticSearchIT -Dfailsafe.failIfNoSpecifiedTests=false
+          - name: Elastic IT
+            select: -Dgroups=elastic-it
     steps:
       - uses: actions/checkout@v7
         with:
@@ -329,8 +340,8 @@ jobs:
           distribution: temurin
       - name: ${{ matrix.test.name }}
         run: |
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false || \
-          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true -Dit.test=${{ matrix.test.class }} -Dfailsafe.failIfNoSpecifiedTests=false
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true ${{ matrix.test.select }} || \
+          ./mvnw -B clean integration-test -Dcheckstyle.skip -DskipUTs=true ${{ matrix.test.select }}
 
   e2e-test:
     if: |

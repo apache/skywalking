@@ -130,7 +130,8 @@ public class AsyncProfilerMutationService implements Service {
     private String checkTaskProfiling(String serviceId,
                                       long createTime) throws IOException {
         // Each service can only enable one task at a time
-        long endTimeBucket = TimeBucket.getMinuteTimeBucket(createTime);
+        // Task rows carry the second bucket of their creation (createTask), so bound them by a second bucket too.
+        final long endTimeBucket = TimeBucket.getRecordTimeBucket(createTime);
         final List<AsyncProfilerTask> alreadyHaveTaskList = getAsyncProfileTaskDAO().getTaskList(
                 serviceId, null, endTimeBucket, 1
         );

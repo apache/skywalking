@@ -46,6 +46,26 @@
 * LAL: save the logs of the OpenTelemetry services that set `service.layer=OTLP_GENERAL` through the new `otlp-general` rule in `lal/default.yaml`; no rule matched that layer, so these logs were dropped. A LAL rule declaring an unregistered or missing layer (names are case-sensitive) is now skipped with a warning at boot and rejected when applied as a runtime rule, instead of loading silently under `UNDEFINED` and never running.
 * LAL: a log without a layer that no `layer: auto` rule claims runs the new `fallback: true` auto rules, instead of the rules declared for `GENERAL`, and is dropped when none claims it either, so where such a log is filed is decided by a rule, not hard-coded. The new `default-fallback` rule in `lal/default.yaml` files it under `GENERAL`, as before; edit its extractor to file it under another layer. A fallback rule must set the layer, as any auto rule. A custom `layer: GENERAL` rule written for the logs without a layer must declare `layer: auto` and `fallback: true` and set `layer "GENERAL"` in its extractor; it then runs next to `default-fallback`, as it ran next to `default` before.
 * LAL: handle the mini-program error logs with the `miniprogram-errors-wechat` and `miniprogram-errors-alipay` rules in `lal/miniprogram.yaml`, declared for the `WECHAT_MINI_PROGRAM` and `ALIPAY_MINI_PROGRAM` layers, replacing the `layer: auto` rule `miniprogram-errors`. The mini-program SDK v0.5.0 sets `service.layer`, which routes its error logs to these rules; it is now the minimum supported SDK version, since an older SDK's error logs carry no layer and are filed under `GENERAL` without the `error_count` metric.
+* Fix bugs of the JDBC storage, `mysql` (MySQL and MariaDB) and `postgresql`. Many showed only when a query's time range crossed midnight, as this storage keeps records and metrics in one table per day:
+  - The trace list came out of order when its time range crossed midnight, and its pages skipped or repeated traces.
+  - A Zipkin trace search returned more traces than its limit, and a trace with spans on both days came back as two partial traces, in a search and in a lookup of several trace IDs (`traceMany`).
+  - A heatmap had extra, zeroed columns.
+  - A Top N list ranked an entity by the average of its daily averages and could miss the top entities, and it failed on values above 2147483647, such as memory in bytes.
+  - The slow statement list was not ranked across the days.
+  - The async-profiler and pprof task lists could leave out the newest tasks.
+  - A trace profiling task scheduled to start on a later day than it was created could fail to reach the agent, and a new task could be created over it.
+  - Trace profiling of a Go service read its thread snapshots as Java, and the profile analysis could read thread snapshots outside the selected time range.
+  - Querying the targets of a continuous profiling policy saved without targets failed with an SQL syntax error, and an eBPF profiling analysis with no schedule logged one.
+  - The continuous profiling instance list missed instances first seen on an earlier day.
+  - Rover could receive eBPF profiling tasks for processes that had stopped reporting.
+  - Tag autocomplete returned more keys or values than its limit.
+  - Querying browser error logs without a time range failed.
+  - Filtering events by layer failed on PostgreSQL, and an event at the first millisecond of a time range was left out of it.
+  - Disabling a UI template always failed with "Can't find the template", and changing a template that does not exist reported success.
+  - A metric whose row was gone from its table while OAP still cached it was not written again: its update found no row and OAP kept the cached copy. It is now dropped from the cache, so the next flush inserts the row again.
+  - The table check at boot logged wrong table and column states.
+* Fix creating an async-profiler task for a service while another one runs on it: the check that refuses it never found the running task on the JDBC and Elasticsearch storage.
+* Fix the async-profiler task OAP sends to an agent whose service has two tasks created within five minutes of each other: it could send the older one.
 
 #### UI
 

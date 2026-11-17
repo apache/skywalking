@@ -69,12 +69,19 @@ public class AsyncProfilerTaskCache implements Service {
         return serviceId2taskCache.getIfPresent(serviceId);
     }
 
+    /**
+     * Caches the newest task of the service. A refresh lists every task created within five minutes of now, newest
+     * first, so a task replaces the cached one only when it was created no earlier.
+     */
     public void saveTask(String serviceId, AsyncProfilerTask task) {
         if (task == null) {
             return ;
         }
 
-        serviceId2taskCache.put(serviceId, task);
+        final AsyncProfilerTask cached = serviceId2taskCache.getIfPresent(serviceId);
+        if (cached == null || cached.getCreateTime() <= task.getCreateTime()) {
+            serviceId2taskCache.put(serviceId, task);
+        }
     }
 
     /**

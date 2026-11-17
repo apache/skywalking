@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Objects.nonNull;
 
@@ -65,7 +66,7 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
                 },
                 sqlAndParameters.parameters());
         }
-        return results;
+        return limit(results, limit);
     }
 
     protected SQLAndParameters buildSQLForQueryKeys(TagType tagType, int limit, Duration duration, String table) {
@@ -107,7 +108,14 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
                 sqlAndParameters.parameters()
             );
         }
-        return results;
+        return limit(results, limit);
+    }
+
+    /**
+     * Each day table is read up to the limit, so their union can hold more; the limit applies to the whole window.
+     */
+    private static Set<String> limit(final Set<String> results, final int limit) {
+        return results.stream().limit(limit).collect(Collectors.toSet());
     }
 
     protected SQLAndParameters buildSQLForQueryValues(TagType tagType, String tagKey, int limit, Duration duration, String table) {

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileLanguageType;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileThreadSnapshotRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.trace.IProfileThreadSnapshotQueryDAO;
 import org.apache.skywalking.oap.server.library.client.jdbc.hikaricp.JDBCClient;
@@ -74,6 +75,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                 record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
                 record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
                 record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                record.setLanguage(ProfileLanguageType.fromValue(resultSet.getInt(ProfileThreadSnapshotRecord.LANGUAGE_TYPE)));
                 String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
                 if (StringUtil.isNotEmpty(dataBinaryBase64)) {
                     record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
@@ -125,6 +127,7 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
                     record.setSegmentId(resultSet.getString(ProfileThreadSnapshotRecord.SEGMENT_ID));
                     record.setDumpTime(resultSet.getLong(ProfileThreadSnapshotRecord.DUMP_TIME));
                     record.setSequence(resultSet.getInt(ProfileThreadSnapshotRecord.SEQUENCE));
+                    record.setLanguage(ProfileLanguageType.fromValue(resultSet.getInt(ProfileThreadSnapshotRecord.LANGUAGE_TYPE)));
                     String dataBinaryBase64 = resultSet.getString(ProfileThreadSnapshotRecord.STACK_BINARY);
                     if (StringUtil.isNotEmpty(dataBinaryBase64)) {
                         record.setStackBinary(Base64.getDecoder().decode(dataBinaryBase64));
@@ -168,7 +171,11 @@ public class JDBCProfileThreadSnapshotQueryDAO implements IProfileThreadSnapshot
 
             jdbcClient.executeQuery(sql.toString(), resultSet -> {
                 if (resultSet.next()) {
-                    result.add(resultSet.getInt(1));
+                    final int sequence = resultSet.getInt(1);
+                    // An aggregate over no row is SQL NULL, which getInt reads as 0: a day table without the segment.
+                    if (!resultSet.wasNull()) {
+                        result.add(sequence);
+                    }
                 }
                 return null;
             }, params);

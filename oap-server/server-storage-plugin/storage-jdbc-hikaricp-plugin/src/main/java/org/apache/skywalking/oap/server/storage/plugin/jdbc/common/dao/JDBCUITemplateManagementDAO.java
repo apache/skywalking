@@ -136,6 +136,13 @@ public class JDBCUITemplateManagementDAO extends JDBCSQLExecutor implements UITe
 
     @Override
     public TemplateChangeStatus changeTemplate(final DashboardSetting setting) throws IOException {
+        if (getByID(h2Client, UITemplate.INDEX_NAME, setting.getId(), new UITemplate.Builder()) == null) {
+            return TemplateChangeStatus.builder()
+                                       .status(false)
+                                       .id(setting.getId())
+                                       .message("Can't find the template")
+                                       .build();
+        }
         final UITemplate uiTemplate = setting.toEntity();
         return executeUpdate(uiTemplate);
     }

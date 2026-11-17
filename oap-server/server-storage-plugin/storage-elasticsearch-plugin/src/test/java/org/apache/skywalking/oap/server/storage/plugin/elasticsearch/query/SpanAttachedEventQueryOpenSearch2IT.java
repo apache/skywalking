@@ -25,6 +25,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 @Tag("slow")
+@Tag("elastic-it")
 @Testcontainers
 public class SpanAttachedEventQueryOpenSearch2IT extends SpanAttachedEventQueryITBase {
     @Container

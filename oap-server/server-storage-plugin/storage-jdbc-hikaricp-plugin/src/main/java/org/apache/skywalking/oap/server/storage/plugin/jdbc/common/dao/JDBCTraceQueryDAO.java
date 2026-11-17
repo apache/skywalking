@@ -50,6 +50,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -192,7 +193,8 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                     break;
             }
 
-            buildLimit(sql, from, limit);
+            // Every day table answers its own first `from + limit`; the page is cut from all of them together.
+            buildLimit(sql, 0, from + limit);
 
             jdbcClient.executeQuery(
                 "select " +
@@ -223,7 +225,10 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
                 parameters.toArray(new Object[0]));
         }
 
-        return new TraceBrief(traces); // TODO: sort,
+        final Comparator<BasicTrace> order = queryOrder == QueryOrder.BY_DURATION
+            ? Comparator.comparingInt(BasicTrace::getDuration).reversed()
+            : Comparator.comparingLong((BasicTrace trace) -> Long.parseLong(trace.getStart())).reversed();
+        return new TraceBrief(traces.stream().sorted(order).skip(from).limit(limit).collect(Collectors.toList()));
     }
 
     protected void buildLimit(StringBuilder sql, int from, int limit) {
@@ -283,6 +288,9 @@ public class JDBCTraceQueryDAO implements ITraceQueryDAO {
     @SneakyThrows
     @Override
     public List<SegmentRecord> queryByTraceIdWithInstanceId(List<String> traceIdList, List<String> instanceIdList, @Nullable Duration duration) throws IOException {
+        if (CollectionUtils.isEmpty(traceIdList) || CollectionUtils.isEmpty(instanceIdList)) {
+            return Collections.emptyList();
+        }
         final var tables = tableHelper.getTablesWithinTTL(SegmentRecord.INDEX_NAME);
         final var segmentRecords = new ArrayList<SegmentRecord>();
         final ArrayList<String> conditions = new ArrayList<>();

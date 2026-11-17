@@ -83,13 +83,12 @@ public class BatchSQLExecutor implements InsertRequest, UpdateRequest {
                               List<PrepareRequest> bulkRequest) throws SQLException {
         final var start = System.currentTimeMillis();
         final var executeBatchResults = preparedStatement.executeBatch();
-        final var isInsert = bulkRequest.get(0) instanceof InsertRequest;
+        // A SQLExecutor is both an InsertRequest and an UpdateRequest, so its type can't tell an insert from an
+        // update. The row count can: an INSERT adds its row or fails, so zero rows is an UPDATE that found no row.
         for (int i = 0; i < executeBatchResults.length; i++) {
-            if ((executeBatchResults[i] == 1 || executeBatchResults[i] == Statement.SUCCESS_NO_INFO) && isInsert) {
-                // Insert successfully.
+            if (executeBatchResults[i] == 1 || executeBatchResults[i] == Statement.SUCCESS_NO_INFO) {
                 ((InsertRequest) bulkRequest.get(i)).onInsertCompleted();
-            } else if (executeBatchResults[i] == 0 && !isInsert) {
-                // Update Failure.
+            } else if (executeBatchResults[i] == 0) {
                 ((UpdateRequest) bulkRequest.get(i)).onUpdateFailure();
             }
         }

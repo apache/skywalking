@@ -33,7 +33,9 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.SQLAndParamet
 import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
@@ -71,7 +73,12 @@ public class JDBCRecordsQueryDAO implements IRecordsQueryDAO {
                 sqlAndParameters.parameters());
         }
 
-        return results;
+        // Each day table returns its own top N; the top N of the range is taken over all of them.
+        final Comparator<Record> byValue = Comparator.comparingLong(record -> Long.parseLong(record.getValue()));
+        return results.stream()
+                      .sorted(Order.DES.equals(condition.getOrder()) ? byValue.reversed() : byValue)
+                      .limit(condition.getTopN())
+                      .collect(Collectors.toList());
     }
 
     protected static SQLAndParameters buildSQL(
