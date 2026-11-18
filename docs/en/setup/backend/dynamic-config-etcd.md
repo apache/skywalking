@@ -11,7 +11,7 @@ configuration:
     namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
     authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
     user: ${SW_CONFIG_ETCD_USER:}
-    password: ${SW_CONFIG_ETCD_password:}
+    password: ${SW_CONFIG_ETCD_PASSWORD:}
 ```
 
 **NOTE**: Only the v3 protocol is supported.

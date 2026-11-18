@@ -68,6 +68,7 @@
 * Fix creating an async-profiler task for a service while another one runs on it: the check that refuses it never found the running task on the JDBC and Elasticsearch storage.
 * Fix the async-profiler task OAP sends to an agent whose service has two tasks created within five minutes of each other: it could send the older one.
 * Fix alarm windows retaining empty layers after an initial metadata lookup miss. Later metrics can supply the missing layers for subsequent alarms, allowing layer-filtered `queryAlarms` queries to match the persisted layer.
+* Rename the etcd dynamic configuration password environment variable from `SW_CONFIG_ETCD_password` to `SW_CONFIG_ETCD_PASSWORD`, matching every other environment variable. The lower-case name no longer has any effect, so a deployment that sets it must switch to the new name.
 
 #### UI
 
