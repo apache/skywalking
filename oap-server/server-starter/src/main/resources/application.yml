@@ -715,7 +715,7 @@ configuration:
     namespace: ${SW_CONFIG_ETCD_NAMESPACE:/skywalking}
     authentication: ${SW_CONFIG_ETCD_AUTHENTICATION:false}
     user: ${SW_CONFIG_ETCD_USER:}
-    password: ${SW_CONFIG_ETCD_password:}
+    password: ${SW_CONFIG_ETCD_PASSWORD:}
   consul:
     # Consul host and ports, separated by comma, e.g. 1.2.3.4:8500,2.3.4.5:8500
     hostAndPorts: ${SW_CONFIG_CONSUL_HOST_AND_PORTS:1.2.3.4:8500}
