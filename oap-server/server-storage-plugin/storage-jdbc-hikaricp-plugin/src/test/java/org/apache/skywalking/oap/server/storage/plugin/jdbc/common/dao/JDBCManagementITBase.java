@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,12 +31,15 @@ import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.Se
 import org.apache.skywalking.oap.server.core.analysis.manual.relation.service.ServiceRelationServerSideMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
+import org.apache.skywalking.oap.server.core.management.runtimerule.RuntimeRule;
 import org.apache.skywalking.oap.server.core.management.ui.template.UITemplate;
+import org.apache.skywalking.oap.server.core.profiling.continuous.storage.ContinuousProfilingPolicy;
 import org.apache.skywalking.oap.server.core.query.input.DashboardSetting;
 import org.apache.skywalking.oap.server.core.query.type.DashboardConfiguration;
 import org.apache.skywalking.oap.server.core.query.type.TemplateChangeStatus;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.storage.SessionCacheCallback;
+import org.apache.skywalking.oap.server.core.storage.management.RuntimeRuleManagementDAO;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.model.StorageManipulationOpt;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
@@ -57,9 +61,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
- * Manages UI templates the way the UI management API does, persists management rows and updates metrics the way
- * OAP's workers do, and inspects installed tables the way the boot and the runtime-rule reconciler do. A subclass
- * names the server.
+ * Manages UI templates the way the UI management API does, continuous-profiling policies the way the policy page and
+ * the eBPF agents do, and runtime rules the way the runtime-rule API and its reconciler do; persists management rows
+ * and updates metrics the way OAP's workers do, and inspects installed tables the way the boot and the runtime-rule
+ * reconciler do. A subclass names the server.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class JDBCManagementITBase {
@@ -101,6 +106,11 @@ abstract class JDBCManagementITBase {
         support.writeMetrics(
             relationModel, new ServiceRelationServerSideMetrics.Builder(),
             Collections.singletonList(relation(CHECKOUT_ID, PAYMENT_ID, SPRING_MVC)));
+
+        support.install(
+            ContinuousProfilingPolicy.class, DefaultScopeDefine.CONTINUOUS_PROFILING_POLICY,
+            ContinuousProfilingPolicy.INDEX_NAME, DownSampling.None);
+        support.install(RuntimeRule.class, DefaultScopeDefine.RUNTIME_RULE, RuntimeRule.INDEX_NAME, DownSampling.None);
     }
 
     @AfterAll
@@ -217,6 +227,76 @@ abstract class JDBCManagementITBase {
             info.buildInstallInfoMsg());
     }
 
+    /**
+     * A service has one policy: saving it again, as the policy page does on every change, replaces the whole policy.
+     * The eBPF agents ask for the policies of their services, some of which have none.
+     */
+    @Test
+    public void savesAPolicyPerServiceAndReplacesItOnTheNextSave() throws Exception {
+        final JDBCContinuousProfilingPolicyDAO dao =
+            new JDBCContinuousProfilingPolicyDAO(support.getClient(), support.getTableHelper());
+        final String withoutPolicy = IDManager.ServiceID.buildId("policy-less", true);
+        final ContinuousProfilingPolicy checkout = policy(CHECKOUT_ID, "{\"targets\":[\"ON_CPU\"]}", "uuid-1");
+        final ContinuousProfilingPolicy payment = policy(PAYMENT_ID, "{\"targets\":[\"OFF_CPU\"]}", "uuid-2");
+        dao.savePolicy(checkout);
+        dao.savePolicy(payment);
+        assertEquals(policies(checkout), policies(dao.queryPolicies(Collections.singletonList(CHECKOUT_ID))));
+
+        final ContinuousProfilingPolicy changed = policy(CHECKOUT_ID, "{\"targets\":[\"NETWORK\"]}", "uuid-3");
+        dao.savePolicy(changed);
+        assertEquals(policies(changed, payment),
+                     policies(dao.queryPolicies(Arrays.asList(CHECKOUT_ID, PAYMENT_ID, withoutPolicy))));
+        assertEquals(policies(payment), policies(dao.queryPolicies(Collections.singletonList(PAYMENT_ID))));
+        assertEquals(Collections.emptyList(), dao.queryPolicies(Collections.singletonList(withoutPolicy)));
+    }
+
+    /**
+     * Runtime rules are kept by catalog and name, the same name in two catalogs being two rules. A save replaces the
+     * whole rule, as {@code /addOrUpdate} and {@code /inactivate} do, and a delete removes the rule of one catalog,
+     * silently when there is none, as a retried {@code /delete} does. The reconciler reads every rule, so each read
+     * is compared whole, with the rules already kept.
+     */
+    @Test
+    public void savesReplacesAndDeletesRulesByCatalogAndName() throws Exception {
+        final JDBCRuntimeRuleManagementDAO dao = ruleDAO();
+        final List<String> kept = rules(dao.getAll());
+        final String active = RuntimeRule.STATUS_ACTIVE;
+        final RuntimeRule vm = rule("otel-rules", "vm", "metricPrefix: vm", active, 1_000L);
+        final RuntimeRule logVm = rule("log-mal-rules", "vm", "metricPrefix: log_vm", active, 1_001L);
+        final RuntimeRule mysql = rule("otel-rules", "mysql", "metricPrefix: mysql", active, 1_002L);
+        for (final RuntimeRule rule : Arrays.asList(vm, logVm, mysql)) {
+            dao.save(rule);
+        }
+        assertEquals(rules(kept, vm, logVm, mysql), rules(dao.getAll()));
+
+        final RuntimeRule inactiveVm =
+            rule("otel-rules", "vm", "metricPrefix: vm_v2", RuntimeRule.STATUS_INACTIVE, 2_000L);
+        dao.save(inactiveVm);
+        assertEquals(rules(kept, inactiveVm, logVm, mysql), rules(dao.getAll()));
+
+        dao.delete("log-mal-rules", "vm");
+        assertEquals(rules(kept, inactiveVm, mysql), rules(dao.getAll()));
+        dao.delete("log-mal-rules", "vm");
+        dao.delete("otel-rules", "mysql");
+        assertEquals(rules(kept, inactiveVm), rules(dao.getAll()));
+    }
+
+    /**
+     * A rule's name is its path under the catalog, so it may hold a '/'.
+     */
+    @Test
+    public void savesAndDeletesARuleNamedByAPath() throws Exception {
+        final JDBCRuntimeRuleManagementDAO dao = ruleDAO();
+        final List<String> kept = rules(dao.getAll());
+        final RuntimeRule gateway = rule("otel-rules", "aws-gateway/gateway-service", "metricPrefix: aws_gateway",
+                                         RuntimeRule.STATUS_ACTIVE, 3_000L);
+        dao.save(gateway);
+        assertEquals(rules(kept, gateway), rules(dao.getAll()));
+
+        dao.delete("otel-rules", "aws-gateway/gateway-service");
+        assertEquals(kept, rules(dao.getAll()));
+    }
+
     private List<String> templateIds(final boolean includingDisabled) {
         return templateDAO.getAllTemplates(includingDisabled)
                           .stream()
@@ -252,5 +332,64 @@ abstract class JDBCManagementITBase {
         relation.setComponentIds(components);
         relation.setTimeBucket(TimeBucket.getMinuteTimeBucket(MIDNIGHT));
         return relation;
+    }
+
+    private JDBCRuntimeRuleManagementDAO ruleDAO() {
+        return new JDBCRuntimeRuleManagementDAO(support.getClient(), support.getTableHelper());
+    }
+
+    private static ContinuousProfilingPolicy policy(final String serviceId, final String configuration,
+                                                    final String uuid) {
+        final ContinuousProfilingPolicy policy = new ContinuousProfilingPolicy();
+        policy.setServiceId(serviceId);
+        policy.setConfigurationJson(configuration);
+        policy.setUuid(uuid);
+        return policy;
+    }
+
+    private static List<String> policies(final ContinuousProfilingPolicy... policies) {
+        return policies(Arrays.asList(policies));
+    }
+
+    private static List<String> policies(final List<ContinuousProfilingPolicy> policies) {
+        return policies.stream()
+                       .map(policy -> String.join("|", policy.getServiceId(), policy.getConfigurationJson(),
+                                                  policy.getUuid()))
+                       .sorted()
+                       .collect(Collectors.toList());
+    }
+
+    private static RuntimeRule rule(final String catalog, final String name, final String content,
+                                    final String status, final long updateTime) {
+        final RuntimeRule rule = new RuntimeRule();
+        rule.setCatalog(catalog);
+        rule.setName(name);
+        rule.setContent(content);
+        rule.setStatus(status);
+        rule.setUpdateTime(updateTime);
+        return rule;
+    }
+
+    private static List<String> rules(final List<String> kept, final RuntimeRule... rules) {
+        final List<String> all = new ArrayList<>(kept);
+        all.addAll(rules(rules));
+        Collections.sort(all);
+        return all;
+    }
+
+    private static List<String> rules(final RuntimeRule... rules) {
+        return Arrays.stream(rules)
+                     .map(rule -> String.join("|", rule.getCatalog(), rule.getName(), rule.getContent(),
+                                              rule.getStatus(), String.valueOf(rule.getUpdateTime())))
+                     .sorted()
+                     .collect(Collectors.toList());
+    }
+
+    private static List<String> rules(final List<RuntimeRuleManagementDAO.RuntimeRuleFile> files) {
+        return files.stream()
+                    .map(file -> String.join("|", file.getCatalog(), file.getName(), file.getContent(),
+                                             file.getStatus(), String.valueOf(file.getUpdateTime())))
+                    .sorted()
+                    .collect(Collectors.toList());
     }
 }

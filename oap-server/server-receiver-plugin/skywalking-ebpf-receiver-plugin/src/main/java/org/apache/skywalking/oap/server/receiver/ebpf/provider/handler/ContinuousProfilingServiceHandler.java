@@ -187,7 +187,7 @@ public class ContinuousProfilingServiceHandler extends ContinuousProfilingServic
         task.setFixedTriggerDuration(request.getDuration());
         task.setCreateTime(currentTime);
         task.setLastUpdateTime(currentTime);
-        task.setTimeBucket(TimeBucket.getRecordTimeBucket(currentTime));
+        task.setTimeBucket(TimeBucket.getMinuteTimeBucket(currentTime));
 
         final EBPFProfilingTaskContinuousProfiling continuousProfiling = new EBPFProfilingTaskContinuousProfiling();
         continuousProfiling.setProcessId(processId);

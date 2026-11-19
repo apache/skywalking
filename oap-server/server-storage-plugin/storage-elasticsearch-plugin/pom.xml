@@ -57,5 +57,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- Generates the shipped OAL metrics classes, so the ITs read metrics through their production schemas. -->
+        <dependency>
+            <groupId>org.apache.skywalking</groupId>
+            <artifactId>oal-rt</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -27,8 +27,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.IntFunction;
+import java.util.function.IntPredicate;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
@@ -53,11 +54,10 @@ import zipkin2.storage.QueryRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 /**
  * Reads Zipkin data the way the Zipkin query API does, through {@link ZipkinQueryEsDAO}, from what OAP's own write
- * path stored in Elasticsearch or OpenSearch. A subclass names the server and the storage mode.
+ * path stored in Elasticsearch or OpenSearch. A nested class of a server's IT names the server and the storage mode.
  *
  * <p>The search range spans a midnight, so it reads two daily indices. Each search criterion is tried alone and
  * with all the others. For every criterion a near-miss trace matches all the others but that one, the matching traces
@@ -70,7 +70,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  * {@code QueryRequest}), by their first span.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-abstract class ZipkinQueryEsDAOITBase {
+public abstract class ZipkinQueryEsDAOITBase {
     /** A fixed local midnight, so the daily indices the spans are written to are known. */
     private static final long MIDNIGHT = new DateTime(2026, 1, 15, 0, 0).getMillis();
     /** The main search range: a minute either side of midnight. */
@@ -79,6 +79,15 @@ abstract class ZipkinQueryEsDAOITBase {
     private static final long END = AROUND_MIDNIGHT.duration.getEndTimestamp();
     /** Ten to five minutes before midnight, apart from the main range. */
     private static final Range BEFORE_MIDNIGHT = Range.ending(MIDNIGHT - 301_000L, 299_000L);
+
+    private static final long HOUR = 3_600_000L;
+    private static final long DAY = 24 * HOUR;
+    private static final ZipkinSpanRecord.Builder BUILDER = new ZipkinSpanRecord.Builder();
+    /** The service of the ranking cases, whose spans are days after the other fixtures' and in their own indices. */
+    private static final String RANKED = "ranked";
+    private static final int RANKED_LIMIT = 2;
+    /** More than the traces a shard answers a terms aggregation of {@link #RANKED_LIMIT} with by default. */
+    private static final int RANKED_OTHERS = RANKED_LIMIT * 3 / 2 + 10 + 3;
 
     private static final String BACKEND = "backend";
     private static final String CANARY = "backend-canary";
@@ -143,16 +152,17 @@ abstract class ZipkinQueryEsDAOITBase {
     private final ElasticSearchQueryITSupport.Mode mode;
     private ElasticSearchQueryITSupport support;
     private ZipkinQueryEsDAO dao;
+    private Model spans;
 
-    ZipkinQueryEsDAOITBase(final ElasticsearchContainer server, final ElasticSearchQueryITSupport.Mode mode) {
+    protected ZipkinQueryEsDAOITBase(final ElasticsearchContainer server, final ElasticSearchQueryITSupport.Mode mode) {
         this.server = server;
         this.mode = mode;
     }
 
     @BeforeAll
     public void writeSpans() throws Exception {
-        support = ElasticSearchQueryITSupport.connect(server, mode);
-        final Model spans = support.installRecord(ZipkinSpanRecord.class);
+        support = ElasticSearchQueryITSupport.connect(server, mode, getClass());
+        spans = support.installRecord(ZipkinSpanRecord.class);
         final Model services = support.installMetrics(ZipkinServiceTraffic.class);
         final Model remoteServices = support.installMetrics(ZipkinServiceRelationTraffic.class);
         final Model spanNames = support.installMetrics(ZipkinServiceSpanTraffic.class);
@@ -171,10 +181,6 @@ abstract class ZipkinQueryEsDAOITBase {
         support.writeMetrics(spanNames, new ZipkinServiceSpanTraffic.Builder(), spanTraffic());
 
         dao = new ZipkinQueryEsDAO(support.getClient());
-        // A write is searchable after its index's next refresh, every 30 s as OAP configures the indices.
-        await().atMost(90, TimeUnit.SECONDS)
-               .pollInterval(1, TimeUnit.SECONDS)
-               .untilAsserted(this::assertEverythingSearchable);
     }
 
     @AfterAll
@@ -270,6 +276,36 @@ abstract class ZipkinQueryEsDAOITBase {
                      canonical(search(BEFORE_MIDNIGHT, request -> request.serviceName(SCHEDULER), limit)));
     }
 
+    /**
+     * A trace ranks by its first matching span, but the search's terms aggregation lets each shard rank a trace by the
+     * spans it holds and answer with its first {@code shard_size} traces, an approximation accepted for its cost (see
+     * {@link ZipkinQueryEsDAO#getTraces(QueryRequest, Duration)}). The older trace's first span shares its shard with
+     * more than {@code shard_size} later traces, and its later span, newer than all of them, is routed by its document
+     * id to another shard, which ranks the trace first: the search keeps the older trace and the newest of the others.
+     * Custom routing keeps a trace's spans on one shard of a daily index, and there the search is exact. The JDBC
+     * storages, which rank over every table, keep the exact traces in both cases.
+     */
+    @Test
+    public void keepsAnOlderTraceWithALaterSpanOnAnotherShardOnlyWithDefaultRouting() throws Exception {
+        final long first = MIDNIGHT + 2 * DAY + 12 * HOUR;
+        final RankedCase ranked = writeRanked(first, first + 30_000L, false);
+        assertEquals(customRouting() ? ranked.exact() : ranked.approximate(),
+                     searchRanked(first, first + 30_000L));
+    }
+
+    /**
+     * The older trace's first span is in the earlier daily index, on a shard with more than {@code shard_size} later
+     * traces, and its later span is in the next daily index, which ranks the trace first; routing keeps a trace on
+     * one shard of a daily index only. So with either routing the search keeps the older trace and the newest of the
+     * others, where the JDBC storages keep the two newest others.
+     */
+    @Test
+    public void keepsAnOlderTraceThatCrossesMidnightByItsLaterSpan() throws Exception {
+        final long midnight = MIDNIGHT + 4 * DAY;
+        final RankedCase ranked = writeRanked(midnight - 50_000L, midnight + 10_000L, true);
+        assertEquals(ranked.approximate(), searchRanked(midnight - 50_000L, midnight + 10_000L));
+    }
+
     /** What a search can filter by, each with the trace in the main range that matches every other criterion. */
     enum Criterion {
         TIME_RANGE_ONLY(request -> { }, null),
@@ -298,22 +334,6 @@ abstract class ZipkinQueryEsDAOITBase {
                                                          .limit(limit);
         criteria.accept(request);
         return dao.getTraces(request.build(), range.duration);
-    }
-
-    /**
-     * Reads trace by trace: the by-ids read leaves its scroll contexts open when it finds nothing (see
-     * {@link #leavesNoScrollContextOpenWhenNothingIsFound}), and polling it before the first refresh runs the
-     * server out of them.
-     */
-    private void assertEverythingSearchable() {
-        for (final Map.Entry<String, List<Span>> trace : TRACES.entrySet()) {
-            assertEquals(trace.getValue().size(), dao.getTrace(trace.getKey(), null).size(), trace.getKey());
-        }
-        assertTrue(dao.getServiceNames().containsAll(SERVICES), "searchable services");
-        for (final String service : SERVICES) {
-            assertTrue(dao.getRemoteServiceNames(service).containsAll(REMOTE_SERVICES.get(service)), service);
-            assertTrue(dao.getSpanNames(service).containsAll(SPAN_NAMES.get(service)), service);
-        }
     }
 
     private static Map<String, List<Span>> fixture() {
@@ -490,6 +510,110 @@ abstract class ZipkinQueryEsDAOITBase {
         final List<String> sorted = new ArrayList<>(names);
         Collections.sort(sorted);
         return sorted;
+    }
+
+    /**
+     * Writes the older trace of the {@link #RANKED} service and {@link #RANKED_OTHERS} later single-span traces
+     * between its first span and its later one, placed on shards as the server routes them, and checks the placement.
+     *
+     * @param crossesMidnight whether the later span is in the next daily index, where its shard does not matter
+     */
+    private RankedCase writeRanked(final long first, final long later,
+                                   final boolean crossesMidnight) throws Exception {
+        final String olderTrace = String.format("%032x", (first / 1000) << 16);
+        final Span firstSpan = rankedSpan(olderTrace, "000000000000d001", first);
+        support.writeRecords(spans, BUILDER, Collections.singletonList(ZipkinSpanRecords.of(firstSpan)));
+        final int shard = support.shardOf(spans, BUILDER, ZipkinSpanRecords.of(firstSpan));
+        final boolean customRouting = customRouting();
+
+        // The next daily index does not exist yet, and custom routing places the span with the first one.
+        final Span laterSpan = crossesMidnight || customRouting
+            ? rankedSpan(olderTrace, "000000000000d100", later)
+            : placed(i -> rankedSpan(olderTrace, String.format("%016x", 0xd100L + i), later), 1,
+                     placedOn -> placedOn != shard).get(0);
+        final List<Span> others = new ArrayList<>();
+        final List<Span> onTheShard = placed(
+            i -> rankedSpan(String.format("%032x", ((first / 1000) << 16) + 0x100 + i), "000000000000e001", first),
+            RANKED_OTHERS, placedOn -> placedOn == shard);
+        for (int i = 0; i < onTheShard.size(); i++) {
+            others.add(onTheShard.get(i).toBuilder().timestamp((first + (i + 1) * 1000L) * 1000L).build());
+        }
+        final List<ZipkinSpanRecord> records = new ArrayList<>();
+        records.add(ZipkinSpanRecords.of(laterSpan));
+        others.forEach(span -> records.add(ZipkinSpanRecords.of(span)));
+        support.writeRecords(spans, BUILDER, records);
+
+        assertEquals(shard, support.shardHolding(spans, ZipkinSpanRecords.of(firstSpan)));
+        if (!crossesMidnight) {
+            assertEquals(customRouting, support.shardHolding(spans, ZipkinSpanRecords.of(laterSpan)) == shard,
+                         "the later span shares the first span's shard");
+        }
+        for (final Span other : others) {
+            assertEquals(shard, support.shardHolding(spans, ZipkinSpanRecords.of(other)), other.traceId());
+        }
+        return new RankedCase(Arrays.asList(firstSpan, laterSpan), others);
+    }
+
+    private boolean customRouting() {
+        return mode == ElasticSearchQueryITSupport.Mode.LOGIC_SHARDING_AND_CUSTOM_ROUTING;
+    }
+
+    /** The older trace and the later traces of a ranking case, the later ones in start order. */
+    private static final class RankedCase {
+        private final List<Span> older;
+        private final List<Span> others;
+
+        private RankedCase(final List<Span> older, final List<Span> others) {
+            this.older = older;
+            this.others = others;
+        }
+
+        /** The {@link #RANKED_LIMIT} newest of the later traces. */
+        private List<List<Span>> exact() {
+            final List<List<Span>> latest = new ArrayList<>();
+            for (int i = others.size() - RANKED_LIMIT; i < others.size(); i++) {
+                latest.add(Collections.singletonList(others.get(i)));
+            }
+            return canonical(latest);
+        }
+
+        /** The older trace, ranked by its later span, and the newest of the later traces after it. */
+        private List<List<Span>> approximate() {
+            final List<List<Span>> kept = new ArrayList<>();
+            kept.add(older);
+            for (int i = others.size() - RANKED_LIMIT + 1; i < others.size(); i++) {
+                kept.add(Collections.singletonList(others.get(i)));
+            }
+            return canonical(kept);
+        }
+    }
+
+    /** The latest {@link #RANKED_LIMIT} traces of the {@link #RANKED} service from a second before the first span. */
+    private List<List<Span>> searchRanked(final long first, final long end) {
+        return canonical(search(Range.ending(end, end - first + 1_000L),
+                                request -> request.serviceName(RANKED), RANKED_LIMIT));
+    }
+
+    /**
+     * The first {@code count} candidates the server routes to a shard the predicate takes, asked of the server
+     * before they are written.
+     */
+    private List<Span> placed(final IntFunction<Span> candidates, final int count,
+                              final IntPredicate shard) throws Exception {
+        final List<Span> placed = new ArrayList<>();
+        for (int i = 0; placed.size() < count; i++) {
+            assertTrue(i < 10_000, "no candidate placed as asked after " + i);
+            final Span candidate = candidates.apply(i);
+            if (shard.test(support.shardOf(spans, BUILDER, ZipkinSpanRecords.of(candidate)))) {
+                placed.add(candidate);
+            }
+        }
+        return placed;
+    }
+
+    private static Span rankedSpan(final String traceId, final String spanId, final long timestampMillis) {
+        return span(traceId, spanId, null, Span.Kind.SERVER, "get /rank", RANKED, timestampMillis)
+            .duration(1_000L).build();
     }
 
     /** A search's time range, from the Zipkin API's {@code endTs} and {@code lookback}. */

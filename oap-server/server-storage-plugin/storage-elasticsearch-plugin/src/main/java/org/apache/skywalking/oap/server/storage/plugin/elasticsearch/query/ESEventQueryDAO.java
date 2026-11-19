@@ -38,7 +38,6 @@ import org.apache.skywalking.oap.server.core.storage.query.IEventQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.MatchCNameBuilder;
 
 import java.io.IOException;
 import java.util.List;
@@ -95,10 +94,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
                 query.must(Query.term(Event.SERVICE_INSTANCE, source.getServiceInstance()));
             }
             if (!isNullOrEmpty(source.getEndpoint())) {
-                query.must(Query.matchPhrase(
-                    MatchCNameBuilder.INSTANCE.build(Event.ENDPOINT),
-                    source.getEndpoint()
-                ));
+                query.must(Query.term(Event.ENDPOINT, source.getEndpoint()));
             }
         }
 
@@ -113,7 +109,7 @@ public class ESEventQueryDAO extends EsDAO implements IEventQueryDAO {
         final Duration startTime = condition.getTime();
         if (startTime != null) {
             if (startTime.getStartTimestamp() > 0) {
-                query.must(Query.range(Event.TIMESTAMP).gt(startTime.getStartTimestamp()));
+                query.must(Query.range(Event.TIMESTAMP).gte(startTime.getStartTimestamp()));
             }
             if (startTime.getEndTimestamp() > 0) {
                 query.must(Query.range(Event.TIMESTAMP).lt(startTime.getEndTimestamp()));

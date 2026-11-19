@@ -191,6 +191,12 @@ public class ZipkinQueryEsDAO extends EsDAO implements IZipkinQueryDAO {
         if (request.maxDuration() != null) {
             query.must(Query.range(ZipkinSpanRecord.DURATION).lte(request.maxDuration()));
         }
+        // The traces rank by a terms aggregation on trace_id ordered by the minimum span timestamp, descending, an
+        // ordering Elasticsearch documents as inaccurate across shards: each shard ranks a trace only by the spans it
+        // holds and returns its top shard_size (by default size * 1.5 + 10). With the default routing, by document id,
+        // a trace's spans spread over a daily index's shards, so near the cut-off an older trace can take the place
+        // of a later one; with custom routing a trace's spans share a shard within a day, so only a trace crossing
+        // midnight can. Accepted for its cost.
         final TermsAggregationBuilder traceIdAggregation =
             Aggregation.terms(ZipkinSpanRecord.TRACE_ID)
                        .field(ZipkinSpanRecord.TRACE_ID)

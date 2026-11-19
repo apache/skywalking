@@ -210,6 +210,21 @@ final class JDBCQueryITSupport implements Closeable {
     }
 
     /**
+     * Writes metrics again the way the metrics worker does when a stored row changes: an update of the row, in the
+     * day table of the metric's time bucket, through OAP's metrics DAO and its batch executor.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void updateMetrics(final Model model, final StorageBuilder<? extends Metrics> builder,
+                       final List<? extends Metrics> metrics) throws Exception {
+        final JDBCMetricsDAO dao = new JDBCMetricsDAO(client, (StorageBuilder<Metrics>) (StorageBuilder) builder);
+        final List<PrepareRequest> requests = new ArrayList<>();
+        for (final Metrics metric : metrics) {
+            requests.add(dao.prepareBatchUpdate(model, metric, (SessionCacheCallback) null));
+        }
+        flush(requests);
+    }
+
+    /**
      * Writes a task row as {@link JDBCNoneStreamDAO} does, at once, into the table of the day it is created on.
      * {@code JDBCNoneStreamDAO} names that day "now"; the fixtures name it by the row's creation time, so a run that
      * crosses midnight still writes where its reads look.

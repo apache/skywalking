@@ -52,7 +52,7 @@ x-asz: &asz
 
 services:
   es:
-    image: elastic/elasticsearch:${ES_VERSION}
+    image: elastic/elasticsearch:${ES_VERSION:-8.18.8}
     expose:
       - 9200
     networks:

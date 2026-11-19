@@ -16,22 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ElasticSearchQueryITSupport;
-import org.junit.jupiter.api.Tag;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Tag("slow")
-@Tag("elastic-it")
 @Testcontainers
-public class SpanAttachedEventQueryElasticsearch8IT extends SpanAttachedEventQueryITBase {
+public class JDBCAIAgentConversationQueryPostgreSQLIT extends JDBCAIAgentConversationQueryITBase {
     @Container
-    private static final ElasticsearchContainer SERVER = ElasticSearchQueryITSupport.elasticsearch("8.18.8");
+    private static final PostgreSQLContainer<?> SERVER = JDBCQueryITSupport.postgreSQL();
 
-    public SpanAttachedEventQueryElasticsearch8IT() {
-        super(SERVER, ElasticSearchQueryITSupport.Mode.DEFAULT);
+    public JDBCAIAgentConversationQueryPostgreSQLIT() {
+        super(SERVER, JDBCQueryITSupport.Target.POSTGRESQL);
     }
 }

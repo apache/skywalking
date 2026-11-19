@@ -31,6 +31,7 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.DocumentFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.PathSegments;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -52,7 +53,7 @@ final class V7DocumentFactory implements DocumentFactory {
         return HttpRequest.builder()
                           .head("/{index}/_doc/{id}")
                           .pathParam("index", index)
-                          .pathParam("id", id)
+                          .pathParam("id", PathSegments.escape(id))
                           .build();
     }
 
@@ -65,7 +66,7 @@ final class V7DocumentFactory implements DocumentFactory {
         return HttpRequest.builder()
                           .get("/{index}/_doc/{id}")
                           .pathParam("index", index)
-                          .pathParam("id", id)
+                          .pathParam("id", PathSegments.escape(id))
                           .build();
     }
 
@@ -136,7 +137,7 @@ final class V7DocumentFactory implements DocumentFactory {
 
         builder.put("/{index}/_doc/{id}")
                .pathParam("index", index)
-               .pathParam("id", id)
+               .pathParam("id", PathSegments.escape(id))
                .content(MediaType.JSON, content);
 
         return builder.build();
@@ -165,7 +166,7 @@ final class V7DocumentFactory implements DocumentFactory {
 
         builder.post("/{index}/_doc/{id}/_update")
                .pathParam("index", index)
-               .pathParam("id", id)
+               .pathParam("id", PathSegments.escape(id))
                .content(MediaType.JSON, content);
 
         return builder.build();
@@ -206,7 +207,7 @@ final class V7DocumentFactory implements DocumentFactory {
         return builder
             .delete("/{index}/_doc/{id}")
             .pathParam("index", index)
-            .pathParam("id", id)
+            .pathParam("id", PathSegments.escape(id))
             .build();
     }
 }

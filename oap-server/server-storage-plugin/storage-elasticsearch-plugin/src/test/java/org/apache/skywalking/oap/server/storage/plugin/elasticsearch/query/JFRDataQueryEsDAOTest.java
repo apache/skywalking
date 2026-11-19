@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
+import org.apache.skywalking.library.elasticsearch.requests.search.SearchParams;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.JFRProfilingDataRecord;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -69,28 +70,29 @@ class JFRDataQueryEsDAOTest {
 
     @Test
     void getByTaskIdAndInstancesAndEvent_inMergedTable_shouldIncludeTableNameFilter() throws Exception {
-        when(client.search(anyString(), any(Search.class))).thenReturn(new SearchResponse());
+        when(client.search(anyString(), any(Search.class), any(SearchParams.class))).thenReturn(new SearchResponse());
 
         dao.getByTaskIdAndInstancesAndEvent("task-id-1", Collections.emptyList(), "EXECUTION_SAMPLE");
 
         final ArgumentCaptor<Search> searchCaptor = ArgumentCaptor.forClass(Search.class);
-        verify(client).search(anyString(), searchCaptor.capture());
+        verify(client).search(anyString(), searchCaptor.capture(), any(SearchParams.class));
 
         final String json = objectMapper.writeValueAsString(searchCaptor.getValue());
         assertThat(json).contains(IndexController.LogicIndicesRegister.RECORD_TABLE_NAME);
         assertThat(json).contains(JFRProfilingDataRecord.INDEX_NAME);
         assertThat(json).contains(JFRProfilingDataRecord.TASK_ID);
         assertThat(json).contains(JFRProfilingDataRecord.EVENT_TYPE);
+        assertThat(searchCaptor.getValue().getSize()).isEqualTo(1);
     }
 
     @Test
     void getByTaskIdAndInstancesAndEvent_withInstanceIds_shouldIncludeInstanceIdFilter() throws Exception {
-        when(client.search(anyString(), any(Search.class))).thenReturn(new SearchResponse());
+        when(client.search(anyString(), any(Search.class), any(SearchParams.class))).thenReturn(new SearchResponse());
 
         dao.getByTaskIdAndInstancesAndEvent("task-id-1", Arrays.asList("inst-1", "inst-2"), "EXECUTION_SAMPLE");
 
         final ArgumentCaptor<Search> searchCaptor = ArgumentCaptor.forClass(Search.class);
-        verify(client).search(anyString(), searchCaptor.capture());
+        verify(client).search(anyString(), searchCaptor.capture(), any(SearchParams.class));
 
         final String json = objectMapper.writeValueAsString(searchCaptor.getValue());
         assertThat(json).contains(JFRProfilingDataRecord.INSTANCE_ID);

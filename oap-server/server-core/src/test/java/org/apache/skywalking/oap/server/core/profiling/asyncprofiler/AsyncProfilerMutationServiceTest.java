@@ -21,6 +21,9 @@ package org.apache.skywalking.oap.server.core.profiling.asyncprofiler;
 import java.util.Collections;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.analysis.config.NoneStream;
+import org.apache.skywalking.oap.server.core.analysis.worker.NoneStreamProcessor;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskCreationResult;
@@ -31,12 +34,16 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AsyncProfilerMutationServiceTest {
@@ -63,16 +70,43 @@ class AsyncProfilerMutationServiceTest {
             return storedTimeBucket <= endTimeBucket
                 ? Collections.singletonList(running) : Collections.<AsyncProfilerTask>emptyList();
         });
+
+        final AsyncProfilerTaskCreationResult result = new AsyncProfilerMutationService(moduleManager(dao)).createTask(
+            SERVICE_ID, List.of("instance-1"), 60, List.of(AsyncProfilerEventType.CPU), "");
+
+        assertEquals(AsyncProfilerTaskCreationType.ALREADY_PROFILING_ERROR, result.getCode());
+    }
+
+    /**
+     * The row carries the second bucket of its creation, which the task lists, the creation check and the agent task
+     * cache bound by second buckets.
+     */
+    @Test
+    void writesTheTaskWithTheSecondBucketOfItsCreation() throws Exception {
+        final IAsyncProfilerTaskQueryDAO dao = mock(IAsyncProfilerTaskQueryDAO.class);
+        when(dao.getTaskList(any(), any(), any(), any())).thenReturn(Collections.emptyList());
+        final NoneStreamProcessor processor = mock(NoneStreamProcessor.class);
+        try (MockedStatic<NoneStreamProcessor> ignored = mockStatic(NoneStreamProcessor.class)) {
+            ignored.when(NoneStreamProcessor::getInstance).thenReturn(processor);
+
+            final AsyncProfilerTaskCreationResult result = new AsyncProfilerMutationService(moduleManager(dao))
+                .createTask(SERVICE_ID, List.of("instance-1"), 60, List.of(AsyncProfilerEventType.CPU), "");
+
+            assertEquals(AsyncProfilerTaskCreationType.SUCCESS, result.getCode());
+        }
+        final ArgumentCaptor<NoneStream> written = ArgumentCaptor.forClass(NoneStream.class);
+        verify(processor).in(written.capture());
+        final AsyncProfilerTaskRecord task = (AsyncProfilerTaskRecord) written.getValue();
+        assertEquals(TimeBucket.getRecordTimeBucket(task.getCreateTime()), task.getTimeBucket());
+    }
+
+    private static ModuleManager moduleManager(final IAsyncProfilerTaskQueryDAO dao) {
         final ModuleManager moduleManager = mock(ModuleManager.class);
         final ModuleProviderHolder providerHolder = mock(ModuleProviderHolder.class);
         final ModuleServiceHolder serviceHolder = mock(ModuleServiceHolder.class);
         when(moduleManager.find(StorageModule.NAME)).thenReturn(providerHolder);
         when(providerHolder.provider()).thenReturn(serviceHolder);
         when(serviceHolder.getService(IAsyncProfilerTaskQueryDAO.class)).thenReturn(dao);
-
-        final AsyncProfilerTaskCreationResult result = new AsyncProfilerMutationService(moduleManager).createTask(
-            SERVICE_ID, List.of("instance-1"), 60, List.of(AsyncProfilerEventType.CPU), "");
-
-        assertEquals(AsyncProfilerTaskCreationType.ALREADY_PROFILING_ERROR, result.getCode());
+        return moduleManager;
     }
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.storage.plugin.banyandb.stream;
 
 import com.google.gson.Gson;
 import java.util.Collections;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.skywalking.banyandb.model.v1.BanyandbModel;
@@ -33,6 +34,7 @@ import org.apache.skywalking.library.banyandb.v1.client.Trace;
 import org.apache.skywalking.library.banyandb.v1.client.TraceQueryResponse;
 import org.apache.skywalking.library.banyandb.v1.client.Value;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.Serializable;
+import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.query.input.AttrCondition;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.KeyValue;
@@ -57,6 +59,25 @@ public abstract class AbstractBanyanDBDAO extends AbstractDAO<BanyanDBStorageCli
     protected static final long UPPER_BOUND_TIME = UPPER_BOUND.toEpochMilli();
 
     protected static final long LOWER_BOUND_TIME = 0;
+
+    /**
+     * The last millisecond of a time bucket of any precision. The other storages keep a row whose time bucket equals
+     * the end bucket of a read, so a read bounded by an end bucket here ends where that bucket ends, not where it
+     * starts.
+     */
+    protected static long endOfTimeBucket(final long timeBucket) {
+        final long start = TimeBucket.getTimestamp(timeBucket);
+        if (TimeBucket.isSecondBucket(timeBucket)) {
+            return start + TimeUnit.SECONDS.toMillis(1) - 1;
+        }
+        if (TimeBucket.isMinuteBucket(timeBucket)) {
+            return start + TimeUnit.MINUTES.toMillis(1) - 1;
+        }
+        if (TimeBucket.isHourBucket(timeBucket)) {
+            return start + TimeUnit.HOURS.toMillis(1) - 1;
+        }
+        return start + TimeUnit.DAYS.toMillis(1) - 1;
+    }
 
     protected AbstractBanyanDBDAO(BanyanDBStorageClient client) {
         super(client);

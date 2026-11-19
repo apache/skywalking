@@ -44,6 +44,7 @@ public final class IndexNames {
      * Day groups are counted from this day, so a day lands in the same index whenever the OAP starts.
      */
     private static final DateTime DAY_ONE = TIME_BUCKET_FORMATTER.parseDateTime("20000101");
+    private static final int HOUR_SUFFIX_LENGTH = 10;
     private static int DAY_STEP = 1;
     private static int SUPER_DATASET_DAY_STEP = 1;
 
@@ -60,14 +61,16 @@ public final class IndexNames {
     }
 
     /**
-     * @return the index a document of the model with the given time bucket is written to
+     * @return the index a document of the model with the given time bucket is written to: the index of the bucket's
+     * day, read by the bucket's own precision, as the async-profiler and pprof tasks carry second buckets on a
+     * minute-downsampled model
      */
     public static String writeIndex(final Model model, final long timeBucket) {
         final IndexFamily family = IndexFamily.of(model);
         if (family.getRolling() == IndexRolling.NONE) {
             return family.getPhysicalName();
         }
-        return datedIndex(family, toDay(timeBucket, model.getDownsampling()));
+        return datedIndex(family, dayOf(timeBucket, model.getDownsampling()));
     }
 
     /**
@@ -112,11 +115,17 @@ public final class IndexNames {
     }
 
     /**
+     * Earlier versions named the index of an async-profiler, pprof or continuous-profiling task by the hour of the
+     * task's second bucket, {@code <physical table>-<yyyyMMddHH>}, with a day step of 1. Such an index holds the
+     * hour's day; no other index name has ten digits after its last {@code -}.
+     *
      * @param concreteIndexName a dated index name, with or without the namespace
      * @return the first day the index holds
      */
     public static long indexStartDay(final String concreteIndexName) {
-        return Long.parseLong(concreteIndexName.substring(concreteIndexName.lastIndexOf(Const.LINE) + 1));
+        final String suffix = concreteIndexName.substring(concreteIndexName.lastIndexOf(Const.LINE) + 1);
+        final long day = Long.parseLong(suffix);
+        return suffix.length() == HOUR_SUFFIX_LENGTH ? day / 100 : day;
     }
 
     /**
@@ -174,6 +183,26 @@ public final class IndexNames {
         }
         final int groupOffset = Days.daysBetween(DAY_ONE, day).getDays() % dayStep;
         return Long.parseLong(day.minusDays(groupOffset).toString(TIME_BUCKET_FORMATTER));
+    }
+
+    /**
+     * @return the day of the time bucket by the bucket's own precision, or by the downsampling for a bucket of no
+     * known precision
+     */
+    private static long dayOf(final long timeBucket, final DownSampling downSampling) {
+        if (TimeBucket.isSecondBucket(timeBucket)) {
+            return toDay(timeBucket, DownSampling.Second);
+        }
+        if (TimeBucket.isMinuteBucket(timeBucket)) {
+            return toDay(timeBucket, DownSampling.Minute);
+        }
+        if (TimeBucket.isHourBucket(timeBucket)) {
+            return toDay(timeBucket, DownSampling.Hour);
+        }
+        if (TimeBucket.isDayBucket(timeBucket)) {
+            return toDay(timeBucket, DownSampling.Day);
+        }
+        return toDay(timeBucket, downSampling);
     }
 
     private static long toDay(final long timeBucket, final DownSampling downSampling) {

@@ -63,6 +63,10 @@ public final class BulkProcessor {
     private volatile long lastFlushTS = 0;
     private final int batchOfBytes;
     private final HistogramMetrics bulkMetrics;
+    /**
+     * Runs the periodical flush. A field, not a local, so the ITs can stop it by reflection; OAP never stops it.
+     */
+    private final ScheduledThreadPoolExecutor scheduler;
 
     public static BulkProcessorBuilder builder() {
         return new BulkProcessorBuilder();
@@ -83,7 +87,7 @@ public final class BulkProcessor {
         this.requests = new ArrayBlockingQueue<>(bulkActions + 1);
         this.bulkMetrics = bulkMetrics;
 
-        final ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(1, r -> {
+        this.scheduler = new ScheduledThreadPoolExecutor(1, r -> {
             final Thread thread = new Thread(r);
             thread.setName("ElasticSearch BulkProcessor");
             return thread;

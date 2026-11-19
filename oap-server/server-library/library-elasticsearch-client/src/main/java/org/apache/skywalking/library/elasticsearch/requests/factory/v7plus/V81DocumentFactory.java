@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.DocumentFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.PathSegments;
 import com.google.common.collect.ImmutableMap;
 import com.linecorp.armeria.common.HttpRequest;
 import com.linecorp.armeria.common.HttpRequestBuilder;
@@ -68,7 +69,7 @@ public class V81DocumentFactory implements DocumentFactory {
 
         builder.post("/{index}/_update/{id}")
                .pathParam("index", index)
-               .pathParam("id", id)
+               .pathParam("id", PathSegments.escape(id))
                .content(MediaType.JSON, content);
 
         return builder.build();

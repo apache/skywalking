@@ -138,14 +138,18 @@ public class ProfileTaskMutationService implements Service {
             return "max sampling count must less than " + ProfileConstants.TASK_MAX_SAMPLING_COUNT;
         }
 
-        // Each service can monitor up to 1 endpoints during the execution of tasks
+        // Each service can monitor up to 1 endpoints during the execution of tasks.
+        // The list reads whole minutes, so it also holds a task starting in this task's last minute after this task
+        // ends. A service's tasks never overlap and last a minute or more, so at most one starts in a minute, and the
+        // latest two hold the latest task starting before this one ends, the only one that can overlap it.
         long endTimeBucket = TimeBucket.getMinuteTimeBucket(monitorEndTime);
         final List<ProfileTask> alreadyHaveTaskList = getProfileTaskDAO().getTaskList(
-            serviceId, null, null, endTimeBucket, 1);
+            serviceId, null, null, endTimeBucket, 2);
         if (CollectionUtils.isNotEmpty(alreadyHaveTaskList)) {
             for (ProfileTask profileTask : alreadyHaveTaskList) {
-                if (profileTask.getStartTime() + TimeUnit.MINUTES.toMillis(profileTask.getDuration()) >= monitorStartTime) {
-                    // if the endTime is greater or equal than the startTime of the newly created task, i.e. there is overlap between two tasks, it is an invalid case
+                final long existingEndTime =
+                    profileTask.getStartTime() + TimeUnit.MINUTES.toMillis(profileTask.getDuration());
+                if (profileTask.getStartTime() <= monitorEndTime && existingEndTime >= monitorStartTime) {
                     return "current service already has monitor task execute at this time";
                 }
             }

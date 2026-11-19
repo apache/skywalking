@@ -91,17 +91,17 @@ public class BanyanDBProfilingTaskQueryIT {
                 profileTask("trace-task-0", SERVICE_ID, "/checkout", 0),
                 profileTask("trace-task-1", SERVICE_ID, "/pay", 1),
                 profileTask("trace-task-2", SERVICE_ID, "/checkout", 2),
-                profileTask("trace-task-3", OTHER_SERVICE_ID, "/checkout", 3)));
+                halfAMinuteLater(profileTask("trace-task-3", OTHER_SERVICE_ID, "/checkout", 3))));
         SUPPORT.writeNoneStreams(SUPPORT.installNoneStream(AsyncProfilerTaskRecord.class, DefaultScopeDefine.ASYNC_PROFILER_TASK,
                                                            AsyncProfilerTaskRecord.INDEX_NAME),
                                  new AsyncProfilerTaskRecord.Builder(), Arrays.asList(
                 asyncTask("async-task-0", SERVICE_ID, 0), asyncTask("async-task-1", SERVICE_ID, 1),
-                asyncTask("async-task-2", OTHER_SERVICE_ID, 2)));
+                halfAMinuteLater(asyncTask("async-task-2", OTHER_SERVICE_ID, 2))));
         SUPPORT.writeNoneStreams(SUPPORT.installNoneStream(PprofTaskRecord.class, DefaultScopeDefine.PPROF_TASK,
                                                            PprofTaskRecord.INDEX_NAME),
                                  new PprofTaskRecord.Builder(), Arrays.asList(
                 pprofTask("pprof-task-0", SERVICE_ID, 0), pprofTask("pprof-task-1", SERVICE_ID, 1),
-                pprofTask("pprof-task-2", OTHER_SERVICE_ID, 2)));
+                halfAMinuteLater(pprofTask("pprof-task-2", OTHER_SERVICE_ID, 2))));
         SUPPORT.writeNoneStreams(SUPPORT.installNoneStream(EBPFProfilingTaskRecord.class, DefaultScopeDefine.EBPF_PROFILING_TASK,
                                                            EBPFProfilingTaskRecord.INDEX_NAME),
                                  new EBPFProfilingTaskRecord.Builder(), Arrays.asList(
@@ -193,6 +193,27 @@ public class BanyanDBProfilingTaskQueryIT {
         assertNull(pprof.getById("pprof-task-missing"));
     }
 
+    /**
+     * A read bounded by an end time bucket keeps the tasks of the whole bucket, as the JDBC and Elasticsearch task
+     * DAOs keep the rows whose bucket equals it: the creation checks and the agent task caches bound their reads by
+     * minute buckets. The other service's tasks start or are created half a minute into their minute.
+     */
+    @Test
+    public void readsTheTasksOfTheWholeEndMinute() throws IOException {
+        final BanyanDBProfileTaskQueryDAO trace = new BanyanDBProfileTaskQueryDAO(SUPPORT.getClient(), 200);
+        assertEquals(Collections.singletonList("trace-task-3"),
+                     ids(trace.getTaskList(OTHER_SERVICE_ID, null, null, minuteBucket(3), 1)));
+        assertEquals(Collections.emptyList(), ids(trace.getTaskList(OTHER_SERVICE_ID, null, null, minuteBucket(2), 1)));
+        final BanyanDBAsyncProfilerTaskQueryDAO async = new BanyanDBAsyncProfilerTaskQueryDAO(SUPPORT.getClient(), 200);
+        assertEquals(Collections.singletonList("async-task-2"), async.getTaskList(
+            OTHER_SERVICE_ID, null, minuteBucket(2), 1).stream().map(t -> t.getId()).collect(Collectors.toList()));
+        assertEquals(Collections.emptyList(), async.getTaskList(OTHER_SERVICE_ID, null, minuteBucket(1), 1));
+        final BanyanDBPprofTaskQueryDAO pprof = new BanyanDBPprofTaskQueryDAO(SUPPORT.getClient(), 200);
+        assertEquals(Collections.singletonList("pprof-task-2"), pprof.getTaskList(
+            OTHER_SERVICE_ID, null, minuteBucket(2), 1).stream().map(t -> t.getId()).collect(Collectors.toList()));
+        assertEquals(Collections.emptyList(), pprof.getTaskList(OTHER_SERVICE_ID, null, minuteBucket(1), 1));
+    }
+
     @Test
     public void readsTaskLogs() throws IOException {
         assertEquals(Arrays.asList("trace-task-0|" + INSTANCE_ID, "trace-task-1|" + OTHER_INSTANCE_ID),
@@ -260,6 +281,22 @@ public class BanyanDBProfilingTaskQueryIT {
 
     private static long minuteBucket(int minute) {
         return TimeBucket.getMinuteTimeBucket(startTime(minute));
+    }
+
+    private static ProfileTaskRecord halfAMinuteLater(ProfileTaskRecord task) {
+        task.setStartTime(task.getStartTime() + 30_000L);
+        task.setCreateTime(task.getCreateTime() + 30_000L);
+        return task;
+    }
+
+    private static AsyncProfilerTaskRecord halfAMinuteLater(AsyncProfilerTaskRecord task) {
+        task.setCreateTime(task.getCreateTime() + 30_000L);
+        return task;
+    }
+
+    private static PprofTaskRecord halfAMinuteLater(PprofTaskRecord task) {
+        task.setCreateTime(task.getCreateTime() + 30_000L);
+        return task;
     }
 
     private static ProfileTaskRecord profileTask(String id, String serviceId, String endpoint, int minute) {

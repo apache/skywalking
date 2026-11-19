@@ -207,7 +207,12 @@ public class OTLPTraceQueryEsDAO extends EsDAO implements IOTLPTraceQueryDAO {
             }
         }
 
-        // One bucket per trace, ordered by the trace's earliest start or longest span, sized to the page.
+        // One bucket per trace, ordered by the trace's earliest start or longest span, sized to the page. The earliest
+        // start, descending, is an ordering Elasticsearch documents as inaccurate across shards: each shard ranks a
+        // trace only by the spans it holds and returns its top shard_size (by default size * 1.5 + 10). With the
+        // default routing, by document id, a trace's spans spread over a daily index's shards, so near the cut-off an
+        // older trace can take the place of a later one; with custom routing a trace's spans share a shard within a
+        // day, so only a trace crossing midnight can. Accepted for its cost. The longest span, descending, is exact.
         final boolean byDuration = condition.getQueryOrder() == QueryOrder.BY_DURATION;
         final String orderAggregation = byDuration ? OTLPSpanRecord.DURATION : OTLPSpanRecord.START_TIME;
         final TermsAggregationBuilder traceIdAggregation =

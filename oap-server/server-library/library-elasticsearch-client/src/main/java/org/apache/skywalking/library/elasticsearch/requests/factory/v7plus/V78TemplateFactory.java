@@ -65,6 +65,9 @@ final class V78TemplateFactory implements TemplateFactory {
         final Map<String, Object> template =
             ImmutableMap.<String, Object>builder()
                         .put("index_patterns", patterns)
+                        // A composable template's precedence is its priority, the legacy template's order. A
+                        // priority cannot be negative, while an order can.
+                        .put("priority", Math.max(0, order))
                         .put(
                             "template",
                             ImmutableMap.builder()

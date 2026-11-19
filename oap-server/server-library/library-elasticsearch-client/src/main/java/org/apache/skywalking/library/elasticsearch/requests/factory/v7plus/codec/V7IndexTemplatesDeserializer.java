@@ -41,6 +41,8 @@ final class V7IndexTemplatesDeserializer extends JsonDeserializer<IndexTemplates
         if (templates == null) {
             return new IndexTemplates(Collections.emptyMap());
         }
+        // A legacy template is keyed by its name, which its body does not repeat.
+        templates.forEach((name, template) -> template.setName(name));
         return new IndexTemplates(templates);
     }
 }
