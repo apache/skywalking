@@ -82,6 +82,7 @@
 * Elasticsearch: fix the alarms of a page after the 10th losing their recovery time.
 * Fix a trace profiling task being refused as overlapping a task of the service that starts later in the minute the new task ends.
 * Elasticsearch: write a row into the daily index of its time bucket's day, whatever the bucket's precision. Async-profiler, pprof and continuous-profiling tasks, which carry a second-precision bucket, went into an index per hour that the TTL never deleted, and could not be written at all with `dayStep` above 1; the TTL now deletes the hour-named indices (`*-yyyyMMddHH`) earlier versions left, with their day. The copy of an eBPF network profiling task that keeps it alive carried time bucket 0, so it went into an index dated 0 that the next TTL run deleted; it now carries the minute it is written. BanyanDB: a task list now includes the tasks of the range's last time bucket.
+* Add the existing cluster remote metrics (remote in/out counts, errors, in latency, and cluster size) to the OAP self-observability MAL rules and dashboards, add remote client out latency, in-flight streams, stream-slot wait time and send-queue usage metrics, and count asynchronous gRPC send failures in `remote_out_error_count`, which were only logged before. When a worker fails to process one received remote message, only that message is discarded and counted in `remote_in_error_count`; before, the failure ended the whole stream.
 
 #### UI
 
