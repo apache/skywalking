@@ -16,22 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.zipkin;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ElasticSearchQueryITSupport;
-import org.junit.jupiter.api.Tag;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Tag("slow")
-@Tag("elastic-it")
 @Testcontainers
-public class ZipkinQueryEsDAOOpenSearch3ShardedIT extends ZipkinQueryEsDAOITBase {
+public class JDBCSpanAttachedEventQueryPostgreSQLIT extends JDBCSpanAttachedEventQueryITBase {
     @Container
-    private static final ElasticsearchContainer SERVER = ElasticSearchQueryITSupport.openSearch("3.0.0");
+    private static final PostgreSQLContainer<?> SERVER = JDBCQueryITSupport.postgreSQL();
 
-    public ZipkinQueryEsDAOOpenSearch3ShardedIT() {
-        super(SERVER, ElasticSearchQueryITSupport.Mode.LOGIC_SHARDING_AND_CUSTOM_ROUTING);
+    public JDBCSpanAttachedEventQueryPostgreSQLIT() {
+        super(SERVER, JDBCQueryITSupport.Target.POSTGRESQL);
     }
 }

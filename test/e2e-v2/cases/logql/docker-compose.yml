@@ -68,7 +68,7 @@ services:
         condition: service_healthy
 
   es:
-    image: elastic/elasticsearch:8.18.8
+    image: elastic/elasticsearch:${ES_VERSION:-8.18.8}
     ports:
       - 9200
     networks:

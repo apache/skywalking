@@ -107,6 +107,13 @@ public class AggregationQueryEsDAO extends EsDAO implements IAggregationQueryDAO
             search.query(boolQuery);
         }
 
+        // A terms aggregation ordered by the mean: each shard returns its own top shard_size buckets (by default
+        // size * 1.5 + 10) by its own part of the mean, and Elasticsearch documents that ordering terms by a
+        // sub-aggregation generally produces incorrect ordering across shards (only max descending and min ascending
+        // are safe). It is exact when one shard holds the range, one daily index of one primary shard. Across indices
+        // or shards (midnight, a multi-day day step, more primary shards) an entity that ranks high over the range
+        // but not within each shard's own data can be missing, and a returned entity's mean covers only the shards
+        // that returned it. Reading every entity's mean instead is not worth its cost.
         search.aggregation(
             Aggregation.terms(Metrics.ENTITY_ID)
                        .field(Metrics.ENTITY_ID)

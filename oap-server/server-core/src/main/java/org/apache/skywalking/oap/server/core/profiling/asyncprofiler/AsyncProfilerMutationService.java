@@ -77,6 +77,8 @@ public class AsyncProfilerMutationService implements Service {
         task.setEventsFromList(rowEvents);
         task.setCreateTime(createTime);
         task.setExecArgs(execArgs);
+        // A second bucket on a minute-downsampled model: the task lists bound tasks by the seconds of a duration, and
+        // Elasticsearch names the row's daily index by the bucket's own precision.
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(createTime));
         NoneStreamProcessor.getInstance().in(task);
 

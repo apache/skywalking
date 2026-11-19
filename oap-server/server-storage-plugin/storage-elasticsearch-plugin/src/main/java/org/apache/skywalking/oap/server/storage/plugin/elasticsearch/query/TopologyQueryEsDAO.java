@@ -49,6 +49,11 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
+    /**
+     * How many component values of one relation a read keeps, more than the component library defines. A relation
+     * stores its components per minute, so a range may hold several, and a terms aggregation keeps 10 by default.
+     */
+    private static final int COMPONENTS_PER_RELATION = 1000;
 
     public TopologyQueryEsDAO(ElasticSearchClient client) {
         super(client);
@@ -248,7 +253,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                     Aggregation.terms(ProcessRelationServerSideMetrics.COMPONENT_ID)
                                .field(ProcessRelationServerSideMetrics.COMPONENT_ID)
                                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
-                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
+                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
+                               .size(COMPONENTS_PER_RELATION))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
@@ -274,11 +280,13 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                     ProcessRelationServerSideMetrics.COMPONENT_ID);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
-            final int componentId = ((Number) subAgg.iterator().next().get("key")).intValue();
-
-            Call.CallDetail call = new Call.CallDetail();
-            call.buildProcessRelation(entityId, componentId, detectPoint);
-            calls.add(call);
+            // The component is stored per minute, so a relation may name another one in each minute of the range.
+            for (final Map<String, Object> componentBucket : subAgg) {
+                final int componentId = ((Number) componentBucket.get("key")).intValue();
+                Call.CallDetail call = new Call.CallDetail();
+                call.buildProcessRelation(entityId, componentId, detectPoint);
+                calls.add(call);
+            }
         }
         return calls;
     }
@@ -293,7 +301,8 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                     Aggregation.terms(ServiceRelationServerSideMetrics.COMPONENT_IDS)
                                .field(ServiceRelationServerSideMetrics.COMPONENT_IDS)
                                .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
-                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST))
+                               .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
+                               .size(COMPONENTS_PER_RELATION))
                 .executionHint(TermsAggregationBuilder.ExecutionHint.MAP)
                 .collectMode(TermsAggregationBuilder.CollectMode.BREADTH_FIRST)
                 .size(1000));
@@ -314,12 +323,14 @@ public class TopologyQueryEsDAO extends EsDAO implements ITopologyQueryDAO {
                     ServiceRelationServerSideMetrics.COMPONENT_IDS);
             final List<Map<String, Object>> subAgg =
                 (List<Map<String, Object>>) componentTerms.get("buckets");
-            final IntList componentIds = new IntList((String) subAgg.iterator().next().get("key"));
-
-            for (int i = 0; i < componentIds.size(); i++) {
-                Call.CallDetail call = new Call.CallDetail();
-                call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
-                calls.add(call);
+            // The components are stored per minute, so a relation may name others in each minute of the range.
+            for (final Map<String, Object> componentBucket : subAgg) {
+                final IntList componentIds = new IntList((String) componentBucket.get("key"));
+                for (int i = 0; i < componentIds.size(); i++) {
+                    Call.CallDetail call = new Call.CallDetail();
+                    call.buildFromServiceRelation(entityId, componentIds.get(i), detectPoint);
+                    calls.add(call);
+                }
             }
         }
         return calls;

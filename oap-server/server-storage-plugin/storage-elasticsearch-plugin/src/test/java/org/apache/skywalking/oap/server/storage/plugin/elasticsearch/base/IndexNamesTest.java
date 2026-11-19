@@ -99,6 +99,21 @@ class IndexNamesTest {
         assertEquals("metrics-all-20200810", IndexNames.writeIndex(metrics, 2020_0810_1010L));
     }
 
+    /**
+     * The async-profiler and pprof tasks carry second buckets on a minute-downsampled model. Read as a minute bucket,
+     * such a bucket named an hourly index, or failed to name one with a day step above one.
+     */
+    @Test
+    void writeIndex_takesTheDayOfTheBucketAtItsOwnPrecision() {
+        final Model task = model("async_profiler_task", DownSampling.Minute, false, Record.class);
+
+        assertEquals("records-all-20200809", IndexNames.writeIndex(task, 2020_0809_2359_59L));
+        assertEquals("records-all-20200809", IndexNames.writeIndex(task, 2020_0809_2359L));
+        assertEquals("records-all-20200810", IndexNames.writeIndex(task, 2020_0810_0000_00L));
+        IndexNames.configure(3, 1);
+        assertEquals("records-all-20200807", IndexNames.writeIndex(task, 2020_0809_2359_59L));
+    }
+
     @Test
     void writeIndex_ofManagementData_isTheTableWithoutADate() {
         final Model management = model("ui_template", DownSampling.None, false, Record.class);
@@ -159,6 +174,16 @@ class IndexNamesTest {
     void indexStartDay_isTheDateSuffix() {
         assertEquals(20190602L, IndexNames.indexStartDay("Index_Test-20190602"));
         assertEquals(20190602L, IndexNames.indexStartDay("namespace_metrics-all-20190602"));
+    }
+
+    /**
+     * Earlier versions named the index of a task with a second bucket on a minute-downsampled model by its hour.
+     */
+    @Test
+    void indexStartDay_ofAnIndexNamedByAnHour_isTheHoursDay() {
+        assertEquals(20190602L, IndexNames.indexStartDay("namespace_records-all-2019060223"));
+        assertEquals(20190602L, IndexNames.indexStartDay("async_profiler_task-2019060200"));
+        assertEquals(20190602L, IndexNames.indexStartDay("namespace_records-all-20190602"));
     }
 
     private static Model model(final String name,

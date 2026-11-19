@@ -78,6 +78,8 @@ final class V78IndexTemplatesDeserializer extends JsonDeserializer<IndexTemplate
                 p.getCodec().treeToValue(indexTemplateNode, IndexTemplateWrapper.class);
             wrapper.getTemplate().setName(name);
             wrapper.getTemplate().setIndexPatterns(wrapper.getIndexPatterns());
+            wrapper.getTemplate().setOrder(wrapper.getPriority());
+            wrapper.getTemplate().setComposable(true);
             templates.add(wrapper.getTemplate());
         }
 
@@ -91,6 +93,7 @@ final class V78IndexTemplatesDeserializer extends JsonDeserializer<IndexTemplate
     static final class IndexTemplateWrapper {
         @JsonProperty("index_patterns")
         private List<String> indexPatterns;
+        private long priority;
         private IndexTemplate template;
     }
 }

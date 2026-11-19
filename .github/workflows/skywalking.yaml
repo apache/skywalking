@@ -303,11 +303,11 @@ jobs:
 
   # Slow tests: the `@Tag("slow")` ITs, all on Elasticsearch and OpenSearch containers, on JDK 11. Each matrix entry
   # builds the whole project once and runs its own ITs:
-  #   - `ElasticSearchIT`, by class: library-elasticsearch-client against Elasticsearch 7, 8 and 9, and OpenSearch 1
-  #     and 2.
-  #   - Elastic IT, by the `@Tag("elastic-it")` the storage-elasticsearch-plugin's ITs also carry: the Zipkin query DAO
-  #     (`ZipkinQueryEsDAO*IT`) and the span-attached event queries (`SpanAttachedEventQuery*IT`), each on
-  #     Elasticsearch 8, 9 and 9 sharded, and OpenSearch 2, 3 and 3 sharded.
+  #   - `ElasticSearchIT`, by class: library-elasticsearch-client's requests, on a server of each request format it
+  #     picks by version: Elasticsearch 6.8, 7.7, 7.8, 7.17, 8.19 and 9.3, and OpenSearch 1.3, 2.8 and 3.0.
+  #   - Elastic IT, by the `@Tag("elastic-it")` the storage-elasticsearch-plugin's ITs also carry: every storage DAO,
+  #     as nested ITs of one IT per server (`Elasticsearch*IT`, `OpenSearch*IT`): Elasticsearch 8, 9 and 9 sharded,
+  #     and OpenSearch 1, 2, 3 and 3 sharded.
   slow-integration-test:
     if: |
       ( always() && ! cancelled() ) &&
@@ -357,8 +357,12 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - name: Cluster ZK ES
+          - name: Cluster ZK ES 8.18.8
             config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Cluster ZK ES 9.3.0
+            config: test/e2e-v2/cases/cluster/zk/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Cluster ZK BanyanDB
             config: test/e2e-v2/cases/cluster/zk/banyandb/e2e.yaml
 
@@ -368,10 +372,18 @@ jobs:
             config: test/e2e-v2/cases/go/e2e.yaml
           - name: Agent NodeJS Frontend
             config: test/e2e-v2/cases/browser/e2e.yaml
-          - name: Agent NodeJS Frontend ES
+          - name: Agent NodeJS Frontend ES 8.18.8
             config: test/e2e-v2/cases/browser/es/e2e.yaml
-          - name: Agent NodeJS Frontend ES Sharding
+            env: ES_VERSION=8.18.8
+          - name: Agent NodeJS Frontend ES 9.3.0
+            config: test/e2e-v2/cases/browser/es/e2e.yaml
+            env: ES_VERSION=9.3.0
+          - name: Agent NodeJS Frontend ES Sharding 8.18.8
             config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Agent NodeJS Frontend ES Sharding 9.3.0
+            config: test/e2e-v2/cases/browser/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Agent PHP
             config: test/e2e-v2/cases/php/e2e.yaml
           - name: Agent Python
@@ -430,6 +442,9 @@ jobs:
           - name: Storage ES Sharding 8.18.8
             config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Storage ES Sharding 9.3.0
+            config: test/e2e-v2/cases/storage/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
 
           - name: Inspect API BanyanDB
             config: test/e2e-v2/cases/inspect/banyandb/e2e.yaml
@@ -438,6 +453,9 @@ jobs:
           - name: Inspect API Elasticsearch 8.18.8
             config: test/e2e-v2/cases/inspect/elasticsearch/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Inspect API Elasticsearch 9.3.0
+            config: test/e2e-v2/cases/inspect/elasticsearch/e2e.yaml
+            env: ES_VERSION=9.3.0
 
           - name: Runtime Rule MAL Storage BanyanDB
             config: test/e2e-v2/cases/runtime-rule/mal-storage/banyandb/e2e.yaml
@@ -446,6 +464,9 @@ jobs:
           - name: Runtime Rule MAL Storage Elasticsearch 8.18.8
             config: test/e2e-v2/cases/runtime-rule/mal-storage/elasticsearch/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Runtime Rule MAL Storage Elasticsearch 9.3.0
+            config: test/e2e-v2/cases/runtime-rule/mal-storage/elasticsearch/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Runtime Rule LAL Hot-Update
             config: test/e2e-v2/cases/runtime-rule/lal/e2e.yaml
           - name: Runtime Rule Cluster (kind)
@@ -462,10 +483,18 @@ jobs:
           - name: DSL Debug API — LAL statement
             config: test/e2e-v2/cases/dsl-debugging/lal-statement/e2e.yaml
 
-          - name: Alarm ES
+          - name: Alarm ES 8.18.8
             config: test/e2e-v2/cases/alarm/es/e2e.yaml
-          - name: Alarm ES Sharding
+            env: ES_VERSION=8.18.8
+          - name: Alarm ES 9.3.0
+            config: test/e2e-v2/cases/alarm/es/e2e.yaml
+            env: ES_VERSION=9.3.0
+          - name: Alarm ES Sharding 8.18.8
             config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Alarm ES Sharding 9.3.0
+            config: test/e2e-v2/cases/alarm/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Alarm MySQL
             config: test/e2e-v2/cases/alarm/mysql/e2e.yaml
           - name: Alarm PostgreSQL
@@ -473,21 +502,36 @@ jobs:
           - name: Alarm BanyanDB
             config: test/e2e-v2/cases/alarm/banyandb/e2e.yaml
 
-          - name: Baseline-driven Alarm ES
+          - name: Baseline-driven Alarm ES 8.18.8
             config: test/e2e-v2/cases/baseline/es/e2e.yaml
-          - name: Baseline-driven Alarm ES Sharding
+            env: ES_VERSION=8.18.8
+          - name: Baseline-driven Alarm ES 9.3.0
+            config: test/e2e-v2/cases/baseline/es/e2e.yaml
+            env: ES_VERSION=9.3.0
+          - name: Baseline-driven Alarm ES Sharding 8.18.8
             config: test/e2e-v2/cases/baseline/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Baseline-driven Alarm ES Sharding 9.3.0
+            config: test/e2e-v2/cases/baseline/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Baseline-driven Alarm BanyanDB
             config: test/e2e-v2/cases/baseline/banyandb/e2e.yaml
 
           - name: TTL ES 8.18.8
             config: test/e2e-v2/cases/ttl/es/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: TTL ES 9.3.0
+            config: test/e2e-v2/cases/ttl/es/e2e.yaml
+            env: ES_VERSION=9.3.0
 
           - name: Event BanyanDB
             config: test/e2e-v2/cases/event/banyandb/e2e.yaml
-          - name: Event ES
+          - name: Event ES 8.18.8
             config: test/e2e-v2/cases/event/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Event ES 9.3.0
+            config: test/e2e-v2/cases/event/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Event MySQL
             config: test/e2e-v2/cases/event/mysql/e2e.yaml
 
@@ -498,9 +542,15 @@ jobs:
           - name: Log ES 8.18.8
             config: test/e2e-v2/cases/log/es/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Log ES 9.3.0
+            config: test/e2e-v2/cases/log/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Log ES 8.18.8 Sharding
             config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Log ES 9.3.0 Sharding
+            config: test/e2e-v2/cases/log/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Log BanyanDB
             config: test/e2e-v2/cases/log/banyandb/e2e.yaml
           - name: AI Agent Conversations BanyanDB
@@ -508,6 +558,9 @@ jobs:
           - name: AI Agent Conversations ES 8.18.8
             config: test/e2e-v2/cases/ai-agent/es/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: AI Agent Conversations ES 9.3.0
+            config: test/e2e-v2/cases/ai-agent/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: AI Agent Conversations MySQL
             config: test/e2e-v2/cases/ai-agent/mysql/e2e.yaml
           - name: AI Agent Conversations Postgres
@@ -516,13 +569,24 @@ jobs:
           - name: Log FluentBit ES 8.18.8
             config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
             env: ES_VERSION=8.18.8
+          - name: Log FluentBit ES 9.3.0
+            config: test/e2e-v2/cases/log/fluent-bit/e2e.yaml
+            env: ES_VERSION=9.3.0
 
           - name: Trace Profiling BanyanDB
             config: test/e2e-v2/cases/profiling/trace/banyandb/e2e.yaml
-          - name: Trace Profiling ES
+          - name: Trace Profiling ES 8.18.8
             config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
-          - name: Trace Profiling ES Sharding
+            env: ES_VERSION=8.18.8
+          - name: Trace Profiling ES 9.3.0
+            config: test/e2e-v2/cases/profiling/trace/es/e2e.yaml
+            env: ES_VERSION=9.3.0
+          - name: Trace Profiling ES Sharding 8.18.8
             config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Trace Profiling ES Sharding 9.3.0
+            config: test/e2e-v2/cases/profiling/trace/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Trace Profiling MySQL
             config: test/e2e-v2/cases/profiling/trace/mysql/e2e.yaml
           - name: Trace Profiling Postgres
@@ -704,10 +768,18 @@ jobs:
           - name: MariaDB Prometheus and slowsql
             config: test/e2e-v2/cases/mariadb/mariadb-slowsql/e2e.yaml
 
-          - name: Zipkin ES
+          - name: Zipkin ES 8.18.8
             config: test/e2e-v2/cases/zipkin/es/e2e.yaml
-          - name: Zipkin ES Sharding
+            env: ES_VERSION=8.18.8
+          - name: Zipkin ES 9.3.0
+            config: test/e2e-v2/cases/zipkin/es/e2e.yaml
+            env: ES_VERSION=9.3.0
+          - name: Zipkin ES Sharding 8.18.8
             config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Zipkin ES Sharding 9.3.0
+            config: test/e2e-v2/cases/zipkin/es/es-sharding/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Zipkin OpenSearch 3.0.0
             config: test/e2e-v2/cases/zipkin/opensearch/e2e.yaml
             env: OPENSEARCH_VERSION=3.0.0
@@ -758,8 +830,12 @@ jobs:
             config: test/e2e-v2/cases/aws/dynamodb/e2e.yaml
           - name: PromQL Service
             config: test/e2e-v2/cases/promql/e2e.yaml
-          - name: LogQL Service
+          - name: LogQL Service 8.18.8
             config: test/e2e-v2/cases/logql/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: LogQL Service 9.3.0
+            config: test/e2e-v2/cases/logql/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: TraceQL Service Zipkin
             config: test/e2e-v2/cases/traceql/zipkin/e2e.yaml
           - name: TraceQL Service SkyWalking
@@ -799,8 +875,15 @@ jobs:
             config: test/e2e-v2/cases/otlp-traces/e2e.yaml
           - name: OTLP Trace Native BanyanDB
             config: test/e2e-v2/cases/otlp-traces/native/banyandb/e2e.yaml
-          - name: OTLP Trace Native ES
+          - name: OTLP Trace Native ES 7.15.0
             config: test/e2e-v2/cases/otlp-traces/native/es/e2e.yaml
+            env: ES_VERSION=7.15.0
+          - name: OTLP Trace Native ES 8.18.8
+            config: test/e2e-v2/cases/otlp-traces/native/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: OTLP Trace Native ES 9.3.0
+            config: test/e2e-v2/cases/otlp-traces/native/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: OTLP Trace Native MySQL
             config: test/e2e-v2/cases/otlp-traces/native/mysql/e2e.yaml
 
@@ -810,15 +893,23 @@ jobs:
           - name: Cilium Service
             config: test/e2e-v2/cases/cilium/e2e.yaml
 
-          - name: Async Profiler ES
+          - name: Async Profiler ES 8.18.8
             config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Async Profiler ES 9.3.0
+            config: test/e2e-v2/cases/profiling/async-profiler/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Async Profiler BanyanDB
             config: test/e2e-v2/cases/profiling/async-profiler/banyandb/e2e.yaml
           - name: Async Profiler MySQL
             config: test/e2e-v2/cases/profiling/async-profiler/mysql/e2e.yaml
 
-          - name: Pprof ES
+          - name: Pprof ES 8.18.8
             config: test/e2e-v2/cases/profiling/pprof/es/e2e.yaml
+            env: ES_VERSION=8.18.8
+          - name: Pprof ES 9.3.0
+            config: test/e2e-v2/cases/profiling/pprof/es/e2e.yaml
+            env: ES_VERSION=9.3.0
           - name: Pprof BanyanDB
             config: test/e2e-v2/cases/profiling/pprof/banyandb/e2e.yaml
           - name: Pprof MySQL

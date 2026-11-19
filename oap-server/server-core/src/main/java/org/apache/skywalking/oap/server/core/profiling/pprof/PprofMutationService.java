@@ -76,6 +76,8 @@ public class PprofMutationService implements Service {
         task.setEvents(events.toString());
         task.setDumpPeriod(dumpPeriod);
         task.setCreateTime(createTime);
+        // A second bucket on a minute-downsampled model: the task lists bound tasks by the seconds of a duration, and
+        // Elasticsearch names the row's daily index by the bucket's own precision.
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(createTime));
         NoneStreamProcessor.getInstance().in(task);
         return PprofTaskCreationResult.builder()

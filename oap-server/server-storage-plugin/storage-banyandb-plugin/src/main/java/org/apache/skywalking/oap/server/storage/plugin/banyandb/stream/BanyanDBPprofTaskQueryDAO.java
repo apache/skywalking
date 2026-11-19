@@ -66,7 +66,7 @@ public class BanyanDBPprofTaskQueryDAO extends AbstractBanyanDBDAO implements IP
             startTS = TimeBucket.getTimestamp(startTimeBucket);
         }
         if (endTimeBucket != null) {
-            endTS = TimeBucket.getTimestamp(endTimeBucket);
+            endTS = endOfTimeBucket(endTimeBucket);
         }
         Conditions where = Conditions.create();
         if (StringUtil.isNotEmpty(serviceId)) {

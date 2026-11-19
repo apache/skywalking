@@ -23,14 +23,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.SpanAttachedEvent;
 import org.apache.skywalking.oap.query.zipkin.ZipkinQueryService;
 import org.apache.skywalking.oap.server.core.CoreModule;
@@ -39,7 +36,6 @@ import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SWSpanAt
 import org.apache.skywalking.oap.server.core.analysis.manual.spanattach.SpanAttachedEventRecord;
 import org.apache.skywalking.oap.server.core.config.IComponentLibraryCatalogService;
 import org.apache.skywalking.oap.server.core.query.TraceQueryService;
-import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.query.ISpanAttachedEventQueryDAO;
@@ -58,23 +54,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import zipkin2.Span;
 import zipkin2.storage.QueryRequest;
 
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AttachedEventFixture.DURATION;
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AttachedEventFixture.MIDNIGHT;
 import static org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.AttachedEventFixture.stored;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
 /**
  * Reads span attached events the way the trace and the Zipkin queries do on Elasticsearch and OpenSearch: the V1
  * branch reads the spans from the trace DAOs and the events from {@link SpanAttachedEventEsDAO}, and the query
- * services attach each event to the span it belongs to. A subclass names the server and the storage mode.
+ * services attach each event to the span it belongs to. A nested class of a server's IT names the server and the
+ * storage mode.
  *
  * <p>The events are rover's network profiling, see {@link NativeTraceFixture} and {@link ZipkinTraceFixture}. Every
  * trace has more events than a page of the events read, events of traces not asked for name the same spans, events
@@ -109,7 +103,7 @@ abstract class SpanAttachedEventQueryITBase {
     @BeforeAll
     public void writeTraces() throws Exception {
         support = ElasticSearchQueryITSupport.connect(
-            server, mode, config -> config.setProfileDataQueryBatchSize(EVENTS_PER_PAGE));
+            server, mode, getClass(), config -> config.setProfileDataQueryBatchSize(EVENTS_PER_PAGE));
         final Model segments = support.installRecord(SegmentRecord.class);
         final Model zipkinSpans = support.installRecord(ZipkinSpanRecord.class);
         final Model skyWalkingEventModel = support.installRecord(SWSpanAttachedEventRecord.class);
@@ -138,10 +132,6 @@ abstract class SpanAttachedEventQueryITBase {
         final ModuleManager moduleManager = moduleManager();
         traceQueryService = new TraceQueryService(moduleManager);
         zipkinQueryService = new ZipkinQueryService(moduleManager);
-        // A write is searchable after its index's next refresh, every 30 s as OAP configures the indices.
-        await().atMost(90, TimeUnit.SECONDS)
-               .pollInterval(1, TimeUnit.SECONDS)
-               .untilAsserted(this::assertEverythingSearchable);
     }
 
     @AfterAll
@@ -253,29 +243,6 @@ abstract class SpanAttachedEventQueryITBase {
     }
 
     /**
-     * The events are waited for by their storage ids, which two events can share.
-     */
-    private void assertEverythingSearchable() throws IOException {
-        for (final SegmentObject segment : NativeTraceFixture.SEGMENTS) {
-            assertTrue(traceDAO.queryByTraceId(segment.getTraceId(), null).stream()
-                               .anyMatch(record -> record.getSegmentId().equals(segment.getTraceSegmentId())),
-                       segment.getTraceSegmentId());
-        }
-        for (final Span span : ZipkinTraceFixture.SPANS) {
-            assertTrue(zipkinDAO.getTrace(span.traceId(), null).stream().anyMatch(read -> read.id().equals(span.id())),
-                       span.id());
-        }
-        final List<String> skyWalkingTraces = skyWalkingEvents.stream().map(SWSpanAttachedEventRecord::getRelatedTraceId)
-                                                              .distinct().collect(Collectors.toList());
-        assertTrue(idsOf(eventDAO.querySWSpanAttachedEvents(skyWalkingTraces, null))
-                       .containsAll(idsOf(skyWalkingEvents)), "SkyWalking events");
-        final List<String> zipkinTraces = zipkinEvents.stream().map(SpanAttachedEventRecord::getRelatedTraceId)
-                                                      .distinct().collect(Collectors.toList());
-        assertTrue(idsOf(eventDAO.queryZKSpanAttachedEvents(zipkinTraces, null))
-                       .containsAll(idsOf(zipkinEvents)), "Zipkin events");
-    }
-
-    /**
      * Hands the query services this plugin's DAOs, as the storage module would.
      */
     private ModuleManager moduleManager() {
@@ -314,13 +281,5 @@ abstract class SpanAttachedEventQueryITBase {
                                              (String) columns.get(SpanAttachedEventRecord.RELATED_TRACE_ID))
                               .thenComparing(columns -> (String) columns.get(SpanAttachedEventRecord.TRACE_SPAN_ID)));
         return events;
-    }
-
-    private static Set<String> idsOf(final List<? extends StorageData> records) {
-        final Set<String> ids = new HashSet<>();
-        for (final StorageData record : records) {
-            ids.add(record.id().build());
-        }
-        return ids;
     }
 }

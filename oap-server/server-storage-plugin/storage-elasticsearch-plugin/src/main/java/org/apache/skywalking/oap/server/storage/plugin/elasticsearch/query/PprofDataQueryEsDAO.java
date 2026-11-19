@@ -19,7 +19,6 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,10 +27,10 @@ import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
 import org.apache.skywalking.library.elasticsearch.requests.search.SearchBuilder;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
-import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofProfilingDataRecord;
 import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofDataQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
+import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchScroller;
 import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.ElasticSearchConverter;
@@ -39,10 +38,20 @@ import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.EsDAO;
 import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base.IndexController;
 
 public class PprofDataQueryEsDAO extends EsDAO implements IPprofDataQueryDAO {
+    /**
+     * An upload is a frame tree of up to megabytes, which a hit's source holds as Base64, and the client refuses a
+     * response larger than its limit, Armeria's default of 10 MiB. A page of one upload is as small as a read of that
+     * upload can be.
+     */
+    private static final int UPLOADS_PER_PAGE = 1;
+
     public PprofDataQueryEsDAO(ElasticSearchClient client) {
         super(client);
     }
 
+    /**
+     * Reads every upload of the task, as the analysis merges all of them, scrolling one upload per page.
+     */
     @Override
     public List<PprofProfilingDataRecord> getByTaskIdAndInstances(String taskId, List<String> instanceIds) {
         if (StringUtil.isBlank(taskId) || CollectionUtils.isEmpty(instanceIds)) {
@@ -59,13 +68,15 @@ public class PprofDataQueryEsDAO extends EsDAO implements IPprofDataQueryDAO {
         }
         query.must(Query.term(PprofProfilingDataRecord.TASK_ID, taskId));
         query.must(Query.terms(PprofProfilingDataRecord.INSTANCE_ID, instanceIds));
-        final SearchBuilder search = Search.builder().query(query);
-        final SearchResponse response = getClient().search(index, search.build());
-        List<PprofProfilingDataRecord> dataRecords = Lists.newArrayList();
-        for (SearchHit searchHit : response.getHits().getHits()) {
-            dataRecords.add(parseData(searchHit));
-        }
-        return dataRecords;
+        final SearchBuilder search = Search.builder().query(query).size(UPLOADS_PER_PAGE);
+
+        return ElasticSearchScroller.<PprofProfilingDataRecord>builder()
+            .client(getClient())
+            .search(search.build())
+            .index(index)
+            .resultConverter(this::parseData)
+            .build()
+            .scroll();
     }
 
     private PprofProfilingDataRecord parseData(SearchHit data) {

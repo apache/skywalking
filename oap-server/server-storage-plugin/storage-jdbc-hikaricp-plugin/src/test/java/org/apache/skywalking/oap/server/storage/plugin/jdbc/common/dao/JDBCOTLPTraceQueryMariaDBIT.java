@@ -16,22 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query.zipkin;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ElasticSearchQueryITSupport;
-import org.junit.jupiter.api.Tag;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Tag("slow")
-@Tag("elastic-it")
 @Testcontainers
-public class ZipkinQueryEsDAOOpenSearch2IT extends ZipkinQueryEsDAOITBase {
+public class JDBCOTLPTraceQueryMariaDBIT extends JDBCOTLPTraceQueryITBase {
     @Container
-    private static final ElasticsearchContainer SERVER = ElasticSearchQueryITSupport.openSearch("2.8.0");
+    private static final MariaDBContainer<?> SERVER = JDBCQueryITSupport.mariaDB();
 
-    public ZipkinQueryEsDAOOpenSearch2IT() {
-        super(SERVER, ElasticSearchQueryITSupport.Mode.DEFAULT);
+    public JDBCOTLPTraceQueryMariaDBIT() {
+        super(SERVER, JDBCQueryITSupport.Target.MARIADB);
     }
 }

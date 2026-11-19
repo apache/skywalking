@@ -19,6 +19,7 @@
 package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.base;
 
 import java.util.Collections;
+import org.apache.skywalking.library.elasticsearch.response.IndexTemplate;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
@@ -35,6 +36,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
@@ -62,5 +65,29 @@ class StorageEsInstallerTest {
             IndexController.LogicIndicesRegister.getPhysicalTableName(metric)
         );
         verifyNoInteractions(client);
+    }
+
+    /**
+     * A legacy template (Elasticsearch before 7.8) keeps a negative order, so one stored with 0 is updated to the
+     * configured -1. A composable template keeps a negative order as priority 0, which is then up to date.
+     */
+    @Test
+    void comparesALegacyTemplateOrderAsConfiguredAndAComposablePriorityAtLeastZero() {
+        assertTrue(StorageEsInstaller.hasConfiguredOrder(template(-1, false), -1));
+        assertFalse(StorageEsInstaller.hasConfiguredOrder(template(0, false), -1));
+        assertFalse(StorageEsInstaller.hasConfiguredOrder(template(0, false), 3));
+        assertTrue(StorageEsInstaller.hasConfiguredOrder(template(3, false), 3));
+
+        assertTrue(StorageEsInstaller.hasConfiguredOrder(template(0, true), -1));
+        assertTrue(StorageEsInstaller.hasConfiguredOrder(template(0, true), 0));
+        assertFalse(StorageEsInstaller.hasConfiguredOrder(template(5, true), 0));
+        assertTrue(StorageEsInstaller.hasConfiguredOrder(template(5, true), 5));
+    }
+
+    private static IndexTemplate template(final long order, final boolean composable) {
+        final IndexTemplate template = new IndexTemplate();
+        template.setOrder(order);
+        template.setComposable(composable);
+        return template;
     }
 }

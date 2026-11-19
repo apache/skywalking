@@ -16,22 +16,18 @@
  *
  */
 
-package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
+package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
-import org.apache.skywalking.oap.server.storage.plugin.elasticsearch.ElasticSearchQueryITSupport;
-import org.junit.jupiter.api.Tag;
-import org.testcontainers.elasticsearch.ElasticsearchContainer;
+import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-@Tag("slow")
-@Tag("elastic-it")
 @Testcontainers
-public class SpanAttachedEventQueryElasticsearch9ShardedIT extends SpanAttachedEventQueryITBase {
+public class JDBCHierarchyQueryMariaDBIT extends JDBCHierarchyQueryITBase {
     @Container
-    private static final ElasticsearchContainer SERVER = ElasticSearchQueryITSupport.elasticsearch("9.3.0");
+    private static final MariaDBContainer<?> SERVER = JDBCQueryITSupport.mariaDB();
 
-    public SpanAttachedEventQueryElasticsearch9ShardedIT() {
-        super(SERVER, ElasticSearchQueryITSupport.Mode.LOGIC_SHARDING_AND_CUSTOM_ROUTING);
+    public JDBCHierarchyQueryMariaDBIT() {
+        super(SERVER, JDBCQueryITSupport.Target.MARIADB);
     }
 }

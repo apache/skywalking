@@ -211,7 +211,7 @@ public class AlarmQueryEsDAO extends EsDAO implements IAlarmQueryDAO {
         }
         query.must(Query.terms(AlarmRecoveryRecord.UUID, uuids));
         final SearchBuilder search =
-                Search.builder().query(query);
+                Search.builder().query(query).size(uuids.size());
         SearchResponse response = getClient().search(index, search.build());
         for (SearchHit searchHit : response.getHits().getHits()) {
             AlarmRecoveryRecord.Builder builder = new AlarmRecoveryRecord.Builder();

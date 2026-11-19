@@ -68,6 +68,7 @@ final class V7TemplateFactory implements TemplateFactory {
                         .put("aliases", aliases)
                         .put("settings", settings)
                         .put("mappings", mappings)
+                        .put("order", order)
                         .build();
 
         final byte[] content = version.codec().encode(template);

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.library.elasticsearch.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,15 @@ import lombok.Data;
 @Data
 public final class IndexTemplate {
     private String name;
-    private int order;
+    /**
+     * A legacy template's order, or a composable template's priority, which cannot be negative.
+     */
+    private long order;
+    /**
+     * Whether this is a composable template (Elasticsearch 7.8 and later, and OpenSearch) rather than a legacy one.
+     */
+    @JsonIgnore
+    private boolean composable;
     @JsonProperty("index_patterns")
     private List<String> indexPatterns;
     private Map<String, Object> settings;

@@ -203,6 +203,7 @@ public class EBPFProfilingMutationService implements Service {
         record.setTargetType(EBPFProfilingTargetType.NETWORK.value());
         record.setCreateTime(now.getTimeInMillis());
         record.setLastUpdateTime(now.getTimeInMillis());
+        record.setTimeBucket(TimeBucket.getMinuteTimeBucket(now.getTimeInMillis()));
         record.setExtensionConfigJson(Const.EMPTY_STRING);
         NoneStreamProcessor.getInstance().in(record);
         return buildKeepProfilingSuccess();

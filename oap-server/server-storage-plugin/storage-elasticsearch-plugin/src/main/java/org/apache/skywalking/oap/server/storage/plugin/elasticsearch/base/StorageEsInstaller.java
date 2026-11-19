@@ -140,11 +140,21 @@ public class StorageEsInstaller extends ModelInstaller {
                 installInfo.setAllFieldsExist(containsMapping);
                 boolean containsSetting = structures.compareIndexSetting(tableName, createSetting(model));
                 installInfo.setAllIndexSettingsExist(containsSetting);
-                exist = containsMapping && containsSetting;
+                exist = containsMapping && containsSetting
+                    && hasConfiguredOrder(template.get(), config.getIndexTemplateOrder());
             }
         }
         installInfo.setAllExist(exist);
         return installInfo;
+    }
+
+    /**
+     * A template stored with another order (a composable template's priority) loses to, or beats, the templates the
+     * operator ordered it against, so it is updated like a template missing a column. A composable template stores a
+     * negative order as priority 0; a legacy template keeps it.
+     */
+    static boolean hasConfiguredOrder(final IndexTemplate template, final int order) {
+        return template.getOrder() == (template.isComposable() ? Math.max(0, order) : order);
     }
 
     /**
@@ -213,7 +223,10 @@ public class StorageEsInstaller extends ModelInstaller {
             boolean shouldUpdateTemplate = !esClient.isExistsTemplate(tableName);
             shouldUpdateTemplate = shouldUpdateTemplate
                 || !structures.containsMapping(tableName, mapping)
-                || !structures.compareIndexSetting(tableName, settings);
+                || !structures.compareIndexSetting(tableName, settings)
+                || !esClient.getTemplate(tableName)
+                            .map(template -> hasConfiguredOrder(template, config.getIndexTemplateOrder()))
+                            .orElse(false);
             if (shouldUpdateTemplate) {
                 structures.putStructure(tableName, mapping, settings);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(

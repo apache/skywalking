@@ -114,18 +114,20 @@ public class ProcessTopologyBuilder {
 
         int appendCallCount = 0;
         for (Call.CallDetail clientCall : clientCalls) {
-            if (!callMap.containsKey(clientCall.getId())) {
-                Call call = new Call();
+            Call call = callMap.get(clientCall.getId());
+            if (call == null) {
+                call = new Call();
 
                 callMap.put(clientCall.getId(), call);
                 call.setSource(clientCall.getSource());
                 call.setTarget(clientCall.getTarget());
                 call.setId(clientCall.getId());
                 call.addDetectPoint(DetectPoint.CLIENT);
-                call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
                 calls.add(call);
                 appendCallCount++;
             }
+            // The storage returns one call per component the relation named in the range.
+            call.addSourceComponent(componentLibraryCatalogService.getComponentName(clientCall.getComponentId()));
         }
 
         // adding server side call

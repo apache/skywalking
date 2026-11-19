@@ -400,8 +400,12 @@ public class MetadataQueryEsDAO extends EsDAO implements IMetadataQueryDAO {
     public Process getProcess(String processId) {
         final String index =
             IndexController.LogicIndicesRegister.getPhysicalTableName(ProcessTraffic.INDEX_NAME);
+        String id = processId;
+        if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
+            id = IndexController.INSTANCE.generateDocId(ProcessTraffic.INDEX_NAME, processId);
+        }
         final BoolQueryBuilder query = Query.bool()
-                                            .must(Query.term("_id", processId));
+                                            .must(Query.term("_id", id));
         if (IndexController.LogicIndicesRegister.isMergedTable(ProcessTraffic.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, ProcessTraffic.INDEX_NAME));
         }

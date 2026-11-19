@@ -32,6 +32,7 @@ import org.apache.skywalking.library.elasticsearch.ElasticSearchVersion;
 import org.apache.skywalking.library.elasticsearch.requests.IndexRequest;
 import org.apache.skywalking.library.elasticsearch.requests.UpdateRequest;
 import org.apache.skywalking.library.elasticsearch.requests.factory.DocumentFactory;
+import org.apache.skywalking.library.elasticsearch.requests.factory.PathSegments;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -54,7 +55,7 @@ final class V6DocumentFactory implements DocumentFactory {
                           .head("/{index}/{type}/{id}")
                           .pathParam("index", index)
                           .pathParam("type", type)
-                          .pathParam("id", id)
+                          .pathParam("id", PathSegments.escape(id))
                           .build();
     }
 
@@ -68,7 +69,7 @@ final class V6DocumentFactory implements DocumentFactory {
                           .get("/{index}/{type}/{id}")
                           .pathParam("index", index)
                           .pathParam("type", type)
-                          .pathParam("id", id)
+                          .pathParam("id", PathSegments.escape(id))
                           .build();
     }
 
@@ -141,7 +142,7 @@ final class V6DocumentFactory implements DocumentFactory {
         builder.put("/{index}/{type}/{id}")
                .pathParam("index", index)
                .pathParam("type", type)
-               .pathParam("id", id)
+               .pathParam("id", PathSegments.escape(id))
                .content(MediaType.JSON, content);
 
         return builder.build();
@@ -171,7 +172,7 @@ final class V6DocumentFactory implements DocumentFactory {
         builder.post("/{index}/{type}/{id}/_update")
                .pathParam("index", index)
                .pathParam("type", type)
-               .pathParam("id", id)
+               .pathParam("id", PathSegments.escape(id))
                .content(MediaType.JSON, content);
 
         return builder.build();
@@ -214,7 +215,7 @@ final class V6DocumentFactory implements DocumentFactory {
             .delete("/{index}/{type}/{id}")
             .pathParam("index", index)
             .pathParam("type", type)
-            .pathParam("id", id)
+            .pathParam("id", PathSegments.escape(id))
             .build();
     }
 }

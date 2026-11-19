@@ -19,8 +19,10 @@
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
 import com.google.gson.Gson;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.ToLongFunction;
@@ -29,22 +31,41 @@ import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerMutationService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.AsyncProfilerQueryService;
+import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profiling.asyncprofiler.storage.AsyncProfilerTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTargetType;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTaskRecord;
 import org.apache.skywalking.oap.server.core.profiling.ebpf.storage.EBPFProfilingTriggerType;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofMutationService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.PprofQueryService;
+import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profiling.pprof.storage.PprofTaskRecord;
+import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskLogRecord;
 import org.apache.skywalking.oap.server.core.profiling.trace.ProfileTaskRecord;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerEventType;
 import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTask;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskCreationType;
+import org.apache.skywalking.oap.server.core.query.type.AsyncProfilerTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.query.type.EBPFProfilingTaskContinuousProfiling;
 import org.apache.skywalking.oap.server.core.query.type.PprofEventType;
 import org.apache.skywalking.oap.server.core.query.type.PprofTask;
+import org.apache.skywalking.oap.server.core.query.type.PprofTaskCreationType;
+import org.apache.skywalking.oap.server.core.query.type.PprofTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.query.type.ProfileTask;
+import org.apache.skywalking.oap.server.core.query.type.ProfileTaskLogOperationType;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
+import org.apache.skywalking.oap.server.core.storage.StorageModule;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
+import org.apache.skywalking.oap.server.core.storage.profiling.asyncprofiler.IAsyncProfilerTaskQueryDAO;
+import org.apache.skywalking.oap.server.core.storage.profiling.pprof.IPprofTaskQueryDAO;
+import org.apache.skywalking.oap.server.library.module.ModuleManager;
+import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
+import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
+import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,16 +74,33 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import static org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao.JDBCQueryITSupport.MIDNIGHT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
- * Reads profiling tasks the way the profiling services and the agent task caches do. OAP writes a task into the
- * table of the day it creates it, so the tasks created before midnight are in yesterday's table and the others in
- * today's. A subclass names the server.
+ * Reads profiling tasks and their logs the way the profiling services, the mutation services and the agent task
+ * caches do: task lists, a task by id, and task logs. OAP writes a task into the table of the day it creates it, so
+ * the tasks created before midnight are in yesterday's table and the others in today's; a log goes into the table of
+ * the day it is reported, and the logs read lie on both sides of midnight. Every filter has a near miss: a task of
+ * another service or endpoint, a task created or starting just outside a time range, a log of another task. A
+ * subclass names the server.
  */
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 abstract class JDBCProfilingTaskQueryITBase {
     private static final String SERVICE_ID = IDManager.ServiceID.buildId("checkout", true);
     private static final String INSTANCE_ID = IDManager.ServiceInstanceID.buildId(SERVICE_ID, "checkout-1");
+    private static final String OTHER_SERVICE_ID = IDManager.ServiceID.buildId("payment", true);
+    private static final String OTHER_INSTANCE_ID = IDManager.ServiceInstanceID.buildId(SERVICE_ID, "checkout-2");
+    /** When the other service's async-profiler and pprof task was created, in minutes from midnight. */
+    private static final int OTHER_SERVICE_CREATED_MINUTE = -15;
+    /** A service with two async-profiler and two pprof tasks created in the same minute, half a minute apart. */
+    private static final String SAME_MINUTE_SERVICE_ID = IDManager.ServiceID.buildId("inventory", true);
+    private static final int SAME_MINUTE = 5;
+    /** A service whose tasks the creation tests write as running now. */
+    private static final String RUNNING_SERVICE_ID = IDManager.ServiceID.buildId("shipping", true);
+    /** The async-profiler and pprof task whose logs are read, with a log on each side of midnight. */
+    private static final int READ_TASK_MINUTE = -10;
     private static final int TRACE_PROFILING_MINUTES = 10;
     /** When each async-profiler and each pprof task was created, in minutes from midnight. */
     private static final int[] CREATED_MINUTES = {-30, -20, -10, 10, 20};
@@ -79,6 +117,14 @@ abstract class JDBCProfilingTaskQueryITBase {
     private ProfileTaskRecord scheduledForTomorrow;
     private JDBCProfileTaskQueryDAO traceProfilingDAO;
     private Duration aroundMidnight;
+    /** The other service's task, started five minutes before midnight and finished after it. */
+    private ProfileTaskRecord otherServiceTask;
+    private Model traceProfilingLogModel;
+    private Model asyncProfilerModel;
+    private Model pprofModel;
+    private final List<ProfileTaskLogRecord> traceProfilingLogs = new ArrayList<>();
+    private final List<AsyncProfilerTaskLogRecord> asyncProfilerLogs = new ArrayList<>();
+    private final List<PprofTaskLogRecord> pprofLogs = new ArrayList<>();
 
     JDBCProfilingTaskQueryITBase(final JdbcDatabaseContainer<?> server, final JDBCQueryITSupport.Target target) {
         this.server = server;
@@ -112,6 +158,7 @@ abstract class JDBCProfilingTaskQueryITBase {
                 asyncProfiler, new AsyncProfilerTaskRecord.Builder(), asyncProfilerTask(createTime), createTime);
             support.writeNoneStream(pprof, new PprofTaskRecord.Builder(), pprofTask(createTime), createTime);
         }
+        writeOtherServiceTasksAndLogs(traceProfiling, asyncProfiler, pprof);
 
         final Model ebpf = support.install(
             EBPFProfilingTaskRecord.class, DefaultScopeDefine.EBPF_PROFILING_TASK, EBPFProfilingTaskRecord.INDEX_NAME,
@@ -124,6 +171,62 @@ abstract class JDBCProfilingTaskQueryITBase {
 
         aroundMidnight = JDBCQueryITSupport.duration(
             MIDNIGHT - TimeUnit.HOURS.toMillis(1), MIDNIGHT + TimeUnit.HOURS.toMillis(1), Step.MINUTE);
+    }
+
+    /**
+     * A task of another service, started five minutes before midnight, and the logs of the tasks: the other
+     * service's task is notified before midnight and finishes after it, the task started today is notified to two
+     * instances. The async-profiler and pprof task read has a log on each side of midnight, and the tasks before
+     * and after it have logs of the same instance.
+     */
+    private void writeOtherServiceTasksAndLogs(final Model traceProfiling, final Model asyncProfiler,
+                                               final Model pprof) throws Exception {
+        asyncProfilerModel = asyncProfiler;
+        pprofModel = pprof;
+        otherServiceTask = traceProfilingTask(
+            OTHER_SERVICE_ID, "/checkout", MIDNIGHT - TimeUnit.MINUTES.toMillis(5),
+            MIDNIGHT - TimeUnit.MINUTES.toMillis(5));
+        support.writeNoneStream(
+            traceProfiling, new ProfileTaskRecord.Builder(), otherServiceTask, otherServiceTask.getCreateTime());
+        final long otherCreateTime = createTime(OTHER_SERVICE_CREATED_MINUTE);
+        support.writeNoneStream(asyncProfiler, new AsyncProfilerTaskRecord.Builder(),
+                                asyncProfilerTask(OTHER_SERVICE_ID, otherCreateTime), otherCreateTime);
+        support.writeNoneStream(
+            pprof, new PprofTaskRecord.Builder(), pprofTask(OTHER_SERVICE_ID, otherCreateTime), otherCreateTime);
+        for (final long createTime : sameMinuteCreateTimes()) {
+            support.writeNoneStream(asyncProfiler, new AsyncProfilerTaskRecord.Builder(),
+                                    asyncProfilerTask(SAME_MINUTE_SERVICE_ID, createTime), createTime);
+            support.writeNoneStream(
+                pprof, new PprofTaskRecord.Builder(), pprofTask(SAME_MINUTE_SERVICE_ID, createTime), createTime);
+        }
+
+        traceProfilingLogs.add(traceProfilingLog(otherServiceTask, INSTANCE_ID, ProfileTaskLogOperationType.NOTIFIED,
+                                                 createTime(-4)));
+        traceProfilingLogs.add(traceProfilingLog(otherServiceTask, INSTANCE_ID,
+                                                 ProfileTaskLogOperationType.EXECUTION_FINISHED, createTime(6)));
+        traceProfilingLogs.add(traceProfilingLog(startedToday, INSTANCE_ID, ProfileTaskLogOperationType.NOTIFIED,
+                                                 MIDNIGHT + 70_000L));
+        traceProfilingLogs.add(traceProfilingLog(startedToday, OTHER_INSTANCE_ID,
+                                                 ProfileTaskLogOperationType.NOTIFIED, MIDNIGHT + 80_000L));
+        traceProfilingLogModel = support.install(
+            ProfileTaskLogRecord.class, DefaultScopeDefine.PROFILE_TASK_LOG, ProfileTaskLogRecord.INDEX_NAME,
+            DownSampling.Second);
+        support.writeRecords(traceProfilingLogModel, new ProfileTaskLogRecord.Builder(), traceProfilingLogs);
+
+        // Each log: the minute its task was created, the minute it is reported, its operation type.
+        for (final int[] log : new int[][] {
+            {READ_TASK_MINUTE, -9, 1}, {READ_TASK_MINUTE, 1, 2}, {-20, -19, 1}, {-20, -14, 4}, {10, 11, 1}}) {
+            asyncProfilerLogs.add(asyncProfilerLog(taskId(log[0]), createTime(log[1]), log[2]));
+            pprofLogs.add(pprofLog(taskId(log[0]), createTime(log[1]), log[2]));
+        }
+        support.writeRecords(
+            support.install(AsyncProfilerTaskLogRecord.class, DefaultScopeDefine.ASYNC_PROFILER_TASK_LOG,
+                            AsyncProfilerTaskLogRecord.INDEX_NAME, DownSampling.Second),
+            new AsyncProfilerTaskLogRecord.Builder(), asyncProfilerLogs);
+        support.writeRecords(
+            support.install(PprofTaskLogRecord.class, DefaultScopeDefine.PPROF_TASK_LOG, PprofTaskLogRecord.INDEX_NAME,
+                            DownSampling.Second),
+            new PprofTaskLogRecord.Builder(), pprofLogs);
     }
 
     @AfterAll
@@ -220,6 +323,209 @@ abstract class JDBCProfilingTaskQueryITBase {
                                              EBPFProfilingTriggerType.CONTINUOUS_PROFILING, triggeredSince, 0));
     }
 
+    @Test
+    public void listsTheTraceProfilingTasksOfAnEndpoint() {
+        assertEquals(ids(scheduledForTomorrow, scheduledForToday),
+                     ids(traceProfilingDAO.getTaskList(SERVICE_ID, "/checkout", null, null, null)));
+    }
+
+    /**
+     * The agent task cache reads the tasks of every service starting within a window of minute buckets, both ends
+     * included.
+     */
+    @Test
+    public void readsTheTraceProfilingTasksOfEveryServiceStartingWithinAWindow() {
+        final long first = otherServiceTask.getStartTime();
+        final long last = startedToday.getStartTime();
+        assertEquals(describe(startedToday, otherServiceTask), describe(traceProfilingDAO.getTaskList(
+            null, null, TimeBucket.getMinuteTimeBucket(first), TimeBucket.getMinuteTimeBucket(last), null)));
+        assertEquals(Collections.emptyList(), traceProfilingDAO.getTaskList(
+            null, null, TimeBucket.getMinuteTimeBucket(first + 60_000L), TimeBucket.getMinuteTimeBucket(last - 60_000L),
+            null));
+    }
+
+    /**
+     * The analysis reads a task by id: one created yesterday is in yesterday's table, though it starts today.
+     */
+    @Test
+    public void readsATraceProfilingTaskById() {
+        assertEquals(describe(scheduledForToday),
+                     describe(Collections.singletonList(traceProfilingDAO.getById(scheduledForToday.getTaskId()))));
+        assertEquals(describe(scheduledForTomorrow), describe(
+            Collections.singletonList(traceProfilingDAO.getById(scheduledForTomorrow.getTaskId()))));
+        assertNull(traceProfilingDAO.getById(MIDNIGHT + Const.ID_CONNECTOR + SERVICE_ID));
+        assertNull(traceProfilingDAO.getById(""));
+    }
+
+    /**
+     * The trace-profiling service reads the logs of every task and matches them to the tasks it lists.
+     */
+    @Test
+    public void readsTheLogsOfEveryTraceProfilingTaskNewestFirst() throws Exception {
+        final JDBCProfileTaskLogQueryDAO dao =
+            new JDBCProfileTaskLogQueryDAO(support.getClient(), support.getTableHelper());
+        final List<String> expected = traceProfilingLogs.stream()
+            .sorted(Comparator.comparingLong(ProfileTaskLogRecord::getOperationTime).reversed())
+            .map(log -> String.join(
+                "|", TableHelper.generateId(traceProfilingLogModel, log.id().build()), log.getTaskId(),
+                log.getInstanceId(), ProfileTaskLogOperationType.parse(log.getOperationType()).name(),
+                String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList());
+        assertEquals(expected, dao.getTaskLogList().stream()
+            .map(log -> String.join("|", log.getId(), log.getTaskId(), log.getInstanceId(),
+                                    log.getOperationType().name(), String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList()));
+    }
+
+    /**
+     * The task list of a duration bounds the tasks' second buckets, both ends included; the agent task cache reads
+     * the tasks of every service; creating a task checks the newest task of the service created up to now.
+     */
+    @Test
+    public void listsTheAsyncProfilerTasksCreatedWithinADuration() throws Exception {
+        final JDBCAsyncProfilerTaskQueryDAO dao =
+            new JDBCAsyncProfilerTaskQueryDAO(support.getClient(), support.getTableHelper());
+        assertEquals(describeAsyncProfilerTasks(SERVICE_ID, 10, -10, -20), describeAsyncProfilerTasks(
+            dao.getTaskList(SERVICE_ID, secondBucket(-20, 0), secondBucket(10, 0), null)));
+        assertEquals(describeAsyncProfilerTasks(SERVICE_ID, -10), describeAsyncProfilerTasks(
+            dao.getTaskList(SERVICE_ID, secondBucket(-20, 1), secondBucket(10, -1), null)));
+        final List<String> cached = new ArrayList<>(describeAsyncProfilerTasks(SERVICE_ID, -10));
+        cached.addAll(describeAsyncProfilerTasks(OTHER_SERVICE_ID, OTHER_SERVICE_CREATED_MINUTE));
+        cached.addAll(describeAsyncProfilerTasks(SERVICE_ID, -20));
+        assertEquals(cached, describeAsyncProfilerTasks(
+            dao.getTaskList(null, secondBucket(-20, 0), secondBucket(-10, 0), null)));
+        assertEquals(describeAsyncProfilerTasks(SERVICE_ID, -10), describeAsyncProfilerTasks(
+            dao.getTaskList(SERVICE_ID, null, secondBucket(10, -1), 1)));
+    }
+
+    @Test
+    public void readsAnAsyncProfilerTaskById() throws Exception {
+        final JDBCAsyncProfilerTaskQueryDAO dao =
+            new JDBCAsyncProfilerTaskQueryDAO(support.getClient(), support.getTableHelper());
+        assertEquals(describeAsyncProfilerTasks(SERVICE_ID, -30),
+                     describeAsyncProfilerTasks(Collections.singletonList(dao.getById(taskId(-30)))));
+        assertEquals(describeAsyncProfilerTasks(SERVICE_ID, 20),
+                     describeAsyncProfilerTasks(Collections.singletonList(dao.getById(taskId(20)))));
+        assertNull(dao.getById(taskId(0)));
+    }
+
+    /**
+     * A task log's id is the id of its task.
+     */
+    @Test
+    public void readsTheLogsOfOneAsyncProfilerTaskNewestFirst() throws Exception {
+        final JDBCAsyncProfilerTaskLogQueryDAO dao =
+            new JDBCAsyncProfilerTaskLogQueryDAO(support.getClient(), support.getTableHelper());
+        final String task = taskId(READ_TASK_MINUTE);
+        final List<String> expected = asyncProfilerLogs.stream()
+            .filter(log -> log.getTaskId().equals(task))
+            .sorted(Comparator.comparingLong(AsyncProfilerTaskLogRecord::getOperationTime).reversed())
+            .map(log -> String.join("|", log.getTaskId(), log.getInstanceId(),
+                                    AsyncProfilerTaskLogOperationType.parse(log.getOperationType()).name(),
+                                    String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList());
+        assertEquals(2, expected.size());
+        assertEquals(expected, dao.getTaskLogList(task).stream()
+            .map(log -> String.join("|", log.getId(), log.getInstanceId(), log.getOperationType().name(),
+                                    String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList()));
+        assertEquals(Collections.emptyList(), dao.getTaskLogList(taskId(0)));
+    }
+
+    @Test
+    public void listsThePprofTasksCreatedWithinADuration() throws Exception {
+        final JDBCPprofTaskQueryDAO dao = new JDBCPprofTaskQueryDAO(support.getClient(), support.getTableHelper());
+        assertEquals(describePprofTasks(SERVICE_ID, 10, -10, -20), describePprofTasks(
+            dao.getTaskList(SERVICE_ID, secondBucket(-20, 0), secondBucket(10, 0), null)));
+        assertEquals(describePprofTasks(SERVICE_ID, -10), describePprofTasks(
+            dao.getTaskList(SERVICE_ID, secondBucket(-20, 1), secondBucket(10, -1), null)));
+        final List<String> cached = new ArrayList<>(describePprofTasks(SERVICE_ID, -10));
+        cached.addAll(describePprofTasks(OTHER_SERVICE_ID, OTHER_SERVICE_CREATED_MINUTE));
+        cached.addAll(describePprofTasks(SERVICE_ID, -20));
+        assertEquals(cached, describePprofTasks(
+            dao.getTaskList(null, secondBucket(-20, 0), secondBucket(-10, 0), null)));
+        assertEquals(describePprofTasks(SERVICE_ID, -10, -20, -30), describePprofTasks(
+            dao.getTaskList(SERVICE_ID, null, secondBucket(10, -1), null)));
+    }
+
+    /**
+     * The GraphQL task lists accept a duration of seconds, and the query services bound the tasks by its seconds: of
+     * two tasks created in the same minute, a duration ending between them, with a limit of one, lists the first.
+     */
+    @Test
+    public void listsTheTasksOfADurationOfSecondsExactly() throws Exception {
+        final ModuleManager moduleManager = storageServices();
+        final AsyncProfilerQueryService async = new AsyncProfilerQueryService(moduleManager);
+        final PprofQueryService pprof = new PprofQueryService(moduleManager);
+        final long[] created = sameMinuteCreateTimes();
+        final long minuteStart = createTime(SAME_MINUTE);
+        final List<String> first = Collections.singletonList(created[0] + Const.ID_CONNECTOR + SAME_MINUTE_SERVICE_ID);
+        final List<String> both = Arrays.asList(created[1] + Const.ID_CONNECTOR + SAME_MINUTE_SERVICE_ID,
+                                                created[0] + Const.ID_CONNECTOR + SAME_MINUTE_SERVICE_ID);
+        final Duration endingBetween = JDBCQueryITSupport.duration(minuteStart, minuteStart + 30_000L, Step.SECOND);
+        assertEquals(first, asyncProfilerIds(async.queryTask(SAME_MINUTE_SERVICE_ID, endingBetween, 1)));
+        assertEquals(first, pprofIds(pprof.queryTask(SAME_MINUTE_SERVICE_ID, endingBetween, 1)));
+        final Duration onBoth = JDBCQueryITSupport.duration(created[0], created[1], Step.SECOND);
+        assertEquals(both, asyncProfilerIds(async.queryTask(SAME_MINUTE_SERVICE_ID, onBoth, null)));
+        assertEquals(both, pprofIds(pprof.queryTask(SAME_MINUTE_SERVICE_ID, onBoth, null)));
+        final Duration between = JDBCQueryITSupport.duration(created[0] + 1_000L, created[1] - 1_000L, Step.SECOND);
+        assertEquals(Collections.emptyList(), async.queryTask(SAME_MINUTE_SERVICE_ID, between, null));
+        assertEquals(Collections.emptyList(), pprof.queryTask(SAME_MINUTE_SERVICE_ID, between, null));
+    }
+
+    /**
+     * A task created ten seconds ago with the second bucket the mutation services write, as earlier versions wrote it
+     * too, runs: creating another task of the service is refused, as the check finds the running task by that bucket.
+     */
+    @Test
+    public void refusesASecondTaskOfAServiceWhileTheFirstRuns() throws Exception {
+        final long createTime = System.currentTimeMillis() - 10_000L;
+        support.writeNoneStream(asyncProfilerModel, new AsyncProfilerTaskRecord.Builder(),
+                                asyncProfilerTask(RUNNING_SERVICE_ID, createTime), createTime);
+        support.writeNoneStream(
+            pprofModel, new PprofTaskRecord.Builder(), pprofTask(RUNNING_SERVICE_ID, createTime), createTime);
+        final ModuleManager moduleManager = storageServices();
+        assertEquals(AsyncProfilerTaskCreationType.ALREADY_PROFILING_ERROR,
+                     new AsyncProfilerMutationService(moduleManager).createTask(
+                         RUNNING_SERVICE_ID, Collections.singletonList(INSTANCE_ID), 60,
+                         Collections.singletonList(AsyncProfilerEventType.CPU), "").getCode());
+        assertEquals(PprofTaskCreationType.ALREADY_PROFILING_ERROR,
+                     new PprofMutationService(moduleManager).createTask(
+                         RUNNING_SERVICE_ID, Collections.singletonList(INSTANCE_ID), 5, PprofEventType.CPU, 10
+                     ).getCode());
+    }
+
+    @Test
+    public void readsAPprofTaskById() throws Exception {
+        final JDBCPprofTaskQueryDAO dao = new JDBCPprofTaskQueryDAO(support.getClient(), support.getTableHelper());
+        assertEquals(describePprofTasks(SERVICE_ID, -30),
+                     describePprofTasks(Collections.singletonList(dao.getById(taskId(-30)))));
+        assertEquals(describePprofTasks(SERVICE_ID, 20),
+                     describePprofTasks(Collections.singletonList(dao.getById(taskId(20)))));
+        assertNull(dao.getById(taskId(0)));
+    }
+
+    @Test
+    public void readsTheLogsOfOnePprofTaskNewestFirst() throws Exception {
+        final JDBCPprofTaskLogQueryDAO dao =
+            new JDBCPprofTaskLogQueryDAO(support.getClient(), support.getTableHelper());
+        final String task = taskId(READ_TASK_MINUTE);
+        final List<String> expected = pprofLogs.stream()
+            .filter(log -> log.getTaskId().equals(task))
+            .sorted(Comparator.comparingLong(PprofTaskLogRecord::getOperationTime).reversed())
+            .map(log -> String.join("|", log.getTaskId(), log.getInstanceId(),
+                                    PprofTaskLogOperationType.parse(log.getOperationType()).name(),
+                                    String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList());
+        assertEquals(2, expected.size());
+        assertEquals(expected, dao.getTaskLogList(task).stream()
+            .map(log -> String.join("|", log.getId(), log.getInstanceId(), log.getOperationType().name(),
+                                    String.valueOf(log.getOperationTime())))
+            .collect(Collectors.toList()));
+        assertEquals(Collections.emptyList(), dao.getTaskLogList(taskId(0)));
+        assertEquals(Collections.emptyList(), dao.getTaskLogList(""));
+    }
+
     private List<ProfileTask> readAroundStart(final ProfileTaskRecord task) {
         final long start = task.getStartTime();
         return traceProfilingDAO.getTaskList(
@@ -244,9 +550,14 @@ abstract class JDBCProfilingTaskQueryITBase {
 
     private static ProfileTaskRecord traceProfilingTask(final String endpointName, final long createTime,
                                                         final long startTime) {
+        return traceProfilingTask(SERVICE_ID, endpointName, createTime, startTime);
+    }
+
+    private static ProfileTaskRecord traceProfilingTask(final String serviceId, final String endpointName,
+                                                        final long createTime, final long startTime) {
         final ProfileTaskRecord task = new ProfileTaskRecord();
-        task.setTaskId(createTime + Const.ID_CONNECTOR + SERVICE_ID);
-        task.setServiceId(SERVICE_ID);
+        task.setTaskId(createTime + Const.ID_CONNECTOR + serviceId);
+        task.setServiceId(serviceId);
         task.setEndpointName(endpointName);
         task.setStartTime(startTime);
         task.setDuration(TRACE_PROFILING_MINUTES);
@@ -259,21 +570,30 @@ abstract class JDBCProfilingTaskQueryITBase {
     }
 
     private static AsyncProfilerTaskRecord asyncProfilerTask(final long createTime) {
+        return asyncProfilerTask(SERVICE_ID, createTime);
+    }
+
+    private static AsyncProfilerTaskRecord asyncProfilerTask(final String serviceId, final long createTime) {
         final AsyncProfilerTaskRecord task = new AsyncProfilerTaskRecord();
-        task.setTaskId(createTime + Const.ID_CONNECTOR + SERVICE_ID);
-        task.setServiceId(SERVICE_ID);
+        task.setTaskId(createTime + Const.ID_CONNECTOR + serviceId);
+        task.setServiceId(serviceId);
         task.setServiceInstanceIdsFromList(Collections.singletonList(INSTANCE_ID));
         task.setDuration((int) TimeUnit.MINUTES.toSeconds(5));
         task.setEventsFromList(Collections.singletonList(AsyncProfilerEventType.CPU.toString()));
+        task.setExecArgs("interval=10ms");
         task.setCreateTime(createTime);
         task.setTimeBucket(TimeBucket.getRecordTimeBucket(createTime));
         return task;
     }
 
     private static PprofTaskRecord pprofTask(final long createTime) {
+        return pprofTask(SERVICE_ID, createTime);
+    }
+
+    private static PprofTaskRecord pprofTask(final String serviceId, final long createTime) {
         final PprofTaskRecord task = new PprofTaskRecord();
-        task.setTaskId(createTime + Const.ID_CONNECTOR + SERVICE_ID);
-        task.setServiceId(SERVICE_ID);
+        task.setTaskId(createTime + Const.ID_CONNECTOR + serviceId);
+        task.setServiceId(serviceId);
         task.setServiceInstanceIdsFromList(Collections.singletonList(INSTANCE_ID));
         task.setDuration(5);
         task.setEvents(PprofEventType.CPU.toString());
@@ -301,9 +621,157 @@ abstract class JDBCProfilingTaskQueryITBase {
         task.setTargetType(targetType.value());
         task.setCreateTime(time);
         task.setLastUpdateTime(time);
-        task.setTimeBucket(TimeBucket.getRecordTimeBucket(time));
+        task.setTimeBucket(TimeBucket.getMinuteTimeBucket(time));
         task.setContinuousProfilingJson(GSON.toJson(continuousProfiling));
         task.generateLogicalId();
         return task;
+    }
+
+    private static long createTime(final int minute) {
+        return MIDNIGHT + TimeUnit.MINUTES.toMillis(minute);
+    }
+
+    private static long[] sameMinuteCreateTimes() {
+        return new long[] {createTime(SAME_MINUTE) + 10_000L, createTime(SAME_MINUTE) + 40_000L};
+    }
+
+    private static List<String> asyncProfilerIds(final List<AsyncProfilerTask> tasks) {
+        return tasks.stream().map(AsyncProfilerTask::getId).collect(Collectors.toList());
+    }
+
+    private static List<String> pprofIds(final List<PprofTask> tasks) {
+        return tasks.stream().map(PprofTask::getId).collect(Collectors.toList());
+    }
+
+    /**
+     * Hands the profiling services this storage's task DAOs, as the storage provider registers them.
+     */
+    private ModuleManager storageServices() {
+        final ModuleManager moduleManager = mock(ModuleManager.class);
+        final ModuleProviderHolder provider = mock(ModuleProviderHolder.class);
+        final ModuleServiceHolder services = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(StorageModule.NAME)).thenReturn(provider);
+        when(provider.provider()).thenReturn(services);
+        when(services.getService(IAsyncProfilerTaskQueryDAO.class)).thenReturn(
+            new JDBCAsyncProfilerTaskQueryDAO(support.getClient(), support.getTableHelper()));
+        when(services.getService(IPprofTaskQueryDAO.class)).thenReturn(
+            new JDBCPprofTaskQueryDAO(support.getClient(), support.getTableHelper()));
+        return moduleManager;
+    }
+
+    private static long secondBucket(final int minute, final int seconds) {
+        return TimeBucket.getRecordTimeBucket(createTime(minute) + TimeUnit.SECONDS.toMillis(seconds));
+    }
+
+    /**
+     * The id the mutation services give a task of the service created at the minute.
+     */
+    private static String taskId(final int minute) {
+        return createTime(minute) + Const.ID_CONNECTOR + SERVICE_ID;
+    }
+
+    private static List<String> describe(final ProfileTaskRecord... tasks) {
+        return Arrays.stream(tasks)
+                     .map(task -> String.join(
+                         "|", task.getTaskId(), task.getServiceId(), task.getEndpointName(),
+                         String.valueOf(task.getStartTime()), String.valueOf(task.getCreateTime()),
+                         String.valueOf(task.getDuration()), String.valueOf(task.getMinDurationThreshold()),
+                         String.valueOf(task.getDumpPeriod()), String.valueOf(task.getMaxSamplingCount())))
+                     .collect(Collectors.toList());
+    }
+
+    private static List<String> describe(final List<ProfileTask> tasks) {
+        return tasks.stream()
+                    .map(task -> String.join(
+                        "|", task.getId(), task.getServiceId(), task.getEndpointName(),
+                        String.valueOf(task.getStartTime()), String.valueOf(task.getCreateTime()),
+                        String.valueOf(task.getDuration()), String.valueOf(task.getMinDurationThreshold()),
+                        String.valueOf(task.getDumpPeriod()), String.valueOf(task.getMaxSamplingCount())))
+                    .collect(Collectors.toList());
+    }
+
+    private static List<String> describeAsyncProfilerTasks(final String serviceId, final int... minutes) {
+        return describeAsyncProfilerTasks(Arrays.stream(minutes).mapToObj(minute -> {
+            final AsyncProfilerTaskRecord record = asyncProfilerTask(serviceId, createTime(minute));
+            return AsyncProfilerTask.builder()
+                                    .id(record.getTaskId())
+                                    .serviceId(record.getServiceId())
+                                    .serviceInstanceIds(Collections.singletonList(INSTANCE_ID))
+                                    .createTime(record.getCreateTime())
+                                    .events(Collections.singletonList(AsyncProfilerEventType.CPU))
+                                    .duration(record.getDuration())
+                                    .execArgs(record.getExecArgs())
+                                    .build();
+        }).collect(Collectors.toList()));
+    }
+
+    private static List<String> describeAsyncProfilerTasks(final List<AsyncProfilerTask> tasks) {
+        return tasks.stream()
+                    .map(task -> String.join(
+                        "|", task.getId(), task.getServiceId(), String.valueOf(task.getServiceInstanceIds()),
+                        String.valueOf(task.getCreateTime()), String.valueOf(task.getEvents()),
+                        String.valueOf(task.getDuration()), task.getExecArgs()))
+                    .collect(Collectors.toList());
+    }
+
+    private static List<String> describePprofTasks(final String serviceId, final int... minutes) {
+        return describePprofTasks(Arrays.stream(minutes).mapToObj(minute -> {
+            final PprofTaskRecord record = pprofTask(serviceId, createTime(minute));
+            return PprofTask.builder()
+                            .id(record.getTaskId())
+                            .serviceId(record.getServiceId())
+                            .serviceInstanceIds(Collections.singletonList(INSTANCE_ID))
+                            .createTime(record.getCreateTime())
+                            .events(PprofEventType.CPU)
+                            .duration(record.getDuration())
+                            .dumpPeriod(record.getDumpPeriod())
+                            .build();
+        }).collect(Collectors.toList()));
+    }
+
+    private static List<String> describePprofTasks(final List<PprofTask> tasks) {
+        return tasks.stream()
+                    .map(task -> String.join(
+                        "|", task.getId(), task.getServiceId(), String.valueOf(task.getServiceInstanceIds()),
+                        String.valueOf(task.getCreateTime()), String.valueOf(task.getEvents()),
+                        String.valueOf(task.getDuration()), String.valueOf(task.getDumpPeriod())))
+                    .collect(Collectors.toList());
+    }
+
+    private static ProfileTaskLogRecord traceProfilingLog(final ProfileTaskRecord task, final String instanceId,
+                                                          final ProfileTaskLogOperationType operationType,
+                                                          final long operationTime) {
+        final ProfileTaskLogRecord log = new ProfileTaskLogRecord();
+        log.setTaskId(task.getTaskId());
+        log.setInstanceId(instanceId);
+        log.setOperationType(operationType.getCode());
+        log.setOperationTime(operationTime);
+        log.setTimestamp(operationTime);
+        log.setTimeBucket(TimeBucket.getRecordTimeBucket(operationTime));
+        return log;
+    }
+
+    private static AsyncProfilerTaskLogRecord asyncProfilerLog(final String taskId, final long operationTime,
+                                                               final int operationType) {
+        final AsyncProfilerTaskLogRecord log = new AsyncProfilerTaskLogRecord();
+        log.setTaskId(taskId);
+        log.setInstanceId(INSTANCE_ID);
+        log.setOperationType(operationType);
+        log.setOperationTime(operationTime);
+        log.setTimestamp(operationTime);
+        log.setTimeBucket(TimeBucket.getRecordTimeBucket(operationTime));
+        return log;
+    }
+
+    private static PprofTaskLogRecord pprofLog(final String taskId, final long operationTime,
+                                               final int operationType) {
+        final PprofTaskLogRecord log = new PprofTaskLogRecord();
+        log.setTaskId(taskId);
+        log.setInstanceId(INSTANCE_ID);
+        log.setOperationType(operationType);
+        log.setOperationTime(operationTime);
+        log.setTimestamp(operationTime);
+        log.setTimeBucket(TimeBucket.getRecordTimeBucket(operationTime));
+        return log;
     }
 }
