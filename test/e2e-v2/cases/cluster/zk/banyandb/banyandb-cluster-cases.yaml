@@ -28,15 +28,42 @@
         curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/$NOW/100 > /dev/null;
         curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/$NOW/100 > /dev/null;
         sleep 10;
-        curl -s http://${oap1_host}:${oap1_1234} | grep remote_out_count{ | awk '{print $1}'
+        curl -s http://${oap1_host}:${oap1_1234} | grep -E '^(remote_out_count|remote_out_latency_count|remote_out_stream_inflight|remote_out_stream_block_seconds|remote_out_queue_used_percentage|remote_in_count|remote_in_latency_count|cluster_size)\{' | awk '{print $1}' | sort
       expected: ../../expected/cluster-up-oap1.yml
     - query: |
         NOW=$(( ($(date -u +%s) - 90000) * 1000 ));
         curl -s -XPOST http://${sender1_host}:${sender1_9093}/sendBatchMetrics/$NOW/100 > /dev/null;
         curl -s -XPOST http://${sender2_host}:${sender2_9093}/sendBatchMetrics/$NOW/100 > /dev/null;
-        sleep 5;
-        curl -s http://${oap2_host}:${oap2_1234} | grep remote_out_count{ | awk '{print $1}'
+        sleep 10;
+        curl -s http://${oap2_host}:${oap2_1234} | grep -E '^(remote_out_count|remote_out_latency_count|remote_out_stream_inflight|remote_out_stream_block_seconds|remote_out_queue_used_percentage|remote_in_count|remote_in_latency_count|cluster_size)\{' | awk '{print $1}' | sort
       expected: ../../expected/cluster-up-oap2.yml
+    - query: |
+        curl -s http://${oap1_host}:${oap1_1234} | awk '/^cluster_size\{/{printf "%.0f\n", $2}'
+      expected: ../../expected/cluster-size-value.yml
+    - query: |
+        curl -s http://${oap2_host}:${oap2_1234} | awk '/^cluster_size\{/{printf "%.0f\n", $2}'
+      expected: ../../expected/cluster-size-value.yml
+    - query: |
+        curl -s http://${oap1_host}:${oap1_1234} | awk '
+          /^remote_out_latency_count\{[^}]*self="Y"/{yc=$2}
+          /^remote_out_latency_count\{[^}]*self="N"/{nc=$2}
+          /^remote_out_count\{[^}]*self="N"/{no=$2}
+          /^remote_in_count\{/{ic=$2}
+          END {
+            if (yc+0 >= 1 && nc+0 >= 1 && no+0 >= 1 && ic+0 >= 1) print "ok"
+            else printf "fail self_lat=%s peer_out=%s peer_lat=%s in=%s\n", yc, no, nc, ic
+          }'
+      expected: ../../expected/remote-so11y-semantics.yml
+    - query: |
+        curl -s http://${oap2_host}:${oap2_1234} | awk '
+          /^remote_out_latency_count\{[^}]*self="Y"/{yc=$2}
+          /^remote_out_count\{[^}]*self="N"/{no=$2}
+          /^remote_in_count\{/{ic=$2}
+          END {
+            if (yc+0 >= 1 && no+0 >= 1 && ic+0 >= 1) print "ok"
+            else printf "fail self_lat=%s peer_out=%s in=%s\n", yc, no, ic
+          }'
+      expected: ../../expected/remote-so11y-semantics.yml
     # compute two recent, same-hour minute slots and send the FIRST batch (2 senders x 100 = 200) at T1.
     # T1 = 5 minutes ago (truncated to the minute); the :59 guard keeps T1 and T2 in the same hour/day.
     - query: |

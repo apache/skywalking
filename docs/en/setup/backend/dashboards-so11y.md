@@ -49,6 +49,17 @@ Self observability monitoring provides monitoring of the status and resources of
 | Count per minute | meter_oap_instance_alarm_http_delivery_count | Alarm hook deliveries by `hook_type` and `result` (Per Minute), including `gRPC` | oap self observability |
 | Count per minute | meter_oap_instance_alarm_http_delivery_status_count | HTTP alarm hook responses by `hook_type` and `status_class` (Per Minute) | oap self observability |
 | ms | meter_oap_instance_alarm_http_delivery_latency_percentile | Alarm hook delivery latency by `hook_type` (ms), including `gRPC` | oap self observability |
+| Count per minute | meter_oap_instance_remote_out_count | Cluster remote client push count by `dest` and `self` (Per Minute); peers: send attempts, `self=Y`: successful local fan-out | oap self observability |
+| Count per minute | meter_oap_instance_remote_out_error_count | Cluster remote client push errors by `dest` and `self` (Per Minute); peers: one per failed batch stream, refused enqueue or interrupted stream-slot wait, `self=Y`: one per failed push | oap self observability |
+| ms | meter_oap_instance_remote_out_latency_percentile | Cluster remote client push latency by `dest` and `self` (ms); peers: one sample per successful batch stream, `self=Y`: one per successful push | oap self observability |
+| Count | meter_oap_instance_remote_out_stream_inflight | In-flight remote gRPC streams by `dest` and `self` (peers only) | oap self observability |
+| Milliseconds per minute | meter_oap_instance_remote_out_stream_block_milliseconds | Time waiting for a free remote stream slot by `dest` and `self` (ms Per Minute, peers only) | oap self observability |
+| Count | meter_oap_instance_remote_out_queue_used_per_ten_thousand | Remote send queue used percentage ×100 by `dest` and `self` (peers only; divide by 100 for 0–100%) | oap self observability |
+| Count per minute | meter_oap_instance_remote_in_count | Cluster remote server receive count (Per Minute) | oap self observability |
+| Count per minute | meter_oap_instance_remote_in_error_count | Cluster remote server receive errors (Per Minute) | oap self observability |
+| Count per minute | meter_oap_instance_remote_in_target_not_found_count | Cluster remote server target-worker-not-found count (Per Minute) | oap self observability |
+| ms | meter_oap_instance_remote_in_latency_percentile | Cluster remote server receive latency (ms, includes discarded messages) | oap self observability |
+| Count | meter_oap_instance_cluster_size | OAP cluster size seen by the current node | oap self observability |
 
 ## Customizations
 You can customize your own metrics/expression/dashboard panel.

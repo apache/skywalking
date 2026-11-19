@@ -783,6 +783,130 @@ input:
         sw_backend_instance: test-oap
         hook_type: webhook
       value: 50.0
+  remote_out_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap1_11800
+        self: Y
+      value: 100.0
+  remote_out_error_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 100.0
+  remote_out_latency:
+    - labels:
+        le: '0.05'
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 10.0
+    - labels:
+        le: '0.1'
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 20.0
+    - labels:
+        le: '0.5'
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 30.0
+    - labels:
+        le: '1'
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 40.0
+    - labels:
+        le: '5'
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 50.0
+  remote_out_stream_inflight:
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 2.0
+  remote_out_stream_block_seconds:
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 100.0
+  remote_out_queue_used_percentage:
+    - labels:
+        service: test-service
+        host_name: test-host
+        dest: oap2_11800
+        self: N
+      value: 35.0
+  remote_in_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+      value: 100.0
+  remote_in_error_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+      value: 100.0
+  remote_in_target_not_found_count:
+    - labels:
+        service: test-service
+        host_name: test-host
+      value: 100.0
+  remote_in_latency:
+    # HistogramObservations are in seconds; histogram_percentile emits ms bucket labels (*1000).
+    - labels:
+        le: '0.05'
+        service: test-service
+        host_name: test-host
+      value: 10.0
+    - labels:
+        le: '0.1'
+        service: test-service
+        host_name: test-host
+      value: 20.0
+    - labels:
+        le: '0.25'
+        service: test-service
+        host_name: test-host
+      value: 30.0
+    - labels:
+        le: '0.5'
+        service: test-service
+        host_name: test-host
+      value: 40.0
+    - labels:
+        le: '1'
+        service: test-service
+        host_name: test-host
+      value: 50.0
+  cluster_size:
+    - labels:
+        service: test-service
+        host_name: test-host
+      value: 3.0
 expected:
   meter_oap_instance_cpu_percentage:
     entities:
@@ -1689,3 +1813,193 @@ expected:
           hook_type: webhook
           le: '5000'
         value: 25.0
+
+  meter_oap_instance_remote_out_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+        value: 50.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap1_11800
+          self: Y
+        value: 50.0
+  meter_oap_instance_remote_out_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+        value: 50.0
+  meter_oap_instance_remote_out_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+          le: '50'
+        value: 5.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+          le: '100'
+        value: 10.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+          le: '500'
+        value: 15.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+          le: '1000'
+        value: 20.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+          le: '5000'
+        value: 25.0
+  meter_oap_instance_remote_out_stream_inflight:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+        value: 2.0
+  meter_oap_instance_remote_out_stream_block_milliseconds:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+        value: 50000.0
+  meter_oap_instance_remote_out_queue_used_per_ten_thousand:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          dest: oap2_11800
+          self: N
+        value: 3500.0
+  meter_oap_instance_remote_in_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 50.0
+  meter_oap_instance_remote_in_error_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 50.0
+  meter_oap_instance_remote_in_target_not_found_count:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 50.0
+  meter_oap_instance_remote_in_latency_percentile:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: '50'
+        value: 5.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: '100'
+        value: 10.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: '250'
+        value: 15.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: '500'
+        value: 20.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          le: '1000'
+        value: 25.0
+  meter_oap_instance_cluster_size:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 3.0

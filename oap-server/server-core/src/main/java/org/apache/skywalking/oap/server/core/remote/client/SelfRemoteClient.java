@@ -24,18 +24,16 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.remote.data.StreamData;
 import org.apache.skywalking.oap.server.core.worker.IWorkerInstanceGetter;
+import org.apache.skywalking.oap.server.core.worker.RemoteHandleWorker;
 import org.apache.skywalking.oap.server.library.module.ModuleDefineHolder;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
-import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
-import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 @Slf4j
 public class SelfRemoteClient implements RemoteClient {
 
     private final Address address;
-    private CounterMetrics remoteOutCounter;
-    private CounterMetrics remoteOutErrorCounter;
+    private final RemoteClientMetrics metrics;
     private final IWorkerInstanceGetter workerInstanceGetter;
 
     public SelfRemoteClient(ModuleDefineHolder moduleDefineHolder, Address address) {
@@ -43,21 +41,10 @@ public class SelfRemoteClient implements RemoteClient {
         workerInstanceGetter = moduleDefineHolder.find(CoreModule.NAME)
                                                  .provider()
                                                  .getService(IWorkerInstanceGetter.class);
-        remoteOutCounter = moduleDefineHolder.find(TelemetryModule.NAME)
-                                             .provider()
-                                             .getService(MetricsCreator.class)
-                                             .createCounter("remote_out_count", "The number(client side) of inside remote inside aggregate rpc.", new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(address
-                                                 .toString(), "Y"));
-        remoteOutErrorCounter = moduleDefineHolder.find(TelemetryModule.NAME)
-                                                  .provider()
-                                                  .getService(MetricsCreator.class)
-                                                  .createCounter(
-                                                      "remote_out_error_count",
-                                                      "The error number(client side) of inside remote inside aggregate rpc.",
-                                                      new MetricsTag.Keys("dest", "self"), new MetricsTag.Values(
-                                                          address
-                                                              .toString(), "Y")
-                                                  );
+        final MetricsCreator metricsCreator = moduleDefineHolder.find(TelemetryModule.NAME)
+                                                                .provider()
+                                                                .getService(MetricsCreator.class);
+        this.metrics = RemoteClientMetrics.forSelf(metricsCreator, address);
     }
 
     @Override
@@ -76,11 +63,19 @@ public class SelfRemoteClient implements RemoteClient {
 
     @Override
     public void push(String nextWorkerName, StreamData streamData) {
+        final long startNanos = System.nanoTime();
         try {
-            workerInstanceGetter.get(nextWorkerName).getWorker().in(streamData);
-            remoteOutCounter.inc();
+            final RemoteHandleWorker handleWorker = workerInstanceGetter.get(nextWorkerName);
+            if (handleWorker == null) {
+                metrics.getErrorCounter().inc();
+                log.error("Self remote push discarded: worker {} not found.", nextWorkerName);
+                return;
+            }
+            handleWorker.getWorker().in(streamData);
+            metrics.getOutCounter().inc();
+            metrics.observeLatencySeconds((System.nanoTime() - startNanos) / 1_000_000_000d);
         } catch (Throwable t) {
-            remoteOutErrorCounter.inc();
+            metrics.getErrorCounter().inc();
             log.error(t.getMessage(), t);
         }
     }

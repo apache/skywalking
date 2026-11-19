@@ -13,5 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="Y",}
+cluster_size{sw_backend_instance="0.0.0.0_11800",}
+remote_in_count{sw_backend_instance="0.0.0.0_11800",}
+remote_in_latency_count{sw_backend_instance="0.0.0.0_11800",}
 remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}
+remote_out_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="Y",}
+remote_out_latency_count{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}
+remote_out_latency_count{sw_backend_instance="0.0.0.0_11800",dest="oap2_11800",self="Y",}
+remote_out_queue_used_percentage{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}
+remote_out_stream_block_seconds{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}
+remote_out_stream_inflight{sw_backend_instance="0.0.0.0_11800",dest="oap1_11800",self="N",}
