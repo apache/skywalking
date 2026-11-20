@@ -74,7 +74,7 @@ input:
         host_name: test-host
         cmd: get
         service_instance_id: test-instance
-      value: 100.0
+      value: 0.02
 expected:
   meter_redis_instance_uptime:
     entities:
@@ -198,7 +198,7 @@ expected:
           host_name: 'redis::test-host'
           cmd: get
           service_instance_id: test-instance
-        value: 0.0
+        value: 200.0
   meter_redis_instance_commands_duration_seconds_total_rate:
     entities:
       - scope: SERVICE_INSTANCE
@@ -210,4 +210,4 @@ expected:
           host_name: 'redis::test-host'
           cmd: get
           service_instance_id: test-instance
-        value: 25.0
+        value: 0.005
