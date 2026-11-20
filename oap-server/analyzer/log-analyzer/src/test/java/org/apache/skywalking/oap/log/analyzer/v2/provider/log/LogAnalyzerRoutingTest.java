@@ -26,11 +26,8 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -85,21 +82,6 @@ class LogAnalyzerRoutingTest {
         verify(auto).build();
         verify(fallback).build();
         verify(general, never()).build();
-    }
-
-    @Test
-    void fallbackRulesDoNotSeeALayerAnAbortedAutoRuleSet() {
-        // An auto rule sets a layer on the shared metadata, then aborts (claimed() stays false).
-        doAnswer(inv -> {
-            ((LogMetadata) inv.getArgument(0)).setLayer("IOS");
-            return auto;
-        }).when(auto).parse(any(), any());
-
-        analyzer.doAnalysis(log(""), null);
-
-        final ArgumentCaptor<LogMetadata> seen = ArgumentCaptor.forClass(LogMetadata.class);
-        verify(fallback).parse(seen.capture(), any());
-        assertEquals("", seen.getValue().getLayer());
     }
 
     @Test

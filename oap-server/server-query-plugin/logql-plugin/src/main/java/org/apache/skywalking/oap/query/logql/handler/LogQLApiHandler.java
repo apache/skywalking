@@ -56,7 +56,6 @@ import org.apache.skywalking.oap.query.logql.rt.result.LogQLParseResult;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.DurationUtils;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
@@ -92,7 +91,7 @@ public class LogQLApiHandler {
         labelsQueryRsp.setStatus(ResultStatus.SUCCESS);
 
         Duration duration = DurationUtils.timestamp2Duration(nano2Millis(start), nano2Millis(end));
-        tagAutoCompleteQueryService.queryTagAutocompleteKeys(TagType.LOG, duration)
+        tagAutoCompleteQueryService.queryTagAutocompleteKeys(TagAutoCompleteQueryService.logTagTypes(null), duration)
                                    .forEach(tag -> labelsQueryRsp.getData().add(tag));
 
         return successResponse(labelsQueryRsp);
@@ -108,7 +107,7 @@ public class LogQLApiHandler {
         response.setStatus(ResultStatus.SUCCESS);
 
         Duration duration = DurationUtils.timestamp2Duration(nano2Millis(start), nano2Millis(end));
-        tagAutoCompleteQueryService.queryTagAutocompleteValues(TagType.LOG, labelName, duration)
+        tagAutoCompleteQueryService.queryTagAutocompleteValues(TagAutoCompleteQueryService.logTagTypes(null), labelName, duration)
                                    .forEach(value -> response.getData().add(value));
 
         return successResponse(response);

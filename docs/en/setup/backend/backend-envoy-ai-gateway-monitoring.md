@@ -141,7 +141,8 @@ All MCP service-level metrics are also available per instance with `meter_envoy_
 ### Access Log Sampling
 
 Access logs are tagged with `ai_route_type` (`llm` or `mcp`) for filtering in the log query UI.
-The `ai_route_type` tag is searchable by default.
+The `ai_route_type` tag is searchable by default, through `receiver-otel.otlpLogSearchableTags`
+(`SW_OTEL_LOG_SEARCHABLE_TAG_KEYS`), since the access logs arrive over OTLP.
 
 **LLM route logs:**
 - **Error responses** (HTTP status >= 400) — always persisted.

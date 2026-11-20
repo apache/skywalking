@@ -21,7 +21,6 @@ package org.apache.skywalking.oap.server.core.source;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -35,7 +34,6 @@ import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
 import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
@@ -81,6 +79,15 @@ public class LogBuilder implements LALOutputBuilder {
 
     private int spanId = -1;
     private final List<String[]> lalTags = new ArrayList<>();
+    /**
+     * The searchable tag keys the log's receiver gave, in place of {@link #SEARCHABLE_TAG_KEYS}; null when it gave
+     * none.
+     */
+    private Collection<String> searchableTagKeys;
+    /**
+     * The autocomplete type the log's searchable tags are written under, from its receiver.
+     */
+    private TagType tagType = TagType.LOG;
 
     public void setSpanId(final String spanId) {
         if (spanId != null) {
@@ -127,8 +134,7 @@ public class LogBuilder implements LALOutputBuilder {
             final ConfigService configService = moduleManager.find(CoreModule.NAME)
                                                              .provider()
                                                              .getService(ConfigService.class);
-            SEARCHABLE_TAG_KEYS = Arrays.asList(
-                configService.getSearchableLogsTags().split(Const.COMMA));
+            SEARCHABLE_TAG_KEYS = ConfigService.splitTagKeys(configService.getSearchableLogsTags());
             INITIALIZED = true;
         }
     }
@@ -168,6 +174,8 @@ public class LogBuilder implements LALOutputBuilder {
         if (this.timestamp == 0) {
             this.timestamp = metadata.getTimestamp();
         }
+        this.searchableTagKeys = metadata.getSearchableTagKeys();
+        this.tagType = metadata.getTagType();
     }
 
     @Override
@@ -260,18 +268,19 @@ public class LogBuilder implements LALOutputBuilder {
 
     private Collection<Tag> collectSearchableTags() {
         final HashSet<Tag> result = new HashSet<>();
-        if (SEARCHABLE_TAG_KEYS != null) {
+        final Collection<String> keys = searchableTagKeys != null ? searchableTagKeys : SEARCHABLE_TAG_KEYS;
+        if (keys != null) {
             // Tags from original LogData
             if (logData != null) {
                 logData.getTags().getDataList().forEach(kv -> {
-                    if (SEARCHABLE_TAG_KEYS.contains(kv.getKey())) {
+                    if (keys.contains(kv.getKey())) {
                         addSearchableTag(result, kv.getKey(), kv.getValue());
                     }
                 });
             }
             // Tags added by LAL extractor
             for (final String[] kv : lalTags) {
-                if (SEARCHABLE_TAG_KEYS.contains(kv[0])) {
+                if (keys.contains(kv[0])) {
                     addSearchableTag(result, kv[0], kv[1]);
                 }
             }
@@ -408,7 +417,7 @@ public class LogBuilder implements LALOutputBuilder {
             final TagAutocomplete tagAutocomplete = new TagAutocomplete();
             tagAutocomplete.setTagKey(tag.getKey());
             tagAutocomplete.setTagValue(tag.getValue());
-            tagAutocomplete.setTagType(TagType.LOG);
+            tagAutocomplete.setTagType(tagType);
             tagAutocomplete.setTimeBucket(TimeBucket.getMinuteTimeBucket(log.getTimestamp()));
             sourceReceiver.receive(tagAutocomplete);
         });

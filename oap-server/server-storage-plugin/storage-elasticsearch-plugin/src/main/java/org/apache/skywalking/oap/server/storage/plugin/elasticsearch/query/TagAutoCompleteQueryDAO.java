@@ -20,10 +20,12 @@ package org.apache.skywalking.oap.server.storage.plugin.elasticsearch.query;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.skywalking.library.elasticsearch.requests.search.BoolQueryBuilder;
 import org.apache.skywalking.library.elasticsearch.requests.search.Query;
 import org.apache.skywalking.library.elasticsearch.requests.search.Search;
@@ -32,7 +34,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -49,13 +50,13 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     }
 
     @Override
-    public Set<String> queryTagAutocompleteKeys(final TagType tagType,
+    public Set<String> queryTagAutocompleteKeys(final List<String> tagTypes,
                                                 final int limit,
                                                 final Duration duration) throws IOException {
         // Tags combine records by day and es rolling index by day, need search the whole day
         // just use the time to locate the physical indexes and ignore time conditions.
         BoolQueryBuilder query = Query.bool();
-        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
+        query.must(Query.terms(TagAutocompleteData.TAG_TYPE, tagTypes));
         if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
@@ -86,11 +87,25 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     }
 
     @Override
-    public Set<String> queryTagAutocompleteValues(final TagType tagType, final String tagKey,
+    public Set<String> queryTagAutocompleteValues(final List<String> tagTypes, final String tagKey,
                                                   final int limit,
                                                   final Duration duration) throws IOException {
+        // One query per tag type: the values are read as documents, not aggregated (tag_value has no doc values),
+        // so in one query a value's document under each type would take the limit's places from other values.
+        // Most of the time there is only one tag type, so this is one query; only the logs' autocomplete without a
+        // type (LOG and OTLP_LOG) reads two.
+        final Set<String> tagValues = new LinkedHashSet<>();
+        for (final String tagType : tagTypes) {
+            tagValues.addAll(queryTagAutocompleteValues(tagType, tagKey, limit, duration));
+        }
+        return tagValues.stream().limit(limit).collect(Collectors.toCollection(LinkedHashSet::new));
+    }
+
+    private Set<String> queryTagAutocompleteValues(final String tagType, final String tagKey,
+                                                   final int limit,
+                                                   final Duration duration) throws IOException {
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
-        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
+        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType));
         if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }

@@ -25,7 +25,6 @@ import org.apache.skywalking.library.banyandb.v1.client.TimestampRange;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.TimeBucket;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBStorageClient;
@@ -36,6 +35,7 @@ import org.apache.skywalking.oap.server.storage.plugin.banyandb.stream.Condition
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static java.util.Objects.nonNull;
@@ -58,7 +58,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     }
 
     @Override
-    public Set<String> queryTagAutocompleteKeys(TagType tagType, int limit, Duration duration) throws IOException {
+    public Set<String> queryTagAutocompleteKeys(List<String> tagTypes, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
@@ -78,7 +78,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
                                           TAGS_KEY, Collections.emptySet(),
                                           range,
                                           Conditions.create()
-                                                  .eq(TagAutocompleteData.TAG_TYPE, tagType.name())
+                                                  .in(TagAutocompleteData.TAG_TYPE, tagTypes)
                                                   .groupBy(TagAutocompleteData.TAG_KEY)
                                                   .limit(limit));
 
@@ -94,7 +94,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
     }
 
     @Override
-    public Set<String> queryTagAutocompleteValues(TagType tagType, String tagKey, int limit, Duration duration) throws IOException {
+    public Set<String> queryTagAutocompleteValues(List<String> tagTypes, String tagKey, int limit, Duration duration) throws IOException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetricMetadata(TagAutocompleteData.INDEX_NAME, DownSampling.Minute);
         long startMinTB = 0;
         long endMinTB = 0;
@@ -114,7 +114,7 @@ public class BanyanDBTagAutocompleteQueryDAO extends AbstractBanyanDBDAO impleme
                                           TAGS_KV, Collections.emptySet(),
                                           range,
                                           Conditions.create()
-                                                  .eq(TagAutocompleteData.TAG_TYPE, tagType.name())
+                                                  .in(TagAutocompleteData.TAG_TYPE, tagTypes)
                                                   .eq(TagAutocompleteData.TAG_KEY, tagKey)
                                                   .groupBy(TagAutocompleteData.TAG_VALUE)
                                                   .limit(limit));

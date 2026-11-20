@@ -58,6 +58,8 @@ public class ExecutionContext {
     public static final String KEY_AUTO_LAYER = "auto_layer";
     public static final String KEY_OUTPUT = "output";
     public static final String KEY_DROP_REASON = "drop_reason";
+    public static final String KEY_LAYER = "layer";
+    public static final String KEY_LAYER_DECIDED = "layer_decided";
 
     private final Map<String, Object> properties = new HashMap<>();
 
@@ -114,6 +116,8 @@ public class ExecutionContext {
         setProperty(KEY_DRY_RUN, false);
         setProperty(KEY_OUTPUT, null);
         setProperty(KEY_DROP_REASON, null);
+        setProperty(KEY_LAYER, null);
+        setProperty(KEY_LAYER_DECIDED, false);
         return this;
     }
 
@@ -210,6 +214,36 @@ public class ExecutionContext {
 
     public boolean isDryRun() {
         return (boolean) getProperty(KEY_DRY_RUN);
+    }
+
+    /**
+     * The LAL {@code layer} statement: record the layer this rule decided, and write it to this rule's
+     * {@link LogMetadata}, which the output builder and the sink listeners read. Each rule a log runs has its own
+     * copy of the metadata (LogFilterListener#parse), so the layer decides this rule's alone.
+     *
+     * @param layer the layer name the rule's expression evaluated to
+     * @return this context
+     */
+    public ExecutionContext layer(final String layer) {
+        setProperty(KEY_LAYER, layer);
+        setProperty(KEY_LAYER_DECIDED, true);
+        metadata().setLayer(layer);
+        return this;
+    }
+
+    /**
+     * @return the layer this rule's {@code layer} statement decided, as evaluated; null when the rule has not run
+     *     one, or when its expression evaluated to null ({@link #isLayerDecided()} tells the two apart)
+     */
+    public String layer() {
+        return (String) getProperty(KEY_LAYER);
+    }
+
+    /**
+     * @return whether this rule ran a {@code layer} statement for this log
+     */
+    public boolean isLayerDecided() {
+        return Boolean.TRUE.equals(getProperty(KEY_LAYER_DECIDED));
     }
 
     public ExecutionContext autoLayerMode(final boolean autoLayer) {

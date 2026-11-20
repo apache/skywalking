@@ -185,7 +185,7 @@ class EsReadIndexSelectionTest {
         IndexNames.configure(3, 1);
         answerRangeSearch();
 
-        new TagAutoCompleteQueryDAO(client).queryTagAutocompleteKeys(TagType.TRACE, 10, RANGE);
+        new TagAutoCompleteQueryDAO(client).queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 10, RANGE);
 
         assertThat(rangeSearchIndices()).containsExactly("tag_autocomplete-20200807", "tag_autocomplete-20200810");
     }
@@ -195,7 +195,7 @@ class EsReadIndexSelectionTest {
         IndexNames.configure(3, 1);
         answerRangeSearch();
 
-        new TagAutoCompleteQueryDAO(client).queryTagAutocompleteValues(TagType.TRACE, "http.method", 10, null);
+        new TagAutoCompleteQueryDAO(client).queryTagAutocompleteValues(List.of(TagType.TRACE.name()), "http.method", 10, null);
 
         assertThat(rangeSearchIndices()).containsExactly("tag_autocomplete");
     }

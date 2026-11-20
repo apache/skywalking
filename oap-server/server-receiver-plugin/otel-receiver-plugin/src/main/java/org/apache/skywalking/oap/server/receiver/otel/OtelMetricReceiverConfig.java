@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.otlp.OTLPSpanRecord;
 import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 
@@ -95,6 +96,21 @@ public class OtelMetricReceiverConfig extends ModuleConfig {
 
     public List<String> getEnabledHandlers() {
         return Splitter.on(",").trimResults().omitEmptyStrings().splitToList(Strings.nullToEmpty(enabledHandlers));
+    }
+
+    /**
+     * The tag keys indexed as searchable on OTLP logs, in place of core's {@code searchableLogsTags}, which the logs of
+     * the SkyWalking native protocols keep. A key is a record attribute, a tag the receiver adds ({@code severity},
+     * {@code level}) or a tag a LAL rule adds.
+     */
+    @Setter
+    private String otlpLogSearchableTags;
+
+    /**
+     * Split as core's {@code searchableLogsTags} is, so a key both lists name is the same key in each.
+     */
+    public List<String> getOtlpLogSearchableTags() {
+        return ConfigService.splitTagKeys(otlpLogSearchableTags);
     }
 
     public List<String> getOtlpTraceSearchableTags() {

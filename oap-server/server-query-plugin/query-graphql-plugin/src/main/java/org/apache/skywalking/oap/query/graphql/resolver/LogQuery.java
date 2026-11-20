@@ -22,9 +22,9 @@ import graphql.kickstart.tools.GraphQLQueryResolver;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.LogQueryService;
 import org.apache.skywalking.oap.server.core.query.TagAutoCompleteQueryService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Order;
@@ -153,11 +153,16 @@ public class LogQuery implements GraphQLQueryResolver {
         );
     }
 
-    public CompletableFuture<Set<String>> queryLogTagAutocompleteKeys(final Duration queryDuration) {
-        return queryAsync(() -> getTagQueryService().queryTagAutocompleteKeys(TagType.LOG, queryDuration));
+    public CompletableFuture<Set<String>> queryLogTagAutocompleteKeys(final Duration queryDuration,
+                                                                      final TagType type) {
+        return queryAsync(
+            () -> getTagQueryService().queryTagAutocompleteKeys(TagAutoCompleteQueryService.logTagTypes(type), queryDuration));
     }
 
-    public CompletableFuture<Set<String>> queryLogTagAutocompleteValues(final String tagKey, final Duration queryDuration) {
-        return queryAsync(() -> getTagQueryService().queryTagAutocompleteValues(TagType.LOG, tagKey, queryDuration));
+    public CompletableFuture<Set<String>> queryLogTagAutocompleteValues(final String tagKey,
+                                                                        final Duration queryDuration,
+                                                                        final TagType type) {
+        return queryAsync(
+            () -> getTagQueryService().queryTagAutocompleteValues(TagAutoCompleteQueryService.logTagTypes(type), tagKey, queryDuration));
     }
 }

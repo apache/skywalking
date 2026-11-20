@@ -24,8 +24,10 @@ import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.module.ServiceNotProvidedException;
 import org.apache.skywalking.oap.meter.analyzer.v2.MalConverterRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
+import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.trace.analyzer.v2.module.TraceAnalyzerModule;
 import org.apache.skywalking.oap.server.core.storage.StorageModule;
+import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandler;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
@@ -104,6 +106,12 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
     @Override
     public void start() throws ServiceNotProvidedException, ModuleStartException {
         metricRequestProcessor.start();
+        if (config.getEnabledHandlers().contains(OpenTelemetryLogHandler.TYPE)) {
+            // OTLP logs index these keys instead of core's searchableLogsTags; the log query, which reads all logs
+            // from one table, must accept them too.
+            getManager().find(CoreModule.NAME).provider().getService(ConfigService.class)
+                        .addSearchableLogsTagKeys(config.getOtlpLogSearchableTags());
+        }
         for (Handler h : handlers) {
             h.init(getManager(), config);
             h.active();

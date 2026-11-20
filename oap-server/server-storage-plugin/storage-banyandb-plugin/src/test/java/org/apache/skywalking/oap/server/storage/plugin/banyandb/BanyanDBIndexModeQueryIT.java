@@ -119,12 +119,12 @@ public class BanyanDBIndexModeQueryIT {
     public void autocompletesTagKeysAndValuesOfTheWindow() throws IOException {
         final BanyanDBTagAutocompleteQueryDAO dao = new BanyanDBTagAutocompleteQueryDAO(SUPPORT.getClient());
         assertEquals(Arrays.asList("db.type", "http.method", "status_code"),
-                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteKeys(TagType.TRACE, 10, today()))));
+                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 10, today()))));
         assertEquals(Collections.singletonList("level"),
-                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteKeys(TagType.LOG, 10, today()))));
+                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteKeys(List.of(TagType.LOG.name()), 10, today()))));
         assertEquals(Arrays.asList("GET", "POST"),
-                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteValues(TagType.TRACE, "http.method", 10, today()))));
-        assertEquals(2, dao.queryTagAutocompleteKeys(TagType.TRACE, 2, today()).size());
+                     new ArrayList<>(new TreeSet<>(dao.queryTagAutocompleteValues(List.of(TagType.TRACE.name()), "http.method", 10, today()))));
+        assertEquals(2, dao.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 2, today()).size());
     }
 
     @Test

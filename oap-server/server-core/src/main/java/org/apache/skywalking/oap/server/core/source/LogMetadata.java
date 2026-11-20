@@ -17,10 +17,12 @@
 
 package org.apache.skywalking.oap.server.core.source;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 
 /**
  * Uniform metadata carrier for log analysis. Receivers build this from their
@@ -29,7 +31,7 @@ import lombok.Data;
  * <p>For building from {@code LogData} protobuf, see {@link LogMetadataUtils}.
  */
 @Data
-@Builder
+@Builder(toBuilder = true)
 public class LogMetadata {
     private String service;
     private String serviceInstance;
@@ -46,6 +48,19 @@ public class LogMetadata {
      */
     @Builder.Default
     private Map<String, String> sourceAttributes = Collections.emptyMap();
+
+    /**
+     * The tag keys indexed as searchable on this log, or null for core's {@code searchableLogsTags}. A receiver with
+     * its own list, such as {@code receiver-otel.otlpLogSearchableTags}, sets it.
+     */
+    private Collection<String> searchableTagKeys;
+
+    /**
+     * The autocomplete type the log's tags are written under: {@link TagType#OTLP_LOG} for the logs received through
+     * OTLP, {@link TagType#LOG} for every other source.
+     */
+    @Builder.Default
+    private TagType tagType = TagType.LOG;
 
     @Data
     @Builder

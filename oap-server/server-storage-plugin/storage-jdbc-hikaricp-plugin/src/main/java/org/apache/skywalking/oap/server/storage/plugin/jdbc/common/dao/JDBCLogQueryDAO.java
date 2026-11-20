@@ -22,7 +22,6 @@ import com.google.common.base.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oap.server.core.Const;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.log.AbstractLogRecord;
@@ -47,8 +46,6 @@ import org.apache.skywalking.oap.server.storage.plugin.jdbc.common.TableHelper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -94,7 +91,7 @@ public class JDBCLogQueryDAO implements ILogQueryDAO {
             final ConfigService configService = manager.find(CoreModule.NAME)
                                                        .provider()
                                                        .getService(ConfigService.class);
-            searchableTagKeys = new HashSet<>(Arrays.asList(configService.getSearchableLogsTags().split(Const.COMMA)));
+            searchableTagKeys = configService.getSearchableLogsTagKeys();
         }
         if (tags != null && !searchableTagKeys.containsAll(tags.stream().map(Tag::getKey).collect(toSet()))) {
             log.warn(

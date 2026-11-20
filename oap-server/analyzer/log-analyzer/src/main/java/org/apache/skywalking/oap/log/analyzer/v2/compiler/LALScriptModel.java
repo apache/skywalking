@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import lombok.Getter;
 
 /**
@@ -41,6 +42,43 @@ public final class LALScriptModel {
 
     public LALScriptModel(final List<FilterStatement> statements) {
         this.statements = Collections.unmodifiableList(statements);
+    }
+
+    /**
+     * @return whether the script has a {@code sink} block on any branch, so it may save a log
+     */
+    public boolean hasSink() {
+        return anyStatement(statements, stmt -> stmt instanceof SinkBlock);
+    }
+
+    /**
+     * @return whether the script has a {@code layer} statement on any branch
+     */
+    public boolean assignsLayer() {
+        return anyStatement(statements, stmt -> stmt instanceof FieldAssignment
+            && ((FieldAssignment) stmt).getFieldType() == FieldType.LAYER);
+    }
+
+    /**
+     * Whether a statement, or one nested in an {@code extractor} or {@code if} block, matches.
+     */
+    private static boolean anyStatement(final List<?> statements, final Predicate<Object> match) {
+        for (final Object stmt : statements) {
+            if (match.test(stmt)) {
+                return true;
+            }
+            if (stmt instanceof ExtractorBlock
+                && anyStatement(((ExtractorBlock) stmt).getStatements(), match)) {
+                return true;
+            }
+            if (stmt instanceof IfBlock) {
+                final IfBlock ifBlock = (IfBlock) stmt;
+                if (anyStatement(ifBlock.getThenBranch(), match) || anyStatement(ifBlock.getElseBranch(), match)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     // ==================== Filter statements ====================
