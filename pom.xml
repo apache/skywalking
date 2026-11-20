@@ -388,6 +388,10 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <configuration>
                         <forceCreation>true</forceCreation>
+                        <excludes>
+                            <!-- AGENTS.md is a symlink to CLAUDE.md; a jar stores it as a link to the absolute build path. -->
+                            <exclude>**/AGENTS.md</exclude>
+                        </excludes>
                     </configuration>
                 </plugin>
                 <!--

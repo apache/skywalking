@@ -135,7 +135,14 @@ Key template sections — uncomment the relevant one:
 ```
 - [ ] If this pull request closes/resolves/fixes an existing issue, replace the issue number. Closes #<issue number>.
 - [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md).
+
+- GraalVM distro impact:
+  - [ ] None.
+  - [ ] Impacted, by: <the ways that apply>. <What changed>.
 ```
+
+Decide the GraalVM distro impact from the diff with the `graalvm-distro-impact` skill: check exactly one box, keep
+only the ways that apply, and name the class, engine, setting or file that changed.
 
 ### Create command
 
