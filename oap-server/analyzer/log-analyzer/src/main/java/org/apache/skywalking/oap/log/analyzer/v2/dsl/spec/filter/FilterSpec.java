@@ -39,6 +39,7 @@ import org.apache.skywalking.oap.log.analyzer.v2.provider.LogAnalyzerModuleConfi
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.LogSinkListenerFactory;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.RecordSinkListener;
 import org.apache.skywalking.oap.log.analyzer.v2.provider.log.listener.TrafficSinkListener;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -287,12 +288,26 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
 
-        // In auto-layer mode, the script must set the layer. If not set, drop the log.
+        // In auto-layer mode, the rule must set the layer. If not set, drop the log. Read from the rule's own
+        // decision rather than its metadata, which is only what the rule decided as long as nothing else wrote it.
         if (ctx.isAutoLayerMode()) {
-            final String layer = metadata.getLayer();
+            final String layer = ctx.layer();
             if (layer == null || layer.isEmpty()) {
                 LOGGER.warn("Auto-layer LAL rule did not set layer for service={}, dropping log",
                     metadata.getService());
+                ctx.drop();
+                return;
+            }
+        }
+
+        // A layer the rule's own `layer` statement decided must be registered: the sink listeners turn the log's layer
+        // into a Layer (TrafficSinkListener's Layer.valueOf), which throws for a null, empty or unregistered name.
+        // A rule without one leaves the layer the log arrived with, which LogAnalyzer checked.
+        if (ctx.isLayerDecided()) {
+            final String ruleLayer = ctx.layer();
+            if (ruleLayer == null || ruleLayer.isEmpty() || Layer.nameOf(ruleLayer) == Layer.UNDEFINED) {
+                LOGGER.warn("LAL rule set the unregistered layer '{}' for service={}, dropping log",
+                    ruleLayer, metadata.getService());
                 ctx.drop();
                 return;
             }

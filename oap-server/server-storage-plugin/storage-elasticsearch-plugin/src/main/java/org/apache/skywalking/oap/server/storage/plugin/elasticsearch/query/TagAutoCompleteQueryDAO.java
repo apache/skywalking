@@ -32,7 +32,6 @@ import org.apache.skywalking.library.elasticsearch.requests.search.aggregation.A
 import org.apache.skywalking.library.elasticsearch.response.search.SearchHit;
 import org.apache.skywalking.library.elasticsearch.response.search.SearchResponse;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
-import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.input.Duration;
 import org.apache.skywalking.oap.server.core.storage.query.ITagAutoCompleteQueryDAO;
 import org.apache.skywalking.oap.server.library.client.elasticsearch.ElasticSearchClient;
@@ -49,13 +48,13 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     }
 
     @Override
-    public Set<String> queryTagAutocompleteKeys(final TagType tagType,
+    public Set<String> queryTagAutocompleteKeys(final List<String> tagTypes,
                                                 final int limit,
                                                 final Duration duration) throws IOException {
         // Tags combine records by day and es rolling index by day, need search the whole day
         // just use the time to locate the physical indexes and ignore time conditions.
         BoolQueryBuilder query = Query.bool();
-        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
+        query.must(Query.terms(TagAutocompleteData.TAG_TYPE, tagTypes));
         if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }
@@ -86,11 +85,11 @@ public class TagAutoCompleteQueryDAO extends EsDAO implements ITagAutoCompleteQu
     }
 
     @Override
-    public Set<String> queryTagAutocompleteValues(final TagType tagType, final String tagKey,
+    public Set<String> queryTagAutocompleteValues(final List<String> tagTypes, final String tagKey,
                                                   final int limit,
                                                   final Duration duration) throws IOException {
         BoolQueryBuilder query = Query.bool().must(Query.term(TagAutocompleteData.TAG_KEY, tagKey));
-        query.must(Query.term(TagAutocompleteData.TAG_TYPE, tagType.name()));
+        query.must(Query.terms(TagAutocompleteData.TAG_TYPE, tagTypes));
         if (IndexController.LogicIndicesRegister.isMergedTable(TagAutocompleteData.INDEX_NAME)) {
             query.must(Query.term(IndexController.LogicIndicesRegister.METRIC_TABLE_NAME, TagAutocompleteData.INDEX_NAME));
         }

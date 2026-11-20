@@ -75,13 +75,11 @@ public class LogAnalyzer {
                                                              .stream()
                                                              .map(LogAnalysisListenerFactory::createAuto)
                                                              .collect(Collectors.toList());
-            final String arrivedLayer = metadata.getLayer();
+            // Each rule runs on its own copy of the metadata (LogFilterListener#parse), so the fallback rules start
+            // from the layer the log arrived with, whatever layer an auto rule set before it aborted.
             if (analyzeUntilClaimed(metadata, input, passes, AutoListeners::getAuto)) {
                 return;
             }
-            // The rules share this metadata, and an auto rule may have set a layer before it aborted
-            // (LALBlockCodegen writes `layer` into it); the fallback rules start from the layer as received.
-            metadata.setLayer(arrivedLayer);
             if (analyzeUntilClaimed(metadata, input, passes, AutoListeners::getFallback)) {
                 return;
             }

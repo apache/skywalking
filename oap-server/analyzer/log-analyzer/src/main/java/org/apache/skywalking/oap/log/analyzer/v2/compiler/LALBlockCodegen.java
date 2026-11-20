@@ -288,11 +288,12 @@ final class LALBlockCodegen {
         }
         sb.append(");\n");
 
-        // LAYER is also used by FilterSpec.doSink() (layer:auto check) and by downstream routing
-        // that reads from LogMetadata. Propagate the LAL-decided layer to metadata so the output
-        // builder's initFromMetadata() and other metadata consumers see the same value.
+        // LAYER is also read by FilterSpec.doSink() (layer:auto check, per rule) and by downstream routing
+        // that reads from LogMetadata. ExecutionContext.layer() records it on the rule's context and writes it
+        // to the rule's own copy of the metadata, so the output builder's initFromMetadata() and the sink
+        // listeners see it too.
         if (field.getFieldType() == LALScriptModel.FieldType.LAYER) {
-            sb.append("  h.ctx().metadata().setLayer(");
+            sb.append("  h.ctx().layer(");
             LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
             sb.append(");\n");
         }

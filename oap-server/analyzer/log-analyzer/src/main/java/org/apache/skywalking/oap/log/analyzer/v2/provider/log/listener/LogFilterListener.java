@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel;
+import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptParser;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.DSL;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.log.analyzer.v2.dsl.debug.LalStaticBindingHook;
@@ -135,7 +137,9 @@ public class LogFilterListener implements LogAnalysisListener {
             if (effectiveInputType != null && !effectiveInputType.isInstance(input)) {
                 continue;
             }
-            final ExecutionContext ctx = new ExecutionContext().init(metadata, input);
+            // Each rule gets its own copy: a rule's `layer` statement writes the metadata, and must not decide the
+            // layer of the other rules the log runs, which each start from the layer it arrived with.
+            final ExecutionContext ctx = new ExecutionContext().init(metadata.toBuilder().build(), input);
             ctx.setSourceTypeProvider(sourceTypeProvider);
             if (autoMode) {
                 ctx.autoLayerMode(true);
@@ -189,6 +193,14 @@ public class LogFilterListener implements LogAnalysisListener {
         private volatile Set<String> suspendedKeys = Collections.emptySet();
 
         private static final String AUTO_LAYER_PREFIX = "<auto>|";
+
+        /**
+         * LogAnalyzer drops a log without a layer that no rule claims, logging it at debug only, since that is per
+         * log; this warns once instead, when the rules are loaded or changed.
+         */
+        private static final String NO_FALLBACK_RULE = "No LAL rule declares `fallback: true`, so a log without a "
+            + "layer that no `layer: auto` rule claims is dropped. lal/default.yaml ships the `default-fallback` "
+            + "rule, which saves such logs under GENERAL; keep `default` in lalFiles, or declare a fallback rule.";
 
         /** Serializes runtime mutations (addOrReplace / remove / suspend / resume). Startup
          *  writes are single-threaded. */
@@ -259,6 +271,13 @@ public class LogFilterListener implements LogAnalysisListener {
                         c.getName(), c.getSourcePath(), c.getLayer());
                     continue;
                 }
+                final String noLayer = savesWithoutLayer(c);
+                if (noLayer != null) {
+                    // Such a rule dropped every log it saved; skip it rather than fail the boot. A runtime rule is
+                    // rejected instead, by compile.
+                    log.warn("{}; the rule is skipped", noLayer);
+                    continue;
+                }
                 final CompiledLAL compiled = compile(c);
                 if (compiled.layer == null) {
                     if (initAutoDsls.containsKey(c.getName()) || initFallbackDsls.containsKey(c.getName())) {
@@ -281,6 +300,9 @@ public class LogFilterListener implements LogAnalysisListener {
             // Publish: readers from now on see the startup-complete registry.
             this.dsls = initDsls;
             this.autoRules = new AutoRules(initAutoDsls, initFallbackDsls);
+            if (initFallbackDsls.isEmpty()) {
+                log.warn(NO_FALLBACK_RULE);
+            }
         }
 
         /**
@@ -308,6 +330,10 @@ public class LogFilterListener implements LogAnalysisListener {
                     "LAL rule " + c.getName() + " in " + c.getSourcePath()
                         + " declares fallback: true, which only a layer: auto rule may");
             }
+            final String noLayer = savesWithoutLayer(c);
+            if (noLayer != null) {
+                throw new ModuleStartException(noLayer);
+            }
             final LALSourceTypeProvider spiProvider = isAuto ? null : spiProviders.get(layer);
             final Class<?> resolvedInputType = resolveInputType(c, spiProvider);
             final Class<?> resolvedOutputType = resolveOutputType(c, spiProvider);
@@ -320,6 +346,32 @@ public class LogFilterListener implements LogAnalysisListener {
                 DslSourceRef.ofRule(c.getSourcePath(), c.getLineNo()),
                 pool, targetClassLoader);
             return new CompiledLAL(layer, c.getName(), dsl, c.isFallback());
+        }
+
+        /**
+         * A {@code layer: auto} rule decides the layer of the logs it saves, and FilterSpec#doSink drops a log its
+         * rule saved without one. So an auto rule with a {@code sink} must have a {@code layer} statement; one
+         * without a {@code sink} never saves a log (a rule that only extracts metrics) and needs none.
+         *
+         * @return why the rule is refused, or null when it is not an auto rule, has a {@code layer} statement, or
+         *     has no {@code sink}. A script that does not parse is left to the compiler to report.
+         */
+        static String savesWithoutLayer(final LALConfig c) {
+            if (!LALConfig.LAYER_AUTO.equalsIgnoreCase(c.getLayer())) {
+                return null;
+            }
+            final LALScriptModel model;
+            try {
+                model = LALScriptParser.parse(c.getDsl());
+            } catch (final RuntimeException e) {
+                // Whatever the parser throws, compile reports it with the rule's name and file.
+                return null;
+            }
+            if (!model.hasSink() || model.assignsLayer()) {
+                return null;
+            }
+            return "LAL rule " + c.getName() + " in " + c.getSourcePath() + " is a layer: auto rule with a sink but "
+                + "no layer statement, so every log it saved would be dropped";
         }
 
         /**
@@ -356,7 +408,7 @@ public class LogFilterListener implements LogAnalysisListener {
                     nextAuto.remove(compiled.ruleName);
                     nextFallback.remove(compiled.ruleName);
                     (compiled.fallback ? nextFallback : nextAuto).put(compiled.ruleName, compiled.dsl);
-                    autoRules = new AutoRules(nextAuto, nextFallback);
+                    publishAutoRules(new AutoRules(nextAuto, nextFallback));
                 } else {
                     final Map<Layer, Map<String, DSL>> next = new HashMap<>(dsls);
                     final Map<String, DSL> layerMap =
@@ -389,6 +441,18 @@ public class LogFilterListener implements LogAnalysisListener {
             return layerMap == null ? null : layerMap.get(ruleName);
         }
 
+        /**
+         * Replace the auto rules, warning when the change leaves no fallback rule, so a runtime change that removes
+         * the last one (or turns it into a plain auto rule) does not start dropping the logs without a layer unseen.
+         */
+        private void publishAutoRules(final AutoRules next) {
+            final boolean hadFallback = !autoRules.fallback.isEmpty();
+            autoRules = next;
+            if (hadFallback && next.fallback.isEmpty()) {
+                log.warn(NO_FALLBACK_RULE);
+            }
+        }
+
         /** Runtime remove. No-op when the key isn't present. */
         public void remove(final Layer layer, final String ruleName) {
             synchronized (writeLock) {
@@ -401,7 +465,7 @@ public class LogFilterListener implements LogAnalysisListener {
                     final Map<String, DSL> nextFallback = new HashMap<>(current.fallback);
                     nextAuto.remove(ruleName);
                     nextFallback.remove(ruleName);
-                    autoRules = new AutoRules(nextAuto, nextFallback);
+                    publishAutoRules(new AutoRules(nextAuto, nextFallback));
                 } else {
                     final Map<String, DSL> layerMap = dsls.get(layer);
                     if (layerMap == null || !layerMap.containsKey(ruleName)) {

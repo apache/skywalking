@@ -130,6 +130,18 @@ In `layer: auto` mode, `abort` and `drop` have distinct meanings:
 If an auto rule claims the log (doesn't abort) but doesn't set a layer, the log is warned and
 dropped at persistence time.
 
+Every rule a log runs, auto or declared for a layer, starts from the layer the log arrived with, and only its own
+`layer` statement changes it: a `layer` statement in one rule never changes the layer another rule saves the log
+under, whatever order the rules run in.
+
+In any rule, auto or declared for a layer, a `layer` statement whose value is empty, null (for example
+`layer parsed.kind as String` on a log without `kind`) or not a registered layer name drops the log with a
+warning when it is saved. A rule without a `layer` statement saves the log under the layer it arrived with.
+
+An auto rule with a `sink` must therefore have a `layer` statement, on some branch of its script. One without
+it is skipped with a warning at boot, and refused when applied as a runtime rule. An auto rule without a `sink`,
+for example one that only extracts metrics, never saves a log and needs no `layer` statement.
+
 All the auto rules run on such a log, in no defined order, and each one that claims it saves a copy of
 its own, so an auto rule should claim only the logs it recognizes and `abort {}` on the others.
 
@@ -137,7 +149,8 @@ A rule declaring `fallback: true` (allowed only with `layer: auto`) runs after t
 none of them claimed the log. It is the catch-all for the logs without a layer: `default-fallback` in
 `lal/default.yaml` files them under `GENERAL`. A fallback rule follows the same rules as any auto rule: it
 must set the layer, and `abort {}` leaves the log unclaimed, which drops it. Auto and fallback rule names
-share one name space.
+share one name space. When no `fallback: true` rule is loaded, the OAP warns at boot, and when a runtime rule
+change removes the last one, since the logs without a layer that no auto rule claims are then dropped.
 
 ```yaml
 rules:

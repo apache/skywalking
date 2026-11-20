@@ -439,9 +439,9 @@ abstract class JDBCMetadataQueryITBase {
         for (final String[] tag : TAGS_TODAY) {
             keys.add(tag[0]);
         }
-        assertEquals(keys, tagDAO.queryTagAutocompleteKeys(TagType.TRACE, 100, aroundMidnight));
+        assertEquals(keys, tagDAO.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 100, aroundMidnight));
 
-        final Set<String> limited = tagDAO.queryTagAutocompleteKeys(TagType.TRACE, 5, aroundMidnight);
+        final Set<String> limited = tagDAO.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 5, aroundMidnight);
         assertEquals(5, limited.size());
         assertTrue(keys.containsAll(limited));
     }
@@ -449,10 +449,10 @@ abstract class JDBCMetadataQueryITBase {
     @Test
     public void limitsTheTagValuesOfBothDays() throws Exception {
         final Set<String> values = new TreeSet<>(Arrays.asList("200", "404", "500", "503"));
-        assertEquals(values, tagDAO.queryTagAutocompleteValues(TagType.TRACE, "http.status_code", 100, aroundMidnight));
+        assertEquals(values, tagDAO.queryTagAutocompleteValues(List.of(TagType.TRACE.name()), "http.status_code", 100, aroundMidnight));
 
         final Set<String> limited = tagDAO.queryTagAutocompleteValues(
-            TagType.TRACE, "http.status_code", 3, aroundMidnight);
+            List.of(TagType.TRACE.name()), "http.status_code", 3, aroundMidnight);
         assertEquals(3, limited.size());
         assertTrue(values.containsAll(limited));
     }

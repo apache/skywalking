@@ -65,8 +65,9 @@ public class TrafficSinkListener implements LogSinkListener {
     public LogSinkListener parse(final LogMetadata metadata,
                                  final Object input,
                                  final ExecutionContext ctx) {
-        // Never empty here: a log without a layer is saved only by an auto rule, which must set one
-        // (FilterSpec#doSink drops the log otherwise).
+        // A registered layer here: this rule's copy of the metadata holds the layer the log arrived with, which
+        // LogAnalyzer checked, or one the rule's own `layer` statement decided, which FilterSpec#doSink checked (and
+        // an auto rule must decide one).
         final Layer layer = Layer.valueOf(metadata.getLayer());
         final long timeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Minute);
         // to service traffic

@@ -391,13 +391,13 @@ abstract class MetadataQueryITBase {
     public void autocompletesTheTagKeysOfTheDaysOfTheWindow() throws Exception {
         assertEquals(new TreeSet<>(Arrays.asList("db.type", "http.method", "http.route", "http.status_code",
                                                  "rpc.method")),
-                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(TagType.TRACE, 10, aroundMidnight)));
+                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 10, aroundMidnight)));
         assertEquals(new TreeSet<>(Arrays.asList("db.type", "http.method", "http.route", "http.status_code")),
-                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(TagType.TRACE, 10, afterMidnight)));
+                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 10, afterMidnight)));
         assertEquals(new TreeSet<>(Arrays.asList("http.method", "level")),
-                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(TagType.LOG, 10, aroundMidnight)));
+                     new TreeSet<>(tagDAO.queryTagAutocompleteKeys(List.of(TagType.LOG.name()), 10, aroundMidnight)));
 
-        final Set<String> limited = tagDAO.queryTagAutocompleteKeys(TagType.TRACE, 2, aroundMidnight);
+        final Set<String> limited = tagDAO.queryTagAutocompleteKeys(List.of(TagType.TRACE.name()), 2, aroundMidnight);
         assertEquals(2, limited.size());
         assertTrue(Arrays.asList("db.type", "http.method", "http.route", "http.status_code", "rpc.method")
                          .containsAll(limited));
@@ -407,16 +407,16 @@ abstract class MetadataQueryITBase {
     public void autocompletesTheTagValuesOfTheDaysOfTheWindow() throws Exception {
         assertEquals(new TreeSet<>(Arrays.asList("GET", "POST")),
                      new TreeSet<>(tagDAO.queryTagAutocompleteValues(
-                         TagType.TRACE, "http.method", 10, aroundMidnight)));
+                         List.of(TagType.TRACE.name()), "http.method", 10, aroundMidnight)));
         assertEquals(new TreeSet<>(Arrays.asList("200", "500")),
                      new TreeSet<>(tagDAO.queryTagAutocompleteValues(
-                         TagType.TRACE, "http.status_code", 10, aroundMidnight)));
+                         List.of(TagType.TRACE.name()), "http.status_code", 10, aroundMidnight)));
         assertEquals(Collections.singleton("500"),
-                     tagDAO.queryTagAutocompleteValues(TagType.TRACE, "http.status_code", 10, afterMidnight));
+                     tagDAO.queryTagAutocompleteValues(List.of(TagType.TRACE.name()), "http.status_code", 10, afterMidnight));
         assertEquals(Collections.singleton("PUT"),
-                     tagDAO.queryTagAutocompleteValues(TagType.LOG, "http.method", 10, aroundMidnight));
+                     tagDAO.queryTagAutocompleteValues(List.of(TagType.LOG.name()), "http.method", 10, aroundMidnight));
         assertEquals(Collections.emptySet(),
-                     tagDAO.queryTagAutocompleteValues(TagType.TRACE, "old.key", 10, aroundMidnight));
+                     tagDAO.queryTagAutocompleteValues(List.of(TagType.TRACE.name()), "old.key", 10, aroundMidnight));
     }
 
     private Set<String> expectedInstances(final String... names) {

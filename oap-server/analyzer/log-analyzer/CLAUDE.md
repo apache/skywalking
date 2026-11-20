@@ -197,8 +197,8 @@ routes an empty-layer log in up to two passes, stopping at the first pass in whi
 (`LogAnalysisListener.claimed()`: did not abort):
 
 1. The regular auto rules.
-2. The `fallback: true` auto rules. Before this pass the metadata layer is reset to the value received,
-   since the rules share one `LogMetadata` and an aborted auto rule may have set a layer on it.
+2. The `fallback: true` auto rules. They see the layer the log arrived with, whatever layer an aborted auto rule
+   set: each rule runs on its own copy of the `LogMetadata` (see below).
 
 Both groups live in one immutable `Factory.AutoRules` snapshot, replaced whole on every runtime change, so a
 rule whose `fallback` flag flips is never in neither (or both). `LogAnalyzer` takes both passes' listeners
@@ -210,9 +210,25 @@ Auto and fallback rules share one name space and rule key (`ruleKey(null, name)`
 `find` / `contains` / `remove` / suspend / runtime-rule keys treat them alike; `addOrReplace` moves a rule
 between the two groups when its `fallback` flag changes. `fallback: true` on a non-auto rule fails compile.
 
+Each rule a log runs gets its own copy of the log's `LogMetadata` (`LogFilterListener.parse`:
+`metadata.toBuilder().build()`), since the generated `layer` statement (`h.ctx().layer(...)`) writes the metadata
+layer, which the output builder and the sink listeners read: one rule's `layer` statement must not decide the layer
+of the other rules the log runs. Every rule starts from the layer the log arrived with. The copy is shallow —
+`sourceAttributes` and `traceContext` are shared, which holds as long as rules only read them.
+
 The `autoLayerMode` flag on `ExecutionContext` (set for both passes) triggers a layer check in
-`FilterSpec.doSink()`: if the extractor didn't set a layer, the log is warned and dropped. Because of it,
-`TrafficSinkListener` never sees an empty layer and has no `GENERAL` fallback.
+`FilterSpec.doSink()`: if the rule's extractor didn't set a layer, the log is warned and dropped. The check
+reads `ExecutionContext.layer()`, the value the rule's own `layer` statement recorded on its context.
+
+For every rule, auto or not, `doSink()` also drops (with a warning) a log whose rule ran a `layer` statement that
+evaluated to an empty, null or unregistered name. `ExecutionContext.isLayerDecided()` tells that the statement ran
+— `layer()` alone is null both when it did not run and when it evaluated to null. A rule without one keeps the
+layer the log arrived with, which `LogAnalyzer` checked. So `TrafficSinkListener`'s `Layer.valueOf` only sees
+registered layers and has no `GENERAL` fallback.
+
+`Factory.savesWithoutLayer` refuses an auto rule with a `sink` but no `layer` statement on any branch
+(`LALScriptModel.hasSink()` / `assignsLayer()`): `loadStaticRules` skips it with a warning, `compile` rejects it as
+a runtime rule. An auto rule without a `sink` never saves a log and needs no `layer` statement.
 
 A static rule whose `layer` is neither `auto` nor a registered layer name (case-sensitive) is skipped with
 a warning at boot (`Factory.loadStaticRules`); a runtime rule declaring one is rejected (`resolveLayer`).

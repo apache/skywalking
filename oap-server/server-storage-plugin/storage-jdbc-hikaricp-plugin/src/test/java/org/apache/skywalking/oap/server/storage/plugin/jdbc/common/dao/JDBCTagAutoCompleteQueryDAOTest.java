@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.storage.plugin.jdbc.common.dao;
 
+import java.util.List;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagAutocompleteData;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
@@ -65,10 +66,10 @@ class JDBCTagAutoCompleteQueryDAOTest {
     void buildSQLForQueryKeys_shouldContainDistinctAndTagType() {
         final Duration duration = buildDuration();
 
-        final SQLAndParameters result = dao.buildSQLForQueryKeys(TagType.TRACE, 100, duration, TABLE);
+        final SQLAndParameters result = dao.buildSQLForQueryKeys(List.of(TagType.TRACE.name()), 100, duration, TABLE);
 
         assertThat(result.sql()).contains("select distinct " + TagAutocompleteData.TAG_KEY);
-        assertThat(result.sql()).contains(TagAutocompleteData.TAG_TYPE + " = ?");
+        assertThat(result.sql()).contains(TagAutocompleteData.TAG_TYPE + " in (?)");
         assertThat(result.parameters()).contains(TagType.TRACE.name());
     }
 
@@ -76,7 +77,7 @@ class JDBCTagAutoCompleteQueryDAOTest {
     void buildSQLForQueryKeys_shouldContainLimit() {
         final Duration duration = buildDuration();
 
-        final SQLAndParameters result = dao.buildSQLForQueryKeys(TagType.TRACE, 50, duration, TABLE);
+        final SQLAndParameters result = dao.buildSQLForQueryKeys(List.of(TagType.TRACE.name()), 50, duration, TABLE);
 
         assertThat(result.sql()).contains("limit 50");
     }
@@ -86,7 +87,7 @@ class JDBCTagAutoCompleteQueryDAOTest {
         final Duration duration = buildDuration();
 
         final SQLAndParameters result = dao.buildSQLForQueryValues(
-            TagType.TRACE, "http.method", 100, duration, TABLE);
+            List.of(TagType.TRACE.name()), "http.method", 100, duration, TABLE);
 
         assertThat(result.sql()).contains(TagAutocompleteData.TAG_KEY + " = ?");
         assertThat(result.parameters()).contains("http.method");
@@ -97,9 +98,9 @@ class JDBCTagAutoCompleteQueryDAOTest {
         final Duration duration = buildDuration();
 
         final SQLAndParameters result = dao.buildSQLForQueryValues(
-            TagType.LOG, "level", 100, duration, TABLE);
+            List.of(TagType.LOG.name()), "level", 100, duration, TABLE);
 
-        assertThat(result.sql()).contains(TagAutocompleteData.TAG_TYPE + " = ?");
+        assertThat(result.sql()).contains(TagAutocompleteData.TAG_TYPE + " in (?)");
         assertThat(result.parameters()).contains(TagType.LOG.name());
     }
 }

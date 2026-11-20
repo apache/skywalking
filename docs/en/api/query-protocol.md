@@ -150,11 +150,15 @@ extend type Query {
     # Test the logs and get the results of the LAL output.
     test(requests: LogTestRequest!): LogTestResponse!
     # Read the list of searchable keys
-    queryLogTagAutocompleteKeys(duration: Duration!):[String!]
+    queryLogTagAutocompleteKeys(duration: Duration!, type: TagType):[String!]
     # Search the available value options of the given key.
-    queryLogTagAutocompleteValues(tagKey: String! , duration: Duration!):[String!]
+    queryLogTagAutocompleteValues(tagKey: String! , duration: Duration!, type: TagType):[String!]
 }
 ```
+
+The optional `type` of the tag autocomplete queries narrows them to one log source: `OTLP_LOG` for the logs received
+through OTLP, whose searchable tags `receiver-otel.otlpLogSearchableTags` sets, or `LOG` for the logs of every other
+source, whose searchable tags core's `searchableLogsTags` sets. Without a `type`, the tags of both are returned.
 
 Log implementations vary between different database options. Some search engines like ElasticSearch and OpenSearch can support
 full log text fuzzy queries, while others do not due to considerations related to performance impact and end user experience.

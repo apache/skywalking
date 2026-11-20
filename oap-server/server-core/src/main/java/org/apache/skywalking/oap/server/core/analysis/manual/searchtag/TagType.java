@@ -23,5 +23,9 @@ public enum TagType {
     LOG,
     ZIPKIN,
     ALARM,
-    OTLP
+    OTLP,
+    /**
+     * The tags of the logs received through OTLP, apart from {@link #LOG}, the logs of every other source.
+     */
+    OTLP_LOG
 }

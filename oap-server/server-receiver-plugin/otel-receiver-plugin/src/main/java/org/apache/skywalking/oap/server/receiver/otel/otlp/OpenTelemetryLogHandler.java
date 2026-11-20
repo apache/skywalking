@@ -26,6 +26,7 @@ import io.opentelemetry.proto.collector.logs.v1.LogsServiceGrpc;
 import io.opentelemetry.proto.common.v1.KeyValue;
 import com.google.protobuf.ByteString;
 import io.opentelemetry.proto.logs.v1.LogRecord;
+import io.opentelemetry.proto.logs.v1.SeverityNumber;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.Getter;
@@ -35,6 +36,7 @@ import org.apache.skywalking.apm.network.logging.v3.LogDataBody;
 import org.apache.skywalking.apm.network.logging.v3.LogTags;
 import org.apache.skywalking.apm.network.logging.v3.TextLog;
 import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.source.LogMetadataUtils;
 import org.apache.skywalking.oap.log.analyzer.v2.module.LogAnalyzerModule;
@@ -55,6 +57,7 @@ import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
@@ -64,6 +67,15 @@ import static java.util.stream.Collectors.toMap;
 public class OpenTelemetryLogHandler
     extends LogsServiceGrpc.LogsServiceImplBase
     implements Handler {
+    public static final String TYPE = "otlp-logs";
+
+    /**
+     * The tags a record's severity number is written under: {@code severity} as its enum name, {@code level} as the
+     * name of its range. A record attribute of either name is kept instead.
+     */
+    private static final String SEVERITY_TAG = "severity";
+    private static final String LEVEL_TAG = "level";
+
     private ModuleManager manager;
 
     private ILogAnalyzerService logAnalyzerService;
@@ -78,6 +90,12 @@ public class OpenTelemetryLogHandler
      * trace ID whose upper 64 bits are zero; a log's trace ID has to be written the way its trace is.
      */
     private boolean zipkinTraceIds;
+
+    /**
+     * {@code receiver-otel.otlpLogSearchableTags}: the tag keys indexed as searchable on these logs; null when the
+     * list is empty, so the logs keep core's {@code searchableLogsTags}.
+     */
+    private Set<String> searchableTagKeys;
 
     @Getter(lazy = true)
     private final MetricsCreator metricsCreator = manager.find(TelemetryModule.NAME).provider().getService(MetricsCreator.class);
@@ -95,11 +113,13 @@ public class OpenTelemetryLogHandler
         this.manager = manager;
         this.serviceGroupKeys = config.getOtlpServiceGroupKeys();
         this.zipkinTraceIds = !config.isOtlpTraceStorageNative();
+        final List<String> keys = config.getOtlpLogSearchableTags();
+        this.searchableTagKeys = keys.isEmpty() ? null : Set.copyOf(keys);
     }
 
     @Override
     public String type() {
-        return "otlp-logs";
+        return TYPE;
     }
 
     @Override
@@ -133,7 +153,9 @@ public class OpenTelemetryLogHandler
             final var attributes = resource
                 .getAttributesList().stream()
                 .map(it -> Map.entry(it.getKey(), buildTagValue(it)))
-                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue));
+                // A repeated key keeps its last value, as a record's attributes do; toMap would throw and lose every
+                // log of the request.
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (first, last) -> last));
             // Filed under the grouped name, so the logs belong to the service the trace analysis names.
             final var service = OTLPServiceGroup.apply(attributes.get("service.name"), attributes, serviceGroupKeys);
             if (Strings.isNullOrEmpty(service)) {
@@ -177,6 +199,8 @@ public class OpenTelemetryLogHandler
                 builder.setTraceContext(TraceContext.newBuilder().setTraceId(traceId));
             }
             final LogMetadata metadata = LogMetadataUtils.fromLogData(builder, resourceAttributes);
+            metadata.setSearchableTagKeys(searchableTagKeys);
+            metadata.setTagType(TagType.OTLP_LOG);
             final String spanId = idOf(logRecord.getSpanId());
             if (!spanId.isEmpty()) {
                 // A new context: the one a log without a trace id gets is a shared constant.
@@ -222,12 +246,22 @@ public class OpenTelemetryLogHandler
     }
 
     private LogTags buildTags(LogRecord logRecord) {
+        // OTLP requires attribute keys to be unique, but a sender may repeat one; the last value is kept instead of
+        // the record being lost to toMap's duplicate-key exception.
+        final Map<String, String> tags = logRecord.getAttributesList()
+                                                  .stream()
+                                                  .collect(toMap(KeyValue::getKey, this::buildTagValue,
+                                                                 (first, last) -> last));
+        final SeverityNumber severity = logRecord.getSeverityNumber();
+        if (severity != SeverityNumber.SEVERITY_NUMBER_UNSPECIFIED && severity != SeverityNumber.UNRECOGNIZED) {
+            tags.putIfAbsent(SEVERITY_TAG, severity.name());
+            final String level = levelOf(severity);
+            if (level != null) {
+                tags.putIfAbsent(LEVEL_TAG, level);
+            }
+        }
         return LogTags.newBuilder().addAllData(
-            logRecord
-                .getAttributesList()
-                .stream()
-                .collect(toMap(KeyValue::getKey, this::buildTagValue))
-                .entrySet()
+            tags.entrySet()
                 .stream()
                 .map(it -> KeyStringValuePair
                     .newBuilder()
@@ -236,6 +270,47 @@ public class OpenTelemetryLogHandler
                     .build())
                 .collect(Collectors.toList())
         ).build();
+    }
+
+    /**
+     * The name of the range a severity number falls in, or null for one outside the six ranges: unset, unrecognized,
+     * or a number a later protocol version adds, which keeps its {@code severity} tag but gets no level.
+     */
+    static String levelOf(final SeverityNumber severity) {
+        switch (severity) {
+            case SEVERITY_NUMBER_TRACE:
+            case SEVERITY_NUMBER_TRACE2:
+            case SEVERITY_NUMBER_TRACE3:
+            case SEVERITY_NUMBER_TRACE4:
+                return "TRACE";
+            case SEVERITY_NUMBER_DEBUG:
+            case SEVERITY_NUMBER_DEBUG2:
+            case SEVERITY_NUMBER_DEBUG3:
+            case SEVERITY_NUMBER_DEBUG4:
+                return "DEBUG";
+            case SEVERITY_NUMBER_INFO:
+            case SEVERITY_NUMBER_INFO2:
+            case SEVERITY_NUMBER_INFO3:
+            case SEVERITY_NUMBER_INFO4:
+                return "INFO";
+            case SEVERITY_NUMBER_WARN:
+            case SEVERITY_NUMBER_WARN2:
+            case SEVERITY_NUMBER_WARN3:
+            case SEVERITY_NUMBER_WARN4:
+                return "WARN";
+            case SEVERITY_NUMBER_ERROR:
+            case SEVERITY_NUMBER_ERROR2:
+            case SEVERITY_NUMBER_ERROR3:
+            case SEVERITY_NUMBER_ERROR4:
+                return "ERROR";
+            case SEVERITY_NUMBER_FATAL:
+            case SEVERITY_NUMBER_FATAL2:
+            case SEVERITY_NUMBER_FATAL3:
+            case SEVERITY_NUMBER_FATAL4:
+                return "FATAL";
+            default:
+                return null;
+        }
     }
 
     private String buildTagValue(KeyValue it) {

@@ -175,10 +175,11 @@ public class LalFileApplier {
         //   during phase 2, the caller's rollback list is accurate.
         final List<LogFilterListener.Factory.CompiledLAL> compiled = new ArrayList<>(rules.size());
         for (final LALConfig c : rules) {
-            // Shared with the boot loader, not restated: runtime rule names carry no extension,
-            // and the sourceName it derives keys the dsl-debugging registry, so a hot update must
-            // land on the same key as its disk-loaded twin rather than beside it.
-            LALConfigs.stampSource(c, sourceName);
+            // Stamped through the boot loader's stampSource, so a runtime rule carries the same source
+            // coordinates as its disk-loaded twin. It takes the bare rule name: sourceName is
+            // "catalog/name", and stampSource adds the catalog itself. The dsl-debugging registry key is
+            // built separately, from the bare rule name (see stampSource).
+            LALConfigs.stampSource(c, ruleNameStr);
             try {
                 compiled.add(factory.compile(c, pool, ruleLoader));
             } catch (final Throwable t) {
