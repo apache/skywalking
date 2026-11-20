@@ -198,7 +198,7 @@ expected:
           host_name: 'redis::test-host'
           cmd: get
           service_instance_id: test-instance
-        value: 0.0
+        value: 1.0
   meter_redis_instance_commands_duration_seconds_total_rate:
     entities:
       - scope: SERVICE_INSTANCE
