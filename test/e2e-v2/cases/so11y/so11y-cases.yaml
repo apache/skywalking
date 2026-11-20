@@ -47,6 +47,14 @@
     - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_trace_latency_percentile{p='90,99'}" --instance-name=http://localhost:1234 --service-name=oap-server
       expected: expected/metrics-has-value-percentile.yml
 
+    # cluster remote so11y: single-node still fans out via SelfRemoteClient (self=Y) and exposes cluster_size.
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_remote_out_count{self='Y'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-label-remote.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression="meter_oap_instance_remote_out_latency_percentile{p='50,99',self='Y'}" --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value-percentile-remote.yml
+    - query: swctl --display yaml --base-url=http://${oap_host}:${oap_12800}/graphql metrics exec --expression=meter_oap_instance_cluster_size --instance-name=http://localhost:1234 --service-name=oap-server
+      expected: expected/metrics-has-value.yml
+
     # alarm HTTP hook delivery, fed by the webhook in alarm-settings.yml. Alarm evaluation, scraping, MAL
     # initialization and persistence can outlast the normal retry window, so wait before each attempt for the series.
     - query: |

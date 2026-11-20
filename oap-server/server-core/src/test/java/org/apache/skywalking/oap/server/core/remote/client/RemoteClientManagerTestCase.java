@@ -25,7 +25,9 @@ import org.apache.skywalking.oap.server.core.cluster.ClusterNodesQuery;
 import org.apache.skywalking.oap.server.core.cluster.RemoteInstance;
 import org.apache.skywalking.oap.server.core.status.ServerStatusService;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.GaugeMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
 import org.apache.skywalking.oap.server.testing.module.ModuleDefineTesting;
 import org.apache.skywalking.oap.server.testing.module.ModuleManagerTesting;
@@ -42,6 +44,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -53,6 +56,7 @@ public class RemoteClientManagerTestCase {
 
     private RemoteClientManager clientManager;
     private ClusterNodesQuery clusterNodesQuery;
+    private final AtomicReference<Double> clusterSize = new AtomicReference<>();
 
     @AfterEach
     public void tearDown() {
@@ -76,36 +80,55 @@ public class RemoteClientManagerTestCase {
         clusterModuleDefine.provider().registerServiceImplementation(ClusterNodesQuery.class, clusterNodesQuery);
 
         MetricsCreator metricsCreator = mock(MetricsCreator.class);
-        when(metricsCreator.createGauge(any(), any(), any(), any())).thenReturn(new GaugeMetrics() {
+        when(metricsCreator.createCounter(any(), any(), any(), any())).thenAnswer(invocation -> new CounterMetrics() {
             @Override
             public void inc() {
-
             }
 
             @Override
             public void inc(double value) {
-
             }
-
+        });
+        when(metricsCreator.createHistogramMetric(any(), any(), any(), any())).thenAnswer(invocation -> new HistogramMetrics() {
             @Override
-            public void dec() {
-
+            public void observe(double value) {
             }
+        });
+        when(metricsCreator.createGauge(any(), any(), any(), any())).thenAnswer(invocation -> {
+            final String name = invocation.getArgument(0);
+            return new GaugeMetrics() {
+                @Override
+                public void inc() {
 
-            @Override
-            public void dec(double value) {
+                }
 
-            }
+                @Override
+                public void inc(double value) {
 
-            @Override
-            public void setValue(double value) {
+                }
 
-            }
+                @Override
+                public void dec() {
 
-            @Override
-            public double getValue() {
-                return 0;
-            }
+                }
+
+                @Override
+                public void dec(double value) {
+
+                }
+
+                @Override
+                public void setValue(double value) {
+                    if ("cluster_size".equals(name)) {
+                        clusterSize.set(value);
+                    }
+                }
+
+                @Override
+                public double getValue() {
+                    return "cluster_size".equals(name) ? clusterSize.get() : 0;
+                }
+            };
         });
         ModuleDefineTesting telemetryModuleDefine = new ModuleDefineTesting();
         moduleManager.put(TelemetryModule.NAME, telemetryModuleDefine);
@@ -118,6 +141,7 @@ public class RemoteClientManagerTestCase {
     public void refresh() {
         when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupOneInstances());
         clientManager.refresh();
+        Assertions.assertEquals(3.0, clusterSize.get(), 0.01);
 
         List<RemoteClient> remoteClients = clientManager.getRemoteClient();
         Assertions.assertEquals("host1", remoteClients.get(0).getAddress().getHost());
@@ -130,6 +154,7 @@ public class RemoteClientManagerTestCase {
 
         when(clusterNodesQuery.queryRemoteNodes()).thenReturn(groupTwoInstances());
         clientManager.refresh();
+        Assertions.assertEquals(4.0, clusterSize.get(), 0.01);
 
         remoteClients = clientManager.getRemoteClient();
         Assertions.assertEquals("host1", remoteClients.get(0).getAddress().getHost());
