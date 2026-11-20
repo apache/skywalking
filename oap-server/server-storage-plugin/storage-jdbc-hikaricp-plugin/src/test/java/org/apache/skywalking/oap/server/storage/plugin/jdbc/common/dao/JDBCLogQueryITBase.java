@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.skywalking.apm.network.common.v3.KeyStringValuePair;
 import org.apache.skywalking.apm.network.language.agent.v3.BrowserErrorLog;
@@ -187,6 +188,7 @@ abstract class JDBCLogQueryITBase {
         final ConfigService config = support.getModuleManager().find(CoreModule.NAME).provider()
                                             .getService(ConfigService.class);
         when(config.getSearchableLogsTags()).thenReturn(SEARCHABLE_LOG_TAGS);
+        when(config.getSearchableLogsTagKeys()).thenReturn(Set.copyOf(ConfigService.splitTagKeys(SEARCHABLE_LOG_TAGS)));
         logDAO = new JDBCLogQueryDAO(support.getClient(), support.getModuleManager(), support.getTableHelper());
     }
 

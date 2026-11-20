@@ -54,6 +54,8 @@ class JDBCTagAutoCompleteQueryDAOTagTypesTest {
         final SQLAndParameters result = dao.buildSQLForQueryValues(LOG_SOURCES, "level", 100, duration(), "t");
 
         assertThat(result.sql()).contains(TagAutocompleteData.TAG_TYPE + " in (?,?)");
+        assertThat(result.sql()).contains("select distinct " + TagAutocompleteData.TAG_VALUE + " from ");
+        assertThat(result.sql()).endsWith(" limit 100");
         assertThat(result.parameters()).containsSubsequence("level", TagType.LOG.name(), TagType.OTLP_LOG.name());
     }
 

@@ -120,7 +120,9 @@ public class JDBCTagAutoCompleteQueryDAO implements ITagAutoCompleteQueryDAO {
     protected SQLAndParameters buildSQLForQueryValues(List<String> tagTypes, String tagKey, int limit, Duration duration, String table) {
         StringBuilder sql = new StringBuilder();
         List<Object> condition = new ArrayList<>(3);
-        sql.append("select * from ").append(table).append(" where ");
+        // Distinct before the limit: a value can have a row under each of the tag types read, and those copies must
+        // not take the limit's places from other values.
+        sql.append("select distinct ").append(TagAutocompleteData.TAG_VALUE).append(" from ").append(table).append(" where ");
         sql.append(TagAutocompleteData.TAG_KEY).append(" = ?");
         condition.add(tagKey);
         appendTagAutocompleteCondition(tagTypes, duration, sql, condition);
