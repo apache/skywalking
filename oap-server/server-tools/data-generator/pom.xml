@@ -44,7 +44,7 @@
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
-                    <excludes>
+                    <excludes combine.children="append">
                         <exclude>application.yml</exclude>
                     </excludes>
                 </configuration>

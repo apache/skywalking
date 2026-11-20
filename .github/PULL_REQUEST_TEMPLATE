@@ -31,3 +31,9 @@
 
 - [ ] If this pull request closes/resolves/fixes an existing issue, replace the issue number. Closes #<issue number>.
 - [ ] Update the [`CHANGES` log](https://github.com/apache/skywalking/blob/master/docs/en/changes/changes.md).
+
+<!-- The GraalVM distro (https://github.com/apache/skywalking-graalvm-distro) builds the OAP as a native image from this
+     repo. Impact doesn't block this PR; it tells the distro's next sync what to adapt. Check one and keep the ways that apply. -->
+- GraalVM distro impact:
+  - [ ] None.
+  - [ ] Impacted, by: <a class the distro replaces | a DSL engine (OAL, MAL, LAL, TAL, Hierarchy, MeterSystem) | a module, provider or config class | application.yml | bundled rule files | a native-image concern (reflection, object binding, proxies, resources, run-time class generation, native code) | server-starter dependencies | docs or test files the distro's tests reuse>. <What changed, and, when the impact is inevitable, what the distro needs: a replacement, a reimplementation, metadata, packaging, or leaving it out>.

@@ -1,6 +1,14 @@
 # CLAUDE.md - AI Assistant Guide for Apache SkyWalking
 
-This file provides guidance for AI assistants working with the Apache SkyWalking codebase.
+This file provides guidance for AI assistants working with the Apache SkyWalking codebase. The skills it names live in
+`.claude/skills/<name>/SKILL.md`, readable as plain instructions by agents without skill support.
+
+**Every `CLAUDE.md` in this repo has an `AGENTS.md` symlink next to it** (`ln -s CLAUDE.md AGENTS.md`, committed as a
+git symlink), so agents that read `AGENTS.md` get the same guide. Edit the `CLAUDE.md`, never the link, and add the
+link in the same change whenever you add a `CLAUDE.md`. Check: every `CLAUDE.md` that `git ls-files` lists has a
+sibling `AGENTS.md` that `readlink` resolves to `CLAUDE.md`. The root `pom.xml` keeps `AGENTS.md` out of every jar
+(`maven-jar-plugin` excludes), because a jar stores the link as a symlink to the absolute build path; a module that
+sets its own jar `excludes` appends to that list (`<excludes combine.children="append">`, as `server-starter` does).
 
 ## Project Overview
 
@@ -318,6 +326,11 @@ silently renders as plain text on the website.
 ## Handling Existing Tests
 
 If existing test code (UT, IT, or E2E) fails to pass, try to fix it. If any test cases need to be modified, or test code needs to be deleted, the change must be double-checked by a human before it is applied — surface the proposed modification or deletion and the reasoning, and wait for explicit approval rather than changing or removing the test yourself.
+
+## GraalVM Distro Impact
+
+Read the `graalvm-distro-impact` skill (`.claude/skills/graalvm-distro-impact/SKILL.md`) when changing OAP code,
+when reviewing a change, and when filling the PR template's "GraalVM distro impact" item.
 
 ## Submitting Pull Requests
 
