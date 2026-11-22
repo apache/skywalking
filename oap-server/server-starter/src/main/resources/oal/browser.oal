@@ -22,7 +22,7 @@ browser_app_error_sum = from(BrowserAppTraffic.count).filter(trafficCategory != 
 
 // browser app single version
 browser_app_single_version_pv = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory == BrowserAppTrafficCategory.NORMAL).sum();
-browser_app_single_version_error_rate = from(BrowserAppSingleVersionTraffic.trafficCategory).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR,trafficCategory == BrowserAppTrafficCategory.NORMAL);
+browser_app_single_version_error_rate = from(BrowserAppSingleVersionTraffic.*).rate(trafficCategory == BrowserAppTrafficCategory.FIRST_ERROR,trafficCategory == BrowserAppTrafficCategory.NORMAL);
 browser_app_single_version_error_sum = from(BrowserAppSingleVersionTraffic.count).filter(trafficCategory != BrowserAppTrafficCategory.NORMAL).sum();
 
 // browser app page
@@ -69,7 +69,3 @@ browser_app_web_vitals_cls_avg = from(BrowserAppWebVitalsPerf.cls).filter(cls >=
 browser_app_web_vitals_lcp_avg = from(BrowserAppWebVitalsPerf.lcpTime).filter(lcpTime >= 0).longAvg();
 
 browser_app_web_interaction_inp_percentile = from(BrowserAppWebInteractionPerf.inpTime).filter(inpTime >= 0).percentile2(10);
-
-// Disable unnecessary hard core stream, targeting @Stream#name
-/////////
-//disable(browser_error_log);

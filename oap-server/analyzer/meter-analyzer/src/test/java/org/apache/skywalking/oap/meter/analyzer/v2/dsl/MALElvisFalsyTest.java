@@ -19,15 +19,10 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.dsl;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
-import org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Groovy's Elvis `?:` applies the fallback when the primary is falsy — including the empty string.
@@ -87,12 +82,19 @@ public class MALElvisFalsyTest {
 
     @Test
     void runtimeTruthiness_matchesGroovyFalsyValues() {
-        assertFalse(MalRuntimeHelper.isTruthy(0));
-        assertFalse(MalRuntimeHelper.isTruthy(0.0D));
-        assertFalse(MalRuntimeHelper.isTruthy(Collections.emptyList()));
-        assertFalse(MalRuntimeHelper.isTruthy(Collections.emptyMap()));
-        assertFalse(MalRuntimeHelper.isTruthy(new String[0]));
-        assertTrue(MalRuntimeHelper.isTruthy(-1));
-        assertTrue(MalRuntimeHelper.isTruthy(List.of("value")));
+        assertEquals("fallback", elvisOf("Integer.parseInt(tags.n)", ImmutableMap.of("n", "0")));
+        assertEquals("fallback", elvisOf("Double.parseDouble(tags.n)", ImmutableMap.of("n", "0.0")));
+        assertEquals("fallback", elvisOf("tags", ImmutableMap.of()), "an empty map");
+        assertEquals("fallback", elvisOf("tags.s.split(',')", ImmutableMap.of("s", ",")), "an empty array");
+        assertEquals("-1", elvisOf("Integer.parseInt(tags.n)", ImmutableMap.of("n", "-1")));
+        assertEquals("[value]", elvisOf("Arrays.asList(tags.s)", ImmutableMap.of("s", "value")));
+    }
+
+    private static String elvisOf(final String primary, final ImmutableMap<String, String> labels) {
+        final SampleFamily sf = SampleFamilyBuilder.newBuilder(
+            Sample.builder().name("metric").labels(labels).value(1.0).timestamp(1L).build()).build();
+        final Expression expr = DSL.parse("test_elvis_truth",
+            "metric.tag({tags -> tags['nt'] = String.valueOf(" + primary + " ?: 'fallback')})");
+        return expr.run(Map.of("metric", sf)).getData().samples[0].getLabels().get("nt");
     }
 }

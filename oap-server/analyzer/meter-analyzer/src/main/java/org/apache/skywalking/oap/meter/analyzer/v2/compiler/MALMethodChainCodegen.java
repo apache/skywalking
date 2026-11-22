@@ -117,17 +117,19 @@ final class MALMethodChainCodegen {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                generateArgument(sb, var, args.get(i));
+                generateArgument(sb, var, args.get(i), false);
             }
             sb.append('}');
         } else {
             final boolean primitiveDouble =
                 MALCodegenHelper.PRIMITIVE_DOUBLE_METHODS.contains(mc.getName());
+            // Only downsampling(...) takes a DownsamplingType: MAX anywhere else names a metric.
+            final boolean downsampling = "downsampling".equals(mc.getName());
             for (int i = 0; i < args.size(); i++) {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                generateMethodCallArg(sb, var, args.get(i), primitiveDouble);
+                generateMethodCallArg(sb, var, args.get(i), primitiveDouble, downsampling);
             }
         }
     }
@@ -198,22 +200,39 @@ final class MALMethodChainCodegen {
             }
             final MALExpressionModel.Expr expr =
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
-            if (!(expr instanceof MALExpressionModel.NumberExpr)) {
+            final MALExprCodegen.Constant constant = MALExprCodegen.exactConstant(expr);
+            if (constant == null) {
                 throw new IllegalArgumentException(
                     "Expected number argument for extension function");
             }
-            final double raw =
-                ((MALExpressionModel.NumberExpr) expr).getValue();
-            if (expectedType == double.class || expectedType == Double.class) {
-                sb.append(raw);
-            } else if (expectedType == float.class
-                    || expectedType == Float.class) {
-                sb.append((float) raw).append('F');
-            } else if (expectedType == long.class
-                    || expectedType == Long.class) {
-                sb.append((long) raw).append('L');
+            final boolean isInt = expectedType == int.class || expectedType == Integer.class;
+            final boolean isLong = expectedType == long.class || expectedType == Long.class;
+            // Groovy passes an Integer or Long to it, never a decimal (2.0) or a quotient.
+            if ((isInt || isLong) && !constant.integral) {
+                throw new IllegalArgumentException(
+                    "Extension function argument " + constant.value + " is not a whole number, which "
+                        + expectedType + " takes");
+            }
+            final String literal;
+            try {
+                if (isInt) {
+                    literal = String.valueOf(constant.value.intValueExact());
+                } else if (isLong) {
+                    literal = constant.value.longValueExact() + "L";
+                } else if (expectedType == float.class || expectedType == Float.class) {
+                    literal = constant.value.floatValue() + "F";
+                } else {
+                    literal = String.valueOf(constant.value.doubleValue());
+                }
+            } catch (final ArithmeticException e) {
+                throw new IllegalArgumentException("Extension function argument " + constant.value
+                    + " is out of the range " + expectedType + " takes", e);
+            }
+            // A wrapper parameter takes the boxed value: Javassist does not box an argument.
+            if (expectedType.isPrimitive()) {
+                sb.append(literal);
             } else {
-                sb.append((int) raw);
+                sb.append(expectedType.getSimpleName()).append(".valueOf(").append(literal).append(')');
             }
         } else if (List.class.isAssignableFrom(expectedType)) {
             if (arg instanceof MALExpressionModel.StringListArgument) {
@@ -251,18 +270,17 @@ final class MALMethodChainCodegen {
     private void generateMethodCallArg(final StringBuilder sb,
                                         final String var,
                                         final MALExpressionModel.Argument arg,
-                                        final boolean primitiveDouble) {
+                                        final boolean primitiveDouble,
+                                        final boolean downsampling) {
         if (primitiveDouble
                 && arg instanceof MALExpressionModel.ExprArgument) {
-            final MALExpressionModel.Expr innerExpr =
-                ((MALExpressionModel.ExprArgument) arg).getExpr();
-            if (innerExpr instanceof MALExpressionModel.NumberExpr) {
-                sb.append(
-                    ((MALExpressionModel.NumberExpr) innerExpr).getValue());
+            final MALExpressionModel.Expr scalar = ((MALExpressionModel.ExprArgument) arg).getExpr();
+            if (MALExprCodegen.isScalar(scalar)) {
+                MALExprCodegen.emitScalarRaw(sb, scalar);
                 return;
             }
         }
-        generateArgument(sb, var, arg);
+        generateArgument(sb, var, arg, downsampling);
     }
 
     /**
@@ -272,13 +290,15 @@ final class MALMethodChainCodegen {
      * <p>Complex expression arguments are pre-computed to temp variables by
      * {@link #preComputeComplexArgs} before the method call statement starts.
      *
-     * @param sb  the output buffer (inside a method call's argument list)
-     * @param var the current chain variable name
-     * @param arg the argument to emit
+     * @param sb           the output buffer (inside a method call's argument list)
+     * @param var          the current chain variable name
+     * @param arg          the argument to emit
+     * @param downsampling the argument is downsampling(...)'s, where a bare MAX names the DownsamplingType
      */
     void generateArgument(final StringBuilder sb,
                            final String var,
-                           final MALExpressionModel.Argument arg) {
+                           final MALExpressionModel.Argument arg,
+                           final boolean downsampling) {
         if (arg instanceof MALExpressionModel.StringArgument) {
             sb.append('"')
               .append(DslJavaSourceText.toLiteral(
@@ -307,6 +327,9 @@ final class MALMethodChainCodegen {
                 }
                 final double v = vals.get(i);
                 if (v == Math.floor(v) && !Double.isInfinite(v)) {
+                    if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) {
+                        throw new IllegalArgumentException("List number " + v + " is beyond the int range");
+                    }
                     sb.append("Integer.valueOf(").append((int) v).append(')');
                 } else {
                     sb.append("Double.valueOf(").append(v).append(')');
@@ -339,16 +362,22 @@ final class MALMethodChainCodegen {
         } else if (arg instanceof MALExpressionModel.ExprArgument) {
             final MALExpressionModel.Expr innerExpr =
                 ((MALExpressionModel.ExprArgument) arg).getExpr();
-            if (innerExpr instanceof MALExpressionModel.NumberExpr) {
-                MALCodegenHelper.emitNumberValueOf(sb,
-                    ((MALExpressionModel.NumberExpr) innerExpr).getValue());
+            final Double constant = MALExprCodegen.constantValue(innerExpr);
+            if (constant != null) {
+                // -1 or (1 + 1) is a number, as a literal is; as a sample family it would be EMPTY
+                MALCodegenHelper.emitNumberValueOf(sb, constant);
+            } else if (MALExprCodegen.isScalar(innerExpr)) {
+                // m.minus(time()): a number computed when the expression runs
+                sb.append("Double.valueOf(");
+                MALExprCodegen.emitScalarRaw(sb, innerExpr);
+                sb.append(')');
             } else if (innerExpr instanceof MALExpressionModel.MetricExpr
                     && ((MALExpressionModel.MetricExpr) innerExpr)
                         .getMethodChain().isEmpty()) {
                 final String name =
                     ((MALExpressionModel.MetricExpr) innerExpr)
                         .getMetricName();
-                if (MALCodegenHelper.isDownsamplingType(name)) {
+                if (downsampling && MALCodegenHelper.isDownsamplingType(name)) {
                     sb.append(
                         MALCodegenHelper.ENUM_FQCN.get("DownsamplingType"))
                       .append('.').append(name);
@@ -373,6 +402,8 @@ final class MALMethodChainCodegen {
             }
         } else if (arg instanceof MALExpressionModel.ClosureArgument) {
             sb.append(exprCodegen.nextClosureFieldName());
+        } else {
+            throw new IllegalArgumentException("Unsupported argument: " + arg.getClass().getSimpleName());
         }
     }
 
@@ -402,7 +433,7 @@ final class MALMethodChainCodegen {
 
     private static boolean isSimpleExprArg(
             final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.NumberExpr) {
+        if (MALExprCodegen.isScalar(expr)) {
             return true;
         }
         if (expr instanceof MALExpressionModel.MetricExpr) {

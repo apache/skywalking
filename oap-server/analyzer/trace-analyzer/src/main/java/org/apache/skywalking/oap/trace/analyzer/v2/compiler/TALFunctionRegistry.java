@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
 import org.apache.skywalking.oap.server.core.source.TALFunctionContext;
 import org.apache.skywalking.oap.server.core.source.TALFunctionProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
@@ -401,7 +402,8 @@ public class TALFunctionRegistry {
     }
 
     /**
-     * The same ranking for a Java method a chain calls on an object.
+     * The overload of a {@code source} field's setter the value fits best, ranked as {@link #select} ranks a
+     * function's overloads.
      *
      * @param overloads the methods of one name and arity
      * @param argTypes  each argument's compile-time type, null when unknown
@@ -442,8 +444,8 @@ public class TALFunctionRegistry {
         if (arg == null) {
             return 1;
         }
-        final Class<?> boxedParam = TALCodegenHelper.boxedClass(param);
-        final Class<?> boxedArg = TALCodegenHelper.boxedClass(arg);
+        final Class<?> boxedParam = DslMethods.boxed(param);
+        final Class<?> boxedArg = DslMethods.boxed(arg);
         if (boxedParam == boxedArg) {
             return 4;
         }
@@ -485,10 +487,6 @@ public class TALFunctionRegistry {
     }
 
     /**
-     * The public methods a function class declares itself, the extension points' own methods and every {@code bind}
-     * overload excluded.
-     */
-    /**
      * An input provider's functions: its public methods, inherited ones included, whose first parameter is the run,
      * so the provider's own methods and its span readers are not functions.
      */
@@ -505,6 +503,10 @@ public class TALFunctionRegistry {
         return methods;
     }
 
+    /**
+     * The public methods a function class declares itself, the extension points' own methods and every {@code bind}
+     * overload excluded.
+     */
     private static List<Method> functionMethods(final Class<?> type) {
         final List<Method> methods = new ArrayList<>();
         for (final Method method : type.getDeclaredMethods()) {

@@ -17,12 +17,12 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.function.Function;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -74,6 +74,7 @@ import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.P
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.StringArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.StringListArgument;
 import org.apache.skywalking.oap.meter.analyzer.v2.compiler.MALExpressionModel.UnaryNegExpr;
+import org.apache.skywalking.oap.server.core.dsl.DslStrings;
 
 /**
  * Facade: parses MAL expression strings into {@link MALExpressionModel.Expr} AST.
@@ -114,38 +115,48 @@ public final class MALScriptParser {
         if (expPrefix == null || expPrefix.isEmpty()) {
             return exp;
         }
-        final MALLexer lexer = new MALLexer(CharStreams.fromString(exp));
-        final CommonTokenStream tokens = new CommonTokenStream(lexer);
-        final MALParser parser = new MALParser(tokens);
-        final List<String> errors = new ArrayList<>();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(final Recognizer<?, ?> recognizer,
-                                    final Object offendingSymbol,
-                                    final int line,
-                                    final int charPositionInLine,
-                                    final String msg,
-                                    final RecognitionException e) {
-                errors.add(line + ":" + charPositionInLine + " " + msg);
-            }
-        });
-        final MALParser.ExpressionContext tree = parser.expression();
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(
-                "MAL expression parsing failed while injecting expPrefix: "
-                    + String.join("; ", errors) + " in expression: " + exp);
-        }
+        // As the compiler reads it: a /regex/ argument is a string to the parser.
+        final String source = preprocessRegexLiterals(exp);
+        final MALParser.ExpressionContext tree = parse(source, MALParser::expression,
+            "MAL expression parsing failed while injecting expPrefix", exp);
         final List<int[]> ranges = new ArrayList<>();
         collectMetricSourceRanges(tree, ranges);
         // Splice from right to left so earlier indices remain valid.
         ranges.sort(Comparator.comparingInt((int[] r) -> r[0]).reversed());
-        final StringBuilder sb = new StringBuilder(exp);
+        final StringBuilder sb = new StringBuilder(source);
         for (final int[] range : ranges) {
-            final String name = sb.substring(range[0], range[1] + 1);
-            sb.replace(range[0], range[1] + 1, "(" + name + "." + expPrefix + ")");
+            // Token indexes count code points; the StringBuilder counts UTF-16 units.
+            final int start = source.offsetByCodePoints(0, range[0]);
+            final int end = source.offsetByCodePoints(0, range[1] + 1);
+            final String name = sb.substring(start, end);
+            sb.replace(start, end, "(" + name + "." + expPrefix + ")");
         }
         return sb.toString();
+    }
+
+    /**
+     * Whether the identifier is the whole argument of a built-in downsampling(...) call, the one place the codegen
+     * reads it as a DownsamplingType (MALMethodChainCodegen#generateArgument).
+     */
+    private static boolean isDownsamplingArgument(final ParseTree primary) {
+        for (ParseTree p = primary.getParent(); p != null; p = p.getParent()) {
+            if (p instanceof MALParser.ArgumentContext) {
+                final ParseTree call = p.getParent() == null ? null : p.getParent().getParent();
+                return stripParentheses(p.getText()).equals(primary.getText())
+                    && call instanceof MALParser.MethodCallContext
+                    && ((MALParser.MethodCallContext) call).DOUBLE_COLON() == null
+                    && "downsampling".equals(((MALParser.MethodCallContext) call).IDENTIFIER(0).getText());
+            }
+        }
+        return false;
+    }
+
+    private static String stripParentheses(final String text) {
+        String s = text;
+        while (s.length() > 1 && s.charAt(0) == '(' && s.charAt(s.length() - 1) == ')') {
+            s = s.substring(1, s.length() - 1);
+        }
+        return s;
     }
 
     private static void collectMetricSourceRanges(final ParseTree node,
@@ -160,12 +171,11 @@ public final class MALScriptParser {
                     && primary.L_PAREN() == null) {
                 final TerminalNode id = primary.IDENTIFIER();
                 final String text = id.getText();
-                // Bare-identifier downsampling constants (SUM, AVG, LATEST,
-                // SUM_PER_MIN, MAX, MIN) parse as IDENTIFIER primaries but
-                // codegen treats them as enum values via
-                // MALCodegenHelper.isDownsamplingType — skip them so we don't
-                // turn them into bogus SampleFamily refs.
-                if (!MALCodegenHelper.isDownsamplingType(text)) {
+                // A downsampling constant (SUM, AVG, LATEST, SUM_PER_MIN, MAX,
+                // MIN) as the whole argument of .downsampling(MAX) is an enum
+                // value to the codegen; anywhere else (MAX.sum(...), count(MAX))
+                // the name is a metric and gets the prefix like any other.
+                if (!MALCodegenHelper.isDownsamplingType(text) || !isDownsamplingArgument(primary)) {
                     ranges.add(new int[]{
                         id.getSymbol().getStartIndex(),
                         id.getSymbol().getStopIndex()
@@ -186,57 +196,106 @@ public final class MALScriptParser {
      * by the lexer mode and are NOT touched here.
      */
     static String preprocessRegexLiterals(final String expression) {
-        // Match /pattern/ that appears after ( or , (method arg context),
-        // but NOT after =~ (which is handled by lexer mode)
-        final Pattern argRegex = Pattern.compile(
-            "(?<=[,(])\\s*/([^/\\r\\n]+)/");
-        final Matcher m = argRegex.matcher(expression);
-        if (!m.find()) {
-            return expression;
+        // A /pattern/ right after ( or , (method arg context) becomes a single-quoted string, which Groovy does not
+        // interpolate either. Quoted strings, comments and a regex after =~ (the lexer's) are copied as they are.
+        final StringBuilder sb = new StringBuilder(expression.length());
+        char quote = 0;
+        char lastSignificant = 0;
+        int i = 0;
+        while (i < expression.length()) {
+            final char c = expression.charAt(i);
+            if (quote != 0) {
+                sb.append(c);
+                if (c == '\\' && i + 1 < expression.length()) {
+                    sb.append(expression.charAt(++i));
+                } else if (c == quote) {
+                    quote = 0;
+                    lastSignificant = c;
+                }
+                i++;
+                continue;
+            }
+            final char next = i + 1 < expression.length() ? expression.charAt(i + 1) : 0;
+            if (c == '/' && next == '*') {
+                final int close = expression.indexOf("*/", i + 2);
+                final int stop = close < 0 ? expression.length() : close + 2;
+                sb.append(expression, i, stop);
+                i = stop;
+                continue;
+            }
+            if (c == '/' && next == '/') {
+                int stop = i;
+                while (stop < expression.length() && expression.charAt(stop) != '\n') {
+                    stop++;
+                }
+                sb.append(expression, i, stop);
+                i = stop;
+                continue;
+            }
+            if (c == '/' && (lastSignificant == ',' || lastSignificant == '(' || lastSignificant == '~')) {
+                final int close = regexLiteralEnd(expression, i + 1);
+                if (close > i + 1) {
+                    requireNoSlashyInterpolation(expression.substring(i, close + 1));
+                    if (lastSignificant == '~') {
+                        sb.append(expression, i, close + 1);
+                    } else {
+                        // A string literal of the pattern: a backslash and a quote escaped for the MAL lexer, an
+                        // escaped slash unescaped.
+                        sb.append('\'').append(expression.substring(i + 1, close).replace("\\/", "/")
+                            .replace("\\", "\\\\").replace("'", "\\'")).append('\'');
+                    }
+                    i = close + 1;
+                    lastSignificant = '/';
+                    continue;
+                }
+            }
+            if (c == '\'' || c == '"') {
+                quote = c;
+            }
+            sb.append(c);
+            if (!Character.isWhitespace(c)) {
+                lastSignificant = c;
+            }
+            i++;
         }
-        final StringBuffer sb = new StringBuffer();
-        m.reset();
-        while (m.find()) {
-            // Escape backslashes: regex literal \| must become string literal \\|
-            // because the MAL lexer only recognizes \\, \", \' etc. as escape sequences
-            final String body = m.group(1).replace("\\", "\\\\");
-            // Preserve leading whitespace from the match
-            final String leading = m.group().substring(0, m.group().indexOf('/'));
-            m.appendReplacement(sb,
-                java.util.regex.Matcher.quoteReplacement(
-                    leading + "\"" + body + "\""));
-        }
-        m.appendTail(sb);
         return sb.toString();
     }
 
-    public static Expr parse(final String expression) {
-        final String preprocessed = preprocessRegexLiterals(expression);
-        final MALLexer lexer = new MALLexer(CharStreams.fromString(preprocessed));
-        final CommonTokenStream tokens = new CommonTokenStream(lexer);
-        final MALParser parser = new MALParser(tokens);
-
-        final List<String> errors = new ArrayList<>();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new BaseErrorListener() {
-            @Override
-            public void syntaxError(final Recognizer<?, ?> recognizer,
-                                    final Object offendingSymbol,
-                                    final int line,
-                                    final int charPositionInLine,
-                                    final String msg,
-                                    final RecognitionException e) {
-                errors.add(line + ":" + charPositionInLine + " " + msg);
+    /**
+     * Groovy interpolates {@code $name} and {@code ${...}} in a slashy string; a pattern here is taken as written.
+     */
+    static void requireNoSlashyInterpolation(final String slashy) {
+        for (int i = 0; i < slashy.length() - 1; i++) {
+            // A backslash escapes only the slash in a slashy string: /\$p/ still interpolates p.
+            if (slashy.charAt(i) == '\\' && slashy.charAt(i + 1) == '/') {
+                i++;
+            } else if (DslStrings.interpolationAt(slashy, i)) {
+                throw new IllegalArgumentException("Interpolation in the slashy string " + slashy + " is not supported");
             }
-        });
-
-        final MALParser.ExpressionContext tree = parser.expression();
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(
-                "MAL expression parsing failed: " + String.join("; ", errors)
-                    + " in expression: " + expression);
         }
+    }
 
+    /**
+     * @return the index of the / that closes a regex literal whose body starts at {@code from} ({@code \\/} does not),
+     *     or -1 when none does before the line ends
+     */
+    private static int regexLiteralEnd(final String expression, final int from) {
+        for (int i = from; i < expression.length(); i++) {
+            final char c = expression.charAt(i);
+            if (c == '\\' && i + 1 < expression.length() && expression.charAt(i + 1) == '/') {
+                i++;
+            } else if (c == '/') {
+                return i;
+            } else if (c == '\r' || c == '\n') {
+                return -1;
+            }
+        }
+        return -1;
+    }
+
+    public static Expr parse(final String expression) {
+        final MALParser.ExpressionContext tree = parse(preprocessRegexLiterals(expression), MALParser::expression,
+            "MAL expression parsing failed", expression);
         return new MALExprVisitor().visit(tree.additiveExpression());
     }
 
@@ -246,13 +305,24 @@ public final class MALScriptParser {
      * @param filterExpression e.g. {@code "{ tags -> tags.job_name == 'mysql-monitoring' }"}
      */
     public static ClosureArgument parseFilter(final String filterExpression) {
-        final MALLexer lexer = new MALLexer(CharStreams.fromString(filterExpression));
-        final CommonTokenStream tokens = new CommonTokenStream(lexer);
-        final MALParser parser = new MALParser(tokens);
+        final MALParser.FilterExpressionContext tree = parse(preprocessRegexLiterals(filterExpression),
+            MALParser::filterExpression, "MAL filter expression parsing failed", filterExpression);
+        return new ClosureVisitor().visitClosure(tree.closureExpression());
+    }
 
+    /**
+     * Parses a source by one rule of the grammar; any syntax error the lexer or the parser reports fails it.
+     *
+     * @param failure  how the message starts
+     * @param original the expression as written, for the message
+     */
+    private static <T> T parse(final String source, final Function<MALParser, T> rule, final String failure,
+                               final String original) {
+        final MALLexer lexer = new MALLexer(CharStreams.fromString(source));
+        final MALParser parser = new MALParser(new CommonTokenStream(lexer));
         final List<String> errors = new ArrayList<>();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new BaseErrorListener() {
+        // The lexer reports too: by default it prints an unrecognized character and drops it.
+        final BaseErrorListener listener = new BaseErrorListener() {
             @Override
             public void syntaxError(final Recognizer<?, ?> recognizer,
                                     final Object offendingSymbol,
@@ -262,16 +332,17 @@ public final class MALScriptParser {
                                     final RecognitionException e) {
                 errors.add(line + ":" + charPositionInLine + " " + msg);
             }
-        });
-
-        final MALParser.FilterExpressionContext tree = parser.filterExpression();
+        };
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(listener);
+        parser.removeErrorListeners();
+        parser.addErrorListener(listener);
+        final T tree = rule.apply(parser);
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(
-                "MAL filter expression parsing failed: " + String.join("; ", errors)
-                    + " in expression: " + filterExpression);
+                failure + ": " + String.join("; ", errors) + " in expression: " + original);
         }
-
-        return new ClosureVisitor().visitClosure(tree.closureExpression());
+        return tree;
     }
 
     /**
@@ -314,7 +385,10 @@ public final class MALScriptParser {
 
         @Override
         public Expr visitUnaryNumber(final MALParser.UnaryNumberContext ctx) {
-            return new NumberExpr(Double.parseDouble(ctx.NUMBER().getText()));
+            final String text = ctx.NUMBER().getText();
+            // A scalar meets a sample family as a double; folding and extension arguments use the text.
+            return new NumberExpr(MALLiterals.parseLiteral(text), text.indexOf('.') < 0,
+                MALLiterals.exactValue(text));
         }
 
         @Override
@@ -400,7 +474,7 @@ public final class MALScriptParser {
                     ctx.enumRef().IDENTIFIER(1).getText());
             }
             if (ctx.STRING() != null) {
-                return new StringArgument(stripQuotes(ctx.STRING().getText()));
+                return new StringArgument(MALLiterals.literalText(ctx.STRING().getText()));
             }
             if (ctx.boolLiteral() != null) {
                 return new BoolArgument(ctx.boolLiteral().TRUE() != null);
@@ -414,13 +488,13 @@ public final class MALScriptParser {
 
         private StringListArgument convertStringList(final MALParser.StringListContext ctx) {
             final List<String> values = new ArrayList<>();
-            ctx.STRING().forEach(s -> values.add(stripQuotes(s.getText())));
+            ctx.STRING().forEach(s -> values.add(MALLiterals.literalText(s.getText())));
             return new StringListArgument(values);
         }
 
         private NumberListArgument convertNumberList(final MALParser.NumberListContext ctx) {
             final List<Double> values = new ArrayList<>();
-            ctx.NUMBER().forEach(n -> values.add(Double.parseDouble(n.getText())));
+            ctx.NUMBER().forEach(n -> values.add(MALLiterals.parseListNumber(n.getText())));
             return new NumberListArgument(values);
         }
     }
@@ -459,9 +533,18 @@ public final class MALScriptParser {
                 return convertIfStatement(ctx.ifStatement());
             }
             if (ctx.returnStatement() != null) {
-                final ClosureExpr value = ctx.returnStatement().closureExpr() != null
-                    ? convertClosureExpr(ctx.returnStatement().closureExpr()) : null;
-                return new ClosureReturnStatement(value);
+                if (ctx.returnStatement().closureCondition() == null) {
+                    return new ClosureReturnStatement(null);
+                }
+                if (ctx.returnStatement().closureCondition().getStart().getLine()
+                    != ctx.returnStatement().RETURN().getSymbol().getLine()) {
+                    // Groovy ends a bare return at the line break: the next line is a statement of its own.
+                    throw new IllegalArgumentException("A return whose value starts on the next line is ambiguous: "
+                        + "put the value on the return's line, or end the return with ;");
+                }
+                final ClosureCondition value = convertCondition(ctx.returnStatement().closureCondition());
+                return new ClosureReturnStatement(value instanceof ClosureExprCondition
+                    ? ((ClosureExprCondition) value).getExpr() : value);
             }
             if (ctx.variableDeclaration() != null) {
                 final MALParser.VariableDeclarationContext vd = ctx.variableDeclaration();
@@ -472,7 +555,9 @@ public final class MALScriptParser {
                     // Infer type from initializer
                     varName = vd.IDENTIFIER(0).getText();
                     final ClosureExpr init = convertClosureExpr(vd.closureExpr());
-                    typeName = inferDefType(init);
+                    // the code generator infers its type from the initializer and keeps it a def (it may be
+                    // reassigned a value of another type)
+                    typeName = "def";
                     return new ClosureVarDecl(typeName, varName, init);
                 }
                 if (vd.L_BRACKET() != null) {
@@ -490,6 +575,10 @@ public final class MALScriptParser {
                 final MALParser.ClosureFieldAccessContext fa =
                     ctx.assignmentStatement().closureFieldAccess();
                 final List<org.antlr.v4.runtime.tree.TerminalNode> ids = fa.IDENTIFIER();
+                if (ids.size() > 2 || (ids.size() == 2 && fa.closureExpr() != null)) {
+                    throw new IllegalArgumentException("Cannot assign to " + fa.getText()
+                        + ": the target is a variable, <map>.<key> or <map>[<key>]");
+                }
                 final String firstId = ids.get(0).getText();
                 if (ids.size() == 1 && fa.closureExpr() == null) {
                     // bare variable assignment: result = '129'
@@ -510,9 +599,10 @@ public final class MALScriptParser {
                     convertClosureExpr(ctx.assignmentStatement().closureExpr());
                 return new ClosureAssignment(firstId, keyExpr, value);
             }
-            // expressionStatement
-            return new ClosureExprStatement(
-                convertClosureExpr(ctx.expressionStatement().closureExpr()));
+            if (ctx.expressionStatement() == null) {
+                throw new IllegalArgumentException("Unsupported closure statement: " + ctx.getText());
+            }
+            return new ClosureExprStatement(convertCondition(ctx.expressionStatement().closureCondition()));
         }
 
         private ClosureIfStatement convertIfStatement(
@@ -545,8 +635,25 @@ public final class MALScriptParser {
             return convertConditionOr(ctx.closureConditionOr());
         }
 
+        /**
+         * Groovy's ?: binds looser than &&, || and in (a || b ? x : y is (a || b) ? x : y), where this grammar puts
+         * a ternary inside the operand: refuse the unparenthesized mix.
+         */
+        private void requireNoTernaryOperand(final MALParser.ClosureConditionPrimaryContext primary,
+                                             final String operator) {
+            if (primary instanceof MALParser.ConditionExprContext
+                && ((MALParser.ConditionExprContext) primary).closureExpr() instanceof MALParser.ClosureTernaryContext) {
+                throw new IllegalArgumentException("A ternary or ?: as an operand of " + operator
+                    + " is ambiguous: parenthesize it");
+            }
+        }
+
         private ClosureCondition convertConditionOr(
                 final MALParser.ClosureConditionOrContext ctx) {
+            if (ctx.closureConditionAnd().size() > 1) {
+                ctx.closureConditionAnd().forEach(and -> and.closureConditionPrimary().forEach(
+                    primary -> requireNoTernaryOperand(primary, "||")));
+            }
             ClosureCondition result = convertConditionAnd(ctx.closureConditionAnd(0));
             for (int i = 1; i < ctx.closureConditionAnd().size(); i++) {
                 result = new MALExpressionModel.ClosureLogical(
@@ -557,6 +664,9 @@ public final class MALScriptParser {
 
         private ClosureCondition convertConditionAnd(
                 final MALParser.ClosureConditionAndContext ctx) {
+            if (ctx.closureConditionPrimary().size() > 1) {
+                ctx.closureConditionPrimary().forEach(primary -> requireNoTernaryOperand(primary, "&&"));
+            }
             ClosureCondition result = convertConditionPrimary(ctx.closureConditionPrimary(0));
             for (int i = 1; i < ctx.closureConditionPrimary().size(); i++) {
                 result = new MALExpressionModel.ClosureLogical(
@@ -568,45 +678,32 @@ public final class MALScriptParser {
 
         private ClosureCondition convertConditionPrimary(
                 final MALParser.ClosureConditionPrimaryContext ctx) {
-            if (ctx instanceof MALParser.ConditionEqContext) {
-                final MALParser.ConditionEqContext eq = (MALParser.ConditionEqContext) ctx;
-                return new MALExpressionModel.ClosureComparison(
-                    convertClosureExpr(eq.closureExpr(0)),
-                    CompareOp.EQ,
-                    convertClosureExpr(eq.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ConditionNeqContext) {
-                final MALParser.ConditionNeqContext neq = (MALParser.ConditionNeqContext) ctx;
-                return new MALExpressionModel.ClosureComparison(
-                    convertClosureExpr(neq.closureExpr(0)),
-                    CompareOp.NEQ,
-                    convertClosureExpr(neq.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ConditionGtContext) {
-                final MALParser.ConditionGtContext gt = (MALParser.ConditionGtContext) ctx;
-                return new MALExpressionModel.ClosureComparison(
-                    convertClosureExpr(gt.closureExpr(0)),
-                    CompareOp.GT,
-                    convertClosureExpr(gt.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ConditionLtContext) {
-                final MALParser.ConditionLtContext lt = (MALParser.ConditionLtContext) ctx;
-                return new MALExpressionModel.ClosureComparison(
-                    convertClosureExpr(lt.closureExpr(0)),
-                    CompareOp.LT,
-                    convertClosureExpr(lt.closureExpr(1)));
-            }
             if (ctx instanceof MALParser.ConditionNotContext) {
                 final MALParser.ConditionNotContext not = (MALParser.ConditionNotContext) ctx;
-                return new MALExpressionModel.ClosureNot(
-                    convertConditionPrimary(not.closureConditionPrimary()));
+                final MALParser.ClosureConditionPrimaryContext operand = not.closureConditionPrimary();
+                // Groovy applies ! to the primary: !a == b is (!a) == b and !a ? x : y is (!a) ? x : y, where the
+                // grammar reads !(a == b). Refuse to guess.
+                if (!(operand instanceof MALParser.ConditionParenContext)
+                        && !(operand instanceof MALParser.ConditionNotContext)
+                        && !(operand instanceof MALParser.ConditionExprContext
+                            && isPrimaryOperand(((MALParser.ConditionExprContext) operand).closureExpr()))) {
+                    throw new IllegalArgumentException("Ambiguous negation " + not.getText()
+                        + ": Groovy applies ! to the first operand alone; write !(...) around what it negates");
+                }
+                return new MALExpressionModel.ClosureNot(convertConditionPrimary(operand));
             }
             if (ctx instanceof MALParser.ConditionInContext) {
                 final MALParser.ConditionInContext in = (MALParser.ConditionInContext) ctx;
+                if (in.closureExpr() instanceof MALParser.ClosureTernaryContext
+                    || in.closureExpr() instanceof MALParser.ClosureRelationalContext
+                    || in.closureExpr() instanceof MALParser.ClosureEqualityContext) {
+                    // Groovy's in binds tighter than == and ?: (false == x in [...] is false == (x in [...])).
+                    throw new IllegalArgumentException("A comparison or ternary before in is ambiguous: parenthesize it");
+                }
                 final List<String> values = new ArrayList<>();
                 if (in.closureListLiteral() != null) {
                     in.closureListLiteral().STRING().forEach(
-                        s -> values.add(stripQuotes(s.getText())));
+                        s -> values.add(MALLiterals.literalText(s.getText())));
                 }
                 return new MALExpressionModel.ClosureInCondition(
                     convertClosureExpr(in.closureExpr()), values);
@@ -616,77 +713,74 @@ public final class MALScriptParser {
                     (MALParser.ConditionParenContext) ctx;
                 return convertCondition(paren.closureCondition());
             }
-            // conditionExpr
+            if (!(ctx instanceof MALParser.ConditionExprContext)) {
+                throw new IllegalArgumentException("Unsupported closure condition: " + ctx.getText());
+            }
             final MALParser.ConditionExprContext exprCtx =
                 (MALParser.ConditionExprContext) ctx;
-            return new ClosureExprCondition(convertClosureExpr(exprCtx.closureExpr()));
+            final ClosureExpr expr = convertClosureExpr(exprCtx.closureExpr());
+            return expr instanceof ClosureCondition ? (ClosureCondition) expr : new ClosureExprCondition(expr);
+        }
+
+        private boolean isPrimaryOperand(final MALParser.ClosureExprContext ctx) {
+            return ctx instanceof MALParser.ClosurePrimaryContext || ctx instanceof MALParser.ClosureUnaryMinusContext;
         }
 
         /**
-         * Infer the Java type for a {@code def} variable declaration from its initializer.
-         * <ul>
-         *   <li>Regex match ({@code =~}) produces {@code String[][]}</li>
-         *   <li>Method chain ending in {@code .split()} produces {@code String[]}</li>
-         *   <li>Otherwise defaults to {@code Object}</li>
-         * </ul>
+         * Groovy groups `a != b =~ /re/` as `(a != b) =~ /re/`: a regex match beside a comparison must be parenthesized.
          */
-        private String inferDefType(final ClosureExpr init) {
-            if (init instanceof MALExpressionModel.ClosureRegexMatchExpr) {
-                return "String[][]";
+        private void requireNoRegexOperand(final MALParser.ClosureExprContext left,
+                                           final MALParser.ClosureExprContext right) {
+            if (left instanceof MALParser.ClosureRegexMatchContext || right instanceof MALParser.ClosureRegexMatchContext) {
+                throw new IllegalArgumentException("A regex match beside a comparison is grouped differently by Groovy; "
+                    + "parenthesize it: a != (b =~ /re/)");
             }
-            final List<MALExpressionModel.ClosureChainSegment> segs;
-            if (init instanceof ClosureMethodChain) {
-                segs = ((ClosureMethodChain) init).getSegments();
-            } else if (init instanceof MALExpressionModel.ClosureExprChain) {
-                segs = ((MALExpressionModel.ClosureExprChain) init).getSegments();
-            } else {
-                segs = Collections.emptyList();
-            }
-            if (!segs.isEmpty()) {
-                final MALExpressionModel.ClosureChainSegment last =
-                    segs.get(segs.size() - 1);
-                if (last instanceof MALExpressionModel.ClosureMethodCallSeg
-                        && "split".equals(
-                            ((MALExpressionModel.ClosureMethodCallSeg) last).getName())) {
-                    return "String[]";
-                }
-            }
-            return "Object";
         }
 
-        private CompareOp convertCompOp(final MALParser.CompOpContext ctx) {
-            if (ctx.GT() != null) {
-                return CompareOp.GT;
+        private CompareOp compareOp(final int token) {
+            switch (token) {
+                case MALParser.GT:
+                    return CompareOp.GT;
+                case MALParser.LT:
+                    return CompareOp.LT;
+                case MALParser.GTE:
+                    return CompareOp.GTE;
+                case MALParser.LTE:
+                    return CompareOp.LTE;
+                case MALParser.DEQ:
+                    return CompareOp.EQ;
+                case MALParser.NEQ:
+                    return CompareOp.NEQ;
+                default:
+                    throw new IllegalArgumentException("Unsupported comparison token " + token);
             }
-            if (ctx.LT() != null) {
-                return CompareOp.LT;
-            }
-            if (ctx.GTE() != null) {
-                return CompareOp.GTE;
-            }
-            if (ctx.LTE() != null) {
-                return CompareOp.LTE;
-            }
-            if (ctx.DEQ() != null) {
-                return CompareOp.EQ;
-            }
-            return CompareOp.NEQ;
         }
 
         private ClosureExpr convertClosureExpr(final MALParser.ClosureExprContext ctx) {
-            if (ctx instanceof MALParser.ClosureTernaryCompContext) {
-                final MALParser.ClosureTernaryCompContext tc =
-                    (MALParser.ClosureTernaryCompContext) ctx;
-                return new MALExpressionModel.ClosureCompTernaryExpr(
-                    convertClosureExpr(tc.closureExpr(0)),
-                    convertCompOp(tc.compOp()),
-                    convertClosureExpr(tc.closureExpr(1)),
-                    convertClosureExpr(tc.closureExpr(2)),
-                    convertClosureExpr(tc.closureExpr(3)));
+            if (ctx instanceof MALParser.ClosureRelationalContext) {
+                final MALParser.ClosureRelationalContext cmp = (MALParser.ClosureRelationalContext) ctx;
+                requireNoRegexOperand(cmp.closureExpr(0), cmp.closureExpr(1));
+                return new MALExpressionModel.ClosureComparison(
+                    convertClosureExpr(cmp.closureExpr(0)),
+                    compareOp(cmp.op.getType()),
+                    convertClosureExpr(cmp.closureExpr(1)));
+            }
+            if (ctx instanceof MALParser.ClosureEqualityContext) {
+                final MALParser.ClosureEqualityContext cmp = (MALParser.ClosureEqualityContext) ctx;
+                requireNoRegexOperand(cmp.closureExpr(0), cmp.closureExpr(1));
+                return new MALExpressionModel.ClosureComparison(
+                    convertClosureExpr(cmp.closureExpr(0)),
+                    compareOp(cmp.op.getType()),
+                    convertClosureExpr(cmp.closureExpr(1)));
             }
             if (ctx instanceof MALParser.ClosureTernaryContext) {
                 final MALParser.ClosureTernaryContext ternary =
                     (MALParser.ClosureTernaryContext) ctx;
+                if (ternary.closureExpr().size() == 2) {
+                    return new MALExpressionModel.ClosureElvisExpr(
+                        convertClosureExpr(ternary.closureExpr(0)),
+                        convertClosureExpr(ternary.closureExpr(1)));
+                }
                 return new MALExpressionModel.ClosureTernaryExpr(
                     convertClosureExpr(ternary.closureExpr(0)),
                     convertClosureExpr(ternary.closureExpr(1)),
@@ -696,59 +790,41 @@ public final class MALScriptParser {
                 final MALParser.ClosureRegexMatchContext rm =
                     (MALParser.ClosureRegexMatchContext) ctx;
                 final String rawRegex = rm.REGEX_LITERAL().getText();
+                requireNoSlashyInterpolation(rawRegex);
                 // Strip surrounding slashes: /pattern/ → pattern
-                final String pattern = rawRegex.substring(1, rawRegex.length() - 1);
+                // In a slashy string \/ is the slash itself.
+                final String pattern = rawRegex.substring(1, rawRegex.length() - 1).replace("\\/", "/");
                 return new MALExpressionModel.ClosureRegexMatchExpr(
                     convertClosureExpr(rm.closureExpr()), pattern);
             }
-            if (ctx instanceof MALParser.ClosureElvisContext) {
-                final MALParser.ClosureElvisContext elvis =
-                    (MALParser.ClosureElvisContext) ctx;
-                return new MALExpressionModel.ClosureElvisExpr(
-                    convertClosureExpr(elvis.closureExpr(0)),
-                    convertClosureExpr(elvis.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ClosureAddContext) {
-                final MALParser.ClosureAddContext add = (MALParser.ClosureAddContext) ctx;
+            if (ctx instanceof MALParser.ClosureAddSubContext) {
+                final MALParser.ClosureAddSubContext addSub = (MALParser.ClosureAddSubContext) ctx;
                 return new ClosureBinaryExpr(
-                    convertClosureExpr(add.closureExpr(0)),
-                    ArithmeticOp.ADD,
-                    convertClosureExpr(add.closureExpr(1)));
+                    convertClosureExpr(addSub.closureExpr(0)),
+                    addSub.op.getType() == MALParser.PLUS ? ArithmeticOp.ADD : ArithmeticOp.SUB,
+                    convertClosureExpr(addSub.closureExpr(1)));
             }
-            if (ctx instanceof MALParser.ClosureSubContext) {
-                final MALParser.ClosureSubContext sub = (MALParser.ClosureSubContext) ctx;
+            if (ctx instanceof MALParser.ClosureMulDivContext) {
+                final MALParser.ClosureMulDivContext mulDiv = (MALParser.ClosureMulDivContext) ctx;
                 return new ClosureBinaryExpr(
-                    convertClosureExpr(sub.closureExpr(0)),
-                    ArithmeticOp.SUB,
-                    convertClosureExpr(sub.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ClosureMulContext) {
-                final MALParser.ClosureMulContext mul = (MALParser.ClosureMulContext) ctx;
-                return new ClosureBinaryExpr(
-                    convertClosureExpr(mul.closureExpr(0)),
-                    ArithmeticOp.MUL,
-                    convertClosureExpr(mul.closureExpr(1)));
-            }
-            if (ctx instanceof MALParser.ClosureDivContext) {
-                final MALParser.ClosureDivContext div = (MALParser.ClosureDivContext) ctx;
-                return new ClosureBinaryExpr(
-                    convertClosureExpr(div.closureExpr(0)),
-                    ArithmeticOp.DIV,
-                    convertClosureExpr(div.closureExpr(1)));
+                    convertClosureExpr(mulDiv.closureExpr(0)),
+                    mulDiv.op.getType() == MALParser.STAR ? ArithmeticOp.MUL : ArithmeticOp.DIV,
+                    convertClosureExpr(mulDiv.closureExpr(1)));
             }
             if (ctx instanceof MALParser.ClosureUnaryMinusContext) {
                 final MALParser.ClosureUnaryMinusContext um =
                     (MALParser.ClosureUnaryMinusContext) ctx;
+                if ("9223372036854775808".equals(um.closureExprPrimary().getText())) {
+                    // Long.MIN_VALUE: the one literal a long holds only negated
+                    return new ClosureNumberLiteral(Long.MIN_VALUE, true);
+                }
                 final ClosureExpr inner =
                     convertClosureExprPrimary(um.closureExprPrimary());
                 if (inner instanceof ClosureNumberLiteral) {
-                    return new ClosureNumberLiteral(
-                        -((ClosureNumberLiteral) inner).getValue());
+                    return new ClosureNumberLiteral(-((ClosureNumberLiteral) inner).getValue(),
+                        ((ClosureNumberLiteral) inner).isIntegral());
                 }
-                return new ClosureBinaryExpr(
-                    new ClosureNumberLiteral(0),
-                    ArithmeticOp.SUB,
-                    inner);
+                return new MALExpressionModel.ClosureUnaryNegExpr(inner);
             }
             // closurePrimary
             final MALParser.ClosurePrimaryContext primary =
@@ -761,14 +837,25 @@ public final class MALScriptParser {
             if (ctx instanceof MALParser.ClosureStringContext) {
                 final MALParser.ClosureStringContext sc =
                     (MALParser.ClosureStringContext) ctx;
-                final String raw = stripQuotes(sc.STRING().getText());
-                final ClosureExpr base = expandGString(raw);
+                final String text = sc.STRING().getText();
+                // Groovy interpolates double-quoted strings only, and decides it on the text as written.
+                final ClosureExpr base = text.charAt(0) == '"'
+                    ? expandGString(text.substring(1, text.length() - 1))
+                    : new ClosureStringLiteral(MALLiterals.stripQuotes(text));
                 return wrapWithChainAccess(base, sc.closureChainAccess());
             }
             if (ctx instanceof MALParser.ClosureNumberContext) {
-                return new ClosureNumberLiteral(
-                    Double.parseDouble(
-                        ((MALParser.ClosureNumberContext) ctx).NUMBER().getText()));
+                final String text = ((MALParser.ClosureNumberContext) ctx).NUMBER().getText();
+                // A decimal computes in double, beside a whole number too (seconds * 1000.0); a quotient with it is a
+                // double. (Groovy's BigDecimal differs in precision and printing: 2.50 prints 2.5 here.)
+                if (text.indexOf('.') >= 0) {
+                    return new ClosureNumberLiteral(MALLiterals.parseLiteral(text), false);
+                }
+                final double value = MALLiterals.parseNumber(text);
+                if (MALLiterals.exactValue(text).compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0) {
+                    throw new IllegalArgumentException("The literal " + text + " is beyond a long");
+                }
+                return new ClosureNumberLiteral(value, true);
             }
             if (ctx instanceof MALParser.ClosureNullContext) {
                 return new ClosureNullLiteral();
@@ -790,7 +877,7 @@ public final class MALScriptParser {
                 for (final MALParser.ClosureMapEntryContext entry :
                         mapCtx.closureMapEntry()) {
                     entries.add(new MALExpressionModel.MapEntry(
-                        stripQuotes(entry.STRING().getText()),
+                        MALLiterals.literalText(entry.STRING().getText()),
                         convertClosureExpr(entry.closureExpr())));
                 }
                 return new MALExpressionModel.ClosureMapLiteral(entries);
@@ -856,11 +943,16 @@ public final class MALScriptParser {
                 return new ClosureMethodCallSeg(mc.IDENTIFIER().getText(), args, safeNav);
             }
             if (ctx instanceof MALParser.ChainIndexAccessContext) {
+                if (safeNav) {
+                    throw new IllegalArgumentException("?.[...] is not supported: " + ctx.getText());
+                }
                 final MALParser.ChainIndexAccessContext idx =
                     (MALParser.ChainIndexAccessContext) ctx;
                 return new ClosureIndexAccess(convertClosureExpr(idx.closureExpr()));
             }
-            // chainFieldAccess
+            if (!(ctx instanceof MALParser.ChainFieldAccessContext)) {
+                throw new IllegalArgumentException("Unsupported chain segment: " + ctx.getText());
+            }
             final MALParser.ChainFieldAccessContext fa =
                 (MALParser.ChainFieldAccessContext) ctx;
             return new ClosureFieldAccess(fa.IDENTIFIER().getText(), safeNav);
@@ -868,53 +960,74 @@ public final class MALScriptParser {
     }
 
     /**
-     * Expand Groovy GString interpolation: {@code "text ${expr} more"} becomes
-     * a concatenation chain: {@code "text " + expr + " more"}.
-     * If the string contains no {@code ${...}} patterns, returns a plain
-     * {@link ClosureStringLiteral}.
+     * Expand Groovy GString interpolation over the text of a double-quoted string as written (escapes not yet
+     * decoded, so {@code \\044{x}} stays literal as in Groovy): {@code "text ${expr} more"} becomes
+     * {@code "" + "text " + expr + " more"}, always a String. An unbraced {@code $name}, which Groovy also
+     * interpolates, is refused rather than kept as text.
      */
-    static MALExpressionModel.ClosureExpr expandGString(final String raw) {
-        if (!raw.contains("${")) {
-            return new MALExpressionModel.ClosureStringLiteral(raw);
-        }
-
+    static MALExpressionModel.ClosureExpr expandGString(final String rawInner) {
         final List<MALExpressionModel.ClosureExpr> parts = new ArrayList<>();
-        int pos = 0;
-        while (pos < raw.length()) {
-            final int dollarBrace = raw.indexOf("${", pos);
-            if (dollarBrace < 0) {
-                // Remaining text
-                parts.add(new MALExpressionModel.ClosureStringLiteral(
-                    raw.substring(pos)));
-                break;
-            }
-            // Text before ${
-            if (dollarBrace > pos) {
-                parts.add(new MALExpressionModel.ClosureStringLiteral(
-                    raw.substring(pos, dollarBrace)));
-            }
-            // Find matching }
-            int braceDepth = 1;
-            int i = dollarBrace + 2;
-            while (i < raw.length() && braceDepth > 0) {
-                if (raw.charAt(i) == '{') {
-                    braceDepth++;
-                } else if (raw.charAt(i) == '}') {
-                    braceDepth--;
+        final StringBuilder literal = new StringBuilder();
+        int i = 0;
+        while (i < rawInner.length()) {
+            final char c = rawInner.charAt(i);
+            if (c == '\\' && i + 1 < rawInner.length()) {
+                // \$ before what would interpolate is that text; any other escape is decoded with the literal
+                if (!DslStrings.interpolationAt(rawInner, i + 1)) {
+                    literal.append(c);
                 }
-                i++;
+                literal.append(rawInner.charAt(i + 1));
+                i += 2;
+                continue;
             }
-            final String innerExpr = raw.substring(dollarBrace + 2, i - 1);
-            // Parse the inner expression as a mini closure expression
-            parts.add(parseGStringInterpolation(innerExpr));
-            pos = i;
+            if (c == '$' && i + 1 < rawInner.length() && rawInner.charAt(i + 1) == '{') {
+                int depth = 1;
+                int j = i + 2;
+                while (j < rawInner.length() && depth > 0) {
+                    if (rawInner.charAt(j) == '{') {
+                        depth++;
+                    } else if (rawInner.charAt(j) == '}') {
+                        depth--;
+                    }
+                    j++;
+                }
+                if (depth > 0) {
+                    throw new IllegalArgumentException("Unterminated ${ in \"" + rawInner + "\"");
+                }
+                if (literal.length() > 0) {
+                    parts.add(new MALExpressionModel.ClosureStringLiteral(MALLiterals.unescapeString(literal.toString())));
+                    literal.setLength(0);
+                }
+                parts.add(new MALExpressionModel.ClosureInterpolation(
+                    parseGStringInterpolation(rawInner.substring(i + 2, j - 1))));
+                i = j;
+                continue;
+            }
+            if (DslStrings.interpolationAt(rawInner, i)) {
+                // ${...} was taken above: an unbraced $name
+                throw new IllegalArgumentException("Unbraced interpolation in \"" + rawInner + "\": write ${...}");
+            }
+            // any other $ ("$2/$1", "US$") is the character, as the rules have always read it
+            literal.append(c);
+            i++;
         }
-
-        // Build concatenation chain
-        MALExpressionModel.ClosureExpr result = parts.get(0);
-        for (int i = 1; i < parts.size(); i++) {
-            result = new MALExpressionModel.ClosureBinaryExpr(
-                result, MALExpressionModel.ArithmeticOp.ADD, parts.get(i));
+        if (literal.length() > 0) {
+            parts.add(new MALExpressionModel.ClosureStringLiteral(MALLiterals.unescapeString(literal.toString())));
+        }
+        if (parts.isEmpty()) {
+            return new MALExpressionModel.ClosureStringLiteral("");
+        }
+        if (parts.size() == 1 && parts.get(0) instanceof MALExpressionModel.ClosureStringLiteral) {
+            return parts.get(0);
+        }
+        // Starting from a string makes every + a concatenation, as the GString is a String even when it opens with,
+        // or is only, an interpolated number or null.
+        MALExpressionModel.ClosureExpr result = parts.get(0) instanceof MALExpressionModel.ClosureStringLiteral
+            ? parts.get(0)
+            : new MALExpressionModel.ClosureBinaryExpr(new MALExpressionModel.ClosureStringLiteral(""),
+                MALExpressionModel.ArithmeticOp.ADD, parts.get(0));
+        for (int k = 1; k < parts.size(); k++) {
+            result = new MALExpressionModel.ClosureBinaryExpr(result, MALExpressionModel.ArithmeticOp.ADD, parts.get(k));
         }
         return result;
     }
@@ -924,9 +1037,14 @@ public final class MALScriptParser {
      * or {@code log.service} into a {@link MALExpressionModel.ClosureMethodChain}.
      */
     private static MALExpressionModel.ClosureExpr parseGStringInterpolation(
-            final String expr) {
-        // Simple dotted path: tags.service_name, me.serviceName, etc.
-        // Split on dots and build a chain
+            final String body) {
+        // Groovy allows spaces around the expression: ${ svc }
+        final String expr = body.trim();
+        // A variable or a dotted path of fields and no-argument calls: tags.service_name, me.getServiceName()
+        if (!expr.matches("[A-Za-z_][A-Za-z0-9_]*(\\.[A-Za-z_][A-Za-z0-9_]*(\\(\\))?)*")) {
+            throw new IllegalArgumentException("Unsupported interpolation ${" + expr
+                + "}: only a variable or a dotted path of fields and no-argument calls is interpolated");
+        }
         final String[] dotParts = expr.split("\\.");
         if (dotParts.length == 1) {
             // Bare variable reference
@@ -942,10 +1060,6 @@ public final class MALScriptParser {
                     0, dotParts[i].length() - 2);
                 segments.add(new MALExpressionModel.ClosureMethodCallSeg(
                     methodName, Collections.emptyList(), false));
-            } else if (dotParts[i].endsWith(")")) {
-                // Method with args not supported in GString — treat as field
-                segments.add(new MALExpressionModel.ClosureFieldAccess(
-                    dotParts[i], false));
             } else {
                 segments.add(new MALExpressionModel.ClosureFieldAccess(
                     dotParts[i], false));
@@ -954,57 +1068,4 @@ public final class MALScriptParser {
         return new MALExpressionModel.ClosureMethodChain(dotParts[0], segments);
     }
 
-    static String stripQuotes(final String s) {
-        if (s.length() >= 2 && (s.charAt(0) == '\'' || s.charAt(0) == '"')) {
-            return unescapeString(s.substring(1, s.length() - 1));
-        }
-        return s;
-    }
-
-    /**
-     * Interpret Java/Groovy escape sequences in a string literal body.
-     * ANTLR4 preserves raw source bytes, so {@code "\\|"} yields {@code \\|}
-     * after quote stripping. This method converts it to the logical value
-     * {@code \|} so that codegen's DslJavaSourceText.toLiteral round-trips correctly.
-     */
-    private static String unescapeString(final String s) {
-        if (s.indexOf('\\') < 0) {
-            return s;
-        }
-        final StringBuilder sb = new StringBuilder(s.length());
-        for (int i = 0; i < s.length(); i++) {
-            final char c = s.charAt(i);
-            if (c == '\\' && i + 1 < s.length()) {
-                final char next = s.charAt(i + 1);
-                switch (next) {
-                    case '\\':
-                        sb.append('\\');
-                        break;
-                    case 'n':
-                        sb.append('\n');
-                        break;
-                    case 'r':
-                        sb.append('\r');
-                        break;
-                    case 't':
-                        sb.append('\t');
-                        break;
-                    case '"':
-                        sb.append('"');
-                        break;
-                    case '\'':
-                        sb.append('\'');
-                        break;
-                    default:
-                        // Unknown escape — preserve as-is
-                        sb.append(c).append(next);
-                        break;
-                }
-                i++;
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
 }

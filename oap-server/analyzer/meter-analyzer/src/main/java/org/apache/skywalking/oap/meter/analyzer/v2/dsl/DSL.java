@@ -116,9 +116,11 @@ public final class DSL {
             }
             return new Expression(metricName, expression, malExpr);
         } catch (Exception e) {
+            // the cause's message in the boot failure itself: a refused call names what is supported
             throw new IllegalStateException(
                 "Failed to compile MAL expression for metric: " + metricName
-                    + ", expression: " + expression, e);
+                    + (sourceRef == null ? "" : " (" + sourceRef.describeYaml() + ")")
+                    + ", expression: " + expression + ": " + e.getMessage(), e);
         }
     }
 }

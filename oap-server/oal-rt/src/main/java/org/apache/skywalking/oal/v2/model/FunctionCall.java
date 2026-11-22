@@ -131,6 +131,11 @@ public final class FunctionCall {
             return this;
         }
 
+        public Builder addAttribute(String fieldName, String castType) {
+            this.arguments.add(FunctionArgument.attribute(fieldName, castType));
+            return this;
+        }
+
         public Builder addExpression(FilterExpression expression) {
             this.arguments.add(FunctionArgument.expression(expression));
             return this;

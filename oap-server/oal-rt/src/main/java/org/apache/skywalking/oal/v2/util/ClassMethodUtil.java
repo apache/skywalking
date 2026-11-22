@@ -18,9 +18,42 @@
 
 package org.apache.skywalking.oal.v2.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClassMethodUtil {
+    /**
+     * Split an attribute path such as {@code sideCar.internalErrorCode} or {@code tag["a.b"]} on the dots between
+     * its segments, not on those inside a map key.
+     */
+    public static List<String> splitPath(String path) {
+        final List<String> segments = new ArrayList<>();
+        int depth = 0;
+        boolean inString = false;
+        int start = 0;
+        for (int i = 0; i < path.length(); i++) {
+            final char c = path.charAt(i);
+            if (inString) {
+                if (c == '\\') {
+                    i++;
+                } else if (c == '"') {
+                    inString = false;
+                }
+            } else if (c == '"') {
+                inString = true;
+            } else if (c == '[') {
+                depth++;
+            } else if (c == ']') {
+                depth--;
+            } else if (c == '.' && depth == 0) {
+                segments.add(path.substring(start, i));
+                start = i + 1;
+            }
+        }
+        segments.add(path.substring(start));
+        return segments;
+    }
+
     public static String toGetMethod(String attribute) {
         return "get" + attribute.substring(0, 1).toUpperCase() + attribute.substring(1);
     }

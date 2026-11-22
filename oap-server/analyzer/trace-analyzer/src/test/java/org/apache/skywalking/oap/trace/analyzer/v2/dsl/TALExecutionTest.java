@@ -74,6 +74,7 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -642,7 +643,7 @@ class TALExecutionTest {
     }
 
     @Test
-    void bucketsAreReadAsDecimalAndLabelValuesCannotSplitTheTable() throws Exception {
+    void bucketsReadALeadingZeroAsOctalAndLabelValuesCannotSplitTheTable() throws Exception {
         run("filter { extractor {\n"
             + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
@@ -650,7 +651,9 @@ class TALExecutionTest {
             + "  metrics { name \"by_route\"; scope svc; function sumLabeled; labels route: attr(\"r\"); value 1 }\n"
             + "} }", serverSpan(), new TestSpanInput().attribute("v", "9").attribute("r", "a|b,c"));
         final DataTable histogram = ((SumHistogramPercentileFunction) sentValues.get(0)).getSummation();
-        assertEquals(1L, histogram.get("10"), "9 falls under 10, not under an octal 8: " + histogram);
+        // 010 is 8, as in an expression: 9 is above it and falls under 20.
+        assertEquals(0L, histogram.get("8"), histogram.toString());
+        assertEquals(1L, histogram.get("20"), histogram.toString());
         final String stored = ((DataTable) sentValues.get(1).getClass().getMethod("getValue")
                                                           .invoke(sentValues.get(1))).toStorageData();
         assertEquals("{route=a_b_c},1", stored);
@@ -1168,14 +1171,19 @@ class TALExecutionTest {
     }
 
     @Test
-    void aFailedCastMakesItsComparisonFalse() throws Exception {
-        final ExecutionContext ctx = run("filter { extractor {\n"
+    void aFailedCastFailsTheSpanAndAMissingValueIsNull() throws Exception {
+        final String rule = "filter { extractor {\n"
             + "  if (attr(\"code\") as Integer >= 400) { tag \"ge\": \"yes\" }\n"
             + "  if (attr(\"code\") as Integer < 400) { tag \"lt\": \"yes\" }\n"
             + "  if (!(attr(\"code\") as Integer >= 400)) { tag \"not_ge\": \"yes\" }\n"
-            + "} }", serverSpan(), new TestSpanInput().attribute("code", "abc"));
+            + "} }";
+        // As LAL, a value that does not convert fails the span.
+        assertThrows(NumberFormatException.class,
+            () -> run(rule, serverSpan(), new TestSpanInput().attribute("code", "abc")));
+        // An absent attribute reads as null, which orders below every number.
+        final ExecutionContext ctx = run(rule, serverSpan(), new TestSpanInput());
         assertFalse(ctx.getAdditionalTags().containsKey("ge"));
-        assertFalse(ctx.getAdditionalTags().containsKey("lt"));
+        assertEquals("yes", ctx.getAdditionalTags().get("lt"));
         assertEquals("yes", ctx.getAdditionalTags().get("not_ge"));
     }
 

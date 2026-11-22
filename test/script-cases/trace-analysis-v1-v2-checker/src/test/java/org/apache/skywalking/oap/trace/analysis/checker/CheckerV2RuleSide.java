@@ -53,7 +53,7 @@ final class CheckerV2RuleSide extends CheckerSide {
         config.setNativeTalFiles(CheckerApplicationYml.setting("trace-analyzer", "nativeTalFiles"));
         final SpanFilterListener.Factory factory = new SpanFilterListener.Factory(moduleManager, config);
         runner = new SwNativeRuleRunner(moduleManager, new SwNativeTALSourceTypeProvider());
-        rules = factory.compileNativeRules();
+        rules = factory.loadRules(true);
         rules.forEach(rule -> ruleOfClass.put(rule.getExpression().getClass().getName(), rule.getRuleName()));
         final Field expression = TalDSL.class.getDeclaredField("expression");
         expression.setAccessible(true);

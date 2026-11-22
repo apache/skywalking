@@ -59,7 +59,7 @@ public abstract class HistogramMetrics extends Metrics {
      * @param maxNumOfSteps Steps are used to group incoming value.
      */
     @Entrance
-    public final void combine(@SourceFrom int value, @Arg int step, @Arg int maxNumOfSteps) {
+    public final void combine(@SourceFrom int value, @Arg(min = 1) int step, @Arg(min = 0) int maxNumOfSteps) {
         if (!dataset.hasData()) {
             for (int i = 0; i <= maxNumOfSteps; i++) {
                 String key = String.valueOf(i * step);

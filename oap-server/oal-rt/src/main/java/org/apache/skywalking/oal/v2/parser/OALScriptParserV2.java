@@ -108,6 +108,9 @@ public class OALScriptParserV2 {
 
         // Add custom error listener to collect detailed error information
         OALErrorListener errorListener = new OALErrorListener(fileName);
+        // The lexer reports too: by default it prints an unrecognized character and drops it.
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(errorListener);
         parser.removeErrorListeners(); // Remove default console error listener
         parser.addErrorListener(errorListener);
 

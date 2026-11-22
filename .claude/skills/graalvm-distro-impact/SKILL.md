@@ -181,10 +181,14 @@ fields, set by reflection from the `TALFunctionRegistry`) has to be replayed by 
   `ExportTraceServiceResponse`, Tempo's `TraceByIDResponse` and `LogData`. `JsonFormat` on a type outside those
   closures needs adding, or it fails with "Generated message class ... missing method".
 - The config classes in the distro's `module-config-classes.txt` (no-arg constructor for `ModuleDefine#prepare`).
+- Static calls generated classes make into this repo's helpers (the engines' runtime helpers and
+  `org.apache.skywalking.oap.server.core.dsl`), and the reflection the DSL compilers and their `DslCallables` lists do
+  while rules compile, which the distro does at build time.
 
 Not covered by itself: `Class.forName` / `newInstance` of other classes (e.g. a non-`@Stream` class registered with
 `IWorkerInstanceSetter.put(..., Class)`, rebuilt by `RemoteHandleWorker` on the receiving node), a class an Armeria
-`@RequestConverter` names (not collected), a new `LALOutputBuilder` (a hand list in the precompiler), a new classpath resource read at run time (embedded by glob), a new runtime config
+`@RequestConverter` names (not collected), a new `LALOutputBuilder` (a hand list in the precompiler), a member a DSL runtime helper looks up by name on a value typed only
+at run time, a `DslCallables` list first built at run time (it reads its listed classes' public methods and fields), a new classpath resource read at run time (embedded by glob), a new runtime config
 file under `config/` (packaged by the distro's `distribution.xml` and `native-distribution.xml`, and embedded by a
 resource glob too: the distro's `ResourceUtils` reads `config/` first, then the embedded copy).
 
@@ -256,7 +260,10 @@ These are preferences for when two ways cost the same; where a change doesn't fo
 - **DSL engines.** Prefer a generated class that is complete after its no-arg constructor. When instances need state
   set after construction (as TAL's function objects do), or the build-time API, the class naming or the rule data
   classes' setters change, name it. A new TAL function or input provider module has to join the distro's
-  precompiler classpath.
+  precompiler classpath. Prefer resolving a call or a property when the rule compiles: a runtime helper that looks a
+  member up by name on a value typed only at run time reflects in the image (LAL reads a `parsed.<key>` its parsers
+  did not set from a protobuf input's getter that way), and so does a `DslCallables` list first built at run time
+  (LAL checks that getter against `LALCallables`); name what it reaches.
 - **Native-image concerns.** Before adding anything from
   [Native-image concerns in any class](#native-image-concerns-in-any-class), in any class, check whether the distro
   covers it; if not, the PR names it. Parsing YAML or JSON into maps and lists, instead of binding to classes, needs no

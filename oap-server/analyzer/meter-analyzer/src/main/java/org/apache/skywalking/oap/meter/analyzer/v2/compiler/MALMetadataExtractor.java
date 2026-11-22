@@ -18,6 +18,7 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -63,118 +64,128 @@ public final class MALMetadataExtractor {
         DownsamplingType downsampling = DownsamplingType.AVG;
         boolean isHistogram = false;
         int[] percentiles = null;
+        boolean decorated = false;
 
-        final List<List<MALExpressionModel.MethodCall>> allChains = new ArrayList<>();
-        collectMethodChains(ast, allChains);
-
-        for (final List<MALExpressionModel.MethodCall> chain : allChains) {
-            for (final MALExpressionModel.MethodCall mc : chain) {
-                final String name = mc.getName();
-                switch (name) {
-                    case "sum":
-                    case "avg":
-                    case "max":
-                    case "min":
-                    case "count":
-                        addStringListLabels(mc, aggregationLabels);
-                        break;
-                    case "service":
-                        scopeType = ScopeType.SERVICE;
-                        addStringListLabels(mc, scopeLabels);
-                        break;
-                    case "instance":
-                        scopeType = ScopeType.SERVICE_INSTANCE;
-                        addAllStringListLabels(mc, scopeLabels);
-                        break;
-                    case "endpoint":
-                        scopeType = ScopeType.ENDPOINT;
-                        addAllStringListLabels(mc, scopeLabels);
-                        break;
-                    case "process":
-                        scopeType = ScopeType.PROCESS;
-                        addAllStringListLabels(mc, scopeLabels);
-                        addStringArgLabels(mc, scopeLabels);
-                        break;
-                    case "serviceRelation":
-                        scopeType = ScopeType.SERVICE_RELATION;
-                        addAllStringListLabels(mc, scopeLabels);
-                        addStringArgLabels(mc, scopeLabels);
-                        break;
-                    case "serviceInstanceRelation":
-                        scopeType = ScopeType.SERVICE_INSTANCE_RELATION;
-                        addAllStringListLabels(mc, scopeLabels);
-                        addStringArgLabels(mc, scopeLabels);
-                        break;
-                    case "processRelation":
-                        scopeType = ScopeType.PROCESS_RELATION;
-                        addAllStringListLabels(mc, scopeLabels);
-                        addStringArgLabels(mc, scopeLabels);
-                        break;
-                    case "histogram":
-                        isHistogram = true;
-                        break;
-                    case "histogram_percentile":
-                        if (!mc.getArguments().isEmpty()
-                                && mc.getArguments().get(0)
-                                    instanceof MALExpressionModel.NumberListArgument) {
-                            final List<Double> vals =
-                                ((MALExpressionModel.NumberListArgument)
-                                    mc.getArguments().get(0)).getValues();
-                            percentiles = new int[vals.size()];
-                            for (int i = 0; i < vals.size(); i++) {
-                                percentiles[i] = vals.get(i).intValue();
-                            }
-                        }
-                        break;
-                    case "downsampling":
-                        if (!mc.getArguments().isEmpty()) {
-                            final MALExpressionModel.Argument dsArg =
-                                mc.getArguments().get(0);
-                            if (dsArg instanceof MALExpressionModel.EnumRefArgument) {
-                                final String val =
-                                    ((MALExpressionModel.EnumRefArgument) dsArg)
-                                        .getEnumValue();
-                                downsampling = DownsamplingType.valueOf(val);
-                            } else if (dsArg instanceof MALExpressionModel.ExprArgument) {
-                                final MALExpressionModel.Expr dsExpr =
-                                    ((MALExpressionModel.ExprArgument) dsArg).getExpr();
-                                if (dsExpr instanceof MALExpressionModel.MetricExpr) {
-                                    final String val =
-                                        ((MALExpressionModel.MetricExpr) dsExpr)
-                                            .getMetricName();
-                                    downsampling = DownsamplingType.valueOf(val);
-                                }
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
+        final List<List<MALExpressionModel.MethodCall>> chains = new ArrayList<>();
+        collectMethodChains(ast, chains);
+        // In Groovy's evaluation order, a call's argument chains before the call: the metadata is one shared context,
+        // so the last call to set it wins, nested or not.
+        final List<MALExpressionModel.MethodCall> ordered = new ArrayList<>();
+        for (final List<MALExpressionModel.MethodCall> chain : chains) {
+            flatten(chain, ordered);
         }
-
-        // Validate decorate() usage
-        boolean hasDecorate = false;
-        for (final List<MALExpressionModel.MethodCall> chain : allChains) {
-            for (final MALExpressionModel.MethodCall mc : chain) {
-                if ("decorate".equals(mc.getName())) {
-                    hasDecorate = true;
+        for (final MALExpressionModel.MethodCall mc : ordered) {
+            if (mc.getNamespace() != null) {
+                // An extension (labels::service) is no built-in of that name.
+                continue;
+            }
+            final String name = mc.getName();
+            if ("decorate".equals(name) && scopeType != ScopeType.SERVICE) {
+                // the scope is checked when decorate runs: before service() there is none to decorate
+                throw new IllegalStateException("decorate() should be invoked after service()");
+            }
+            if ("decorate".equals(name) && isHistogram) {
+                throw new IllegalStateException("decorate() not supported for histogram metrics");
+            }
+            decorated |= "decorate".equals(name);
+            switch (name) {
+                case "sum":
+                case "avg":
+                case "max":
+                case "min":
+                case "count":
+                    addStringListLabels(mc, aggregationLabels);
                     break;
-                }
-            }
-            if (hasDecorate) {
-                break;
+                case "service":
+                    scopeType = ScopeType.SERVICE;
+                    addStringListLabels(mc, scopeLabels);
+                    break;
+                case "instance":
+                    scopeType = ScopeType.SERVICE_INSTANCE;
+                    addAllStringListLabels(mc, scopeLabels);
+                    break;
+                case "endpoint":
+                    scopeType = ScopeType.ENDPOINT;
+                    addAllStringListLabels(mc, scopeLabels);
+                    break;
+                case "process":
+                    scopeType = ScopeType.PROCESS;
+                    addAllStringListLabels(mc, scopeLabels);
+                    addStringArgLabels(mc, scopeLabels);
+                    break;
+                case "serviceRelation":
+                    scopeType = ScopeType.SERVICE_RELATION;
+                    addAllStringListLabels(mc, scopeLabels);
+                    addStringArgLabels(mc, scopeLabels);
+                    break;
+                case "serviceInstanceRelation":
+                    scopeType = ScopeType.SERVICE_INSTANCE_RELATION;
+                    addAllStringListLabels(mc, scopeLabels);
+                    addStringArgLabels(mc, scopeLabels);
+                    break;
+                case "processRelation":
+                    scopeType = ScopeType.PROCESS_RELATION;
+                    addAllStringListLabels(mc, scopeLabels);
+                    addStringArgLabels(mc, scopeLabels);
+                    break;
+                case "histogram":
+                    isHistogram = true;
+                    break;
+                case "histogram_percentile":
+                    // Also reached without the code generator (runtime-rule classification): validate here too.
+                    if (!isHistogram) {
+                        // without histogram() the metric would register as a plain value
+                        throw new IllegalArgumentException("histogram_percentile needs histogram() before it");
+                    }
+                    if (mc.getArguments().size() != 1
+                            || !(mc.getArguments().get(0) instanceof MALExpressionModel.NumberListArgument)) {
+                        throw new IllegalArgumentException(
+                            "histogram_percentile takes one list of numbers, e.g. [50, 99]");
+                    }
+                    final List<Double> vals =
+                        ((MALExpressionModel.NumberListArgument) mc.getArguments().get(0)).getValues();
+                    percentiles = new int[vals.size()];
+                    for (int i = 0; i < vals.size(); i++) {
+                        final double rank = vals.get(i);
+                        if (rank != Math.rint(rank) || rank < 0 || rank > 100) {
+                            throw new IllegalArgumentException(
+                                "A percentile is a whole number from 0 to 100, not " + rank);
+                        }
+                        percentiles[i] = (int) rank;
+                    }
+                    break;
+                case "downsampling":
+                    if (!mc.getArguments().isEmpty()) {
+                        final MALExpressionModel.Argument dsArg =
+                            mc.getArguments().get(0);
+                        if (dsArg instanceof MALExpressionModel.EnumRefArgument) {
+                            final String val =
+                                ((MALExpressionModel.EnumRefArgument) dsArg)
+                                    .getEnumValue();
+                            downsampling = DownsamplingType.valueOf(val);
+                        } else if (dsArg instanceof MALExpressionModel.ExprArgument) {
+                            final MALExpressionModel.Expr dsExpr =
+                                ((MALExpressionModel.ExprArgument) dsArg).getExpr();
+                            if (dsExpr instanceof MALExpressionModel.MetricExpr) {
+                                final String val =
+                                    ((MALExpressionModel.MetricExpr) dsExpr)
+                                        .getMetricName();
+                                downsampling = DownsamplingType.valueOf(val);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
-        if (hasDecorate) {
-            if (scopeType != null && scopeType != ScopeType.SERVICE) {
-                throw new IllegalStateException(
-                    "decorate() should be invoked after service()");
-            }
-            if (isHistogram) {
-                throw new IllegalStateException(
-                    "decorate() not supported for histogram metrics");
-            }
+        // what decorate set stays only where the chain ends at a service scope, not a histogram: a later scope
+        // (instance(...)) builds new entities, which would drop it
+        if (decorated && scopeType != ScopeType.SERVICE) {
+            throw new IllegalStateException("decorate() should be invoked after service()");
+        }
+        if (decorated && isHistogram) {
+            throw new IllegalStateException("decorate() not supported for histogram metrics");
         }
 
         return new ExpressionMetadata(
@@ -288,6 +299,8 @@ public final class MALMetadataExtractor {
                         ((MALExpressionModel.ExprArgument) arg).getExpr(), names);
                 }
             }
+            // count(m).div(other): the analyzer feeds only the samples named here.
+            collectSampleNamesFromChain(((MALExpressionModel.FunctionCallExpr) expr).getMethodChain(), names);
         }
     }
 
@@ -326,8 +339,7 @@ public final class MALMetadataExtractor {
         } else if (expr instanceof MALExpressionModel.ParenChainExpr) {
             collectMethodChains(
                 ((MALExpressionModel.ParenChainExpr) expr).getInner(), chains);
-            chains.add(
-                ((MALExpressionModel.ParenChainExpr) expr).getMethodChain());
+            chains.add(((MALExpressionModel.ParenChainExpr) expr).getMethodChain());
         } else if (expr instanceof MALExpressionModel.FunctionCallExpr) {
             for (final MALExpressionModel.Argument arg :
                     ((MALExpressionModel.FunctionCallExpr) expr).getArguments()) {
@@ -336,8 +348,31 @@ public final class MALMetadataExtractor {
                         ((MALExpressionModel.ExprArgument) arg).getExpr(), chains);
                 }
             }
-            chains.add(
-                ((MALExpressionModel.FunctionCallExpr) expr).getMethodChain());
+            final MALExpressionModel.FunctionCallExpr fc = (MALExpressionModel.FunctionCallExpr) expr;
+            if ("count".equals(fc.getFunctionName())) {
+                // count(m, ['svc', 'zone']) aggregates by its label list, as m.count([...]) does.
+                final List<MALExpressionModel.Argument> labels = new ArrayList<>();
+                fc.getArguments().stream().filter(a -> a instanceof MALExpressionModel.StringListArgument)
+                    .forEach(labels::add);
+                chains.add(Collections.singletonList(new MALExpressionModel.MethodCall("count", labels)));
+            }
+            chains.add(fc.getMethodChain());
+        }
+    }
+
+    private static void flatten(final List<MALExpressionModel.MethodCall> chain,
+                                final List<MALExpressionModel.MethodCall> ordered) {
+        for (final MALExpressionModel.MethodCall mc : chain) {
+            for (final MALExpressionModel.Argument arg : mc.getArguments()) {
+                if (arg instanceof MALExpressionModel.ExprArgument) {
+                    final List<List<MALExpressionModel.MethodCall>> inner = new ArrayList<>();
+                    collectMethodChains(((MALExpressionModel.ExprArgument) arg).getExpr(), inner);
+                    for (final List<MALExpressionModel.MethodCall> innerChain : inner) {
+                        flatten(innerChain, ordered);
+                    }
+                }
+            }
+            ordered.add(mc);
         }
     }
 

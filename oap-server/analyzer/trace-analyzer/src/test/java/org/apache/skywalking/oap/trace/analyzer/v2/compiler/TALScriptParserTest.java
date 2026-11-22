@@ -55,6 +55,23 @@ class TALScriptParserTest {
     }
 
     @Test
+    void rejectTextAfterTheFilterBlock() {
+        final Exception e = assertThrows(IllegalArgumentException.class,
+            () -> TALScriptParser.parse("filter { extractor {} } trailing"));
+        assertTrue(e.getMessage().contains("expecting <EOF>"), e.getMessage());
+    }
+
+    @Test
+    void logPlaceholdersAreCountedAsSlf4jFillsThem() {
+        assertEquals(2, TALLiterals.placeholderCount("{} and {}"));
+        assertEquals(0, TALLiterals.placeholderCount("a \\{}"), "an escaped {} is text");
+        assertEquals(1, TALLiterals.placeholderCount("a \\\\{}"), "a {} after an escaped backslash is filled");
+        assertEquals(0, TALLiterals.placeholderCount("{ }"));
+        // An odd run of backslashes escapes, as the logger reads it.
+        assertEquals(1, TALLiterals.placeholderCount("a \\\\\\{} {}"));
+    }
+
+    @Test
     void parseSpanAndMetaRoots() {
         final TALScriptModel model = TALScriptParser.parse(
             "filter { extractor { service meta.service; endpoint span.name } }");
@@ -212,6 +229,28 @@ class TALScriptParserTest {
         assertEquals(2, rl.getIdParts().size());
         assertTrue(rl.getIdParts().get(0).isLiteral());
         assertTrue(rl.getIdParts().get(1).getExpression().isMetaRef());
+    }
+
+    @Test
+    void anEscapedPlaceholderIsTextInARateLimitId() {
+        final TALScriptModel model = TALScriptParser.parse(
+            "filter { persist { sampler { rateLimit(\"r-\\${a}-${meta.service}\") { rpm 10 } } } }");
+        final TALScriptModel.SamplerBlock sampler = (TALScriptModel.SamplerBlock)
+            ((PersistBlock) model.getStatements().get(0)).getStatements().get(0);
+        final TALScriptModel.RateLimitBlock rl =
+            (TALScriptModel.RateLimitBlock) sampler.getContents().get(0);
+        assertEquals("r-${a}-", rl.getIdParts().get(0).getText());
+        assertTrue(rl.getIdParts().get(1).getExpression().isMetaRef());
+    }
+
+    @Test
+    void anEscapedDollarBeforeNoPlaceholderStaysAsWritten() {
+        final TALScriptModel model = TALScriptParser.parse(
+            "filter { persist { sampler { rateLimit(\"r\\$2-${meta.service}\") { rpm 10 } } } }");
+        final TALScriptModel.SamplerBlock sampler = (TALScriptModel.SamplerBlock)
+            ((PersistBlock) model.getStatements().get(0)).getStatements().get(0);
+        assertEquals("r\\$2-",
+            ((TALScriptModel.RateLimitBlock) sampler.getContents().get(0)).getIdParts().get(0).getText());
     }
 
     @Test

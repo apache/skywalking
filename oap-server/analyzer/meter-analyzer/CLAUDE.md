@@ -41,10 +41,19 @@ oap-server/analyzer/meter-analyzer/
     MALMetadataExtractor.java         — Static AST analysis → ExpressionMetadata + metadata() source
     MALBytecodeHelper.java            — Javassist: class naming, debug output, LineNumberTable, LocalVariableTable
     MALClosureCodegen.java            — Companion class codegen: closure body inlined in SAM method
+    ClosureKind.java                  — The closure kinds (tag, forEach, instance, decorate, filter, a rule file's filter):
+                                        interface, SAM signature, parameters, what the closure's value gives back
+    ClosureTypes.java                 — Static types of closure values (literals, labels, chains, locals, arithmetic)
+    ClosureScope.java                 — What a closure body has declared: locals' types, def locals, built maps
+    MALCallables.java                 — What a closure may call (DslCallables list), checked when the rule compiles
+    MALLiterals.java                  — Number literals (a leading 0 octal) and quoted strings' escapes
     MALCodegenHelper.java             — Static utility methods and shared constants (SF, RUN_VAR, escapeJava)
+    MalGeneratedSourceLines.java      — Statement lines of generated methods, for the LineNumberTable
     rt/
       MalExpressionPackageHolder.java — Class loading anchor (empty marker)
-      MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, isTruthy)
+      MalRuntimeHelper.java           — Static helpers called by generated code (divReverse, regexMatch, Groovy
+                                        arithmetic, ordering and +, label conversions; operands boxed with ($w));
+                                        equality and truth are server-core's DslValues, called directly
       MalExtensionRegistry.java       — SPI registry for extension functions (namespace::method)
 
   src/main/java/.../spi/
@@ -52,9 +61,13 @@ oap-server/analyzer/meter-analyzer/
     MALContextFunction.java           — Annotation marking callable methods
 
   src/test/java/.../compiler/
-    MALScriptParserTest.java          — 22 parser tests
-    MALClassGeneratorTest.java        — 20 generator tests
-    MALExtensionFunctionTest.java     — 9 extension SPI tests
+    MALScriptParserTest.java          — parser
+    MALClassGeneratorTest.java        — generator: compiling, sources, bytecode attributes
+    MALExtensionFunctionTest.java     — extension SPI
+    MALClosureSemanticsTest.java      — what a compiled closure does when it runs, by topic
+    MALRejectsSilentDropsTest.java    — input that does what it says or fails when it compiles
+    MALMetadataExtractorTest.java     — the metadata an expression's calls set
+    MALCallablesGuideTest.java        — the callable list against the MAL documentation
 ```
 
 ## Package & Class Naming
@@ -167,11 +180,12 @@ _metric = com.example.MyExtension.noop(_metric);
 - **Closure approach**: Each closure becomes a companion class (e.g., `MainClass$_tag`) that directly implements the functional interface. The closure body is inlined in the SAM method. The main class holds a `public static final` field for each closure, initialized in a `static {}` block via `new CompanionClass()`. No reflection or `LambdaMetafactory` at runtime. One extra `.class` file is produced per closure.
 - **Inner class notation**: Use `$` not `.` for nested classes (e.g., `SampleFamilyFunctions$TagFunction`).
 - **`isPresent()`/`get()` instead of `ifPresent()`**: `ifPresent(Consumer)` would require an anonymous class. Use `Optional.isPresent()` + `Optional.get()` pattern.
-- **Closure interface dispatch**: Different closure call sites use different functional interfaces:
-  - `tag({ ... })` → `SampleFamilyFunctions$TagFunction`
-  - `forEach(closure)` / `serviceRelation(closure)` etc. → `SampleFamilyFunctions$ForEachFunction`
+- **Closure interface dispatch** (`ClosureKind`): Different closure call sites use different functional interfaces:
+  - `tag({ ... })`, and any other call taking a closure but those below → `SampleFamilyFunctions$TagFunction`
+  - `forEach(closure)` → `SampleFamilyFunctions$ForEachFunction`
   - `instance(closure)` → `SampleFamilyFunctions$PropertiesExtractor`
   - `decorate(closure)` → `SampleFamilyFunctions$DecorateFunction`
+  - `filter(closure)` → `SampleFamilyFunctions$SampleFilter`; a rule file's `filter:` compiles into its own `MalFilter`
 - **v2 package isolation**: All v2 classes are under `*.v2.*` packages, so there are no FQCN conflicts with the v1 Groovy module.
 
 ## Code Generation Model
@@ -233,7 +247,11 @@ Main class `vm_L5_my_metric`:
 - `run()` body: `_metric = _metric.tag(_tag);`
 
 Companion class `vm_L5_my_metric$_tag implements TagFunction`:
-- `public Object apply(Object _raw) { Map tags = (Map) _raw; tags.put("k", "v"); return tags; }`
+- `public Object apply(Object _raw) { java.util.Map tags = (java.util.Map) _raw; tags.put("k", ($w) ("v")); return tags; }`
+
+A closure ending with a map gives that map, as Groovy's `tag` takes it: `metric.tag({ tags -> ['k': tags.v] })` returns
+`MalRuntimeHelper.tagResult(($w) (MalRuntimeHelper.mapOf(new Object[]{"k", ($w) (((String) tags.get("v")))})), tags)`,
+the map with its values written as label strings (the labels when the value is no map).
 
 ## ExpressionMetadata (replaces ExpressionParsingContext)
 

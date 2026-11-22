@@ -23,6 +23,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * An optional argument, such as the most labels a metric keeps. It configures the metric, so a script gives it as a
+ * literal: a value read from each event would differ between the events merged into one metric.
+ */
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DefaultValue {

@@ -246,10 +246,15 @@ class SwNativeRuleRunnerTest {
 
     @Test
     void aRuleCannotChangeTheSegmentsTags() throws Exception {
-        final SwNativeRuleRunner runner = runner(rule("remover", "filter { def removed = segmentTags().remove(0) }"));
-        // The runner catches nothing, so the refused change stops the segment as a throwing listener does.
-        assertThrows(UnsupportedOperationException.class, () -> runner.send(segment(
-            span(0, "op0", SpanType.Entry).toBuilder().addTags(tag("http.method", "GET")).build())));
+        // A list method that changes it is no method a rule calls, so the rule fails to compile.
+        final Exception e = assertThrows(Exception.class,
+            () -> rule("remover", "filter { def removed = segmentTags().remove(0) }"));
+        Throwable cause = e;
+        while (cause.getCause() != null && !String.valueOf(cause.getMessage()).contains("List.remove()")) {
+            cause = cause.getCause();
+        }
+        assertTrue(String.valueOf(cause.getMessage()).contains("List.remove(...) is not supported in a TAL rule"),
+            String.valueOf(e.getMessage()));
     }
 
     // ==================== Harness ====================

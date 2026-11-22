@@ -18,9 +18,12 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -62,7 +65,7 @@ import org.apache.skywalking.tal.rt.grammar.TALParser;
  * Parses a TAL rule's DSL text into the immutable {@link TALScriptModel} the generator compiles.
  *
  * <p>Sibling implementation: {@code LALScriptParser} in {@code log-analyzer} does the same for LAL over its own
- * grammar. Separate copies by design; see {@link TALValueCodegen}.
+ * grammar.
  */
 public final class TALScriptParser {
     /**
@@ -160,7 +163,11 @@ public final class TALScriptParser {
         if (ctx.writeNetworkAliasStatement() != null) {
             return visitWriteNetworkAlias(ctx.writeNetworkAliasStatement());
         }
-        return visitIfStatement(ctx.ifStatement());
+        if (ctx.ifStatement() != null) {
+            return visitIfStatement(ctx.ifStatement());
+        }
+        throw new IllegalArgumentException(
+            "Unsupported filter statement in TAL rule at line " + ctx.getStart().getLine() + ": " + rawTextOf(ctx));
     }
 
     private static TALScriptModel.SegmentDefStatement visitSegmentDef(final TALParser.SegmentDefStatementContext ctx) {
@@ -313,7 +320,18 @@ public final class TALScriptParser {
             arguments.add(new TALScriptModel.FunctionArg(
                 visitValueAccess(arg.valueAccess()), extractCastType(arg.typeCast())));
         }
-        return new TALScriptModel.LogStatement(level, unquote(ctx.STRING().getText()), arguments);
+        final String message = TALLiterals.unquote(ctx.STRING().getText());
+        // SLF4J drops an argument no placeholder takes, unless it is a last Throwable, which it logs as the exception;
+        // a placeholder no argument fills prints as it is. Whether one extra argument is a Throwable is known only
+        // when its type is, where the rule is generated.
+        final int placeholders = TALLiterals.placeholderCount(message);
+        if (arguments.size() > placeholders + 1) {
+            throw new IllegalArgumentException(
+                "log message \"" + message + "\" has " + placeholders + " {} placeholder(s) and " + arguments.size()
+                    + " argument(s), at line " + ctx.getStart().getLine() + "; each {} takes the next argument, and "
+                    + "one more may follow as the exception");
+        }
+        return new TALScriptModel.LogStatement(level, message, arguments);
     }
 
     private static TALScriptModel.ForeachBlock visitForeachStatement(final TALParser.ForeachStatementContext ctx) {
@@ -336,15 +354,18 @@ public final class TALScriptParser {
     private static TALScriptModel.TagAssignment visitTagStatement(final TALParser.TagStatementContext ctx) {
         final Map<String, TagValue> tags = new LinkedHashMap<>();
         if (ctx.tagMap() != null) {
-            final TALParser.TagMapContext map = ctx.tagMap();
-            for (int i = 0; i < map.anyIdentifier().size(); i++) {
-                tags.put(
-                    stripQuotes(map.anyIdentifier(i).getText()),
-                    new TagValue(visitValueAccess(map.valueAccess(i)), extractCastType(map.typeCast(i))));
+            for (final TALParser.TagEntryContext entry : ctx.tagMap().tagEntry()) {
+                final String key = TALLiterals.stripQuotes(entry.anyIdentifier().getText());
+                final TagValue tag =
+                    new TagValue(visitValueAccess(entry.valueAccess()), extractCastType(entry.typeCast()));
+                if (tags.put(key, tag) != null) {
+                    throw new IllegalArgumentException(
+                        "tag sets the key '" + key + "' more than once, at line " + ctx.getStart().getLine());
+                }
             }
         } else {
             tags.put(
-                unquote(ctx.STRING().getText()),
+                TALLiterals.unquote(ctx.STRING().getText()),
                 new TagValue(visitValueAccess(ctx.valueAccess()), extractCastType(ctx.typeCast())));
         }
         return new TALScriptModel.TagAssignment(tags);
@@ -367,7 +388,14 @@ public final class TALScriptParser {
         ValueAccess timestamp = null;
         String timestampCast = null;
 
+        // A clause given twice would silently keep only its last value.
+        final Set<String> clauses = new HashSet<>();
         for (final TALParser.MetricsStatementContext msc : ctx.metricsContent().metricsStatement()) {
+            final String clause = msc.getStart().getText();
+            if (msc.metricsLabelsStatement() == null && !clauses.add(clause)) {
+                throw new IllegalArgumentException(
+                    "metrics block sets '" + clause + "' more than once, at line " + msc.getStart().getLine());
+            }
             if (msc.metricsNameStatement() != null) {
                 name = metricName(msc.metricsNameStatement());
             } else if (msc.metricsScopeStatement() != null) {
@@ -383,9 +411,14 @@ public final class TALScriptParser {
                 status = visitCondition(msc.metricsStatusStatement().condition());
             } else if (msc.metricsLabelsStatement() != null) {
                 for (final TALParser.LabelEntryContext lec : msc.metricsLabelsStatement().labelMap().labelEntry()) {
-                    labels.put(
-                        lec.anyIdentifier().getText(),
-                        new TagValue(visitValueAccess(lec.valueAccess()), extractCastType(lec.typeCast())));
+                    final String key = lec.anyIdentifier().getText();
+                    final TagValue label =
+                        new TagValue(visitValueAccess(lec.valueAccess()), extractCastType(lec.typeCast()));
+                    if (labels.put(key, label) != null) {
+                        throw new IllegalArgumentException(
+                            "metrics block sets the label '" + key + "' more than once, at line "
+                                + lec.getStart().getLine());
+                    }
                 }
             } else if (msc.metricsLabelLimitStatement() != null) {
                 labelLimit = msc.metricsLabelLimitStatement().NUMBER().getText();
@@ -396,6 +429,9 @@ public final class TALScriptParser {
             } else if (msc.metricsTimestampStatement() != null) {
                 timestamp = visitValueAccess(msc.metricsTimestampStatement().valueAccess());
                 timestampCast = extractCastType(msc.metricsTimestampStatement().typeCast());
+            } else {
+                throw new IllegalArgumentException(
+                    "Unsupported metrics statement at line " + msc.getStart().getLine() + ": " + rawTextOf(msc));
             }
         }
 
@@ -452,7 +488,10 @@ public final class TALScriptParser {
         if (abort != null) {
             return new AbortStatement();
         }
-        return visitIfStatement(ifStatement);
+        if (ifStatement != null) {
+            return visitIfStatement(ifStatement);
+        }
+        throw new IllegalArgumentException("Unsupported persist statement in TAL rule");
     }
 
     private static SamplerBlock visitSamplerBlock(final TALParser.SamplerBlockContext ctx) {
@@ -475,15 +514,20 @@ public final class TALScriptParser {
                 contents.add(visitForeachStatement((TALParser.ForeachStatementContext) child));
             } else if (child instanceof TALParser.LogStatementContext) {
                 contents.add(visitLogStatement((TALParser.LogStatementContext) child));
+            } else if (!(child instanceof TerminalNode)) {
+                throw new IllegalArgumentException("Unsupported sampler statement in TAL rule: " + child.getText());
             }
         }
         return contents;
     }
 
     private static RateLimitBlock visitRateLimitBlock(final TALParser.RateLimitBlockContext rlc) {
-        final String id = unquote(rlc.rateLimitId().getText());
-        final int rpm = parseStrictInt(rlc.rateLimitContent().NUMBER().getText(), "rpm");
-        return new RateLimitBlock(id, parseInterpolation(id), rpm);
+        final String id = TALLiterals.unquote(rlc.rateLimitId().getText());
+        final int rpm = TALLiterals.parseStrictInt(rlc.rateLimitContent().NUMBER().getText(), "rpm");
+        // Placeholders are found in the id with only its own quotes unescaped: `\${` stays text, and a placeholder's
+        // strings, `${attr(\"tenant.id\")}`, resolve once.
+        return new RateLimitBlock(id, parseInterpolation(TALLiterals.quotesUnescaped(rlc.rateLimitId().getText())),
+            rpm);
     }
 
     // ==================== If statement ====================
@@ -590,18 +634,27 @@ public final class TALScriptParser {
             return new TALScriptModel.ComparisonCondition(
                 functionCallAccess(fi), null, op, visitConditionExprAsValue(rightCtx));
         }
-        return new TALScriptModel.ExprCondition(textAccess(leftCtx.getText()), null);
+        throw notAValue(leftCtx);
+    }
+
+    /**
+     * A comparison compares two values; a parenthesized condition, such as {@code (a == b)}, is none.
+     */
+    private static IllegalArgumentException notAValue(final TALParser.ConditionExprContext ctx) {
+        return new IllegalArgumentException(
+            "a comparison compares two values, and `" + rawTextOf(ctx) + "` is a condition, at line "
+                + ctx.getStart().getLine() + "; combine conditions with &&, || and !");
     }
 
     private static TALScriptModel.ConditionValue visitConditionExprAsValue(
             final TALParser.ConditionExprContext ctx) {
         if (ctx instanceof TALParser.CondStringContext) {
             return new TALScriptModel.StringConditionValue(
-                unquote(((TALParser.CondStringContext) ctx).STRING().getText()));
+                TALLiterals.unquote(((TALParser.CondStringContext) ctx).STRING().getText()));
         }
         if (ctx instanceof TALParser.CondNumberContext) {
-            final String numText = ((TALParser.CondNumberContext) ctx).NUMBER().getText();
-            return new TALScriptModel.NumberConditionValue(parseLiteralAsDouble(numText), numText);
+            final String numText = TALLiterals.expressionNumber(((TALParser.CondNumberContext) ctx).NUMBER());
+            return new TALScriptModel.NumberConditionValue(numText);
         }
         if (ctx instanceof TALParser.CondNullContext) {
             return new TALScriptModel.NullConditionValue();
@@ -619,8 +672,9 @@ public final class TALScriptParser {
             if (va.typeCast() == null && singleTerm != null && singleTerm.valueAccessSegment().isEmpty()) {
                 final TALParser.ValueAccessPrimaryContext primary = singleTerm.valueAccessPrimary();
                 if (primary instanceof TALParser.ValueNumberContext) {
-                    final String numText = ((TALParser.ValueNumberContext) primary).NUMBER().getText();
-                    return new TALScriptModel.NumberConditionValue(parseLiteralAsDouble(numText), numText);
+                    final String numText =
+                        TALLiterals.expressionNumber(((TALParser.ValueNumberContext) primary).NUMBER());
+                    return new TALScriptModel.NumberConditionValue(numText);
                 }
                 if (primary instanceof TALParser.ValueNullContext) {
                     return new TALScriptModel.NullConditionValue();
@@ -633,10 +687,11 @@ public final class TALScriptParser {
             return new TALScriptModel.ValueAccessConditionValue(
                 visitValueAccess(vaCtx), extractCastType(va.typeCast()));
         }
-        if (ctx instanceof TALParser.CondParenGroupContext) {
-            return new TALScriptModel.ValueAccessConditionValue(textAccess(ctx.getText()), null);
+        if (ctx instanceof TALParser.CondFunctionCallContext) {
+            return new TALScriptModel.ValueAccessConditionValue(
+                functionCallAccess(((TALParser.CondFunctionCallContext) ctx).functionInvocation()), null);
         }
-        return new TALScriptModel.StringConditionValue(ctx.getText());
+        throw notAValue(ctx);
     }
 
     private static Condition visitConditionExprAsCondition(final TALParser.ConditionExprContext ctx) {
@@ -652,7 +707,9 @@ public final class TALScriptParser {
         if (ctx instanceof TALParser.CondParenGroupContext) {
             return visitCondition(((TALParser.CondParenGroupContext) ctx).condition());
         }
-        return new TALScriptModel.ExprCondition(textAccess(ctx.getText()), null);
+        // A literal parses as a value access, the alternative listed first, so no other form reaches here.
+        throw new IllegalArgumentException(
+            "Unsupported condition in TAL rule at line " + ctx.getStart().getLine() + ": " + rawTextOf(ctx));
     }
 
     // ==================== Value access ====================
@@ -737,10 +794,10 @@ public final class TALScriptParser {
             segments.add(((TALParser.ValueIdentifierContext) primary).IDENTIFIER().getText());
         } else if (primary instanceof TALParser.ValueStringContext) {
             stringLiteral = true;
-            segments.add(unquote(((TALParser.ValueStringContext) primary).STRING().getText()));
+            segments.add(TALLiterals.unquote(((TALParser.ValueStringContext) primary).STRING().getText()));
         } else if (primary instanceof TALParser.ValueNumberContext) {
             numberLiteral = true;
-            segments.add(((TALParser.ValueNumberContext) primary).NUMBER().getText());
+            segments.add(TALLiterals.expressionNumber(((TALParser.ValueNumberContext) primary).NUMBER()));
         } else if (primary instanceof TALParser.ValueFunctionCallContext) {
             final TALParser.FunctionInvocationContext fi =
                 ((TALParser.ValueFunctionCallContext) primary).functionInvocation();
@@ -779,11 +836,17 @@ public final class TALScriptParser {
                 chain.add(new TALScriptModel.MethodSegment(
                     fi.functionName().getText(), visitFunctionArgs(fi), true));
             } else if (seg instanceof TALParser.SegmentIndexContext) {
-                final int index = parseStrictInt(
+                final int index = TALLiterals.parseStrictInt(
                     ((TALParser.SegmentIndexContext) seg).NUMBER().getText(), "[index]");
                 segments.add("[" + index + "]");
                 chain.add(new IndexSegment(index));
             }
+        }
+        if ((stringLiteral || numberLiteral) && !chain.isEmpty()) {
+            // The code generators read a literal's text alone, and "svc".x read the def named svc.
+            throw new IllegalArgumentException(
+                "a literal takes no method, field or index, as '" + ctx.getText() + "' at line "
+                    + ctx.getStart().getLine() + " gives it; group it, or hold it in a def, first");
         }
 
         return new ValueAccess(segments, spanRef, metaRef, stringLiteral, numberLiteral,
@@ -806,10 +869,10 @@ public final class TALScriptParser {
                     visitValueAccess(fac.valueAccess()), extractCastType(fac.typeCast())));
             } else if (fac.STRING() != null) {
                 args.add(new TALScriptModel.FunctionArg(
-                    literalArg(unquote(fac.STRING().getText()), true, false), null));
+                    literalArg(TALLiterals.unquote(fac.STRING().getText()), true, false), null));
             } else if (fac.NUMBER() != null) {
                 args.add(new TALScriptModel.FunctionArg(
-                    literalArg(fac.NUMBER().getText(), false, true), null));
+                    literalArg(TALLiterals.expressionNumber(fac.NUMBER()), false, true), null));
             } else if (fac.boolValue() != null) {
                 args.add(new TALScriptModel.FunctionArg(
                     literalArg(fac.boolValue().getText(), false, false), null));
@@ -847,7 +910,7 @@ public final class TALScriptParser {
         final TALParser.ValueAccessTermContext term = singleTermOf(ctx.valueAccess());
         if (ctx.typeCast() == null && term != null && term.valueAccessSegment().isEmpty()
             && term.valueAccessPrimary() instanceof TALParser.ValueStringContext) {
-            return unquote(((TALParser.ValueStringContext) term.valueAccessPrimary()).STRING().getText());
+            return TALLiterals.unquote(((TALParser.ValueStringContext) term.valueAccessPrimary()).STRING().getText());
         }
         throw new IllegalArgumentException(
             "a metric's name is a string literal, got '" + rawTextOf(ctx.valueAccess()) + "' at line "
@@ -870,47 +933,6 @@ public final class TALScriptParser {
     }
 
     // ==================== Utilities ====================
-
-    /**
-     * Parse a NUMBER literal that must be a plain integer. The lexer's NUMBER token also carries the decimal,
-     * exponent and suffix forms arithmetic accepts, which the {@code rpm} and {@code [index]} slots cannot.
-     */
-    private static long parseStrictInteger(final String numText, final String slot) {
-        for (int i = 0; i < numText.length(); i++) {
-            final char c = numText.charAt(i);
-            if (c < '0' || c > '9') {
-                throw new IllegalArgumentException(
-                    slot + " expects a plain integer literal, got '" + numText
-                        + "' (suffixes / decimals / exponents are not accepted here)");
-            }
-        }
-        try {
-            return Long.parseLong(numText);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(
-                slot + " value '" + numText + "' exceeds the supported range (must fit in a Java long)");
-        }
-    }
-
-    private static int parseStrictInt(final String numText, final String slot) {
-        final long value = parseStrictInteger(numText, slot);
-        if (value < Integer.MIN_VALUE || value > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException(
-                slot + " value '" + numText + "' exceeds the supported range (must fit in a Java int)");
-        }
-        return (int) value;
-    }
-
-    private static double parseLiteralAsDouble(final String numText) {
-        String t = numText;
-        if (!t.isEmpty()) {
-            final char last = t.charAt(t.length() - 1);
-            if (last == 'L' || last == 'l' || last == 'F' || last == 'f' || last == 'D' || last == 'd') {
-                t = t.substring(0, t.length() - 1);
-            }
-        }
-        return Double.parseDouble(t);
-    }
 
     /**
      * Resolve a {@code typeCast} context to its cast name. Accepts a null context so call sites can pass
@@ -938,47 +960,20 @@ public final class TALScriptParser {
         if (ctx.BOOLEAN_TYPE() != null) {
             return "Boolean";
         }
-        if (ctx.qualifiedName() != null) {
-            return ctx.qualifiedName().getText();
+        final String name = ctx.qualifiedName().getText();
+        if ("boolean".equals(name)) {
+            // `as boolean` reads as `as Boolean`.
+            return "Boolean";
         }
-        return null;
-    }
-
-    /**
-     * A STRING token's value, as plain text: the quotes removed, and a backslash escaping only a quote or itself,
-     * so the token {@code "a\"b"} is {@code a"b} and {@code "C:\temp"} keeps its backslash. There are no other
-     * escapes; a literal means what it shows.
-     */
-    static String unquote(final String token) {
-        final String body = stripQuotes(token);
-        if (body == null || body.indexOf('\\') < 0) {
-            return body;
+        // A class name is resolved where the value is generated; a simple name has to be one `as` knows, since an
+        // unknown one would otherwise leave the value unconverted.
+        if (name.indexOf('.') < 0 && !TALDefCodegen.typedValueNames().contains(name)) {
+            throw new IllegalArgumentException(
+                "`as " + name + "` names no type, at line " + ctx.getStart().getLine() + "; as takes String, Long, "
+                    + "Integer, Double, Float, Boolean, one of " + new TreeSet<>(TALDefCodegen.typedValueNames())
+                    + ", or a class by its full name");
         }
-        final StringBuilder out = new StringBuilder(body.length());
-        for (int i = 0; i < body.length(); i++) {
-            final char c = body.charAt(i);
-            if (c == '\\' && i + 1 < body.length()) {
-                final char next = body.charAt(i + 1);
-                if (next == '"' || next == '\'' || next == '\\') {
-                    out.append(next);
-                    i++;
-                    continue;
-                }
-            }
-            out.append(c);
-        }
-        return out.toString();
-    }
-
-    static String stripQuotes(final String s) {
-        if (s == null || s.length() < 2) {
-            return s;
-        }
-        final char first = s.charAt(0);
-        if ((first == '\'' || first == '"') && s.charAt(s.length() - 1) == first) {
-            return s.substring(1, s.length() - 1);
-        }
-        return s;
+        return name;
     }
 
     private static String truncate(final String s, final int maxLen) {
@@ -995,34 +990,40 @@ public final class TALScriptParser {
      * @return the parts, or null when the id carries no placeholder
      */
     static List<InterpolationPart> parseInterpolation(final String s) {
-        if (!s.contains("${")) {
+        if (TALLiterals.placeholderAt(s, 0) < 0) {
             return null;
         }
         final List<InterpolationPart> parts = new ArrayList<>();
         int pos = 0;
         while (pos < s.length()) {
-            final int start = s.indexOf("${", pos);
+            final int start = TALLiterals.placeholderAt(s, pos);
             if (start < 0) {
                 if (pos < s.length()) {
-                    parts.add(InterpolationPart.ofLiteral(s.substring(pos)));
+                    parts.add(InterpolationPart.ofLiteral(TALLiterals.resolveEscapes(s.substring(pos), true)));
                 }
                 break;
             }
             if (start > pos) {
-                parts.add(InterpolationPart.ofLiteral(s.substring(pos, start)));
+                parts.add(InterpolationPart.ofLiteral(TALLiterals.resolveEscapes(s.substring(pos, start), true)));
             }
             int depth = 1;
             int i = start + 2;
             while (i < s.length() && depth > 0) {
                 final char c = s.charAt(i);
-                if (c == '{') {
+                if (c == '\'' || c == '"') {
+                    // A brace inside a string literal of the expression, as in split('[{]'), is text.
+                    i = TALLiterals.closingQuote(s, i);
+                    if (i < 0) {
+                        break;
+                    }
+                } else if (c == '{') {
                     depth++;
                 } else if (c == '}') {
                     depth--;
                 }
                 i++;
             }
-            if (depth != 0) {
+            if (i < 0 || depth != 0) {
                 throw new IllegalArgumentException("Unclosed interpolation in: " + s);
             }
             final TALScriptModel.ExprCondition placeholder = parseValueAccessExpr(s.substring(start + 2, i - 1));
@@ -1038,15 +1039,18 @@ public final class TALScriptParser {
      */
     private static TALScriptModel.ExprCondition parseValueAccessExpr(final String expr) {
         final TALScriptModel model = parse("filter { if (" + expr + ") { abort {} } }");
-        final Condition cond = ((IfBlock) model.getStatements().get(0)).getCondition();
+        // Text that closes the wrapper early, such as `x) { abort {} } if (y`, would parse as statements of its own.
+        final boolean oneCondition = model.getStatements().size() == 1
+            && model.getStatements().get(0) instanceof IfBlock
+            && ((IfBlock) model.getStatements().get(0)).getThenStatements().size() == 1
+            && ((IfBlock) model.getStatements().get(0)).getElseStatements().isEmpty();
+        final Condition cond = oneCondition ? ((IfBlock) model.getStatements().get(0)).getCondition() : null;
         if (cond instanceof TALScriptModel.ExprCondition) {
             // The expression and its own `as`, which the placeholder converts with.
             return (TALScriptModel.ExprCondition) cond;
         }
-        if (cond instanceof TALScriptModel.ComparisonCondition) {
-            final TALScriptModel.ComparisonCondition comparison = (TALScriptModel.ComparisonCondition) cond;
-            return new TALScriptModel.ExprCondition(comparison.getLeft(), comparison.getLeftCast());
-        }
-        throw new IllegalArgumentException("Cannot parse interpolation expression: " + expr);
+        throw new IllegalArgumentException(
+            "a ${...} placeholder holds one value, such as ${meta.service}, not a condition or a comparison: ${"
+                + expr + "}");
     }
 }

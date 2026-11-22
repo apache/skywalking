@@ -369,7 +369,8 @@ class MALScriptParserTest {
         assertInstanceOf(MALExpressionModel.ClosureVarDecl.class, closure.getBody().get(0));
         final MALExpressionModel.ClosureVarDecl vd =
             (MALExpressionModel.ClosureVarDecl) closure.getBody().get(0);
-        assertEquals("String[][]", vd.getTypeName());
+        // the code generator types the def from its initializer (String[][]); it stays a def, as it may be reassigned
+        assertEquals("def", vd.getTypeName());
         assertEquals("matcher", vd.getVarName());
         // Initializer should be a regex match expression
         assertInstanceOf(MALExpressionModel.ClosureRegexMatchExpr.class, vd.getInitializer());
@@ -402,5 +403,15 @@ class MALScriptParserTest {
     void parseSyntaxErrorThrows() {
         assertThrows(IllegalArgumentException.class,
             () -> MALScriptParser.parse("metric.sum("));
+    }
+
+    @Test
+    void parseUnrecognizedCharacterThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> MALScriptParser.parse("metric_a ` .sum(['service'])"));
+        assertThrows(IllegalArgumentException.class,
+            () -> MALScriptParser.parseFilter("{ tags -> tags.job_name ` == 'x' }"));
+        assertThrows(IllegalArgumentException.class,
+            () -> MALScriptParser.injectExpPrefix("metric_a ` .sum(['service'])", "tagEqual('a', 'b')"));
     }
 }

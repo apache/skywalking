@@ -114,8 +114,10 @@ CHAR_LITERAL:       '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 STRING_LITERAL:     '"' (~["\\\r\n] | EscapeSequence)* '"';
 
+// Comments nest, and every /* needs its own */: a / or * inside a comment can't start or end one, so an unclosed inner
+// comment or a stray */ fails to lex instead of ending the comment somewhere else.
 DelimitedComment
-    : '/*' ( DelimitedComment | . )*? '*/'
+    : '/*' ( DelimitedComment | '/' {_input.LA(1) != '*'}? | '*' {_input.LA(1) != '/'}? | ~[/*] )* '*/'
       -> channel(HIDDEN)
     ;
 

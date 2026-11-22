@@ -40,4 +40,19 @@ public class TestMalExtension implements MalFunctionExtension {
     public static SampleFamily noop(final SampleFamily sf) {
         return sf;
     }
+
+    @MALContextFunction
+    public static SampleFamily times(final SampleFamily sf, final int count) {
+        return sf.multiply(Integer.valueOf(count));
+    }
+
+    @MALContextFunction
+    public static SampleFamily plusLong(final SampleFamily sf, final long value) {
+        return sf.plus(Long.valueOf(value));
+    }
+
+    @MALContextFunction
+    public static SampleFamily plusBoxed(final SampleFamily sf, final Long value) {
+        return sf.plus(value);
+    }
 }

@@ -158,26 +158,28 @@ variableDeclaration
 
 // ==================== Closure statements ====================
 
+// One else at most: an else-if carries its own else.
 ifStatement
     : IF L_PAREN closureCondition R_PAREN closureBlock
-      (ELSE ifStatement)?
-      (ELSE closureBlock)?
+      (ELSE (ifStatement | closureBlock))?
     ;
 
 closureBlock
     : L_BRACE closureStatement* R_BRACE
     ;
 
+// A condition, so `return tags.job == 'x'` returns the comparison.
 returnStatement
-    : RETURN closureExpr? SEMI?
+    : RETURN closureCondition? SEMI?
     ;
 
 assignmentStatement
     : closureFieldAccess ASSIGN closureExpr SEMI?
     ;
 
+// A condition too, so a statement list can end with the comparison that decides a filter.
 expressionStatement
-    : closureExpr SEMI?
+    : closureCondition SEMI?
     ;
 
 // ==================== Closure expressions (within closures) ====================
@@ -194,14 +196,9 @@ closureConditionAnd
     : closureConditionPrimary (AND closureConditionPrimary)*
     ;
 
+// A comparison is a closureExpr (closureRelational, closureEquality), so it binds as in Groovy wherever it appears.
 closureConditionPrimary
     : NOT closureConditionPrimary                                 # conditionNot
-    | closureExpr DEQ closureExpr                                 # conditionEq
-    | closureExpr NEQ closureExpr                                 # conditionNeq
-    | closureExpr GT closureExpr                                  # conditionGt
-    | closureExpr LT closureExpr                                  # conditionLt
-    | closureExpr GTE closureExpr                                 # conditionGte
-    | closureExpr LTE closureExpr                                 # conditionLte
     | closureExpr IN closureListLiteral                            # conditionIn
     | L_PAREN closureCondition R_PAREN                             # conditionParen
     | closureExpr                                                  # conditionExpr
@@ -210,15 +207,17 @@ closureConditionPrimary
 closureExpr
     // In ANTLR4 left-recursive rules, alternatives listed FIRST have the
     // HIGHEST precedence (tightest binding).  Order: MUL/DIV > ADD/SUB >
-    // regex > ternary/elvis (loosest).
-    : closureExpr STAR closureExpr                                 # closureMul
-    | closureExpr SLASH closureExpr                                # closureDiv
-    | closureExpr PLUS closureExpr                                 # closureAdd
-    | closureExpr MINUS closureExpr                                # closureSub
+    // regex > relational > equality > ternary/elvis (loosest). One alternative per level,
+    // so 10 - 2 + 3 associates left.
+    : closureExpr op=(STAR | SLASH) closureExpr                    # closureMulDiv
+    | closureExpr op=(PLUS | MINUS) closureExpr                    # closureAddSub
     | closureExpr REGEX_MATCH REGEX_LITERAL                        # closureRegexMatch
-    | closureExpr compOp closureExpr QUESTION closureExpr COLON closureExpr   # closureTernaryComp
-    | closureExpr QUESTION closureExpr COLON closureExpr           # closureTernary
-    | closureExpr QUESTION COLON closureExpr                       # closureElvis
+    // Relational binds tighter than equality, as in Groovy: a == b >= c is a == (b >= c).
+    | closureExpr op=(GT | LT | GTE | LTE) closureExpr             # closureRelational
+    | closureExpr op=(DEQ | NEQ) closureExpr                       # closureEquality
+    // Ternary and elvis (no middle) share one right-associative level, as in Groovy:
+    // a ? b : c ? d : e is a ? b : (c ? d : e), and a ? b : c ?: d is a ? b : (c ?: d).
+    | <assoc=right> closureExpr QUESTION closureExpr? COLON closureExpr   # closureTernary
     | MINUS closureExprPrimary                                      # closureUnaryMinus
     | closureExprPrimary                                           # closurePrimary
     ;
@@ -268,10 +267,6 @@ safeNav
 
 closureArgList
     : closureExpr (COMMA closureExpr)*
-    ;
-
-compOp
-    : GT | LT | GTE | LTE | DEQ | NEQ
     ;
 
 closureFieldAccess

@@ -27,9 +27,14 @@ a page of its own for what only it reads and builds:
 The TAL config files are in YAML format, and are located under directory `tal`. The `trace-analyzer` module lists the
 files for OpenTelemetry spans in `trace-analyzer/default/talFiles` and those for SkyWalking agents' segments in
 `trace-analyzer/default/nativeTalFiles`, in the `application.yml` file or through the environment variables above. The
-files are read when the OAP starts. See [OpenTelemetry Trace Analysis](../setup/backend/trace-analyzer.md) and
-[Native Trace Analysis](../setup/backend/native-trace-analysis.md) for the module's settings and for what the shipped
-rule files produce.
+files are read when the OAP starts. A listed name reads its file, `<name>.yaml` by convention; beside another file of
+that name, such as an editor's `<name>.yaml~`, its `.yaml` or `.yml` file is read and the others are logged, and two
+candidates otherwise, such as `<name>.yaml` and `<name>.yml`, fail the boot; a rule names the file it came from as it is
+named. Every listed file of both lists, the native one when the native rules run and a file whose `requiredModules` are
+loaded, is read, its `layerDefinitions` registered, a file of definitions alone included, before a rule of either list
+compiles, so a rule may name a layer a file of the other list declares. See [OpenTelemetry Trace
+Analysis](../setup/backend/trace-analyzer.md) and [Native Trace Analysis](../setup/backend/native-trace-analysis.md) for
+the module's settings and for what the shipped rule files produce.
 
 Anyone who has written a [LAL](lal.md) rule can read a TAL rule: the grammar is LAL's, with the log-specific parts
 removed and span-specific parts added. The differences are listed at the end of this page.
@@ -54,7 +59,8 @@ rules:
 ```
 
 A rule names exactly one `inputType`. The OAP refuses to start on a rule whose `layer` is not registered, naming the
-rule and the layer; declare the layer under `layerDefinitions` or use a built-in one.
+rule and the layer; declare the layer under `layerDefinitions` or use a built-in one. It also refuses two rules of one
+name in one layer, and two native rules of one name, across the listed files, naming both files.
 
 `requiredModules` names the modules a file's rules need, such as a module whose functions or sources they use.
 A file whose modules are not all loaded is not compiled, and so not checked, and its rules do not run. Every module a
@@ -92,7 +98,7 @@ log <trace | debug | info | warn | error> "<message>" [, <expr>, ...]
 - **Declaring before the branches.** A variable the branches of an `if` assign is declared before them. A `String`, a
   `Layer` or an enum is declared with a typed `null`, `def owner = null as String`, `def callerLayer = null as Layer`;
   it stays `null` on the paths that do not assign it. A number or a boolean is declared with a literal, `def
-  logicLatency = 0`, since `as Integer`, `as Long` and `as Boolean` turn `null` into `0` and `false`.
+  logicLatency = 0`, or with a typed `null`, `def latency = null as Integer`, since a cast keeps a `null`.
 - **Scopes.** A filter-level `def` is in scope inside the `extractor`. A `def` in a `foreach` body, in a native rule's
   `build {}` block or in its `first {}` run declares a variable of that iteration, block or run; `=` assigns it there,
   or assigns a variable of an enclosing scope. A `def` first given a value inside an `if` branch is `null` after it on
@@ -100,16 +106,21 @@ log <trace | debug | info | warn | error> "<message>" [, <expr>, ...]
 - **`foreach`.** `<list>` is a `java.util.List`, such as the native `span.refsList` or a list a function returns. The loop
   variable is typed to the list's element type when the rule compiles, so `ref.parentService` is a compile-checked
   chain. A `def` inside the body is declared again at each iteration and is not visible after the loop; a variable
-  declared before the loop and assigned inside it with `=` keeps its value across iterations. `foreach` is allowed
-  wherever `if` is. Indexing such as `span.refsList[0]` is not supported.
+  declared before the loop and assigned inside it with `=` keeps its value across iterations, so the body compiles for
+  what any iteration can start with: a `put` on a map the rule made, or a quotient narrowing into a whole number, is a
+  compile error when an earlier iteration may have given the variable another value. `foreach` is allowed
+  wherever `if` is. A list or an array also reads an element by its index, `span.refsList[0]`.
 - **`abort {}`** is allowed anywhere, and stops the whole run of the rule, the statements after the block it sits in
   included. A statement after it in the same block could never run and is a compile error.
 - **`log`** writes the message through SLF4J under the logger `org.apache.skywalking.trace.analysis.script.<script>`,
   the script being the rule file without its extension, such as
   `org.apache.skywalking.trace.analysis.script.native-rpc`. Each `{}` is replaced by the next argument as SLF4J formats
-  it, and the arguments are evaluated only when the level is enabled. A function that logs, such as `parseStatusCode`,
-  logs under the calling rule's script logger; a function that calls other Java, such as the native naming functions,
-  logs as that Java logs, under its own class name.
+  it, and the arguments are evaluated only when the level is enabled. An argument beyond the placeholders is a compile
+  error, as SLF4J would drop it, but for one last argument that can be a `Throwable`, which SLF4J logs as the exception;
+  one whose type is known only when the rule runs, such as a map's value, fails the rule when it is neither a
+  `Throwable` nor null there, a null logging no exception. A placeholder no argument fills prints as it is. A `{}` after an odd run of backslashes, `\{}`, is a literal
+  `{}`. A function that logs, such as `parseStatusCode`, logs under the calling rule's script logger; a function that
+  calls other Java, such as the native naming functions, logs as that Java logs, under its own class name.
 
 Statements may be separated by `;` as well as by newlines.
 
@@ -119,25 +130,128 @@ An expression starts with `span`, an input's own root such as the OTLP `meta`, a
 any other first name, such as a misspelled `mta.kind`, is a compile error. `span` is typed to the input's span when the
 rule compiles, so every getter chain after it is checked then. A string literal is plain text in `"` or `'`: a
 backslash escapes only the quote, `'` and itself, so `"a\"b"` is the three characters `a"b` and `"C:\temp"` keeps its
-backslash, and there is no `\n` or `\t`. Numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are
-literals. A numeric field, such as the OTLP `meta.latency`, is a number, so `meta.latency + 1` adds.
+backslash, and there is no `\n` or `\t`. `${...}` is text, except in a `rateLimit` id, where `\${` keeps it text.
+Numbers are Java's, `1`, `10L`, `1.5`; and `true`, `false` and `null` are
+literals. An integer written with a leading 0 is octal, as in Groovy, so `010` is 8 in a value, a comparison, an
+argument, `buckets`, `ranks`, `labelLimit`, `rpm` and an `[index]` alike, and `08` is a compile error; a leading 0
+before a fraction, an exponent or an `F` / `D` suffix, `00.5` or `010F`, is decimal, as in Java. A numeric field,
+such as the OTLP `meta.latency`, is a number, so `meta.latency + 1` adds. A method after a numeric field,
+`meta.latency.doubleValue()`, is the boxed number's. A method's overload is chosen as LAL chooses it,
+when the rule compiles: of the methods of the name and the arguments' count, the one the arguments fit best, an
+argument of the parameter's own type before one widened or boxed to it, and that before a value whose type is known
+only when the rule runs, such as a map's value, converted or cast then; the most specific of several that fit alike.
+No string is read as a number nor a number as a string, so `span.name.concat(42)` and `substring(attr("n"))` are
+compile errors; write `concat("42")` or `substring(attr("n") as Integer)`. A value of unknown type that two overloads
+take, `span.name.indexOf(m.get("d"))`, is a compile error asking for `as String` or `as Integer`. A literal takes no method, field or index, so `"x".trim()` is
+a compile error; `("x").trim()`, or a `def` holding the literal, calls it.
 
-A comparison is decided by the types of its two sides when the rule compiles. There is no implicit parse and no
-implicit `toString`; `as T` is the only conversion:
+#### What a rule can call
+
+A rule calls the functions its input and the loaded modules provide, reads a field of the input, of `meta` or of an
+object a function returns by its getter (`span.name`, `ref.parentEndpoint`, or written as `getX()`, `isX()`,
+`hasX()` or `containsX(key)`), and calls these Java methods, read as a property too (`span.name.length` calls `length()`); the String
+methods are the ones LAL calls:
+
+- **String:** `length`, `isEmpty`, `trim`, `toLowerCase`, `toUpperCase`, `startsWith`, `endsWith`, `contains`,
+  `indexOf`, `lastIndexOf`, `substring`, `replace`, `replaceAll`, `replaceFirst`, `split`, `charAt`, `equals`,
+  `equalsIgnoreCase`, `matches`, `concat`, `toString`.
+- **Numbers:** `intValue`, `longValue`, `doubleValue`, `floatValue`, `toString`, and `toPlainString` on a decimal. There
+  is no `Math`: arithmetic uses the operators and the `round` and `floorMod` functions.
+- **JSON**, from `parseJsonObject`: on an element, a primitive included, `getAsString`, `getAsInt`, `getAsLong`,
+  `getAsShort`, `getAsByte`, `getAsDouble`, `getAsFloat`, `getAsBoolean`, `getAsCharacter`, `getAsNumber`,
+  `getAsBigDecimal`, `getAsBigInteger`, `getAsJsonObject`, `getAsJsonArray`, `getAsJsonPrimitive`, `getAsJsonNull`,
+  `isJsonNull`, `isJsonObject`, `isJsonArray` and `isJsonPrimitive`; on an object, these and `get`, `has`, `size`, `keySet`, and `getAsJsonObject`,
+  `getAsJsonArray` and `getAsJsonPrimitive` of a member; on an array, these and `get`, `size` and `isEmpty`.
+- **Maps:** `get`, `getOrDefault`, `containsKey`, `isEmpty`, `size`, `keySet`, and `put`. **Lists and sets**, a map's
+  `keySet()` included: `size`, `isEmpty`, `contains`, `add`, and `get` on a list. `put` and `add` change only a map or
+  list the rule made with `emptyMap()` or `emptyList()` and holds in a `def`, as every path to the call leaves it: a
+  `def` assigned one, grouped or from another `def` holding one, or null, also through a `foreach` whose body assigns
+  it one again.
+- **Layer and enums:** `name`, and `isNormal` on a layer. **Any value:** `toString` and `equals`, the only methods a
+  value whose type is known only when the rule runs calls. A value's methods are its class's and its supertypes', so
+  a `BigDecimal` calls the numbers' methods too.
+
+Any other method is a compile error naming the methods its value has, and so is a static method called through a value
+(`amount.valueOf(n)`), a variable-length one (`format`), `getClass()`, and a method of an input's object other than its
+getters (`getX()`, `isX()`, `hasX()` and `containsX(key)` with an uppercase letter after the prefix, so `hashCode()`
+is none). A
+primitive result takes its box's methods: `round(x).toString()`.
+
+This is the set this release supports, and it grows as rules need more: propose an addition in an issue or a pull
+request.
+
+TAL evaluates values as [LAL](lal.md) does, except where noted here:
+
+- A bare condition, `if (x)`, uses Groovy truth: `null`, `false`, `0`, `NaN`, an empty string and an empty collection,
+  map or array are false. `as Boolean` converts as LAL's: a boolean, the text `true` or `false` in any case, and a
+  number or a text holding one by zero (`0` is false, any other number true); any other value, such as `"yes"`, fails
+  the span.
+- `+` joins as soon as one side is a string, a missing boxed number joining as `"null"`: a string joins onto a
+  string, a number, a character or `null` on its left, and any value but an array, a collection or a map on its right
+  (`"x" + true`); any other value on the left (a boolean, an enum, a JSON value, any other object), and an array, a
+  collection or a map on either side, fails, the compile where its type is known, else the span (`true + "x"`,
+  `span.name.split(",") + "x"`, `"x" + span.refsList`), and so does a boolean beside a number. Where
+  neither side is a string nor both are numbers when the rule compiles, such as a map's value beside a number, numbers
+  add (`Integer + Long` is a `Long`, a `BigDecimal` stays exact, a `BigInteger` beside a whole number stays whole, a
+  float or a double makes a `Double`) and a string, a number, a character or a `null` on the left joins, two characters
+  included (`("/cart").charAt(1) + ("/cart").charAt(2)` is
+  `"ca"`, as TAL always joined them). A float computes in double, even with another float. `-`, `*` and `/` take numbers only, so a
+  string is never multiplied.
+- `/` on two whole numbers is the exact decimal, as Groovy divides: `7 / 2` is `3.5`, and one that does not terminate
+  is rounded half up to the larger of its operands' scales and ten decimals (`7 / 3` is `2.3333333333`). It stays that decimal until where it goes converts it:
+  an int or long target, a setter's or a function's parameter, a metric's value, an `as Integer` or `as Long` cast or a
+  `def` that holds a whole number, truncates it (only a quotient narrows into such a `def`), so `span.startTimeUnixNano / 1000000` is the whole milliseconds; a
+  double target reads its double value; text its digits; and a comparison its exact value. `+`, `-`, `*` and `/` beside it
+  compute exactly, or in double beside a float or a double. A Java method takes it as a decimal, so `substring((5 / 2) as
+  Integer)` converts it, and a number typed only as `java.lang.Number` divides beside a float or a double, and else once
+  converted `as Long` or `as Double`. A division in double divides as Java does, `1.0 / 0` giving an infinity and `0 /
+  0.0` a NaN; any other zero divisor fails the span.
+- A character is the one-character string it is. A string or a character against a number reads as the number it
+  reads as, trimmed: `"3" < 5` and `"3" == 3` are true, and `span.name.charAt(0) == 1` is true for `"1x"`. In an
+  ordering, `<`, `>`, `<=` or `>=`, one that reads as no number fails the span, or the compile for a literal; in an
+  equality it is unequal. Two strings order as numbers when both read as one (`"10" > "2"`), else as text, and equal
+  as text.
+- Numbers compare as Java compares them, as TAL always did: in double when either is a float or a double, a NaN
+  comparing false in every comparison but `!=` and -0.0 equal to 0, else exactly. A null equals only a null and orders
+  below every value.
+- A cast keeps a null: `labels().get("missing") as Integer` is null. A blank text casts to null too in a numeric cast and in
+  `as Boolean`, and a bare `if (x as Boolean)` reads it as false, while `as String` keeps the text as it is: `attr()` reads an absent attribute as `""`, and this keeps
+  it the missing value LAL's `null` is. A number orders above a `null`. A value that does not convert fails the span, as LAL fails the log: `"abc" as Integer`,
+  `"1.5" as Long`, a boolean, a map or a character as a number, a class-name `as` on a value of another class, and
+  `as Layer` or `as <Enum>` on a name that is none. A null fails in arithmetic and as a primitive argument. A
+  numeric cast, and a primitive argument it converts, trims a text first, as LAL and Groovy do: `" 42 " as Long` is
+  42, where the Java analyzer that native trace analysis replaced failed the segment on a padded
+  `transmission.latency` tag. So the
+  shipped `otlp-general` rule's `attr("http.response.status_code", "http.status_code") as Double >= 400` fails a span
+  whose status code is text that is no number, and does not take the error branch for `NaN` (a NaN compares false);
+  an absent code is null, below 400.
+
+`as` converts to `String`, `Long`, `Integer`, `Double`, `Float` or `Boolean`, to `Layer` or one of the enums listed
+under [Typed Layer and enum values](#typed-layer-and-enum-values), or, as a Java cast, to a class named by its full
+name, such as `java.util.List`, `java.lang.Long` or the member class `io.opentelemetry.proto.trace.v1.Span.Event`;
+any other name, such as `as Bool`, is a compile error; `as boolean` reads as `as Boolean`. A class-name `as` that no
+value of the expression's type can pass, `"7" as java.lang.Long`, is a compile error, and so is an argument of such a
+type for a method's parameter, `span.name.contains(42)`.
+
+A comparison is decided by the types of its two sides when the rule compiles; a string or a character beside a
+number reads as the number it is, and `as T` converts anything else:
 
 | Left and right | Allowed | Compared as |
 |---|---|---|
-| number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long` |
+| number and number | every operator | numbers, so `110 == 110.0` is true and an `int` compares with a `long`; as Java's primitives (in double beside a float or a double, a NaN false but in `!=`, -0.0 equal to 0), else exactly; a null below every value |
 | boolean and boolean, String and String, two values of one type | `==`, `!=` | equal values |
+| two lists, arrays, sets or maps, of one kind or not (a list against an array) | `==`, `!=` | by content, as every DSL compares them: lists and arrays element by element in order (a list against an array too), sets by their elements in any order, and maps by their keys and each key's value, each element as a value; a JSON value compares as what it holds (an array as a list, an object as a map, a primitive as its value) |
 | a value that can be absent and `null` | `==`, `!=` | a null check |
 | a `Layer` or an enum value and a string literal | `==`, `!=` | by name; the literal is checked when the rule compiles |
 | a value whose type is known only when the rule runs, such as the OTLP `event(...)`, and a string literal | `==`, `!=` | equal values; an event never equals a string, so compare `event(...)` with `null` |
-| anything else, such as `attr("x") > 400` or `meta.latency == "5"` | | a compile error naming both types |
+| a string, a character or a value whose type is known only when the rule runs, and a number | every operator | as the number the string reads as; in an ordering one that reads as none fails the span, in an equality it is unequal |
+| a string, a character or a value whose type is known only when the rule runs, and a string | `<`, `>`, `<=`, `>=` | as numbers when both read as one, else as text |
+| anything else, such as `meta.root == 1` | | a compile error naming both types |
 
-A function that returns a String is ordered as a number with `as`: `attr("http.response.status_code") as Integer >=
-400`. An `as T` that cannot convert its value, `"abc" as Integer` or an absent attribute, makes that comparison false
-whatever the operator, so `!(attr("code") as Integer >= 400)` is true for a value that is not a number. A method can
-follow a function that returns a string, `attr("x").trim()`. `!` binds tighter than `&&` and `||`, as in Java.
+A function that returns a String may also be ordered as a number with `as`: `attr("http.response.status_code") as
+Integer >= 400`. A method can
+follow a function that returns a string, `attr("x").trim()`. A comparison compares
+two values, so `(a == b) == true` is a compile error. `!` binds tighter than `&&` and `||`, as in Java.
 
 #### Typed `Layer` and enum values
 
@@ -149,11 +263,10 @@ def calleeLayer = "VIRTUAL_CACHE" as Layer
 def type = "HTTP" as RequestType
 ```
 
-`as Layer` looks the name up among the registered layers and fails on an unknown one; a literal is checked when the
-rule compiles, against the layers registered by then, those a file's `layerDefinitions` registers included. An enum
-literal is checked against the enum's constants. A `def` given a typed value has that type, so a misspelt name is a
-compile error where it is written, not a failure when its branch runs. `as Layer` and `as <Enum>` keep a literal `null`
-and give it the type.
+`as Layer` looks the name up among the registered layers and fails on an unknown one. A literal, a string, a number or `true` / `false`, is checked when the rule compiles,
+against the layers the listed files register, their `layerDefinitions` included. An enum literal is checked against
+the enum's constants. A `def` given a typed value has that type, so a misspelt name is a compile error where it is
+written, not a failure when its branch runs. `as Layer` and `as <Enum>` keep a literal `null` and give it the type.
 
 ### Extractor
 
@@ -223,8 +336,9 @@ metrics {
 }
 ```
 
-A numeric cast on `value` or `timestamp` converts before the number is taken, so `value attr("amount") as Double`
-reads `"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
+Each clause other than `labels` is written once, and each label key once; a repeated one is a compile error. A
+numeric cast on `value` or `timestamp` converts before the number is taken, so `value attr("amount") as Double` reads
+`"1.7"` as 1 rather than failing to parse it. Two blocks may feed one metric, from two branches of an `if`
 for instance, when they agree on its function, scope, buckets, ranks and `labelLimit`, an omitted `labelLimit`
 counting as its default of 50; any difference is a compile error. The same
 holds across rules and files, two files sharing a `metricPrefix` included: blocks of one stored name that disagree
@@ -247,11 +361,15 @@ rules, as a meter entity's does:
 | `serviceRelation(CLIENT \| SERVER, source, sourceLayer, dest, destLayer, componentId)` | a call between two services, each in its own layer; `componentId` is an `int`, normally `component(...)` |
 | `serviceInstanceRelation(CLIENT \| SERVER, sourceService, sourceInstance, sourceLayer, destService, destInstance, destLayer, componentId)` | a call between two instances |
 
-A `layer` argument is a string expression. A name that is not registered skips the block, with one warning per
-name; a `value` that does not parse as a number, or any other failure inside a block, skips that block alone, with one
-warning per metric, and the rule's later blocks still run. The value is read and the metric built before the block
-registers its entity, so a skipped block, one whose metric the meter system could not create included, writes no
-traffic. An entity held in a `def` has one shape: reassigning it with a different constructor is a compile error.
+A `layer` argument is a string expression. A name the rule spells out in literals, in parentheses or joined with `+`,
+such as `"TEAM_" + 2` or a number, is checked when the rule compiles, against the layers the listed files register,
+their `layerDefinitions` included, and one that is not registered is a compile error. A name computed when the rule runs
+that is not registered skips the block, with one warning per name; a `value` that does not parse as a number, or any
+other failure inside a block, skips that block alone, with one warning per metric, and the rule's later blocks still
+run. The value is read and the metric built before the block registers its entity, so a skipped block, one whose metric
+the meter system could not create included, writes no traffic. An entity held in a `def` has one shape: reassigning it
+with a different constructor is a compile error. An entity is used as its constructor builds it: a method, a field or an
+`as` after the constructor, or after the `def` that `scope` names, is a compile error.
 
 The functions are the meter system's, named for what they do to the values of one minute:
 

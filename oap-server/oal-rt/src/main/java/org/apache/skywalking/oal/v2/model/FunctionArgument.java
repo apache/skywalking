@@ -19,6 +19,7 @@
 package org.apache.skywalking.oal.v2.model;
 
 import java.util.Objects;
+import java.util.Optional;
 import lombok.Getter;
 
 /**
@@ -33,6 +34,7 @@ import lombok.Getter;
  * <pre>
  * percentile2(10)              → LITERAL argument: 10
  * apdex(name, status)          → ATTRIBUTE arguments: "name", "status"
+ * labelAvg(name, (str-&gt;long)tag["size"]) → ATTRIBUTE argument "tag["size"]" with castType "(str-&gt;long)"
  * rate(status == true, ...)    → EXPRESSION argument
  * </pre>
  */
@@ -40,31 +42,53 @@ import lombok.Getter;
 public final class FunctionArgument {
     private final ArgumentType type;
     private final Object value;
+    private final Optional<String> castType;
+    /**
+     * A number literal written with an {@code L} suffix, whose value is that spelling, as the generated code passes it
+     * to Javassist: as written, with no check of its value or range.
+     */
+    private final boolean longSuffixed;
 
-    private FunctionArgument(ArgumentType type, Object value) {
+    private FunctionArgument(ArgumentType type, Object value, String castType, boolean longSuffixed) {
         this.type = Objects.requireNonNull(type, "type cannot be null");
         this.value = value;
+        this.castType = Optional.ofNullable(castType);
+        this.longSuffixed = longSuffixed;
     }
 
     /**
      * Create a literal argument.
      */
     public static FunctionArgument literal(Object value) {
-        return new FunctionArgument(ArgumentType.LITERAL, value);
+        return new FunctionArgument(ArgumentType.LITERAL, value, null, false);
+    }
+
+    /**
+     * Create a number literal argument written with an {@code L} suffix, such as {@code 100L}, kept as written.
+     */
+    public static FunctionArgument longLiteral(String spelling) {
+        return new FunctionArgument(ArgumentType.LITERAL, spelling, null, true);
     }
 
     /**
      * Create an attribute argument (source field reference).
      */
     public static FunctionArgument attribute(String fieldName) {
-        return new FunctionArgument(ArgumentType.ATTRIBUTE, fieldName);
+        return attribute(fieldName, null);
+    }
+
+    /**
+     * Create an attribute argument read through a cast, such as {@code (str->long)tag["size"]}.
+     */
+    public static FunctionArgument attribute(String fieldName, String castType) {
+        return new FunctionArgument(ArgumentType.ATTRIBUTE, fieldName, castType, false);
     }
 
     /**
      * Create an expression argument (filter condition).
      */
     public static FunctionArgument expression(FilterExpression expression) {
-        return new FunctionArgument(ArgumentType.EXPRESSION, expression);
+        return new FunctionArgument(ArgumentType.EXPRESSION, expression, null, false);
     }
 
     public boolean isLiteral() {
@@ -114,12 +138,13 @@ public final class FunctionArgument {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FunctionArgument that = (FunctionArgument) o;
-        return type == that.type && Objects.equals(value, that.value);
+        return type == that.type && Objects.equals(value, that.value) && Objects.equals(castType, that.castType)
+            && longSuffixed == that.longSuffixed;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, value);
+        return Objects.hash(type, value, castType, longSuffixed);
     }
 
     @Override
@@ -128,7 +153,7 @@ public final class FunctionArgument {
             case LITERAL:
                 return String.valueOf(value);
             case ATTRIBUTE:
-                return value.toString();
+                return castType.orElse("") + value;
             case EXPRESSION:
                 return ((FilterExpression) value).toString();
             default:

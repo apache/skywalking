@@ -21,7 +21,13 @@ import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import org.apache.skywalking.oap.server.core.dsl.DslClassNaming;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import javassist.ClassPool;
@@ -31,6 +37,10 @@ import javassist.CtNewConstructor;
 import javassist.CtNewMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.HierarchyRulePackageHolder;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
+import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
+import org.apache.skywalking.oap.server.core.dsl.DslStrings;
+import org.apache.skywalking.oap.server.core.dsl.DslValues;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
@@ -43,12 +53,15 @@ import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
  * <ul>
  *   <li>Property access on {@link Service}: {@code u.name}, {@code l.shortName}
  *       — mapped to getter methods ({@code getName()}, {@code getShortName()})
- *       via {@link #toGetter(String)}</li>
- *   <li>String method calls: {@code substring()}, {@code lastIndexOf()}, {@code concat()}</li>
- *   <li>Comparisons: {@code ==}, {@code !=} (via {@code Objects.equals()}),
- *       {@code >}, {@code <}, {@code >=}, {@code <=}</li>
+ *       via {@link #getterOf(Class, String)}</li>
+ *   <li>Method calls: what {@link HierarchyCallables} lists</li>
+ *   <li>Comparisons: {@code ==}, {@code !=} ({@link DslValues#equal}), {@code >}, {@code <}, {@code >=},
+ *       {@code <=} ({@link DslValues#order} where a string, a character or a boxed number takes part)</li>
+ *   <li>Arithmetic: {@code +} (adding numbers or concatenating a string), {@code -}</li>
  *   <li>Logical operators: {@code &&}, {@code ||}, {@code !}</li>
- *   <li>Control flow: {@code if/else}, {@code return}</li>
+ *   <li>Control flow: {@code if / else if / else}, {@code return}</li>
+ *   <li>A bare value as a condition or return value, read with Groovy truth
+ *       ({@link DslValues#isTruthy(Object)})</li>
  *   <li>Literals: strings, numbers, booleans</li>
  * </ul>
  *
@@ -70,7 +83,13 @@ public final class HierarchyRuleClassGenerator {
     private static final String PACKAGE_PREFIX =
         "org.apache.skywalking.oap.server.core.config.v2.compiler.hierarchy.rule.rt.";
 
+    private static final String VALUES = DslValues.class.getName();
+
+    private static final String STRINGS = DslStrings.class.getName();
+
     private final ClassPool classPool;
+    /** The rule's two parameters, Services whatever their names (Upper, lower). */
+    private Set<String> params = Collections.emptySet();
     private File classOutputDir;
     private String classNameHint;
     private DslSourceRef sourceRef = DslSourceRef.ofRule(null, DslSourceRef.UNRESOLVED);
@@ -120,8 +139,8 @@ public final class HierarchyRuleClassGenerator {
      * <p>Flow: expression → {@link HierarchyRuleScriptParser#parse} (ANTLR4 AST)
      * → {@link #generateApplyMethod} (Java source) → Javassist compile → class load.
      * Property access (e.g., {@code u.name}) is mapped to getter calls
-     * (e.g., {@code u.getName()}) via {@link #toGetter(String)}.
-     * Equality comparisons use {@code java.util.Objects.equals()} for null safety.
+     * (e.g., {@code u.getName()}) via {@link #getterOf(Class, String)}.
+     * Equality comparisons use {@link DslValues#equal}: Groovy {@code ==}, null-safe.
      *
      * <p>If parsing or compilation fails, throws immediately (fail-fast at startup).
      *
@@ -178,12 +197,14 @@ public final class HierarchyRuleClassGenerator {
     }
 
     private String generateApplyMethod(final HierarchyRuleModel model) {
+        params = new HashSet<>(Arrays.asList(model.getUpperParam(), model.getLowerParam()));
         final StringBuilder sb = new StringBuilder();
         sb.append("public Object apply(Object arg0, Object arg1) {\n");
+        // $1 / $2 rather than arg0 / arg1: a rule parameter named arg1 would shadow the latter.
         sb.append("  org.apache.skywalking.oap.server.core.query.type.Service ");
-        sb.append(model.getUpperParam()).append(" = (org.apache.skywalking.oap.server.core.query.type.Service) arg0;\n");
+        sb.append(model.getUpperParam()).append(" = (org.apache.skywalking.oap.server.core.query.type.Service) $1;\n");
         sb.append("  org.apache.skywalking.oap.server.core.query.type.Service ");
-        sb.append(model.getLowerParam()).append(" = (org.apache.skywalking.oap.server.core.query.type.Service) arg1;\n");
+        sb.append(model.getLowerParam()).append(" = (org.apache.skywalking.oap.server.core.query.type.Service) $2;\n");
 
         generateRuleBody(sb, model.getBody());
 
@@ -196,14 +217,15 @@ public final class HierarchyRuleClassGenerator {
         if (body instanceof HierarchyRuleModel.SimpleComparison) {
             final HierarchyRuleModel.SimpleComparison cmp =
                 (HierarchyRuleModel.SimpleComparison) body;
-            sb.append("  return Boolean.valueOf(");
-            generateComparison(sb, cmp.getLeft(), cmp.getOp(), cmp.getRight());
-            sb.append(");\n");
+            sb.append("  return Boolean.valueOf(").append(comparison(cmp.getLeft(), cmp.getOp(), cmp.getRight()))
+              .append(");\n");
         } else if (body instanceof HierarchyRuleModel.BlockBody) {
             final HierarchyRuleModel.BlockBody block = (HierarchyRuleModel.BlockBody) body;
             for (final HierarchyRuleModel.Statement stmt : block.getStatements()) {
                 generateStatement(sb, stmt);
             }
+        } else {
+            throw unsupported("rule body", body);
         }
     }
 
@@ -213,14 +235,14 @@ public final class HierarchyRuleClassGenerator {
             generateIfStatement(sb, (HierarchyRuleModel.IfStatement) stmt);
         } else if (stmt instanceof HierarchyRuleModel.ReturnStatement) {
             generateReturnStatement(sb, (HierarchyRuleModel.ReturnStatement) stmt);
+        } else {
+            throw unsupported("statement", stmt);
         }
     }
 
     private void generateIfStatement(final StringBuilder sb,
                                      final HierarchyRuleModel.IfStatement ifStmt) {
-        sb.append("  if (");
-        generateCondition(sb, ifStmt.getCondition());
-        sb.append(") {\n");
+        sb.append("  if (").append(condition(ifStmt.getCondition())).append(") {\n");
         for (final HierarchyRuleModel.Statement s : ifStmt.getThenBranch()) {
             generateStatement(sb, s);
         }
@@ -236,154 +258,374 @@ public final class HierarchyRuleClassGenerator {
 
     private void generateReturnStatement(final StringBuilder sb,
                                          final HierarchyRuleModel.ReturnStatement retStmt) {
-        final HierarchyRuleModel.Expr expr = retStmt.getValue();
-        if (expr instanceof HierarchyRuleModel.SimpleComparison) {
-            final HierarchyRuleModel.SimpleComparison cmp =
-                (HierarchyRuleModel.SimpleComparison) expr;
-            sb.append("  return Boolean.valueOf(");
-            generateComparison(sb, cmp.getLeft(), cmp.getOp(), cmp.getRight());
-            sb.append(");\n");
-        } else if (expr instanceof HierarchyRuleModel.BoolLiteralExpr) {
-            sb.append("  return Boolean.valueOf(")
-              .append(((HierarchyRuleModel.BoolLiteralExpr) expr).isValue())
-              .append(");\n");
-        } else {
-            sb.append("  return Boolean.valueOf(");
-            generateExpr(sb, expr);
-            sb.append(" != null);\n");
-        }
+        sb.append("  return Boolean.valueOf(").append(truth(retStmt.getValue())).append(");\n");
     }
 
-    private void generateComparison(final StringBuilder sb,
-                                    final HierarchyRuleModel.Expr left,
-                                    final HierarchyRuleModel.CompareOp op,
-                                    final HierarchyRuleModel.Expr right) {
-        switch (op) {
-            case EQ:
-                sb.append("java.util.Objects.equals(");
-                generateExpr(sb, left);
-                sb.append(", ");
-                generateExpr(sb, right);
-                sb.append(")");
-                break;
-            case NEQ:
-                sb.append("!java.util.Objects.equals(");
-                generateExpr(sb, left);
-                sb.append(", ");
-                generateExpr(sb, right);
-                sb.append(")");
-                break;
-            case GT:
-                generateExpr(sb, left);
-                sb.append(" > ");
-                generateExpr(sb, right);
-                break;
-            case LT:
-                generateExpr(sb, left);
-                sb.append(" < ");
-                generateExpr(sb, right);
-                break;
-            case GTE:
-                generateExpr(sb, left);
-                sb.append(" >= ");
-                generateExpr(sb, right);
-                break;
-            case LTE:
-                generateExpr(sb, left);
-                sb.append(" <= ");
-                generateExpr(sb, right);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported comparison op: " + op);
-        }
-    }
-
-    private void generateCondition(final StringBuilder sb,
-                                   final HierarchyRuleModel.Condition cond) {
+    private String condition(final HierarchyRuleModel.Condition cond) {
         if (cond instanceof HierarchyRuleModel.ComparisonCondition) {
             final HierarchyRuleModel.ComparisonCondition cc =
                 (HierarchyRuleModel.ComparisonCondition) cond;
-            generateComparison(sb, cc.getLeft(), cc.getOp(), cc.getRight());
-        } else if (cond instanceof HierarchyRuleModel.LogicalCondition) {
+            return comparison(cc.getLeft(), cc.getOp(), cc.getRight());
+        }
+        if (cond instanceof HierarchyRuleModel.LogicalCondition) {
             final HierarchyRuleModel.LogicalCondition lc =
                 (HierarchyRuleModel.LogicalCondition) cond;
-            sb.append("(");
-            generateCondition(sb, lc.getLeft());
-            sb.append(lc.getOp() == HierarchyRuleModel.LogicalOp.AND ? " && " : " || ");
-            generateCondition(sb, lc.getRight());
-            sb.append(")");
-        } else if (cond instanceof HierarchyRuleModel.NotCondition) {
-            sb.append("!(");
-            generateCondition(sb, ((HierarchyRuleModel.NotCondition) cond).getInner());
-            sb.append(")");
-        } else if (cond instanceof HierarchyRuleModel.ExprCondition) {
-            generateExpr(sb, ((HierarchyRuleModel.ExprCondition) cond).getExpr());
+            final String op;
+            switch (lc.getOp()) {
+                case AND:
+                    op = " && ";
+                    break;
+                case OR:
+                    op = " || ";
+                    break;
+                default:
+                    throw unsupported("logical operator", lc.getOp());
+            }
+            return "(" + condition(lc.getLeft()) + op + condition(lc.getRight()) + ")";
         }
+        if (cond instanceof HierarchyRuleModel.NotCondition) {
+            return "!(" + condition(((HierarchyRuleModel.NotCondition) cond).getInner()) + ")";
+        }
+        if (cond instanceof HierarchyRuleModel.ExprCondition) {
+            return truth(((HierarchyRuleModel.ExprCondition) cond).getExpr());
+        }
+        throw unsupported("condition", cond);
     }
 
-    private void generateExpr(final StringBuilder sb,
-                              final HierarchyRuleModel.Expr expr) {
-        if (expr instanceof HierarchyRuleModel.MethodChainExpr) {
-            generateMethodChainExpr(sb, (HierarchyRuleModel.MethodChainExpr) expr);
-        } else if (expr instanceof HierarchyRuleModel.StringLiteralExpr) {
-            sb.append('"')
-              .append(DslJavaSourceText.toLiteral(((HierarchyRuleModel.StringLiteralExpr) expr).getValue()))
-              .append('"');
-        } else if (expr instanceof HierarchyRuleModel.NumberLiteralExpr) {
-            sb.append(((HierarchyRuleModel.NumberLiteralExpr) expr).getValue());
-        } else if (expr instanceof HierarchyRuleModel.BoolLiteralExpr) {
-            sb.append(((HierarchyRuleModel.BoolLiteralExpr) expr).isValue());
-        } else if (expr instanceof HierarchyRuleModel.BinaryExpr) {
-            final HierarchyRuleModel.BinaryExpr bin = (HierarchyRuleModel.BinaryExpr) expr;
-            generateExpr(sb, bin.getLeft());
-            sb.append(bin.getOp() == HierarchyRuleModel.ArithmeticOp.ADD ? " + " : " - ");
-            generateExpr(sb, bin.getRight());
-        } else if (expr instanceof HierarchyRuleModel.SimpleComparison) {
+    /**
+     * A value used as a boolean: comparisons and boolean literals as they are, anything else
+     * through Groovy truth.
+     */
+    private String truth(final HierarchyRuleModel.Expr expr) {
+        if (expr instanceof HierarchyRuleModel.SimpleComparison) {
             final HierarchyRuleModel.SimpleComparison cmp =
                 (HierarchyRuleModel.SimpleComparison) expr;
-            generateComparison(sb, cmp.getLeft(), cmp.getOp(), cmp.getRight());
+            return comparison(cmp.getLeft(), cmp.getOp(), cmp.getRight());
+        }
+        if (expr instanceof HierarchyRuleModel.BoolLiteralExpr) {
+            return String.valueOf(((HierarchyRuleModel.BoolLiteralExpr) expr).isValue());
+        }
+        return VALUES + ".isTruthy(" + operand(expr).boxed() + ")";
+    }
+
+    private String comparison(final HierarchyRuleModel.Expr leftExpr,
+                              final HierarchyRuleModel.CompareOp op,
+                              final HierarchyRuleModel.Expr rightExpr) {
+        final Operand left = operand(leftExpr);
+        final Operand right = operand(rightExpr);
+        if (op == HierarchyRuleModel.CompareOp.EQ || op == HierarchyRuleModel.CompareOp.NEQ) {
+            // Boxed ($w): one Groovy-style comparison for every pairing of primitive and object operands.
+            return (op == HierarchyRuleModel.CompareOp.NEQ ? "!" : "") + VALUES + ".equal(" + left.boxed() + ", "
+                + right.boxed() + ")";
+        }
+        requireOrderable(leftExpr, left.type, rightExpr, right.type);
+        if (text(left.type) || text(right.type) || nullable(left.type) || nullable(right.type)) {
+            // a string in an ordering: read as a number where it is one; a boxed number may be null, which orders
+            // lowest. A rule's values hold no float or double, so no NaN leaves the order null.
+            return VALUES + ".order(" + left.boxed() + ", " + right.boxed() + ").intValue() " + javaOperator(op)
+                + " 0";
+        }
+        return left.asNumber() + " " + javaOperator(op) + " " + right.asNumber();
+    }
+
+    private static String javaOperator(final HierarchyRuleModel.CompareOp op) {
+        switch (op) {
+            case GT:
+                return ">";
+            case LT:
+                return "<";
+            case GTE:
+                return ">=";
+            case LTE:
+                return "<=";
+            default:
+                throw unsupported("comparison operator", op);
         }
     }
 
-    private void generateMethodChainExpr(final StringBuilder sb,
-                                         final HierarchyRuleModel.MethodChainExpr expr) {
-        sb.append(expr.getTarget());
+    private Operand operand(final HierarchyRuleModel.Expr expr) {
+        if (expr instanceof HierarchyRuleModel.MethodChainExpr) {
+            return chain((HierarchyRuleModel.MethodChainExpr) expr);
+        }
+        if (expr instanceof HierarchyRuleModel.StringLiteralExpr) {
+            return new Operand(
+                "\"" + DslJavaSourceText.toLiteral(((HierarchyRuleModel.StringLiteralExpr) expr).getValue()) + "\"",
+                String.class);
+        }
+        if (expr instanceof HierarchyRuleModel.NumberLiteralExpr) {
+            final long number = ((HierarchyRuleModel.NumberLiteralExpr) expr).getValue();
+            // Unsuffixed, Javassist reads a number beyond the int range as an int and wraps it.
+            return number < Integer.MIN_VALUE || number > Integer.MAX_VALUE
+                ? new Operand(number + "L", long.class) : new Operand(String.valueOf(number), int.class);
+        }
+        if (expr instanceof HierarchyRuleModel.BoolLiteralExpr) {
+            return new Operand(String.valueOf(((HierarchyRuleModel.BoolLiteralExpr) expr).isValue()), boolean.class);
+        }
+        if (expr instanceof HierarchyRuleModel.BinaryExpr) {
+            return arithmetic((HierarchyRuleModel.BinaryExpr) expr);
+        }
+        if (expr instanceof HierarchyRuleModel.SimpleComparison) {
+            final HierarchyRuleModel.SimpleComparison cmp =
+                (HierarchyRuleModel.SimpleComparison) expr;
+            return new Operand(comparison(cmp.getLeft(), cmp.getOp(), cmp.getRight()), boolean.class);
+        }
+        throw unsupported("expression", expr);
+    }
+
+    /**
+     * {@code +} and {@code -}: a boxed number adds as a number, as in Groovy (Javassist would concatenate it); beside a
+     * string, {@code +} concatenates.
+     */
+    private Operand arithmetic(final HierarchyRuleModel.BinaryExpr bin) {
+        final Operand left = operand(bin.getLeft());
+        final Operand right = operand(bin.getRight());
+        final boolean text = left.type == String.class || right.type == String.class;
+        if (text && bin.getOp() == HierarchyRuleModel.ArithmeticOp.SUB) {
+            // Groovy's String - String removes the text; Java has no - for a string
+            throw new IllegalArgumentException("- on a string (Groovy removes the text) is not supported; use "
+                + "replace(...)");
+        }
+        if (text && isBoolean(left.type)) {
+            // Groovy has no + for a boolean and a string
+            throw new IllegalArgumentException("A boolean + a string has no meaning in Groovy; convert it first");
+        }
+        if (text && !DslNumbers.mayJoinText(left.type)) {
+            // a text joins only onto a text, a number, a character or null (u + "x", u.layers + "x" are refused)
+            throw DslNumbers.cannotJoinText(left.type);
+        }
+        if (text && DslNumbers.isItems(right.type)) {
+            // an array, a collection or a map is no text, on either side ("x" + u.layers is refused)
+            throw DslNumbers.cannotJoinText(right.type);
+        }
+        if (!text && (isBoolean(left.type) || isBoolean(right.type))) {
+            // Groovy has no arithmetic on a boolean (startsWith('svc') + 1)
+            throw new IllegalArgumentException("Arithmetic on a boolean has no meaning in Groovy");
+        }
+        final String op;
+        switch (bin.getOp()) {
+            case ADD:
+                op = " + ";
+                break;
+            case SUB:
+                op = " - ";
+                break;
+            default:
+                throw unsupported("arithmetic operator", bin.getOp());
+        }
+        if (text) {
+            return new Operand("(" + left.code + op + right.code + ")", String.class);
+        }
+        // arithmetic of two numbers is a number (u.name.length() + 1)
+        final Class<?> type = number(left.type) && number(right.type)
+            ? (isLong(left.type) || isLong(right.type) ? long.class : int.class) : null;
+        return new Operand("(" + left.asNumber() + op + right.asNumber() + ")", type);
+    }
+
+    /**
+     * A chain on a parameter (a Service) or on a class of the listed static calls, each segment checked against
+     * {@link HierarchyCallables} as it is typed.
+     */
+    private Operand chain(final HierarchyRuleModel.MethodChainExpr expr) {
+        final boolean onParameter = params.contains(expr.getTarget());
+        final Class<?> target = onParameter ? Service.class : listedClass(expr.getTarget());
+        if (target == null) {
+            // anything else would reach the generated method's own scope
+            throw HierarchyCallables.get().unknownName(expr.getTarget(), "its parameters " + params);
+        }
+        Operand current = new Operand(expr.getTarget(), target);
+        boolean onClass = !onParameter;
         for (final HierarchyRuleModel.ChainSegment seg : expr.getSegments()) {
-            sb.append('.');
             if (seg instanceof HierarchyRuleModel.FieldAccess) {
-                final String fieldName = ((HierarchyRuleModel.FieldAccess) seg).getName();
-                sb.append(toGetter(fieldName)).append("()");
+                // a field read through its getter, checked as a call
+                final String getter = getterOf(current.type, ((HierarchyRuleModel.FieldAccess) seg).getName());
+                requireSupported(current.type, onClass, getter, 0);
+                current = new Operand(current.code + "." + getter + "()",
+                    current.type == null ? null : DslMethods.commonReturnType(current.type, getter, 0));
             } else if (seg instanceof HierarchyRuleModel.MethodCallSegment) {
-                final HierarchyRuleModel.MethodCallSegment mc =
-                    (HierarchyRuleModel.MethodCallSegment) seg;
-                sb.append(mc.getName()).append('(');
-                final List<HierarchyRuleModel.Expr> args = mc.getArguments();
-                for (int i = 0; i < args.size(); i++) {
-                    if (i > 0) {
-                        sb.append(", ");
-                    }
-                    generateExpr(sb, args.get(i));
-                }
-                sb.append(')');
+                current = call(current, onClass, (HierarchyRuleModel.MethodCallSegment) seg);
+            } else {
+                throw unsupported("chain segment", seg);
+            }
+            onClass = false;
+        }
+        return current;
+    }
+
+    /**
+     * @param onClass whether the receiver is a class of the listed static calls rather than a value
+     */
+    private Operand call(final Operand receiver, final boolean onClass,
+                         final HierarchyRuleModel.MethodCallSegment mc) {
+        final String name = mc.getName();
+        final List<HierarchyRuleModel.Expr> args = mc.getArguments();
+        requireSupported(receiver.type, onClass, name, args.size());
+        if ("toString".equals(name) && args.isEmpty() && receiver.type != String.class) {
+            // as Groovy prints it: an array as [a, b], a primitive boxed first
+            return new Operand(STRINGS + ".text(" + receiver.boxed() + ")", String.class);
+        }
+        final Operand target = receiver.type != null && receiver.type.isPrimitive()
+            ? new Operand("(" + receiver.boxed() + ")", DslMethods.boxed(receiver.type)) : receiver;
+        final List<Operand> values = new ArrayList<>(args.size());
+        for (final HierarchyRuleModel.Expr arg : args) {
+            values.add(operand(arg));
+        }
+        final Method called = overload(target.type, name, values);
+        final Class<?>[] paramTypes = called != null ? called.getParameterTypes()
+            : target.type == null ? null : DslMethods.commonParameterTypes(target.type, name, args.size());
+        final StringBuilder code = new StringBuilder(target.code).append('.').append(name).append('(');
+        for (int i = 0; i < values.size(); i++) {
+            if (i > 0) {
+                code.append(", ");
+            }
+            code.append(argument(values.get(i), paramTypes == null ? null : paramTypes[i], called != null));
+        }
+        code.append(')');
+        final Class<?> type = called != null ? called.getReturnType()
+            : target.type == null ? null : DslMethods.commonReturnType(target.type, name, args.size());
+        return new Operand(code.toString(), type);
+    }
+
+    /**
+     * An argument as the parameter it fills takes it.
+     *
+     * @param param    the parameter's type, null where the overloads of the call do not share one
+     * @param resolved whether the parameter is the overload's that applies to the arguments' static types
+     */
+    private static String argument(final Operand arg, final Class<?> param, final boolean resolved) {
+        final Class<?> primitive = arg.type == null ? null
+            : arg.type.isPrimitive() ? arg.type : DslMethods.unboxed(arg.type);
+        if (resolved && param.isPrimitive() && primitive != null && primitive != param
+            && DslMethods.widens(primitive, param)) {
+            // widened, after unboxing, to the parameter of the overload that applies (Long.valueOf(1),
+            // Long.valueOf(Integer.valueOf(...)) take a long), as Java binds it; never narrowed
+            return "(" + param.getName() + ") (" + arg.asNumber() + ")";
+        }
+        if (param != null && !param.isPrimitive() && arg.type != null && arg.type.isPrimitive()) {
+            // a primitive into a reference parameter (equals(200)): boxed
+            return arg.boxed();
+        }
+        // a wrapper into a primitive parameter (substring(Integer.valueOf(...))): unboxed
+        return param != null && param.isPrimitive() ? arg.asNumber() : arg.code;
+    }
+
+    /**
+     * @return the getter a field reads through: {@code isX} for a boolean, as Lombok names it, else {@code getX}
+     */
+    private static String getterOf(final Class<?> receiver, final String field) {
+        final String suffix = Character.toUpperCase(field.charAt(0)) + field.substring(1);
+        return receiver != null && DslMethods.commonReturnType(receiver, "get" + suffix, 0) == null
+            && DslMethods.commonReturnType(receiver, "is" + suffix, 0) != null ? "is" + suffix : "get" + suffix;
+    }
+
+    /**
+     * A rule calls only what {@link HierarchyCallables} lists; anything else is refused when the rule compiles. A
+     * receiver of unknown type is taken as text.
+     */
+    private static void requireSupported(final Class<?> receiver, final boolean onClass, final String name,
+                                         final int arity) {
+        if (onClass) {
+            HierarchyCallables.get().requireStatic(receiver, name);
+            return;
+        }
+        HierarchyCallables.get().require(receiver == null ? String.class : receiver, name, arity);
+    }
+
+    /**
+     * @return the class of the list's static calls a rule names by its simple name (Integer), else null
+     */
+    private static Class<?> listedClass(final String name) {
+        for (final Class<?> type : HierarchyCallables.get().declaredStatics().keySet()) {
+            if (type.getSimpleName().equals(name)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return the overload Java picks for the arguments' static types, else null (one unknown, none or several)
+     */
+    private static Method overload(final Class<?> receiver, final String name, final List<Operand> args) {
+        if (receiver == null) {
+            return null;
+        }
+        final Class<?>[] types = new Class<?>[args.size()];
+        for (int i = 0; i < types.length; i++) {
+            types[i] = args.get(i).type;
+        }
+        return DslMethods.overload(receiver, name, types);
+    }
+
+    private static String unboxedName(final Class<?> wrapper) {
+        if (wrapper == Integer.class || wrapper == Short.class || wrapper == Byte.class) {
+            return "int";
+        }
+        if (wrapper == Long.class) {
+            return "long";
+        }
+        if (wrapper == Double.class) {
+            return "double";
+        }
+        return wrapper == Float.class ? "float" : null;
+    }
+
+    private static boolean nullable(final Class<?> type) {
+        return type != null && !type.isPrimitive() && Number.class.isAssignableFrom(type);
+    }
+
+    private static boolean isBoolean(final Class<?> type) {
+        return type == boolean.class || type == Boolean.class;
+    }
+
+    private static boolean isLong(final Class<?> type) {
+        return type == long.class || type == Long.class;
+    }
+
+    /**
+     * A whole number, or a primitive character, which the generated Java arithmetic promotes to an int as it always
+     * did ({@code u.name.charAt(0) + 1} is an int, so ordering it against a text that is no number is refused).
+     */
+    private static boolean number(final Class<?> type) {
+        return type == int.class || type == long.class || type == Integer.class || type == Long.class
+            || type == short.class || type == byte.class || type == Short.class || type == Byte.class
+            || type == char.class;
+    }
+
+    /**
+     * A string or a character (the one-character string it is): in an ordering, read as a number where it is one.
+     */
+    private static boolean text(final Class<?> type) {
+        return type == String.class || type == char.class || type == Character.class;
+    }
+
+    /**
+     * Refuses an ordering Groovy refuses or that can never hold: a boolean against anything, a string literal that is
+     * no number against a number.
+     */
+    private static void requireOrderable(final HierarchyRuleModel.Expr leftExpr, final Class<?> left,
+                                         final HierarchyRuleModel.Expr rightExpr, final Class<?> right) {
+        if (isBoolean(left) || isBoolean(right)) {
+            throw new IllegalArgumentException("A boolean does not order (Groovy refuses it)");
+        }
+        requireNumericText(leftExpr, right);
+        requireNumericText(rightExpr, left);
+    }
+
+    /**
+     * @param other the static type of the operand the expression orders against
+     */
+    private static void requireNumericText(final HierarchyRuleModel.Expr expr, final Class<?> other) {
+        if (expr instanceof HierarchyRuleModel.StringLiteralExpr && other != null && !text(other)) {
+            final String literal = ((HierarchyRuleModel.StringLiteralExpr) expr).getValue();
+            if (DslNumbers.numberIn(literal) == null) {
+                throw new IllegalArgumentException("The string '" + literal + "' compared with a number is not a number");
             }
         }
     }
 
-    /**
-     * Maps a field name in rule expressions to the corresponding getter method
-     * on {@link Service}. Known fields ({@code name} → {@code getName},
-     * {@code shortName} → {@code getShortName}) are hard-coded for clarity;
-     * unknown fields fall back to JavaBean convention ({@code foo} → {@code getFoo}).
-     * If the getter does not exist on {@link Service}, Javassist compilation will
-     * fail at startup with a clear error.
-     */
-    private static String toGetter(final String fieldName) {
-        if ("name".equals(fieldName)) {
-            return "getName";
-        } else if ("shortName".equals(fieldName)) {
-            return "getShortName";
-        }
-        return "get" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
+    private static IllegalArgumentException unsupported(final String what, final Object node) {
+        final Object name = node == null || node instanceof Enum ? node : node.getClass().getSimpleName();
+        return new IllegalArgumentException("Unsupported hierarchy rule " + what + ": " + name);
     }
 
     /**
@@ -392,5 +634,34 @@ public final class HierarchyRuleClassGenerator {
     public String generateSource(final String expression) {
         final HierarchyRuleModel model = HierarchyRuleScriptParser.parse(expression);
         return generateApplyMethod(model);
+    }
+
+    /**
+     * An operand's Java source, and its static type where the rule makes it plain (literals, the services' getters,
+     * the listed calls); else null.
+     */
+    private static final class Operand {
+        private final String code;
+        private final Class<?> type;
+
+        private Operand(final String code, final Class<?> type) {
+            this.code = code;
+            this.type = type;
+        }
+
+        /**
+         * Boxed ({@code $w}): Javassist resolves no overload by boxing.
+         */
+        private String boxed() {
+            return "($w) (" + code + ")";
+        }
+
+        /**
+         * A boxed number ({@code Integer.valueOf(...)}) unboxed, as it takes part as a number.
+         */
+        private String asNumber() {
+            final String primitive = type != null && Number.class.isAssignableFrom(type) ? unboxedName(type) : null;
+            return primitive == null ? code : "((" + code + ")." + primitive + "Value())";
+        }
     }
 }

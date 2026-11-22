@@ -51,6 +51,7 @@ public class StreamAnnotationListener implements AnnotationListener {
         if (aClass.isAnnotationPresent(Stream.class)) {
             Stream stream = (Stream) aClass.getAnnotation(Stream.class);
 
+            DisableRegister.INSTANCE.markStreamDefined(stream.name());
             if (DisableRegister.INSTANCE.include(stream.name())) {
                 return;
             }

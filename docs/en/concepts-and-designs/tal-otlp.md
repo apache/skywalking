@@ -98,7 +98,9 @@ extractor {
 }
 ```
 
-A `metrics {}` block's `timestamp` defaults to `meta.startTime`.
+A `metrics {}` block's `timestamp` defaults to `meta.startTime`. A layer name a `layer` statement spells out is checked
+when the rule compiles, against the registered layers, as an entity constructor's is. A `tag` statement that names one
+key twice, `tag a: x, a: y`, is a compile error.
 
 ### Persist
 
@@ -108,7 +110,9 @@ one another: `dropper {}` wins over `enforcer {}`, and `enforcer {}` over the sa
 the last to run wins. They decide the span, so they are a compile error anywhere but inside `persist {}`. A
 `rateLimit` budget is shared by id across every rule and span: the first rule to use an id sets its `rpm`. An id
 unused for ten minutes is forgotten, and beyond 10,000 ids the least recently used is forgotten too, which bounds the
-ids a `${...}` placeholder makes; an id forgotten and used again starts with a fresh budget.
+ids a `${...}` placeholder makes; an id forgotten and used again starts with a fresh budget. A placeholder holds one
+value, `${meta.service}` or `${attr("x") as String}`; a condition or a comparison in it is a compile error. A brace
+inside a string literal of the placeholder, as in `${meta.endpoint.split('[{]')[0]}`, is text.
 
 Storing the incoming span is the receiver's default and most rules only want metrics, so a rule without `persist {}`
 abstains. A rule with `persist {}` votes: `dropper {}` and an unsampled `rateLimit` vote drop, `enforcer {}` votes keep

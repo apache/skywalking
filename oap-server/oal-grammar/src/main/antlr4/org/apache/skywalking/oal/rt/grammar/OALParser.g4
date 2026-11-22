@@ -25,8 +25,9 @@ options { tokenVocab=OALLexer; }
 
 // Top Level Description
 
+// EOF: without it the parser stops at the first token no statement starts with, and the rest of the file is lost.
 root
-    : (aggregationStatement | disableStatement)*
+    : (aggregationStatement | disableStatement)* EOF
     ;
 
 aggregationStatement

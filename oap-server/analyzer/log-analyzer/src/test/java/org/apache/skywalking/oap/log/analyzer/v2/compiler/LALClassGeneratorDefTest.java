@@ -205,6 +205,20 @@ class LALClassGeneratorDefTest extends LALClassGeneratorTestBase {
     }
 
     @Test
+    void aTypedInputsValueTakesAPropertySpelledCall() throws Exception {
+        // the getters read as far as each name is one; the rest of the chain is the value's
+        generator.setInputType(
+            io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
+        compileAndAssert("filter {\n"
+                + "  extractor {\n"
+                + "    tag 'r': parsed.response.toString\n"
+                + "    tag 'c': parsed?.commonProperties?.upstreamCluster?.toString\n"
+                + "  }\n"
+                + "  sink {}\n"
+                + "}");
+    }
+
+    @Test
     void compileAndVerifyDefWithQualifiedNameCast() throws Exception {
         generator.setInputType(
             io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
