@@ -24,16 +24,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import javassist.ClassPool;
 import org.apache.skywalking.oap.server.core.query.type.Service;
 import org.junit.jupiter.api.DynamicTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 import org.apache.skywalking.oap.server.testing.dsl.DslClassOutput;
 import org.yaml.snakeyaml.Yaml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * V2 execution test for hierarchy matching rules.
@@ -84,8 +89,8 @@ class HierarchyRuleExecutionTest {
         final String[] yamlLines = yamlContent.split("\n");
         final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator();
         generator.setClassOutputDir(classBaseDir);
-        final java.util.Map<String, BiFunction<Service, Service, Boolean>> v2Rules =
-            new java.util.HashMap<>();
+        final Map<String, BiFunction<Service, Service, Boolean>> v2Rules =
+            new HashMap<>();
         for (final Map.Entry<String, String> entry : ruleExpressions.entrySet()) {
             final String ruleName = entry.getKey();
             final int lineNo = findRuleLine(yamlLines, ruleName);
@@ -123,13 +128,38 @@ class HierarchyRuleExecutionTest {
         return tests;
     }
 
+    /**
+     * {@link #allRulesExecuteCorrectly} runs a copy of the rules; this compiles the shipped ones
+     * and pins the copy to them, so the copy's cases cover what ships.
+     */
+    @Test
+    void everyShippedRuleCompilesAndIsCoveredByTheCopy() throws Exception {
+        final Map<String, String> shipped = loadRuleExpressions(findShippedHierarchyDefinition());
+        assertFalse(shipped.isEmpty());
+        assertEquals(shipped, loadRuleExpressions(findHierarchyDefinition()),
+            "test-hierarchy-definition.yml auto-matching-rules must match the shipped hierarchy-definition.yml");
+
+        final HierarchyRuleClassGenerator generator = new HierarchyRuleClassGenerator(new ClassPool(true));
+        for (final Map.Entry<String, String> rule : shipped.entrySet()) {
+            assertNotNull(generator.compile(rule.getKey(), rule.getValue()), rule.getKey());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> loadRuleExpressions(final Path hierarchyYml) throws Exception {
+        try (Reader reader = new FileReader(hierarchyYml.toFile())) {
+            final Map<String, Object> config = new Yaml().loadAs(reader, Map.class);
+            return (Map<String, String>) config.get("auto-matching-rules");
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private Map<String, List<TestPair>> loadInputData(final Path hierarchyYml) throws Exception {
         final String baseName = hierarchyYml.getFileName().toString()
             .replaceFirst("\\.(yaml|yml)$", "");
         final Path inputPath = hierarchyYml.getParent().resolve(baseName + ".data.yaml");
 
-        final Map<String, List<TestPair>> result = new java.util.HashMap<>();
+        final Map<String, List<TestPair>> result = new HashMap<>();
         if (!Files.isRegularFile(inputPath)) {
             return result;
         }
@@ -191,5 +221,19 @@ class HierarchyRuleExecutionTest {
         }
         throw new IllegalStateException(
             "Cannot find test-hierarchy-definition.yml in scripts/hierarchy-rule/");
+    }
+
+    private static Path findShippedHierarchyDefinition() {
+        final String[] candidates = {
+            "../../server-starter/src/main/resources/hierarchy-definition.yml",
+            "oap-server/server-starter/src/main/resources/hierarchy-definition.yml"
+        };
+        for (final String candidate : candidates) {
+            final Path path = Path.of(candidate);
+            if (Files.isRegularFile(path)) {
+                return path;
+            }
+        }
+        throw new IllegalStateException("Cannot find server-starter's hierarchy-definition.yml");
     }
 }

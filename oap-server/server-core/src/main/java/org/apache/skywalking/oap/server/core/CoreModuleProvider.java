@@ -20,6 +20,8 @@ package org.apache.skywalking.oap.server.core;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.configuration.api.ConfigurationModule;
 import org.apache.skywalking.oap.server.configuration.api.DynamicConfigurationService;
 import org.apache.skywalking.oap.server.core.analysis.ApdexThresholdConfig;
@@ -135,6 +137,7 @@ import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
  * NOTICE: In our experience, no one should re-implement the core module service implementations, unless they are very
  * familiar with all mechanisms of SkyWalking.
  */
+@Slf4j
 public class CoreModuleProvider extends ModuleProvider {
 
     private CoreModuleConfig moduleConfig;
@@ -510,6 +513,15 @@ public class CoreModuleProvider extends ModuleProvider {
         // this point, Layer.register() throws — UI templates and downstream
         // queries see a stable layer set.
         Layer.seal();
+
+        // Every module has defined its streams by now, the OAL metrics among them. A name left over is a typo, or a
+        // metric of an OAL script this OAP does not load, as one of a module turned off, or a MAL metric, which a
+        // disable never applied to; the boot cannot tell those apart, so it warns.
+        final Set<String> unknownDisables = DisableRegister.INSTANCE.scriptDisablesWithoutStream();
+        if (!unknownDisables.isEmpty()) {
+            log.warn("OAL disable(...) names no stream of this OAP, so it has no effect: {}. It takes the @Stream "
+                         + "name of a hard-coded stream or of a metric of a loaded OAL script.", unknownDisables);
+        }
 
         if (!RunningMode.isInitMode()) {
             remoteClientManager.start();

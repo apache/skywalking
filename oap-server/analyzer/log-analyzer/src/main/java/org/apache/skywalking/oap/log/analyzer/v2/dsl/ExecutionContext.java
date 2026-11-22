@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.log.analyzer.v2.dsl;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,7 +150,15 @@ public class ExecutionContext {
     }
 
     public ExecutionContext parsed(final Map<String, Object> parsed) {
+        return parsed(parsed, Collections.emptyMap());
+    }
+
+    /**
+     * @param fromMetadata the values of the parsed map copied from the log's metadata, by key, not parsed from the body
+     */
+    public ExecutionContext parsed(final Map<String, Object> parsed, final Map<String, Object> fromMetadata) {
         parsed().map = parsed;
+        parsed().fromMetadata = fromMetadata;
         return this;
     }
 
@@ -376,5 +385,8 @@ public class ExecutionContext {
 
         @Getter
         private Map<String, Object> map;
+
+        @Getter
+        private Map<String, Object> fromMetadata = Collections.emptyMap();
     }
 }

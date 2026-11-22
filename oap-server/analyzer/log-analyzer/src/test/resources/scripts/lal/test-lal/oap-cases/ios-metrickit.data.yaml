@@ -84,3 +84,14 @@ ios-metrickit-diagnostics:
       name: "metrickit.diagnostic.crash"
     expect:
       abort: true
+
+  # Case 5: iOS log that is not a MetricKit diagnostic — should abort (name does not start with metrickit.diagnostic.)
+  - service: MyiOSApp
+    body-type: none
+    body: ""
+    source-attributes:
+      os.name: "iOS"
+    tags:
+      name: "app.log"
+    expect:
+      abort: true

@@ -197,27 +197,24 @@ public final class MALClassGenerator {
         final String className = bytecodeHelper.makeClassName("MalFilter_");
 
         final CtClass ctClass = classPool.makeClass(className);
-        ctClass.addInterface(classPool.get(
-            "org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter"));
+        ctClass.addInterface(classPool.get(ClosureKind.RULE_FILTER.interfaceType));
         ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
-        final String filterBody = generateFilterTestBody(closure);
+        final String filterBody =
+            new MALClosureCodegen(classPool, this).generateBody(ClosureKind.RULE_FILTER, closure);
         if (log.isDebugEnabled()) {
             log.debug("MAL compileFilter AST: {}", closure);
             log.debug("MAL compileFilter test():\n{}", filterBody);
         }
 
-        final List<String> params = closure.getParams();
-        final String paramName = params.isEmpty() ? "it" : params.get(0);
-
         final CtMethod testMethod =
             CtNewMethod.make(filterBody, ctClass);
         ctClass.addMethod(testMethod);
         DslGeneratedFileWriter.addLocalVariableTable(testMethod, className,
-            new String[][]{{paramName, "Ljava/util/Map;"}});
+            ClosureKind.RULE_FILTER.localVariables(closure.getParams()));
         // Searched, not counted: the envelope wrapMalFilterSource emits is free to change.
         final String filterSource = wrapMalFilterSource(ctClass, filterBody);
-        bytecodeHelper.addLineNumberTable(testMethod, 2,
+        bytecodeHelper.addLineNumberTable(testMethod, 2 + MalGeneratedSourceLines.tempSlots(filterBody),
             MalGeneratedSourceLines.statementLinesOf(filterBody),
             DslGeneratedFileWriter.lineOfMethod(filterSource, "test"));
         DslGeneratedFileWriter.setSourceFile(ctClass,
@@ -226,9 +223,9 @@ public final class MALClassGenerator {
         bytecodeHelper.writeClassFile(ctClass);
         bytecodeHelper.writeSourceFile(ctClass, filterSource);
 
-        final Class<?> clazz = defineClass(ctClass);
+        final MalFilter filter = (MalFilter) defineAndInstantiate(ctClass, filterExpression);
         ctClass.detach();
-        return (MalFilter) clazz.getDeclaredConstructor().newInstance();
+        return filter;
     }
 
     /** Wraps the filter test() method body as a compilable class envelope. */
@@ -236,7 +233,7 @@ public final class MALClassGenerator {
         final StringBuilder sb = new StringBuilder();
         sb.append("package ").append(ctClass.getPackageName()).append(";\n\n");
         sb.append("public class ").append(ctClass.getSimpleName())
-          .append(" implements org.apache.skywalking.oap.meter.analyzer.v2.dsl.MalFilter {\n\n");
+          .append(" implements ").append(ClosureKind.RULE_FILTER.interfaceType).append(" {\n\n");
         sb.append("    ").append(filterBody.replace("\n", "\n    ")).append("\n");
         sb.append("}\n");
         return sb.toString();
@@ -279,7 +276,7 @@ public final class MALClassGenerator {
             closureNameCounts.put(purpose, count + 1);
             final String suffix = count == 0 ? purpose : purpose + "_" + (count + 1);
             closureFieldNames.add("_" + suffix);
-            closureInterfaceTypes.add(closures.get(i).interfaceType);
+            closureInterfaceTypes.add(closures.get(i).kind.interfaceType);
         }
 
         final CtClass ctClass = classPool.makeClass(className);
@@ -369,17 +366,21 @@ public final class MALClassGenerator {
         // 6. Load companions, then main class
         for (final CtClass companion : companionClasses) {
             bytecodeHelper.writeClassFile(companion);
-            defineClass(companion);
+            try {
+                defineClass(companion);
+            } catch (final LinkageError e) {
+                throw new IllegalArgumentException("The closure code compiled for " + metricName + " does not verify ("
+                    + e + "); the rule uses a form this compiler cannot type: declare the types of its locals", e);
+            }
             companion.detach();
         }
 
         bytecodeHelper.writeClassFile(ctClass);
         bytecodeHelper.writeSourceFile(ctClass, expressionSource);
 
-        final Class<?> clazz = defineClass(ctClass);
+        final MalExpression compiled = (MalExpression) defineAndInstantiate(ctClass, metricName);
         ctClass.detach();
-
-        return (MalExpression) clazz.getDeclaredConstructor().newInstance();
+        return compiled;
     }
 
     /**
@@ -469,59 +470,29 @@ public final class MALClassGenerator {
     }
 
     /**
-     * Generates the Java source of the filter {@code test()} method for debugging.
-     */
-    public String generateFilterSource(final String filterExpression) {
-        final MALExpressionModel.ClosureArgument closure =
-            MALScriptParser.parseFilter(filterExpression);
-        return generateFilterTestBody(closure);
-    }
-
-    /**
-     * Generates the {@code test(Map)} method body for a filter closure.
-     * Shared by {@link #compileFilter} (compilation) and {@link #generateFilterSource} (debug).
-     *
-     * <p>For {@code { tags -> tags.job_name == 'mysql-monitoring' }}, generates:
+     * Generates the Java source of the filter {@code test()} method for debugging. For
+     * {@code { tags -> tags.job_name == 'mysql-monitoring' }}:
      * <pre>
      * public boolean test(java.util.Map tags) {
-     *   return java.util.Objects.equals((String) tags.get("job_name"), "mysql-monitoring");
+     *   return DslValues.equal(($w) ((String) tags.get("job_name")), ($w) ("mysql-monitoring"));
      * }
      * </pre>
      */
-    private String generateFilterTestBody(
-            final MALExpressionModel.ClosureArgument closure) {
-        final List<String> params = closure.getParams();
-        final String paramName = params.isEmpty() ? "it" : params.get(0);
+    public String generateFilterSource(final String filterExpression) {
+        return new MALClosureCodegen(classPool, this).generateBody(ClosureKind.RULE_FILTER,
+            MALScriptParser.parseFilter(filterExpression));
+    }
 
-        final MALClosureCodegen cc = new MALClosureCodegen(classPool, this);
-        final StringBuilder sb = new StringBuilder();
-        sb.append("public boolean test(java.util.Map ").append(paramName)
-          .append(") {\n");
-
-        final List<MALExpressionModel.ClosureStatement> body = closure.getBody();
-        if (body.size() == 1
-                && body.get(0) instanceof MALExpressionModel.ClosureExprStatement) {
-            final MALExpressionModel.ClosureExpr expr =
-                ((MALExpressionModel.ClosureExprStatement) body.get(0)).getExpr();
-            if (expr instanceof MALExpressionModel.ClosureCondition) {
-                sb.append("  return ");
-                cc.generateClosureCondition(
-                    sb, (MALExpressionModel.ClosureCondition) expr, paramName);
-                sb.append(";\n");
-            } else {
-                sb.append("  Object _v = ");
-                cc.generateClosureExpr(sb, expr, paramName);
-                sb.append(";\n");
-                sb.append(
-                    "  return _v != null && !Boolean.FALSE.equals(_v);\n");
-            }
-        } else {
-            for (final MALExpressionModel.ClosureStatement stmt : body) {
-                cc.generateClosureStatement(sb, stmt, paramName);
-            }
-            sb.append("  return false;\n");
+    /**
+     * Loads and verifies the generated class here, so code the generator got wrong fails this rule's compile with a
+     * message instead of a VerifyError (an Error, not an Exception) wherever the class is first used.
+     */
+    private Object defineAndInstantiate(final CtClass ctClass, final String rule) throws Exception {
+        try {
+            return defineClass(ctClass).getDeclaredConstructor().newInstance();
+        } catch (final LinkageError e) {
+            throw new IllegalArgumentException("The code compiled for " + rule + " does not verify (" + e
+                + "); the rule uses a form this compiler cannot type: simplify it or declare the types of its locals", e);
         }
-        sb.append("}\n");
-        return sb.toString();
     }
 }

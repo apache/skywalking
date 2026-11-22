@@ -178,7 +178,11 @@ tagStatement
     ;
 
 tagMap
-    : anyIdentifier COLON valueAccess typeCast? (COMMA anyIdentifier COLON valueAccess typeCast?)*
+    : tagEntry (COMMA tagEntry)*
+    ;
+
+tagEntry
+    : anyIdentifier COLON valueAccess typeCast?
     ;
 
 // ==================== Metrics block ====================
@@ -290,10 +294,11 @@ ifBody
 
 // ==================== Conditions ====================
 
+// Alternatives listed first bind tighter: `!` before `&&` before `||`, as in Groovy.
 condition
-    : condition AND condition                     # condAnd
+    : NOT condition                               # condNot
+    | condition AND condition                     # condAnd
     | condition OR condition                      # condOr
-    | NOT condition                               # condNot
     | conditionExpr DEQ conditionExpr             # condEq
     | conditionExpr NEQ conditionExpr             # condNeq
     | conditionExpr GT conditionExpr              # condGt

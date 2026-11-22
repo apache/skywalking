@@ -600,18 +600,12 @@ public final class TALScriptModel {
 
     @Getter
     public static final class NumberConditionValue implements ConditionValue, TALNumberConditionValue {
-        private final double value;
         /**
-         * The literal exactly as the rule wrote it, which is what preserves the declared numeric type.
+         * The literal as the rule wrote it, which is what preserves the declared numeric type.
          */
         private final String literal;
 
-        public NumberConditionValue(final double value) {
-            this(value, null);
-        }
-
-        public NumberConditionValue(final double value, final String literal) {
-            this.value = value;
+        public NumberConditionValue(final String literal) {
             this.literal = literal;
         }
     }

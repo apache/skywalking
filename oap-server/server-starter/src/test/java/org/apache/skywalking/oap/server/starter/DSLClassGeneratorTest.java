@@ -136,11 +136,6 @@ public class DSLClassGeneratorTest {
                 final List<MetricDefinition> metrics = parser.getMetrics();
                 final List<String> disabled = parser.getDisabledSources();
 
-                if (metrics.isEmpty()) {
-                    log.info("  {}: 0 metrics, {} disabled sources", name, disabled.size());
-                    continue;
-                }
-
                 final MetricDefinitionEnricher enricher = new MetricDefinitionEnricher(
                     define.getSourcePackage(), METRICS_PACKAGE
                 );
@@ -448,6 +443,8 @@ public class DSLClassGeneratorTest {
 
     private static Map<String, OALDefine> buildOALDefines() {
         final Map<String, OALDefine> defines = new LinkedHashMap<>();
+        // First, as the OAP loads it before any stream is defined.
+        defines.put("disable", oalDefine("oal/disable.oal", SOURCE_PACKAGE, ""));
         defines.put("core", oalDefine("oal/core.oal", SOURCE_PACKAGE, ""));
         defines.put("java-agent", oalDefine("oal/java-agent.oal", SOURCE_PACKAGE, ""));
         defines.put("dotnet-agent", oalDefine("oal/dotnet-agent.oal", SOURCE_PACKAGE, ""));
@@ -456,7 +453,7 @@ public class DSLClassGeneratorTest {
         defines.put("tcp", oalDefine("oal/tcp.oal", SOURCE_PACKAGE, "EnvoyTCP"));
         defines.put("ebpf", oalDefine("oal/ebpf.oal", SOURCE_PACKAGE, ""));
         defines.put("cilium", oalDefine("oal/cilium.oal", SOURCE_PACKAGE, ""));
-        defines.put("disable", oalDefine("oal/disable.oal", SOURCE_PACKAGE, ""));
+        defines.put("virtual-gen-ai", oalDefine("oal/virtual-gen-ai.oal", SOURCE_PACKAGE, ""));
         return defines;
     }
 
@@ -634,6 +631,9 @@ public class DSLClassGeneratorTest {
 
         notifyClass(listener, SOURCE_PACKAGE, "Process");
         notifyClass(listener, SOURCE_PACKAGE, "ProcessRelation");
+
+        notifyClass(listener, SOURCE_PACKAGE, "GenAIProviderAccess");
+        notifyClass(listener, SOURCE_PACKAGE, "GenAIModelAccess");
 
         registerDecorator(SOURCE_PACKAGE, "ServiceDecorator");
         registerDecorator(SOURCE_PACKAGE, "EndpointDecorator");

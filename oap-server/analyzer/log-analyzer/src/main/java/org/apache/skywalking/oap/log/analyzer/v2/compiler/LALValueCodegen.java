@@ -17,11 +17,23 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.apm.network.logging.v3.LogTags;
+import org.apache.skywalking.apm.network.logging.v3.TraceContext;
+import org.apache.skywalking.oap.log.analyzer.v2.dsl.ExecutionContext;
+import org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry;
 import org.apache.skywalking.oap.server.core.source.LogMetadata;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
-import java.lang.reflect.Method;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
+import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
 
 /**
  * Code generation for LAL expression evaluation: value access, conditions,
@@ -61,8 +73,7 @@ final class LALValueCodegen {
 
     static final String LOGDATA_BUILDER_CAST =
         "((org.apache.skywalking.apm.network.logging.v3.LogData.Builder) h.ctx().input())";
-    static final String PROCESS_REGISTRY =
-        "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry";
+    static final String PROCESS_REGISTRY = ProcessRegistry.class.getName();
 
     private LALValueCodegen() {
         // utility class
@@ -78,6 +89,8 @@ final class LALValueCodegen {
      * // Comparison (==, !=):
      * if (tag("LOG_KIND") == "SLOW_SQL")
      * → java.util.Objects.equals(h.tagValue("LOG_KIND"), "SLOW_SQL")
+     * if (parsed.code == 200)
+     * → h.equal(h.mapVal("code"), Integer.valueOf(200))
      *
      * // Numeric comparison (<, >, <=, >=):
      * if (parsed?.response?.responseCode?.value as Integer < 400)
@@ -89,7 +102,7 @@ final class LALValueCodegen {
      *
      * // Expression-as-boolean (truthy check):
      * if (parsed?.commonProperties?.responseFlags?.toString())
-     * → h.isNotEmpty(h.toString(...))
+     * → h.isNotEmpty(h.toStr(...))
      * }</pre>
      */
     static void generateCondition(final StringBuilder sb,
@@ -98,43 +111,13 @@ final class LALValueCodegen {
         if (cond instanceof LALScriptModel.ComparisonCondition) {
             final LALScriptModel.ComparisonCondition cc =
                 (LALScriptModel.ComparisonCondition) cond;
-            switch (cc.getOp()) {
-                case EQ:
-                    if (isNumericComparison(cc, genCtx)) {
-                        generateNumericComparison(sb, cc, " == ", genCtx);
-                    } else {
-                        sb.append("java.util.Objects.equals(");
-                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                        sb.append(", ");
-                        generateConditionValue(sb, cc.getRight(), genCtx);
-                        sb.append(")");
-                    }
-                    break;
-                case NEQ:
-                    if (isNumericComparison(cc, genCtx)) {
-                        generateNumericComparison(sb, cc, " != ", genCtx);
-                    } else {
-                        sb.append("!java.util.Objects.equals(");
-                        generateValueAccessObj(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
-                        sb.append(", ");
-                        generateConditionValue(sb, cc.getRight(), genCtx);
-                        sb.append(")");
-                    }
-                    break;
-                case GT:
-                    generateNumericComparison(sb, cc, " > ", genCtx);
-                    break;
-                case LT:
-                    generateNumericComparison(sb, cc, " < ", genCtx);
-                    break;
-                case GTE:
-                    generateNumericComparison(sb, cc, " >= ", genCtx);
-                    break;
-                case LTE:
-                    generateNumericComparison(sb, cc, " <= ", genCtx);
-                    break;
-                default:
-                    break;
+            if (isNumericComparison(cc, genCtx)) {
+                generateNumericComparison(sb, cc, genCtx);
+            } else if (isEquality(cc)) {
+                generateEquality(sb, cc, genCtx);
+            } else {
+                rejectUnorderable(cc, genCtx);
+                generateRuntimeOrder(sb, cc, genCtx);
             }
         } else if (cond instanceof LALScriptModel.LogicalCondition) {
             final LALScriptModel.LogicalCondition lc =
@@ -152,87 +135,226 @@ final class LALValueCodegen {
             sb.append(")");
         } else if (cond instanceof LALScriptModel.ExprCondition) {
             final String ct = ((LALScriptModel.ExprCondition) cond).getCastType();
-            final String method = "Boolean".equals(ct) || "boolean".equals(ct)
-                ? ".isTrue(" : ".isNotEmpty(";
-            sb.append("h").append(method);
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ExprCondition) cond).getExpr(),
-                ct, genCtx);
+            final LALScriptModel.ValueAccess expr = ((LALScriptModel.ExprCondition) cond).getExpr();
+            if (castToType(ct) == ExprType.BOOLEAN) {
+                sb.append("h.toBool(");
+                generateValueAccess(sb, expr, genCtx);
+            } else {
+                // Groovy truth of the value, converted first when cast.
+                sb.append("h.isNotEmpty(");
+                generateBoxedValue(sb, expr, ct, genCtx);
+            }
             sb.append(")");
+        } else {
+            throw new IllegalStateException("Unhandled condition " + cond.getClass().getSimpleName());
         }
     }
 
+    /**
+     * Renders an operand as an object honouring its {@code as} cast the way Groovy converts: {@code null} stays
+     * {@code null}, so {@code (x as Integer) == null} still holds for a missing {@code x}.
+     */
+    static void generateBoxedValue(final StringBuilder sb,
+                                   final LALScriptModel.ValueAccess value,
+                                   final String castType,
+                                   final LALClassGenerator.GenCtx genCtx) {
+        final ExprType castET = castToType(castType);
+        if (castET == ExprType.STRING) {
+            generateValueAccessObj(sb, value, castType, genCtx);
+            return;
+        }
+        if (!castET.isNumeric() && castET != ExprType.BOOLEAN) {
+            generateValueAccess(sb, value, genCtx);
+            return;
+        }
+        final StringBuilder raw = new StringBuilder();
+        generateValueAccess(raw, value, genCtx);
+        rejectUnconvertibleCast(value, castET, genCtx);
+        sb.append(castObject(castType, raw.toString(), false));
+        genCtx.clearExtraLogResult();
+        if (LALCodegenHelper.PRIMITIVE_CASTS.contains(castType)) {
+            genCtx.lastNonNull = true;
+        }
+    }
+
+    /**
+     * A built-in cast of a value, as an object, through its runtime helper: a boxed cast keeps a null
+     * ({@code h.asInteger}) unless the value is never null, a primitive cast fails on one (a boolean's is false).
+     *
+     * @return the conversion, or null for a class cast
+     */
+    static String castObject(final String castType, final String raw, final boolean rawNonNull) {
+        final ExprType castET = castToType(castType);
+        if (castET == ExprType.STRING) {
+            return castET.runtimeHelper + "(" + raw + ")";
+        }
+        if (!castET.isNumeric() && castET != ExprType.BOOLEAN) {
+            return null;
+        }
+        if (rawNonNull || LALCodegenHelper.PRIMITIVE_CASTS.contains(castType)) {
+            return primitiveCastObject(castET, raw);
+        }
+        return "h.as" + castET.wrapperName + "(" + raw + ")";
+    }
+
+    /**
+     * The runtime helper converting a value to a primitive ({@code h.toInt}, ..., {@code h.toBool}), or null for
+     * another type.
+     */
+    static String conversionHelper(final Class<?> primitive) {
+        if (!primitive.isPrimitive()) {
+            return null;
+        }
+        final ExprType type = exprTypeFromClass(primitive);
+        return type.isNumeric() || type == ExprType.BOOLEAN ? type.runtimeHelper : null;
+    }
+
+    /**
+     * The runtime helper of a numeric cast ({@code as Long}, {@code as int}, ...), or null for another cast.
+     */
+    static String numericConversionHelper(final String castType) {
+        final ExprType type = castToType(castType);
+        return type.isNumeric() ? type.runtimeHelper : null;
+    }
+
+    /**
+     * A cast of a value just rendered (a {@code def}'s, a metric's): see
+     * {@link #rejectUnconvertibleCast(LALScriptModel.ValueAccess, ExprType, LALClassGenerator.GenCtx)}.
+     */
+    static void rejectUnconvertibleCast(final LALScriptModel.ValueAccess value, final String castType,
+                                    final LALClassGenerator.GenCtx genCtx) {
+        rejectUnconvertibleCast(value, castToType(castType), genCtx);
+    }
+
+    /**
+     * Refuses a character or a boolean cast as a number: Groovy read a character as its code ({@code '5' as Integer}
+     * is 53), where the string conversion names the number it is, and failed a boolean's.
+     */
+    private static void rejectUnconvertibleCast(final LALScriptModel.ValueAccess value, final ExprType castET,
+                                            final LALClassGenerator.GenCtx genCtx) {
+        if (!castET.isNumeric()) {
+            return;
+        }
+        final Class<?> type = genCtx.lastResolvedType;
+        final String described = value.getParenInner() != null ? "(" + value.getParenInner().toPathString() + " as "
+            + value.getParenCast() + ")" : value.toPathString();
+        if (type == char.class || type == Character.class) {
+            throw DslNumbers.characterAsNumber(described, castET.wrapperName);
+        }
+        if (type == boolean.class || type == Boolean.class) {
+            // Groovy failed the cast.
+            throw new IllegalArgumentException(
+                "A boolean cannot be cast as a number: " + described + " as " + castET.wrapperName);
+        }
+    }
+
+    /**
+     * A comparison whose sides are both numbers when compiled ({@link #isNumericComparison}): in the wider of their
+     * types, as Java promotes it, each side rendered in the type its own cast declares; as Java compares primitives, a
+     * NaN compares false (except {@code !=}) and -0.0 equals 0.0.
+     */
     static void generateNumericComparison(
             final StringBuilder sb,
             final LALScriptModel.ComparisonCondition cc,
-            final String op,
             final LALClassGenerator.GenCtx genCtx) {
-        // Decide the primitive comparison type from explicit casts and the
-        // operand shapes — both sides influence the choice via JLS-style
-        // promotion. RHS-side cast is read off ValueAccessConditionValue;
-        // RHS literals contribute via their inferred numeric type.
-        final ExprType lhsType = inferComparisonOperandType(cc.getLeft(), cc.getLeftCast(), genCtx);
-        final ExprType rhsType = inferRightHandType(cc.getRight(), genCtx);
-        final ExprType cmpType = pickComparisonType(lhsType, rhsType);
-        final Class<?> cmpClass = cmpType.primitiveClass;
+        final ExprType cmpType = promote(numericType(cc.getLeft(), cc.getLeftCast(), genCtx),
+            numericType(cc.getRight(), genCtx));
 
-        // Render the LHS via the shared helper, then capture the null-guard
-        // before the RHS rendering overwrites it. A top-level numeric cast
-        // on the comparison (`tag("a") as Integer < 1.5`) is honoured by
-        // emitOperandRespectingCast so the operand is rendered in the
-        // user's declared primitive, not in the promoted comparison type.
-        genCtx.lastNullChecks = null;
+        // The null guards each side produced are read before the other side's rendering overwrites them.
+        genCtx.clearExtraLogResult();
         final String leftExpr = renderAsPrimitive(
             cc.getLeft(), cc.getLeftCast(), cmpType, genCtx);
         final String lhsNullChecks = genCtx.lastNullChecks;
+        final boolean lhsNullableObject = genCtx.lastNullCheckOnObject;
+        final boolean lhsPure = genCtx.lastPure;
 
-        // Render the RHS into its own buffer so we can read back any null
-        // guards it produced (e.g. from a typed-proto chain like
-        // `parsed?.response?.responseCode?.value`) and apply them at the
-        // outer ternary alongside the LHS guards.
-        genCtx.lastNullChecks = null;
+        genCtx.clearExtraLogResult();
         final StringBuilder rhsBuf = new StringBuilder();
-        generateConditionValueNumeric(rhsBuf, cc.getRight(), cmpClass, genCtx);
+        generateConditionValueNumeric(rhsBuf, cc.getRight(), cmpType, genCtx);
         final String rhsNullChecks = genCtx.lastNullChecks;
+        final boolean rhsNullableObject = genCtx.lastNullCheckOnObject;
+        final boolean rhsPure = genCtx.lastPure;
 
-        final String combinedNullChecks = combineNullChecks(lhsNullChecks, rhsNullChecks);
-        if (combinedNullChecks != null) {
-            sb.append("(").append(combinedNullChecks).append(" ? false : ")
-              .append(leftExpr).append(op).append(rhsBuf).append(")");
+        // A side converted from an object that may be null is compared as Groovy compares objects, both sides
+        // converted once and in order, unless it is a plain read against a literal, which a null check can guard.
+        final boolean lhsLiteral = isPlainNumberLiteral(cc.getLeft());
+        final boolean rhsLiteral = cc.getRight() instanceof LALScriptModel.NumberConditionValue
+            || cc.getRight() instanceof LALScriptModel.ValueAccessConditionValue
+                && isPlainNumberLiteral(((LALScriptModel.ValueAccessConditionValue) cc.getRight()).getValue());
+        if (lhsNullableObject && !(lhsPure && rhsLiteral) || rhsNullableObject && !(rhsPure && lhsLiteral)) {
+            if (isEquality(cc)) {
+                generateEquality(sb, cc, genCtx);
+            } else {
+                generateRuntimeOrder(sb, cc, genCtx);
+            }
+            return;
+        }
+
+        // A null side orders below every value and equals only a null, as Groovy compares it.
+        final LALScriptModel.CompareOp op = cc.getOp();
+        final String compare = leftExpr + " " + op.symbol() + " " + rhsBuf;
+        if (lhsNullChecks == null && rhsNullChecks == null) {
+            sb.append(compare);
+        } else if (rhsNullChecks == null) {
+            sb.append("(").append(lhsNullChecks).append(" ? ").append(op.holds(-1))
+              .append(" : ").append(compare).append(")");
+        } else if (lhsNullChecks == null) {
+            sb.append("(").append(rhsNullChecks).append(" ? ").append(op.holds(1))
+              .append(" : ").append(compare).append(")");
+        } else if (lhsNullChecks.equals(rhsNullChecks)) {
+            sb.append("(").append(lhsNullChecks).append(" ? ").append(op.holds(0))
+              .append(" : ").append(compare).append(")");
         } else {
-            sb.append(leftExpr).append(op).append(rhsBuf);
+            sb.append("(").append(lhsNullChecks).append(" ? (").append(rhsNullChecks).append(" ? ")
+              .append(op.holds(0)).append(" : ").append(op.holds(-1)).append(") : (")
+              .append(rhsNullChecks).append(" ? ").append(op.holds(1)).append(" : ")
+              .append(compare).append("))");
         }
     }
 
+    private static boolean isEquality(final LALScriptModel.ComparisonCondition cc) {
+        return cc.getOp() == LALScriptModel.CompareOp.EQ || cc.getOp() == LALScriptModel.CompareOp.NEQ;
+    }
+
     /**
-     * Combine LHS / RHS null-guard expressions for a comparison. Either side
-     * may be {@code null} (no guard); the result is the disjunction so the
-     * comparison short-circuits to {@code false} as soon as any participant
-     * is null, mirroring the previous single-side behaviour.
+     * {@code ==} and {@code !=}: Java's equality when both sides are strings or one is the null literal, else the
+     * content equality every DSL shares ({@code h.equal}).
      */
-    private static String combineNullChecks(final String lhs, final String rhs) {
-        if (lhs == null && rhs == null) {
-            return null;
-        }
-        if (lhs == null) {
-            return rhs;
-        }
-        if (rhs == null) {
-            return lhs;
-        }
-        return lhs + " || " + rhs;
+    private static void generateEquality(final StringBuilder sb,
+                                         final LALScriptModel.ComparisonCondition cc,
+                                         final LALClassGenerator.GenCtx genCtx) {
+        sb.append(cc.getOp() == LALScriptModel.CompareOp.NEQ ? "!" : "")
+          .append(bothStrings(cc, genCtx) ? "java.util.Objects.equals(" : "h.equal(");
+        generateBoxedValue(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
+        sb.append(", ");
+        generateConditionValue(sb, cc.getRight(), genCtx);
+        sb.append(")");
     }
 
     /**
-     * Decide whether an {@code ==} / {@code !=} comparison should be
-     * routed through numeric primitive comparison rather than
-     * {@code Objects.equals}. True when BOTH sides resolve to a numeric
-     * type (via explicit cast, paren-cast, or AST inference). A numeric
-     * literal RHS is enough on its own — Java promotes the LHS to match.
+     * An ordering whose sides are not both numbers when compiled: the values ordered at run time, a NaN comparing
+     * false, as Java compares it.
+     */
+    private static void generateRuntimeOrder(final StringBuilder sb,
+                                             final LALScriptModel.ComparisonCondition cc,
+                                             final LALClassGenerator.GenCtx genCtx) {
+        sb.append(cc.getOp().helper()).append("(");
+        generateBoxedValue(sb, cc.getLeft(), cc.getLeftCast(), genCtx);
+        sb.append(", ");
+        generateConditionValue(sb, cc.getRight(), genCtx);
+        sb.append(")");
+    }
+
+    /**
+     * Whether both sides of a comparison are numbers when compiled, by a cast or by type, so it compares primitives
+     * rather than objects. A number literal on the right is one.
      */
     private static boolean isNumericComparison(
             final LALScriptModel.ComparisonCondition cc,
             final LALClassGenerator.GenCtx genCtx) {
+        if (numericType(cc.getLeft(), cc.getLeftCast(), genCtx) == null) {
+            return false;
+        }
         if (cc.getRight() instanceof LALScriptModel.NumberConditionValue) {
             return true;
         }
@@ -241,86 +363,116 @@ final class LALValueCodegen {
         }
         final LALScriptModel.ValueAccessConditionValue vacv =
             (LALScriptModel.ValueAccessConditionValue) cc.getRight();
-        return numericTypeOrNull(cc.getLeft(), cc.getLeftCast(), genCtx) != null
-            && numericTypeOrNull(vacv.getValue(), vacv.getCastType(), genCtx) != null;
+        return numericType(vacv.getValue(), vacv.getCastType(), genCtx) != null;
+    }
+
+    private static boolean isPlainNumberLiteral(final LALScriptModel.ValueAccess value) {
+        return value.isNumberLiteral() && value.isBareLiteral();
     }
 
     /**
-     * Return the operand's numeric {@link ExprType} if and only if it
-     * resolves to one of {@code INT / LONG / FLOAT / DOUBLE} via an
-     * explicit cast or compile-time inference; otherwise {@code null}.
-     * Used by {@link #isNumericComparison} to decide whether {@code ==} /
-     * {@code !=} should compare primitives — note this is strict (no
-     * {@code LONG} fallback like {@link #inferComparisonOperandType}).
+     * @return whether both sides are Strings, or one is the null literal, so Java's equality is the text's; a text of
+     *     another CharSequence type (a StringBuilder an input returns) compares by its content instead
      */
-    private static ExprType numericTypeOrNull(
-            final LALScriptModel.ValueAccess value,
-            final String topLevelCast,
-            final LALClassGenerator.GenCtx genCtx) {
-        final ExprType fromCast = castToType(topLevelCast);
-        if (fromCast.isNumeric()) {
-            return fromCast;
+    private static boolean bothStrings(final LALScriptModel.ComparisonCondition cc,
+                                       final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ConditionValue right = cc.getRight();
+        if (right instanceof LALScriptModel.NullConditionValue) {
+            return true;
         }
-        final ExprType inferred = inferType(value, genCtx);
-        return inferred.isNumeric() ? inferred : null;
+        final boolean rightString = right instanceof LALScriptModel.StringConditionValue
+            || right instanceof LALScriptModel.ValueAccessConditionValue
+                && isString(((LALScriptModel.ValueAccessConditionValue) right).getValue(),
+                    ((LALScriptModel.ValueAccessConditionValue) right).getCastType(), genCtx);
+        return rightString && isString(cc.getLeft(), cc.getLeftCast(), genCtx);
+    }
+
+    private static boolean isString(final LALScriptModel.ValueAccess value, final String cast,
+                                    final LALClassGenerator.GenCtx genCtx) {
+        return cast != null ? "String".equals(cast) : inferType(value, genCtx) == ExprType.STRING;
     }
 
     /**
-     * Read the numeric type the user declared for the left side of a
-     * comparison. Same shape as {@link #numericTypeOrNull} but with a
-     * {@code LONG} fallback for non-numeric inputs — used when the
-     * comparison itself must still pick a primitive home (e.g. an
-     * unbound {@code parsed.x} on the LHS still goes through
-     * {@code h.toLong}).
+     * An ordering that cannot hold: a string literal holding no number against a number.
      */
-    private static ExprType inferComparisonOperandType(
+    private static void rejectUnorderable(final LALScriptModel.ComparisonCondition cc,
+                                          final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ConditionValue right = cc.getRight();
+        final boolean leftNumber = isKnownNumber(cc.getLeft(), cc.getLeftCast(), genCtx);
+        final boolean rightNumber = right instanceof LALScriptModel.NumberConditionValue
+            || right instanceof LALScriptModel.ValueAccessConditionValue
+                && isKnownNumber(((LALScriptModel.ValueAccessConditionValue) right).getValue(),
+                    ((LALScriptModel.ValueAccessConditionValue) right).getCastType(), genCtx);
+        final String leftLiteral = "String".equals(cc.getLeftCast()) || cc.getLeftCast() == null
+            ? stringLiteralOf(cc.getLeft()) : null;
+        final String rightLiteral = right instanceof LALScriptModel.StringConditionValue
+            ? ((LALScriptModel.StringConditionValue) right).getValue()
+            : right instanceof LALScriptModel.ValueAccessConditionValue
+                && (((LALScriptModel.ValueAccessConditionValue) right).getCastType() == null
+                    || "String".equals(((LALScriptModel.ValueAccessConditionValue) right).getCastType()))
+                ? stringLiteralOf(((LALScriptModel.ValueAccessConditionValue) right).getValue()) : null;
+        final String notANumber = rightNumber && leftLiteral != null && !holdsANumber(leftLiteral) ? leftLiteral
+            : leftNumber && rightLiteral != null && !holdsANumber(rightLiteral) ? rightLiteral : null;
+        if (notANumber != null) {
+            throw new IllegalArgumentException(
+                "The string '" + notANumber + "' is not a number, so it cannot be ordered against one ("
+                    + cc.getOp().symbol() + ")");
+        }
+    }
+
+    private static String stringLiteralOf(final LALScriptModel.ValueAccess value) {
+        final LALScriptModel.ValueAccess grouped = value.groupedInner();
+        if (grouped != null) {
+            return stringLiteralOf(grouped);
+        }
+        return isPlainStringLiteral(value) ? value.getSegments().get(0) : null;
+    }
+
+    /**
+     * Whether a value is a number when compiled: a numeric cast, or a static type that is a number, such as a
+     * quotient's, a {@code BigInteger} def's or {@code log.timestamp}'s.
+     */
+    private static boolean isKnownNumber(final LALScriptModel.ValueAccess value, final String cast,
+                                         final LALClassGenerator.GenCtx genCtx) {
+        if (cast != null) {
+            return castToType(cast).isNumeric();
+        }
+        final LALScriptModel.ValueAccess grouped = value.groupedInner();
+        if (grouped != null) {
+            return isKnownNumber(grouped, null, genCtx);
+        }
+        final Class<?> type = staticType(value, genCtx);
+        return type != null && Number.class.isAssignableFrom(DslMethods.boxed(type));
+    }
+
+    private static boolean holdsANumber(final String literal) {
+        return DslNumbers.numberIn(literal) != null;
+    }
+
+    /**
+     * @return the numeric type of an operand, by its cast or else by its static type; null when it is no number
+     */
+    private static ExprType numericType(
             final LALScriptModel.ValueAccess value,
             final String topLevelCast,
             final LALClassGenerator.GenCtx genCtx) {
-        final ExprType numeric = numericTypeOrNull(value, topLevelCast, genCtx);
-        return numeric != null ? numeric : ExprType.LONG;
+        final ExprType type = topLevelCast != null ? castToType(topLevelCast) : inferType(value, genCtx);
+        return type.isNumeric() ? type : null;
     }
 
     /**
-     * Read the numeric type of a comparison's RHS — literal type for
-     * number literals; declared cast (or inferred type) for value accesses;
-     * otherwise {@link ExprType#UNKNOWN}.
+     * @return the numeric type of a comparison's right side, which {@link #isNumericComparison} found a number
      */
-    private static ExprType inferRightHandType(
-            final LALScriptModel.ConditionValue cv,
-            final LALClassGenerator.GenCtx genCtx) {
+    private static ExprType numericType(final LALScriptModel.ConditionValue cv,
+                                        final LALClassGenerator.GenCtx genCtx) {
         if (cv instanceof LALScriptModel.NumberConditionValue) {
-            final String literal = ((LALScriptModel.NumberConditionValue) cv).getLiteral();
-            return literal != null ? NumericLiteral.parse(literal).type : ExprType.LONG;
+            return LALLiterals.NumericLiteral.parse(((LALScriptModel.NumberConditionValue) cv).getLiteral()).type;
         }
         if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            final LALScriptModel.ValueAccessConditionValue vacv =
-                (LALScriptModel.ValueAccessConditionValue) cv;
-            final ExprType numeric = numericTypeOrNull(vacv.getValue(), vacv.getCastType(), genCtx);
-            if (numeric != null) {
-                return numeric;
-            }
-            return inferType(vacv.getValue(), genCtx);
+            final LALScriptModel.ValueAccessConditionValue vacv = (LALScriptModel.ValueAccessConditionValue) cv;
+            return numericType(vacv.getValue(), vacv.getCastType(), genCtx);
         }
-        return ExprType.UNKNOWN;
-    }
-
-    /**
-     * Pick the JLS-promoted primitive type for a comparison given both sides'
-     * inferred types. Numeric sides drive promotion; non-numeric sides default
-     * to {@code LONG} so the comparison still has a primitive home.
-     */
-    private static ExprType pickComparisonType(final ExprType lhs, final ExprType rhs) {
-        if (lhs.isNumeric() && rhs.isNumeric()) {
-            return promote(lhs, rhs);
-        }
-        if (lhs.isNumeric()) {
-            return lhs;
-        }
-        if (rhs.isNumeric()) {
-            return rhs;
-        }
-        return ExprType.LONG;
+        throw new IllegalStateException("A " + cv.getClass().getSimpleName() + " is no number");
     }
 
     /**
@@ -337,19 +489,9 @@ final class LALValueCodegen {
     }
 
     /**
-     * Render an operand for a numeric comparison while preserving the user's
-     * declared cast. Two-phase to avoid double-coercion:
-     * <ol>
-     *   <li>Render the operand expression. Typed proto fields, arithmetic
-     *       results, and paren-cast operands already land as a primitive and
-     *       record the type via {@code genCtx.lastResolvedType}.</li>
-     *   <li>If the rendered expression is non-primitive (a boxed/Object)
-     *       and the user declared a numeric cast, wrap it with the matching
-     *       {@code h.toX()} helper so the primitive identity is preserved
-     *       — e.g. {@code tag("a") as Integer < 1.5} renders
-     *       {@code (double) h.toInt(h.tagValue("a")) < 1.5}, not
-     *       {@code h.toDouble(h.tagValue("a")) < 1.5}.</li>
-     * </ol>
+     * Renders an operand for a numeric comparison in the primitive its own cast declares, so
+     * {@code tag("a") as Integer < 1.5} compares {@code (double) h.toInt(h.tagValue("a"))}, not
+     * {@code h.toDouble(h.tagValue("a"))}: a primitive value is cast to it, an object converted by its helper.
      */
     private static void emitOperandRespectingCast(
             final StringBuilder sb,
@@ -359,22 +501,18 @@ final class LALValueCodegen {
         final int start = sb.length();
         generateValueAccessObj(sb, value, castType, genCtx);
         final Class<?> resolved = genCtx.lastResolvedType;
-        final boolean alreadyPrimitive = resolved != null && resolved.isPrimitive();
         final ExprType castET = castToType(castType);
-        if (alreadyPrimitive) {
-            // Native primitive. If the user declared a different numeric
-            // type, honour it via a Java primitive cast — e.g.
-            // `((tag("a") as Long) + 1) as Integer` should narrow the long
-            // sum to int rather than silently keep the long value. Read
-            // the primitive form from lastRawChain (sb may hold a boxed
-            // wrapper like `Long.valueOf(...)` that the verifier can't
-            // unbox via a primitive cast). Preserve any null-guard the
-            // inner generator captured (typed-proto safe-nav) so the
-            // outer comparison can still short-circuit on a missing
-            // chain.
+        rejectUnconvertibleCast(value, castET, genCtx);
+        if (resolved != null && resolved.isPrimitive()) {
+            if (castType != null && LALCodegenHelper.PRIMITIVE_CASTS.contains(castType)) {
+                // An explicit primitive cast fails on a null rather than ordering it first.
+                genCtx.lastNullChecks = null;
+                genCtx.lastNullCheckOnObject = false;
+            }
             if (castET.isNumeric()
                     && exprTypeFromClass(resolved) != castET
                     && genCtx.lastRawChain != null) {
+                // The primitive form cast, as sb may hold its box; a typed-proto ?. chain's null guard is kept.
                 final String preservedNullChecks = genCtx.lastNullChecks;
                 final String primExpr = genCtx.lastRawChain;
                 sb.setLength(start);
@@ -388,44 +526,29 @@ final class LALValueCodegen {
         if (!castET.isNumeric()) {
             return;
         }
-        // Wrap with the matching numeric helper. Re-record the primitive
-        // metadata so the comparison emits an unboxed compare.
         final String inner = sb.substring(start);
+        // A primitive cast fails on a null instead.
+        final boolean innerNonNull = genCtx.lastNonNull || LALCodegenHelper.PRIMITIVE_CASTS.contains(castType);
         sb.setLength(start);
-        switch (castET) {
-            case INT:
-                sb.append("h.toInt(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, int.class, sb, start);
-                break;
-            case LONG:
-                sb.append("h.toLong(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, long.class, sb, start);
-                break;
-            case FLOAT:
-                sb.append("h.toFloat(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, float.class, sb, start);
-                break;
-            case DOUBLE:
-                sb.append("h.toDouble(").append(inner).append(")");
-                recordPrimitiveResult(genCtx, double.class, sb, start);
-                break;
-            default:
-                // unreachable — castET.isNumeric() checked above
-                sb.append(inner);
-                break;
-        }
+        sb.append(wrapNumeric(inner, castET, innerNonNull, genCtx));
     }
 
     /**
-     * Wrap an Object-typed expression in the right {@code h.toX()} helper
-     * for the chosen primitive comparison type. Falls back to
-     * {@code h.toLong} for non-numeric targets so the legacy behaviour is
-     * preserved when this is reached via the comparison fallback path.
+     * Converts an object to a number through the type's runtime helper ({@code h.toInt(raw)}) and records the result
+     * as that primitive; unless the object is never null, its null check lets a comparison order a missing value
+     * first.
      */
-    private static String wrapAsPrimitive(final String objectExpr, final ExprType target) {
-        final String helper = target.runtimeHelper != null && target.isNumeric()
-            ? target.runtimeHelper : "h.toLong";
-        return helper + "(" + objectExpr + ")";
+    private static String wrapNumeric(final String raw, final ExprType type, final boolean rawNonNull,
+                                      final LALClassGenerator.GenCtx genCtx) {
+        if (!type.isNumeric()) {
+            throw new IllegalStateException(type + " is not a numeric type");
+        }
+        final String converted = type.runtimeHelper + "(" + raw + ")";
+        genCtx.lastResolvedType = type.primitiveClass;
+        genCtx.lastRawChain = converted;
+        genCtx.lastNullChecks = rawNonNull ? null : raw + " == null";
+        genCtx.lastNullCheckOnObject = !rawNonNull;
+        return converted;
     }
 
     static void generateConditionValue(final StringBuilder sb,
@@ -437,71 +560,43 @@ final class LALValueCodegen {
                   ((LALScriptModel.StringConditionValue) cv).getValue()))
               .append('"');
         } else if (cv instanceof LALScriptModel.NumberConditionValue) {
-            final double val =
-                ((LALScriptModel.NumberConditionValue) cv).getValue();
-            sb.append("Long.valueOf(").append((long) val).append("L)");
-        } else if (cv instanceof LALScriptModel.BoolConditionValue) {
-            sb.append("Boolean.valueOf(")
-              .append(((LALScriptModel.BoolConditionValue) cv).isValue())
-              .append(")");
+            // The literal's own type: 1.5 stays 1.5.
+            sb.append(LALLiterals.NumericLiteral.parse(((LALScriptModel.NumberConditionValue) cv).getLiteral()).boxed());
         } else if (cv instanceof LALScriptModel.NullConditionValue) {
             sb.append("null");
         } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            generateValueAccessObj(sb,
-                ((LALScriptModel.ValueAccessConditionValue) cv).getValue(),
-                null, genCtx);
+            final LALScriptModel.ValueAccessConditionValue vacv = (LALScriptModel.ValueAccessConditionValue) cv;
+            generateBoxedValue(sb, vacv.getValue(), vacv.getCastType(), genCtx);
+        } else {
+            throw new IllegalStateException("Unhandled condition value " + cv.getClass().getSimpleName());
         }
     }
 
     /**
-     * Render a numeric RHS for a comparison operator. The literal is emitted
-     * in a form compatible with the LHS resolved type so the comparison stays
-     * in the LHS's primitive space — no defensive widening to long.
-     *
-     * <p>Examples (LHS in parens):
-     * <ul>
-     *   <li>(int) {@code < 10000}   → {@code 10000}</li>
-     *   <li>(long) {@code < 10000}  → {@code 10000L}</li>
-     *   <li>(double) {@code < 1.5}  → {@code 1.5d}</li>
-     *   <li>(int) {@code < 1.5}     → {@code 1.5d} — JLS will widen LHS to double</li>
-     * </ul>
+     * Renders a numeric comparison's right side as a primitive of the comparison's type: a number literal written in
+     * that type ({@code 10000L} against a long), a value as {@link #renderAsPrimitive} renders it.
      */
     static void generateConditionValueNumeric(
             final StringBuilder sb,
             final LALScriptModel.ConditionValue cv,
-            final Class<?> lhsType,
+            final ExprType target,
             final LALClassGenerator.GenCtx genCtx) {
         if (cv instanceof LALScriptModel.NumberConditionValue) {
-            final LALScriptModel.NumberConditionValue ncv =
-                (LALScriptModel.NumberConditionValue) cv;
-            final String literal = ncv.getLiteral();
-            if (literal != null) {
-                sb.append(formatNumericLiteralForCompare(literal, lhsType));
-            } else {
-                // Synthesised value (no source text).
-                sb.append(formatDoubleAsLiteral(ncv.getValue(), lhsType));
-            }
+            sb.append(LALLiterals.NumericLiteral.parse(((LALScriptModel.NumberConditionValue) cv).getLiteral())
+                .as(target));
         } else if (cv instanceof LALScriptModel.ValueAccessConditionValue) {
-            // RHS value access — emit the LHS-typed primitive form via the
-            // shared helper that picks between widening an already-primitive
-            // raw chain or wrapping a boxed object with h.toX().
             final LALScriptModel.ValueAccessConditionValue vacv =
                 (LALScriptModel.ValueAccessConditionValue) cv;
-            sb.append(renderAsPrimitive(vacv.getValue(), vacv.getCastType(),
-                exprTypeFromClass(lhsType), genCtx));
+            sb.append(renderAsPrimitive(vacv.getValue(), vacv.getCastType(), target, genCtx));
         } else {
-            sb.append("0L");
+            throw new IllegalArgumentException(
+                "A " + cv.getClass().getSimpleName() + " cannot be compared with <, >, <= or >=");
         }
     }
 
     /**
-     * Render an operand into Java source representing a primitive of
-     * {@code targetType}. If {@link #emitOperandRespectingCast} produced
-     * an already-primitive expression (typed proto field, arithmetic
-     * result, paren-cast), widen it to the target — otherwise wrap the
-     * boxed object with the matching {@code h.toX()} helper. Shared
-     * between LHS rendering in {@link #generateNumericComparison} and
-     * RHS rendering in {@link #generateConditionValueNumeric}.
+     * Renders an operand as a primitive of the target type: a primitive one ({@link #emitOperandRespectingCast})
+     * widened to it, an object converted by its helper, its null check recorded.
      */
     private static String renderAsPrimitive(
             final LALScriptModel.ValueAccess value,
@@ -515,7 +610,9 @@ final class LALValueCodegen {
             return widenPrimitiveExpr(genCtx.lastRawChain,
                 exprTypeFromClass(resolved), targetType);
         }
-        return wrapAsPrimitive(buf.toString(), targetType);
+        genCtx.lastNullChecks = genCtx.lastNonNull ? null : buf + " == null";
+        genCtx.lastNullCheckOnObject = genCtx.lastNullChecks != null;
+        return targetType.runtimeHelper + "(" + buf + ")";
     }
 
     private static boolean isNumericPrimitiveClass(final Class<?> c) {
@@ -523,80 +620,22 @@ final class LALValueCodegen {
             || c == float.class || c == double.class;
     }
 
-    private static String formatNumericLiteralForCompare(final String literal,
-                                                          final Class<?> lhsType) {
-        final NumericLiteral parsed = NumericLiteral.parse(literal);
-        // Honour the user's declared literal type when wider than LHS;
-        // otherwise emit in the LHS form so the compare stays in that space.
-        final ExprType lhsExpr = exprTypeFromClass(lhsType);
-        final ExprType result = parsed.type.compareTo(lhsExpr) > 0 ? parsed.type : lhsExpr;
-        if (result == parsed.type) {
-            return parsed.javaText;
-        }
-        // Widen literal to LHS type via suffix change (no Java cast needed for
-        // numeric literals — the widened form is itself a valid literal).
-        return widenLiteralToType(parsed.javaText, parsed.type, result);
-    }
-
-    private static String widenLiteralToType(final String text,
-                                              final ExprType from,
-                                              final ExprType to) {
-        // Strip trailing suffix (if any) and re-emit in `to`.
-        String body = text;
-        final char last = body.isEmpty() ? 0 : body.charAt(body.length() - 1);
-        if (last == 'L' || last == 'F' || last == 'f' || last == 'd' || last == 'D') {
-            body = body.substring(0, body.length() - 1);
-        }
-        // Java treats `1`, `1.0`, and `1e0` as valid literals. We only need
-        // to append `.0` for INT-shaped bodies (no decimal AND no exponent)
-        // when widening to a fractional type — otherwise the body is
-        // already a valid float/double literal, just with a different suffix.
-        final boolean fractional = body.contains(".")
-            || body.contains("e") || body.contains("E");
-        switch (to) {
-            case LONG:
-                return body + "L";
-            case FLOAT:
-                return (fractional ? body : body + ".0") + "f";
-            case DOUBLE:
-                return fractional ? body : body + ".0";
-            case INT:
-            default:
-                return body;
-        }
-    }
-
-    private static String formatDoubleAsLiteral(final double value, final Class<?> lhsType) {
-        if (lhsType == double.class || lhsType == float.class) {
-            return Double.toString(value) + (lhsType == float.class ? "f" : "");
-        }
-        if (lhsType == long.class) {
-            return ((long) value) + "L";
-        }
-        return Long.toString((long) value);
-    }
-
     // ==================== Value access ====================
 
     /**
-     * Generates a value access with an explicit type cast.
+     * Generates a value access with an explicit type cast: a numeric cast leaves the primitive, with its form and
+     * null check recorded for a comparison or arithmetic; a String or Boolean one an object; a class cast (only a
+     * {@code def} takes one) the value itself.
      *
      * <p>LAL: {@code parsed.latency as Long}
      * <br>Generated: {@code h.toLong(h.mapVal("latency"))}
-     *
-     * <p>Supported cast types: String, Long, Integer, Boolean.
      */
     static void generateCastedValueAccess(final StringBuilder sb,
                                            final LALScriptModel.ValueAccess value,
                                            final String castType,
                                            final LALClassGenerator.GenCtx genCtx) {
-        // Each numeric cast produces a primitive expression; record the type
-        // and the raw chain so callers (numeric comparisons, arithmetic
-        // codegen) can skip a redundant h.toX() wrapper when the operand
-        // already matches the target primitive.
         final ExprType castET = castToType(castType);
         if (castET.runtimeHelper == null) {
-            // FQCN or no cast — emit the raw value access.
             generateValueAccess(sb, value, genCtx);
             return;
         }
@@ -605,14 +644,22 @@ final class LALValueCodegen {
             generateValueAccess(sb, value, genCtx);
             return;
         }
-        final int start = sb.length();
-        sb.append(castET.runtimeHelper).append("(");
-        generateValueAccess(sb, value, genCtx);
-        sb.append(")");
-        // Numeric casts produce a primitive — capture the raw chain so the
-        // caller can avoid the redundant unbox wrapper.
+        if (castET == ExprType.STRING) {
+            sb.append("h.toStr(");
+            generateValueAccess(sb, value, genCtx);
+            sb.append(")");
+            genCtx.clearExtraLogResult();
+            genCtx.lastResolvedType = String.class;
+            return;
+        }
+        final StringBuilder raw = new StringBuilder();
+        generateValueAccess(raw, value, genCtx);
+        rejectUnconvertibleCast(value, castET, genCtx);
+        final boolean rawNonNull = genCtx.lastNonNull || LALCodegenHelper.PRIMITIVE_CASTS.contains(castType);
         if (castET.isNumeric()) {
-            recordPrimitiveResult(genCtx, castET.primitiveClass, sb, start);
+            sb.append(wrapNumeric(raw.toString(), castET, rawNonNull, genCtx));
+        } else {
+            sb.append(castET.runtimeHelper).append("(").append(raw).append(")");
         }
     }
 
@@ -623,6 +670,7 @@ final class LALValueCodegen {
         genCtx.lastResolvedType = type;
         genCtx.lastRawChain = sb.substring(start);
         genCtx.lastNullChecks = null;
+        genCtx.lastNullCheckOnObject = false;
     }
 
     /**
@@ -639,12 +687,10 @@ final class LALValueCodegen {
                                             final LALClassGenerator.GenCtx genCtx) {
         final ExprType castET = castToType(castType);
         if (castET.isNumeric() || castET == ExprType.BOOLEAN) {
-            // String.valueOf(h.toX(value)) — primitive conversion then
-            // stringify. Drives off the runtime-helper field on ExprType
-            // instead of repeating a parallel switch.
-            sb.append("String.valueOf(").append(castET.runtimeHelper).append("(");
-            generateValueAccess(sb, value, genCtx);
-            sb.append("))");
+            // Converted, then stringified: a null stays null, so a tag of it is not added.
+            sb.append("h.toStr(");
+            generateBoxedValue(sb, value, castType, genCtx);
+            sb.append(")");
             return;
         }
         if (isPlainStringLiteral(value)) {
@@ -682,10 +728,7 @@ final class LALValueCodegen {
      * adds nothing.
      */
     private static boolean isPlainStringLiteral(final LALScriptModel.ValueAccess value) {
-        return value.isStringLiteral()
-            && value.getChain().isEmpty()
-            && value.getConcatParts().isEmpty()
-            && value.getParenInner() == null;
+        return value.isStringLiteral() && value.isBareLiteral();
     }
 
     /**
@@ -737,12 +780,6 @@ final class LALValueCodegen {
         // is LogData.Builder).  For typed inputs, tag() is not supported — use
         // parsed.* to access fields on the typed input.
         if ("tag".equals(value.getFunctionCallName())) {
-            if (value.getFunctionCallArgs().size() != 1
-                    || !value.getFunctionCallArgs().get(0).getValue().isStringLiteral()) {
-                throw new IllegalArgumentException(
-                    "tag() requires exactly one string literal argument, "
-                        + "e.g. tag(\"KEY\")");
-            }
             if (genCtx.inputType != null
                     && !LALCodegenHelper.LOGDATA_BUILDER_CLASS
                         .isAssignableFrom(genCtx.inputType)) {
@@ -752,53 +789,43 @@ final class LALValueCodegen {
                         + ". Use a json{}/yaml{}/text{} parser, or access "
                         + "typed fields via parsed.* instead.");
             }
-            sb.append("h.tagValue(\"");
-            final String key = value.getFunctionCallArgs().get(0)
-                .getValue().getSegments().get(0);
-            sb.append(DslJavaSourceText.toLiteral(key)).append("\")");
+            LALChainCodegen.generateTypedChain(sb,
+                "h.tagValue(\"" + DslJavaSourceText.toLiteral(stringLiteralArg(value, "tag", "KEY")) + "\")",
+                String.class, false, value.getChain(), genCtx);
+            // A missing tag reads as "".
+            genCtx.lastNonNull |= value.getChain().isEmpty();
             return;
         }
 
         // sourceAttribute("KEY") — reads from LogMetadata.sourceAttributes (non-persistent).
         // Available regardless of input type (reads from metadata, not input).
         if ("sourceAttribute".equals(value.getFunctionCallName())) {
-            if (value.getFunctionCallArgs().size() != 1
-                    || !value.getFunctionCallArgs().get(0).getValue().isStringLiteral()) {
-                throw new IllegalArgumentException(
-                    "sourceAttribute() requires exactly one string literal argument, "
-                        + "e.g. sourceAttribute(\"os.name\")");
-            }
-            sb.append("h.sourceAttributeValue(\"");
-            final String key = value.getFunctionCallArgs().get(0)
-                .getValue().getSegments().get(0);
-            sb.append(DslJavaSourceText.toLiteral(key)).append("\")");
+            LALChainCodegen.generateTypedChain(sb,
+                "h.sourceAttributeValue(\""
+                    + DslJavaSourceText.toLiteral(stringLiteralArg(value, "sourceAttribute", "os.name")) + "\")",
+                String.class, false, value.getChain(), genCtx);
+            genCtx.lastNonNull |= value.getChain().isEmpty();
+            return;
+        }
+
+        // toJson(...) / toJsonArray(...)
+        if (value.getFunctionCallName() != null) {
+            generateBuiltinCall(sb, value, genCtx);
             return;
         }
 
         // Handle string/number literals
-        if (value.isStringLiteral() && value.getChain().isEmpty()) {
-            sb.append("\"").append(DslJavaSourceText.toLiteral(value.getSegments().get(0)))
-              .append("\"");
+        if (value.isStringLiteral()) {
+            LALChainCodegen.generateTypedChain(sb,
+                "\"" + DslJavaSourceText.toLiteral(value.getSegments().get(0)) + "\"",
+                String.class, false, value.getChain(), genCtx);
+            genCtx.lastNonNull |= value.getChain().isEmpty();
             return;
         }
-        if (value.isNumberLiteral() && value.getChain().isEmpty()) {
-            final String num = value.getSegments().get(0);
-            final NumericLiteral lit = NumericLiteral.parse(num);
-            switch (lit.type) {
-                case DOUBLE:
-                    sb.append("Double.valueOf(").append(lit.javaText).append(")");
-                    break;
-                case FLOAT:
-                    sb.append("Float.valueOf(").append(lit.javaText).append(")");
-                    break;
-                case LONG:
-                    sb.append("Long.valueOf(").append(lit.javaText).append(")");
-                    break;
-                case INT:
-                default:
-                    sb.append("Integer.valueOf(").append(lit.javaText).append(")");
-                    break;
-            }
+        if (value.isNumberLiteral()) {
+            final LALLiterals.NumericLiteral lit = LALLiterals.NumericLiteral.parse(value.getSegments().get(0));
+            LALChainCodegen.generateTypedChain(sb, lit.boxed(), lit.boxedClass(), false, value.getChain(), genCtx);
+            genCtx.lastNonNull |= value.getChain().isEmpty();
             return;
         }
 
@@ -812,7 +839,7 @@ final class LALValueCodegen {
 
         // Handle log.X.Y direct proto getter chains
         if (value.isLogRef()) {
-            generateLogAccess(sb, chain);
+            generateLogAccess(sb, chain, genCtx);
             return;
         }
 
@@ -822,31 +849,113 @@ final class LALValueCodegen {
             return;
         }
 
-        // Check for def variable reference
-        if (!value.getSegments().isEmpty()) {
-            final String primaryName = value.getSegments().get(0);
-            final LALClassGenerator.LocalVarInfo localVar =
-                genCtx.localVars.get(primaryName);
-            if (localVar != null) {
-                LALDefCodegen.generateDefVarChain(sb, localVar, chain, genCtx);
-                return;
-            }
+        final String primaryName = value.getSegments().get(0);
+        final LALClassGenerator.LocalVarInfo localVar = genCtx.localVars.get(primaryName);
+        if (localVar != null) {
+            LALDefCodegen.generateDefVarChain(sb, localVar, chain, genCtx);
+            return;
         }
 
-        // No matching codegen path — fail at compile time instead of silently
-        // generating null.
-        if (chain.isEmpty()) {
-            final String desc = value.getFunctionCallName() != null
-                ? "function call '" + value.getFunctionCallName() + "(...)'"
-                : "expression '" + value.getSegments() + "'";
-            throw new IllegalArgumentException(
-                "Cannot resolve " + desc + " — no matching codegen path. "
-                    + "Parser type: " + genCtx.parserType
-                    + (genCtx.inputType != null
-                        ? ", inputType: " + genCtx.inputType.getName() : ""));
+        // true / false / null: the grammar's literal primaries, which no identifier can be named.
+        if (LALScriptModel.ValueAccess.LITERAL_NAMES.contains(primaryName)) {
+            if (!chain.isEmpty()) {
+                throw new IllegalArgumentException(
+                    "Cannot call a method on the literal " + primaryName + ": " + value.toPathString());
+            }
+            sb.append("null".equals(primaryName) ? "null" : "Boolean." + primaryName.toUpperCase());
+            genCtx.lastNonNull = !"null".equals(primaryName);
+            genCtx.lastResolvedType = "null".equals(primaryName) ? null : Boolean.class;
+            return;
         }
-        // Treat as parsed ref
-        generateParsedAccess(sb, chain, genCtx);
+
+        if (genCtx.allDefNames.contains(primaryName)) {
+            throw new IllegalArgumentException(
+                "def '" + primaryName + "' is used outside the block that declares it: a def is visible only "
+                    + "in its own if branch, extractor or filter level, after its declaration");
+        }
+        throw new IllegalArgumentException(
+            "Unknown name '" + primaryName + "' in '" + value.toPathString() + "': "
+                + "expected parsed, log, a def variable, tag(...), sourceAttribute(...), "
+                + "toJson(...), toJsonArray(...) or ProcessRegistry");
+    }
+
+    /**
+     * The single string-literal argument of {@code tag(...)} / {@code sourceAttribute(...)}.
+     */
+    private static String stringLiteralArg(final LALScriptModel.ValueAccess value,
+                                           final String function, final String example) {
+        final List<LALScriptModel.FunctionArg> args = value.getFunctionCallArgs();
+        if (args.size() != 1 || args.get(0).getCastType() != null
+                || !args.get(0).getValue().isStringLiteral()
+                || !args.get(0).getValue().getChain().isEmpty()) {
+            throw new IllegalArgumentException(
+                function + "() requires exactly one string literal argument, "
+                    + "e.g. " + function + "(\"" + example + "\")");
+        }
+        return args.get(0).getValue().getSegments().get(0);
+    }
+
+    /**
+     * {@code toJson(expr)} / {@code toJsonArray(expr)} and the chain after it.
+     */
+    private static void generateBuiltinCall(final StringBuilder sb,
+                                            final LALScriptModel.ValueAccess value,
+                                            final LALClassGenerator.GenCtx genCtx) {
+        final String funcName = value.getFunctionCallName();
+        final BuiltinFunction function = BuiltinFunction.named(funcName);
+        if (function == null) {
+            throw new IllegalArgumentException(
+                "Unknown function '" + funcName + "(...)': expected tag, sourceAttribute, "
+                    + String.join(", ", BuiltinFunction.names()));
+        }
+        final int argCount = value.getFunctionCallArgs().size();
+        if (argCount != 1) {
+            throw new IllegalArgumentException(
+                funcName + "() requires exactly 1 argument, got " + argCount);
+        }
+        final LALScriptModel.FunctionArg arg = value.getFunctionCallArgs().get(0);
+        final StringBuilder call = new StringBuilder();
+        call.append(function.helper).append("(");
+        generateBoxedValue(call, arg.getValue(), arg.getCastType(), genCtx);
+        call.append(")");
+        LALChainCodegen.generateTypedChain(sb, call.toString(), function.returnType, true,
+            value.getChain(), genCtx);
+    }
+
+    /**
+     * The functions a value may call besides {@code tag(...)} and {@code sourceAttribute(...)}.
+     */
+    enum BuiltinFunction {
+        TO_JSON("toJson", "h.toJsonObject", JsonObject.class),
+        TO_JSON_ARRAY("toJsonArray", "h.toJsonArray", JsonArray.class);
+
+        final String dslName;
+        /** The runtime helper it calls. */
+        final String helper;
+        final Class<?> returnType;
+
+        BuiltinFunction(final String dslName, final String helper, final Class<?> returnType) {
+            this.dslName = dslName;
+            this.helper = helper;
+            this.returnType = returnType;
+        }
+
+        static BuiltinFunction named(final String name) {
+            for (final BuiltinFunction function : values()) {
+                if (function.dslName.equals(name)) {
+                    return function;
+                }
+            }
+            return null;
+        }
+
+        static List<String> names() {
+            final List<String> names = new ArrayList<>();
+            for (final BuiltinFunction function : values()) {
+                names.add(function.dslName);
+            }
+            return names;
+        }
     }
 
     // ==================== Parenthesized expression ====================
@@ -861,36 +970,61 @@ final class LALValueCodegen {
     static void generateParenAccess(final StringBuilder sb,
                                      final LALScriptModel.ValueAccess value,
                                      final LALClassGenerator.GenCtx genCtx) {
-        // Generate the inner expression with cast
         final String castType = value.getParenCast();
+        final ExprType castET = castToType(castType);
+        if (value.getChain().isEmpty() && (castET.isNumeric() || castET == ExprType.BOOLEAN)) {
+            // As an object the cast keeps a null, as Groovy's `null as Integer` does; arithmetic and comparisons
+            // take the primitive form, guarded by the null check.
+            final StringBuilder raw = new StringBuilder();
+            generateValueAccess(raw, value.getParenInner(), genCtx);
+            rejectUnconvertibleCast(value.getParenInner(), castET, genCtx);
+            final boolean rawNonNull = genCtx.lastNonNull || LALCodegenHelper.PRIMITIVE_CASTS.contains(castType);
+            sb.append(castObject(castType, raw.toString(), false));
+            final boolean rawPure = genCtx.lastPure;
+            genCtx.clearExtraLogResult();
+            genCtx.lastNonNull = rawNonNull;
+            genCtx.lastPure = rawPure;
+            if (castET.isNumeric()) {
+                wrapNumeric(raw.toString(), castET, rawNonNull, genCtx);
+            } else {
+                genCtx.lastResolvedType = Boolean.class;
+            }
+            return;
+        }
+        if (value.getChain().isEmpty()) {
+            if (castType != null) {
+                generateCastedValueAccess(sb, value.getParenInner(), castType, genCtx);
+            } else {
+                generateValueAccess(sb, value.getParenInner(), genCtx);
+            }
+            return;
+        }
+        // The inner value, cast, then its chain on the cast's type: a numeric cast as its box, keeping a null.
         final StringBuilder inner = new StringBuilder();
-        if (castType != null) {
+        final Class<?> innerType;
+        if (castET.isNumeric() || castET == ExprType.BOOLEAN) {
+            generateBoxedValue(inner, value.getParenInner(), castType, genCtx);
+            innerType = castET.valueClass;
+        } else if (castType != null) {
             generateCastedValueAccess(inner, value.getParenInner(), castType, genCtx);
+            innerType = castET == ExprType.STRING ? String.class : Object.class;
         } else {
             generateValueAccess(inner, value.getParenInner(), genCtx);
-        }
-
-        // Apply chain segments (methods, fields, index access)
-        String current = inner.toString();
-        for (final LALScriptModel.ValueAccessSegment seg : value.getChain()) {
-            if (seg instanceof LALScriptModel.MethodSegment) {
-                current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg, genCtx);
-            } else if (seg instanceof LALScriptModel.IndexSegment) {
-                current = current + "["
-                    + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
-            } else if (seg instanceof LALScriptModel.FieldSegment) {
-                final LALScriptModel.FieldSegment fs =
-                    (LALScriptModel.FieldSegment) seg;
-                if (fs.isSafeNav()) {
-                    current = "(" + current + " == null ? null : "
-                        + current + "." + fs.getName() + ")";
-                } else {
-                    current = current + "." + fs.getName();
-                }
+            if ((genCtx.lastResolvedType == null || genCtx.lastResolvedType == Object.class)
+                    && isTextGroupOfABranch(value.getParenInner(), genCtx)
+                    && LALChainCodegen.callsAStringMethod(value.getChain())) {
+                // As parsed.<group>.<method> takes it: a string, failing the cast for another branch's value.
+                inner.insert(0, "(String) ");
+                innerType = String.class;
+            } else {
+                innerType = genCtx.lastResolvedType == null ? Object.class
+                    : DslMethods.boxed(genCtx.lastResolvedType);
             }
         }
-        sb.append(current);
+        final boolean typedResult = genCtx.lastTypedResult && innerType == Object.class;
+        // Parenthesized, so the chain applies to the whole value: ("api-" + x).toUpperCase().
+        LALChainCodegen.generateTypedChain(sb, "(" + inner + ")", innerType, true, value.getChain(), genCtx,
+            typedResult);
     }
 
     // ==================== Log access (direct proto getters) ====================
@@ -905,82 +1039,125 @@ final class LALValueCodegen {
      * </ul>
      */
     static void generateLogAccess(final StringBuilder sb,
-                                   final List<LALScriptModel.ValueAccessSegment> chain) {
+                                   final List<LALScriptModel.ValueAccessSegment> chain,
+                                   final LALClassGenerator.GenCtx genCtx) {
         if (chain.isEmpty()) {
-            sb.append("h.ctx().input()");
+            sb.append("h.logView()");
+            genCtx.lastResolvedType = LogData.class;
             return;
         }
-
-        String current;
-        boolean needsBoxing = false;
-        String boxType = null;
-
-        // Determine root based on first field
         final LALScriptModel.ValueAccessSegment first = chain.get(0);
-        if (!(first instanceof LALScriptModel.FieldSegment)) {
-            current = LOGDATA_BUILDER_CAST;
-        } else {
-            final String firstName = ((LALScriptModel.FieldSegment) first).getName();
-            if (LALCodegenHelper.METADATA_GETTERS.containsKey(firstName)) {
-                current = "h.ctx().metadata()";
-            } else if (LALCodegenHelper.LOG_GETTERS.containsKey(firstName)) {
-                current = LOGDATA_BUILDER_CAST;
-            } else {
+        String field = null;
+        if (first instanceof LALScriptModel.FieldSegment) {
+            field = ((LALScriptModel.FieldSegment) first).getName();
+            if (!LALCodegenHelper.METADATA_GETTERS.containsKey(field)
+                    && !LALCodegenHelper.LOG_GETTERS.containsKey(field)) {
                 throw new IllegalArgumentException(
-                    "Unknown log field: log." + firstName
+                    "Unknown log field: log." + field
                         + ". Supported metadata fields: "
                         + LALCodegenHelper.METADATA_GETTERS.keySet()
                         + ", LogData fields: "
                         + LALCodegenHelper.LOG_GETTERS.keySet());
             }
+        } else if (first instanceof LALScriptModel.MethodSegment
+                && ((LALScriptModel.MethodSegment) first).getArguments().isEmpty()) {
+            // log.getService() reads what log.service does.
+            final String method = ((LALScriptModel.MethodSegment) first).getName();
+            for (final Map.Entry<String, String> getter : LALCodegenHelper.METADATA_GETTERS.entrySet()) {
+                if (getter.getValue().equals(method)) {
+                    field = getter.getKey();
+                }
+            }
+            if ("getTags".equals(method) || "getTagsOrBuilder".equals(method)) {
+                field = "tags";
+            } else if ("getTraceContextOrBuilder".equals(method)) {
+                field = "traceContext";
+            } else if ("hasTags".equals(method) || "hasTraceContext".equals(method)) {
+                // Present as the value getters read them, with the rule's writes.
+                final String presence = "h.log" + Character.toUpperCase(method.charAt(0)) + method.substring(1) + "()";
+                genCtx.lastResolvedType = boolean.class;
+                genCtx.lastRawChain = presence;
+                genCtx.lastNonNull = true;
+                genCtx.lastPure = true;
+                if (chain.size() > 1) {
+                    LALChainCodegen.generateTypedChain(sb, presence, boolean.class, false, chain.subList(1, chain.size()),
+                        genCtx);
+                } else {
+                    sb.append("Boolean.valueOf(").append(presence).append(")");
+                }
+                return;
+            }
+        } else if (first instanceof LALScriptModel.IndexSegment) {
+            throw new IllegalArgumentException(
+                "Index access on log.* is not supported: log" + describeChain(chain));
+        }
+        if (first instanceof LALScriptModel.MethodSegment && isLogMutation(((LALScriptModel.MethodSegment) first).getName())) {
+            throw new IllegalArgumentException(
+                "log." + ((LALScriptModel.MethodSegment) first).getName() + "(...) is not supported in a LAL rule: the "
+                    + "extractor's statements set the log (service, instance, endpoint, layer, traceId, segmentId, "
+                    + "spanId, timestamp, tag)");
         }
 
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            if (seg instanceof LALScriptModel.FieldSegment) {
-                final String name = ((LALScriptModel.FieldSegment) seg).getName();
-                if (i == 0 && LALCodegenHelper.METADATA_GETTERS.containsKey(name)) {
-                    if ("traceContext".equals(name)) {
-                        current = current + ".getTraceContext()";
-                    } else {
-                        current = current + "."
-                            + LALCodegenHelper.METADATA_GETTERS.get(name) + "()";
-                        if (LALCodegenHelper.LONG_FIELDS.contains(name)) {
-                            needsBoxing = true;
-                            boxType = "Long";
-                        }
-                    }
-                } else if (i == 0 && LALCodegenHelper.LOG_GETTERS.containsKey(name)) {
-                    current = current + "."
-                        + LALCodegenHelper.LOG_GETTERS.get(name) + "()";
-                } else if (i == 1 && current.endsWith(".getTraceContext()")
-                        && LALCodegenHelper.METADATA_TRACE_GETTERS.containsKey(name)) {
-                    current = current + "."
-                        + LALCodegenHelper.METADATA_TRACE_GETTERS.get(name) + "()";
-                    if (LALCodegenHelper.INT_FIELDS.contains(name)) {
-                        needsBoxing = true;
-                        boxType = "Integer";
-                    }
-                } else {
-                    throw new IllegalArgumentException(
-                        "Unknown log field: log." + name
-                            + ". Supported metadata fields: "
-                            + LALCodegenHelper.METADATA_GETTERS.keySet()
-                            + ", traceContext."
-                            + LALCodegenHelper.METADATA_TRACE_GETTERS.keySet()
-                            + ", LogData fields: "
-                            + LALCodegenHelper.LOG_GETTERS.keySet());
-                }
-            } else if (seg instanceof LALScriptModel.MethodSegment) {
-                current = appendMethodSegment(current,
-                    (LALScriptModel.MethodSegment) seg, null);
+        final String rootExpr;
+        final Class<?> rootType;
+        final List<LALScriptModel.ValueAccessSegment> rest;
+        if ("traceContext".equals(field) && first instanceof LALScriptModel.MethodSegment) {
+            // log.getTraceContext() read the log's protobuf, which the rule's trace statements now write.
+            rootExpr = "h.logTraceContext()";
+            rootType = TraceContext.class;
+            rest = chain.subList(1, chain.size());
+        } else if ("tags".equals(field)) {
+            // With the tags the rule's tag statements added.
+            rootExpr = "h.logTags()";
+            rootType = LogTags.class;
+            rest = chain.subList(1, chain.size());
+        } else if (field != null && LALCodegenHelper.METADATA_GETTERS.containsKey(field)) {
+            // The standard fields are the rule's metadata, which its standard field statements set.
+            final String getter = LALCodegenHelper.METADATA_GETTERS.get(field);
+            rootExpr = "h.ctx().metadata()." + getter + "()";
+            rootType = returnTypeOf(LogMetadata.class, getter);
+            rest = chain.subList(1, chain.size());
+        } else if (field != null) {
+            final String getter = LALCodegenHelper.LOG_GETTERS.get(field);
+            rootExpr = LOGDATA_BUILDER_CAST + "." + getter + "()";
+            rootType = returnTypeOf(LALCodegenHelper.LOGDATA_BUILDER_CLASS, getter);
+            rest = chain.subList(1, chain.size());
+        } else {
+            // Any other getter reads the log as the rule left it (getServiceBytes(), toString()).
+            rootExpr = "h.logView()";
+            rootType = LogData.class;
+            rest = chain;
+        }
+        if (rest.isEmpty() && rootType.isPrimitive()) {
+            genCtx.lastResolvedType = rootType;
+            genCtx.lastRawChain = rootExpr;
+            genCtx.lastNonNull = true;
+            genCtx.lastPure = true;
+            sb.append(LALCodegenHelper.box(rootType, rootExpr));
+            return;
+        }
+        LALChainCodegen.generateTypedChain(sb, rootExpr, rootType, true, rest, genCtx);
+        genCtx.lastPure = chain.stream().allMatch(seg -> seg instanceof LALScriptModel.FieldSegment);
+    }
+
+    /**
+     * A log builder method that changes the log, which a rule does through its statements.
+     */
+    private static boolean isLogMutation(final String name) {
+        for (final String prefix : new String[] {"set", "clear", "merge", "add", "remove", "put"}) {
+            if (name.length() > prefix.length() && name.startsWith(prefix)
+                    && Character.isUpperCase(name.charAt(prefix.length()))) {
+                return true;
             }
         }
+        return false;
+    }
 
-        if (needsBoxing) {
-            sb.append(boxType).append(".valueOf(").append(current).append(")");
-        } else {
-            sb.append(current);
+    private static Class<?> returnTypeOf(final Class<?> type, final String getter) {
+        try {
+            return DslMethods.find(type, getter).getReturnType();
+        } catch (final NoSuchMethodException e) {
+            throw new IllegalStateException(type.getName() + " has no " + getter + "()", e);
         }
     }
 
@@ -994,7 +1171,7 @@ final class LALValueCodegen {
      * Parser     LAL                             Generated
      * ────────── ──────────────────────────────── ──────────────────────────
      * json/yaml  parsed.service                   h.mapVal("service")
-     * json/yaml  parsed.client_process.address    h.mapVal("client_process", "address")
+     * json/yaml  parsed.client_process.address    h.prop(h.mapVal("client_process"), "address")
      * text       parsed.level                     h.group("level")
      * none+type  parsed?.response?.responseCode   ((Type)_p).getResponse()...
      * none       parsed.service                   h.ctx().metadata().getService()
@@ -1025,68 +1202,142 @@ final class LALValueCodegen {
                 break;
             }
         }
-
-        final List<String> fieldKeys = new ArrayList<>();
-        for (final LALScriptModel.FieldSegment fs : fieldSegments) {
-            fieldKeys.add(fs.getName());
-        }
+        final List<LALScriptModel.ValueAccessSegment> rest = methodStart >= 0
+            ? chain.subList(methodStart, chain.size()) : List.of();
 
         String current;
-        switch (genCtx.parserType) {
+        // A chain starting with a method calls it on the parsed holder itself: parsed.getMap().
+        Class<?> currentType = fieldSegments.isEmpty() ? ExecutionContext.Parsed.class : Object.class;
+        if (genCtx.parserType == LALClassGenerator.ParserType.NONE && genCtx.inputType == null) {
+            // No parser in the rule: the log's own fields, read where the expression is, so a standard field
+            // statement before is seen.
+            LALChainCodegen.generateTypedChain(sb, "h.ctx().metadata()", LogMetadata.class, false, chain, genCtx);
+            genCtx.lastPure = chain.stream().allMatch(seg -> seg instanceof LALScriptModel.FieldSegment);
+            return;
+        }
+        final LALClassGenerator.ParserType parser = genCtx.scopeParser == LALClassGenerator.ParserType.NONE
+            && genCtx.inputType == null ? LALClassGenerator.ParserType.JSON : genCtx.scopeParser;
+        switch (parser) {
             case JSON:
             case YAML:
-                current = LALCodegenHelper.generateMapValCall(fieldKeys);
-                break;
-            case TEXT:
-                if (!fieldKeys.isEmpty()) {
-                    current = "h.group(\""
-                        + DslJavaSourceText.toLiteral(fieldKeys.get(0)) + "\")";
-                } else {
-                    current = "h.ctx().parsed()";
+            case MIXED:
+                current = "h.ctx().parsed()";
+                for (int i = 0; i < fieldSegments.size(); i++) {
+                    final String key = DslJavaSourceText.toLiteral(fieldSegments.get(i).getName());
+                    // A `.` on a null fails as Groovy's does; only `?.` reads null.
+                    current = i == 0 ? "h.mapVal(\"" + key + "\")"
+                        : "h." + (fieldSegments.get(i).isSafeNav() ? "safeProp" : "prop")
+                            + "(" + current + ", \"" + key + "\")";
+                }
+                if (parser == LALClassGenerator.ParserType.MIXED && fieldSegments.size() == 1
+                        && LALChainCodegen.callsAStringMethod(rest)) {
+                    // A text parser's group in one branch: a string there, as in a rule with only the text parser;
+                    // another branch's non-string value fails the cast.
+                    current = "((String) " + current + ")";
+                    currentType = String.class;
                 }
                 break;
+            case TEXT:
+                if (fieldSegments.isEmpty()) {
+                    current = "h.ctx().parsed()";
+                    currentType = ExecutionContext.Parsed.class;
+                    break;
+                }
+                // the first name reads a named group of the regexp, a string; the rest of the chain is that string's
+                // (parsed.level.toString, parsed.level.trim(), and a name a string has not fails there)
+                emitTail(sb, "h.group(\"" + DslJavaSourceText.toLiteral(fieldSegments.get(0).getName()) + "\")",
+                    String.class, chain.subList(1, chain.size()), genCtx);
+                return;
             case NONE:
-                if (genCtx.inputType != null) {
-                    current = generateExtraLogAccess(fieldSegments, genCtx.inputType,
-                        "_p", true, genCtx);
-                } else {
-                    // No parser and no inputType — fall back to LogMetadata
-                    current = generateExtraLogAccess(fieldSegments, LogMetadata.class,
-                        "h.ctx().metadata()", false, genCtx);
+                // A typed input, read through its getters as far as each name is one; the rest of the chain is the
+                // value's (parsed.response.toString).
+                final int getters = getterPrefix(fieldSegments, genCtx.inputType);
+                current = generateExtraLogAccess(fieldSegments.subList(0, getters), genCtx.inputType, "_p", true,
+                    genCtx);
+                if (getters == 0) {
+                    currentType = genCtx.inputType;
+                } else if (genCtx.lastResolvedType != null) {
+                    currentType = DslMethods.boxed(genCtx.lastResolvedType);
+                }
+                if (getters < fieldSegments.size()) {
+                    emitTail(sb, current, currentType, chain.subList(getters, chain.size()), genCtx);
+                    return;
                 }
                 break;
             default:
-                current = "null";
-                break;
+                throw new IllegalStateException("Unhandled parser type " + parser);
         }
 
-        // Apply remaining method/index segments
-        if (methodStart >= 0) {
-            for (int i = methodStart; i < chain.size(); i++) {
-                final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-                if (seg instanceof LALScriptModel.MethodSegment) {
-                    current = appendMethodSegment(current,
-                        (LALScriptModel.MethodSegment) seg, genCtx);
-                } else if (seg instanceof LALScriptModel.IndexSegment) {
-                    current = current + "["
-                        + ((LALScriptModel.IndexSegment) seg).getIndex() + "]";
-                } else if (seg instanceof LALScriptModel.FieldSegment) {
-                    current = current + "."
-                        + ((LALScriptModel.FieldSegment) seg).getName();
-                }
-            }
+        if (!rest.isEmpty()) {
+            LALChainCodegen.generateTypedChain(sb, current, currentType, true, rest, genCtx);
+            return;
         }
-
+        if (currentType == String.class) {
+            genCtx.lastResolvedType = String.class;
+        }
+        genCtx.lastPure = true;
         sb.append(current);
     }
 
     /**
-     * Generates a reflection-based getter chain on a typed root object.
-     * Used for both typed proto access ({@code parsed?.response?.responseCode})
-     * and LogMetadata fallback ({@code parsed.service} without a parser).
+     * The value a parsed root resolved to, followed by the rest of its chain, walked as any typed value's.
+     */
+    private static void emitTail(final StringBuilder sb, final String value, final Class<?> type,
+                                 final List<LALScriptModel.ValueAccessSegment> tail,
+                                 final LALClassGenerator.GenCtx genCtx) {
+        if (tail.isEmpty()) {
+            genCtx.lastResolvedType = type;
+            genCtx.lastPure = true;
+            sb.append(value);
+            return;
+        }
+        LALChainCodegen.generateTypedChain(sb, value, type, true, tail, genCtx);
+    }
+
+    /**
+     * @return how many of the leading names read a getter ({@code getX()}) of the type each one before returns
+     */
+    private static int getterPrefix(final List<LALScriptModel.FieldSegment> names, final Class<?> rootType) {
+        Class<?> type = rootType;
+        int count = 0;
+        for (final LALScriptModel.FieldSegment name : names) {
+            try {
+                type = DslMethods.find(type, "get" + Character.toUpperCase(name.getName().charAt(0))
+                    + name.getName().substring(1)).getReturnType();
+            } catch (final NoSuchMethodException e) {
+                break;
+            }
+            count++;
+            if (type.isPrimitive()) {
+                break;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Whether a value is {@code parsed.<name>} after a text and a json / yaml branch rejoin: the text branch's group,
+     * a string there.
+     */
+    static boolean isTextGroupOfABranch(final LALScriptModel.ValueAccess value,
+                                        final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ValueAccess grouped = value.groupedInner();
+        if (grouped != null) {
+            return isTextGroupOfABranch(grouped, genCtx);
+        }
+        if (value.isBareIdentifier() && value.getChain().isEmpty()
+                && genCtx.localVars.containsKey(value.getSegments().get(0))) {
+            return genCtx.localVars.get(value.getSegments().get(0)).textGroup;
+        }
+        return genCtx.scopeParser == LALClassGenerator.ParserType.MIXED && value.isParsedRef()
+            && value.getChain().size() == 1 && value.getChain().get(0) instanceof LALScriptModel.FieldSegment;
+    }
+
+    /**
+     * Generates the {@code getX()} chain of {@code parsed.*} on a typed input ({@code parsed?.response?.responseCode}),
+     * each getter resolved by reflection and allowed by {@link LALCallables}.
      *
-     * <p>Each getter call is validated at compile time via reflection. Safe
-     * navigation ({@code ?.}) generates null checks. Intermediate results
+     * <p>Safe navigation ({@code ?.}) generates null checks. Intermediate results
      * are cached in local variables ({@code _t0}, {@code _t1}, ...) to avoid
      * redundant getter calls when the same chain prefix appears multiple times.
      */
@@ -1116,12 +1367,12 @@ final class LALValueCodegen {
 
             final Method getter;
             try {
-                getter = currentType.getMethod(getterName);
+                getter = LALCallables.get().require(currentType, DslMethods.find(currentType, getterName));
             } catch (NoSuchMethodException e) {
                 throw new IllegalArgumentException(
                     "Cannot resolve getter " + currentType.getSimpleName()
                         + "." + getterName + "() for type "
-                        + typeName + ". Check the field path in the LAL rule.");
+                        + typeName + ". Check the field path in the LAL rule. " + LALCallables.get().describe(currentType));
             }
             final Class<?> returnType = getter.getReturnType();
 
@@ -1137,14 +1388,13 @@ final class LALValueCodegen {
                 final String rawAccess = prevVar + "." + getterName + "()";
                 genCtx.lastResolvedType = returnType;
                 genCtx.lastRawChain = rawAccess;
-                final String boxName = LALCodegenHelper.boxTypeName(returnType);
                 if (seg.isSafeNav() && prevCanBeNull) {
                     genCtx.lastNullChecks = prevVar + " == null";
-                    return "(" + prevVar + " == null ? null : "
-                        + boxName + ".valueOf(" + rawAccess + "))";
+                    return "(" + prevVar + " == null ? null : " + LALCodegenHelper.box(returnType, rawAccess) + ")";
                 } else {
                     genCtx.lastNullChecks = null;
-                    return boxName + ".valueOf(" + rawAccess + ")";
+                    genCtx.lastNonNull = true;
+                    return LALCodegenHelper.box(returnType, rawAccess);
                 }
             }
 
@@ -1204,128 +1454,97 @@ final class LALValueCodegen {
             final LALScriptModel.ValueAccess value,
             final LALClassGenerator.GenCtx genCtx) {
         final List<LALScriptModel.ValueAccessSegment> chain = value.getChain();
-        if (chain.isEmpty()) {
-            sb.append("null");
-            return;
+        if (chain.isEmpty() || !(chain.get(0) instanceof LALScriptModel.MethodSegment)) {
+            throw new IllegalArgumentException(
+                "ProcessRegistry" + describeChain(chain) + ": call one of its methods, "
+                    + "e.g. ProcessRegistry.generateVirtualLocalProcess(service, instance)");
         }
-        final LALScriptModel.ValueAccessSegment seg = chain.get(0);
-        if (seg instanceof LALScriptModel.MethodSegment) {
-            final LALScriptModel.MethodSegment ms =
-                (LALScriptModel.MethodSegment) seg;
-            sb.append(PROCESS_REGISTRY).append(".")
-              .append(ms.getName()).append("(");
-            final List<LALScriptModel.FunctionArg> args = ms.getArguments();
-            for (int i = 0; i < args.size(); i++) {
-                if (i > 0) {
-                    sb.append(", ");
-                }
-                generateCastedValueAccess(sb,
-                    args.get(i).getValue(), args.get(i).getCastType(), genCtx);
+        final LALScriptModel.MethodSegment ms = (LALScriptModel.MethodSegment) chain.get(0);
+        final Method method = findStaticMethod(ms.getName(), ms.getArguments().size());
+        final StringBuilder call = new StringBuilder();
+        call.append(PROCESS_REGISTRY).append(".").append(ms.getName()).append("(");
+        final List<LALScriptModel.FunctionArg> args = ms.getArguments();
+        for (int i = 0; i < args.size(); i++) {
+            if (i > 0) {
+                call.append(", ");
             }
-            sb.append(")");
-        } else {
-            sb.append("null");
+            generateCastedValueAccess(call,
+                args.get(i).getValue(), args.get(i).getCastType(), genCtx);
         }
+        call.append(")");
+        LALChainCodegen.generateTypedChain(sb, call.toString(), method.getReturnType(), false,
+            chain.subList(1, chain.size()), genCtx);
     }
 
-    // ==================== Utility methods ====================
+    private static Method findStaticMethod(final String name, final int argCount) {
+        for (final Method m : ProcessRegistry.class.getMethods()) {
+            if (m.getName().equals(name) && m.getParameterCount() == argCount
+                    && Modifier.isStatic(m.getModifiers())) {
+                LALCallables.get().requireStatic(ProcessRegistry.class, name);
+                return m;
+            }
+        }
+        throw new IllegalArgumentException(
+            "ProcessRegistry has no method " + name + "() taking " + argCount + " argument(s); the static calls are "
+                + LALCallables.get().describeStatics() + " (see " + LALCallables.DOCUMENTATION + ")");
+    }
+
+    /**
+     * The chain as written after its primary, e.g. {@code .a?.b()[0]}, for error messages.
+     */
+    static String describeChain(final List<LALScriptModel.ValueAccessSegment> chain) {
+        final StringBuilder sb = new StringBuilder();
+        for (final LALScriptModel.ValueAccessSegment seg : chain) {
+            if (seg instanceof LALScriptModel.FieldSegment) {
+                final LALScriptModel.FieldSegment fs = (LALScriptModel.FieldSegment) seg;
+                sb.append(fs.isSafeNav() ? "?." : ".").append(fs.getName());
+            } else if (seg instanceof LALScriptModel.MethodSegment) {
+                final LALScriptModel.MethodSegment ms = (LALScriptModel.MethodSegment) seg;
+                sb.append(ms.isSafeNav() ? "?." : ".").append(ms.getName()).append("(...)");
+            } else {
+                sb.append("[").append(((LALScriptModel.IndexSegment) seg).getIndex()).append("]");
+            }
+        }
+        return sb.toString();
+    }
 
     // ==================== Binary expression codegen ====================
 
     /**
-     * JLS-style numeric type tag used for binary numeric promotion. Ordered
-     * narrow → wide so {@link #promote} can pick the wider of two. Each
-     * numeric variant carries its Java keyword, wrapper class name,
-     * primitive {@link Class}, and the {@code LalRuntimeHelper} method
-     * that converts an arbitrary Object to that primitive — replacing
-     * what used to be four parallel switch statements.
+     * JLS-style numeric type tag used for binary numeric promotion. Ordered narrow → wide so {@link #promote} can
+     * pick the wider of two. A type a value can be converted to carries the {@code LalRuntimeHelper} method that
+     * converts an arbitrary object to it.
      */
-    private enum ExprType {
-        INT("int", "Integer", int.class, "h.toInt"),
-        LONG("long", "Long", long.class, "h.toLong"),
-        FLOAT("float", "Float", float.class, "h.toFloat"),
-        DOUBLE("double", "Double", double.class, "h.toDouble"),
-        STRING(null, null, null, "h.toStr"),
-        BOOLEAN(null, null, null, "h.toBool"),
-        OBJECT(null, null, null, null),
-        UNKNOWN(null, null, null, null);
+    enum ExprType {
+        INT("int", "Integer", int.class, Integer.class, "h.toInt"),
+        LONG("long", "Long", long.class, Long.class, "h.toLong"),
+        FLOAT("float", "Float", float.class, Float.class, "h.toFloat"),
+        DOUBLE("double", "Double", double.class, Double.class, "h.toDouble"),
+        STRING(null, null, null, String.class, "h.toStr"),
+        BOOLEAN("boolean", "Boolean", boolean.class, Boolean.class, "h.toBool"),
+        /** A quotient of whole numbers, Groovy's BigDecimal, and arithmetic of it with whole numbers. */
+        DECIMAL(null, null, null, BigDecimal.class, null),
+        OBJECT(null, null, null, Object.class, null),
+        UNKNOWN(null, null, null, null, null);
 
         final String primitiveKeyword;
         final String wrapperName;
         final Class<?> primitiveClass;
+        /** The class a value of the type is, as an object; null when unknown. */
+        final Class<?> valueClass;
         final String runtimeHelper;
 
-        ExprType(final String primitiveKeyword, final String wrapperName,
-                 final Class<?> primitiveClass, final String runtimeHelper) {
+        ExprType(final String primitiveKeyword, final String wrapperName, final Class<?> primitiveClass,
+                 final Class<?> valueClass, final String runtimeHelper) {
             this.primitiveKeyword = primitiveKeyword;
             this.wrapperName = wrapperName;
             this.primitiveClass = primitiveClass;
+            this.valueClass = valueClass;
             this.runtimeHelper = runtimeHelper;
         }
 
         boolean isNumeric() {
             return this == INT || this == LONG || this == FLOAT || this == DOUBLE;
-        }
-    }
-
-    /**
-     * Parsed representation of a NUMBER literal token. Carries the inferred
-     * Java type and the literal text trimmed/suffixed for direct emission as
-     * Java source.
-     */
-    private static final class NumericLiteral {
-        final ExprType type;
-        /** Java-source representation, e.g. "10000", "10000L", "1.5", "1.5f". */
-        final String javaText;
-
-        private NumericLiteral(final ExprType type, final String javaText) {
-            this.type = type;
-            this.javaText = javaText;
-        }
-
-        static NumericLiteral parse(final String numText) {
-            String t = numText;
-            char suffix = 0;
-            if (!t.isEmpty()) {
-                final char last = t.charAt(t.length() - 1);
-                if (last == 'L' || last == 'l' || last == 'F' || last == 'f'
-                        || last == 'D' || last == 'd') {
-                    suffix = last;
-                    t = t.substring(0, t.length() - 1);
-                }
-            }
-            final boolean fractional = t.contains(".") || t.contains("e") || t.contains("E");
-            switch (suffix) {
-                case 'L':
-                case 'l':
-                    // Magnitude-overflow on an L-suffixed literal is caught
-                    // by Javassist with a clear "long literal too large"
-                    // diagnostic referencing the same token the user wrote,
-                    // so we don't duplicate that check here.
-                    return new NumericLiteral(ExprType.LONG, t + "L");
-                case 'F':
-                case 'f':
-                    return new NumericLiteral(ExprType.FLOAT,
-                        (fractional ? t : (t + ".0")) + "f");
-                case 'D':
-                case 'd':
-                    return new NumericLiteral(ExprType.DOUBLE,
-                        (fractional ? t : (t + ".0")) + "d");
-                default:
-                    if (fractional) {
-                        return new NumericLiteral(ExprType.DOUBLE, t);
-                    }
-                    // Bare integer literal — INT if it fits, else LONG.
-                    // Magnitude overflow beyond `long` is caught by
-                    // Javassist when it parses our generated `<digits>L`
-                    // token, so we don't pre-validate the long range here.
-                    try {
-                        Integer.parseInt(t);
-                        return new NumericLiteral(ExprType.INT, t);
-                    } catch (NumberFormatException ignoredInt) {
-                        return new NumericLiteral(ExprType.LONG, t + "L");
-                    }
-            }
         }
     }
 
@@ -1338,8 +1557,9 @@ final class LALValueCodegen {
         if (a == ExprType.DOUBLE || b == ExprType.DOUBLE) {
             return ExprType.DOUBLE;
         }
+        // Groovy computes a float, even with another float, in double.
         if (a == ExprType.FLOAT || b == ExprType.FLOAT) {
-            return ExprType.FLOAT;
+            return ExprType.DOUBLE;
         }
         if (a == ExprType.LONG || b == ExprType.LONG) {
             return ExprType.LONG;
@@ -1348,73 +1568,155 @@ final class LALValueCodegen {
     }
 
     /**
-     * Compile-time inference of an operand's Java type. Operates on the same
-     * AST that codegen will subsequently emit, so the result is consistent.
+     * @return whether the operand is known to be a boolean: a true/false literal, grouped or not, or a grouped value's
+     *     chain ending in a boolean ({@code (tag("a")).isEmpty()})
      */
-    private static ExprType inferType(final LALScriptModel.ValueAccess part,
-                                       final LALClassGenerator.GenCtx genCtx) {
-        if (part == null) {
-            return ExprType.UNKNOWN;
+    private static boolean isBooleanOperand(final LALScriptModel.ValueAccess part,
+                                            final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ValueAccess grouped = part.groupedInner();
+        if (grouped != null) {
+            return isBooleanOperand(grouped, genCtx);
         }
-        if (part.isStringLiteral()) {
-            return ExprType.STRING;
+        if (part.getParenInner() != null) {
+            return part.getChain().isEmpty() ? castToType(part.getParenCast()) == ExprType.BOOLEAN
+                : inferType(part, genCtx) == ExprType.BOOLEAN;
         }
-        if (part.isNumberLiteral() && part.getChain().isEmpty()) {
-            return NumericLiteral.parse(part.getSegments().get(0)).type;
-        }
-        // (expr as Cast) primary — only trustable when no further chain is applied.
-        if (part.getParenInner() != null && part.getChain().isEmpty()) {
-            if (part.getParenCast() != null) {
-                return castToType(part.getParenCast());
-            }
-            // Pure grouping (no cast): the parens just preserve precedence.
-            return inferType(part.getParenInner(), genCtx);
-        }
-        // Nested binary expression: recompute via its parts/ops.
-        if (!part.getConcatParts().isEmpty()) {
-            return inferBinaryType(part.getConcatParts(), part.getConcatOps(), genCtx);
-        }
-        // def variable with a known resolved type.
-        if (!part.getSegments().isEmpty()) {
-            final LALClassGenerator.LocalVarInfo lv =
-                genCtx.localVars.get(part.getSegments().get(0));
-            if (lv != null && part.getChain().isEmpty()) {
-                return exprTypeFromClass(lv.resolvedType);
-            }
-        }
-        // tag() / sourceAttribute() — always return String at runtime.
-        if ("tag".equals(part.getFunctionCallName())
-                || "sourceAttribute".equals(part.getFunctionCallName())) {
-            return ExprType.STRING;
-        }
-        // parsed.* — when the rule has a typed inputType (no JSON/YAML/TEXT
-        // parser), walk the proto getter chain via reflection so primitive
-        // numeric leaves participate in arithmetic and don't fall through
-        // to string concat. Mirrors {@link #generateExtraLogAccess} but
-        // does not emit code or local variables.
-        if (part.isParsedRef()
-                && genCtx.parserType == LALClassGenerator.ParserType.NONE
-                && genCtx.inputType != null) {
-            final Class<?> primitive = walkProtoChainPrimitiveType(
-                part.getChain(), genCtx.inputType);
-            if (primitive != null) {
-                final ExprType t = exprTypeFromClass(primitive);
-                // Only echo back primitive numeric / boolean leaves —
-                // non-primitive return types fall through to UNKNOWN
-                // (handled by the original chain-walk codegen at runtime).
-                if (t.isNumeric() || t == ExprType.BOOLEAN) {
-                    return t;
-                }
-            }
-        }
-        return ExprType.UNKNOWN;
+        // the literal true/false, never a quoted "true" (a string) of that spelling
+        return part.isBareLiteral() && !part.isStringLiteral()
+            && ("true".equals(part.getSegments().get(0)) || "false".equals(part.getSegments().get(0)));
     }
 
     /**
-     * Map a Java {@link Class} (primitive or wrapper) to the matching
-     * {@link ExprType}. Used when type information arrives as a Class —
-     * from {@code def} variable resolution or proto-chain reflection —
-     * and replaces what was two parallel if/else ladders.
+     * The type of an operand as arithmetic, a comparison and string joining take it: its static type; a
+     * {@code log.getX()} call is typed only to order it against a text ({@link #isKnownNumber}).
+     */
+    static ExprType inferType(final LALScriptModel.ValueAccess part,
+                              final LALClassGenerator.GenCtx genCtx) {
+        if (part == null || part.isLogRef() && !part.getChain().isEmpty()
+                && !(part.getChain().get(0) instanceof LALScriptModel.FieldSegment)) {
+            return ExprType.UNKNOWN;
+        }
+        final Class<?> type = staticType(part, genCtx);
+        return type == null ? ExprType.UNKNOWN : exprTypeFromClass(type);
+    }
+
+    /**
+     * The class an operand's value has when compiled, as the codegen renders it, or null when it is known only at
+     * run time. It operates on the same AST the codegen subsequently emits, so the two agree.
+     */
+    private static Class<?> staticType(final LALScriptModel.ValueAccess part,
+                                       final LALClassGenerator.GenCtx genCtx) {
+        final String function = part.getFunctionCallName();
+        if (part.isStringLiteral() || "tag".equals(function) || "sourceAttribute".equals(function)) {
+            return LALChainCodegen.chainType(String.class, part.getChain(), genCtx);
+        }
+        if (part.isNumberLiteral()) {
+            return LALChainCodegen.chainType(
+                LALLiterals.NumericLiteral.parse(part.getSegments().get(0)).boxedClass(), part.getChain(), genCtx);
+        }
+        final BuiltinFunction builtin = BuiltinFunction.named(function);
+        if (builtin != null) {
+            return LALChainCodegen.chainType(builtin.returnType, part.getChain(), genCtx);
+        }
+        if (part.getParenInner() != null) {
+            if (part.getChain().isEmpty()) {
+                // A grouping only keeps the precedence: typed as what it holds, as an operand.
+                return part.getParenCast() != null ? classOf(castToType(part.getParenCast()))
+                    : inferType(part.getParenInner(), genCtx).valueClass;
+            }
+            // A grouped value's chain, (sourceAttribute("a")).length(): on a text, a boolean or a number the group
+            // holds.
+            final Class<?> inner = classOf(part.getParenCast() != null ? castToType(part.getParenCast())
+                : inferType(part.getParenInner(), genCtx));
+            return inner == null ? null : LALChainCodegen.chainType(inner, part.getChain(), genCtx);
+        }
+        if (part.isLogRef()) {
+            return logType(part.getChain(), genCtx);
+        }
+        if (!part.getConcatParts().isEmpty()) {
+            return inferBinaryType(part.getConcatParts(), part.getConcatOps(), genCtx).valueClass;
+        }
+        if (part.isBareIdentifier()) {
+            final LALClassGenerator.LocalVarInfo def = genCtx.localVars.get(part.getSegments().get(0));
+            if (def != null) {
+                return LALChainCodegen.chainType(def.resolvedType, part.getChain(), genCtx, def.typedResult);
+            }
+        }
+        if (part.isParsedRef() && genCtx.parserType == LALClassGenerator.ParserType.NONE
+                && genCtx.inputType != null) {
+            return typedInputType(part.getChain(), genCtx.inputType);
+        }
+        return null;
+    }
+
+    /**
+     * The static type of {@code log.*}: a standard field and the chain on it, as the metadata or the log holds the
+     * field (but its trace context and tags, which read as the log's protobuf), or a lone {@code log.getX()} of a
+     * standard field but the trace context; null for anything else.
+     */
+    private static Class<?> logType(final List<LALScriptModel.ValueAccessSegment> chain,
+                                    final LALClassGenerator.GenCtx genCtx) {
+        if (chain.isEmpty()) {
+            return null;
+        }
+        final LALScriptModel.ValueAccessSegment first = chain.get(0);
+        String field = null;
+        if (first instanceof LALScriptModel.FieldSegment) {
+            field = ((LALScriptModel.FieldSegment) first).getName();
+        } else if (chain.size() == 1 && first instanceof LALScriptModel.MethodSegment
+                && ((LALScriptModel.MethodSegment) first).getArguments().isEmpty()) {
+            for (final Map.Entry<String, String> getter : LALCodegenHelper.METADATA_GETTERS.entrySet()) {
+                if (getter.getValue().equals(((LALScriptModel.MethodSegment) first).getName())) {
+                    field = getter.getKey();
+                }
+            }
+        }
+        if (field == null || "traceContext".equals(field) || "tags".equals(field)) {
+            return null;
+        }
+        final String metadataGetter = LALCodegenHelper.METADATA_GETTERS.get(field);
+        final Class<?> root = metadataGetter != null ? returnTypeOf(LogMetadata.class, metadataGetter)
+            : LALCodegenHelper.LOG_GETTERS.containsKey(field)
+                ? returnTypeOf(LALCodegenHelper.LOGDATA_BUILDER_CLASS, LALCodegenHelper.LOG_GETTERS.get(field))
+                : null;
+        return root == null ? null : LALChainCodegen.chainType(root, chain.subList(1, chain.size()), genCtx);
+    }
+
+    /**
+     * The primitive number or boolean a typed input's {@code getX()} chain ends at ({@code parsed.response.code}),
+     * as {@link #generateExtraLogAccess} reads it; null for any other chain, whose type is known only at run time.
+     */
+    private static Class<?> typedInputType(final List<LALScriptModel.ValueAccessSegment> chain,
+                                           final Class<?> inputType) {
+        if (chain.isEmpty()) {
+            return null;
+        }
+        Class<?> currentType = inputType;
+        for (final LALScriptModel.ValueAccessSegment segment : chain) {
+            if (!(segment instanceof LALScriptModel.FieldSegment)) {
+                return null;
+            }
+            final String field = ((LALScriptModel.FieldSegment) segment).getName();
+            try {
+                currentType = DslMethods.find(currentType,
+                    "get" + Character.toUpperCase(field.charAt(0)) + field.substring(1)).getReturnType();
+            } catch (final NoSuchMethodException e) {
+                return null;
+            }
+        }
+        final ExprType type = exprTypeFromClass(currentType);
+        return currentType.isPrimitive() && (type.isNumeric() || type == ExprType.BOOLEAN) ? currentType : null;
+    }
+
+    /**
+     * @return the class a value of a type holds (a number boxed), for a chain to resolve on; null for a run-time one
+     */
+    static Class<?> classOf(final ExprType type) {
+        return type.isNumeric() || type == ExprType.STRING || type == ExprType.BOOLEAN ? type.valueClass : null;
+    }
+
+    /**
+     * Map a Java {@link Class} (primitive or wrapper) to the matching {@link ExprType}.
      */
     private static ExprType exprTypeFromClass(final Class<?> c) {
         if (c == int.class || c == Integer.class) {
@@ -1435,59 +1737,39 @@ final class LALValueCodegen {
         if (c == boolean.class || c == Boolean.class) {
             return ExprType.BOOLEAN;
         }
+        if (c == BigDecimal.class) {
+            return ExprType.DECIMAL;
+        }
         return ExprType.OBJECT;
     }
 
-    /**
-     * Walk a {@code parsed.*} field-segment chain over the typed proto root
-     * via reflection, returning the primitive return type of the final getter
-     * if the chain is field-only and ends at a primitive accessor; {@code null}
-     * otherwise.
-     */
-    private static Class<?> walkProtoChainPrimitiveType(
-            final List<LALScriptModel.ValueAccessSegment> chain,
-            final Class<?> rootType) {
-        if (chain == null || chain.isEmpty()) {
-            return null;
-        }
-        Class<?> currentType = rootType;
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            if (!(seg instanceof LALScriptModel.FieldSegment)) {
-                return null;
-            }
-            final String field = ((LALScriptModel.FieldSegment) seg).getName();
-            final String getter = "get" + Character.toUpperCase(field.charAt(0))
-                + field.substring(1);
-            try {
-                currentType = currentType.getMethod(getter).getReturnType();
-            } catch (NoSuchMethodException e) {
-                return null;
-            }
-        }
-        return currentType.isPrimitive() ? currentType : null;
-    }
-
-    private static ExprType castToType(final String cast) {
-        if ("Integer".equals(cast)) {
+    static ExprType castToType(final String cast) {
+        if ("Integer".equals(cast) || "int".equals(cast)) {
             return ExprType.INT;
         }
-        if ("Long".equals(cast)) {
+        if ("Long".equals(cast) || "long".equals(cast)) {
             return ExprType.LONG;
         }
-        if ("Float".equals(cast)) {
+        if ("Float".equals(cast) || "float".equals(cast)) {
             return ExprType.FLOAT;
         }
-        if ("Double".equals(cast)) {
+        if ("Double".equals(cast) || "double".equals(cast)) {
             return ExprType.DOUBLE;
         }
         if ("String".equals(cast)) {
             return ExprType.STRING;
         }
-        if ("Boolean".equals(cast)) {
+        if ("Boolean".equals(cast) || "boolean".equals(cast)) {
             return ExprType.BOOLEAN;
         }
         return ExprType.UNKNOWN;
+    }
+
+    /**
+     * A primitive cast's conversion as an object: never null, as a null fails it (a boolean's is false).
+     */
+    private static String primitiveCastObject(final ExprType castET, final String raw) {
+        return castET.wrapperName + ".valueOf(" + castET.runtimeHelper + "(" + raw + "))";
     }
 
     /**
@@ -1502,19 +1784,23 @@ final class LALValueCodegen {
         for (int i = 1; i < parts.size(); i++) {
             final ExprType rhs = inferType(parts.get(i), genCtx);
             final LALScriptModel.BinaryOp op = ops.get(i - 1);
-            if (op == LALScriptModel.BinaryOp.PLUS
-                    && (acc == ExprType.STRING || rhs == ExprType.STRING)) {
+            if (op == LALScriptModel.BinaryOp.PLUS && (acc == ExprType.STRING || rhs == ExprType.STRING)) {
                 acc = ExprType.STRING;
                 continue;
             }
-            if (acc.isNumeric() && rhs.isNumeric()) {
-                acc = promote(acc, rhs);
+            if (isWholeOrDecimal(acc) && isWholeOrDecimal(rhs)
+                    && (op == LALScriptModel.BinaryOp.SLASH || acc == ExprType.DECIMAL || rhs == ExprType.DECIMAL)) {
+                acc = ExprType.DECIMAL;
                 continue;
             }
-            // Anything else for + (object + object) → fallback to string concat
-            // (preserves long-standing behaviour for `tag("a") + tag("b")` etc.).
+            if ((acc.isNumeric() || acc == ExprType.DECIMAL) && (rhs.isNumeric() || rhs == ExprType.DECIMAL)) {
+                // A decimal with a float or double computes in double, as Groovy's.
+                acc = acc == ExprType.DECIMAL || rhs == ExprType.DECIMAL ? ExprType.DOUBLE : promote(acc, rhs);
+                continue;
+            }
+            // A `+` on a value whose type is known only at run time: Groovy's plus decides then.
             if (op == LALScriptModel.BinaryOp.PLUS) {
-                acc = ExprType.STRING;
+                acc = ExprType.OBJECT;
                 continue;
             }
             // - * / on non-numeric — caller emits a compile error.
@@ -1536,26 +1822,56 @@ final class LALValueCodegen {
             final List<LALScriptModel.ValueAccess> parts,
             final List<LALScriptModel.BinaryOp> ops,
             final LALClassGenerator.GenCtx genCtx) {
-        // Render the first operand and seed the accumulator with its type.
+        // Render the first operand and start the accumulator with its type.
         ExprType accType = inferType(parts.get(0), genCtx);
         final StringBuilder accBuf = new StringBuilder();
         appendOperandRaw(accBuf, parts.get(0), accType, genCtx);
         String accExpr = accBuf.toString();
+        // The first operand alone, while nothing has been combined with it: a nullable number that a
+        // concatenation or a run-time plus takes as an object, so its null reads "null" as in Groovy.
+        LALScriptModel.ValueAccess accOperand = genCtx.lastNullChecks != null ? parts.get(0) : null;
 
         for (int i = 1; i < parts.size(); i++) {
             final LALScriptModel.BinaryOp op = ops.get(i - 1);
             final ExprType rhsType = inferType(parts.get(i), genCtx);
             final StringBuilder rhsBuf = new StringBuilder();
             appendOperandRaw(rhsBuf, parts.get(i), rhsType, genCtx);
-            final String rhsExpr = rhsBuf.toString();
+            String rhsExpr = rhsBuf.toString();
+            final boolean rhsNullable = genCtx.lastNullChecks != null;
 
+            if (isWholeOrDecimal(accType) && isWholeOrDecimal(rhsType)
+                    && (op == LALScriptModel.BinaryOp.SLASH || accType == ExprType.DECIMAL
+                        || rhsType == ExprType.DECIMAL)) {
+                // Groovy divides whole numbers to a BigDecimal (7 / 2 is 3.5), and keeps one in arithmetic with
+                // whole numbers: h.quotient and h.decimal compute it as Groovy's BigDecimalMath does.
+                accExpr = op == LALScriptModel.BinaryOp.SLASH && isIntegral(accType) && isIntegral(rhsType)
+                    ? "h.quotient((long) (" + accExpr + "), (long) (" + rhsExpr + "))"
+                    : "h.decimal(" + boxed(accExpr, accType) + ", \"" + op.symbol() + "\", "
+                        + boxed(rhsExpr, rhsType) + ")";
+                accType = ExprType.DECIMAL;
+                accOperand = null;
+                continue;
+            }
+            if (accType == ExprType.DECIMAL && rhsType.isNumeric() || accType.isNumeric() && rhsType == ExprType.DECIMAL) {
+                // With a float or double, in double, as Groovy's.
+                accExpr = "(" + asDouble(accExpr, accType) + " " + op.symbol() + " " + asDouble(rhsExpr, rhsType) + ")";
+                accType = ExprType.DOUBLE;
+                accOperand = null;
+                continue;
+            }
             if (accType.isNumeric() && rhsType.isNumeric()) {
                 final ExprType promoted = promote(accType, rhsType);
                 final String widenedAcc = widenPrimitiveExpr(accExpr, accType, promoted);
                 final String widenedRhs = widenPrimitiveExpr(rhsExpr, rhsType, promoted);
                 accExpr = "(" + widenedAcc + " " + op.symbol() + " " + widenedRhs + ")";
                 accType = promoted;
+                accOperand = null;
                 continue;
+            }
+            if (op == LALScriptModel.BinaryOp.STAR && (accType == ExprType.STRING || rhsType == ExprType.STRING)) {
+                throw new IllegalArgumentException(
+                    "A string cannot be multiplied: Groovy repeated it ('b' * 2 is 'bb'), LAL does not. Build the "
+                        + "repeated string with + instead, as LAL has no loop");
             }
             if (op != LALScriptModel.BinaryOp.PLUS) {
                 throw new IllegalArgumentException(
@@ -1563,41 +1879,109 @@ final class LALValueCodegen {
                         + "got non-numeric expression. Cast operands with "
                         + "'as Integer/Long/Float/Double' to enable arithmetic.");
             }
-            // String concat path. Java's `+` only accepts the chain when
-            // at least one operand is statically a String; otherwise (e.g.
-            // `int + Object` or `Object + Object`) the source won't even
-            // compile. Prepend a leading `""` whenever neither side is
-            // statically String at the transition point. The numeric
-            // arithmetic prefix is already in parens, so `("" + (1 + 2))`
-            // still computes the sum first ("3"), preserving the
-            // semantics of `1 + 2 + parsed.x` (= "3<obj>").
-            if (accType != ExprType.STRING && rhsType != ExprType.STRING) {
-                accExpr = "\"\" + " + accExpr;
+            final boolean accBoolean = accType == ExprType.BOOLEAN || i == 1 && isBooleanOperand(parts.get(0), genCtx);
+            final boolean rhsBoolean = rhsType == ExprType.BOOLEAN || isBooleanOperand(parts.get(i), genCtx);
+            if (accBoolean || rhsBoolean && accType != ExprType.STRING && accType != ExprType.OBJECT
+                    && accType != ExprType.UNKNOWN) {
+                // Groovy has no plus on a boolean, nor a number's plus taking one; only a string joins one
+                throw new IllegalArgumentException("A boolean takes no part in '+': only a string joins one "
+                    + "(\"x\" + true)");
             }
-            accExpr = accExpr + " + " + rhsExpr;
-            accType = ExprType.STRING;
+            if (i == 1 && rhsType == ExprType.STRING) {
+                // a text joins only onto a text, a number, a character or null; a value of another known type is
+                // refused now, one typed only at run time when the rule runs (h.plus)
+                final Class<?> leftType = staticType(parts.get(0), genCtx);
+                if (!DslNumbers.mayJoinText(leftType)) {
+                    throw DslNumbers.cannotJoinText(leftType);
+                }
+            }
+            final boolean joinsText = accType == ExprType.STRING || rhsType == ExprType.STRING;
+            final Class<?> rhsStatic = joinsText ? staticType(parts.get(i), genCtx) : null;
+            if (DslNumbers.isItems(rhsStatic)) {
+                // an array, a collection or a map is no text, on either side of a text +
+                throw DslNumbers.cannotJoinText(rhsStatic);
+            }
+            final boolean accIsObject = accOperand != null || !accType.isNumeric();
+            if (accOperand != null) {
+                accExpr = objectForm(accOperand, genCtx);
+            }
+            final boolean rhsIsObject = rhsNullable || !rhsType.isNumeric();
+            if (rhsNullable && rhsType.isNumeric()) {
+                rhsExpr = objectForm(parts.get(i), genCtx);
+            }
+            accOperand = null;
+            if (rhsType == ExprType.STRING && (accType == ExprType.OBJECT || accType == ExprType.UNKNOWN)) {
+                // a value typed only at run time beside a string: h.plus refuses a boolean there, else joins
+                accExpr = "((String) h.plus(" + accExpr + ", " + rhsExpr + "))";
+                accType = ExprType.STRING;
+            } else if (accType == ExprType.STRING || rhsType == ExprType.STRING) {
+                // Java concatenates as Groovy's String#plus does; a grouped operand stays grouped (5 + (1 + "ms")).
+                final LALScriptModel.ValueAccess rhsPart = parts.get(i);
+                final boolean grouped = rhsType == ExprType.STRING && (!rhsPart.getConcatParts().isEmpty()
+                    || rhsPart.getParenInner() != null && rhsPart.getParenCast() == null
+                        && !rhsPart.getParenInner().getConcatParts().isEmpty());
+                // a value typed only at run time is checked then: an array, a collection or a map fails
+                final String joined = rhsType == ExprType.OBJECT || rhsType == ExprType.UNKNOWN
+                    ? "h.joined(" + rhsExpr + ")" : rhsExpr;
+                accExpr = accExpr + " + " + (grouped ? "(" + joined + ")" : joined);
+                accType = ExprType.STRING;
+            } else {
+                accExpr = "h.plus(" + (accIsObject ? accExpr : boxed(accExpr, accType)) + ", "
+                    + (rhsIsObject ? rhsExpr : boxed(rhsExpr, rhsType)) + ")";
+                accType = ExprType.OBJECT;
+            }
         }
 
+        genCtx.lastNullChecks = null;
+        genCtx.lastNonNull = accType != ExprType.OBJECT;
         if (accType.isNumeric()) {
             // Expose the primitive form so the caller (numeric comparison)
             // can avoid h.toX() unboxing; emit a boxed form into sb for
             // Object contexts (tag assignments, def initialisers, ...).
             genCtx.lastResolvedType = accType.primitiveClass;
             genCtx.lastRawChain = accExpr;
-            genCtx.lastNullChecks = null;
             sb.append(accType.wrapperName).append(".valueOf(").append(accExpr).append(")");
         } else {
-            // Non-numeric end state: a String concatenation. Update the
+            // A String concatenation, or a run-time plus. Update the
             // genCtx metadata explicitly — otherwise a stale numeric
             // resolved type from an inner operand would leak out and
             // mis-type things like `def msg = "count=" + (tag("n") as Integer)`,
             // which the def codegen reads from lastResolvedType to declare
             // the local variable.
-            genCtx.lastResolvedType = String.class;
+            genCtx.lastResolvedType = accType == ExprType.STRING ? String.class
+                : accType == ExprType.DECIMAL ? BigDecimal.class : Object.class;
             genCtx.lastRawChain = null;
-            genCtx.lastNullChecks = null;
             sb.append(accExpr);
         }
+    }
+
+    private static boolean isIntegral(final ExprType type) {
+        return type == ExprType.INT || type == ExprType.LONG;
+    }
+
+    private static boolean isWholeOrDecimal(final ExprType type) {
+        return isIntegral(type) || type == ExprType.DECIMAL;
+    }
+
+    /**
+     * A numeric operand, or a decimal one, as a double.
+     */
+    private static String asDouble(final String expr, final ExprType type) {
+        return type == ExprType.DECIMAL ? "(" + expr + ").doubleValue()" : "(double) (" + expr + ")";
+    }
+
+    /**
+     * An operand as an object: a nullable number stays null instead of failing its primitive conversion.
+     */
+    private static String objectForm(final LALScriptModel.ValueAccess operand,
+                                     final LALClassGenerator.GenCtx genCtx) {
+        final StringBuilder buf = new StringBuilder();
+        generateValueAccess(buf, operand, genCtx);
+        return buf.toString();
+    }
+
+    private static String boxed(final String expr, final ExprType type) {
+        return type.isNumeric() ? type.wrapperName + ".valueOf(" + expr + ")" : expr;
     }
 
     /**
@@ -1612,27 +1996,15 @@ final class LALValueCodegen {
                                           final LALScriptModel.ValueAccess part,
                                           final ExprType partType,
                                           final LALClassGenerator.GenCtx genCtx) {
+        genCtx.clearExtraLogResult();
         if (part.isNumberLiteral() && part.getChain().isEmpty()) {
-            sb.append(NumericLiteral.parse(part.getSegments().get(0)).javaText);
+            sb.append(LALLiterals.NumericLiteral.parse(part.getSegments().get(0)).javaText);
             return;
         }
         if (part.getParenInner() != null && part.getParenCast() != null
                 && part.getChain().isEmpty() && partType.isNumeric()) {
             generateCastedValueAccess(sb, part.getParenInner(),
                 partType.wrapperName, genCtx);
-            return;
-        }
-        if (part.getParenInner() != null && part.getParenCast() == null
-                && part.getChain().isEmpty()) {
-            final StringBuilder inner = new StringBuilder();
-            generateValueAccessObj(inner, part.getParenInner(), null, genCtx);
-            final Class<?> resolved = genCtx.lastResolvedType;
-            if (partType.isNumeric() && resolved != null && resolved.isPrimitive()
-                    && genCtx.lastRawChain != null) {
-                sb.append(genCtx.lastRawChain);
-            } else {
-                sb.append(inner);
-            }
             return;
         }
         if (!part.getConcatParts().isEmpty()) {
@@ -1647,15 +2019,8 @@ final class LALValueCodegen {
             return;
         }
         if (partType.isNumeric()) {
-            // Render the operand natively, then prefer the primitive raw
-            // chain when one is available — typed-proto safe-nav primitive
-            // leaves go through generateExtraLogAccess which sets
-            // lastRawChain to the unboxed access. Wrapping the boxed
-            // null-safe form with `h.toX()` would silently turn a missing
-            // chain into 0 (h.toInt(null) = 0) instead of letting the
-            // null guard surface — see {@link #generateExtraLogAccess}.
-            // Falls back to {@code h.toX(...)} for untyped operands such
-            // as bare {@code tag()} or {@code parsed.x} on a JSON parser.
+            // The primitive form when the operand has one (a typed-proto ?. leaf's, whose null guard the caller
+            // reads), else the object converted by h.toX, which fails on a null.
             final StringBuilder buf = new StringBuilder();
             generateValueAccess(buf, part, genCtx);
             if (genCtx.lastRawChain != null
@@ -1663,117 +2028,13 @@ final class LALValueCodegen {
                 sb.append(widenPrimitiveExpr(genCtx.lastRawChain,
                     exprTypeFromClass(genCtx.lastResolvedType), partType));
             } else {
-                sb.append(wrapAsPrimitive(buf.toString(), partType));
+                // A boxed number, such as a def's, may be null: a concatenation then takes it as an object.
+                genCtx.lastNullChecks = genCtx.lastNonNull ? null : buf + " == null";
+                genCtx.lastNullCheckOnObject = genCtx.lastNullChecks != null;
+                sb.append(partType.runtimeHelper).append("(").append(buf).append(")");
             }
         } else {
             generateValueAccess(sb, part, genCtx);
         }
-    }
-
-
-    /**
-     * Appends a method call segment to the current expression chain.
-     * Handles safe-navigation ({@code ?.method()}) by wrapping in a null
-     * guard. Special-cases {@code ?.toString()} and {@code ?.trim()} to
-     * use helper methods for null-safe behavior.
-     */
-    static String appendMethodSegment(final String current,
-                                       final LALScriptModel.MethodSegment ms,
-                                       final LALClassGenerator.GenCtx genCtx) {
-        final String mn = ms.getName();
-        final String args = ms.getArguments().isEmpty()
-            ? "" : generateMethodArgs(ms.getArguments(), genCtx);
-        if (ms.isSafeNav()) {
-            // Special-cased helpers for common safe-nav methods on Object
-            if ("toString".equals(mn)) {
-                return "h.toString(" + current + ")";
-            } else if ("trim".equals(mn)) {
-                return "h.trim(" + current + ")";
-            }
-            // General safe-nav: null guard with ternary
-            return "(" + current + " == null ? null : "
-                + current + "." + mn + "(" + args + "))";
-        } else {
-            return current + "." + mn + "(" + args + ")";
-        }
-    }
-
-    /**
-     * Generates the argument list for a method call. Handles string literals,
-     * number literals, boolean/null literals, and def variable references.
-     */
-    static String generateMethodArgs(
-            final List<LALScriptModel.FunctionArg> args,
-            final LALClassGenerator.GenCtx genCtx) {
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < args.size(); i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            final LALScriptModel.FunctionArg arg = args.get(i);
-            final LALScriptModel.ValueAccess va = arg.getValue();
-            // Honour the user's declared cast on the argument
-            // (`substring(tag("n") as Integer)`) — generateCastedValueAccess
-            // emits the matching `h.toX(...)` helper so the call site
-            // sees the requested primitive type, allowing Javassist to
-            // resolve primitive-arg overloads.
-            final String argCast = arg.getCastType();
-            if (argCast != null) {
-                generateCastedValueAccess(sb, va, argCast, genCtx);
-                continue;
-            }
-            // Binary expression node — happens when the user writes
-            // `foo.bar(1 + 2)` etc. Render via the standard value-access
-            // path so arithmetic / string-concat / paren grouping all
-            // work. When the result is a numeric primitive, use the raw
-            // chain form (`(1 + 2)`) instead of the boxed wrapper
-            // (`Integer.valueOf(...)`) — Javassist doesn't auto-unbox
-            // when matching method-arg overloads, so a primitive-arg
-            // method like {@code String.substring(int)} would otherwise
-            // fail to resolve.
-            if (!va.getConcatParts().isEmpty()) {
-                final StringBuilder buf = new StringBuilder();
-                generateValueAccess(buf, va, genCtx);
-                if (genCtx.lastRawChain != null) {
-                    sb.append(genCtx.lastRawChain);
-                } else {
-                    sb.append(buf);
-                }
-                continue;
-            }
-            if (va.isStringLiteral()) {
-                sb.append("\"").append(DslJavaSourceText.toLiteral(
-                    va.getSegments().get(0))).append("\"");
-            } else if (va.isNumberLiteral()) {
-                // Normalise the literal text — e.g. `1f` → `1.0f`, `1d`
-                // → `1.0` — so the emitted Java is unambiguous.
-                sb.append(NumericLiteral.parse(va.getSegments().get(0)).javaText);
-            } else if (!va.getSegments().isEmpty()) {
-                final String text = va.getSegments().get(0);
-                if ("true".equals(text) || "false".equals(text)
-                        || "null".equals(text)) {
-                    // Boolean or null literal
-                    sb.append(text);
-                } else if (genCtx != null
-                        && genCtx.localVars.containsKey(text)) {
-                    // Local def variable reference
-                    sb.append(genCtx.localVars.get(text).javaVarName);
-                } else if (genCtx != null
-                        && (va.isParsedRef() || va.isLogRef()
-                            || !va.getChain().isEmpty()
-                            || va.getFunctionCallName() != null
-                            || va.getParenInner() != null)) {
-                    // tag(), parsed.*, log.*, paren-cast, or any value
-                    // access with a chain — render via the standard path.
-                    generateValueAccess(sb, va, genCtx);
-                } else {
-                    throw new IllegalArgumentException(
-                        "Unknown identifier used as method argument: '" + text + "'");
-                }
-            } else {
-                sb.append("null");
-            }
-        }
-        return sb.toString();
     }
 }

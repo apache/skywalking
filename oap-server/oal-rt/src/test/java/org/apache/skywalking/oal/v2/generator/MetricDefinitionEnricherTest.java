@@ -419,8 +419,8 @@ public class MetricDefinitionEnricherTest {
      */
     @Test
     public void testNumberLiteralAboveIntRangeKeepsItsValue() throws Exception {
-        String longLiteral = MetricDefinitionEnricher.buildNumberLiteral(3_000_000_000L, long.class);
-        String doubleLiteral = MetricDefinitionEnricher.buildNumberLiteral(3_000_000_000L, double.class);
+        String longLiteral = FilterCompiler.buildNumberLiteral(3_000_000_000L, long.class);
+        String doubleLiteral = FilterCompiler.buildNumberLiteral(3_000_000_000L, double.class);
         assertEquals("3000000000L", longLiteral);
         assertEquals("3000000000.0", doubleLiteral);
 

@@ -119,7 +119,10 @@ public class TalDSL {
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new TalDSL(ruleName, expression, filterSpec, inputType);
         } catch (final Exception e) {
-            throw new ModuleStartException("Failed to compile TAL rule " + ruleName, e);
+            // OAP does not boot without the rule: one that does not compile is never skipped.
+            throw new ModuleStartException("TAL rule " + ruleName + " ("
+                + (sourceRef == null ? "unknown file" : sourceRef.describeYaml()) + ") does not compile: "
+                + e.getMessage(), e);
         }
     }
 

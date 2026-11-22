@@ -274,6 +274,12 @@ class LALScriptParserTest {
             () -> LALScriptParser.parse("filter {"));
     }
 
+    @Test
+    void parseUnrecognizedCharacterThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> LALScriptParser.parse("filter { ` sink { } }"));
+    }
+
     // ==================== Function call parsing ====================
 
     @Test

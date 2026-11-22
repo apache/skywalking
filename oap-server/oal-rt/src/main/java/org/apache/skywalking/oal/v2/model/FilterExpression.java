@@ -20,6 +20,7 @@ package org.apache.skywalking.oal.v2.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.Getter;
 
 /**
@@ -32,11 +33,13 @@ import lombok.Getter;
  * name like "serv%"      → fieldName="name", operator="like", value=STRING:"serv%"
  * tag["key"] != null     → fieldName="tag[key]", operator="!=", value=NULL
  * code in [404, 500]     → fieldName="code", operator="in", value=ARRAY:[404,500]
+ * (str-&gt;long)tag["k"] &gt; 0 → fieldName="tag["k"]", castType="(str-&gt;long)", operator="&gt;", value=NUMBER:0
  * </pre>
  */
 @Getter
 public final class FilterExpression {
     private final String fieldName;
+    private final Optional<String> castType;
     private final FilterOperator operator;
     private final FilterValue value;
     private final SourceLocation location;
@@ -53,6 +56,7 @@ public final class FilterExpression {
 
     private FilterExpression(Builder builder) {
         this.fieldName = Objects.requireNonNull(builder.fieldName, "fieldName cannot be null");
+        this.castType = Optional.ofNullable(builder.castType);
         this.operator = Objects.requireNonNull(builder.operator, "operator cannot be null");
         this.value = Objects.requireNonNull(builder.value, "value cannot be null");
         this.location = builder.location != null ? builder.location : SourceLocation.UNKNOWN;
@@ -101,22 +105,24 @@ public final class FilterExpression {
         if (o == null || getClass() != o.getClass()) return false;
         FilterExpression that = (FilterExpression) o;
         return Objects.equals(fieldName, that.fieldName) &&
+            Objects.equals(castType, that.castType) &&
             operator == that.operator &&
             Objects.equals(value, that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fieldName, operator, value);
+        return Objects.hash(fieldName, castType, operator, value);
     }
 
     @Override
     public String toString() {
-        return fieldName + " " + operator.getSymbol() + " " + value;
+        return castType.orElse("") + fieldName + " " + operator.getSymbol() + " " + value;
     }
 
     public static class Builder {
         private String fieldName;
+        private String castType;
         private FilterOperator operator;
         private FilterValue value;
         private SourceLocation location;
@@ -129,6 +135,11 @@ public final class FilterExpression {
 
         public Builder fieldName(String fieldName) {
             this.fieldName = fieldName;
+            return this;
+        }
+
+        public Builder castType(String castType) {
+            this.castType = castType;
             return this;
         }
 
@@ -191,6 +202,23 @@ public final class FilterExpression {
 
         public Builder enumValue(String value) {
             this.value = FilterValue.ofEnum(value);
+            return this;
+        }
+
+        /**
+         * The value set last, as written, with the type detected as {@link #value(Object)} detects it; see
+         * {@link FilterValue#getWrittenForm()}.
+         */
+        public Builder writtenValue(Object written) {
+            this.value = this.value.withWrittenForm(convertToFilterValue(written));
+            return this;
+        }
+
+        /**
+         * The value set last is one the stock matchers refuse, for the reason given.
+         */
+        public Builder refusedValue(String why) {
+            this.value = this.value.refused(why);
             return this;
         }
 

@@ -576,19 +576,19 @@ class TALLanguageAdditionsTest {
         in.setChild(new TestSpanChild("xy"));
         in.getNames().add("four");
         in.setBytes(new byte[] {65, 66});
-        assertEquals("0/xyxy/4/65/65/7", run("filter { extractor {\n"
+        assertEquals("0/xyxy/4/65/ABC/7", run("filter { extractor {\n"
             + "  def c = span.child\n"
             + "  def joined = \"\"\n"
-            + "  foreach (x in c.repeat(2)) {\n"
+            + "  foreach (x in pair(c.label, c.label)) {\n"
             + "    joined = joined + x\n"
             + "  }\n"
             + "  def total = 0\n"
-            + "  foreach (l in c.lengths(span.names)) {\n"
-            + "    total = total + l\n"
+            + "  foreach (l in span.names) {\n"
+            + "    total = total + l.length()\n"
             + "  }\n"
             + "  def s = small()\n"
             + "  service (span.getName().indexOf(97 as Integer) as String) + \"/\" + joined + \"/\" + total"
-            + " + \"/\" + (span.bytes[0] as String) + \"/\" + (span.name.toUpperCase().getBytes()[0] as String)"
+            + " + \"/\" + (span.bytes[0] as String) + \"/\" + span.name.toUpperCase()"
             + " + \"/\" + s\n"
             + "} }", in));
     }
@@ -597,7 +597,7 @@ class TALLanguageAdditionsTest {
     void parenthesizedChainsArraysAndNarrowValuesKeepTheirTypes() throws Exception {
         final TestNestedSpanInput in = input("abc");
         in.setBytes(new byte[] {65});
-        assertEquals("0/98/65/66/8", run("filter {\n"
+        assertEquals("0/b/65/66/8", run("filter {\n"
             + "  if (span.name.charAt(0) != span.name.charAt(0)) { abort {} }\n"
             + "  extractor {\n"
             + "    def bytes = span.bytes\n"
@@ -606,7 +606,7 @@ class TALLanguageAdditionsTest {
             + "      head = chunk[0] as String\n"
             + "    }\n"
             + "    service ((span).getName().indexOf(97 as Integer) as String) + \"/\""
-            + " + ((span.name).substring(1 as Integer).getBytes()[0] as String) + \"/\" + (bytes[0] as String)"
+            + " + ((span.name).substring(1 as Integer).charAt(0) as String) + \"/\" + (bytes[0] as String)"
             + " + \"/\" + head + \"/\" + (small() + 1)\n"
             + "  }\n"
             + "}", in));
@@ -618,13 +618,13 @@ class TALLanguageAdditionsTest {
         final TestNestedSpanInput in = input("x");
         in.setChild(new TestSpanChild("c"));
         assertEquals("3.0/8/byte:5", run("filter {\n"
-            + "  log info \"{}\", (thing()).hashCode()\n"
+            + "  log info \"{}\", (thing()).toString()\n"
             + "  extractor {\n"
             + "    def c = span.child\n"
             + "    service (2 * c.weight) + \"/\" + (boxedSmall() + 1) + \"/\" + takeByte(5)\n"
             + "  }\n"
             + "}", in));
-        assertEquals(String.valueOf("abc".hashCode()), events.get(0).getMessage().getFormattedMessage());
+        assertEquals("abc", events.get(0).getMessage().getFormattedMessage());
     }
 
     @Test
@@ -636,12 +636,13 @@ class TALLanguageAdditionsTest {
             + "  service (span.name.length() + 1) + \"/\" + ((span.name).length() + 1) + \"/\" + readByte(5) + \"/\""
             + " + readShort(6)\n"
             + "} }", input("abc")));
-        assertEquals("text1/4.0/66/3.5/3/8", run("filter { extractor {\n"
+        assertEquals("text1/4.0/66/2.5/3/8", run("filter { extractor {\n"
             + "  def c = span.child\n"
             + "  def bytes = span.bytes\n"
             + "  def n = 2\n"
-            + "  service (c.value(\"x\") + 1) + \"/\" + (c.value(2) + 1) + \"/\" + (bytes[0] + 1) + \"/\""
-            + " + (c.amount + 1) + \"/\" + ((n) + 1) + \"/\" + ((boxedSmall()) + 1)\n"
+            + "  service (span.name.replace(\"x\", \"text\") + 1) + \"/\" + (n.doubleValue() + 2) + \"/\""
+            + " + (bytes[0] + 1) + \"/\""
+            + " + (c.weight + 1) + \"/\" + ((n) + 1) + \"/\" + ((boxedSmall()) + 1)\n"
             + "} }", in));
     }
 

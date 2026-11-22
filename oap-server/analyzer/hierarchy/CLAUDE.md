@@ -34,6 +34,7 @@ oap-server/analyzer/hierarchy/
     HierarchyRuleScriptParser.java              — ANTLR4 facade: expression → AST
     HierarchyRuleModel.java                     — Immutable AST model classes
     HierarchyRuleClassGenerator.java            — Javassist code generator
+    HierarchyCallables.java                     — What a rule may call (its DslCallables list)
     CompiledHierarchyRuleProvider.java          — SPI provider: compiles rule expressions
     hierarchy/rule/rt/
       HierarchyRulePackageHolder.java           — Class loading anchor (empty marker)
@@ -42,8 +43,10 @@ oap-server/analyzer/hierarchy/
     ...HierarchyDefinitionService$HierarchyRuleProvider — SPI registration
 
   src/test/java/.../compiler/
-    HierarchyRuleScriptParserTest.java          — 5 parser tests
-    HierarchyRuleClassGeneratorTest.java        — 4 generator tests
+    HierarchyRuleScriptParserTest.java          — parser / model tests
+    HierarchyRuleClassGeneratorTest.java        — compile-and-run tests
+    HierarchyRuleExecutionTest.java             — data-driven rule cases; pins the copy to the shipped rules
+    HierarchyCallablesGuideTest.java            — every listed call is in the guide
 ```
 
 ## Package & Class Naming
@@ -76,11 +79,33 @@ Falls back to `HierarchyRule_<N>` (global counter) when no hint is set. Hierarch
 **Field access mapping**: Property access in expressions maps to getter methods:
 - `u.name` → `u.getName()`
 - `l.shortName` → `l.getShortName()`
-- Generic: `x.foo` → `x.getFoo()`
+- Generic: `x.foo` → `x.getFoo()`; a boolean field reads `isX` (`u.normal` → `u.isNormal()`)
 
-**Comparison operators**: `==` and `!=` use `java.util.Objects.equals()`. Numeric comparisons (`>`, `<`, `>=`, `<=`) emit direct operators.
+**Comparison operators**: `==` and `!=` use `DslValues.equal(($w) a, ($w) b)` (Groovy equality). An ordering
+(`>`, `<`, `>=`, `<=`) where a string, a character or a boxed number takes part compares
+`DslValues.order(($w) a, ($w) b)` with 0 (a string reads as the number it is, a null orders lowest); between two
+primitive numbers it emits the operator directly.
 
-**Method chains**: `l.shortName.substring(0, l.shortName.lastIndexOf("."))` generates chained Java method calls directly.
+**Method chains**: `l.shortName.substring(0, l.shortName.lastIndexOf("."))` generates chained Java method calls directly,
+each checked against `HierarchyCallables`; an explicit `toString()` of a non-string goes through `DslStrings.text(...)`
+(an array prints as `[a, b]`).
+
+**Groovy semantics or a compile-time error**: the v1 engine was Groovy, so a rule either does what Groovy
+would do or `parse`/`compile` throws `IllegalArgumentException`; nothing is dropped or reinterpreted.
+- `else if` desugars to a nested `if` in the else branch (`if (a) x else { if (b) y else z }`).
+- A bare value used as a condition (`if (u.name)`) goes through Groovy truth, `DslValues.isTruthy(...)`.
+  `return u.name` is coerced the same way; that differs from v1, whose provider required a `Boolean` and threw
+  `ClassCastException` for a non-empty name. `==`/`!=` are Groovy equality, `DslValues.equal(...)`
+  (numbers across types, arrays by content). Operands are boxed with `($w)`: Javassist resolves no overload by boxing.
+- `!` binds tighter than `&&`/`||`; `!a == b` and `!a + b` (Groovy: `(!a) == b`) are rejected — write `!(a == b)`.
+- An integer literal beyond the `int` range is emitted with an `L` suffix, one beyond the `long` range is rejected; a leading-zero integer is octal, as in
+  Groovy (`010` is 8), and `08`/`09` are rejected. A string or a character (the one-character string it is) against a number reads as the number it is.
+- `+`/`-` share one precedence level and associate left; binary expressions are emitted parenthesized.
+- A string is the text between its quotes, its backslashes kept; `$name` / `${...}` in a double-quoted string (GString
+  interpolation) is rejected, any other `$` is the character.
+- A block that can finish without a `return` is rejected (Groovy would return `null`).
+- Every parse-tree alternative and model type is dispatched explicitly; an unhandled one throws.
+- The parameters are read as `$1`/`$2`, so a rule parameter named `arg0`/`arg1` cannot shadow them.
 
 ## Example
 
@@ -89,9 +114,9 @@ Falls back to `HierarchyRule_<N>` (global counter) when no hint is set. Hierarch
 **Generated `apply()` method**:
 ```java
 public Object apply(Object arg0, Object arg1) {
-  Service u = (Service) arg0;
-  Service l = (Service) arg1;
-  return Boolean.valueOf(java.util.Objects.equals(u.getName(), l.getName()));
+  Service u = (Service) $1;
+  Service l = (Service) $2;
+  return Boolean.valueOf(DslValues.equal(($w) (u.getName()), ($w) (l.getName())));
 }
 ```
 
@@ -100,13 +125,12 @@ public Object apply(Object arg0, Object arg1) {
 **Generated `apply()` method**:
 ```java
 public Object apply(Object arg0, Object arg1) {
-  Service u = (Service) arg0;
-  Service l = (Service) arg1;
+  Service u = (Service) $1;
+  Service l = (Service) $2;
   if (l.getShortName().lastIndexOf(".") > 0) {
-    return Boolean.valueOf(
-        java.util.Objects.equals(
-            u.getName(),
-            l.getShortName().substring(0, l.getShortName().lastIndexOf("."))));
+    return Boolean.valueOf(DslValues.equal(
+        ($w) (u.getName()),
+        ($w) (l.getShortName().substring(0, l.getShortName().lastIndexOf(".")))));
   }
   return Boolean.valueOf(false);
 }
@@ -159,5 +183,5 @@ Used by `HierarchyRuleComparisonTest`.
 
 Grammar, compiler, and runtime are merged into this module:
 - ANTLR4 grammar → generates lexer/parser at build time
-- `server-core` — `Service` type
+- `server-core` — `Service` type, and the shared DSL helpers the generated code calls (`DslValues`, `DslStrings`)
 - `javassist` — bytecode generation

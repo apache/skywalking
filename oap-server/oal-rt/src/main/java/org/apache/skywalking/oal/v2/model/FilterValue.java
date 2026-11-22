@@ -42,6 +42,7 @@ import lombok.Getter;
  * name like "serv%"          → STRING: "serv%"
  * type == RequestType.MQ     → ENUM: RequestType.MQ
  * code in [404, 500, 503]    → ARRAY: [404L, 500L, 503L]
+ * type in [RequestType.MQ]   → ARRAY: [ENUM: RequestType.MQ], each constant an ENUM value, so a quoted "a.b" stays a string
  * tag["key"] != null         → NULL
  * </pre>
  */
@@ -49,10 +50,35 @@ import lombok.Getter;
 public final class FilterValue {
     private final ValueType type;
     private final Object value;
+    /**
+     * The value as written, where that differs in kind or form (a number written with an L or a _, or out of the long
+     * range, is its text, a list's items are their text, a string keeps its escapes): what a matcher registered in
+     * place of the stock one receives. Null when there is none; it takes no part in equality.
+     */
+    private final FilterValue writtenForm;
+    /**
+     * Why the stock matchers refuse the value as written (a number out of the long range, a leading 0), raised only
+     * when a stock matcher takes it: a matcher registered in place of one gets the written form. Null when none.
+     */
+    private final String refusal;
 
     private FilterValue(ValueType type, Object value) {
+        this(type, value, null, null);
+    }
+
+    private FilterValue(ValueType type, Object value, FilterValue writtenForm, String refusal) {
         this.type = Objects.requireNonNull(type, "type cannot be null");
         this.value = value;
+        this.writtenForm = writtenForm;
+        this.refusal = refusal;
+    }
+
+    public FilterValue withWrittenForm(FilterValue written) {
+        return new FilterValue(type, value, written, refusal);
+    }
+
+    public FilterValue refused(String why) {
+        return new FilterValue(type, value, writtenForm, why);
     }
 
     // Factory methods for each type

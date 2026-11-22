@@ -29,10 +29,14 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.UnexpectedException;
@@ -102,10 +106,23 @@ public class TALConfigs {
      * @param fileName the rule file's name, with or without a YAML extension
      */
     public static void stampSource(final TALConfig config, final String fileName) {
-        final String canonical = fileName.endsWith(".yaml") || fileName.endsWith(".yml")
-            ? fileName : fileName + ".yaml";
-        config.setSourceName(canonical);
-        config.setSourcePath(TAL_CATALOG + canonical);
+        stampVerbatim(config, isYamlName(fileName) ? fileName : fileName + ".yaml");
+    }
+
+    /**
+     * @return whether the file name ends with {@code .yaml} or {@code .yml}, in any case
+     */
+    private static boolean isYamlName(final String fileName) {
+        final String lower = fileName.toLowerCase(Locale.ROOT);
+        return lower.endsWith(".yaml") || lower.endsWith(".yml");
+    }
+
+    /**
+     * A file read from disk is named as it is, {@code pay.conf} and an extensionless {@code payments} included.
+     */
+    private static void stampVerbatim(final TALConfig config, final String fileName) {
+        config.setSourceName(fileName);
+        config.setSourcePath(TAL_CATALOG + fileName);
     }
 
     /**
@@ -163,18 +180,11 @@ public class TALConfigs {
 
             final Map<String, byte[]> diskBytes = new HashMap<>();
             final Map<String, String> sourceFileName = new HashMap<>();
-            for (final File f : rules) {
-                if (!f.isFile()) {
-                    continue;
-                }
-                //noinspection UnstableApiUsage
-                final String ruleName = getNameWithoutExtension(f.getName());
-                if (!files.contains(ruleName)) {
-                    continue;
-                }
+            for (final Map.Entry<String, File> selected : selectRuleFiles(path, rules, files).entrySet()) {
+                final File f = selected.getValue();
+                sourceFileName.put(selected.getKey(), f.getName());
                 try {
-                    diskBytes.put(ruleName, Files.readAllBytes(f.toPath()));
-                    sourceFileName.put(ruleName, f.getName());
+                    diskBytes.put(selected.getKey(), Files.readAllBytes(f.toPath()));
                 } catch (final IOException ioe) {
                     log.warn("TAL rule file {} cannot be read; its rules are not loaded", f, ioe);
                 }
@@ -203,8 +213,9 @@ public class TALConfigs {
             for (final Map.Entry<String, byte[]> e : entries) {
                 final String ruleName = e.getKey();
                 try {
-                    final TALConfigs configs = parse(
-                        ruleName, e.getValue(), sourceFileName.getOrDefault(ruleName, ruleName + ".yaml"), manager);
+                    final String diskName = sourceFileName.get(ruleName);
+                    final TALConfigs configs = parse(ruleName, e.getValue(),
+                        diskName != null ? diskName : ruleName + ".yaml", manager, diskName != null);
                     if (configs != null) {
                         out.add(configs);
                     }
@@ -233,11 +244,14 @@ public class TALConfigs {
             return modules;
         }
         try {
-            for (final File f : ResourceUtils.getPathFiles(path)) {
-                //noinspection UnstableApiUsage
-                if (!f.isFile() || !files.contains(getNameWithoutExtension(f.getName()))) {
-                    continue;
-                }
+            final Map<String, File> selected;
+            try {
+                selected = selectRuleFiles(path, ResourceUtils.getPathFiles(path), files);
+            } catch (final ModuleStartException e) {
+                log.debug("TAL rule files not read for their requiredModules: {}", e.getMessage());
+                return modules;
+            }
+            for (final File f : selected.values()) {
                 try (Reader reader = new InputStreamReader(
                     new ByteArrayInputStream(Files.readAllBytes(f.toPath())), StandardCharsets.UTF_8)) {
                     final Object loaded = new Yaml().load(reader);
@@ -254,6 +268,54 @@ public class TALConfigs {
             log.debug("TAL rule directory {} not found while reading requiredModules", path, e);
         }
         return modules;
+    }
+
+    /**
+     * The file each listed name reads: the one file named {@code <name>.<extension>}, as ever; of several, the one
+     * {@code .yaml} or {@code .yml} file, in any case, the others, such as an editor's {@code <name>.yaml~}, left
+     * with a warning; and when that leaves no single file, a boot failure naming them all, as one would otherwise
+     * replace the other in whatever order the directory lists them.
+     *
+     * @param path  the rule directory, for messages
+     * @param files every file in it
+     * @param names the listed names
+     * @return each listed name that has a file, to that file
+     * @throws ModuleStartException when a name has several candidate files
+     */
+    private static Map<String, File> selectRuleFiles(final String path, final File[] files, final List<String> names)
+        throws ModuleStartException {
+        final Map<String, List<File>> byName = new TreeMap<>();
+        for (final File f : files) {
+            //noinspection UnstableApiUsage
+            final String name = getNameWithoutExtension(f.getName());
+            if (f.isFile() && names.contains(name)) {
+                byName.computeIfAbsent(name, n -> new ArrayList<>()).add(f);
+            }
+        }
+        final Map<String, File> selected = new LinkedHashMap<>();
+        for (final Map.Entry<String, List<File>> entry : byName.entrySet()) {
+            final List<File> candidates = entry.getValue();
+            if (candidates.size() == 1) {
+                selected.put(entry.getKey(), candidates.get(0));
+                continue;
+            }
+            final List<File> yaml = new ArrayList<>();
+            for (final File f : candidates) {
+                if (isYamlName(f.getName())) {
+                    yaml.add(f);
+                }
+            }
+            final Set<String> listed = new TreeSet<>();
+            candidates.forEach(f -> listed.add(path + "/" + f.getName()));
+            if (yaml.size() != 1) {
+                throw new ModuleStartException(
+                    "TAL rule files " + listed + " all name the rule file " + entry.getKey() + "; keep one");
+            }
+            log.warn("TAL rule files {} all name the rule file {}; only {} is read", listed, entry.getKey(),
+                     yaml.get(0).getName());
+            selected.put(entry.getKey(), yaml.get(0));
+        }
+        return selected;
     }
 
     /**
@@ -288,9 +350,14 @@ public class TALConfigs {
      */
     public static TALConfigs parse(final String ruleName, final byte[] bytes, final String sourceFileName,
                                    final ModuleManager manager) throws IOException {
+        return parse(ruleName, bytes, sourceFileName, manager, false);
+    }
+
+    private static TALConfigs parse(final String ruleName, final byte[] bytes, final String sourceFileName,
+                                    final ModuleManager manager, final boolean verbatim) throws IOException {
         try (Reader reader = new InputStreamReader(new ByteArrayInputStream(bytes), StandardCharsets.UTF_8)) {
             final TALConfigs configs = new Yaml().loadAs(reader, TALConfigs.class);
-            if (configs == null || configs.getRules() == null) {
+            if (configs == null) {
                 return null;
             }
             if (!configs.requiredModulesLoaded(manager)) {
@@ -298,12 +365,20 @@ public class TALConfigs {
                          ruleName, configs.getRequiredModules());
                 return null;
             }
+            // A file of layerDefinitions alone still declares them.
             registerInlineLayers(ruleName, configs);
+            if (configs.getRules() == null) {
+                return null;
+            }
             final DslYamlLineIndex lineIndex =
                 DslYamlLineIndex.index(new String(bytes, StandardCharsets.UTF_8), "rules");
             for (int i = 0; i < configs.getRules().size(); i++) {
                 final TALConfig config = configs.getRules().get(i);
-                stampSource(config, sourceFileName);
+                if (verbatim) {
+                    stampVerbatim(config, sourceFileName);
+                } else {
+                    stampSource(config, sourceFileName);
+                }
                 config.setLineNo(lineIndex.rule(i).getEntryLine());
                 config.setMetricPrefix(configs.getMetricPrefix());
             }

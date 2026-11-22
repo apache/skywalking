@@ -405,7 +405,11 @@ final class CheckerFixtures {
                     .addAllTags(tags("cache.type", "redis", "cache.cmd", "GET", "cache.op", "READ")))),
             fixture("mq-latency-blank", mqConsumer("trace-55", "seg-55", "")),
             fixture("mq-latency-signed", mqConsumer("trace-56", "seg-56", "-5")),
-            fixture("mq-latency-padded", mqConsumer("trace-57", "seg-57", " 7 ")),
+            fixture("mq-latency-padded", mqConsumer("trace-57", "seg-57", " 7 "))
+                .differs(CheckerDifference.PADDED_NUMBER_TRIMMED)
+                .twin(mqConsumer("trace-57", "seg-57", "7"),
+                    // The span keeps its tag as received, the padding included.
+                    "\"transmission.latency\"=\"7\"", "\"transmission.latency\"=\" 7 \""),
             fixture("mq-latency-overflowing", mqConsumer("trace-58", "seg-58", "99999999999999999999")),
             fixture("mq-latency-invalid-before-valid", segment("shipping", "shipping-1", "trace-59", "seg-59",
                 entry(0, -1, "Kafka/orders/Consumer/group-1", SpanLayer.MQ, 41)

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -131,6 +132,9 @@ final class MALExprCodegen {
         varCounter = 0;
         closureFieldIndex = 0;
         declaredVars.clear();
+        if (exactConstant(ast) != null) {
+            throw new IllegalArgumentException("An expression of constants only has no sample family to produce");
+        }
         final StringBuilder sb = new StringBuilder();
         sb.append("public ").append(SF)
           .append(" run(java.util.Map samples) {\n");
@@ -153,6 +157,15 @@ final class MALExprCodegen {
      */
     String emitExpr(final StringBuilder sb,
                      final MALExpressionModel.Expr expr) {
+        // Where a sample family is due, a number is EMPTY: (2).multiply(3), count(1 + 2), (1 + 2).sum(...).
+        if (exactConstant(expr) != null) {
+            throw new IllegalArgumentException("A number is no sample family; a method or function on it computes"
+                + " nothing: " + describe(expr));
+        }
+        if (expr instanceof MALExpressionModel.ParenChainExpr
+            && exactConstant(((MALExpressionModel.ParenChainExpr) expr).getInner()) != null) {
+            throw new IllegalArgumentException("A method on a number computes nothing in MAL: " + describe(expr));
+        }
         if (expr instanceof MALExpressionModel.MetricExpr) {
             return emitMetricExpr(sb, (MALExpressionModel.MetricExpr) expr);
         } else if (expr instanceof MALExpressionModel.NumberExpr) {
@@ -344,7 +357,7 @@ final class MALExprCodegen {
                 if (i > 1) {
                     sb.append(", ");
                 }
-                chainCodegen.generateArgument(sb, var, args.get(i));
+                chainCodegen.generateArgument(sb, var, args.get(i), false);
             }
             sb.append(");\n");
         } else {
@@ -355,7 +368,7 @@ final class MALExprCodegen {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                chainCodegen.generateArgument(sb, var, args.get(i));
+                chainCodegen.generateArgument(sb, var, args.get(i), false);
             }
             sb.append(");\n");
         }
@@ -380,14 +393,139 @@ final class MALExprCodegen {
      * Whether the expression is a scalar (number literal or scalar function like {@code time()}).
      */
     static boolean isScalar(final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.NumberExpr) {
+        if (constantValue(expr) != null) {
             return true;
         }
-        if (expr instanceof MALExpressionModel.FunctionCallExpr) {
-            return "time".equals(
-                ((MALExpressionModel.FunctionCallExpr) expr).getFunctionName());
+        if (expr instanceof MALExpressionModel.FunctionCallExpr
+                && "time".equals(((MALExpressionModel.FunctionCallExpr) expr).getFunctionName())) {
+            final MALExpressionModel.FunctionCallExpr time = (MALExpressionModel.FunctionCallExpr) expr;
+            if (!time.getArguments().isEmpty() || !time.getMethodChain().isEmpty()) {
+                throw new IllegalArgumentException("time() takes no arguments and no method calls");
+            }
+            return true;
+        }
+        // Arithmetic over scalars is a scalar: time() * 1000, -time()
+        if (expr instanceof MALExpressionModel.UnaryNegExpr) {
+            return isScalar(((MALExpressionModel.UnaryNegExpr) expr).getOperand());
+        }
+        if (expr instanceof MALExpressionModel.ParenChainExpr
+                && ((MALExpressionModel.ParenChainExpr) expr).getMethodChain().isEmpty()) {
+            return isScalar(((MALExpressionModel.ParenChainExpr) expr).getInner());
+        }
+        if (expr instanceof MALExpressionModel.BinaryExpr) {
+            final MALExpressionModel.BinaryExpr bin = (MALExpressionModel.BinaryExpr) expr;
+            return isScalar(bin.getLeft()) && isScalar(bin.getRight());
         }
         return false;
+    }
+
+    /**
+     * The value of an expression of number literals only ({@code -1}, {@code (1 + 1)}), or null. It is a scalar as a
+     * single literal is; emitted as a sample family it would be EMPTY, and {@code metric * -1} EMPTY too.
+     */
+    static Double constantValue(final MALExpressionModel.Expr expr) {
+        final Constant constant = exactConstant(expr);
+        return constant == null ? null : constant.value.doubleValue();
+    }
+
+    /**
+     * A constant as Groovy computes it: integers as int (or long past the int range), a decimal literal or a
+     * quotient as an exact decimal. The generated code takes the double of the exact result, as a number meeting a
+     * sample family is; a result Groovy would compute differently (an int overflow, a quotient with no exact
+     * decimal) is refused.
+     */
+    static final class Constant {
+        final BigDecimal value;
+        /** Groovy holds it as an Integer or Long, which an int or long parameter takes. */
+        final boolean integral;
+
+        Constant(final BigDecimal value, final boolean integral) {
+            this.value = value;
+            this.integral = integral;
+        }
+    }
+
+    static Constant exactConstant(final MALExpressionModel.Expr expr) {
+        if (expr instanceof MALExpressionModel.NumberExpr) {
+            final MALExpressionModel.NumberExpr number = (MALExpressionModel.NumberExpr) expr;
+            // The literal as written (1.0000000000000001), not its double.
+            return new Constant(number.getExact(), number.isIntegral());
+        }
+        if (expr instanceof MALExpressionModel.UnaryNegExpr) {
+            final Constant operand = exactConstant(((MALExpressionModel.UnaryNegExpr) expr).getOperand());
+            if (operand == null) {
+                return null;
+            }
+            final BigDecimal negated = operand.value.negate();
+            if (operand.integral && (fitsInt(operand.value) && !fitsInt(negated) || !fitsLong(negated))) {
+                throw new IllegalArgumentException("Negating the constant " + operand.value
+                    + " overflows as Groovy computes it");
+            }
+            return new Constant(negated, operand.integral);
+        }
+        if (expr instanceof MALExpressionModel.ParenChainExpr
+                && ((MALExpressionModel.ParenChainExpr) expr).getMethodChain().isEmpty()) {
+            return exactConstant(((MALExpressionModel.ParenChainExpr) expr).getInner());
+        }
+        if (!(expr instanceof MALExpressionModel.BinaryExpr)) {
+            return null;
+        }
+        final MALExpressionModel.BinaryExpr bin = (MALExpressionModel.BinaryExpr) expr;
+        final Constant left = exactConstant(bin.getLeft());
+        final Constant right = exactConstant(bin.getRight());
+        if (left == null || right == null) {
+            return null;
+        }
+        if (bin.getOp() == MALExpressionModel.ArithmeticOp.DIV) {
+            if (right.value.signum() == 0) {
+                throw new IllegalArgumentException("Division by zero in a constant expression");
+            }
+            try {
+                return new Constant(left.value.divide(right.value), false);
+            } catch (final ArithmeticException e) {
+                throw new IllegalArgumentException("The constant quotient " + left.value + " / " + right.value
+                    + " has no exact decimal, which Groovy rounds differently; write the value", e);
+            }
+        }
+        final BigDecimal result;
+        switch (bin.getOp()) {
+            case ADD:
+                result = left.value.add(right.value);
+                break;
+            case SUB:
+                result = left.value.subtract(right.value);
+                break;
+            case MUL:
+                result = left.value.multiply(right.value);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported op: " + bin.getOp());
+        }
+        if (left.integral && right.integral) {
+            final boolean ints = fitsInt(left.value) && fitsInt(right.value);
+            if (ints && !fitsInt(result) || !fitsLong(result)) {
+                throw new IllegalArgumentException("The constant " + left.value + " " + bin.getOp() + " "
+                    + right.value + " overflows " + (ints ? "int" : "long") + " as Groovy computes it");
+            }
+            return new Constant(result, true);
+        }
+        return new Constant(result, false);
+    }
+
+    private static String describe(final MALExpressionModel.Expr expr) {
+        final Constant constant = exactConstant(expr instanceof MALExpressionModel.ParenChainExpr
+            ? ((MALExpressionModel.ParenChainExpr) expr).getInner() : expr);
+        return constant == null ? expr.getClass().getSimpleName() : constant.value.toPlainString();
+    }
+
+    private static boolean fitsInt(final BigDecimal value) {
+        return value.compareTo(BigDecimal.valueOf(Integer.MIN_VALUE)) >= 0
+            && value.compareTo(BigDecimal.valueOf(Integer.MAX_VALUE)) <= 0;
+    }
+
+    private static boolean fitsLong(final BigDecimal value) {
+        return value.compareTo(BigDecimal.valueOf(Long.MIN_VALUE)) >= 0
+            && value.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) <= 0;
     }
 
     /**
@@ -396,9 +534,9 @@ final class MALExprCodegen {
      */
     private void emitScalarAsNumber(final StringBuilder sb,
                                      final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.NumberExpr) {
-            MALCodegenHelper.emitNumberValueOf(
-                sb, ((MALExpressionModel.NumberExpr) expr).getValue());
+        final Double constant = constantValue(expr);
+        if (constant != null) {
+            MALCodegenHelper.emitNumberValueOf(sb, constant);
         } else {
             sb.append("Double.valueOf(");
             emitScalarRaw(sb, expr);
@@ -409,12 +547,57 @@ final class MALExprCodegen {
     /**
      * Emits a raw scalar value (unboxed): number literal or {@code time()} call.
      */
-    private void emitScalarRaw(final StringBuilder sb,
-                                final MALExpressionModel.Expr expr) {
-        if (expr instanceof MALExpressionModel.NumberExpr) {
-            sb.append(((MALExpressionModel.NumberExpr) expr).getValue());
-        } else if (isScalar(expr)) {
+    static void emitScalarRaw(final StringBuilder sb,
+                              final MALExpressionModel.Expr expr) {
+        final Double constant = constantValue(expr);
+        if (constant != null) {
+            sb.append(constant.doubleValue());
+        } else if (expr instanceof MALExpressionModel.FunctionCallExpr && isScalar(expr)) {
             sb.append("(double) java.time.Instant.now().getEpochSecond()");
+        } else if (expr instanceof MALExpressionModel.UnaryNegExpr && isScalar(expr)) {
+            sb.append("(-");
+            emitScalarRaw(sb, ((MALExpressionModel.UnaryNegExpr) expr).getOperand());
+            sb.append(')');
+        } else if (expr instanceof MALExpressionModel.ParenChainExpr && isScalar(expr)) {
+            emitScalarRaw(sb, ((MALExpressionModel.ParenChainExpr) expr).getInner());
+        } else if (expr instanceof MALExpressionModel.BinaryExpr && isScalar(expr)) {
+            final MALExpressionModel.BinaryExpr bin = (MALExpressionModel.BinaryExpr) expr;
+            if (bin.getOp() == MALExpressionModel.ArithmeticOp.DIV && constantValue(bin.getRight()) == null) {
+                // a divisor read at run time (time() - time()) may be zero: throws, as Groovy
+                sb.append(MALCodegenHelper.RUNTIME_HELPER_FQCN).append(".scalarDivide(");
+                emitScalarRaw(sb, bin.getLeft());
+                sb.append(", ");
+                emitScalarRaw(sb, bin.getRight());
+                sb.append(')');
+                return;
+            }
+            sb.append('(');
+            emitScalarRaw(sb, bin.getLeft());
+            switch (bin.getOp()) {
+                case ADD:
+                    sb.append(" + ");
+                    break;
+                case SUB:
+                    sb.append(" - ");
+                    break;
+                case MUL:
+                    sb.append(" * ");
+                    break;
+                case DIV:
+                    if (Double.valueOf(0).equals(constantValue(bin.getRight()))
+                        || Double.valueOf(-0.0).equals(constantValue(bin.getRight()))) {
+                        // Groovy throws dividing time() by zero; a double would give Infinity
+                        throw new IllegalArgumentException("Division by zero");
+                    }
+                    sb.append(" / ");
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unsupported op: " + bin.getOp());
+            }
+            emitScalarRaw(sb, bin.getRight());
+            sb.append(')');
+        } else {
+            throw new IllegalArgumentException("Not a scalar: " + expr.getClass().getSimpleName());
         }
     }
 }

@@ -22,15 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.Interval;
 import org.apache.skywalking.oal.rt.grammar.OALParser;
 import org.apache.skywalking.oal.rt.grammar.OALParserBaseListener;
 import org.apache.skywalking.oal.v2.model.FilterExpression;
 import org.apache.skywalking.oal.v2.model.FilterOperator;
+import org.apache.skywalking.oal.v2.model.FilterValue;
+import org.apache.skywalking.oal.v2.model.FunctionArgument;
 import org.apache.skywalking.oal.v2.model.FunctionCall;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.apache.skywalking.oal.v2.model.SourceLocation;
 import org.apache.skywalking.oal.v2.model.SourceReference;
+import org.apache.skywalking.oal.v2.util.TypeCastUtil;
 
 /**
  * V2 implementation of OAL listener that converts ANTLR parse tree to V2 immutable models.
@@ -77,6 +81,8 @@ public class OALListenerV2 extends OALParserBaseListener {
 
     // Current parsing context
     private MetricDefinition.Builder currentMetric;
+    /** The metric a rule-check error names, while its statement is walked. */
+    private String currentMetricName;
     private SourceReference.Builder currentSource;
     private FunctionCall.Builder currentFunction;
     private FilterExpression.Builder currentFilter;
@@ -93,6 +99,7 @@ public class OALListenerV2 extends OALParserBaseListener {
         // Set metric name
         String varName = ctx.variable().getText();
         currentMetric.name(varName);
+        currentMetricName = varName;
         currentMetric.tableName(varName);
 
         // Set source location
@@ -103,6 +110,15 @@ public class OALListenerV2 extends OALParserBaseListener {
 
     @Override
     public void exitMetricStatement(OALParser.MetricStatementContext ctx) {
+        final List<OALParser.SourceAttributeStmtContext> attributes = ctx.sourceAttributeStmt();
+        if (attributes.size() > 1) {
+            for (final OALParser.SourceAttributeStmtContext attribute : attributes) {
+                if (attribute.sourceAttribute().ALL() != null) {
+                    throw error(attribute.getStart(), "from(" + ctx.source().getText()
+                        + "...) takes either * or an attribute path, not both");
+                }
+            }
+        }
         if (currentMetric != null) {
             // Verbatim "from(SourceName.attr)" / "from(SourceName.*)" slice —
             // ANTLR Interval from the FROM token through the FIRST closing
@@ -132,6 +148,7 @@ public class OALListenerV2 extends OALParserBaseListener {
             currentMetric = null;
             currentSource = null;
         }
+        currentMetricName = null;
     }
 
     @Override
@@ -175,38 +192,29 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String text = ctx.getText();
-
-        // Boolean literal
-        if ("true".equals(text) || "false".equals(text)) {
-            currentFunction.addLiteral(Boolean.parseBoolean(text));
-            return;
-        }
-
-        // String literal (remove quotes)
-        if (text.startsWith("\"") && text.endsWith("\"")) {
-            String str = text.substring(1, text.length() - 1);
-            currentFunction.addLiteral(str);
-            return;
-        }
-
-        // Number literal
-        try {
-            if (text.contains(".")) {
-                currentFunction.addLiteral(Double.parseDouble(text));
-            } else {
-                currentFunction.addLiteral(Long.parseLong(text));
+        if (ctx.BOOL_LITERAL() != null) {
+            currentFunction.addLiteral(Boolean.parseBoolean(ctx.getText()));
+        } else if (ctx.STRING_LITERAL() != null) {
+            currentFunction.addLiteral(TypeCastUtil.decode(ctx.STRING_LITERAL().getText()));
+        } else {
+            final Token number = ctx.NUMBER_LITERAL().getSymbol();
+            final String text = number.getText();
+            try {
+                currentFunction.addArgument(TypeCastUtil.isLongSuffixed(text)
+                    ? FunctionArgument.longLiteral(TypeCastUtil.argumentSpelling(text))
+                    : FunctionArgument.literal(TypeCastUtil.argumentNumber(text)));
+            } catch (IllegalArgumentException e) {
+                throw error(number, e.getMessage());
             }
-        } catch (NumberFormatException e) {
-            currentFunction.addLiteral(text);
         }
     }
 
     @Override
     public void enterAttributeExpression(OALParser.AttributeExpressionContext ctx) {
         if (currentFunction != null) {
-            String attr = ctx.getText();
-            currentFunction.addAttribute(attr);
+            currentFunction.addAttribute(
+                attributePath(ctx.attributeExpressionSegment()),
+                ctx.functionArgCast() == null ? null : ctx.functionArgCast().getText());
         }
     }
 
@@ -241,9 +249,8 @@ public class OALListenerV2 extends OALParserBaseListener {
     @Override
     public void enterDecorateSource(OALParser.DecorateSourceContext ctx) {
         if (currentMetric != null && ctx.STRING_LITERAL() != null) {
-            String decorator = ctx.STRING_LITERAL().getText();
-            decorator = decorator.substring(1, decorator.length() - 1); // Remove quotes
-            currentMetric.decorator(decorator);
+            // As written: the templates paste it into a Java string, which reads its escapes.
+            currentMetric.decorator(TypeCastUtil.unquoted(ctx.STRING_LITERAL().getText()));
         }
     }
 
@@ -258,12 +265,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        boolean value = Boolean.parseBoolean(ctx.booleanConditionValue().getText());
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.EQUAL);
-        currentFilter.booleanValue(value);
+        currentFilter.booleanValue(Boolean.parseBoolean(ctx.booleanConditionValue().getText()));
     }
 
     @Override
@@ -272,21 +276,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String numText = ctx.numberConditionValue().getText();
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.EQUAL);
-
-        try {
-            if (numText.contains(".")) {
-                currentFilter.numberValue(Double.parseDouble(numText));
-            } else {
-                currentFilter.numberValue(Long.parseLong(numText));
-            }
-        } catch (NumberFormatException e) {
-            currentFilter.stringValue(numText);
-        }
+        filterNumber(ctx.numberConditionValue());
     }
 
     @Override
@@ -295,23 +287,13 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-
-        // Could be stringConditionValue, enumConditionValue, or nullConditionValue
+        attribute(ctx.conditionAttributeStmt());
+        currentFilter.operator(FilterOperator.EQUAL);
         if (ctx.stringConditionValue() != null) {
-            String value = ctx.stringConditionValue().getText();
-            value = value.substring(1, value.length() - 1); // Remove quotes
-            currentFilter.fieldName(field);
-            currentFilter.operator(FilterOperator.EQUAL);
-            currentFilter.stringValue(value);
+            filterString(ctx.stringConditionValue());
         } else if (ctx.enumConditionValue() != null) {
-            String value = ctx.enumConditionValue().getText();
-            currentFilter.fieldName(field);
-            currentFilter.operator(FilterOperator.EQUAL);
-            currentFilter.enumValue(value);
-        } else if (ctx.nullConditionValue() != null) {
-            currentFilter.fieldName(field);
-            currentFilter.operator(FilterOperator.EQUAL);
+            currentFilter.enumValue(ctx.enumConditionValue().getText());
+        } else {
             currentFilter.nullValue();
         }
     }
@@ -322,21 +304,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String numText = ctx.numberConditionValue().getText();
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.GREATER);
-
-        try {
-            if (numText.contains(".")) {
-                currentFilter.numberValue(Double.parseDouble(numText));
-            } else {
-                currentFilter.numberValue(Long.parseLong(numText));
-            }
-        } catch (NumberFormatException e) {
-            currentFilter.stringValue(numText);
-        }
+        filterNumber(ctx.numberConditionValue());
     }
 
     @Override
@@ -345,21 +315,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String numText = ctx.numberConditionValue().getText();
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.LESS);
-
-        try {
-            if (numText.contains(".")) {
-                currentFilter.numberValue(Double.parseDouble(numText));
-            } else {
-                currentFilter.numberValue(Long.parseLong(numText));
-            }
-        } catch (NumberFormatException e) {
-            currentFilter.stringValue(numText);
-        }
+        filterNumber(ctx.numberConditionValue());
     }
 
     @Override
@@ -368,21 +326,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String numText = ctx.numberConditionValue().getText();
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.GREATER_EQUAL);
-
-        try {
-            if (numText.contains(".")) {
-                currentFilter.numberValue(Double.parseDouble(numText));
-            } else {
-                currentFilter.numberValue(Long.parseLong(numText));
-            }
-        } catch (NumberFormatException e) {
-            currentFilter.stringValue(numText);
-        }
+        filterNumber(ctx.numberConditionValue());
     }
 
     @Override
@@ -391,21 +337,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String numText = ctx.numberConditionValue().getText();
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.LESS_EQUAL);
-
-        try {
-            if (numText.contains(".")) {
-                currentFilter.numberValue(Double.parseDouble(numText));
-            } else {
-                currentFilter.numberValue(Long.parseLong(numText));
-            }
-        } catch (NumberFormatException e) {
-            currentFilter.stringValue(numText);
-        }
+        filterNumber(ctx.numberConditionValue());
     }
 
     @Override
@@ -414,13 +348,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String value = ctx.stringConditionValue().getText();
-        value = value.substring(1, value.length() - 1); // Remove quotes
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.LIKE);
-        currentFilter.stringValue(value);
+        filterString(ctx.stringConditionValue());
     }
 
     @Override
@@ -429,30 +359,15 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.NOT_EQUAL);
-
-        // Could be numberConditionValue, stringConditionValue, enumConditionValue, or nullConditionValue
         if (ctx.numberConditionValue() != null) {
-            String numText = ctx.numberConditionValue().getText();
-            try {
-                if (numText.contains(".")) {
-                    currentFilter.numberValue(Double.parseDouble(numText));
-                } else {
-                    currentFilter.numberValue(Long.parseLong(numText));
-                }
-            } catch (NumberFormatException e) {
-                currentFilter.stringValue(numText);
-            }
+            filterNumber(ctx.numberConditionValue());
         } else if (ctx.stringConditionValue() != null) {
-            String value = ctx.stringConditionValue().getText();
-            value = value.substring(1, value.length() - 1); // Remove quotes
-            currentFilter.stringValue(value);
+            filterString(ctx.stringConditionValue());
         } else if (ctx.enumConditionValue() != null) {
-            String value = ctx.enumConditionValue().getText();
-            currentFilter.enumValue(value);
-        } else if (ctx.nullConditionValue() != null) {
+            currentFilter.enumValue(ctx.enumConditionValue().getText());
+        } else {
             currentFilter.nullValue();
         }
     }
@@ -463,12 +378,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        boolean value = Boolean.parseBoolean(ctx.booleanConditionValue().getText());
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.NOT_EQUAL);
-        currentFilter.booleanValue(value);
+        currentFilter.booleanValue(Boolean.parseBoolean(ctx.booleanConditionValue().getText()));
     }
 
     @Override
@@ -477,55 +389,76 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.IN);
 
-        // Parse multiConditionValue - we'll collect the array values
-        // The values are parsed by enterNumberConditionValue, enterStringConditionValue, etc.
-        // For now, create an empty array that will be populated by child handlers
-        List<Object> values = new ArrayList<>();
-
-        // Access the multiConditionValue context
-        OALParser.MultiConditionValueContext multiCtx = ctx.multiConditionValue();
-        if (multiCtx != null) {
-            // Parse number values
-            List<OALParser.NumberConditionValueContext> numValues = multiCtx.numberConditionValue();
-            if (numValues != null && !numValues.isEmpty()) {
-                for (OALParser.NumberConditionValueContext numCtx : numValues) {
-                    String numText = numCtx.getText();
-                    try {
-                        if (numText.contains(".")) {
-                            values.add(Double.parseDouble(numText));
-                        } else {
-                            values.add(Long.parseLong(numText));
-                        }
-                    } catch (NumberFormatException e) {
-                        values.add(numText);
-                    }
-                }
-            }
-
-            // Parse string values
-            List<OALParser.StringConditionValueContext> strValues = multiCtx.stringConditionValue();
-            if (strValues != null && !strValues.isEmpty()) {
-                for (OALParser.StringConditionValueContext strCtx : strValues) {
-                    String str = strCtx.getText();
-                    str = str.substring(1, str.length() - 1); // Remove quotes
-                    values.add(str);
-                }
-            }
-
-            // Parse enum values
-            List<OALParser.EnumConditionValueContext> enumValues = multiCtx.enumConditionValue();
-            if (enumValues != null && !enumValues.isEmpty()) {
-                for (OALParser.EnumConditionValueContext enumCtx : enumValues) {
-                    values.add(enumCtx.getText());
-                }
+        // The grammar keeps a list to one kind: numbers, strings or enum constants.
+        final OALParser.MultiConditionValueContext multiCtx = ctx.multiConditionValue();
+        final List<Object> values = new ArrayList<>();
+        String refusal = null;
+        for (final OALParser.NumberConditionValueContext numCtx : multiCtx.numberConditionValue()) {
+            try {
+                values.add(TypeCastUtil.numberValue(numCtx.getText()));
+            } catch (final IllegalArgumentException e) {
+                refusal = refusal == null ? e.getMessage() : refusal;
+                values.add(numCtx.getText());
             }
         }
-
+        for (final OALParser.StringConditionValueContext strCtx : multiCtx.stringConditionValue()) {
+            values.add(TypeCastUtil.decode(strCtx.STRING_LITERAL().getText()));
+        }
+        for (final OALParser.EnumConditionValueContext enumCtx : multiCtx.enumConditionValue()) {
+            values.add(FilterValue.ofEnum(enumCtx.getText()));
+        }
         currentFilter.arrayValue(values);
+        currentFilter.writtenValue(writtenItems(multiCtx));
+        if (refusal != null) {
+            currentFilter.refusedValue(refusal);
+        }
+    }
+
+    /**
+     * A compared number: its value, and as written; one the stock matchers refuse (out of the long range, a leading 0)
+     * fails the compile only where a stock matcher takes it.
+     */
+    private void filterNumber(final OALParser.NumberConditionValueContext ctx) {
+        final Object written = TypeCastUtil.numberAsWritten(ctx.getText());
+        try {
+            currentFilter.numberValue(TypeCastUtil.numberValue(ctx.getText()));
+        } catch (final IllegalArgumentException e) {
+            currentFilter.value(written).refusedValue(e.getMessage());
+        }
+        currentFilter.writtenValue(written);
+    }
+
+    /**
+     * A compared string: decoded, and as written, with no escape decoded, where the two differ.
+     */
+    private void filterString(final OALParser.StringConditionValueContext ctx) {
+        final String quoted = ctx.STRING_LITERAL().getText();
+        currentFilter.stringValue(TypeCastUtil.decode(quoted));
+        final String written = TypeCastUtil.unquoted(quoted);
+        if (written.indexOf('\\') >= 0) {
+            currentFilter.writtenValue(written);
+        }
+    }
+
+    /**
+     * A list's items as written: a number's value, or its text where it has an L or a _; a string's text between its
+     * quotes, unescaped by Java later; a constant's name.
+     */
+    private static List<Object> writtenItems(final OALParser.MultiConditionValueContext multiCtx) {
+        final List<Object> items = new ArrayList<>();
+        for (final OALParser.NumberConditionValueContext numCtx : multiCtx.numberConditionValue()) {
+            items.add(TypeCastUtil.numberAsWritten(numCtx.getText()));
+        }
+        for (final OALParser.StringConditionValueContext strCtx : multiCtx.stringConditionValue()) {
+            items.add(TypeCastUtil.unquoted(strCtx.getText()));
+        }
+        for (final OALParser.EnumConditionValueContext enumCtx : multiCtx.enumConditionValue()) {
+            items.add(enumCtx.getText());
+        }
+        return items;
     }
 
     @Override
@@ -534,13 +467,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String value = ctx.stringConditionValue().getText();
-        value = value.substring(1, value.length() - 1); // Remove quotes
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.CONTAIN);
-        currentFilter.stringValue(value);
+        filterString(ctx.stringConditionValue());
     }
 
     @Override
@@ -549,13 +478,9 @@ public class OALListenerV2 extends OALParserBaseListener {
             return;
         }
 
-        String field = ctx.conditionAttributeStmt().getText();
-        String value = ctx.stringConditionValue().getText();
-        value = value.substring(1, value.length() - 1); // Remove quotes
-
-        currentFilter.fieldName(field);
+        attribute(ctx.conditionAttributeStmt());
         currentFilter.operator(FilterOperator.NOT_CONTAIN);
-        currentFilter.stringValue(value);
+        filterString(ctx.stringConditionValue());
     }
 
     @Override
@@ -568,6 +493,31 @@ public class OALListenerV2 extends OALParserBaseListener {
             currentMetric.addFilter(currentFilter.build());
             currentFilter = null;
         }
+    }
+
+    private void attribute(final OALParser.ConditionAttributeStmtContext ctx) {
+        currentFilter.fieldName(attributePath(ctx.conditionAttribute()));
+        if (ctx.expressionAttrCast() != null) {
+            currentFilter.castType(ctx.expressionAttrCast().getText());
+        }
+    }
+
+    /** The dotted attribute path, without the cast that may precede it. */
+    private static String attributePath(final List<? extends ParserRuleContext> segments) {
+        final StringBuilder path = new StringBuilder();
+        for (final ParserRuleContext segment : segments) {
+            if (path.length() > 0) {
+                path.append('.');
+            }
+            path.append(segment.getText());
+        }
+        return path.toString();
+    }
+
+    private IllegalArgumentException error(final Token token, final String message) {
+        return new IllegalArgumentException(
+            fileName + ":" + token.getLine() + ":" + token.getCharPositionInLine() + " - "
+                + (currentMetricName == null ? "" : currentMetricName + ": ") + message);
     }
 
     /** Verbatim source slice of an ANTLR rule context. */

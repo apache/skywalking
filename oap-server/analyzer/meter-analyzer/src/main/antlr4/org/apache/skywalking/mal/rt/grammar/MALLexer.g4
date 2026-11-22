@@ -98,7 +98,7 @@ IDENTIFIER
 
 // Fragments
 fragment EscapeSequence
-    : '\\' [btnfr"'\\]
+    : '\\' [btnfr"'\\$]
     | '\\' ([0-3]? [0-7])? [0-7]
     ;
 

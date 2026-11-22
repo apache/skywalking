@@ -317,18 +317,16 @@ class TALClassGeneratorTest {
 
     @Test
     void rejectComparingValuesOfDifferentTypes() {
-        assertCompileFails("filter { if (attr(\"code\") > 400) { abort {} } }",
-            "cannot compare a String with a number");
-        assertCompileFails("filter { if (meta.latency == \"5\") { abort {} } }",
-            "cannot compare a number with a String");
+        // A string against a number reads as the number, in an equality too; a boolean does not.
+        assertCompileFails("filter { if (meta.root == \"x\") { abort {} } }",
+            "cannot compare a boolean with a String");
         assertCompileFails("filter { if (meta.root == 1) { abort {} } }",
             "cannot compare a boolean with a number");
     }
 
     @Test
     void rejectOrderingValuesThatAreNotNumbers() {
-        assertCompileFails("filter { if (attr(\"a\") > attr(\"b\")) { abort {} } }",
-            "only numbers are ordered");
+        // A string orders, by the number it reads as or as text; a boolean does not.
         assertCompileFails("filter { if (meta.root >= true) { abort {} } }",
             "only numbers are ordered");
     }

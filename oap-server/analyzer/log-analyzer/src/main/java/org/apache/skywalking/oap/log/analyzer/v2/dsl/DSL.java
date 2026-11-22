@@ -141,8 +141,11 @@ public class DSL {
             final FilterSpec filterSpec = new FilterSpec(moduleManager, config);
             return new DSL(ruleName, expression, filterSpec, effectiveInputType);
         } catch (Exception e) {
+            // Names the rule and where it is, then why: a call outside LAL's list names what is supported.
             throw new ModuleStartException(
-                "Failed to compile LAL expression: " + dsl, e);
+                "Failed to compile LAL rule '" + ruleName + "'"
+                    + (sourceRef != null ? " at " + sourceRef.describeYaml() : "") + ": " + e.getMessage()
+                    + "\n" + dsl, e);
         }
     }
 

@@ -25,17 +25,14 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.skywalking.oal.v2.metadata.FilterMatchers;
 import org.apache.skywalking.oal.v2.metadata.MetricsHolder;
 import org.apache.skywalking.oal.v2.metadata.SourceColumn;
 import org.apache.skywalking.oal.v2.metadata.SourceColumnsFactory;
-import org.apache.skywalking.oal.v2.util.ClassMethodUtil;
 import org.apache.skywalking.oal.v2.util.TypeCastUtil;
 import org.apache.skywalking.oal.v2.model.FilterExpression;
-import org.apache.skywalking.oal.v2.model.FilterOperator;
-import org.apache.skywalking.oal.v2.model.FilterValue;
 import org.apache.skywalking.oal.v2.model.FunctionArgument;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
+import org.apache.skywalking.oap.server.core.analysis.metrics.HistogramMetrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Arg;
 import org.apache.skywalking.oap.server.core.analysis.metrics.annotation.ConstOne;
@@ -81,10 +78,12 @@ public class MetricDefinitionEnricher {
 
     private final String sourcePackage;
     private final String metricsClassPackage;
+    private final FilterCompiler filterCompiler;
 
     public MetricDefinitionEnricher(String sourcePackage, String metricsClassPackage) {
         this.sourcePackage = sourcePackage;
         this.metricsClassPackage = metricsClassPackage;
+        this.filterCompiler = new FilterCompiler(sourcePackage);
     }
 
     /**
@@ -94,6 +93,14 @@ public class MetricDefinitionEnricher {
      * @return enriched code generation model ready for template processing
      */
     public CodeGenModel enrich(MetricDefinition metric) {
+        try {
+            return doEnrich(metric);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(metric.getLocation() + " " + metric.getName() + ": " + e.getMessage(), e);
+        }
+    }
+
+    private CodeGenModel doEnrich(MetricDefinition metric) {
         // 1. Look up metrics function class
         Class<? extends Metrics> metricsClass = MetricsHolder.find(metric.getAggregationFunction().getName());
         String metricsClassName = metricsClass.getSimpleName();
@@ -104,10 +111,12 @@ public class MetricDefinitionEnricher {
 
         // 3. Get source scope ID
         int sourceScopeId = DefaultScopeDefine.valueOf(metric.getSource().getName());
+        Class<?> sourceClass = sourceClass(metric.getSource().getName());
 
         // 4. Find and process entrance method
         Method entranceMethod = findEntranceMethod(metricsClass);
-        CodeGenModel.EntranceMethodV2 entranceMethodV2 = buildEntranceMethod(entranceMethod, metric);
+        CodeGenModel.EntranceMethodV2 entranceMethodV2 =
+            buildEntranceMethod(entranceMethod, metric, metricsClass, sourceClass);
 
         // 5. Collect persistent fields from metrics class
         List<CodeGenModel.DataFieldV2> persistentFields = collectPersistentFields(metricsClass);
@@ -116,8 +125,7 @@ public class MetricDefinitionEnricher {
         CodeGenModel.SerializeFieldsV2 serializeFields = generateSerializeFields(fieldsFromSource, persistentFields);
 
         // 7. Convert filter expressions to template format
-        List<CodeGenModel.FilterExpressionV2> filterExpressions =
-            convertFilters(metric.getFilters(), metric.getSource().getName());
+        List<CodeGenModel.FilterExpressionV2> filterExpressions = convertFilters(metric.getFilters(), sourceClass);
 
         // 8. Build CodeGenModel
         return CodeGenModel.builder()
@@ -163,6 +171,14 @@ public class MetricDefinitionEnricher {
             .build();
     }
 
+    private Class<?> sourceClass(String sourceName) {
+        try {
+            return Class.forName(sourcePackage + sourceName, false, MetricDefinitionEnricher.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("source " + sourceName + " is not a class in " + sourcePackage, e);
+        }
+    }
+
     /**
      * Convert SourceColumn metadata to SourceFieldV2 for code generation.
      *
@@ -204,15 +220,22 @@ public class MetricDefinitionEnricher {
     }
 
     /**
-     * Build entrance method information for dispatcher.
+     * Build entrance method information for dispatcher. The function's arguments fill its {@code @Expression},
+     * {@code @Arg} and {@code @DefaultValue} parameters in order; one left over fails the compile, as it would be
+     * ignored.
      */
-    private CodeGenModel.EntranceMethodV2 buildEntranceMethod(Method entranceMethod, MetricDefinition metric) {
+    private CodeGenModel.EntranceMethodV2 buildEntranceMethod(Method entranceMethod, MetricDefinition metric,
+                                                              Class<? extends Metrics> metricsClass,
+                                                              Class<?> sourceClass) {
         CodeGenModel.EntranceMethodV2.EntranceMethodV2Builder builder = CodeGenModel.EntranceMethodV2.builder()
             .methodName(entranceMethod.getName());
 
+        final String function = metric.getAggregationFunction().getName();
+        final List<FunctionArgument> arguments = metric.getAggregationFunction().getArguments();
         List<Object> argsExpressions = new ArrayList<>();
         List<Integer> argTypes = new ArrayList<>();
         int funcArgIndex = 0;
+        boolean readsSource = false;
 
         for (Parameter parameter : entranceMethod.getParameters()) {
             Class<?> parameterType = parameter.getType();
@@ -226,24 +249,8 @@ public class MetricDefinitionEnricher {
             Annotation annotation = parameterAnnotations[0];
 
             if (annotation instanceof SourceFrom) {
-                // Source attribute from OAL script
-                // Handle nested attributes and map expressions
-                List<String> attributes = metric.getSource().getAttributes();
-                String expression = attributes.isEmpty()
-                    ? "source"
-                    : "source." + ClassMethodUtil.toGetMethod(attributes);
-                String castType = metric.getSource().getCastType().orElse(null);
-                // Cast to match parameter type if needed
-                if (castType != null) {
-                    expression = TypeCastUtil.withCast(castType, expression);
-                } else if (parameterType.equals(int.class)) {
-                    expression = "(int)(" + expression + ")";
-                } else if (parameterType.equals(long.class)) {
-                    expression = "(long)(" + expression + ")";
-                } else if (parameterType.equals(double.class)) {
-                    expression = "(double)(" + expression + ")";
-                }
-                argsExpressions.add(expression);
+                readsSource = true;
+                argsExpressions.add(sourceValue(metric, sourceClass, parameterType));
                 argTypes.add(2); // ATTRIBUTE_EXP_TYPE
             } else if (annotation instanceof ConstOne) {
                 // Match V1 behavior: always wrap in type cast for consistency
@@ -260,79 +267,47 @@ public class MetricDefinitionEnricher {
                 }
                 argTypes.add(1); // LITERAL_TYPE
             } else if (annotation instanceof org.apache.skywalking.oap.server.core.analysis.metrics.annotation.Expression) {
-                // Expression argument - convert V2 filter to expression object
+                // A missing argument would leave the call short of one, and Javassist to pick a shorter overload.
+                requireArgument(function, funcArgIndex, arguments, parameterType);
+                FunctionArgument funcArg = arguments.get(funcArgIndex++);
+                if (!funcArg.isExpression()) {
+                    throw new IllegalArgumentException("Expected expression argument but got: " + funcArg);
+                }
                 // Template expects arg.expressionObject, arg.left, arg.right when argType >= 3
-                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
-                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
-                    if (funcArg.isExpression()) {
-                        FilterExpression filterExpr = funcArg.asExpression();
-                        String matcherClass = getMatcherClassName(filterExpr);
-                        String left = buildFilterLeft(filterExpr);
-                        String right = buildFilterRight(filterExpr, metric.getSource().getName());
-                        // Add as FilterExpressionV2 object for template access
-                        argsExpressions.add(CodeGenModel.FilterExpressionV2.builder()
-                            .expressionObject(matcherClass)
-                            .left(left)
-                            .right(right)
-                            .build());
-                        argTypes.add(3); // EXPRESSION_TYPE
-                    } else {
-                        throw new IllegalArgumentException("Expected expression argument but got: " + funcArg);
-                    }
-                }
+                argsExpressions.add(filterCompiler.compile(funcArg.asExpression(), sourceClass));
+                argTypes.add(3); // EXPRESSION_TYPE
             } else if (annotation instanceof Arg) {
-                // Literal/attribute argument
-                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
-                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
-                    if (funcArg.isLiteral()) {
-                        argsExpressions.add(String.valueOf(funcArg.asLiteral()));
-                        argTypes.add(1); // LITERAL_TYPE
-                    } else if (funcArg.isAttribute()) {
-                        // Use isXxx() for boolean parameters, getXxx() otherwise
-                        String attr = funcArg.asAttribute();
-                        String expression;
-                        // Handle nested attributes by splitting on dot
-                        if (attr.contains(".")) {
-                            List<String> attributes = java.util.Arrays.asList(attr.split("\\."));
-                            String accessor = parameterType.equals(boolean.class)
-                                ? ClassMethodUtil.toIsMethod(attributes)
-                                : ClassMethodUtil.toGetMethod(attributes);
-                            expression = "source." + accessor;
-                        } else {
-                            String accessor = parameterType.equals(boolean.class)
-                                ? ClassMethodUtil.toIsMethod(attr)
-                                : ClassMethodUtil.toGetMethod(attr);
-                            expression = "source." + accessor + "()";
-                        }
-                        // Cast numeric types to match parameter type
-                        if (parameterType.equals(long.class)) {
-                            expression = "(long)(" + expression + ")";
-                        } else if (parameterType.equals(int.class)) {
-                            expression = "(int)(" + expression + ")";
-                        } else if (parameterType.equals(double.class)) {
-                            expression = "(double)(" + expression + ")";
-                        }
-                        argsExpressions.add(expression);
-                        argTypes.add(2); // ATTRIBUTE_EXP_TYPE
-                    }
-                }
+                requireArgument(function, funcArgIndex, arguments, parameterType);
+                FunctionArgument funcArg = arguments.get(funcArgIndex++);
+                argsExpressions.add(argumentValue(
+                    function, funcArgIndex, funcArg, parameterType, sourceClass, false, ((Arg) annotation).min()));
+                argTypes.add(funcArg.isLiteral() ? 1 : 2);
             } else if (annotation instanceof DefaultValue) {
-                // Use default or provided value
-                if (funcArgIndex < metric.getAggregationFunction().getArguments().size()) {
-                    FunctionArgument funcArg = metric.getAggregationFunction().getArguments().get(funcArgIndex++);
-                    if (funcArg.isLiteral()) {
-                        argsExpressions.add(String.valueOf(funcArg.asLiteral()));
-                    } else {
-                        argsExpressions.add(((DefaultValue) annotation).value());
-                    }
+                if (funcArgIndex < arguments.size()) {
+                    FunctionArgument funcArg = arguments.get(funcArgIndex++);
+                    argsExpressions.add(argumentValue(
+                        function, funcArgIndex, funcArg, parameterType, sourceClass, true, Long.MIN_VALUE));
+                    argTypes.add(funcArg.isLiteral() ? 1 : 2);
                 } else {
                     argsExpressions.add(((DefaultValue) annotation).value());
+                    argTypes.add(1); // LITERAL_TYPE
                 }
-                argTypes.add(1); // LITERAL_TYPE
             } else {
                 throw new IllegalArgumentException(
                     "Entrance method:" + entranceMethod + " doesn't have expected annotation.");
             }
+        }
+
+        if (funcArgIndex < arguments.size()) {
+            throw new IllegalArgumentException(
+                function + "() takes " + funcArgIndex + " argument(s), but is given " + arguments.size()
+                    + ": " + arguments.subList(funcArgIndex, arguments.size()) + " would be ignored");
+        }
+        if (!readsSource) {
+            checkUnreadSourceAttribute(metric);
+        }
+        if (entranceMethod.getDeclaringClass() == HistogramMetrics.class) {
+            checkHistogramBuckets(function, arguments);
         }
 
         return builder
@@ -342,207 +317,156 @@ public class MetricDefinitionEnricher {
     }
 
     /**
-     * Get matcher class name from filter expression.
+     * The value of the from() attribute, for a {@code @SourceFrom} parameter.
      */
-    private String getMatcherClassName(FilterExpression filterExpr) {
-        String expressionType = mapOperatorToExpressionType(filterExpr);
-        FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(expressionType);
-        return matcherInfo.getMatcher().getName();
-    }
-
-    /**
-     * Build left side of filter expression.
-     */
-    private String buildFilterLeft(FilterExpression filterExpr) {
-        FilterMatchers.MatcherInfo matcherInfo = FilterMatchers.INSTANCE.find(
-            mapOperatorToExpressionType(filterExpr));
-        String fieldName = filterExpr.getFieldName();
-
-        // Handle map expressions like tag["key"]
-        if (isMapExpression(fieldName)) {
-            return "source." + mapExpression(fieldName);
-        }
-
-        // Handle nested attributes by splitting on dot
-        if (fieldName.contains(".")) {
-            List<String> attributes = java.util.Arrays.asList(fieldName.split("\\."));
-            String getter = matcherInfo.isBooleanType()
-                ? ClassMethodUtil.toIsMethod(attributes)
-                : ClassMethodUtil.toGetMethod(attributes);
-            return "source." + getter;
-        }
-
-        String getter = matcherInfo.isBooleanType()
-            ? ClassMethodUtil.toIsMethod(fieldName)
-            : ClassMethodUtil.toGetMethod(fieldName);
-        return "source." + getter + "()";
-    }
-
-    /**
-     * Check if the attribute is a map expression like tag["key"].
-     */
-    private boolean isMapExpression(String attribute) {
-        return attribute.indexOf("[") > 0 && attribute.endsWith("]");
-    }
-
-    /**
-     * Convert map expression to method call.
-     * Example: tag["transmission.latency"] -> getTag("transmission.latency")
-     */
-    private String mapExpression(String attribute) {
-        int indexOf = attribute.indexOf("[");
-        return ClassMethodUtil.toGetMethod(attribute.substring(0, indexOf))
-            + "(" + attribute.substring(indexOf + 1, attribute.length() - 1) + ")";
-    }
-
-    /**
-     * Build right side of filter expression.
-     */
-    private String buildFilterRight(FilterExpression filterExpr, String sourceName) {
-        FilterValue value = filterExpr.getValue();
-        if (value.isNumber()) {
-            return buildNumberLiteral(value.asNumber(), resolveAttributeType(sourceName, filterExpr.getFieldName()));
-        } else if (value.isString()) {
-            return "\"" + value.asString() + "\"";
-        } else if (value.isBoolean()) {
-            return String.valueOf(value.asBoolean());
-        } else if (value.isNull()) {
-            return "null";
-        } else if (value.isEnum()) {
-            // Enum values need fully qualified names (e.g., DetectPoint.CLIENT -> org...DetectPoint.CLIENT)
-            // Enums used in OAL are in the source package
-            String enumValue = value.asEnum();
-            int dotIndex = enumValue.indexOf('.');
-            String enumClass = enumValue.substring(0, dotIndex);
-            String enumConstant = enumValue.substring(dotIndex + 1);
-            // sourcePackage already has trailing dot, don't add another
-            return sourcePackage + enumClass + "." + enumConstant;
-        } else if (value.isArray()) {
-            StringBuilder sb = new StringBuilder("new Object[]{");
-            boolean first = true;
-            for (Object item : value.asArray()) {
-                if (!first) {
-                    sb.append(", ");
-                }
-                first = false;
-                if (item instanceof String) {
-                    // Check if item looks like an enum (contains dot)
-                    String str = (String) item;
-                    if (str.contains(".")) {
-                        // Enum value - needs fully qualified name
-                        int dotIndex = str.indexOf('.');
-                        String enumClass = str.substring(0, dotIndex);
-                        String enumConstant = str.substring(dotIndex + 1);
-                        // sourcePackage already has trailing dot, don't add another
-                        sb.append(sourcePackage).append(enumClass).append(".").append(enumConstant);
-                    } else {
-                        sb.append("\"").append(str).append("\"");
-                    }
-                } else {
-                    sb.append(item);
-                }
+    private String sourceValue(MetricDefinition metric, Class<?> sourceClass, Class<?> parameterType) {
+        final String function = metric.getAggregationFunction().getName();
+        final List<String> attributes = metric.getSource().getAttributes();
+        final String castType = metric.getSource().getCastType().orElse(null);
+        if (attributes.isEmpty()) {
+            if (castType != null) {
+                return TypeCastUtil.withCast(castType, "source");
             }
-            sb.append("}");
-            return sb.toString();
+            return TypeCastUtil.toParameter(null, parameterType, "source");
         }
-        throw new IllegalArgumentException("Unknown filter value type: " + value);
+        final SourceAttribute attribute = SourceAttribute.resolve(sourceClass, String.join(".", attributes), false);
+        final String expression = "source." + attribute.getAccessor();
+        final String what = "from(" + describeFrom(metric) + ")";
+        if (castType != null) {
+            return TypeCastUtil.withCast(castType, expression);
+        }
+        final Class<?> type = attribute.getType();
+        requireNoFraction(type, parameterType, what, function);
+        return TypeCastUtil.toParameter(type, parameterType, expression);
     }
 
     /**
-     * Render a whole number as a literal of the long or double attribute it is compared with. Each comparison matcher
-     * has one overload per type, such as {@code match(long, long)}, and Javassist does not widen an argument, so a bare
-     * {@code 0} against a long attribute would look for {@code match(long, int)}. The literal itself carries the type,
-     * {@code 0L} or {@code 0.0}: Javassist reads the number inside a cast such as {@code (long)(3000000000)} as an int
-     * and overflows it. Any other attribute or number keeps the literal as written.
-     */
-    static String buildNumberLiteral(Number number, Class<?> attributeType) {
-        boolean wholeNumber = number instanceof Long || number instanceof Integer;
-        if (wholeNumber && attributeType == long.class) {
-            return number + "L";
-        }
-        if (wholeNumber && attributeType == double.class) {
-            return number + ".0";
-        }
-        return String.valueOf(number);
-    }
-
-    /**
-     * Resolve the type of the source attribute a filter compares, following nested getters such as
-     * {@code sideCar.internalRequestLatencyNanos}.
+     * The value of a function argument, for an {@code @Arg} or {@code @DefaultValue} parameter.
      *
-     * @return the attribute type, or null when it cannot be resolved, as for a map expression.
+     * @param constant the argument configures the metric, as a label limit does, so it is a literal: a value read from
+     *                 each event would differ between the events merged into one metric, and the generated
+     *                 serialization does not carry it to the node that merges the metric.
+     * @param min      the least a number literal may be
      */
-    private Class<?> resolveAttributeType(String sourceName, String fieldName) {
-        if (isMapExpression(fieldName)) {
-            return null;
+    private String argumentValue(String function, int position, FunctionArgument funcArg, Class<?> parameterType,
+                                 Class<?> sourceClass, boolean constant, long min) {
+        final String what = function + "() argument " + position;
+        if (funcArg.isExpression()) {
+            // Left out of the call, it would leave Javassist to pick another overload, or none.
+            throw new IllegalArgumentException(
+                what + " is of type " + parameterType.getSimpleName() + ", not the condition " + funcArg);
         }
-        try {
-            Class<?> type = Class.forName(sourcePackage + sourceName);
-            for (String attribute : fieldName.split("\\.")) {
-                type = findAccessor(type, attribute).getReturnType();
+        if (funcArg.isLongSuffixed()) {
+            // Passed to Javassist as written, with no check of its value or range, for the overload it picks.
+            return (String) funcArg.asLiteral();
+        }
+        if (funcArg.isLiteral()) {
+            final Object literal = TypeCastUtil.integralAsLong(funcArg.asLiteral());
+            if (literal instanceof Long && (Long) literal < min) {
+                throw new IllegalArgumentException(what + " is " + literal + ", but must be at least " + min);
             }
-            return type;
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            return null;
+            return literalOf(literal, what);
         }
+        if (constant) {
+            throw new IllegalArgumentException(
+                what + " configures the metric, so it is a literal, not the attribute " + funcArg);
+        }
+        if (funcArg.getCastType().isPresent()) {
+            throw FilterCompiler.unsupportedCast(funcArg.getCastType().get(), what + " " + funcArg);
+        }
+        SourceAttribute.checkKeyedPath(funcArg.asAttribute(), false, parameterType == boolean.class, what);
+        final SourceAttribute attribute = SourceAttribute.resolve(
+            sourceClass, funcArg.asAttribute(), parameterType == boolean.class);
+        final String expression = "source." + attribute.getAccessor();
+        requireNoFraction(attribute.getType(), parameterType, what + " " + funcArg, function);
+        return TypeCastUtil.toParameter(attribute.getType(), parameterType, expression);
     }
 
-    private static Method findAccessor(Class<?> type, String attribute) throws NoSuchMethodException {
-        try {
-            return type.getMethod(ClassMethodUtil.toGetMethod(attribute));
-        } catch (NoSuchMethodException e) {
-            return type.getMethod(ClassMethodUtil.toIsMethod(attribute));
+    /**
+     * Only a {@code @DefaultValue} parameter has a value of its own.
+     */
+    private static void requireArgument(String function, int index, List<FunctionArgument> arguments,
+                                        Class<?> parameterType) {
+        if (index >= arguments.size()) {
+            throw new IllegalArgumentException(
+                function + "() needs argument " + (index + 1) + ", of type " + parameterType.getSimpleName());
         }
     }
 
     /**
-     * Map filter operator and value type to matcher expression type.
-     *
-     * <p>The expression type string is used to look up the appropriate matcher class
-     * from {@link FilterMatchers}.
-     *
-     * @param filterExpr filter expression containing operator and value
-     * @return matcher type string (e.g., "stringMatch", "greaterMatch")
+     * A literal argument as Java source. A number is written as is, which Javassist reads as an int. A string would be
+     * pasted into the call as Java code, compiling only where it is code and running as such: it fails.
      */
-    private String mapOperatorToExpressionType(FilterExpression filterExpr) {
-        FilterOperator op = filterExpr.getOperator();
-        FilterValue value = filterExpr.getValue();
-
-        if (value.isBoolean()) {
-            return op == FilterOperator.EQUAL ? "booleanMatch" : "booleanNotEqualMatch";
-        } else if (value.isNumber()) {
-            switch (op) {
-                case EQUAL: return "numberMatch";
-                case NOT_EQUAL: return "notEqualMatch";
-                case GREATER: return "greaterMatch";
-                case LESS: return "lessMatch";
-                case GREATER_EQUAL: return "greaterEqualMatch";
-                case LESS_EQUAL: return "lessEqualMatch";
-                default: throw new IllegalArgumentException("Unsupported number operator: " + op);
+    private static String literalOf(Object literal, String what) {
+        if (literal instanceof Long) {
+            final long number = (Long) literal;
+            if (number < Integer.MIN_VALUE || number > Integer.MAX_VALUE) {
+                // Javassist reads a number written without an L as an int, whatever the parameter, and wraps it.
+                throw new IllegalArgumentException(
+                    what + " " + literal + " is out of the int range; a long is written with an L");
             }
-        } else if (value.isString()) {
-            switch (op) {
-                case EQUAL: return "stringMatch";
-                case NOT_EQUAL: return "notEqualMatch";
-                case LIKE: return "likeMatch";
-                case CONTAIN: return "containMatch";
-                case NOT_CONTAIN: return "notContainMatch";
-                default: throw new IllegalArgumentException("Unsupported string operator: " + op);
-            }
-        } else if (value.isArray()) {
-            return "inMatch";
-        } else if (value.isNull()) {
-            return op == FilterOperator.EQUAL ? "stringMatch" : "notEqualMatch";
-        } else if (value.isEnum()) {
-            // Enum comparisons use string matching (e.g., type == RequestType.MQ)
-            switch (op) {
-                case EQUAL: return "stringMatch";
-                case NOT_EQUAL: return "notEqualMatch";
-                default: throw new IllegalArgumentException("Unsupported enum operator: " + op);
-            }
+            return String.valueOf(number);
         }
+        if (literal instanceof String) {
+            throw new IllegalArgumentException(
+                what + " is the string \"" + literal + "\", which a function argument cannot be: a string literal would "
+                    + "run as the Java code it spells");
+        }
+        return String.valueOf(literal);
+    }
 
-        throw new IllegalArgumentException("Unsupported filter: " + filterExpr);
+    /**
+     * A function with no {@code @SourceFrom} parameter reads no value from the from() attribute. Such a script counts
+     * every event of the source whatever the attribute, so it compiles, with a warning.
+     */
+    private void checkUnreadSourceAttribute(MetricDefinition metric) {
+        if (!metric.getSource().getAttributes().isEmpty()) {
+            // unread, the path still names only what a path may read (from(Service.name.bytes) is refused)
+            SourceAttribute.resolve(sourceClass(metric.getSource().getName()),
+                String.join(".", metric.getSource().getAttributes()), false);
+        }
+        if (metric.getSource().getCastType().isPresent() || !metric.getSource().getAttributes().isEmpty()) {
+            log.warn("{} {}: {}() reads no value from the source, so from({}) has the effect of from({}.*)",
+                     metric.getLocation(), metric.getName(), metric.getAggregationFunction().getName(),
+                     describeFrom(metric), metric.getSource().getName());
+        }
+    }
+
+
+    /**
+     * {@code HistogramMetrics} names its buckets {@code step * i} up to {@code step * maxNumOfSteps}, in int.
+     */
+    private static void checkHistogramBuckets(String function, List<FunctionArgument> arguments) {
+        if (arguments.size() < 2 || !arguments.get(0).isLiteral() || !arguments.get(1).isLiteral()
+            || !(arguments.get(0).asLiteral() instanceof Number) || !(arguments.get(1).asLiteral() instanceof Number)) {
+            return;
+        }
+        final long step = ((Number) arguments.get(0).asLiteral()).longValue();
+        final long steps = ((Number) arguments.get(1).asLiteral()).longValue();
+        if (step * steps > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException(
+                function + "(" + step + ", " + steps + "): the last bucket, " + step * steps
+                    + ", is out of the int range");
+        }
+    }
+
+    private static String describeFrom(MetricDefinition metric) {
+        final List<String> attributes = metric.getSource().getAttributes();
+        return metric.getSource().getCastType().orElse("") + metric.getSource().getName() + "."
+            + (attributes.isEmpty() ? "*" : String.join(".", attributes));
+    }
+
+    /**
+     * The generated cast of a double into a long or int parameter cuts the fraction off in silence. Any other value the
+     * generated code cannot pass fails the compile in Javassist, or in the class load right after it.
+     */
+    private static void requireNoFraction(Class<?> valueType, Class<?> parameterType, String what, String function) {
+        if ((valueType == double.class || valueType == float.class)
+            && (parameterType == long.class || parameterType == int.class)) {
+            throw new IllegalArgumentException(
+                what + " is of type " + valueType.getSimpleName() + ", but " + function + "() takes "
+                    + parameterType.getSimpleName() + ": the conversion would lose part of the value");
+        }
     }
 
     /**
@@ -623,22 +547,10 @@ public class MetricDefinitionEnricher {
     /**
      * Convert filter expressions to template-ready format.
      */
-    private List<CodeGenModel.FilterExpressionV2> convertFilters(List<FilterExpression> filters, String sourceName) {
+    private List<CodeGenModel.FilterExpressionV2> convertFilters(List<FilterExpression> filters, Class<?> sourceClass) {
         List<CodeGenModel.FilterExpressionV2> result = new ArrayList<>();
         for (FilterExpression filter : filters) {
-            String matcherClass = getMatcherClassName(filter);
-            String left = buildFilterLeft(filter);
-            String right = buildFilterRight(filter, sourceName);
-            // Verbatim ANTLR slice from the parser — e.g.
-            // "filter(detectPoint == DetectPoint.SERVER)". Used as the
-            // captured filter record's sourceText so the UI matches against
-            // the original .oal source byte-for-byte.
-            result.add(CodeGenModel.FilterExpressionV2.builder()
-                .expressionObject(matcherClass)
-                .left(left)
-                .right(right)
-                .sourceText(filter.getSourceText())
-                .build());
+            result.add(filterCompiler.compile(filter, sourceClass));
         }
         return result;
     }

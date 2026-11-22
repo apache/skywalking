@@ -79,7 +79,7 @@ public abstract class PercentileMetrics extends Metrics implements MultiIntValue
     }
 
     @Entrance
-    public final void combine(@SourceFrom int value, @Arg int precision) {
+    public final void combine(@SourceFrom int value, @Arg(min = 1) int precision) {
         this.isCalculated = false;
         this.precision = precision;
 

@@ -18,12 +18,10 @@
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
-import java.lang.reflect.Method;
 
 /**
  * Static utility methods and constants shared across MAL code generation classes.
@@ -49,10 +47,6 @@ final class MALCodegenHelper {
 
     static final Map<String, String> ENUM_FQCN;
 
-    // ---- Well-known helper classes used inside MAL closures ----
-
-    static final Map<String, String> CLOSURE_CLASS_FQCN;
-
     static {
         ENUM_FQCN = new HashMap<>();
         ENUM_FQCN.put("Layer", "org.apache.skywalking.oap.server.core.analysis.Layer");
@@ -63,31 +57,13 @@ final class MALCodegenHelper {
         ENUM_FQCN.put("DownsamplingType",
             "org.apache.skywalking.oap.meter.analyzer.v2.dsl.DownsamplingType");
         ENUM_FQCN.put("TimeUnit", "java.util.concurrent.TimeUnit");
-
-        CLOSURE_CLASS_FQCN = new HashMap<>();
-        CLOSURE_CLASS_FQCN.put("ProcessRegistry",
-            "org.apache.skywalking.oap.meter.analyzer.v2.dsl.registry.ProcessRegistry");
     }
-
-    // ---- Closure interface FQCNs ----
-
-    static final String FOR_EACH_FUNCTION_TYPE =
-        "org.apache.skywalking.oap.meter.analyzer.v2.dsl"
-            + ".SampleFamilyFunctions$ForEachFunction";
-
-    static final String PROPERTIES_EXTRACTOR_TYPE =
-        "org.apache.skywalking.oap.meter.analyzer.v2.dsl"
-            + ".SampleFamilyFunctions$PropertiesExtractor";
-
-    static final String DECORATE_FUNCTION_TYPE =
-        "org.apache.skywalking.oap.meter.analyzer.v2.dsl"
-            + ".SampleFamilyFunctions$DecorateFunction";
-
-    static final String METER_ENTITY_FQCN =
-        "org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity";
 
     static final String RUNTIME_HELPER_FQCN =
         "org.apache.skywalking.oap.meter.analyzer.v2.compiler.rt.MalRuntimeHelper";
+
+    /** The shared equality and truth, which the generated code calls directly. */
+    static final String VALUES_FQCN = "org.apache.skywalking.oap.server.core.dsl.DslValues";
 
     /** FQCN of the per-rule capture binding the generated rule class carries. */
     static final String GATE_HOLDER_FQCN =
@@ -187,7 +163,8 @@ final class MALCodegenHelper {
             case LTE:
                 return " <= ";
             default:
-                return " == ";
+                // == and != compare through DslValues.equal, by value.
+                throw new IllegalArgumentException("No Java operator for " + op);
         }
     }
 
@@ -210,43 +187,12 @@ final class MALCodegenHelper {
     }
 
     /**
-     * Checks whether a closure expression returns {@code boolean} by inspecting
-     * the last method call in the chain against {@link String} method signatures.
-     * MAL closure params are always {@code Map<String, String>}, so chained
-     * methods operate on {@code String}.
-     */
-    static boolean isBooleanExpression(final MALExpressionModel.ClosureExpr expr) {
-        String lastMethodName = null;
-        if (expr instanceof MALExpressionModel.ClosureMethodChain) {
-            final List<MALExpressionModel.ClosureChainSegment> segs =
-                ((MALExpressionModel.ClosureMethodChain) expr).getSegments();
-            for (int i = segs.size() - 1; i >= 0; i--) {
-                if (segs.get(i) instanceof MALExpressionModel.ClosureMethodCallSeg) {
-                    lastMethodName =
-                        ((MALExpressionModel.ClosureMethodCallSeg) segs.get(i))
-                            .getName();
-                    break;
-                }
-            }
-        }
-        if (lastMethodName == null) {
-            return false;
-        }
-        for (final Method m : String.class.getMethods()) {
-            if (m.getName().equals(lastMethodName)
-                    && m.getReturnType() == boolean.class) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Emits the appropriate {@code Number.valueOf()} for a numeric literal.
      * Integer-valued numbers emit {@code Long.valueOf(NL)}, others emit {@code Double.valueOf(N)}.
      */
     static void emitNumberValueOf(final StringBuilder sb, final double value) {
-        if (value == Math.floor(value) && !Double.isInfinite(value)) {
+        // A long only where the double holds the whole number exactly; a cast past 2^53 would clamp or round.
+        if (value == Math.floor(value) && Math.abs(value) <= (double) (1L << 53)) {
             sb.append("Long.valueOf(").append((long) value).append("L)");
         } else {
             sb.append("Double.valueOf(").append(value).append(')');

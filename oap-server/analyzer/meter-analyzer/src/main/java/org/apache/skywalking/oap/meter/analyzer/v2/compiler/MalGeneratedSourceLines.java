@@ -42,7 +42,23 @@ import java.util.List;
  */
 final class MalGeneratedSourceLines {
 
+    static final String TEMP_PREFIX = "_mal$";
+
     private MalGeneratedSourceLines() {
+    }
+
+    /**
+     * @return the local slots the closure temporaries take ({@code Object _mal$nav0 = null;}, declared first after
+     *     the parameter): their stores, inside an expression, are no statement boundary
+     */
+    static int tempSlots(final String generatedMethodBody) {
+        int slots = 0;
+        for (final String line : generatedMethodBody.split("\n", -1)) {
+            if (line.trim().startsWith("Object " + TEMP_PREFIX)) {
+                slots++;
+            }
+        }
+        return slots;
     }
 
     /**
@@ -84,6 +100,7 @@ final class MalGeneratedSourceLines {
         final String lhs = trimmed.substring(0, eq);
         final int lastSpace = lhs.lastIndexOf(' ');
         final String target = lastSpace < 0 ? lhs : lhs.substring(lastSpace + 1);
-        return target.startsWith("_");
+        // a closure temporary (_mal$nav0) sits below the result slots (tempSlots): no statement of its own
+        return target.startsWith("_") && !target.startsWith(TEMP_PREFIX);
     }
 }

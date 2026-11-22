@@ -19,13 +19,17 @@
 package org.apache.skywalking.oal.v2.parser;
 
 import java.io.IOException;
+import java.util.List;
+import org.apache.skywalking.oal.v2.model.FilterExpression;
 import org.apache.skywalking.oal.v2.model.FilterOperator;
+import org.apache.skywalking.oal.v2.model.FilterValue;
 import org.apache.skywalking.oal.v2.model.FunctionArgument;
 import org.apache.skywalking.oal.v2.model.MetricDefinition;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OALScriptParserV2Test {
@@ -541,5 +545,150 @@ public class OALScriptParserV2Test {
 
         assertFalse(parser.hasMetrics());
         assertEquals(0, parser.getMetricsCount());
+    }
+
+    @Test
+    public void testStatementsAfterAnUnparsableTokenAreNotDropped() {
+        // A stray semicolon fails the parse: root ends at EOF, so no statement after it is dropped.
+        assertThrows(IllegalArgumentException.class, () -> OALScriptParserV2.parse(
+            "a = from(Service.*).cpm();\n;\nb = from(Service.*).cpm();"));
+    }
+
+    @Test
+    public void testUnrecognizedCharacterThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> OALScriptParserV2.parse("endpoint_cpm = from(Endpoint.*).cpm`();"));
+    }
+
+    private static String parseError(String script) {
+        return assertThrows(IllegalArgumentException.class, () -> OALScriptParserV2.parse(script, "t.oal"))
+            .getMessage();
+    }
+
+    @Test
+    public void testStatementsAfterAKeywordOrDigitNamedMetricAreNotDropped() {
+        assertTrue(parseError("a = from(Service.*).cpm();\nfrom = from(Service.*).cpm();\nb = from(Service.*).cpm();")
+                       .contains("t.oal:2:0 - extraneous input 'from'"));
+        assertTrue(parseError("a = from(Service.*).cpm();\n1abc = from(Service.*).cpm();\nb = from(Service.*).cpm();")
+                       .contains("t.oal:2:0 - extraneous input '1'"));
+    }
+
+    @Test
+    public void testAStrayCommentCloserThrows() {
+        assertTrue(parseError("a = from(Service.*).cpm();\n*/\nb = from(Service.*).cpm();")
+                       .contains("t.oal:2:0 - extraneous input '*'"));
+    }
+
+    @Test
+    public void testAnUnterminatedCommentThrows() {
+        assertTrue(parseError("a = from(Service.*).cpm();\n/* open\nb = from(Service.*).cpm();")
+                       .contains("t.oal:2:0 - token recognition error at: '/* open"));
+    }
+
+    @Test
+    public void testBlockCommentsNest() throws IOException {
+        // A rule with its own /* note */ can be commented out whole.
+        OALScriptParserV2 parser = OALScriptParserV2.parse(
+            "/* a = from(Service.*).cpm(); /* note */\nb = from(Service.*).cpm(); */\nc = from(Service.*).cpm();");
+        assertEquals(1, parser.getMetricsCount());
+        assertEquals("c", parser.getMetrics().get(0).getName());
+        // A closer behind // is still in the comment.
+        assertEquals(0, OALScriptParserV2.parse("/* /* note */ a = from(Service.*).cpm(); // */").getMetricsCount());
+        assertEquals(1, OALScriptParserV2.parse("/**/ /***/ /* a ** b / c */ a = from(Service.*).cpm();")
+                                         .getMetricsCount());
+    }
+
+    @Test
+    public void testAnUnclosedInnerCommentThrows() {
+        // Were the inner */ to close the outer comment too, the rule after it would run.
+        assertTrue(parseError("/* outer /* inner */ a = from(Service.*).cpm();")
+                       .contains("t.oal:1:0 - token recognition error at: '/* outer /* inner */ a"));
+    }
+
+    @Test
+    public void testNumberLiteralsTakeSuffixAndSeparators() throws IOException {
+        MetricDefinition metric = OALScriptParserV2.parse(
+            "a = from(Service.*).filter(latency > 1_000L).filter(httpResponseStatusCode in [4_04, 500L]).count();")
+                                                   .getMetrics().get(0);
+        assertEquals(1000L, metric.getFilters().get(0).getValue().asNumber());
+        assertEquals(List.of(404L, 500L), metric.getFilters().get(1).getValue().asArray());
+        assertTrue(refusalOf("a = from(Service.*).filter(latency > 99999999999999999999).count();")
+                       .contains("number 99999999999999999999 is out of the long range"));
+    }
+
+    @Test
+    public void testListKeepsQuotedDotsAsStrings() throws IOException {
+        List<?> strings = OALScriptParserV2.parse("a = from(Service.*).filter(name in [\"v1.0\", \"b\"]).count();")
+                                           .getMetrics().get(0).getFilters().get(0).getValue().asArray();
+        assertEquals(List.of("v1.0", "b"), strings);
+        List<?> enums = OALScriptParserV2.parse("a = from(Service.*).filter(type in [RequestType.MQ]).count();")
+                                         .getMetrics().get(0).getFilters().get(0).getValue().asArray();
+        assertEquals(List.of(FilterValue.ofEnum("RequestType.MQ")), enums);
+    }
+
+    @Test
+    public void testCastsAreKeptApartFromTheAttribute() throws IOException {
+        MetricDefinition metric = OALScriptParserV2.parse(
+            "a = from(Service.*).filter((str->long)tag[\"a.b\"] > 0).labelAvg(name, (long)tag[\"size\"]);")
+                                                   .getMetrics().get(0);
+        FilterExpression filter = metric.getFilters().get(0);
+        assertEquals("tag[\"a.b\"]", filter.getFieldName());
+        assertEquals("(str->long)", filter.getCastType().get());
+        FunctionArgument argument = metric.getAggregationFunction().getArguments().get(1);
+        assertEquals("tag[\"size\"]", argument.asAttribute());
+        assertEquals("(long)", argument.getCastType().get());
+    }
+
+    @Test
+    public void testALeadingZeroBesideAnLOrASeparatorIsRefused() throws IOException {
+        // Java would read it as octal; without _ or L, 0644 is the decimal 644. The stock matchers refuse it when the
+        // script compiles; one registered in place of them gets it as written.
+        assertTrue(refusalOf("a = from(Service.*).filter(latency > 0644L).count();")
+                       .contains("number 0644L: a leading 0 would make it octal"));
+        assertTrue(refusalOf("a = from(Service.*).filter(latency in [0_644]).count();")
+                       .contains("number 0_644: a leading 0 would make it octal"));
+    }
+
+    private static String refusalOf(String script) throws IOException {
+        final String refusal = OALScriptParserV2.parse(script).getMetrics().get(0).getFilters().get(0).getValue()
+                                                .getRefusal();
+        assertTrue(refusal != null, script);
+        return refusal;
+    }
+
+    @Test
+    public void testAFunctionArgumentNumberHasNoSeparator() {
+        assertTrue(parseError("a = from(Service.*).labelCount(name, 1_000);")
+                       .contains("number 1_000: a function argument is written without _"));
+    }
+
+    @Test
+    public void testFunctionsTakeAtMostTwoArguments() {
+        assertTrue(parseError("a = from(Service.*).labelAvg(name, latency, 100);").contains("t.oal:1:"));
+    }
+
+    @Test
+    public void testStringLiteralsAreDecoded() throws IOException {
+        MetricDefinition metric = OALScriptParserV2.parse(
+            "a = from(Service.*).filter(name == \"caf\\u00e9 \\101 \\\"q\\\" \\\\\").labelCount(\"\\t\");")
+                                                   .getMetrics().get(0);
+        assertEquals("caf\u00e9 A \"q\" \\", metric.getFilters().get(0).getValue().asString());
+        assertEquals("\t", metric.getAggregationFunction().getArguments().get(0).asLiteral());
+    }
+
+    @Test
+    public void testControlCharactersAreDecoded() throws IOException {
+        MetricDefinition metric = OALScriptParserV2.parse(
+            "a = from(Service.*).filter(name == \"a\\bc\").filter(tag[\"\\0\"] == \"x\").count();")
+                                                   .getMetrics().get(0);
+        assertEquals("a\bc", metric.getFilters().get(0).getValue().asString());
+        // A map key stays as written; the getter call decodes it.
+        assertEquals("tag[\"\\0\"]", metric.getFilters().get(1).getFieldName());
+    }
+
+    @Test
+    public void testWildcardWithAnAttributeThrows() {
+        assertTrue(parseError("a = from(Service.latency.*).longAvg();")
+                       .contains("t.oal:1:24 - a: from(Service...) takes either * or an attribute path, not both"));
     }
 }

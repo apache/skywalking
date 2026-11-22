@@ -60,6 +60,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -169,6 +170,17 @@ class TALNativeConstructsTest {
         assertEquals(3, defs[3], "label only; later and keys are not set yet on the first run");
         rule.execute(filterSpec, run(span, defs));
         assertEquals(3 + 4 + 3, defs[3], "label, later (op0!) and the tag k:v");
+    }
+
+    @Test
+    void aBuildInALoopNeedsTheRulesOwnListOnlyWhereItsBodyWritesIt() throws Exception {
+        final String loop = "filter {\n  extractor {\n    def l = emptyList()\n"
+            + "    foreach (spanTag in span.tagsList) {\n      build { %s }\n      l = tagList()\n    }\n  }\n}";
+        assertNotNull(compile(String.format(loop, "")));
+        final IllegalArgumentException refused = assertThrows(IllegalArgumentException.class,
+            () -> compile(String.format(loop, "def x = l.add(\"v\")")));
+        assertTrue(refused.getMessage().contains("add() changes only a map or list the rule made"),
+            refused.getMessage());
     }
 
     @Test
@@ -285,6 +297,21 @@ class TALNativeConstructsTest {
     }
 
     @Test
+    void aHeldExpressionIsHeldInEachGeneratedMethod() throws Exception {
+        final TalExpression rule = compile("filter {\n"
+            + "  first {\n"
+            + "    segmentDef inFirst = (span.operationName)?.trim()\n"
+            + "  }\n"
+            + "  segmentDef inRun = (span.operationName)?.trim()\n"
+            + "}");
+        final SpanObject span = segment(span(0, " op0 ")).getSegmentObject().getSpans(0);
+        final Object[] defs = new Object[rule.segmentDefCount()];
+        rule.executeFirst(filterSpec, run(span, defs));
+        rule.execute(filterSpec, run(span, defs));
+        assertArrayEquals(new Object[] {"op0", "op0"}, defs);
+    }
+
+    @Test
     void firstBelongsDirectlyInTheFilter() {
         final Exception e = assertThrows(Exception.class,
             () -> compile("filter { if (span.spanType == \"Entry\") { first { def x = 1 } } }"));
@@ -329,6 +356,88 @@ class TALNativeConstructsTest {
         final ServiceMeta meta = (ServiceMeta) sent.get(0);
         assertEquals(Layer.FAAS, meta.getLayer());
         assertEquals(TimeBucket.getMinuteTimeBucket(START), meta.getTimeBucket());
+    }
+
+    @Test
+    void aBuildBlockChangesTheMapItsRunMadeThoughTheRunReassignsItLater() throws Exception {
+        final TalExpression rule = compile("filter {\n"
+            + "  extractor {\n"
+            + "    def names = emptyMap()\n"
+            + "    build {\n"
+            + "      def previous = names.put(\"op\", span.operationName)\n"
+            + "      source ServiceMeta {\n"
+            + "        name names.get(\"op\")\n"
+            + "        layer \"FAAS\"\n"
+            + "        timeBucket minuteTimeBucket(span.startTime)\n"
+            + "      }\n"
+            + "    }\n"
+            + "    names = tagMap()\n"
+            + "  }\n"
+            + "}");
+        final SpanObject span = segment(span(0, "op0")).getSegmentObject().getSpans(0);
+        final ExecutionContext ctx = run(span, new Object[0]);
+        rule.execute(filterSpec, ctx);
+        final QueuedBuild build = ctx.getQueuedBuilds().iterator().next();
+        rule.executeBuild(build.getIndex(), filterSpec, run((SpanObject) build.getInput(), new Object[0]),
+            build.getCaptured());
+        assertEquals(List.of("op0"), names(sent));
+        // The block a run queues after reassigning it holds the span's tags, which it cannot change.
+        final Exception e = assertThrows(Exception.class, () -> compile("filter {\n"
+            + "  extractor {\n"
+            + "    def names = emptyMap()\n"
+            + "    names = tagMap()\n"
+            + "    build {\n"
+            + "      def previous = names.put(\"op\", span.operationName)\n"
+            + "    }\n"
+            + "  }\n"
+            + "}"));
+        assertTrue(String.valueOf(e.getMessage()).contains("put() changes only a map or list the rule made"),
+            e.getMessage());
+    }
+
+    @Test
+    void aSegmentVariableHoldsWhatEveryAssignmentGivesItInEveryRun() throws Exception {
+        // A quotient first {} stores narrows in the regular run.
+        final TalExpression rule = compile("filter {\n"
+            + "  first {\n"
+            + "    segmentDef seconds = span.startTime / 1000\n"
+            + "  }\n"
+            + "  segmentDef n = 0L\n"
+            + "  if (seconds != null) {\n"
+            + "    n = seconds\n"
+            + "  }\n"
+            + "}");
+        final SpanObject span = segment(span(0, "op0").toBuilder().setStartTime(7001).build())
+            .getSegmentObject().getSpans(0);
+        final Object[] defs = new Object[rule.segmentDefCount()];
+        rule.executeFirst(filterSpec, run(span, defs));
+        rule.execute(filterSpec, run(span, defs));
+        assertEquals(7L, defs[1]);
+        // A build {} block reads the variable as it is when the block runs, which any assignment can have given it.
+        final Exception number = assertThrows(Exception.class, () -> compile("filter {\n"
+            + "  extractor {\n"
+            + "    segmentDef q = span.startTime as java.lang.Number\n"
+            + "    q = span.startTime / 1000\n"
+            + "    build {\n"
+            + "      def n = 0L\n"
+            + "      n = q\n"
+            + "    }\n"
+            + "    q = span.startTime as java.lang.Number\n"
+            + "  }\n"
+            + "}"));
+        assertTrue(String.valueOf(number.getMessage()).contains("def n holds a Long and is reassigned a Number"),
+            number.getMessage());
+        final Exception list = assertThrows(Exception.class, () -> compile("filter {\n"
+            + "  extractor {\n"
+            + "    segmentDef l = emptyList()\n"
+            + "    build {\n"
+            + "      def a = l.add(\"v\")\n"
+            + "    }\n"
+            + "    l = span.tagsList\n"
+            + "  }\n"
+            + "}"));
+        assertTrue(String.valueOf(list.getMessage()).contains("add() changes only a map or list the rule made"),
+            list.getMessage());
     }
 
     @Test

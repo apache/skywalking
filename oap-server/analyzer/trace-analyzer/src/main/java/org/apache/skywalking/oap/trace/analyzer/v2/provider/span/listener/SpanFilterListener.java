@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -120,17 +121,40 @@ public class SpanFilterListener {
         }
 
         /**
-         * Compile the rule files named by the module's configuration. Called from {@code start()}, after every
-         * peer module is past {@code prepare}, because compiling reaches other modules' services.
+         * Load both rule lists, the native one when {@code withNative}, before compiling a rule of either: loading a
+         * file registers its {@code layerDefinitions}, and a rule of one list may name a layer a file of the other
+         * declares. The static rules are installed here. Called from {@code start()}, after every peer module is past
+         * {@code prepare}, because compiling reaches other modules' services.
          *
+         * @param withNative whether the native rules run, as they do when the agent analyzer is loaded
+         * @return the native rules, in file order; empty without them
          * @throws Exception when a file cannot be read or a rule does not compile
          */
-        public void loadStaticRules() throws Exception {
+        public List<TalDSL> loadRules(final boolean withNative) throws Exception {
+            final List<TALConfigs> staticFiles = TALConfigs.load(config.getTalPath(), config.talFiles(), moduleManager);
+            final List<TALConfigs> nativeFiles = withNative
+                ? TALConfigs.loadInOrder(config.getTalPath(), config.nativeTalFiles(), moduleManager)
+                : Collections.emptyList();
+            loadStaticRules(staticFiles);
+            return withNative ? compileNativeRules(nativeFiles) : Collections.emptyList();
+        }
+
+        private void loadStaticRules(final List<TALConfigs> files) throws Exception {
             bindFunctions();
-            final List<TALConfigs> files = TALConfigs.load(config.getTalPath(), config.talFiles(), moduleManager);
+            // A rule is stored by its layer and name, so a second rule of the same pair would replace the first.
+            final Map<String, String> loadedFrom = new HashMap<>();
             for (final TALConfigs file : files) {
                 for (final TALConfig rule : file.getRules()) {
-                    addOrReplace(compile(rule));
+                    final CompiledTAL compiled = compile(rule);
+                    final String earlier = loadedFrom.putIfAbsent(
+                        ruleKey(compiled.layer, compiled.ruleName), rule.getSourcePath());
+                    if (earlier != null) {
+                        throw new ModuleStartException(
+                            "two TAL rules of layer " + compiled.layer.name() + " are named " + compiled.ruleName
+                                + ", in " + earlier + " and " + rule.getSourcePath()
+                                + "; a rule's name is unique within its layer");
+                    }
+                    addOrReplace(compiled);
                 }
             }
             log.info("TAL loaded {} rule file(s) from {}", files.size(), config.getTalPath());
@@ -145,15 +169,13 @@ public class SpanFilterListener {
          * They are not filed under a layer: the runner runs every one of them on every span of a segment.
          *
          * @return the rules, in file order and within a file in the order written
-         * @throws Exception when a file does not exist, a rule does not compile, a rule declares another input, or
-         *                   two rules share a name
+         * @throws Exception when a rule does not compile, a rule declares another input, or two rules share a name
          */
-        public List<TalDSL> compileNativeRules() throws Exception {
+        private List<TalDSL> compileNativeRules(final List<TALConfigs> files) throws Exception {
             bindFunctions();
             final List<TalDSL> rules = new ArrayList<>();
-            final Set<String> names = new HashSet<>();
-            for (final TALConfigs file : TALConfigs.loadInOrder(
-                config.getTalPath(), config.nativeTalFiles(), moduleManager)) {
+            final Map<String, String> names = new HashMap<>();
+            for (final TALConfigs file : files) {
                 for (final TALConfig rule : file.getRules()) {
                     final CompiledTAL compiled = compile(rule);
                     if (!TALFunctionProvider.SW_NATIVE_INPUT_TYPE.equals(compiled.provider.alias())) {
@@ -162,8 +184,10 @@ public class SpanFilterListener {
                                 + compiled.provider.alias() + "; every rule of nativeTalFiles declares "
                                 + TALFunctionProvider.SW_NATIVE_INPUT_TYPE);
                     }
-                    if (!names.add(rule.getName())) {
-                        throw new ModuleStartException("two native TAL rules are named " + rule.getName());
+                    final String earlier = names.putIfAbsent(rule.getName(), rule.getSourcePath());
+                    if (earlier != null) {
+                        throw new ModuleStartException("two native TAL rules are named " + rule.getName() + ", in "
+                            + earlier + " and " + rule.getSourcePath());
                     }
                     rules.add(compiled.dsl);
                 }

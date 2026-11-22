@@ -73,6 +73,23 @@ layer-levels:
 which are used to match the relation between the upper service(u) and the lower service(l) on the different layers.
 - The default matching rules required the service name configured as SkyWalking default and follow the [Showcase](https://github.com/apache/skywalking-showcase).
 If you customized the service name in any layer, you should customize the related matching rules according your service name rules.
+- A rule reads the two services' fields (`u.name`, `u.shortName`, `u.group`, ...) and may call only:
+  - the `String` methods `length`, `isEmpty`, `trim`, `toLowerCase`, `toUpperCase`, `startsWith`, `endsWith`,
+    `contains`, `indexOf`, `lastIndexOf`, `substring`, `replace`, `replaceAll`, `replaceFirst`, `split`, `charAt`,
+    `equals`, `equalsIgnoreCase`, `matches`, `concat`, `toString`;
+  - `Integer.parseInt`, `Integer.valueOf`, `Long.parseLong`, `Long.valueOf`, and `toString()` / `equals()` on any value.
+
+  Any other call fails the rule's compilation with a message. This is the set this release supports; it grows as
+  rules need more (propose an addition in an issue or a pull request). A rule is a bare `==` or `!=` comparison
+  (`{ (u, l) -> u.name == l.name }`), or a block of `if` / `else if` / `else` and `return`, whose conditions use
+  `==`, `!=`, `<`, `<=`, `>`, `>=`, `&&`, `||` and `!`; `+` adds numbers or concatenates a string onto a string, a number or a
+  character on its left, and any value but an array or a collection on its right (`"x" + true`; `u + "x"`,
+  `u.layers + "x"` and `"x" + u.layers` are refused), `-` subtracts
+  numbers (Groovy's `String - String`, which removes the text, is refused; use `replace(...)`). A
+  string or character compared with a number reads as the number it is (`"10" > "2"`, `"3" == 3`), and a null orders
+  lowest. `==` compares lists and arrays element by element in order (a list against an array too), sets by their
+  elements in any order, and maps by their keys and each key's value (`u.name.split('-') == l.name.split('-')`), as
+  every DSL does.
 
 ### Layer Levels
 - Define the hierarchy level of the service layer in the `layer-levels` section.

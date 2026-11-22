@@ -170,9 +170,9 @@ public class OALEngineV2 implements OALEngine {
                 );
             } catch (Exception e) {
                 log.error("Failed to enrich metric: {}", metric.getName(), e);
-                throw new IllegalStateException(
-                    "Failed to enrich V2 metric: " + metric.getName(), e
-                );
+                // MetricDefinitionEnricher#enrich starts an IllegalArgumentException with the rule's place and name
+                final String rule = e instanceof IllegalArgumentException ? "" : metric.getName() + ": ";
+                throw new IllegalStateException("Failed to enrich V2 metric: " + rule + e.getMessage(), e);
             }
         }
 

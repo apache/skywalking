@@ -92,24 +92,36 @@ public class FilterExpression {
                 }
             }
         } catch (Exception e) {
-            throw new IllegalStateException(
-                "Failed to compile MAL filter expression: " + literal, e);
+            throw new IllegalStateException("Failed to compile MAL filter expression"
+                + (sourceRef == null ? "" : " (" + sourceRef.describeYaml() + ")") + ": " + literal + ": "
+                + e.getMessage(), e);
         }
     }
 
     public Map<String, SampleFamily> filter(final Map<String, SampleFamily> sampleFamilies) {
-        try {
-            final Map<String, SampleFamily> result = new HashMap<>();
-            for (final Map.Entry<String, SampleFamily> entry : sampleFamilies.entrySet()) {
-                final SampleFamily afterFilter = entry.getValue().filter(malFilter::test);
-                if (!Objects.equals(afterFilter, SampleFamily.EMPTY)) {
-                    result.put(entry.getKey(), afterFilter);
+        final Map<String, SampleFamily> result = new HashMap<>();
+        // A sample the filter fails on (a missing label, a regex match not there) is dropped, as the filter did not
+        // keep it; the batch's other samples are filtered as usual. (Returning the whole batch unfiltered let every
+        // sample through.)
+        final Throwable[] failure = new Throwable[1];
+        for (final Map.Entry<String, SampleFamily> entry : sampleFamilies.entrySet()) {
+            final SampleFamily afterFilter = entry.getValue().filter(labels -> {
+                try {
+                    return malFilter.test(labels);
+                } catch (Throwable t) {
+                    if (failure[0] == null) {
+                        failure[0] = t;
+                    }
+                    return false;
                 }
+            });
+            if (!Objects.equals(afterFilter, SampleFamily.EMPTY)) {
+                result.put(entry.getKey(), afterFilter);
             }
-            return result;
-        } catch (Throwable t) {
-            log.error("failed to run \"{}\"", literal, t);
         }
-        return sampleFamilies;
+        if (failure[0] != null) {
+            log.error("failed to run \"{}\" on a sample; the samples it failed on are dropped", literal, failure[0]);
+        }
+        return result;
     }
 }
