@@ -18,8 +18,10 @@
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import lombok.Getter;
 
@@ -52,23 +54,20 @@ public final class LALScriptModel {
     }
 
     /**
-     * @return whether the script has a {@code layer} statement on any branch
+     * @return whether an {@code extractor} on any branch has a {@code layer} statement
      */
     public boolean assignsLayer() {
-        return anyStatement(statements, stmt -> stmt instanceof FieldAssignment
-            && ((FieldAssignment) stmt).getFieldType() == FieldType.LAYER);
+        return anyStatement(statements, stmt -> stmt instanceof ExtractorBlock
+            && anyStatement(((ExtractorBlock) stmt).getStatements(), s -> s instanceof FieldAssignment
+                && ((FieldAssignment) s).getFieldType() == FieldType.LAYER));
     }
 
     /**
-     * Whether a statement, or one nested in an {@code extractor} or {@code if} block, matches.
+     * Whether a statement of a block, or one nested in its {@code if} blocks, matches.
      */
     private static boolean anyStatement(final List<?> statements, final Predicate<Object> match) {
         for (final Object stmt : statements) {
             if (match.test(stmt)) {
-                return true;
-            }
-            if (stmt instanceof ExtractorBlock
-                && anyStatement(((ExtractorBlock) stmt).getStatements(), match)) {
                 return true;
             }
             if (stmt instanceof IfBlock) {
@@ -236,11 +235,19 @@ public final class LALScriptModel {
 
     @Getter
     public static final class TagAssignment implements ExtractorStatement, FilterStatement {
+        /** Each key's last value, at its first position, as a Groovy map literal keeps them. */
         private final Map<String, TagValue> tags;
+        /** Every entry as written, all of which Groovy evaluated. */
+        private final List<Map.Entry<String, TagValue>> entries;
         private int sourceLine;
         private String sourceText = "";
 
-        public TagAssignment(final Map<String, TagValue> tags) {
+        public TagAssignment(final List<Map.Entry<String, TagValue>> entries) {
+            this.entries = Collections.unmodifiableList(entries);
+            final Map<String, TagValue> tags = new LinkedHashMap<>();
+            for (final Map.Entry<String, TagValue> entry : entries) {
+                tags.put(entry.getKey(), entry.getValue());
+            }
             this.tags = Collections.unmodifiableMap(tags);
         }
 
@@ -264,25 +271,60 @@ public final class LALScriptModel {
 
     @Getter
     public static final class MetricsBlock implements ExtractorStatement, FilterStatement {
+        /**
+         * The name when written as a string literal, otherwise null: {@link #getNameValue()} is what runs.
+         */
         private final String name;
+        private final ValueAccess nameValue;
+        private final String nameCast;
         private final ValueAccess timestampValue;
         private final String timestampCast;
         private final Map<String, TagValue> labels;
         private final ValueAccess value;
         private final String valueCast;
+        /**
+         * Every statement in source order, which they run in, as Groovy LAL ran them; the properties above are
+         * each kind's last.
+         */
+        private final List<MetricsStatement> statements;
         private int sourceLine;
         private String sourceText = "";
 
-        public MetricsBlock(final String name,
-                            final ValueAccess timestampValue,
-                            final String timestampCast,
-                            final Map<String, TagValue> labels,
-                            final ValueAccess value,
-                            final String valueCast) {
-            this.name = name;
+        public MetricsBlock(final List<MetricsStatement> statements) {
+            this.statements = Collections.unmodifiableList(statements);
+            ValueAccess nameValue = null;
+            String nameCast = null;
+            ValueAccess timestampValue = null;
+            String timestampCast = null;
+            Map<String, TagValue> labels = Collections.emptyMap();
+            ValueAccess value = null;
+            String valueCast = null;
+            for (final MetricsStatement statement : statements) {
+                switch (statement.getKind()) {
+                    case NAME:
+                        nameValue = statement.getValue();
+                        nameCast = statement.getCast();
+                        break;
+                    case TIMESTAMP:
+                        timestampValue = statement.getValue();
+                        timestampCast = statement.getCast();
+                        break;
+                    case LABELS:
+                        labels = statement.getLabels();
+                        break;
+                    default:
+                        value = statement.getValue();
+                        valueCast = statement.getCast();
+                        break;
+                }
+            }
+            this.nameValue = nameValue;
+            this.nameCast = nameCast;
+            this.name = nameValue != null && nameValue.isStringLiteral() && nameValue.getChain().isEmpty()
+                ? nameValue.getSegments().get(0) : null;
             this.timestampValue = timestampValue;
             this.timestampCast = timestampCast;
-            this.labels = labels != null ? Collections.unmodifiableMap(labels) : Collections.emptyMap();
+            this.labels = labels;
             this.value = value;
             this.valueCast = valueCast;
         }
@@ -291,6 +333,38 @@ public final class LALScriptModel {
             this.sourceLine = line;
             this.sourceText = text == null ? "" : text;
             return this;
+        }
+    }
+
+    public enum MetricsStatementKind {
+        NAME, TIMESTAMP, LABELS, VALUE
+    }
+
+    /**
+     * One statement of a metrics block: a value and its cast, or the labels.
+     */
+    @Getter
+    public static final class MetricsStatement {
+        private final MetricsStatementKind kind;
+        private final ValueAccess value;
+        private final String cast;
+        /** The labels as written, a repeated key included. */
+        private final List<Map.Entry<String, TagValue>> labelEntries;
+        /** Each label key's last value. */
+        private final Map<String, TagValue> labels;
+
+        public MetricsStatement(final MetricsStatementKind kind, final ValueAccess value, final String cast,
+                                final List<Map.Entry<String, TagValue>> labelEntries) {
+            this.kind = kind;
+            this.value = value;
+            this.cast = cast;
+            this.labelEntries = labelEntries != null
+                ? Collections.unmodifiableList(labelEntries) : Collections.emptyList();
+            final Map<String, TagValue> labels = new LinkedHashMap<>();
+            for (final Map.Entry<String, TagValue> entry : this.labelEntries) {
+                labels.put(entry.getKey(), entry.getValue());
+            }
+            this.labels = Collections.unmodifiableMap(labels);
         }
     }
 
@@ -321,7 +395,7 @@ public final class LALScriptModel {
     }
 
     @Getter
-    public static final class RateLimitBlock implements SamplerContent {
+    public static final class RateLimitBlock implements SamplerContent, FilterStatement {
         private final String id;
         private final List<InterpolationPart> idParts;
         private final long rpm;
@@ -344,18 +418,20 @@ public final class LALScriptModel {
     public static final class InterpolationPart {
         private final String literal;
         private final ValueAccess expression;
+        private final String castType;
 
-        private InterpolationPart(final String literal, final ValueAccess expression) {
+        private InterpolationPart(final String literal, final ValueAccess expression, final String castType) {
             this.literal = literal;
             this.expression = expression;
+            this.castType = castType;
         }
 
         public static InterpolationPart ofLiteral(final String text) {
-            return new InterpolationPart(text, null);
+            return new InterpolationPart(text, null, null);
         }
 
-        public static InterpolationPart ofExpression(final ValueAccess expr) {
-            return new InterpolationPart(null, expr);
+        public static InterpolationPart ofExpression(final ValueAccess expr, final String castType) {
+            return new InterpolationPart(null, expr, castType);
         }
 
         public boolean isLiteral() {
@@ -474,6 +550,9 @@ public final class LALScriptModel {
 
     @Getter
     public static final class ValueAccess {
+        /** The literals the grammar reads as names. */
+        static final Set<String> LITERAL_NAMES = Set.of("true", "false", "null");
+
         private final List<String> segments;
         private final boolean parsedRef;
         private final boolean logRef;
@@ -567,6 +646,31 @@ public final class LALScriptModel {
             return String.join(".", segments);
         }
 
+        /**
+         * @return the value a grouping without a cast holds ({@code (x)}), when nothing follows it; else null
+         */
+        public ValueAccess groupedInner() {
+            return parenInner != null && parenCast == null && chain.isEmpty() ? parenInner : null;
+        }
+
+        /**
+         * @return whether the value starts with a name, a def's or {@code true}, {@code false}, {@code null}, which a
+         *     chain may follow
+         */
+        public boolean isBareIdentifier() {
+            return !parsedRef && !logRef && !processRegistryRef && !stringLiteral && !numberLiteral
+                && functionCallName == null && parenInner == null && concatParts.isEmpty();
+        }
+
+        /**
+         * @return whether the value is a literal alone: a string, a number, {@code true}, {@code false} or
+         *     {@code null}, nothing following it
+         */
+        public boolean isBareLiteral() {
+            return chain.isEmpty() && (stringLiteral || numberLiteral
+                || isBareIdentifier() && LITERAL_NAMES.contains(segments.get(0)));
+        }
+
         private static List<BinaryOp> defaultPlusOps(final List<ValueAccess> parts) {
             if (parts == null || parts.size() <= 1) {
                 return Collections.emptyList();
@@ -644,32 +748,14 @@ public final class LALScriptModel {
 
     @Getter
     public static final class NumberConditionValue implements ConditionValue {
-        private final double value;
         /**
-         * Original literal text from the LAL source (e.g. {@code "10000"},
-         * {@code "10000L"}, {@code "1.5"}, {@code "1e6"}). Codegen uses this
-         * to preserve the user-declared numeric type — a bare {@code 10000}
-         * stays {@code int}, an {@code L}-suffixed literal becomes {@code long},
-         * etc. May be {@code null} for synthesised values.
+         * The literal as written ({@code 10000}, {@code 10000L}, {@code 1.5}, {@code 1e6}), which types it: a bare
+         * {@code 10000} is an {@code int}, an {@code L}-suffixed one a {@code long}.
          */
         private final String literal;
 
-        public NumberConditionValue(final double value) {
-            this(value, null);
-        }
-
-        public NumberConditionValue(final double value, final String literal) {
-            this.value = value;
+        public NumberConditionValue(final String literal) {
             this.literal = literal;
-        }
-    }
-
-    @Getter
-    public static final class BoolConditionValue implements ConditionValue {
-        private final boolean value;
-
-        public BoolConditionValue(final boolean value) {
-            this.value = value;
         }
     }
 
@@ -687,21 +773,53 @@ public final class LALScriptModel {
         }
     }
 
-    @Getter
-    public static final class FunctionCallConditionValue implements ConditionValue {
-        private final String functionName;
-        private final List<String> arguments;
-
-        public FunctionCallConditionValue(final String functionName, final List<String> arguments) {
-            this.functionName = functionName;
-            this.arguments = Collections.unmodifiableList(arguments);
-        }
-    }
-
     // ==================== Enums ====================
 
     public enum CompareOp {
-        EQ, NEQ, GT, LT, GTE, LTE
+        EQ("==", null), NEQ("!=", null), GT(">", "gt"), LT("<", "lt"), GTE(">=", "ge"), LTE("<=", "le");
+
+        private final String symbol;
+        private final String helper;
+
+        CompareOp(final String symbol, final String helper) {
+            this.symbol = symbol;
+            this.helper = helper;
+        }
+
+        public String symbol() {
+            return symbol;
+        }
+
+        /**
+         * @return the runtime helper of an ordering ({@code h.lt}, ...), which a NaN fails; null for {@code ==} and
+         *     {@code !=}
+         */
+        public String helper() {
+            return helper == null ? null : "h." + helper;
+        }
+
+        /**
+         * @param order the left side's order against the right: negative, zero or positive
+         * @return whether the comparison holds for that order
+         */
+        public boolean holds(final int order) {
+            switch (this) {
+                case EQ:
+                    return order == 0;
+                case NEQ:
+                    return order != 0;
+                case GT:
+                    return order > 0;
+                case LT:
+                    return order < 0;
+                case GTE:
+                    return order >= 0;
+                case LTE:
+                    return order <= 0;
+                default:
+                    throw new IllegalStateException("Unhandled comparison " + this);
+            }
+        }
     }
 
     public enum LogicalOp {

@@ -84,6 +84,14 @@ public class FilterTest {
                 "{ tags -> tags.str in [ 'val1', 'val2' ] }",
                 of("instance_cpu_percentage", sf),
             },
+            {
+                // the filter fails on the sample without a match (m[0] is not there): that sample is dropped, the
+                // other kept; the batch is not let through unfiltered
+                "filter-failing-on-one-sample",
+                of("instance_cpu_percentage", sf),
+                "{ tags -> def m = (tags.str =~ /^val(1)$/); m[0][1] == '1' }",
+                of("instance_cpu_percentage", SampleFamily.build(sf.context, sf.samples[0])),
+            },
         });
     }
 

@@ -170,8 +170,7 @@ public class FilterSpec extends AbstractSpec {
                 content = body.getText().getText();
             }
             final Map<String, Object> parsed = jsonParser.create().readValue(content, parsedType);
-            addMetadataFields(parsed, ctx.metadata());
-            ctx.parsed(parsed);
+            ctx.parsed(parsed, addMetadataFields(parsed, ctx.metadata()));
             if (fromText) {
                 ctx.input(logData.build().toBuilder().setBody(LogDataBody.newBuilder()
                     .setJson(JSONLog.newBuilder().setJson(content).build())
@@ -203,8 +202,7 @@ public class FilterSpec extends AbstractSpec {
             final Map<String, Object> parsed = yamlParser.create().load(
                 logData.getBody().getYaml().getYaml()
             );
-            addMetadataFields(parsed, ctx.metadata());
-            ctx.parsed(parsed);
+            ctx.parsed(parsed, addMetadataFields(parsed, ctx.metadata()));
         } catch (final Exception e) {
             warnParseFailure(yamlWarnLimiter, "yaml", ctx, abortOnFailure, e);
             abortOrContinueUnparsed(ctx, abortOnFailure, "yaml parse failed: " + e);
@@ -228,8 +226,7 @@ public class FilterSpec extends AbstractSpec {
             return;
         }
         final Map<String, Object> parsed = new HashMap<>();
-        addMetadataFields(parsed, ctx.metadata());
-        ctx.parsed(parsed);
+        ctx.parsed(parsed, addMetadataFields(parsed, ctx.metadata()));
     }
 
     private static String notLogBodyReason(final String parser, final Object rawInput) {
@@ -352,26 +349,34 @@ public class FilterSpec extends AbstractSpec {
      * {@code parsed.serviceInstance}, etc. resolve correctly — matching v1 Groovy
      * {@code Binding.Parsed.getAt(key)} fallback behavior.
      * Uses {@code putIfAbsent} so body-parsed values take priority.
+     *
+     * @return the values added, by key: {@code parsed.<key>} reads the log as it is when read instead, so it sees what
+     *     the rule's standard field statements set, unless the rule reaches the map itself ({@code parsed.getMap()})
      */
-    private static void addMetadataFields(final Map<String, Object> parsed,
-                                          final LogMetadata metadata) {
+    private static Map<String, Object> addMetadataFields(final Map<String, Object> parsed,
+                                                         final LogMetadata metadata) {
+        final Map<String, Object> added = new HashMap<>();
         if (metadata == null) {
-            return;
+            return added;
         }
-        putIfNotEmpty(parsed, "service", metadata.getService());
-        putIfNotEmpty(parsed, "serviceInstance", metadata.getServiceInstance());
-        putIfNotEmpty(parsed, "endpoint", metadata.getEndpoint());
-        putIfNotEmpty(parsed, "layer", metadata.getLayer());
+        putIfNotEmpty(parsed, added, "service", metadata.getService());
+        putIfNotEmpty(parsed, added, "serviceInstance", metadata.getServiceInstance());
+        putIfNotEmpty(parsed, added, "endpoint", metadata.getEndpoint());
+        putIfNotEmpty(parsed, added, "layer", metadata.getLayer());
         final long ts = metadata.getTimestamp();
         if (ts > 0) {
-            parsed.putIfAbsent("timestamp", ts);
+            final Long timestamp = ts;
+            if (parsed.putIfAbsent("timestamp", timestamp) == null) {
+                added.put("timestamp", timestamp);
+            }
         }
+        return added;
     }
 
-    private static void putIfNotEmpty(final Map<String, Object> parsed,
+    private static void putIfNotEmpty(final Map<String, Object> parsed, final Map<String, Object> added,
                                       final String key, final String value) {
-        if (value != null && !value.isEmpty()) {
-            parsed.putIfAbsent(key, value);
+        if (value != null && !value.isEmpty() && parsed.putIfAbsent(key, value) == null) {
+            added.put(key, value);
         }
     }
 }

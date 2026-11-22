@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.config.v2.compiler;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -155,5 +156,189 @@ class HierarchyRuleScriptParserTest {
     void parseSyntaxErrorThrows() {
         assertThrows(IllegalArgumentException.class,
             () -> HierarchyRuleScriptParser.parse("{ invalid }"));
+    }
+
+    @Test
+    void parseUnrecognizedCharacterThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse("{ (u, l) -> u.name ` == l.name }"));
+    }
+
+    // ==================== Groovy semantics kept, or rejected ====================
+
+    @Test
+    void parseElseIfChainKeepsEveryConditionAndBranch() {
+        final HierarchyRuleModel.BlockBody block = block(
+            "{ (u, l) -> { if (u.name == 'a') return false; else if (u.name == 'b') return false;"
+                + " else return true; } }");
+        assertEquals(1, block.getStatements().size());
+
+        final HierarchyRuleModel.IfStatement first =
+            (HierarchyRuleModel.IfStatement) block.getStatements().get(0);
+        assertEquals("a", comparedLiteral(first.getCondition()));
+        assertReturnsBool(false, first.getThenBranch());
+
+        assertEquals(1, first.getElseBranch().size());
+        final HierarchyRuleModel.IfStatement second =
+            (HierarchyRuleModel.IfStatement) first.getElseBranch().get(0);
+        assertEquals("b", comparedLiteral(second.getCondition()));
+        assertReturnsBool(false, second.getThenBranch());
+        assertReturnsBool(true, second.getElseBranch());
+    }
+
+    @Test
+    void parseElseIfWithoutFinalElseLeavesNoElse() {
+        final HierarchyRuleModel.BlockBody block = block(
+            "{ (u, l) -> { if (u.name == 'a') return true; else if (u.name == 'b') return true;"
+                + " return false; } }");
+        assertEquals(2, block.getStatements().size());
+
+        final HierarchyRuleModel.IfStatement first =
+            (HierarchyRuleModel.IfStatement) block.getStatements().get(0);
+        final HierarchyRuleModel.IfStatement second =
+            (HierarchyRuleModel.IfStatement) first.getElseBranch().get(0);
+        assertEquals("b", comparedLiteral(second.getCondition()));
+        assertReturnsBool(true, second.getThenBranch());
+        assertTrue(second.getElseBranch().isEmpty());
+    }
+
+    @Test
+    void parseEachBranchFromItsOwnChild() {
+        final HierarchyRuleModel.BlockBody block = block(
+            "{ (u, l) -> { if (u.name == l.name) { return true; } else return false; return false; } }");
+        final HierarchyRuleModel.IfStatement ifStmt =
+            (HierarchyRuleModel.IfStatement) block.getStatements().get(0);
+        assertReturnsBool(true, ifStmt.getThenBranch());
+        assertReturnsBool(false, ifStmt.getElseBranch());
+    }
+
+    @Test
+    void parseKeepsAStringAsWritten() {
+        assertEquals("it\\'s", literal("'it\\'s'"));
+        assertEquals("a\\\\b\\tc", literal("'a\\\\b\\tc'"));
+        assertEquals("plain $ sign", literal("'plain $ sign'"));
+    }
+
+    @Test
+    void parseGStringInterpolationThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == \"svc-${l.name}\" }"));
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == \"svc-$l\" }"));
+    }
+
+    @Test
+    void parseGreaterOrEqualAndLessOrEqual() {
+        assertEquals(HierarchyRuleModel.CompareOp.GTE, firstCondition(
+            "{ (u, l) -> { if (l.shortName.lastIndexOf('.') >= 0) return true; return false; } }").getOp());
+        assertEquals(HierarchyRuleModel.CompareOp.LTE, firstCondition(
+            "{ (u, l) -> { if (l.shortName.lastIndexOf('.') <= 0) return true; return false; } }").getOp());
+    }
+
+    @Test
+    void parseNotBindsTighterThanAndOr() {
+        final HierarchyRuleModel.BlockBody block = block(
+            "{ (u, l) -> { if (!u.name.isEmpty() && l.name.isEmpty()) return true; return false; } }");
+        final HierarchyRuleModel.IfStatement ifStmt =
+            (HierarchyRuleModel.IfStatement) block.getStatements().get(0);
+        final HierarchyRuleModel.LogicalCondition and =
+            (HierarchyRuleModel.LogicalCondition) ifStmt.getCondition();
+        assertEquals(HierarchyRuleModel.LogicalOp.AND, and.getOp());
+        assertInstanceOf(HierarchyRuleModel.NotCondition.class, and.getLeft());
+        assertInstanceOf(HierarchyRuleModel.ExprCondition.class, and.getRight());
+    }
+
+    @Test
+    void parseNegatedComparisonWithoutParenthesesThrows() {
+        // Groovy reads `!u.name == l.name` as `(!u.name) == l.name`.
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse(
+                "{ (u, l) -> { if (!u.name == l.name) return true; return false; } }"));
+        // and `!u.name.length() + 1` as `(!u.name.length()) + 1`
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse(
+                "{ (u, l) -> { if (!u.name.length() + 1) return true; return false; } }"));
+        final HierarchyRuleModel.IfStatement ifStmt = (HierarchyRuleModel.IfStatement) block(
+            "{ (u, l) -> { if (!(u.name == l.name)) return true; return false; } }").getStatements().get(0);
+        assertInstanceOf(HierarchyRuleModel.NotCondition.class, ifStmt.getCondition());
+    }
+
+    @Test
+    void parseAdditionAndSubtractionAssociateLeft() {
+        final HierarchyRuleModel.SimpleComparison cmp = (HierarchyRuleModel.SimpleComparison)
+            HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == 5 - 2 + 1 }").getBody();
+        final HierarchyRuleModel.BinaryExpr add = (HierarchyRuleModel.BinaryExpr) cmp.getRight();
+        assertEquals(HierarchyRuleModel.ArithmeticOp.ADD, add.getOp());
+        final HierarchyRuleModel.BinaryExpr sub = (HierarchyRuleModel.BinaryExpr) add.getLeft();
+        assertEquals(HierarchyRuleModel.ArithmeticOp.SUB, sub.getOp());
+        assertEquals(5, ((HierarchyRuleModel.NumberLiteralExpr) sub.getLeft()).getValue());
+        assertEquals(2, ((HierarchyRuleModel.NumberLiteralExpr) sub.getRight()).getValue());
+        assertEquals(1, ((HierarchyRuleModel.NumberLiteralExpr) add.getRight()).getValue());
+    }
+
+    @Test
+    void parseValueOnTheLineAfterReturnThrows() {
+        // Groovy returns null at the line break; `true` below it is never returned.
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse("{ (u, l) -> { return\n true } }"));
+    }
+
+    @Test
+    void parseDuplicateParameterNamesThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse("{ (u, u) -> u.name == 'x' }"));
+    }
+
+    @Test
+    void parseIntegerBeyondALongThrows() {
+        assertEquals(Long.MAX_VALUE, ((HierarchyRuleModel.NumberLiteralExpr) ((HierarchyRuleModel.SimpleComparison)
+            HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == 9223372036854775807 }").getBody()).getRight())
+            .getValue());
+        for (final String beyond : new String[] {"9223372036854775808", "01000000000000000000000"}) {
+            final IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == " + beyond + " }"));
+            assertTrue(e.getMessage().contains(beyond), e.getMessage());
+        }
+    }
+
+    @Test
+    void parseBlockThatCanFinishWithoutReturnThrows() {
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse(
+                "{ (u, l) -> { if (u.name == l.name) return true; } }"));
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse(
+                "{ (u, l) -> { if (u.name == 'a') return true; else if (u.name == 'b') return false; } }"));
+        assertThrows(IllegalArgumentException.class,
+            () -> HierarchyRuleScriptParser.parse(
+                "{ (u, l) -> { if (u.name == 'a') { if (l.name == 'b') return true; } else return false; } }"));
+    }
+
+    private static HierarchyRuleModel.BlockBody block(final String expression) {
+        return (HierarchyRuleModel.BlockBody) HierarchyRuleScriptParser.parse(expression).getBody();
+    }
+
+    private static HierarchyRuleModel.ComparisonCondition firstCondition(final String expression) {
+        return (HierarchyRuleModel.ComparisonCondition)
+            ((HierarchyRuleModel.IfStatement) block(expression).getStatements().get(0)).getCondition();
+    }
+
+    private static String literal(final String quoted) {
+        final HierarchyRuleModel.SimpleComparison cmp = (HierarchyRuleModel.SimpleComparison)
+            HierarchyRuleScriptParser.parse("{ (u, l) -> u.name == " + quoted + " }").getBody();
+        return ((HierarchyRuleModel.StringLiteralExpr) cmp.getRight()).getValue();
+    }
+
+    private static String comparedLiteral(final HierarchyRuleModel.Condition condition) {
+        final HierarchyRuleModel.ComparisonCondition cmp =
+            (HierarchyRuleModel.ComparisonCondition) condition;
+        return ((HierarchyRuleModel.StringLiteralExpr) cmp.getRight()).getValue();
+    }
+
+    private static void assertReturnsBool(final boolean expected,
+                                          final List<HierarchyRuleModel.Statement> branch) {
+        assertEquals(1, branch.size());
+        final HierarchyRuleModel.ReturnStatement ret = (HierarchyRuleModel.ReturnStatement) branch.get(0);
+        assertEquals(expected, ((HierarchyRuleModel.BoolLiteralExpr) ret.getValue()).isValue());
     }
 }

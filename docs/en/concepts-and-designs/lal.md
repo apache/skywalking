@@ -72,7 +72,7 @@ rules:
     dsl: |
       filter {
         text { regexp $/(?<status>\d+)\s+(?<path>\S+)/$ }
-        sink { sampler { rateLimit { rpm 1800 } } }
+        sink { sampler { rateLimit("iot-fleet") { rpm 1800 } } }
       }
 ```
 
@@ -168,8 +168,8 @@ rules:
 
 ## Filter
 
-A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Users can use one or more filters
-to organize their processing logic. Every piece of log will be sent to all filters in an LAL rule. A piece of log
+A filter is a group of [parser](#parser), [extractor](#extractor) and [sink](#sink). Each LAL rule holds one filter;
+use more rules to organize the processing logic. A piece of log
 sent to the filter is available as property `log` in the LAL, therefore you can access the log service name
 via `log.service`. For all available fields of `log`, please refer to [the protocol definition](https://github.com/apache/skywalking-data-collect-protocol/blob/master/logging/Logging.proto#L41).
 
@@ -195,8 +195,8 @@ filter {
 }
 ```
 
-Note that when you put `regexp` in an `if` statement, you need to surround the expression with `()`
-like `regexp(<the expression>)`, instead of `regexp <the expression>`.
+`regexp` is a statement of a [`text`](#text) parser, not a condition: to stop on a log it does not match, rely on
+`abortOnFailure`, which is `true` by default.
 
 - `tag`
 
@@ -250,6 +250,150 @@ filter {
 
 Returns empty string if the key is not found.
 
+### Values, casts and conditions
+
+LAL evaluates values as the Groovy-based LAL did, with the differences noted below. That LAL compiled rules
+statically (`parsed.*` read at run time), so where an expression's types are known when compiled, they decide.
+
+- A bare condition, `if (parsed.flag)`, uses Groovy truth: `null`, `false`, `0`, `NaN`, an empty string and an empty
+  collection are false.
+- `as Boolean` converts a boolean, the text `true` or `false` in any case, and a number, or a text holding one
+  (trimmed), by zero: `0` is `false`, any other number `true` (`2`, `"-1"`); any other value, such as `"yes"`, `NaN` or a
+  list, fails the log. A blank text is `false`, and a `null` stays `null` (false in a condition). A bare condition
+  parses nothing: `if (parsed.flag)` tests the value as it is, so a text `"false"` is `true` there.
+- A cast keeps a `null`: `parsed.missing as Integer` is `null`, not `0`. In a comparison a `null` equals only a `null` and
+  orders below every value, so `parsed.missing as Integer == 0` is false, `parsed.missing as Integer < 1` is true and
+  `parsed.n as Integer > null` is true for any number. Arithmetic on a `null`, or passing one where a number is required
+  (a metric's value, a primitive method argument), fails the log's processing; concatenated, it reads `"null"`. A tag or
+  label whose value is `null` is not added, and a statement that sets a number or enum field (such as an output type's
+  `latency`) leaves the field unset. `timestamp` leaves the log's timestamp unset when its value is empty, not a number
+  (without a pattern), or not matched by the pattern. A numeric cast of a string trims it first: `" 42 " as Long` is
+  `42`, and a blank one fails the log (a missing `tag("k")` is `""`). A primitive cast (`as long`, `as int`,
+  `as double`, `as float`, `as boolean`) converts the same way, but a `null` fails it, and is `false` as a `boolean`.
+- `==` compares numbers by value whatever their types (`3 == 3L`, `1.9 != 1`), and, as every DSL does, lists and arrays
+  element by element in order (a list against an array too), sets by their elements in any order and maps by their
+  keys and each key's value, the elements the same way (`[1] == [1.0]`); a JSON value (`toJson(...)`) compares as what
+  it holds, an array as a list, an object as a map, a primitive as its number, text or boolean. A string against a number equals the number it holds, trimmed (`"3" == 3` and
+  `"200" == 200` are true), and a string that holds no number equals no number; Groovy compared a one-character
+  string by its character code (`"A" == 65`) and never equated a longer one. Two strings compare as text
+  (`"3" != "3.0"`). `<`, `>`, `<=` and `>=` order numbers by value, and a string against a number as the number it
+  holds (`"3" < 5` is true); a string that holds no number fails the compile when it is a literal (`"abc" < 5`), and
+  the log otherwise. Two strings order as numbers when both hold one (`"10" > "2"`), and as text otherwise. A
+  character (`charAt(0)`) is the one-character string it is in `==` and in an ordering (`"1a".charAt(0) == 1`,
+  `"ERROR".charAt(0) == "E"`). A character or a boolean is not cast as a number, which fails the compile (Groovy read a
+  character as its code); `c.toString() as Integer` is the number a digit is. A string cannot be multiplied (Groovy
+  repeated it, `'b' * 2` is `bb`).
+- Numbers compare as Java compares them, as LAL always did: a `NaN` compares false in every comparison but `!=`, held
+  in a `def` or written inline alike, and `-0.0` equals `0.0`, so `parsed.x as Double > 1` is false for `NaN` and
+  `parsed.x as Double == 0` is true for `-0.0`. A float literal compares by its float value: `0.1f` is not `0.1`.
+- `+` concatenates as soon as one side is a string, onto a string, a number, a character or `null` on its left, and
+  any value but an array, a collection or a map on its right (`"x" + true`); any other value on the left (a boolean,
+  an enum, any other object), and an array, a collection or a map on either side, fails, the compile where its type is
+  known, else the log (`true + "x"`, `tag("a").split(",") + "x"`, `"x" + parsed.items`), and so does a boolean beside
+  a number. On two values whose types are known only at run time, which the
+  Groovy-based LAL did not compile, numbers add (`1 + parsed.n` is `6` for a JSON `5`) and a string, a number, a
+  character or a `null` on the left concatenates. A `float` computes in `double`, even with another `float`, as in Groovy. `/` on two whole
+  numbers is Groovy's `BigDecimal` (`7 / 2` is `3.5`): exact where the quotient ends, else rounded half up to ten
+  decimals, or to an operand's scale when larger (`1 / 3` is `0.3333333333`), and it stays one in `+`, `-`, `*` and `/` with whole numbers (`7 / 1` is `7`); with a
+  `float` or `double` it computes in `double`. Cast to `Integer` or `Long`, or set to a whole-number field, it truncates
+  toward zero (`((0 - 7) / 2) as Integer` is `-3`) and an `Integer` wraps as Groovy's did; a zero divisor fails the
+  log's processing.
+- `parsed.<key>` reads the regexp's group of that name (a name the regexp has no group of fails the log's processing, a
+  group that did not take part reads on), else the parsed body's value, else a typed input's field (an Envoy access
+  log a json parser did not parse), else the log's own field (`service`, `serviceInstance`, `endpoint`, `layer`,
+  `timestamp`, `traceContext`, `body`, `tags`) as the rule left it, as `log.<field>` reads it. So a key the body does
+  not have, or a parser that did not run (in an `if` branch), reads the log, and a rule may use both a `text` and a
+  `json` parser. With only a `text` parser, `parsed.<group>` is a string: a group the match did not set reads only the
+  log's string fields (`service`, `serviceInstance`, `endpoint`, `layer`), `null` otherwise. After a `text` and a
+  `json` branch rejoin, `toString()` takes the value as it is, and a string method (`toLowerCase()`) takes it as a
+  string, failing the log for a json value that is not one. `parsed.getMap()` is the parsed body with the log's fields
+  copied in when it was parsed, read only.
+- A property after `.` fails on a `null`, as in Groovy: `parsed.a.b` fails the log's processing when `a` is missing,
+  while `parsed?.a?.b` is `null`. A property of a map reads its key, so `m.size` is the `size` key of a map `m` and
+  `m.size()` its number of entries; a property of a list is the list's own (`parsed.items.empty`, and on a list
+  known when compiled `xs.size` or `xs.isEmpty`), or else each element's (`parsed.backends.name`); any other value's
+  property is its getter's (`parsed.body.json.json`), among those the next section lists.
+- A subscript of a list past its end, `xs[5]`, is `null`; of a string, an array or a `toJsonArray(...)` past its end, or
+  of a `null`, it fails.
+  An array's `length` reads its length.
+- A method is resolved by the type the value has when compiled, among those the next section lists: on a value of
+  unknown type, such as a JSON field, only `toString()`, and the null-safe `?.toString()` and `?.trim()`. Give the value
+  a type first, such as `parsed.x as String`, or `def id = parsed.id as java.math.BigInteger` to call `id?.toString(16)`.
+  What a typed method returns as an `Object` (`m.get("k")` of a map) takes `?.trim()` only cast `as String`.
+- A class cast in a `def` converts as Groovy's `as` does: a list cast `as java.util.Set` becomes a set, a numeric
+  string cast `as java.math.BigInteger` a number, a name cast to an enum its constant; a conversion Groovy could not
+  make fails the log's processing, as does a string cast to a list or a set (Groovy split it into characters). The
+  classes are those the next section lists.
+- A whole number literal must fit a `long`; Groovy read a larger one as a `BigInteger`. One with a leading `0` is
+  octal, as in Groovy and Java (`010` is `8`), anywhere a whole number is written (an index, an argument, `rpm`), and
+  `08` or `09` is refused; a decimal such as `010.5` is not octal.
+- A `def` is visible only after its declaration, within the `if` branch, extractor, or filter level that declares it;
+  a filter-level `def` is also visible in the `extractor` and `sink` blocks that follow it. A `def` of a name that is
+  visible there fails the compile, as in Groovy LAL; sibling `if` branches may each declare one.
+- A standard field statement (`service`, `instance`, `endpoint`, `traceId`, `segmentId`, `spanId`, `timestamp`, as
+  `layer` already did) sets the field of the log itself, for the rest of the rule: a later `log.service`,
+  `log.getService()`, `log.traceContext` (the metadata's trace context), `log.getTraceContext()` (the log's protobuf
+  one), `parsed.service` (when the body has no `service`) or `log.timestamp`
+  (such as a metric's) reads the rule's value, and the service, instance and endpoint traffic of a saved log is built
+  from it. Its value is converted by the rule's cast, then to the field's type, so `spanId parsed.span as Integer` is
+  valid. A `null` value leaves the field as it was, except for `layer`: a `null`, empty or unregistered layer drops a
+  saved log.
+- A `tag` statement evaluates all its values, then adds its tags: `tag("key")` and `log.tags` read a tag added by an
+  earlier statement, not one of the same statement.
+- The statements of a `metrics` block run in the order written; a repeated statement keeps its last value.
+- A decimal literal such as `1.5` or `1e6` is a `double`, and arithmetic with it computes in `double`. The
+  Groovy-based LAL made it a `BigDecimal`; the two differ only in rare precision cases, such as `0.1 + 0.2`, which is
+  `0.30000000000000004` here and `0.3` there, or a literal written `1.50`, which reads `1.5` here.
+- Difference from the Groovy-based LAL: a protobuf message (a field of a typed input such as an Envoy access log) is true
+  in a bare condition only when it has a field set. Groovy treated every message as true, and a protobuf getter never
+  returns `null`, so a guard such as `if (parsed?.response?.responseCode)` could never be false; here it is false when the
+  access log carries no response code.
+- Differences from the Groovy-based LAL that v2 has always had, kept: a map in a string, by `${...}` or `as String`,
+  reads as Java writes it (`{a=1}`, Groovy `[a:1]`), and `toString()` on a `null` fails the log (Groovy
+  `"null"`); an array in `${...}` reads as Java writes it (`as String` and `toString()` write its elements, `[low, high]`, as
+  Groovy); an iterator
+  is true in a condition (Groovy: while it has a next element); `log.traceContext` is the metadata's trace context (`traceId`, `traceSegmentId`, `spanId`, `otlpSpanId`),
+  not the protobuf; an unset standard string field reads `null` (Groovy `""`); `parsed.map` is the parsed body's `map`
+  key (Groovy: the whole body); and numbers compare as Java's primitives, so `NaN` equals nothing, `NaN` included, and
+  `-0.0` equals `0.0` (Groovy ordered a `NaN` after every number).
+
+### Supported operators and functions
+
+A rule calls only what this section lists; anything else fails its compile, naming what is supported. A property read
+at run time (a JSON field's `.x`) reads only a map's key, a list's own property or its elements', and the getters
+listed here, else it fails the log's processing.
+
+- Operators: `+ - * /`, `== != < > <= >=`, `&& || !`, `.key`, `?.key`, `[N]` and the casts `as String`, `Long`,
+  `Integer`, `Double`, `Float`, `Boolean`, and `long`, `int`, `double`, `float`, `boolean`. A `def` may also be cast
+  `as java.util.List`, `java.util.Set`, `java.util.Map`, `java.math.BigInteger`, `java.math.BigDecimal`, a protobuf
+  message class (to read a typed input's field through its getters), or an enum one of the output type's setters
+  takes. There is no `%` and no `Math`: a text is read as a number by a cast (`parsed.n as Long`).
+- Functions: `tag("key")`, `sourceAttribute("key")`, `toJson(value)`, `toJsonArray(value)`, and
+  `ProcessRegistry.generateVirtualLocalProcess(service, instance)`,
+  `ProcessRegistry.generateVirtualRemoteProcess(service, instance, address)` and
+  `ProcessRegistry.generateVirtualProcess(service, instance, name)`.
+- On a string: `length()`, `isEmpty()`, `trim()`, `toLowerCase()`, `toUpperCase()`, `startsWith()`, `endsWith()`,
+  `contains()`, `indexOf()`, `lastIndexOf()`, `substring()`, `replace()`, `replaceAll()`, `replaceFirst()`, `split()`,
+  `charAt()`, `equals()`, `equalsIgnoreCase()`, `matches()`, `concat()` and `toString()`. A quoted string is the text
+  between its quotes, so `"42".matches("\d+")` passes the regexp `\d+`.
+- On a map: `get()`, `containsKey()`, `getOrDefault()`, `isEmpty()`, `size()`, `keySet()`, `values()`; on a list or a
+  set: `get()` (a list), `size()`, `isEmpty()`, `contains()`; on an array, `length`. They read only: `parsed.getMap()`
+  is the one method of `parsed`, and the map it returns is read only too.
+- On any JSON value: `getAsString()`, `getAsLong()`, `getAsInt()`, `getAsDouble()`, `getAsBoolean()`,
+  `getAsJsonObject()`, `getAsJsonArray()`, `isJsonNull()`, `isJsonObject()`, `isJsonArray()` (on a `toJsonArray(...)`,
+  the `getAs...` ones read its only element); on `toJson(...)` also `get()`, `has()`, `size()`; on `toJsonArray(...)`
+  also `get()` and `size()`.
+- On `log`, a typed input (a protobuf message, or an object implementing `ToJson`) and the protobuf messages they hold:
+  their getters (`getX()`, `hasX()`, `getXCount()`, `getXList()`, `getXMap()`, `getXOrBuilder()`, and the indexed
+  or keyed `getX(index)`, `getXOrDefault(key, default)`, `containsX(key)`), read only: the extractor's statements set
+  the log, and `log.getX()` reads it as they left it. On the log's metadata (`log.traceContext`, `parsed.*` without a
+  parser), its getters.
+- On a number, a boolean or a character: `toString()` (a `BigInteger`'s `toString(radix)` too); on an array,
+  `toString()` writes its elements (`[low, high]`); on an enum, `name()`, and a protobuf enum's `getNumber()`.
+
+This is the set this release supports, and it grows as rules need more: propose an addition in an issue or a pull
+request.
+
 ### Parser
 
 Parsers are responsible for parsing the raw logs into structured data in SkyWalking for further processing. There are 3
@@ -282,7 +426,7 @@ filter {
 
 When `json` parses successfully from a text body, the log is normalized to a JSON body for the matching rule: the rule persists it with content type `JSON` and `log.body` reads the JSON content within that rule. This makes a JSON-shaped log delivered over any transport persist and render as JSON once a `json {}` rule matches it. The normalization is scoped to the matching rule — other rules analyzing the same log still see the original text body.
 
-A parse failure that aborts the log is reported at WARN, rate-limited to one report per minute per parser with the number of suppressed failures included in the next report. With `abortOnFailure false`, a failure is expected control flow: it is only logged at DEBUG, the log continues through the filter chain, and `parsed.*` reads return the metadata fallback fields (or `null`).
+A parse failure that aborts the log is reported at WARN, rate-limited to one report per minute per parser with the number of suppressed failures included in the next report. With `abortOnFailure false`, a failure is expected control flow: it is only logged at DEBUG, the log continues through the filter chain, and `parsed.*` reads return the log's own fields (or `null`).
 
 #### `yaml`
 
@@ -302,7 +446,12 @@ For unstructured logs, there are some `text` parsers for use.
 
 `regexp` parser uses a regular expression (`regexp`) to parse the logs. It leverages the captured groups of the regexp,
 all the captured groups can be used later in the extractors or sinks.
-`regexp` returns a `boolean` indicating whether the log matches the pattern or not.
+A log the regexp does not match aborts the filter chain, unless the `text` block has `abortOnFailure false`, written
+before or after `regexp`. A `text` block takes one `regexp`.
+
+A quoted string is the text between its quotes, its backslashes kept, so `"\d"` is the regexp `\d` and `"\s"` any
+whitespace; a slashy string, `$/(?<status>\d+)/$`, keeps every backslash as written too. In a `rateLimit` id, `\${`
+keeps `${` as text.
 
 ```
 filter {
@@ -344,7 +493,8 @@ with any value access expression whose type is resolvable on the classpath, incl
 against the inferred type.
 
 You can optionally add an explicit `as` type cast to narrow the variable type. The cast type can be a built-in
-type (`String`, `Long`, `Integer`, `Boolean`) or a fully qualified class name:
+type (`String`, `Long`, `Integer`, `Double`, `Float`, `Boolean`, or a primitive such as `long`) or a fully qualified
+class name:
 
 ```
 def value = someExpression as com.example.MyType
@@ -352,8 +502,8 @@ def value = someExpression as com.example.MyType
 
 This is useful when the compiler infers a type that is too general (e.g., `Object` from a generic API return)
 and you know the concrete runtime type. The cast tells the compiler which type to use for subsequent method chain
-validation. Note that `as` performs a Java cast — it does **not** convert between types. For JSON conversion, use
-`toJson()` or `toJsonArray()` instead.
+validation. A built-in type converts the value as in any other cast; a class converts it as Groovy's `as` does (see
+[Values, casts and conditions](#values-casts-and-conditions)). For JSON conversion, use `toJson()` or `toJsonArray()`.
 
 The FQCN must be resolvable on the classpath at compile time. If the class is not found, the OAP server will fail
 to start.
@@ -361,7 +511,7 @@ to start.
 Two built-in conversion functions are provided for JSON interoperability:
 
 - `toJson(expr)` — converts a value to a Gson `JsonObject`. Works with JSON strings, `Map`, and protobuf `Struct`.
-- `toJsonArray(expr)` — converts a value to a Gson `JsonArray`. Works with JSON array strings.
+- `toJsonArray(expr)` — converts a value to a Gson `JsonArray`. Works with JSON array strings and `List`.
 
 After declaration, the variable can be used in subsequent expressions with full null-safe navigation support (`?.`).
 
@@ -511,14 +661,14 @@ not dropped) and is used to associate with service.
 
 - `tag`
 
-`tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`. You may use the properties of `parsed` as both keys and values.
+`tag` extracts the tags from the `parsed` result, and set them into the `LogData`. The form of this extractor should look something like this: `tag key1: value, key2: value2`, or `tag 'a.key': value` for a key that is not a name. You may use the properties of `parsed` as values; a key is written as is. A `null` or blank value adds no tag, a list adds its non-null elements joined by commas, a key repeated within one `tag` statement keeps its last value, and `tag("key")` later in the rule reads a tag the rule added (the first one, when two statements add that key).
 
 ```
 filter {
     // ... parser
 
     extractor {
-        tag level: parsed.level, (parsed.statusCode): parsed.statusMsg
+        tag level: parsed.level, status: parsed.statusMsg
         tag anotherKey: "anotherConstantValue"
         layer 'GENERAL'
     }
@@ -619,12 +769,15 @@ Sampler allows you to save the logs in a sampling manner. Currently, the followi
 
 - `rateLimit`: samples `n` logs at a maximum rate of 1 minute. `rateLimit("SamplerID")` requires an ID for the sampler.
 Sampler declarations with the same ID share the same sampler instance, thus sharing the same `rpm` and resetting logic.
-- `possibility`: every piece of log has a pseudo possibility of `percentage` to be sampled, the possibility was generated by Java random number generator and compare to the given `percentage` option.
+A double-quoted ID may interpolate values, such as `rateLimit("${log.service}:${parsed.code as Integer}")`, one sampler
+per value; each `${...}` holds one value, optionally with an `as` cast. This is the only place LAL interpolates: in any
+other string `${...}` is literal text, and a single-quoted ID holding `${...}` is refused.
+- The Groovy-based LAL's `possibility(percentage)` sampler is not supported: a rule using it fails to compile.
 
 We welcome contributions on more sampling strategies. If multiple samplers are specified, the last one determines the
 final sampling result. See examples in [Enforcer](#enforcer).
 
-Examples 1, `rateLimit`:
+Example, `rateLimit`:
 
 ```
 filter {
@@ -639,26 +792,6 @@ filter {
             } else {
                 rateLimit("OtherSampler") {
                     rpm 180   // samples at most 180 logs per minute for other services than "ImportantApp"
-                }
-            }
-        }
-    }
-}
-```
-
-Examples 2, `possibility`:
-
-```
-filter {
-    // ... parser
-
-    sink {
-        sampler {
-            if (parsed.service == "ImportantApp") {
-                possibility(80) { // samples 80% of the logs for service "ImportantApp"
-                }
-            } else {
-                possibility(30) { // samples 30% of the logs for other services than "ImportantApp"
                 }
             }
         }
@@ -687,29 +820,38 @@ filter {
 }
 ```
 
-Or if you have multiple filters, some of which are for extracting metrics, only one of them has to be persisted.
+Or if you have multiple rules, some of which are for extracting metrics, only one of them has to persist the log.
 
-```
-filter { // filter A: this is for persistence
-    // ... parser
-
-    sink {
-        sampler {
-            // .. sampler configs
+```yaml
+rules:
+  - name: persist # rule A: this is for persistence
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        sink {
+          sampler {
+            rateLimit("persist") {
+              rpm 6000
+            }
+          }
         }
-    }
-}
-filter { // filter B:
-    // ... extractor to generate many metrics
-    extractor {
-        metrics {
-            // ... metrics
+      }
+  - name: metrics # rule B: generates metrics
+    layer: GENERAL
+    dsl: |
+      filter {
+        json {}
+        extractor {
+          metrics {
+            name "log_count"
+            value 1
+          }
         }
-    }
-    sink {
-        dropper {} // drop all logs because they have been saved in "filter A" above.
-    }
-}
+        sink {
+          dropper {} // drop all logs because they have been saved by rule A above.
+        }
+      }
 ```
 
 #### Enforcer

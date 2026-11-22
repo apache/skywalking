@@ -21,6 +21,7 @@ package org.apache.skywalking.oap.server.core.analysis;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 
 /**
@@ -29,8 +30,11 @@ import org.apache.skywalking.oap.server.core.annotation.AnnotationListener;
 public class DisableRegister implements AnnotationListener {
     public static DisableRegister INSTANCE = new DisableRegister();
     private Set<String> disableEntitySet = new HashSet<>();
+    private final Set<String> scriptDisables = new HashSet<>();
+    private final Set<String> definedStreams = new HashSet<>();
+    private final Set<String> runningStreams = new HashSet<>();
 
-    private DisableRegister() {
+    DisableRegister() {
     }
 
     @Override
@@ -51,6 +55,43 @@ public class DisableRegister implements AnnotationListener {
 
     public void add(String name) {
         disableEntitySet.add(name);
+    }
+
+    /**
+     * A {@code disable(name)} statement of an OAL script. Unlike a hard-coded disable, a script names its stream by
+     * hand, so a name no stream carries is reported by {@link #scriptDisablesWithoutStream()}. A disable only skips a
+     * stream defined after it, see {@link #isStreamRunning(String)}.
+     */
+    public void addFromScript(String name) {
+        scriptDisables.add(name);
+        add(name);
+    }
+
+    /**
+     * Record a stream as it is defined, and as running unless a disable registered before skips it.
+     */
+    public void markStreamDefined(String name) {
+        definedStreams.add(name);
+        if (!include(name)) {
+            runningStreams.add(name);
+        }
+    }
+
+    /**
+     * @return true when the stream was defined with its workers, so a disable of it would come too late.
+     */
+    public boolean isStreamRunning(String name) {
+        return runningStreams.contains(name);
+    }
+
+    /**
+     * @return the names OAL scripts disable that no defined stream carries. Read once every module has started and
+     * defined its streams.
+     */
+    public Set<String> scriptDisablesWithoutStream() {
+        final Set<String> unknown = new TreeSet<>(scriptDisables);
+        unknown.removeAll(definedStreams);
+        return unknown;
     }
 
     public boolean include(String name) {

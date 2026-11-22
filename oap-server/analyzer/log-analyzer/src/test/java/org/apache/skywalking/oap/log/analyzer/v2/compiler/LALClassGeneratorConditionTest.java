@@ -109,8 +109,8 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("h.toString("),
-            "Expected toString helper for safe nav method but got: " + source);
+        assertTrue(source.contains("h.toStr("),
+            "Expected the null-safe h.toStr for a safe nav toString() but got: " + source);
         assertTrue(source.contains("h.isNotEmpty("),
             "Expected isNotEmpty for ExprCondition but got: " + source);
     }
@@ -179,7 +179,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void compileEqStringUsesObjectsEquals() throws Exception {
+    void compileEqOnAParsedValueUsesTheSharedEquality() throws Exception {
         final String dsl = "filter {\n"
             + "  json {}\n"
             + "  if (parsed?.status == \"OK\") {\n"
@@ -188,12 +188,13 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("java.util.Objects.equals("),
-            "Expected Objects.equals for string comparison but got: " + source);
+        // a parsed value is not known to be a String: the shared equality, by content (a JSON primitive too)
+        assertTrue(source.contains("h.equal("),
+            "Expected h.equal for string comparison but got: " + source);
     }
 
     @Test
-    void compileNeqStringUsesObjectsEquals() throws Exception {
+    void compileNeqOnAParsedValueUsesTheSharedEquality() throws Exception {
         final String dsl = "filter {\n"
             + "  json {}\n"
             + "  if (parsed?.status != \"ERROR\") {\n"
@@ -202,8 +203,8 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("!java.util.Objects.equals("),
-            "Expected !Objects.equals for string != but got: " + source);
+        assertTrue(source.contains("!h.equal("),
+            "Expected !h.equal for string != but got: " + source);
     }
 
     @Test
@@ -377,19 +378,19 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void compileDivideOnLongTagsEmitsLong() throws Exception {
+    void compileDivideOnLongTagsEmitsDecimal() throws Exception {
         final String dsl = "filter {\n"
             + "  extractor {\n"
             + "    tag 'q': (tag(\"a\") as Long) / (tag(\"b\") as Long)\n"
             + "  }\n"
             + "  sink {}\n"
             + "}";
+        // Groovy LAL divided two whole numbers to a BigDecimal (3 / 2 is 1.5), a zero divisor failing.
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("Long.valueOf("),
-            "Expected boxed Long result for Long / Long but got: " + source);
-        assertTrue(source.contains("h.toLong(h.tagValue(\"a\")) / h.toLong(h.tagValue(\"b\"))"),
-            "Expected long division but got: " + source);
+        assertTrue(source.contains("h.quotient((long) (h.toLong(h.tagValue(\"a\"))), "
+                + "(long) (h.toLong(h.tagValue(\"b\"))))"),
+            "Expected decimal division but got: " + source);
     }
 
     @Test
@@ -446,7 +447,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
     }
 
     @Test
-    void compileFloatCastEmitsFloatArithmetic() throws Exception {
+    void compileFloatCastEmitsDoubleArithmetic() throws Exception {
         final String dsl = "filter {\n"
             + "  extractor {\n"
             + "    tag 'r': (tag(\"a\") as Float) + (tag(\"b\") as Float)\n"
@@ -455,10 +456,9 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("Float.valueOf("),
-            "Expected boxed Float result but got: " + source);
-        assertTrue(source.contains("h.toFloat("),
-            "Expected h.toFloat() for Float cast but got: " + source);
+        // Groovy adds two floats in double.
+        assertTrue(source.contains("Double.valueOf(((double) h.toFloat(h.tagValue(\"a\")) + (double) h.toFloat("),
+            "Expected the floats added in double but got: " + source);
     }
 
     @Test
@@ -578,7 +578,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected int + int < 10000 (no L, no long widening) but got: " + source);
     }
 
-    // ==================== P1 regression: comparison casts respect declared type ====================
+    // ==================== Comparison casts keep their declared type ====================
 
     @Test
     void compileDoubleCastComparisonAgainstLiteralStaysInDouble() throws Exception {
@@ -721,7 +721,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected Integer RHS widened to double but got: " + source);
     }
 
-    // ==================== Copilot review (PR #13858) ====================
+    // ==================== Typed-proto numeric fields and literal widening ====================
 
     @Test
     void compileTypedProtoNullSafeNumericComparisonGuardsBothSides() throws Exception {
@@ -801,7 +801,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Exponent literal must not be appended with `.0` but got: " + source);
     }
 
-    // ==================== Copilot review #5 (PR #13858) — silent bugs ====================
+    // ==================== Casts and null guards on typed-proto values ====================
 
     @Test
     void compileMethodArgWithNumericCastRoutesThroughHelper() throws Exception {
@@ -827,7 +827,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         // `((parsed?.x?.y as Long)) as Integer < 1` — when the narrowing
         // cast layer sees an already-primitive operand, it must preserve
         // the inner safe-nav null guard so the comparison still
-        // short-circuits to false on a missing chain (instead of NPE).
+        // short-circuits to Groovy's `null < 1`, true, on a missing chain (instead of NPE).
         generator.setInputType(
             io.envoyproxy.envoy.data.accesslog.v3.HTTPAccessLogEntry.class);
         final String dsl = "filter {\n"
@@ -840,7 +840,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         final String source = generator.generateSource(dsl);
         // The outer comparison must still be wrapped with the null-guard
         // ternary captured by generateExtraLogAccess.
-        assertTrue(source.contains("== null ? false :"),
+        assertTrue(source.contains("== null ? true :"),
             "Expected null-guard ternary preserved across narrowing cast but got: "
                 + source);
     }
@@ -869,13 +869,13 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
                 + source);
     }
 
-    // ==================== Copilot review #4 (PR #13858) ====================
+    // ==================== Concatenation and expressions as method arguments ====================
 
     @Test
     void compileNumericPrefixThenObjectStringConcatPrependsEmptyString() throws Exception {
         // `1 + parsed.field` where parsed.field is Object (json/yaml mapVal
-        // returns Object) — Java rejects `int + Object` at compile time.
-        // The codegen must prepend "" to coerce string concat.
+        // returns Object): Groovy's plus decides at run time, adding a number
+        // and concatenating a string.
         final String dsl = "filter {\n"
             + "  json {}\n"
             + "  extractor {\n"
@@ -885,8 +885,8 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("\"\" + 1 + h.mapVal("),
-            "Expected \\\"\\\" coercion for `int + Object` but got: " + source);
+        assertTrue(source.contains("h.plus("),
+            "Expected h.plus for `int + Object` but got: " + source);
     }
 
     @Test
@@ -926,7 +926,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected concat(h.tagValue(...)) but got: " + source);
     }
 
-    // ==================== Copilot review #3 (PR #13858) ====================
+    // ==================== Numeric casts, value ranges and literal slots ====================
 
     @Test
     void compileEqOnDualNumericCastsRoutesThroughIntComparison() throws Exception {
@@ -1095,7 +1095,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         compileAndAssert(dsl);
     }
 
-    // ==================== P2 regression: paren grouping without cast ====================
+    // ==================== Grouping without a cast ====================
 
     @Test
     void compileParenGroupingWithoutCastInArithmetic() throws Exception {
@@ -1133,7 +1133,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             "Expected int RHS in comparison but got: " + source);
     }
 
-    // ==================== P2 regression: def cast supports Double / Float ====================
+    // ==================== def casts to Double and Float ====================
 
     @Test
     void compileDefVariableWithDoubleCast() throws Exception {
@@ -1159,7 +1159,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
         compileAndAssert(dsl);
     }
 
-    // ==================== P2 regression: lexer rejects invalid suffix combos ====================
+    // ==================== Number literal suffixes ====================
 
     @Test
     void compileFractionalLongSuffixIsLexerError() {
@@ -1187,7 +1187,7 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
 
     @Test
     void compileFloatLiteralSuffixedAcceptedInArithmetic() throws Exception {
-        // `1.5f + 2.5f` round-trips through the lexer and emits float arithmetic.
+        // `1.5f + 2.5f` round-trips through the lexer and, as in Groovy, adds in double.
         final String dsl = "filter {\n"
             + "  extractor {\n"
             + "    tag 'x': 1.5f + 2.5f\n"
@@ -1196,8 +1196,8 @@ class LALClassGeneratorConditionTest extends LALClassGeneratorTestBase {
             + "}";
         compileAndAssert(dsl);
         final String source = generator.generateSource(dsl);
-        assertTrue(source.contains("Float.valueOf("),
-            "Expected boxed Float result for 1.5f + 2.5f but got: " + source);
+        assertTrue(source.contains("Double.valueOf(((double) 1.5f + (double) 2.5f))"),
+            "Expected the float literals added in double but got: " + source);
     }
 
     @Test

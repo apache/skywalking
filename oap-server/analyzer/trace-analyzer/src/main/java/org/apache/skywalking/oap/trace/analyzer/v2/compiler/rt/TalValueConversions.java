@@ -17,11 +17,14 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler.rt;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
+import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
+import org.apache.skywalking.oap.server.core.dsl.DslStrings;
+import org.apache.skywalking.oap.server.core.dsl.DslValues;
 
 /**
  * How generated code converts and compares values: the {@code as} conversions, Javassist's missing autoboxing,
@@ -31,143 +34,95 @@ import org.apache.skywalking.oap.server.core.analysis.Layer;
  * <p>The conversions behave as {@code LalRuntimeHelper}'s in {@code log-analyzer} do.
  */
 public final class TalValueConversions {
-    /**
-     * What an {@code as T} answers in a comparison when the value cannot be converted; a comparison with it is false.
-     */
-    private static final Object CAST_FAILED = new Object();
-
     private TalValueConversions() {
     }
 
     // ==================== Comparisons ====================
 
     /**
-     * {@code value as Integer} in a comparison.
+     * {@code value as Integer} where a null may stay null, as LAL casts: a comparison operand, a def. A blank text
+     * is a missing value too, as {@code attr()} reads an absent attribute. A value that cannot be converted fails
+     * the span, as {@link #toInt(Object)} does.
      *
-     * @param value the value to convert
-     * @return the Integer, or a failure marker for a value that is absent or not a whole number of that range
+     * @return the Integer, or null for a missing value
      */
-    public static Object asInteger(final Object value) {
-        final Object number = asNumber(value);
-        if (number instanceof Number) {
-            final double d = ((Number) number).doubleValue();
-            if (d == Math.rint(d) && d >= Integer.MIN_VALUE && d <= Integer.MAX_VALUE) {
-                return ((Number) number).intValue();
-            }
-        }
-        return CAST_FAILED;
+    public static Integer asInteger(final Object value) {
+        return DslNumbers.isBlank(value) ? null : Integer.valueOf(toInt(value));
+    }
+
+    public static Long asLong(final Object value) {
+        return DslNumbers.isBlank(value) ? null : Long.valueOf(toLong(value));
+    }
+
+    public static Double asDouble(final Object value) {
+        return DslNumbers.isBlank(value) ? null : Double.valueOf(toDouble(value));
+    }
+
+    public static Float asFloat(final Object value) {
+        return DslNumbers.isBlank(value) ? null : Float.valueOf(toFloat(value));
     }
 
     /**
-     * {@code value as Long} in a comparison.
+     * {@code value as Boolean} where a null may stay null.
      *
-     * @param value the value to convert
-     * @return the Long, or a failure marker for a value that is absent or not a whole number
+     * @return the value as a boolean, as LAL converts it ({@link DslNumbers#toBoolean}); null for null or a blank text
      */
-    public static Object asLong(final Object value) {
-        final Object number = asNumber(value);
-        if (number instanceof Long || number instanceof Integer) {
-            return ((Number) number).longValue();
-        }
-        if (number instanceof Double && ((Double) number) == Math.rint((Double) number)) {
-            return ((Double) number).longValue();
-        }
-        return CAST_FAILED;
+    public static Boolean asBoolean(final Object value) {
+        return DslNumbers.isBlank(value) ? null : Boolean.valueOf(DslNumbers.toBoolean(value));
     }
 
     /**
-     * {@code value as Double} in a comparison.
+     * A {@code log} argument after the message's placeholders, whose type is known only when the rule runs: SLF4J
+     * logs a Throwable there as the exception and drops anything else, so anything else fails the rule instead.
      *
-     * @param value the value to convert
-     * @return the Double, or a failure marker for a value that is absent or not a number
+     * @param value the argument
+     * @return the argument, a Throwable or null
      */
-    public static Object asDouble(final Object value) {
-        final Object number = asNumber(value);
-        return number instanceof Number ? (Object) ((Number) number).doubleValue() : CAST_FAILED;
-    }
-
-    /**
-     * {@code value as Float} in a comparison.
-     *
-     * @param value the value to convert
-     * @return the Float, or a failure marker for a value that is absent or not a number
-     */
-    public static Object asFloat(final Object value) {
-        final Object number = asNumber(value);
-        return number instanceof Number ? (Object) ((Number) number).floatValue() : CAST_FAILED;
-    }
-
-    /**
-     * {@code value as Boolean} in a comparison.
-     *
-     * @param value the value to convert
-     * @return the Boolean, or a failure marker for anything but a Boolean or the text true or false
-     */
-    public static Object asBoolean(final Object value) {
-        if (value instanceof Boolean) {
+    public static Object loggedException(final Object value) {
+        if (value == null || value instanceof Throwable) {
             return value;
         }
-        if (value instanceof String) {
-            final String text = ((String) value).trim();
-            if ("true".equalsIgnoreCase(text) || "false".equalsIgnoreCase(text)) {
-                return Boolean.valueOf(text);
-            }
-        }
-        return CAST_FAILED;
+        throw new IllegalArgumentException(
+            "a log argument after the message's placeholders is logged as the exception, and a "
+                + value.getClass().getName() + " is none; add a {} for it");
     }
 
     /**
-     * @return a Long or a Double for a number or a text that parses as one, else null
-     */
-    private static Object asNumber(final Object value) {
-        if (value instanceof Long || value instanceof Integer || value instanceof Short || value instanceof Byte) {
-            return ((Number) value).longValue();
-        }
-        if (value instanceof Number) {
-            return ((Number) value).doubleValue();
-        }
-        if (value instanceof String) {
-            final String text = ((String) value).trim();
-            if (text.isEmpty()) {
-                return null;
-            }
-            try {
-                return Long.parseLong(text);
-            } catch (final NumberFormatException e) {
-                try {
-                    return Double.parseDouble(text);
-                } catch (final NumberFormatException e2) {
-                    return null;
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * A comparison of two numbers with Java's promotion: as doubles when either is a floating-point number, as
-     * longs otherwise.
+     * Every comparison but a null check and a Layer or an enum against a literal: {@code ==} and {@code !=} as every
+     * DSL compares values ({@link DslValues#equal}); an ordering as every DSL orders values ({@link DslValues#order}),
+     * two booleans as Java orders them, and a null below every value.
      *
-     * @param left  the left operand
-     * @param right the right operand
-     * @param op    the operator, the ordinal of {@code CompareOp}: ==, !=, &gt;, &lt;, &gt;=, &lt;=
-     * @return the comparison; false when either side is absent or a failed {@code as T}
+     * @param op the operator, the ordinal of {@code CompareOp}: ==, !=, &gt;, &lt;, &gt;=, &lt;=
+     * @return the comparison
      */
-    public static boolean compareNumbers(final Object left, final Object right, final int op) {
-        if (!(left instanceof Number) || !(right instanceof Number)) {
-            return false;
+    public static boolean compareOrdered(final Object left, final Object right, final int op) {
+        if (op == 0 || op == 1) {
+            return equal(left, right) == (op == 0);
         }
-        final int sign;
-        if (left instanceof Double || left instanceof Float || right instanceof Double || right instanceof Float) {
-            final double l = ((Number) left).doubleValue();
-            final double r = ((Number) right).doubleValue();
-            if (Double.isNaN(l) || Double.isNaN(r)) {
-                return op == 1;
-            }
-            sign = l < r ? -1 : l > r ? 1 : 0;
-        } else {
-            sign = Long.compare(((Number) left).longValue(), ((Number) right).longValue());
+        if (left == null || right == null) {
+            return holds(left == right ? 0 : left == null ? -1 : 1, op);
         }
+        if (left instanceof Boolean && right instanceof Boolean) {
+            return holds(Boolean.compare((Boolean) left, (Boolean) right), op);
+        }
+        if (!DslValues.ordersByValue(left, right)) {
+            throw new IllegalArgumentException(
+                "cannot order " + describe(left) + " against " + describe(right) + "; convert it explicitly");
+        }
+        final Integer order = DslValues.order(left, right);
+        // a NaN has no order, so every ordering of it is false
+        return order != null && holds(order, op);
+    }
+
+    /**
+     * @return the value as a message names it, a character or any other text as the String it is
+     */
+    private static String describe(final Object value) {
+        final Object shown = value instanceof Character || value instanceof CharSequence ? value.toString() : value;
+        return shown.getClass().getName() + " '" + shown + "'";
+    }
+
+    private static boolean holds(final int sign, final int op) {
         switch (op) {
             case 0:
                 return sign == 0;
@@ -183,21 +138,6 @@ public final class TalValueConversions {
             default:
                 return sign <= 0;
         }
-    }
-
-    /**
-     * {@code ==} or {@code !=} of two values of one kind.
-     *
-     * @param left  the left operand
-     * @param right the right operand
-     * @param equal true for {@code ==}
-     * @return whether they are equal, or differ; false when either side is a failed {@code as T}
-     */
-    public static boolean sameValue(final Object left, final Object right, final boolean equal) {
-        if (left == CAST_FAILED || right == CAST_FAILED) {
-            return false;
-        }
-        return Objects.equals(left, right) == equal;
     }
 
     // ==================== Conversions ====================
@@ -242,62 +182,123 @@ public final class TalValueConversions {
         return String.valueOf(value);
     }
 
+    /**
+     * A character is written as the one-character string it is, not as its code.
+     */
+    public static String toStr(final char value) {
+        return String.valueOf(value);
+    }
+
+    /**
+     * {@code +} where neither side is a string nor both numbers when the rule compiles, as LAL's: two numbers add in
+     * Groovy's number type ({@code Integer + Long} is a {@code Long}, a float or a double makes a {@code Double}), and
+     * any other values, a null or a character included, concatenate.
+     */
+    public static Object plus(final Object left, final Object right) {
+        return DslNumbers.plus(left, right);
+    }
+
+    public static String joined(final Object value) {
+        return DslNumbers.joined(value);
+    }
+
     public static String toStr(final boolean value) {
         return String.valueOf(value);
     }
 
+    /**
+     * {@code as String} and a value written as a string, as LAL converts: an array by its elements; null stays null.
+     */
     public static String toStr(final Object obj) {
-        return obj == null ? null : String.valueOf(obj);
+        return obj == null ? null : DslStrings.text(obj);
     }
 
+    /**
+     * {@code as Long} and a value passed to a {@code long} parameter, as LAL converts: a number, or a string trimmed
+     * and parsed; anything else, a null included, fails the span.
+     */
     public static long toLong(final Object obj) {
-        if (obj instanceof Number) {
-            return ((Number) obj).longValue();
-        }
-        if (obj instanceof String) {
-            return Long.parseLong((String) obj);
-        }
-        return 0L;
+        return DslNumbers.toLong(obj);
     }
 
     public static int toInt(final Object obj) {
-        if (obj instanceof Number) {
-            return ((Number) obj).intValue();
-        }
-        if (obj instanceof String) {
-            return Integer.parseInt((String) obj);
-        }
-        return 0;
+        return DslNumbers.toInt(obj);
     }
 
     public static double toDouble(final Object obj) {
-        if (obj instanceof Number) {
-            return ((Number) obj).doubleValue();
-        }
-        if (obj instanceof String) {
-            return Double.parseDouble((String) obj);
-        }
-        return 0.0d;
+        return DslNumbers.toDouble(obj);
     }
 
     public static float toFloat(final Object obj) {
-        if (obj instanceof Number) {
-            return ((Number) obj).floatValue();
-        }
-        if (obj instanceof String) {
-            return Float.parseFloat((String) obj);
-        }
-        return 0.0f;
+        return DslNumbers.toFloat(obj);
     }
 
+    /**
+     * {@code /} on two whole numbers, or on a decimal quotient: the exact decimal, as Groovy divides (7 / 2 is 3.5),
+     * and ten decimals rounded half up where it does not terminate; a zero divisor fails the span. The value stays that
+     * decimal until where it goes converts it: an int or long truncates it, a double reads its double value, text its
+     * digits, and a comparison its exact value.
+     */
+    public static BigDecimal quotient(final Object dividend, final Object divisor) {
+        if (DslNumbers.isWholeBox(dividend) && DslNumbers.isWholeBox(divisor)) {
+            final long l = ((Number) dividend).longValue();
+            final long r = ((Number) divisor).longValue();
+            // A whole quotient, such as nanoseconds to milliseconds, skips the decimal division.
+            if (r != 0 && l % r == 0 && !(l == Long.MIN_VALUE && r == -1)) {
+                return BigDecimal.valueOf(l / r);
+            }
+        }
+        return DslNumbers.quotient(DslNumbers.exact((Number) dividend), DslNumbers.exact((Number) divisor));
+    }
+
+    /**
+     * {@code +}, {@code -} or {@code *} of a decimal quotient and a whole number or another decimal: exact.
+     */
+    public static BigDecimal exactSum(final Object left, final Object right) {
+        return DslNumbers.exact((Number) left).add(DslNumbers.exact((Number) right));
+    }
+
+    public static BigDecimal exactDifference(final Object left, final Object right) {
+        return DslNumbers.exact((Number) left).subtract(DslNumbers.exact((Number) right));
+    }
+
+    public static BigDecimal exactProduct(final Object left, final Object right) {
+        return DslNumbers.exact((Number) left).multiply(DslNumbers.exact((Number) right));
+    }
+
+    public static Number sum(final Object left, final Object right) {
+        return DslNumbers.arithmetic((Number) left, (Number) right, '+');
+    }
+
+    /**
+     * {@code +}, {@code -} or {@code *} with a number of a class the rule does not know when it compiles, such as a
+     * JSON number, as Groovy computes it: in double beside a float or a double, else exactly.
+     */
+    public static Number minus(final Object left, final Object right) {
+        return DslNumbers.arithmetic((Number) left, (Number) right, '-');
+    }
+
+    public static Number times(final Object left, final Object right) {
+        return DslNumbers.arithmetic((Number) left, (Number) right, '*');
+    }
+
+    /**
+     * Evaluates its arguments in order and answers the second: a value a guarded chain reads is held once, so its
+     * null check does not run it a second time.
+     */
+    public static Object first(final Object held, final Object value) {
+        return value;
+    }
+
+    /**
+     * {@code as Boolean} to a primitive, as LAL converts ({@link DslNumbers#toBoolean}); a null or a blank text, a
+     * missing value, fails the span.
+     */
     public static boolean toBool(final Object obj) {
-        if (obj instanceof Boolean) {
-            return (Boolean) obj;
+        if (DslNumbers.isBlank(obj)) {
+            throw DslNumbers.cannotConvert(obj, "boolean");
         }
-        if (obj instanceof String) {
-            return Boolean.parseBoolean((String) obj);
-        }
-        return obj != null;
+        return DslNumbers.toBoolean(obj);
     }
 
     /**
@@ -334,66 +335,43 @@ public final class TalValueConversions {
     }
 
     /**
-     * Truthiness for an {@code if} over a bare expression: null is false, a Boolean speaks for itself, a String
-     * parses, anything else present is true.
+     * A bare {@code as Boolean} condition: the value as the cast converts it ({@link #asBoolean(Object)}), a missing
+     * value, null or a blank text, false.
      *
      * @param obj the value the condition read
      * @return whether the condition holds
      */
     public static boolean isTrue(final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof Boolean) {
-            return (Boolean) obj;
-        }
-        if (obj instanceof String) {
-            return Boolean.parseBoolean((String) obj);
-        }
-        return true;
-    }
-
-    public static boolean isTrue(final boolean value) {
-        return value;
+        return !DslNumbers.isBlank(obj) && DslNumbers.toBoolean(obj);
     }
 
     /**
-     * Non-emptiness for an {@code if} over a bare expression, which is how {@code if (!peer)} reads. A boxed
-     * boolean is its truth, so {@code if (meta.root)} reads as a condition rather than as the non-empty string
-     * {@code "false"}; LAL's helper has no such case, since a log field is text.
-     *
-     * @param obj the value the condition read
-     * @return whether it is present and not the empty string, or true for a {@code Boolean}
+     * The truth of an {@code if} over a bare expression, as LAL's: see {@link DslValues#isNotEmpty}.
      */
     public static boolean isNotEmpty(final Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj instanceof Boolean) {
-            return (Boolean) obj;
-        }
-        if (obj instanceof String) {
-            return !((String) obj).isEmpty();
-        }
-        return !obj.toString().isEmpty();
-    }
-
-    public static boolean isNotEmpty(final boolean value) {
-        return value;
+        return DslValues.isNotEmpty(obj);
     }
 
     /**
-     * Null-safe {@code ?.toString()}.
-     *
-     * @param obj the value
-     * @return its string form, or null
+     * {@code ==} by content, as every DSL compares values: see {@link DslValues#equal}.
      */
-    public static String toString(final Object obj) {
-        return obj == null ? null : obj.toString();
+    public static boolean equal(final Object left, final Object right) {
+        return DslValues.equal(left, right);
     }
 
-    public static String trim(final Object obj) {
-        return obj == null ? null : obj.toString().trim();
+    /**
+     * {@code value?.toString()}: null for a null, else as {@link #text}.
+     */
+    public static String toString(final Object obj) {
+        return obj == null ? null : DslStrings.text(obj);
+    }
+
+    /**
+     * {@code value.toString()} on an array, a collection, a map or a value of unknown type: by content, see
+     * {@link DslStrings#text}; a null fails.
+     */
+    public static String text(final Object obj) {
+        return DslStrings.text(obj);
     }
 
     // ==================== Typed values and loops ====================

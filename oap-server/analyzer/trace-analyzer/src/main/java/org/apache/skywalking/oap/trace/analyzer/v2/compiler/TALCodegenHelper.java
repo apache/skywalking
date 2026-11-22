@@ -18,13 +18,16 @@
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 import java.util.List;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
+import org.apache.skywalking.oap.server.core.dsl.DslStrings;
 
 /**
- * Small helpers the generated Java source needs, shared by every DSL's codegen.
+ * Small helpers the generated Java source needs.
  */
 public final class TALCodegenHelper {
     private TALCodegenHelper() {
@@ -56,27 +59,35 @@ public final class TALCodegenHelper {
     }
 
     /**
-     * @return the wrapper class of a primitive type, or the type itself when it is not primitive
+     * Whether a Java cast from one reference type to another can hold for some value, as javac decides it: one is
+     * the other's subtype or supertype, or an interface meets a class that is not final.
+     *
+     * @param from the value's static type, null when unknown
+     * @param to   the type cast to
+     * @return false when no value of {@code from} can be a {@code to}
      */
-    public static Class<?> boxedClass(final Class<?> type) {
-        if (type == int.class) {
-            return Integer.class;
-        } else if (type == long.class) {
-            return Long.class;
-        } else if (type == boolean.class) {
-            return Boolean.class;
-        } else if (type == double.class) {
-            return Double.class;
-        } else if (type == float.class) {
-            return Float.class;
-        } else if (type == short.class) {
-            return Short.class;
-        } else if (type == byte.class) {
-            return Byte.class;
-        } else if (type == char.class) {
-            return Character.class;
+    public static boolean castable(final Class<?> from, final Class<?> to) {
+        if (from == null) {
+            return true;
         }
-        return type;
+        if (from.isArray() && to.isArray()) {
+            final Class<?> fromElement = from.getComponentType();
+            final Class<?> toElement = to.getComponentType();
+            // A byte[] is never a char[]: arrays of primitives cast only to their own type.
+            return fromElement.isPrimitive() || toElement.isPrimitive() ? fromElement == toElement
+                : castable(fromElement, toElement);
+        }
+        if (from.isPrimitive() || to.isPrimitive()) {
+            return true;
+        }
+        if (to.isAssignableFrom(from) || from.isAssignableFrom(to)) {
+            return true;
+        }
+        if (from.isArray() || to.isArray()) {
+            return false;
+        }
+        return from.isInterface() && (to.isInterface() || !Modifier.isFinal(to.getModifiers()))
+            || to.isInterface() && !Modifier.isFinal(from.getModifiers());
     }
 
     /**
@@ -106,12 +117,26 @@ public final class TALCodegenHelper {
         final String capitalized = Character.toUpperCase(field.charAt(0)) + field.substring(1);
         for (final String name : List.of("get" + capitalized, "is" + capitalized, field)) {
             try {
-                return type.getMethod(name);
+                return DslMethods.find(type, name);
             } catch (NoSuchMethodException ignored) {
                 // try the next spelling
             }
         }
         return null;
+    }
+
+    /**
+     * @return the code of {@code receiver.toString()}, the call written out or read as a property, when the receiver's
+     *     static type can hold an array, a collection or a map, which a rule prints by content
+     *     ({@code DslStrings#text}), through the null-safe form under {@code ?.}; null for any other call
+     */
+    public static String printedByContent(final Class<?> receiverType, final Method method, final String receiver,
+                                          final boolean safeNav) {
+        if (method == null || !"toString".equals(method.getName()) || method.getParameterCount() != 0
+            || !DslStrings.mayHoldItems(receiverType)) {
+            return null;
+        }
+        return TALRuntimeRoles.method(safeNav ? "toString" : "text") + "(" + receiver + ")";
     }
 
     /**

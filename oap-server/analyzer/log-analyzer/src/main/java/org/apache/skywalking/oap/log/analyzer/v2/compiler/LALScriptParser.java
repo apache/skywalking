@@ -17,10 +17,13 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
+import java.math.BigInteger;
+import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -69,6 +72,8 @@ import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ValueAc
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.ValueAccessSegment;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.IndexSegment;
 import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.YamlParser;
+import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
+import org.apache.skywalking.oap.server.core.dsl.DslStrings;
 
 /**
  * Facade: parses LAL DSL script strings into {@link LALScriptModel}.
@@ -80,6 +85,9 @@ import org.apache.skywalking.oap.log.analyzer.v2.compiler.LALScriptModel.YamlPar
  */
 public final class LALScriptParser {
 
+    private static final List<String> BUILT_IN_CASTS =
+        List.of("String", "Long", "Integer", "Double", "Float", "Boolean");
+
     private LALScriptParser() {
     }
 
@@ -89,8 +97,8 @@ public final class LALScriptParser {
         final LALParser parser = new LALParser(tokens);
 
         final List<String> errors = new ArrayList<>();
-        parser.removeErrorListeners();
-        parser.addErrorListener(new BaseErrorListener() {
+        // The lexer reports too: by default it prints an unrecognized character and drops it.
+        final BaseErrorListener listener = new BaseErrorListener() {
             @Override
             public void syntaxError(final Recognizer<?, ?> recognizer,
                                     final Object offendingSymbol,
@@ -100,7 +108,11 @@ public final class LALScriptParser {
                                     final RecognitionException e) {
                 errors.add(line + ":" + charPositionInLine + " " + msg);
             }
-        });
+        };
+        lexer.removeErrorListeners();
+        lexer.addErrorListener(listener);
+        parser.removeErrorListeners();
+        parser.addErrorListener(listener);
 
         final LALParser.RootContext tree = parser.root();
         if (!errors.isEmpty()) {
@@ -152,14 +164,28 @@ public final class LALScriptParser {
         if (ctx.textBlock() != null) {
             String pattern = null;
             boolean abortOnFail = true;
-            if (ctx.textBlock().textContent() != null) {
-                for (final LALParser.RegexpStatementContext regCtx :
-                        ctx.textBlock().textContent().regexpStatement()) {
-                    pattern = stripQuotes(regCtx.regexpPattern().getText());
+            final LALParser.TextContentContext content = ctx.textBlock().textContent();
+            if (content != null) {
+                if (content.regexpStatement().size() > 1) {
+                    throw new IllegalArgumentException(
+                        "A text {} block takes one regexp, got " + content.regexpStatement().size()
+                            + ": " + rawTextOf(ctx));
                 }
-                for (final LALParser.AbortOnFailureStatementContext abfCtx :
-                        ctx.textBlock().textContent().abortOnFailureStatement()) {
+                for (final LALParser.RegexpStatementContext regCtx : content.regexpStatement()) {
+                    final TerminalNode slashy = regCtx.regexpPattern().SLASHY_STRING();
+                    pattern = slashy != null
+                        ? LALLiterals.slashyLiteral(slashy.getText())
+                        : LALLiterals.stringLiteral(regCtx.regexpPattern().STRING().getText());
+                }
+                // A flag, whichever side of the regexp it is written; two that disagree are ambiguous.
+                final Set<Boolean> flags = new HashSet<>();
+                for (final LALParser.AbortOnFailureStatementContext abfCtx : content.abortOnFailureStatement()) {
                     abortOnFail = parseBoolText(abfCtx.boolValue().getText());
+                    flags.add(abortOnFail);
+                }
+                if (flags.size() > 1) {
+                    throw new IllegalArgumentException(
+                        "A text {} block sets abortOnFailure both true and false: " + rawTextOf(ctx));
                 }
             }
             return new TextParser(pattern, abortOnFail);
@@ -246,7 +272,7 @@ public final class LALScriptParser {
             final String cast = extractCastType(ctx.timestampStatement().typeCast());
             String format = null;
             if (ctx.timestampStatement().STRING() != null) {
-                format = stripQuotes(ctx.timestampStatement().STRING().getText());
+                format = LALLiterals.stringLiteral(ctx.timestampStatement().STRING().getText());
             }
             return new FieldAssignment(FieldType.TIMESTAMP, va, cast, format)
                 .withSource(sourceLine, sourceText);
@@ -311,26 +337,25 @@ public final class LALScriptParser {
             final LALParser.DefStatementContext ctx) {
         final String varName = ctx.IDENTIFIER().getText();
         final ValueAccess initializer = visitValueAccess(ctx.valueAccess());
-        final String castType = extractCastType(ctx.typeCast());
+        final String castType = extractCastType(ctx.typeCast(), true);
         return new DefStatement(varName, initializer, castType);
     }
 
     // ==================== Tag statement ====================
 
     private static TagAssignment visitTagStatement(final LALParser.TagStatementContext ctx) {
-        final Map<String, TagValue> tags = new LinkedHashMap<>();
+        final List<Map.Entry<String, TagValue>> tags = new ArrayList<>();
         if (ctx.tagMap() != null) {
-            for (int i = 0; i < ctx.tagMap().anyIdentifier().size(); i++) {
-                final String key = ctx.tagMap().anyIdentifier(i).getText();
-                final ValueAccess va = visitValueAccess(ctx.tagMap().valueAccess(i));
-                final String cast = extractCastType(ctx.tagMap().typeCast(i));
-                tags.put(key, new TagValue(va, cast));
+            for (final LALParser.TagEntryContext entry : ctx.tagMap().tagEntry()) {
+                final ValueAccess va = visitValueAccess(entry.valueAccess());
+                final String cast = extractCastType(entry.typeCast());
+                tags.add(new AbstractMap.SimpleImmutableEntry<>(entry.anyIdentifier().getText(), new TagValue(va, cast)));
             }
         } else if (ctx.STRING() != null) {
-            final String key = stripQuotes(ctx.STRING().getText());
+            final String key = LALLiterals.stringLiteral(ctx.STRING().getText());
             final ValueAccess va = visitValueAccess(ctx.valueAccess());
             final String cast = extractCastType(ctx.typeCast());
-            tags.put(key, new TagValue(va, cast));
+            tags.add(new AbstractMap.SimpleImmutableEntry<>(key, new TagValue(va, cast)));
         }
         return new TagAssignment(tags);
     }
@@ -338,37 +363,32 @@ public final class LALScriptParser {
     // ==================== Metrics block ====================
 
     private static MetricsBlock visitMetricsBlock(final LALParser.MetricsBlockContext ctx) {
-        String name = null;
-        ValueAccess timestampValue = null;
-        String timestampCast = null;
-        final Map<String, TagValue> labels = new LinkedHashMap<>();
-        ValueAccess value = null;
-        String valueCast = null;
-
+        final List<LALScriptModel.MetricsStatement> statements = new ArrayList<>();
         for (final LALParser.MetricsStatementContext msc : ctx.metricsContent().metricsStatement()) {
             if (msc.metricsNameStatement() != null) {
-                name = resolveValueAsString(msc.metricsNameStatement().valueAccess());
-            }
-            if (msc.metricsTimestampStatement() != null) {
-                timestampValue = visitValueAccess(msc.metricsTimestampStatement().valueAccess());
-                timestampCast = extractCastType(msc.metricsTimestampStatement().typeCast());
-            }
-            if (msc.metricsLabelsStatement() != null) {
+                statements.add(new LALScriptModel.MetricsStatement(LALScriptModel.MetricsStatementKind.NAME,
+                    visitValueAccess(msc.metricsNameStatement().valueAccess()),
+                    extractCastType(msc.metricsNameStatement().typeCast()), null));
+            } else if (msc.metricsTimestampStatement() != null) {
+                statements.add(new LALScriptModel.MetricsStatement(LALScriptModel.MetricsStatementKind.TIMESTAMP,
+                    visitValueAccess(msc.metricsTimestampStatement().valueAccess()),
+                    extractCastType(msc.metricsTimestampStatement().typeCast()), null));
+            } else if (msc.metricsLabelsStatement() != null) {
+                final List<Map.Entry<String, TagValue>> labels = new ArrayList<>();
                 for (final LALParser.LabelEntryContext lec :
                         msc.metricsLabelsStatement().labelMap().labelEntry()) {
-                    final String key = lec.anyIdentifier().getText();
-                    final ValueAccess va = visitValueAccess(lec.valueAccess());
-                    final String cast = extractCastType(lec.typeCast());
-                    labels.put(key, new TagValue(va, cast));
+                    labels.add(new AbstractMap.SimpleImmutableEntry<>(lec.anyIdentifier().getText(),
+                        new TagValue(visitValueAccess(lec.valueAccess()), extractCastType(lec.typeCast()))));
                 }
-            }
-            if (msc.metricsValueStatement() != null) {
-                value = visitValueAccess(msc.metricsValueStatement().valueAccess());
-                valueCast = extractCastType(msc.metricsValueStatement().typeCast());
+                statements.add(new LALScriptModel.MetricsStatement(LALScriptModel.MetricsStatementKind.LABELS,
+                    null, null, labels));
+            } else {
+                statements.add(new LALScriptModel.MetricsStatement(LALScriptModel.MetricsStatementKind.VALUE,
+                    visitValueAccess(msc.metricsValueStatement().valueAccess()),
+                    extractCastType(msc.metricsValueStatement().typeCast()), null));
             }
         }
-
-        return new MetricsBlock(name, timestampValue, timestampCast, labels, value, valueCast);
+        return new MetricsBlock(statements);
     }
 
     // ==================== Sink block ====================
@@ -376,36 +396,63 @@ public final class LALScriptParser {
     private static SinkBlock visitSinkBlock(final LALParser.SinkBlockContext ctx) {
         final List<SinkStatement> stmts = new ArrayList<>();
         for (final LALParser.SinkStatementContext ssc : ctx.sinkContent().sinkStatement()) {
-            if (ssc.samplerBlock() != null) {
-                stmts.add(visitSamplerBlock(ssc.samplerBlock()));
-            } else if (ssc.enforcerStatement() != null) {
-                stmts.add(new EnforcerStatement());
-            } else if (ssc.dropperStatement() != null) {
-                stmts.add(new DropperStatement());
-            } else {
-                stmts.add((SinkStatement) visitIfStatement(ssc.ifStatement()));
-            }
+            stmts.add(visitSinkStatement(ssc));
         }
         return new SinkBlock(stmts);
     }
 
+    private static SinkStatement visitSinkStatement(final LALParser.SinkStatementContext ssc) {
+        if (ssc.samplerBlock() != null) {
+            return visitSamplerBlock(ssc.samplerBlock());
+        }
+        if (ssc.enforcerStatement() != null) {
+            return new EnforcerStatement();
+        }
+        if (ssc.dropperStatement() != null) {
+            return new DropperStatement();
+        }
+        return visitIfStatement(ssc.ifStatement());
+    }
+
     private static SamplerBlock visitSamplerBlock(final LALParser.SamplerBlockContext ctx) {
+        return new SamplerBlock(visitSamplerContent(ctx.samplerContent()));
+    }
+
+    /**
+     * In source order: the samplers run in turn, and the last one that runs decides.
+     */
+    private static List<SamplerContent> visitSamplerContent(final LALParser.SamplerContentContext ctx) {
         final List<SamplerContent> contents = new ArrayList<>();
-        for (final LALParser.RateLimitBlockContext rlc : ctx.samplerContent().rateLimitBlock()) {
-            contents.add(visitRateLimitBlock(rlc));
+        if (ctx.children == null) {
+            return contents;
         }
-        for (final LALParser.IfStatementContext isc : ctx.samplerContent().ifStatement()) {
-            contents.add((SamplerContent) visitIfStatement(isc));
+        for (final ParseTree child : ctx.children) {
+            if (child instanceof LALParser.RateLimitBlockContext) {
+                contents.add(visitRateLimitBlock((LALParser.RateLimitBlockContext) child));
+            } else if (child instanceof LALParser.IfStatementContext) {
+                contents.add(visitIfStatement((LALParser.IfStatementContext) child));
+            }
         }
-        return new SamplerBlock(contents);
+        return contents;
     }
 
     private static RateLimitBlock visitRateLimitBlock(
             final LALParser.RateLimitBlockContext rlc) {
-        final String id = stripQuotes(rlc.rateLimitId().getText());
-        final long rpm = parseStrictInteger(
+        final String token = rlc.rateLimitId().STRING().getText();
+        final String raw = token.substring(1, token.length() - 1);
+        final long rpm = parseStrictInt(
             rlc.rateLimitContent().NUMBER().getText(), "rpm");
-        return new RateLimitBlock(id, parseInterpolation(id), rpm);
+        if (token.charAt(0) == '\'') {
+            final String id = LALLiterals.stringLiteral(token);
+            if (id.contains("${") && !raw.contains("\\$")) {
+                throw new IllegalArgumentException(
+                    "rateLimit id " + token + " is single-quoted, which Groovy does not interpolate: "
+                        + "use double quotes for a ${...} id");
+            }
+            return new RateLimitBlock(id, null, rpm);
+        }
+        final List<InterpolationPart> parts = parseInterpolation(raw);
+        return new RateLimitBlock(parts == null ? LALLiterals.stringLiteral(token) : raw, parts, rpm);
     }
 
     // ==================== If statement ====================
@@ -452,35 +499,27 @@ public final class LALScriptParser {
         return new IfBlock(topCond, topBody, topElse);
     }
 
+    /**
+     * The body's statements in source order, whichever block kind the body was parsed as. Which of them the
+     * enclosing block runs is the codegen's to decide, so none is dropped here.
+     */
     private static List<FilterStatement> visitIfBody(final LALParser.IfBodyContext ctx) {
         final List<FilterStatement> stmts = new ArrayList<>();
-        for (final LALParser.FilterStatementContext fsc : ctx.filterStatement()) {
-            stmts.add(visitFilterStatement(fsc));
+        if (ctx.children == null) {
+            return stmts;
         }
-        for (final LALParser.ExtractorStatementContext esc : ctx.extractorStatement()) {
-            stmts.add((FilterStatement) visitExtractorStatement(esc));
-        }
-        for (final LALParser.SinkStatementContext ssc : ctx.sinkStatement()) {
-            if (ssc.samplerBlock() != null) {
-                stmts.add((FilterStatement) visitSamplerBlock(ssc.samplerBlock()));
-            } else if (ssc.enforcerStatement() != null) {
-                stmts.add((FilterStatement) new EnforcerStatement());
-            } else if (ssc.dropperStatement() != null) {
-                stmts.add((FilterStatement) new DropperStatement());
-            }
-        }
-        // Handle samplerContent alternative (rateLimit blocks inside if within sampler)
-        final LALParser.SamplerContentContext sc = ctx.samplerContent();
-        if (sc != null) {
-            final List<SamplerContent> samplerItems = new ArrayList<>();
-            for (final LALParser.RateLimitBlockContext rlc : sc.rateLimitBlock()) {
-                samplerItems.add(visitRateLimitBlock(rlc));
-            }
-            for (final LALParser.IfStatementContext isc : sc.ifStatement()) {
-                samplerItems.add((SamplerContent) visitIfStatement(isc));
-            }
-            if (!samplerItems.isEmpty()) {
-                stmts.add((FilterStatement) new SamplerBlock(samplerItems));
+        for (final ParseTree child : ctx.children) {
+            if (child instanceof LALParser.FilterStatementContext) {
+                stmts.add(visitFilterStatement((LALParser.FilterStatementContext) child));
+            } else if (child instanceof LALParser.ExtractorStatementContext) {
+                stmts.add((FilterStatement) visitExtractorStatement((LALParser.ExtractorStatementContext) child));
+            } else if (child instanceof LALParser.SinkStatementContext) {
+                stmts.add((FilterStatement) visitSinkStatement((LALParser.SinkStatementContext) child));
+            } else if (child instanceof LALParser.SamplerContentContext) {
+                // rateLimit is a sampler's: the enclosing block's codegen refuses one outside a sampler.
+                for (final SamplerContent item : visitSamplerContent((LALParser.SamplerContentContext) child)) {
+                    stmts.add((FilterStatement) item);
+                }
             }
         }
         return stmts;
@@ -504,8 +543,13 @@ public final class LALScriptParser {
                 visitCondition(or.condition(1)));
         }
         if (ctx instanceof LALParser.CondNotContext) {
-            return new NotCondition(
-                visitCondition(((LALParser.CondNotContext) ctx).condition()));
+            final LALParser.ConditionContext inner = ((LALParser.CondNotContext) ctx).condition();
+            if (!(inner instanceof LALParser.CondSingleContext) && !(inner instanceof LALParser.CondNotContext)) {
+                // The grammar reads `!a == b` as `!(a == b)`; Groovy reads it as `(!a) == b`.
+                throw new IllegalArgumentException(
+                    "'" + rawTextOf(ctx) + "' is ambiguous: write !(...) around the comparison it negates");
+            }
+            return new NotCondition(visitCondition(inner));
         }
         if (ctx instanceof LALParser.CondEqContext) {
             final LALParser.CondEqContext eq = (LALParser.CondEqContext) ctx;
@@ -545,8 +589,8 @@ public final class LALScriptParser {
                 (LALParser.CondValueAccessContext) leftCtx;
             final ValueAccess left = visitValueAccess(lva.valueAccess());
             final String leftCast = extractCastType(lva.typeCast());
-            return new ComparisonCondition(left, leftCast, op,
-                visitConditionExprAsValue(rightCtx));
+            final LALScriptModel.ConditionValue right = visitConditionExprAsValue(rightCtx);
+            return new ComparisonCondition(left, leftCast, op, right);
         }
         if (leftCtx instanceof LALParser.CondFunctionCallContext) {
             final LALParser.FunctionInvocationContext fi =
@@ -559,21 +603,20 @@ public final class LALScriptParser {
             return new ComparisonCondition(left, null, op,
                 visitConditionExprAsValue(rightCtx));
         }
-        // For other forms, wrap as expression condition
-        return new ExprCondition(
-            new ValueAccess(List.of(leftCtx.getText()), false, false, List.of()), null);
+        throw new IllegalArgumentException(
+            "Unsupported left side of a comparison: '" + rawTextOf(leftCtx.getParent()) + "'");
     }
 
     private static LALScriptModel.ConditionValue visitConditionExprAsValue(
             final LALParser.ConditionExprContext ctx) {
         if (ctx instanceof LALParser.CondStringContext) {
             return new StringConditionValue(
-                stripQuotes(((LALParser.CondStringContext) ctx).STRING().getText()));
+                LALLiterals.stringLiteral(((LALParser.CondStringContext) ctx).STRING().getText()));
         }
         if (ctx instanceof LALParser.CondNumberContext) {
             final String numText =
                 ((LALParser.CondNumberContext) ctx).NUMBER().getText();
-            return new NumberConditionValue(parseLiteralAsDouble(numText), numText);
+            return new NumberConditionValue(numText);
         }
         if (ctx instanceof LALParser.CondNullContext) {
             return new NullConditionValue();
@@ -593,7 +636,7 @@ public final class LALScriptParser {
                 if (primary instanceof LALParser.ValueNumberContext) {
                     final String numText =
                         ((LALParser.ValueNumberContext) primary).NUMBER().getText();
-                    return new NumberConditionValue(parseLiteralAsDouble(numText), numText);
+                    return new NumberConditionValue(numText);
                 }
                 if (primary instanceof LALParser.ValueNullContext) {
                     return new NullConditionValue();
@@ -602,14 +645,8 @@ public final class LALScriptParser {
             final String cast = extractCastType(va.typeCast());
             return new ValueAccessConditionValue(visitValueAccess(vaCtx), cast);
         }
-        if (ctx instanceof LALParser.CondParenGroupContext) {
-            // (condition) used as a value — e.g. in: if ((x == y)) { ... }
-            // Wrap as a ValueAccess containing the paren expression text
-            return new ValueAccessConditionValue(
-                new ValueAccess(List.of(ctx.getText()), false, false, List.of()), null);
-        }
-        // condBool, condFunctionCall
-        return new StringConditionValue(ctx.getText());
+        throw new IllegalArgumentException(
+            "Unsupported right side of a comparison: '" + rawTextOf(ctx.getParent()) + "'");
     }
 
     private static Condition visitConditionExprAsCondition(
@@ -634,8 +671,7 @@ public final class LALScriptParser {
             return visitCondition(
                 ((LALParser.CondParenGroupContext) ctx).condition());
         }
-        return new ExprCondition(
-            new ValueAccess(List.of(ctx.getText()), false, false, List.of()), null);
+        throw new IllegalArgumentException("Unsupported condition: '" + rawTextOf(ctx) + "'");
     }
 
     // ==================== Value access ====================
@@ -739,7 +775,7 @@ public final class LALScriptParser {
             segments.add(((LALParser.ValueIdentifierContext) primary).IDENTIFIER().getText());
         } else if (primary instanceof LALParser.ValueStringContext) {
             stringLiteral = true;
-            segments.add(stripQuotes(
+            segments.add(LALLiterals.stringLiteral(
                 ((LALParser.ValueStringContext) primary).STRING().getText()));
         } else if (primary instanceof LALParser.ValueNumberContext) {
             numberLiteral = true;
@@ -811,7 +847,7 @@ public final class LALScriptParser {
                 args.add(new LALScriptModel.FunctionArg(va, cast));
             } else if (fac.STRING() != null) {
                 args.add(new LALScriptModel.FunctionArg(
-                    literalArg(stripQuotes(fac.STRING().getText()), true, false), null));
+                    literalArg(LALLiterals.stringLiteral(fac.STRING().getText()), true, false), null));
             } else if (fac.NUMBER() != null) {
                 args.add(new LALScriptModel.FunctionArg(
                     literalArg(fac.NUMBER().getText(), false, true), null));
@@ -840,18 +876,6 @@ public final class LALScriptParser {
             List.of(), null, null);
     }
 
-    private static String resolveValueAsString(final LALParser.ValueAccessContext ctx) {
-        final LALParser.ValueAccessTermContext term = singleTermOf(ctx);
-        if (term == null) {
-            return ctx.getText();
-        }
-        final LALParser.ValueAccessPrimaryContext primary = term.valueAccessPrimary();
-        if (primary instanceof LALParser.ValueStringContext) {
-            return stripQuotes(((LALParser.ValueStringContext) primary).STRING().getText());
-        }
-        return primary.getText();
-    }
-
     /**
      * Returns the single {@link LALParser.ValueAccessTermContext} of a
      * {@code valueAccess} when it has no arithmetic operators, otherwise null.
@@ -874,10 +898,9 @@ public final class LALScriptParser {
      * decimal, no exponent, no Java-style suffix). Used by integer-only
      * grammar slots — {@code rateLimit { rpm N }} and {@code list[N]} —
      * which share the lexer NUMBER token with arithmetic expressions but
-     * cannot accept the suffixes/forms supported there. Throws a clear
-     * compile-time error for shape violations and for values that exceed
-     * Java's {@code long} range (rather than letting
-     * {@link NumberFormatException} leak from {@code Long.parseLong}).
+     * cannot accept the suffixes/forms supported there. A leading 0 makes it
+     * octal, as Groovy reads it; a shape violation, an 8 or 9 in an octal one,
+     * and a value beyond Java's {@code long} fail the compile.
      */
     private static long parseStrictInteger(final String numText, final String slot) {
         for (int i = 0; i < numText.length(); i++) {
@@ -888,13 +911,12 @@ public final class LALScriptParser {
                         + "' (suffixes / decimals / exponents are not accepted here)");
             }
         }
-        try {
-            return Long.parseLong(numText);
-        } catch (NumberFormatException e) {
+        final BigInteger value = DslNumbers.wholeLiteral(numText, slot + " value '" + numText + "'");
+        if (value.bitLength() > Long.SIZE - 1) {
             throw new IllegalArgumentException(
-                slot + " value '" + numText + "' exceeds the supported range "
-                    + "(must fit in a Java long)");
+                slot + " value '" + numText + "' exceeds the supported range (must fit in a Java long)");
         }
+        return value.longValue();
     }
 
     /**
@@ -913,33 +935,20 @@ public final class LALScriptParser {
         return (int) value;
     }
 
-    /**
-     * Parse a NUMBER literal text (which may carry an L/F/D suffix) as a Java double
-     * for use in {@link NumberConditionValue}. Suffix is stripped before parsing.
-     */
-    private static double parseLiteralAsDouble(final String numText) {
-        String t = numText;
-        if (!t.isEmpty()) {
-            final char last = t.charAt(t.length() - 1);
-            if (last == 'L' || last == 'l' || last == 'F' || last == 'f'
-                    || last == 'D' || last == 'd') {
-                t = t.substring(0, t.length() - 1);
-            }
-        }
-        return Double.parseDouble(t);
-    }
-
     // ==================== Utilities ====================
 
-    /**
-     * Resolve a {@code typeCast} context to its cast-name string
-     * ({@code "Integer"}, {@code "String"}, FQCN, …). Accepts a {@code null}
-     * context and returns {@code null} so call sites can pass the context
-     * directly without a guard — replaces the ubiquitous
-     * {@code extractCastType(ctx.typeCast())}
-     * idiom.
-     */
     private static String extractCastType(final LALParser.TypeCastContext ctx) {
+        return extractCastType(ctx, false);
+    }
+
+    /**
+     * Resolve a {@code typeCast} context to its cast-name string ({@code "Integer"}, {@code "String"}, FQCN, …),
+     * or {@code null} for no cast.
+     *
+     * @param allowClass whether a class name may be cast to: only a {@code def} uses one, elsewhere it would be
+     *                   ignored
+     */
+    private static String extractCastType(final LALParser.TypeCastContext ctx, final boolean allowClass) {
         if (ctx == null) {
             return null;
         }
@@ -961,25 +970,22 @@ public final class LALScriptParser {
         if (ctx.BOOLEAN_TYPE() != null) {
             return "Boolean";
         }
-        if (ctx.qualifiedName() != null) {
-            return ctx.qualifiedName().getText();
+        final String name = ctx.qualifiedName().getText();
+        if (LALCodegenHelper.PRIMITIVE_CASTS.contains(name)) {
+            return name;
         }
-        return null;
-    }
-
-    static String stripQuotes(final String s) {
-        if (s == null || s.length() < 2) {
-            return s;
+        for (final String builtIn : BUILT_IN_CASTS) {
+            if (builtIn.equalsIgnoreCase(name)) {
+                throw new IllegalArgumentException(
+                    "Unknown type in '" + rawTextOf(ctx) + "': did you mean 'as " + builtIn + "'?");
+            }
         }
-        final char first = s.charAt(0);
-        if ((first == '\'' || first == '"') && s.charAt(s.length() - 1) == first) {
-            return s.substring(1, s.length() - 1);
+        if (!allowClass) {
+            throw new IllegalArgumentException(
+                "Unsupported cast '" + rawTextOf(ctx) + "': use one of " + String.join(", ", BUILT_IN_CASTS)
+                    + " (a class name is only supported on def)");
         }
-        // Handle slashy strings: $/ ... /$
-        if (s.startsWith("$/") && s.endsWith("/$")) {
-            return s.substring(2, s.length() - 2);
-        }
-        return s;
+        return name;
     }
 
     private static String truncate(final String s, final int maxLen) {
@@ -992,74 +998,81 @@ public final class LALScriptParser {
     // ==================== GString interpolation ====================
 
     /**
-     * Parses Groovy-style GString interpolation in a string.
-     * E.g. {@code "${log.service}:${parsed?.field}"} produces
-     * [expr(log.service), literal(":"), expr(parsed?.field)].
+     * Parses the {@code ${...}} interpolation of a double-quoted rateLimit id, given as written between the
+     * quotes. E.g. {@code "${log.service}:${parsed?.field}"} produces
+     * [expr(log.service), literal(":"), expr(parsed?.field)]. Literal parts keep their text as written, but
+     * {@code \${...}} stays literal text.
      *
      * @return list of parts, or {@code null} if no interpolation found
      */
     static List<InterpolationPart> parseInterpolation(final String s) {
-        if (!s.contains("${")) {
-            return null;
-        }
         final List<InterpolationPart> parts = new ArrayList<>();
-        int pos = 0;
-        while (pos < s.length()) {
-            final int start = s.indexOf("${", pos);
-            if (start < 0) {
-                // Remaining literal text
-                if (pos < s.length()) {
-                    parts.add(InterpolationPart.ofLiteral(s.substring(pos)));
-                }
-                break;
+        final StringBuilder literal = new StringBuilder();
+        boolean interpolated = false;
+        int i = 0;
+        while (i < s.length()) {
+            final char c = s.charAt(i);
+            if (c == '\\' && i + 1 < s.length()) {
+                i = LALLiterals.appendEscape(s, i, literal);
+                continue;
             }
-            // Literal text before ${
-            if (start > pos) {
-                parts.add(InterpolationPart.ofLiteral(s.substring(pos, start)));
+            if (!DslStrings.interpolationAt(s, i)) {
+                literal.append(c);
+                i++;
+                continue;
+            }
+            if (s.charAt(i + 1) != '{') {
+                throw new IllegalArgumentException(
+                    "\"" + s + "\" interpolates '$" + s.charAt(i + 1) + "...' without braces, which LAL does not "
+                        + "support: write ${...}, or \\$ for a literal $");
             }
             // Find matching closing brace, respecting nesting
             int depth = 1;
-            int i = start + 2;
-            while (i < s.length() && depth > 0) {
-                final char c = s.charAt(i);
-                if (c == '{') {
+            int end = i + 2;
+            while (end < s.length() && depth > 0) {
+                if (s.charAt(end) == '{') {
                     depth++;
-                } else if (c == '}') {
+                } else if (s.charAt(end) == '}') {
                     depth--;
                 }
-                i++;
+                end++;
             }
             if (depth != 0) {
                 throw new IllegalArgumentException(
                     "Unclosed interpolation in: " + s);
             }
-            final String expr = s.substring(start + 2, i - 1);
-            // Parse the expression as a valueAccess through ANTLR
-            parts.add(InterpolationPart.ofExpression(parseValueAccessExpr(expr)));
-            pos = i;
+            if (literal.length() > 0) {
+                parts.add(InterpolationPart.ofLiteral(literal.toString()));
+                literal.setLength(0);
+            }
+            parts.add(parseInterpolatedExpr(s.substring(i + 2, end - 1), s));
+            interpolated = true;
+            i = end;
+        }
+        if (!interpolated) {
+            return null;
+        }
+        if (literal.length() > 0) {
+            parts.add(InterpolationPart.ofLiteral(literal.toString()));
         }
         return parts;
     }
 
     /**
-     * Parses a standalone valueAccess expression string by wrapping it in
-     * a minimal LAL script and extracting the parsed ValueAccess.
+     * Parses one {@code ${...}} expression by wrapping it in a minimal LAL script: a value, with its own
+     * {@code as} cast if any.
      */
-    private static ValueAccess parseValueAccessExpr(final String expr) {
-        // Wrap in: filter { if (EXPR) { sink {} } }
-        // The expression becomes a condition, parsed as ExprCondition
-        // whose ValueAccess is what we want.
+    private static InterpolationPart parseInterpolatedExpr(final String expr, final String id) {
         final String wrapper = "filter { if (" + expr + ") { sink {} } }";
         final LALScriptModel model = parse(wrapper);
         final IfBlock ifBlock = (IfBlock) model.getStatements().get(0);
         final LALScriptModel.Condition cond = ifBlock.getCondition();
         if (cond instanceof ExprCondition) {
-            return ((ExprCondition) cond).getExpr();
-        }
-        if (cond instanceof ComparisonCondition) {
-            return ((ComparisonCondition) cond).getLeft();
+            final ExprCondition value = (ExprCondition) cond;
+            return InterpolationPart.ofExpression(value.getExpr(), value.getCastType());
         }
         throw new IllegalArgumentException(
-            "Cannot parse interpolation expression: " + expr);
+            "${" + expr + "} in \"" + id + "\" is not a value: only a value, optionally with 'as Type', "
+                + "can be interpolated");
     }
 }

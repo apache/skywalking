@@ -17,14 +17,14 @@
 
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
 import java.lang.reflect.Method;
 
 /**
@@ -78,14 +78,14 @@ final class LALBlockCodegen {
     private static final String H =
         "org.apache.skywalking.oap.log.analyzer.v2.compiler.rt.LalRuntimeHelper";
 
-    // Built-in function registry for def variable type inference.
-    // Maps DSL function name → [runtime helper method, return type].
-    static final Map<String, Object[]> BUILTIN_FUNCTIONS = new HashMap<>();
-
-    static {
-        BUILTIN_FUNCTIONS.put("toJson", new Object[]{"h.toJsonObject", JsonObject.class});
-        BUILTIN_FUNCTIONS.put("toJsonArray", new Object[]{"h.toJsonArray", JsonArray.class});
-    }
+    /** The runtime helper that sets a standard field on the rule's metadata too, as Groovy LAL set the log. */
+    private static final Map<LALScriptModel.FieldType, String> LOG_FIELD_SETTERS = Map.of(
+        LALScriptModel.FieldType.SERVICE, "setLogService",
+        LALScriptModel.FieldType.INSTANCE, "setLogServiceInstance",
+        LALScriptModel.FieldType.ENDPOINT, "setLogEndpoint",
+        LALScriptModel.FieldType.TRACE_ID, "setLogTraceId",
+        LALScriptModel.FieldType.SEGMENT_ID, "setLogSegmentId",
+        LALScriptModel.FieldType.SPAN_ID, "setLogSpanId");
 
     private LALBlockCodegen() {
         // utility class
@@ -115,8 +115,10 @@ final class LALBlockCodegen {
                                          final LALScriptModel.ExtractorBlock block,
                                          final LALClassGenerator.GenCtx genCtx) {
         final String methodName = genCtx.nextMethodName("extractor");
+        final Map<String, LALClassGenerator.LocalVarInfo> outerDefs = new TreeMap<>(genCtx.localVars);
         final Object[] savedState = genCtx.saveProtoVarState();
         genCtx.resetProtoVars();
+        takeOuterDefs(outerDefs, genCtx);
 
         // Generate body first to collect proto var declarations
         final StringBuilder bodyContent = new StringBuilder();
@@ -129,11 +131,13 @@ final class LALBlockCodegen {
         // Assemble method with declarations before body
         final StringBuilder body = new StringBuilder();
         body.append("private void ").append(methodName).append("(")
-            .append(METRIC_EXTRACTOR).append(" _e, ").append(H).append(" h) {\n");
+            .append(METRIC_EXTRACTOR).append(" _e, ").append(H).append(" h")
+            .append(outerDefParameters(outerDefs)).append(") {\n");
 
         final List<String[]> lvtVars = new ArrayList<>();
         lvtVars.add(new String[]{"_e", "L" + METRIC_EXTRACTOR.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
+        addOuterDefLvt(outerDefs, lvtVars);
 
         if (genCtx.usedProtoAccess) {
             if (genCtx.inputType != null) {
@@ -161,6 +165,8 @@ final class LALBlockCodegen {
             body.append(genCtx.localVarDecls);
             lvtVars.addAll(genCtx.localVarLvtVars);
         }
+        body.append(genCtx.tempVarDecls);
+        lvtVars.addAll(genCtx.tempLvtVars);
 
         // Add LVT entry for _metrics if any metrics block exists
         if (hasMetricsBlock(block.getStatements())) {
@@ -176,8 +182,44 @@ final class LALBlockCodegen {
         genCtx.restoreProtoVarState(savedState);
 
         sb.append("  if (!ctx.shouldAbort()) {\n");
-        sb.append("    ").append(methodName).append("(filterSpec.extractor(), h);\n");
+        sb.append("    ").append(methodName).append("(filterSpec.extractor(), h")
+          .append(outerDefArguments(outerDefs)).append(");\n");
         sb.append("  }\n");
+    }
+
+    /**
+     * The defs in scope where an extractor or sink sits become its method's parameters: a Groovy closure saw the
+     * locals around it.
+     */
+    private static void takeOuterDefs(final Map<String, LALClassGenerator.LocalVarInfo> outerDefs,
+                                      final LALClassGenerator.GenCtx genCtx) {
+        for (final Map.Entry<String, LALClassGenerator.LocalVarInfo> def : outerDefs.entrySet()) {
+            genCtx.localVars.put(def.getKey(), def.getValue());
+            genCtx.declaredDefVars.put(def.getValue().javaVarName, def.getValue().resolvedType);
+        }
+    }
+
+    private static String outerDefParameters(final Map<String, LALClassGenerator.LocalVarInfo> outerDefs) {
+        final StringBuilder params = new StringBuilder();
+        for (final LALClassGenerator.LocalVarInfo def : outerDefs.values()) {
+            params.append(", ").append(LALClassGenerator.sourceNameOf(def.resolvedType)).append(" ").append(def.javaVarName);
+        }
+        return params.toString();
+    }
+
+    private static String outerDefArguments(final Map<String, LALClassGenerator.LocalVarInfo> outerDefs) {
+        final StringBuilder args = new StringBuilder();
+        for (final LALClassGenerator.LocalVarInfo def : outerDefs.values()) {
+            args.append(", ").append(def.javaVarName);
+        }
+        return args.toString();
+    }
+
+    private static void addOuterDefLvt(final Map<String, LALClassGenerator.LocalVarInfo> outerDefs,
+                                       final List<String[]> lvtVars) {
+        for (final LALClassGenerator.LocalVarInfo def : outerDefs.values()) {
+            lvtVars.add(new String[]{def.javaVarName, def.descriptor});
+        }
     }
 
     /**
@@ -206,6 +248,13 @@ final class LALBlockCodegen {
             } else if (stmt instanceof LALScriptModel.DefStatement) {
                 LALDefCodegen.generateDefStatement(
                     sb, (LALScriptModel.DefStatement) stmt, genCtx);
+            } else if (stmt instanceof LALScriptModel.AbortStatement) {
+                // The rest of the extractor and the sink do not run once aborted.
+                sb.append("  h.ctx().abort();\n");
+                sb.append("  return;\n");
+                continue;
+            } else {
+                throw LALCodegenHelper.notAllowedIn(stmt, "an extractor", null);
             }
             // Statement-level captureLine — opt-in on the recorder side via
             // session granularity. The verbatim source text is paired with the
@@ -266,37 +315,67 @@ final class LALBlockCodegen {
         }
 
         final Class<?> paramType = setter.getParameterTypes()[0];
-        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
-        sb.append("  _o.").append(setter.getName()).append("(");
-        if (field.getFormatPattern() != null) {
-            // Format pattern provided in LAL script (e.g., timestamp ... , "yyyy/MM/dd HH:mm:ss")
-            sb.append("h.parseTimestamp(");
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
-            sb.append(", \"")
-              .append(DslJavaSourceText.toLiteral(field.getFormatPattern()))
-              .append("\")");
-        } else if (paramType.isEnum() || paramType == Layer.class) {
-            // `Layer` was historically an enum and is now a registry-backed value type with a
-            // matching `valueOf(String)`; both flow through the same `Type.valueOf(string)`
-            // codegen so LAL extractors written as `layer "MYSQL"` still resolve to the typed
-            // setter argument.
-            sb.append(paramType.getName()).append(".valueOf(");
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
-            sb.append(")");
+        if (field.getFieldType() == LALScriptModel.FieldType.TIMESTAMP) {
+            generateTimestampToOutput(sb, field, setter, genCtx);
+            return;
+        }
+        // The value is read once, converted by the rule's cast, then by the setter's parameter type. As Groovy
+        // LAL's statements, a null leaves the field, the output's and the rule's metadata's, as it was.
+        final boolean layer = field.getFieldType() == LALScriptModel.FieldType.LAYER;
+        final String mirror = LOG_FIELD_SETTERS.get(field.getFieldType());
+        sb.append("  { java.lang.Object _v = ");
+        LALValueCodegen.generateBoxedValue(sb, field.getValue(), field.getCastType(), genCtx);
+        sb.append(";\n");
+        sb.append("    if (_v != null) { _o.").append(setter.getName()).append("(");
+        if (mirror != null && paramType == String.class) {
+            sb.append("h.").append(mirror).append("(h.toStr(_v))");
         } else {
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+            sb.append(parameterValue(setter, "_v", false));
         }
-        sb.append(");\n");
+        sb.append(");");
+        if (mirror != null && paramType != String.class) {
+            sb.append(" h.").append(mirror).append("(h.toStr(_v));");
+        }
+        sb.append(" }\n");
+        if (layer) {
+            // ExecutionContext.layer() records the rule's decision on its context and its metadata copy, which
+            // FilterSpec.doSink() (the layer: auto check) and the sink listeners read; a null drops a saved log.
+            sb.append("    h.ctx().layer(h.toStr(_v));\n");
+        }
+        sb.append("  }\n");
+    }
 
-        // LAYER is also read by FilterSpec.doSink() (layer:auto check, per rule) and by downstream routing
-        // that reads from LogMetadata. ExecutionContext.layer() records it on the rule's context and writes it
-        // to the rule's own copy of the metadata, so the output builder's initFromMetadata() and the sink
-        // listeners see it too.
-        if (field.getFieldType() == LALScriptModel.FieldType.LAYER) {
-            sb.append("  h.ctx().layer(");
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
-            sb.append(");\n");
+    /**
+     * A setter's argument from an object holding the value as the rule cast it.
+     *
+     * @param upperCaseEnum whether an enum constant is named case-insensitively, as an output field's is
+     */
+    private static String parameterValue(final Method setter, final String value, final boolean upperCaseEnum) {
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        if (paramType == String.class) {
+            return "h.toStr(" + value + ")";
         }
+        if (paramType.isEnum() || paramType == Layer.class) {
+            // `Layer` was historically an enum and is now a registry-backed value type with a matching
+            // `valueOf(String)`, so `layer "MYSQL"` resolves to the typed setter argument either way.
+            return paramType.getName() + ".valueOf(" + (upperCaseEnum
+                ? "((String) h.toStr(" + value + ")).toUpperCase()" : "h.toStr(" + value + ")") + ")";
+        }
+        if (paramType.isPrimitive()) {
+            final String helper = LALValueCodegen.conversionHelper(paramType);
+            if (helper == null) {
+                throw new IllegalArgumentException(
+                    setter.getName() + "(" + paramType.getName() + "): a setter of a char, short or byte is not "
+                        + "supported");
+            }
+            return helper + "(" + value + ")";
+        }
+        // A wrapper of a primitive the runtime helper converts to keeps a null (h.asInteger, ...).
+        final Class<?> primitive = paramType == Boolean.class ? boolean.class : DslMethods.unboxed(paramType);
+        if (primitive != null && LALValueCodegen.conversionHelper(primitive) != null) {
+            return "h.as" + paramType.getSimpleName() + "(" + value + ")";
+        }
+        return "((" + paramType.getName() + ") " + value + ")";
     }
 
     static void generateIfBlockInExtractor(
@@ -306,11 +385,11 @@ final class LALBlockCodegen {
         sb.append("  if (");
         LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
-        generateExtractorBody(sb, ifBlock.getThenBranch(), genCtx);
+        genCtx.inBranchScope(() -> generateExtractorBody(sb, ifBlock.getThenBranch(), genCtx));
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
-            generateExtractorBody(sb, ifBlock.getElseBranch(), genCtx);
+            genCtx.inBranchScope(() -> generateExtractorBody(sb, ifBlock.getElseBranch(), genCtx));
             sb.append("  }\n");
         }
     }
@@ -340,51 +419,80 @@ final class LALBlockCodegen {
             final LALClassGenerator.GenCtx genCtx) {
         sb.append("  { ").append(SAMPLE_BUILDER).append(" _metrics = _e.prepareMetrics(h.ctx());\n");
         sb.append("  if (_metrics != null) {\n");
-        if (block.getName() != null) {
-            sb.append("  _metrics.name(\"")
-                .append(DslJavaSourceText.toLiteral(block.getName())).append("\");\n");
-        }
-        if (block.getTimestampValue() != null) {
-            sb.append("  _metrics.timestamp(");
-            LALValueCodegen.generateCastedValueAccess(sb, block.getTimestampValue(),
-                block.getTimestampCast(), genCtx);
-            sb.append(");\n");
-        }
-        if (!block.getLabels().isEmpty()) {
-            sb.append("  { java.util.Map _labels = new java.util.LinkedHashMap();\n");
-            for (final Map.Entry<String, LALScriptModel.TagValue> entry
-                    : block.getLabels().entrySet()) {
-                sb.append("    _labels.put(\"")
-                    .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
-                LALValueCodegen.generateCastedValueAccess(sb, entry.getValue().getValue(),
-                    entry.getValue().getCastType(), genCtx);
-                sb.append(");\n");
+        // In source order, as Groovy LAL ran them: a statement reading a value another consumes sees its turn.
+        for (final LALScriptModel.MetricsStatement statement : block.getStatements()) {
+            switch (statement.getKind()) {
+                case NAME:
+                    sb.append("  _metrics.name(");
+                    LALValueCodegen.generateStringValueAccess(sb, statement.getValue(), statement.getCast(), genCtx);
+                    sb.append(");\n");
+                    break;
+                case TIMESTAMP:
+                    final String helper = numericHelper(statement.getCast(), "timestamp", "h.toLong");
+                    sb.append("  _metrics.timestamp(").append("h.toLong".equals(helper) ? "" : "(long) ")
+                      .append(helper).append("(");
+                    LALValueCodegen.generateValueAccess(sb, statement.getValue(), genCtx);
+                    if (statement.getCast() != null) {
+                        LALValueCodegen.rejectUnconvertibleCast(statement.getValue(), statement.getCast(), genCtx);
+                    }
+                    sb.append("));\n");
+                    break;
+                case LABELS:
+                    sb.append("  { java.util.Map _labels = new java.util.LinkedHashMap();\n");
+                    for (final Map.Entry<String, LALScriptModel.TagValue> entry : statement.getLabelEntries()) {
+                        sb.append("    _labels.put(\"")
+                            .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
+                        LALValueCodegen.generateBoxedValue(sb, entry.getValue().getValue(),
+                            entry.getValue().getCastType(), genCtx);
+                        sb.append(");\n");
+                    }
+                    sb.append("    _metrics.labels(_labels); }\n");
+                    break;
+                default:
+                    generateMetricValue(sb, statement, genCtx);
+                    break;
             }
-            sb.append("    _metrics.labels(_labels); }\n");
-        }
-        if (block.getValue() != null) {
-            sb.append("  _metrics.value(");
-            if ("Long".equals(block.getValueCast())) {
-                sb.append("(double) h.toLong(");
-                LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
-                sb.append(")");
-            } else if ("Integer".equals(block.getValueCast())) {
-                sb.append("(double) h.toInt(");
-                LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
-                sb.append(")");
-            } else {
-                if (block.getValue().isNumberLiteral()) {
-                    sb.append("(double) ").append(block.getValue().getSegments().get(0));
-                } else {
-                    sb.append("((Number) ");
-                    LALValueCodegen.generateValueAccess(sb, block.getValue(), genCtx);
-                    sb.append(").doubleValue()");
-                }
-            }
-            sb.append(");\n");
         }
         sb.append("  _e.submitMetrics(h.ctx(), _metrics);\n");
         sb.append("  } }\n");
+    }
+
+    private static void generateMetricValue(final StringBuilder sb,
+                                            final LALScriptModel.MetricsStatement statement,
+                                            final LALClassGenerator.GenCtx genCtx) {
+        final LALScriptModel.ValueAccess value = statement.getValue();
+        sb.append("  _metrics.value(");
+        if (statement.getCast() != null) {
+            final String helper = numericHelper(statement.getCast(), "value", null);
+            sb.append("h.toDouble".equals(helper) ? "" : "(double) ").append(helper).append("(");
+            LALValueCodegen.generateValueAccess(sb, value, genCtx);
+            LALValueCodegen.rejectUnconvertibleCast(value, statement.getCast(), genCtx);
+            sb.append(")");
+        } else if (value.isNumberLiteral() && value.getChain().isEmpty()) {
+            sb.append("(double) ").append(LALLiterals.javaText(value.getSegments().get(0)));
+        } else {
+            sb.append("((Number) ");
+            LALValueCodegen.generateValueAccess(sb, value, genCtx);
+            sb.append(").doubleValue()");
+        }
+        sb.append(");\n");
+    }
+
+    /**
+     * The runtime helper converting a metric's timestamp or value by its cast: they are numbers, so a non-numeric
+     * cast would not convert.
+     */
+    private static String numericHelper(final String cast, final String statement, final String uncast) {
+        if (cast == null) {
+            return uncast;
+        }
+        final String helper = LALValueCodegen.numericConversionHelper(cast);
+        if (helper == null) {
+            throw new IllegalArgumentException(
+                "A metrics " + statement + " is a number: 'as " + cast + "' is not supported there, "
+                    + "use as Long, Integer, Double or Float");
+        }
+        return helper;
     }
 
     // ==================== Tag assignment ====================
@@ -393,19 +501,29 @@ final class LALBlockCodegen {
      * Generates tag assignment statements in the extractor.
      *
      * <p>LAL: {@code tag 'status.code': parsed?.response?.responseCode?.value}
-     * <br>Generated: {@code _o.addTag("status.code", h.toStr(...))}
+     * <br>Generated: {@code _o.addTag("status.code", h.tag("status.code", ...))}
      */
     static void generateTagAssignment(final StringBuilder sb,
                                        final LALScriptModel.TagAssignment tag,
                                        final LALClassGenerator.GenCtx genCtx) {
-        for (final Map.Entry<String, LALScriptModel.TagValue> entry
-                : tag.getTags().entrySet()) {
-            sb.append("  _o.addTag(\"")
-              .append(DslJavaSourceText.toLiteral(entry.getKey())).append("\", ");
-            LALValueCodegen.generateStringValueAccess(sb, entry.getValue().getValue(),
-                entry.getValue().getCastType(), genCtx);
-            sb.append(");\n");
+        // Groovy LAL evaluated the whole map, then added its tags: a value reading tag() sees the tags before.
+        sb.append("  {\n");
+        final Map<String, String> valueOfKey = new LinkedHashMap<>();
+        int n = 0;
+        for (final Map.Entry<String, LALScriptModel.TagValue> entry : tag.getEntries()) {
+            final String var = "_tv" + n++;
+            sb.append("    java.lang.Object ").append(var).append(" = ");
+            LALValueCodegen.generateBoxedValue(sb, entry.getValue().getValue(), entry.getValue().getCastType(),
+                genCtx);
+            sb.append(";\n");
+            valueOfKey.put(entry.getKey(), var);
         }
+        for (final Map.Entry<String, String> entry : valueOfKey.entrySet()) {
+            final String key = DslJavaSourceText.toLiteral(entry.getKey());
+            sb.append("    _o.addTag(\"").append(key).append("\", h.tag(\"").append(key).append("\", ")
+              .append(entry.getValue()).append("));\n");
+        }
+        sb.append("  }\n");
     }
 
     // ==================== Output field assignment ====================
@@ -492,21 +610,50 @@ final class LALBlockCodegen {
                 + "() for output field '" + fieldName + "'");
         }
 
-        // Generate direct setter call: _o.setXxx(value)
-        // _o is declared once at the top of the extractor method
+        // The value as the rule cast it, then converted to the parameter. A parameter that cannot hold a null
+        // (a primitive, an enum) leaves its field unset for one, as Groovy LAL's statements did.
         final Class<?> paramType = setter.getParameterTypes()[0];
-        sb.append("  _o.").append(setterName).append("(");
-        final String effectiveCast = resolveEffectiveCast(paramType, field.getCastType());
-        if (paramType.isEnum()) {
-            // Auto-convert String to enum: EnumType.valueOf(stringValue.toUpperCase())
-            // toUpperCase() handles case-insensitive matching (e.g., "slow" → "SLOW")
-            sb.append(paramType.getName()).append(".valueOf(((String) ");
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), "String", genCtx);
-            sb.append(").toUpperCase())");
+        final StringBuilder value = new StringBuilder();
+        LALValueCodegen.generateBoxedValue(value, field.getValue(), field.getCastType(), genCtx);
+        if ((paramType.isPrimitive() || paramType.isEnum() || paramType == Layer.class) && !genCtx.lastNonNull) {
+            sb.append("  { java.lang.Object _v = ").append(value).append(";\n");
+            sb.append("    if (_v != null) { _o.").append(setterName).append("(")
+              .append(parameterValue(setter, "_v", true)).append("); } }\n");
         } else {
-            LALValueCodegen.generateCastedValueAccess(sb, field.getValue(), effectiveCast, genCtx);
+            final boolean string = paramType == String.class && "String".equals(field.getCastType());
+            sb.append("  _o.").append(setterName).append("(")
+              .append(string ? value.toString() : parameterValue(setter, value.toString(), true)).append(");\n");
+        }
+    }
+
+    /**
+     * {@code timestamp}, as Groovy LAL's {@code timestamp(String[, pattern])}: an empty value, one that is not a
+     * number (without a pattern), or one the pattern does not parse leaves the timestamp as it was.
+     */
+    private static void generateTimestampToOutput(final StringBuilder sb,
+                                                  final LALScriptModel.FieldAssignment field,
+                                                  final Method setter,
+                                                  final LALClassGenerator.GenCtx genCtx) {
+        final Class<?> paramType = setter.getParameterTypes()[0];
+        if (paramType != long.class && paramType != Long.class) {
+            throw new IllegalArgumentException(
+                setter.getDeclaringClass().getName() + "." + setter.getName() + " takes a " + paramType.getName()
+                    + ", not a long, so it cannot be the timestamp statement's setter");
+        }
+        sb.append("  { java.lang.Long _ts = h.timestampOf(");
+        LALValueCodegen.generateBoxedValue(sb, field.getValue(), field.getCastType(), genCtx);
+        sb.append(", ");
+        if (field.getFormatPattern() == null) {
+            sb.append("null");
+        } else {
+            sb.append("\"").append(DslJavaSourceText.toLiteral(field.getFormatPattern())).append("\"");
         }
         sb.append(");\n");
+        // Groovy LAL set the log's own timestamp, which a later `log.timestamp` read (a metric's, say); the rule's
+        // metadata copy is that log here.
+        sb.append("    if (_ts != null) { _o.").append(setter.getName()).append("(_ts")
+          .append(paramType == long.class ? ".longValue()" : "").append(");\n")
+          .append("      h.ctx().metadata().setTimestamp(_ts.longValue()); } }\n");
     }
 
     private static Method findSetter(
@@ -522,33 +669,6 @@ final class LALBlockCodegen {
             c = c.getSuperclass();
         }
         return null;
-    }
-
-    /**
-     * Resolve the effective cast type based on the setter parameter type.
-     * When the setter takes a primitive, use the matching cast so that
-     * Javassist can resolve the correct overload (e.g. setComponentId(int)
-     * not setComponentId(Integer)).
-     */
-    private static String resolveEffectiveCast(final Class<?> paramType,
-                                                final String lalCast) {
-        if (paramType == long.class) {
-            return "Long";
-        }
-        if (paramType == int.class) {
-            return "Integer";
-        }
-        if (paramType == double.class || paramType == float.class) {
-            return "Long"; // toLong handles numeric conversion
-        }
-        if (paramType == boolean.class) {
-            return "Boolean";
-        }
-        if (paramType == String.class) {
-            return "String";
-        }
-        // For boxed types and others, use the LAL-declared cast
-        return lalCast;
     }
 
     // ==================== Sink method generation ====================
@@ -577,8 +697,10 @@ final class LALBlockCodegen {
                                     final LALScriptModel.SinkBlock sink,
                                     final LALClassGenerator.GenCtx genCtx) {
         final String methodName = genCtx.nextMethodName("sink");
+        final Map<String, LALClassGenerator.LocalVarInfo> outerDefs = new TreeMap<>(genCtx.localVars);
         final Object[] savedState = genCtx.saveProtoVarState();
         genCtx.resetProtoVars();
+        takeOuterDefs(outerDefs, genCtx);
 
         // Generate body first to collect proto var declarations
         final StringBuilder bodyContent = new StringBuilder();
@@ -591,11 +713,13 @@ final class LALBlockCodegen {
         // Assemble method with declarations before body
         final StringBuilder body = new StringBuilder();
         body.append("private void ").append(methodName).append("(")
-            .append(FILTER_SPEC).append(" _f, ").append(H).append(" h) {\n");
+            .append(FILTER_SPEC).append(" _f, ").append(H).append(" h")
+            .append(outerDefParameters(outerDefs)).append(") {\n");
 
         final List<String[]> lvtVars = new ArrayList<>();
         lvtVars.add(new String[]{"_f", "L" + FILTER_SPEC.replace('.', '/') + ";"});
         lvtVars.add(new String[]{"h", "L" + H.replace('.', '/') + ";"});
+        addOuterDefLvt(outerDefs, lvtVars);
 
         if (genCtx.usedProtoAccess) {
             if (genCtx.inputType != null) {
@@ -608,6 +732,8 @@ final class LALBlockCodegen {
             body.append(genCtx.protoVarDecls);
             lvtVars.addAll(genCtx.protoLvtVars);
         }
+        body.append(genCtx.tempVarDecls);
+        lvtVars.addAll(genCtx.tempLvtVars);
 
         body.append(bodyContent);
         body.append("}\n");
@@ -617,7 +743,8 @@ final class LALBlockCodegen {
         genCtx.restoreProtoVarState(savedState);
 
         sb.append("  if (!ctx.shouldAbort()) {\n");
-        sb.append("    ").append(methodName).append("(filterSpec, h);\n");
+        sb.append("    ").append(methodName).append("(filterSpec, h")
+          .append(outerDefArguments(outerDefs)).append(");\n");
         sb.append("  }\n");
         sb.append("  filterSpec.finalizeSink(ctx);\n");
     }
@@ -635,6 +762,13 @@ final class LALBlockCodegen {
                 generateSamplerInline(sb, (LALScriptModel.SamplerBlock) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateIfBlockInSink(sb, (LALScriptModel.IfBlock) stmt, genCtx);
+            } else if (stmt instanceof LALScriptModel.AbortStatement) {
+                // Groovy LAL still saved a log aborted here; use dropper {} not to save it.
+                throw LALCodegenHelper.notAllowedIn(stmt, "a sink", "use dropper {} not to save the log");
+            } else if (stmt instanceof LALScriptModel.RateLimitBlock) {
+                throw LALCodegenHelper.notAllowedIn(stmt, "a sink", "put it in a sampler {}");
+            } else {
+                throw LALCodegenHelper.notAllowedIn(stmt, "a sink", null);
             }
         }
     }
@@ -677,6 +811,8 @@ final class LALBlockCodegen {
                     genCtx);
             } else if (content instanceof LALScriptModel.IfBlock) {
                 generateSamplerIfBlock(sb, (LALScriptModel.IfBlock) content, genCtx);
+            } else {
+                throw LALCodegenHelper.notAllowedIn(content, "a sampler", null);
             }
         }
     }
@@ -702,11 +838,12 @@ final class LALBlockCodegen {
             final List<? extends LALScriptModel.FilterStatement> stmts,
             final LALClassGenerator.GenCtx genCtx) {
         for (final LALScriptModel.FilterStatement stmt : stmts) {
-            if (stmt instanceof LALScriptModel.SamplerBlock) {
-                generateSamplerContents(sb,
-                    ((LALScriptModel.SamplerBlock) stmt).getContents(), genCtx);
+            if (stmt instanceof LALScriptModel.RateLimitBlock) {
+                generateRateLimitInline(sb, (LALScriptModel.RateLimitBlock) stmt, genCtx);
             } else if (stmt instanceof LALScriptModel.IfBlock) {
                 generateSamplerIfBlock(sb, (LALScriptModel.IfBlock) stmt, genCtx);
+            } else {
+                throw LALCodegenHelper.notAllowedIn(stmt, "a sampler", null);
             }
         }
     }
@@ -737,7 +874,7 @@ final class LALBlockCodegen {
                       .append("\"");
                 } else {
                     sb.append("String.valueOf(");
-                    LALValueCodegen.generateValueAccess(sb, part.getExpression(), genCtx);
+                    LALValueCodegen.generateBoxedValue(sb, part.getExpression(), part.getCastType(), genCtx);
                     sb.append(")");
                 }
             }

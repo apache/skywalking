@@ -177,8 +177,13 @@ tagStatement
     | TAG STRING COLON valueAccess typeCast?
     ;
 
+// One rule per entry, so each `as` stays with the value it follows.
 tagMap
-    : anyIdentifier COLON valueAccess typeCast? (COMMA anyIdentifier COLON valueAccess typeCast?)*
+    : tagEntry (COMMA tagEntry)*
+    ;
+
+tagEntry
+    : anyIdentifier COLON valueAccess typeCast?
     ;
 
 // A network alias is built from one call only: the caller's span and the SERVER span whose parentSpanId is that
@@ -456,9 +461,17 @@ typeCast
     : AS (STRING_TYPE | LONG_TYPE | INTEGER_TYPE | DOUBLE_TYPE | FLOAT_TYPE | BOOLEAN_TYPE | qualifiedName)
     ;
 
-// A package component may spell a keyword, as `core.source` does.
+// A package component may spell any keyword that is a Java identifier, as `core.source`, `provider.span` and
+// `in.acme` do, and a class a scalar type's name, as `java.lang.Long` does.
 qualifiedName
-    : IDENTIFIER (DOT anyIdentifier)*
+    : IDENTIFIER (DOT qualifiedPart)*
+    | qualifiedPart (DOT qualifiedPart)+
+    ;
+
+qualifiedPart
+    : anyIdentifier
+    | SPAN | META | CLIENT | SERVER | AS
+    | STRING_TYPE | LONG_TYPE | INTEGER_TYPE | DOUBLE_TYPE | FLOAT_TYPE | BOOLEAN_TYPE
     ;
 
 // ==================== Common ====================

@@ -420,6 +420,17 @@ class NativeTraceComparisonTest {
                     beforeFailure, v2.subList(0, Math.min(beforeFailure.size(), v2.size())));
                 break;
             }
+            case PADDED_NUMBER_TRIMMED: {
+                if (!failed(v1) || !withoutAnnotation(v1.get(v1.size() - 1))
+                    .startsWith("exception java.lang.NumberFormatException")) {
+                    mismatches.add(label + ": v1 did not fail on the padded number: "
+                        + (v1.isEmpty() ? "no event" : v1.get(v1.size() - 1)));
+                }
+                if (failed(v2)) {
+                    mismatches.add(label + ": v2 failed too: " + v2.get(v2.size() - 1));
+                }
+                break;
+            }
             case BARE_HOST_GATEWAY: {
                 final String address = "address=\"" + CheckerFixtures.BARE_GATEWAY + "\",";
                 final Predicate<String> alias = e -> withoutAnnotation(e).startsWith("source NetworkAddressAliasSetup{")
@@ -527,6 +538,8 @@ class NativeTraceComparisonTest {
             + "java.lang.IllegalStateException: \"Duplicate key cache.key (attempted merging values k1 and k2)\""));
         v1.put(CheckerDifference.BARE_HOST_GATEWAY, List.of("[span alias] source NetworkAddressAliasSetup{timeBucket=1, "
             + "address=\"" + CheckerFixtures.BARE_GATEWAY + "\", isRepresentServiceNormal=true}"));
+        v1.put(CheckerDifference.PADDED_NUMBER_TRIMMED, List.of("[span virtual-service] exception "
+            + "java.lang.NumberFormatException: \"For input string: \\\" 7 \\\"\""));
         assertEquals(EnumSet.allOf(CheckerDifference.class), v1.keySet());
         for (final Map.Entry<CheckerDifference, List<String>> unchanged : v1.entrySet()) {
             final List<String> mismatches = new ArrayList<>();

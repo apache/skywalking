@@ -26,4 +26,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Arg {
+    /**
+     * The least a number literal written without an {@code L} for the argument may be, as a bucket width is at least
+     * 1. A literal with an {@code L} is passed as written, for the overload Javassist picks, and not checked.
+     */
+    long min() default Long.MIN_VALUE;
 }

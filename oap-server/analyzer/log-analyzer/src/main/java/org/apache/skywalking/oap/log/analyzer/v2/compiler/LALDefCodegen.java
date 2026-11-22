@@ -18,15 +18,14 @@
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import java.util.List;
-import java.lang.reflect.Method;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
 
 /**
- * Code generation for LAL {@code def} local variable declarations and
- * typed method-chain resolution on def variables.
+ * Code generation for LAL {@code def} local variable declarations and the chains on def variables.
  *
  * <p>The {@code def} keyword declares a local variable in the extractor
  * block. The type is inferred from the initializer expression, and
- * subsequent method chains are resolved via compile-time reflection.
+ * subsequent method chains resolve on it ({@link LALChainCodegen}).
  *
  * <p>LAL example:
  * <pre>{@code
@@ -69,7 +68,7 @@ final class LALDefCodegen {
      * }</pre>
      * <p>Generated (assignment at def site):
      * <pre>{@code
-     * _def_jwt = h.toJsonObject(h.mapVal("metadata", "filterMetadataMap", "key"));
+     * _def_jwt = h.toJsonObject(h.safeProp(h.safeProp(h.mapVal("metadata"), "filterMetadataMap"), "key"));
      * }</pre>
      *
      * <p>Type inference: built-in functions ({@code toJson} &rarr;
@@ -83,86 +82,54 @@ final class LALDefCodegen {
                                       final LALClassGenerator.GenCtx genCtx) {
         final LALScriptModel.ValueAccess init = def.getInitializer();
         final String varName = def.getVarName();
-        final String javaVar = "_def_" + varName;
-        final boolean alreadyDeclared = genCtx.localVars.containsKey(varName);
-
-        // Determine type and generate initializer expression
-        Class<?> resolvedType;
-        final StringBuilder initExpr = new StringBuilder();
-
-        if (init.getFunctionCallName() != null
-                && LALBlockCodegen.BUILTIN_FUNCTIONS.containsKey(init.getFunctionCallName())) {
-            // Built-in function: toJson(...), toJsonArray(...)
-            final String funcName = init.getFunctionCallName();
-            final int argCount = init.getFunctionCallArgs().size();
-            if (argCount != 1) {
-                throw new IllegalArgumentException(
-                    funcName + "() requires exactly 1 argument, got " + argCount);
-            }
-            final Object[] info = LALBlockCodegen.BUILTIN_FUNCTIONS.get(funcName);
-            final String helperMethod = (String) info[0];
-            resolvedType = (Class<?>) info[1];
-
-            initExpr.append(helperMethod).append("(");
-            LALValueCodegen.generateValueAccess(initExpr,
-                init.getFunctionCallArgs().get(0).getValue(), genCtx);
-            initExpr.append(")");
-        } else {
-            // General value access — type inferred from lastResolvedType
-            LALValueCodegen.generateValueAccess(initExpr, init, genCtx);
-            resolvedType = genCtx.lastResolvedType != null
-                ? genCtx.lastResolvedType : Object.class;
-            // Box primitive types for local variable declarations
-            if (resolvedType.isPrimitive()) {
-                final String boxName = LALCodegenHelper.boxTypeName(resolvedType);
-                if (boxName != null) {
-                    try {
-                        resolvedType = Class.forName("java.lang." + boxName);
-                    } catch (ClassNotFoundException ignored) {
-                        // keep primitive
-                    }
-                }
-            }
-        }
-
-        // Apply explicit type cast if specified (e.g., "as com.example.MyType")
         final String castType = def.getCastType();
-        if (castType != null && !castType.isEmpty()) {
-            // Resolve the cast type — primitive wrapper names are handled,
-            // anything else is treated as a FQCN
-            final Class<?> castClass = resolveDefCastType(castType);
-            if (castClass != null) {
-                resolvedType = castClass;
-            }
+        if (genCtx.localVars.containsKey(varName)) {
+            // Groovy LAL refused it.
+            throw new IllegalArgumentException(
+                "def '" + varName + "' is already declared where this def is: give the new one another name");
         }
 
-        // Register in local vars for later reference
-        genCtx.localVars.put(varName,
-            new LALClassGenerator.LocalVarInfo(javaVar, resolvedType));
+        final StringBuilder initExpr = new StringBuilder();
+        LALValueCodegen.generateValueAccess(initExpr, init, genCtx);
+        final boolean typedResult = genCtx.lastTypedResult && castType == null;
+        final boolean textGroup = castType == null && LALValueCodegen.isTextGroupOfABranch(init, genCtx);
+        if (castType != null) {
+            LALValueCodegen.rejectUnconvertibleCast(init, castType, genCtx);
+        }
+        final boolean initNonNull = genCtx.lastNonNull;
+        // A local holds a primitive boxed; an explicit cast types it instead.
+        final Class<?> resolvedType = castType != null ? resolveDefCastType(castType, genCtx.outputType)
+            : DslMethods.boxed(genCtx.lastResolvedType != null ? genCtx.lastResolvedType : Object.class);
 
-        // Emit declaration (placed at method top via localVarDecls) — skip if already declared
-        if (!alreadyDeclared) {
-            genCtx.localVarDecls.append("  ").append(resolvedType.getName())
+        // One Java variable per name and type in the method, declared at its top: a def of a name already declared
+        // with another type, such as in the other branch of an if, gets a variable of its own.
+        // A suffixed name skips one another def's own name would take: `x_2` is a def name too.
+        String javaVar = "_def_" + varName;
+        for (int n = 2; genCtx.declaredDefVars.containsKey(javaVar)
+                && genCtx.declaredDefVars.get(javaVar) != resolvedType
+                || n > 2 && genCtx.allDefNames.contains(varName + "_" + (n - 1)); n++) {
+            javaVar = "_def_" + varName + "_" + n;
+        }
+        genCtx.localVars.put(varName,
+            new LALClassGenerator.LocalVarInfo(javaVar, resolvedType, typedResult, textGroup));
+        if (genCtx.declaredDefVars.put(javaVar, resolvedType) == null) {
+            genCtx.localVarDecls.append("  ").append(LALClassGenerator.sourceNameOf(resolvedType))
                 .append(" ").append(javaVar).append(";\n");
             genCtx.localVarLvtVars.add(new String[]{
-                javaVar, "L" + resolvedType.getName().replace('.', '/') + ";"
+                javaVar, LALClassGenerator.descriptorOf(resolvedType)
             });
         }
 
-        // Emit assignment in body (at the point where def appears).
-        // For built-in scalar casts the initialiser usually returns String
-        // or Object (e.g. tag() returns String), so a plain Java cast would
-        // throw ClassCastException at runtime. Route through the runtime
-        // helper which performs the proper conversion. FQCN casts still use
-        // a direct Java cast — those name a concrete type the caller knows
-        // the initialiser already produces.
+        // A built-in cast converts through the runtime helper; a class cast converts as Groovy's `as` does
+        // (h.asClass), so a list cast as a Set becomes one.
         sb.append("  ").append(javaVar).append(" = ");
-        if (castType != null && !castType.isEmpty()) {
-            final String conversion = scalarCastConversion(castType, initExpr);
+        if (castType != null) {
+            final String conversion = LALValueCodegen.castObject(castType, initExpr.toString(), initNonNull);
             if (conversion != null) {
                 sb.append(conversion);
             } else {
-                sb.append("(").append(resolvedType.getName()).append(") ").append(initExpr);
+                sb.append("(").append(LALClassGenerator.sourceNameOf(resolvedType)).append(") h.asClass(")
+                  .append(initExpr).append(", ").append(LALClassGenerator.sourceNameOf(resolvedType)).append(".class)");
             }
         } else {
             sb.append(initExpr);
@@ -171,234 +138,44 @@ final class LALDefCodegen {
     }
 
     /**
-     * Render the boxed runtime-helper conversion for a scalar cast type
-     * (e.g. {@code Long.valueOf(h.toLong(<init>))}). Returns {@code null}
-     * for FQCN / unknown cast types so the caller can fall back to a
-     * direct Java cast.
+     * Resolves a def's cast to its class: a built-in cast's ({@code String}, {@code Long}, {@code int}, ...), else
+     * the class a fully qualified name names, which the list must allow.
      */
-    private static String scalarCastConversion(final String castType,
-                                                 final CharSequence init) {
-        switch (castType) {
-            case "String":
-                return "h.toStr(" + init + ")";
-            case "Long":
-                return "Long.valueOf(h.toLong(" + init + "))";
-            case "Integer":
-                return "Integer.valueOf(h.toInt(" + init + "))";
-            case "Double":
-                return "Double.valueOf(h.toDouble(" + init + "))";
-            case "Float":
-                return "Float.valueOf(h.toFloat(" + init + "))";
-            case "Boolean":
-                return "Boolean.valueOf(h.toBool(" + init + "))";
-            default:
-                return null;
+    private static Class<?> resolveDefCastType(final String castType, final Class<?> outputType) {
+        final Class<?> builtIn = LALValueCodegen.classOf(LALValueCodegen.castToType(castType));
+        if (builtIn != null) {
+            return builtIn;
         }
-    }
-
-    /**
-     * Resolves a cast type string to a {@link Class}.
-     * Handles the four built-in type names ({@code String}, {@code Long},
-     * {@code Integer}, {@code Boolean}) and fully qualified class names.
-     */
-    private static Class<?> resolveDefCastType(final String castType) {
-        switch (castType) {
-            case "String":
-                return String.class;
-            case "Long":
-                return Long.class;
-            case "Integer":
-                return Integer.class;
-            case "Double":
-                return Double.class;
-            case "Float":
-                return Float.class;
-            case "Boolean":
-                return Boolean.class;
-            default:
-                try {
-                    return Class.forName(castType);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException(
-                        "def cast type not found on classpath: " + castType, e);
-                }
+        try {
+            // typing only: the class is not initialized before the list accepts it
+            return LALCallables.checkDefCast(Class.forName(castType, false,
+                LALDefCodegen.class.getClassLoader()), outputType);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(
+                "def cast type not found on classpath: " + castType, e);
         }
     }
 
     // ==================== Def variable chain codegen ====================
 
     /**
-     * Generates typed method-chain access on a def variable.
-     * Uses reflection to resolve each method/field call and track types.
+     * Generates the chain on a def variable, on the type the def holds.
      *
-     * @param sb output buffer
      * @param localVar the def variable info (java var name + resolved type)
-     * @param chain the chain segments after the variable name
-     * @param genCtx codegen context
+     * @param chain    the chain segments after the variable name
      */
     static void generateDefVarChain(
             final StringBuilder sb,
             final LALClassGenerator.LocalVarInfo localVar,
             final List<LALScriptModel.ValueAccessSegment> chain,
             final LALClassGenerator.GenCtx genCtx) {
-        if (chain.isEmpty()) {
-            sb.append(localVar.javaVarName);
-            genCtx.lastResolvedType = localVar.resolvedType;
+        if (localVar.textGroup && localVar.resolvedType == Object.class && LALChainCodegen.callsAStringMethod(chain)) {
+            // As parsed.<group>.<method> takes it: a string, failing the cast for another branch's value.
+            LALChainCodegen.generateTypedChain(sb, "((String) " + localVar.javaVarName + ")", String.class, true,
+                chain, genCtx);
             return;
         }
-
-        String prevExpr = localVar.javaVarName;
-        Class<?> currentType = localVar.resolvedType;
-        boolean canBeNull = true;
-
-        for (int i = 0; i < chain.size(); i++) {
-            final LALScriptModel.ValueAccessSegment seg = chain.get(i);
-            final boolean isLast = i == chain.size() - 1;
-
-            if (seg instanceof LALScriptModel.MethodSegment) {
-                final LALScriptModel.MethodSegment ms =
-                    (LALScriptModel.MethodSegment) seg;
-                final String methodName = ms.getName();
-
-                // Resolve method on currentType via reflection
-                final Method method =
-                    resolveMethod(currentType, methodName, ms.getArguments());
-                if (method == null) {
-                    throw new IllegalArgumentException(
-                        "Cannot resolve method " + currentType.getSimpleName()
-                            + "." + methodName + "() in def variable chain");
-                }
-                final Class<?> returnType = method.getReturnType();
-                final String args =
-                    LALValueCodegen.generateMethodArgs(ms.getArguments(), genCtx);
-
-                if (ms.isSafeNav() && canBeNull) {
-                    if (isLast && returnType.isPrimitive()) {
-                        // Primitive return with null guard
-                        final String boxName =
-                            LALCodegenHelper.boxTypeName(returnType);
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + boxName + ".valueOf(" + prevExpr + "."
-                            + methodName + "(" + args + ")))";
-                        currentType = returnType;
-                    } else {
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + prevExpr + "." + methodName + "(" + args + "))";
-                        currentType = returnType;
-                        canBeNull = true;
-                    }
-                } else {
-                    prevExpr = prevExpr + "." + methodName + "(" + args + ")";
-                    currentType = returnType;
-                    canBeNull = !returnType.isPrimitive();
-                }
-            } else if (seg instanceof LALScriptModel.FieldSegment) {
-                final LALScriptModel.FieldSegment fs =
-                    (LALScriptModel.FieldSegment) seg;
-                final String fieldName = fs.getName();
-                // Try getter first
-                final String getterName = "get"
-                    + Character.toUpperCase(fieldName.charAt(0))
-                    + fieldName.substring(1);
-                Method getter = null;
-                try {
-                    getter = currentType.getMethod(getterName);
-                } catch (NoSuchMethodException e) {
-                    // Try direct field access name
-                    try {
-                        getter = currentType.getMethod(fieldName);
-                    } catch (NoSuchMethodException e2) {
-                        throw new IllegalArgumentException(
-                            "Cannot resolve field/getter "
-                                + currentType.getSimpleName()
-                                + "." + fieldName + " in def variable chain");
-                    }
-                }
-                final Class<?> returnType = getter.getReturnType();
-
-                if (fs.isSafeNav() && canBeNull) {
-                    if (isLast && returnType.isPrimitive()) {
-                        final String boxName =
-                            LALCodegenHelper.boxTypeName(returnType);
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + boxName + ".valueOf(" + prevExpr + "."
-                            + getter.getName() + "()))";
-                        currentType = returnType;
-                    } else {
-                        prevExpr = "(" + prevExpr + " == null ? null : "
-                            + prevExpr + "." + getter.getName() + "())";
-                        currentType = returnType;
-                        canBeNull = true;
-                    }
-                } else {
-                    prevExpr = prevExpr + "." + getter.getName() + "()";
-                    currentType = returnType;
-                    canBeNull = !returnType.isPrimitive();
-                }
-            } else if (seg instanceof LALScriptModel.IndexSegment) {
-                final int index = ((LALScriptModel.IndexSegment) seg).getIndex();
-                // Try get(int) method (e.g., JsonArray.get(int))
-                Method getMethod = null;
-                try {
-                    getMethod = currentType.getMethod("get", int.class);
-                } catch (NoSuchMethodException e) {
-                    throw new IllegalArgumentException(
-                        "Cannot resolve index access on "
-                            + currentType.getSimpleName()
-                            + " in def variable chain");
-                }
-                final Class<?> returnType = getMethod.getReturnType();
-                if (canBeNull) {
-                    prevExpr = "(" + prevExpr + " == null ? null : "
-                        + prevExpr + ".get(" + index + "))";
-                } else {
-                    prevExpr = prevExpr + ".get(" + index + ")";
-                }
-                currentType = returnType;
-                canBeNull = true;
-            }
-        }
-
-        genCtx.lastResolvedType = currentType;
-        sb.append(prevExpr);
-    }
-
-    /**
-     * Resolves a method on the given type by name, matching argument count.
-     * For methods with String arguments (like JsonObject.get(String)),
-     * prioritizes exact match by parameter types.
-     */
-    private static Method resolveMethod(
-            final Class<?> type, final String name,
-            final List<LALScriptModel.FunctionArg> args) {
-        final int argCount = args != null ? args.size() : 0;
-        // Try exact match with common parameter types
-        if (argCount == 1) {
-            try {
-                return type.getMethod(name, String.class);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-            try {
-                return type.getMethod(name, int.class);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-        }
-        if (argCount == 0) {
-            try {
-                return type.getMethod(name);
-            } catch (NoSuchMethodException ignored) {
-                // fall through
-            }
-        }
-        // Fallback: find by name and arg count
-        for (final Method m : type.getMethods()) {
-            if (m.getName().equals(name)
-                    && m.getParameterCount() == argCount) {
-                return m;
-            }
-        }
-        return null;
+        LALChainCodegen.generateTypedChain(sb, localVar.javaVarName, localVar.resolvedType, true, chain, genCtx,
+            localVar.typedResult);
     }
 }

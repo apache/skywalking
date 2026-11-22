@@ -264,8 +264,8 @@ The processing continues for other metrics — a single expression failure does 
 Hierarchy rule compilation errors are thrown at startup:
 
 ```
-IllegalStateException: Failed to compile hierarchy rule: lower-short-name-remove-namespace,
-    expression: { (u, l) -> { if (...) { ... } } }
+IllegalStateException: Failed to compile hierarchy rule: lower-short-name-remove-namespace (hierarchy-definition.yml:93),
+    expression: { (u, l) -> { if (...) { ... } } }: <what the rule does wrong>
 ```
 
 Check the rule expression syntax in `config/hierarchy-definition.yml` under `auto-matching-rules`.

@@ -167,19 +167,16 @@ public class TraceAnalyzerModuleProvider extends ModuleProvider {
                 factSender.offer(fact);
             }
         });
-        try {
-            this.factory.loadStaticRules();
-        } catch (final Exception e) {
-            throw new ModuleStartException("Failed to load the static TAL rules.", e);
-        }
         // The native rules read the agent analyzer's settings; without it no native receiver loads, since every
         // caller of the native service requires it too.
-        if (getManager().has(AnalyzerModule.NAME)) {
-            try {
-                this.nativeRuleRunner.loadRules(this.factory.compileNativeRules());
-            } catch (final Exception e) {
-                throw new ModuleStartException("Failed to load the native TAL rules.", e);
+        final boolean withNative = getManager().has(AnalyzerModule.NAME);
+        try {
+            final List<TalDSL> nativeRules = this.factory.loadRules(withNative);
+            if (withNative) {
+                this.nativeRuleRunner.loadRules(nativeRules);
             }
+        } catch (final Exception e) {
+            throw new ModuleStartException("Failed to load the TAL rules: " + e.getMessage(), e);
         }
     }
 

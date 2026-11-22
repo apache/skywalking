@@ -74,8 +74,8 @@ public class CompiledHierarchyRuleProvider implements HierarchyDefinitionService
                 log.debug("Compiled hierarchy rule: {}", name);
             } catch (Exception e) {
                 throw new IllegalStateException(
-                    "Failed to compile hierarchy rule: " + name
-                        + ", expression: " + expression, e);
+                    "Failed to compile hierarchy rule: " + name + " (" + HIERARCHY_RULE_FILE + ":"
+                        + ruleLines.get(name) + "), expression: " + expression + ": " + e.getMessage(), e);
             }
         });
         return rules;

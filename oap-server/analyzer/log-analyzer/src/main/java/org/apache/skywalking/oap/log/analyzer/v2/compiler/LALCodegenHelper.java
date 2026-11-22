@@ -18,29 +18,28 @@
 package org.apache.skywalking.oap.log.analyzer.v2.compiler;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.skywalking.apm.network.logging.v3.LogData;
+import org.apache.skywalking.oap.server.core.dsl.DslMethods;
 import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 
 /**
- * Static utility constants and methods extracted from {@link LALClassGenerator}
- * for reuse by {@link LALBlockCodegen}.
+ * Constants and helpers the LAL code generators share.
  */
 final class LALCodegenHelper {
 
     /** Metadata fields — available on {@code LogMetadata} (always present). */
     static final Map<String, String> METADATA_GETTERS = new HashMap<>();
-    /** TraceContext sub-fields on {@code LogMetadata.TraceContext}. */
-    static final Map<String, String> METADATA_TRACE_GETTERS = new HashMap<>();
     /** LogData-only fields — require the input to be {@code LogData}. */
     static final Map<String, String> LOG_GETTERS = new HashMap<>();
-    static final Set<String> LONG_FIELDS = new HashSet<>();
-    static final Set<String> INT_FIELDS = new HashSet<>();
     static final Class<?> LOGDATA_BUILDER_CLASS = LogData.Builder.class;
+    /**
+     * Groovy's primitive casts: they convert as their box's ({@code as long} as {@code as Long}), but a null fails a
+     * number's and is {@code false} as a boolean.
+     */
+    static final Set<String> PRIMITIVE_CASTS = Set.of("long", "int", "double", "float", "boolean");
 
     static {
         METADATA_GETTERS.put("service", "getService");
@@ -50,17 +49,8 @@ final class LALCodegenHelper {
         METADATA_GETTERS.put("timestamp", "getTimestamp");
         METADATA_GETTERS.put("traceContext", "getTraceContext");
 
-        METADATA_TRACE_GETTERS.put("traceId", "getTraceId");
-        METADATA_TRACE_GETTERS.put("traceSegmentId", "getTraceSegmentId");
-        METADATA_TRACE_GETTERS.put("spanId", "getSpanId");
-        METADATA_TRACE_GETTERS.put("otlpSpanId", "getOtlpSpanId");
-
         LOG_GETTERS.put("body", "getBody");
         LOG_GETTERS.put("tags", "getTags");
-
-        LONG_FIELDS.add("timestamp");
-        INT_FIELDS.add("spanId");
-
     }
 
     /** FQCN of the per-rule capture binding the generated rule class carries. */
@@ -122,33 +112,76 @@ final class LALCodegenHelper {
           .append("\", h.ctx());\n");
     }
 
-    static String boxTypeName(final Class<?> primitiveType) {
-        if (primitiveType == int.class) {
-            return "Integer";
-        } else if (primitiveType == long.class) {
-            return "Long";
-        } else if (primitiveType == boolean.class) {
-            return "Boolean";
-        } else if (primitiveType == double.class) {
-            return "Double";
-        } else if (primitiveType == float.class) {
-            return "Float";
+    /**
+     * Names a statement for an error message: its source text when it carries one.
+     */
+    static String describe(final Object stmt) {
+        if (stmt instanceof LALScriptModel.FilterStatement) {
+            final String text = ((LALScriptModel.FilterStatement) stmt).getSourceText();
+            if (text != null && !text.isEmpty()) {
+                return "'" + text.trim() + "'";
+            }
         }
-        return null;
+        if (stmt instanceof LALScriptModel.AbortStatement) {
+            return "abort {}";
+        }
+        if (stmt instanceof LALScriptModel.TextParser) {
+            return "text {}";
+        }
+        if (stmt instanceof LALScriptModel.JsonParser) {
+            return "json {}";
+        }
+        if (stmt instanceof LALScriptModel.YamlParser) {
+            return "yaml {}";
+        }
+        if (stmt instanceof LALScriptModel.ExtractorBlock) {
+            return "extractor {}";
+        }
+        if (stmt instanceof LALScriptModel.SinkBlock) {
+            return "sink {}";
+        }
+        if (stmt instanceof LALScriptModel.SamplerBlock) {
+            return "sampler {}";
+        }
+        if (stmt instanceof LALScriptModel.RateLimitBlock) {
+            return "rateLimit(...)";
+        }
+        if (stmt instanceof LALScriptModel.EnforcerStatement) {
+            return "enforcer {}";
+        }
+        if (stmt instanceof LALScriptModel.DropperStatement) {
+            return "dropper {}";
+        }
+        if (stmt instanceof LALScriptModel.DefStatement) {
+            return "def " + ((LALScriptModel.DefStatement) stmt).getVarName();
+        }
+        if (stmt instanceof LALScriptModel.FieldAssignment) {
+            return ((LALScriptModel.FieldAssignment) stmt).getFieldType().name().toLowerCase();
+        }
+        if (stmt instanceof LALScriptModel.OutputFieldAssignment) {
+            return ((LALScriptModel.OutputFieldAssignment) stmt).getFieldName();
+        }
+        if (stmt instanceof LALScriptModel.TagAssignment) {
+            return "tag";
+        }
+        if (stmt instanceof LALScriptModel.MetricsBlock) {
+            return "metrics {}";
+        }
+        return stmt.getClass().getSimpleName();
     }
 
-    static String generateMapValCall(final List<String> keys) {
-        if (keys.isEmpty()) {
-            return "h.ctx().parsed()";
-        }
-        final StringBuilder call = new StringBuilder("h.mapVal(");
-        for (int i = 0; i < keys.size(); i++) {
-            if (i > 0) {
-                call.append(", ");
-            }
-            call.append("\"").append(DslJavaSourceText.toLiteral(keys.get(i))).append("\"");
-        }
-        call.append(")");
-        return call.toString();
+    /**
+     * The compile error for a statement its enclosing block does not run.
+     */
+    static IllegalArgumentException notAllowedIn(final Object stmt, final String block, final String hint) {
+        return new IllegalArgumentException(
+            describe(stmt) + " is not supported in " + block + (hint == null ? "" : ": " + hint));
+    }
+
+    /**
+     * @return a primitive expression boxed, {@code Integer.valueOf(expr)}
+     */
+    static String box(final Class<?> primitive, final String expr) {
+        return DslMethods.boxed(primitive).getSimpleName() + ".valueOf(" + expr + ")";
     }
 }

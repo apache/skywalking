@@ -183,8 +183,8 @@ class LALScriptExecutionTest {
                 disableSinkListenersOnSpec(v2FilterSpec);
 
                 @SuppressWarnings("unchecked")
-                final java.util.Map<String, String> srcAttrs = inputData != null
-                    ? (java.util.Map<String, String>) inputData.get("source-attributes") : null;
+                final Map<String, String> srcAttrs = inputData != null
+                    ? (Map<String, String>) inputData.get("source-attributes") : null;
                 final org.apache.skywalking.oap.server.core.source.LogMetadata v2Metadata =
                     srcAttrs != null
                         ? org.apache.skywalking.oap.server.core.source.LogMetadataUtils.fromLogData(testLogBuilder, srcAttrs)
@@ -213,7 +213,15 @@ class LALScriptExecutionTest {
         }
 
         // ---- Validate ----
-        if (v2Ctx == null) {
+        @SuppressWarnings("unchecked")
+        final Map<String, Object> expected = inputData != null ? (Map<String, Object>) inputData.get("expect") : null;
+        final Object expectedError = expected != null ? expected.get("error") : null;
+        if (expectedError != null) {
+            assertTrue(v2Error != null && v2Error.contains(String.valueOf(expectedError)),
+                testName + ": expected execution error containing '" + expectedError + "' but got: " + v2Error);
+            return;
+        }
+        if (v2Ctx == null || v2Error != null) {
             fail(testName + ": v2 execution failed — " + v2Error);
             return;
         }

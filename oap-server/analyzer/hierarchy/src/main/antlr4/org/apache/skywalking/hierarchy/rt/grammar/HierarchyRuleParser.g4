@@ -58,15 +58,16 @@ statement
     | returnStatement
     ;
 
+// condition(i) guards ifBranch(i); an ifBranch past the last condition is the else.
 ifStatement
-    : IF L_PAREN condition R_PAREN
-        (returnStatement | blockBody)
-      (ELSE IF L_PAREN condition R_PAREN
-        (returnStatement | blockBody)
-      )*
-      (ELSE
-        (returnStatement | blockBody)
-      )?
+    : IF L_PAREN condition R_PAREN ifBranch
+      (ELSE IF L_PAREN condition R_PAREN ifBranch)*
+      (ELSE ifBranch)?
+    ;
+
+ifBranch
+    : returnStatement
+    | blockBody
     ;
 
 returnStatement
@@ -81,10 +82,11 @@ returnValue
 
 // ==================== Conditions ====================
 
+// Earlier alternatives bind tighter: `!a && b || c` is `((!a) && b) || c`, as in Groovy.
 condition
-    : condition AND condition                 # condAnd
+    : NOT condition                           # condNot
+    | condition AND condition                 # condAnd
     | condition OR condition                  # condOr
-    | NOT condition                           # condNot
     | L_PAREN condition R_PAREN              # condParen
     | ruleExpr DEQ ruleExpr                  # condEq
     | ruleExpr NEQ ruleExpr                  # condNeq
@@ -102,9 +104,9 @@ simpleExpression
     | ruleExpr NEQ ruleExpr
     ;
 
+// One alternative for + and -, so they share a precedence level and associate left.
 ruleExpr
-    : ruleExpr PLUS ruleExpr                 # exprAdd
-    | ruleExpr MINUS ruleExpr                # exprSub
+    : ruleExpr op=(PLUS | MINUS) ruleExpr    # exprAddSub
     | ruleExprPrimary                        # exprPrimary
     ;
 

@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -165,7 +166,14 @@ public class OALClassGeneratorV2 {
 
         // Register disabled sources
         for (String disabledSource : disabledSources) {
-            DisableRegister.INSTANCE.add(disabledSource);
+            if (DisableRegister.INSTANCE.isStreamRunning(disabledSource)) {
+                // Not registered either, so no later reader of the register, as the profile task cache, half applies
+                // it. The stream may run, or have been left out by its processor: the boot need not fail for it.
+                log.warn("{}: disable({}) comes after the stream is defined, so it has no effect; put it in "
+                             + "oal/disable.oal, which loads first", oalDefine.getConfigFile(), disabledSource);
+                continue;
+            }
+            DisableRegister.INSTANCE.addFromScript(disabledSource);
         }
     }
 
@@ -287,7 +295,7 @@ public class OALClassGeneratorV2 {
                 sourceMethods.append("    ").append(body.replace("\n", "\n    ")).append("\n\n");
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
-                throw new OALCompileException(e.getMessage(), e);
+                throw new OALCompileException(where(model) + ": " + e.getMessage(), e);
             }
         }
 
@@ -318,13 +326,7 @@ public class OALClassGeneratorV2 {
             DslGeneratedFileWriter.attachSignatureLine(m, DslGeneratedFileWriter.lineOfMethod(metricsSource, m.getName()));
         }
 
-        Class targetClass;
-        try {
-            targetClass = metricsClass.toClass(MetricClassPackageHolder.class);
-        } catch (CannotCompileException e) {
-            log.error("Can't compile/load " + className + ".", e);
-            throw new OALCompileException(e.getMessage(), e);
-        }
+        Class targetClass = load(metricsClass, MetricClassPackageHolder.class, failure -> where(model));
 
         log.debug("Generated V2 metrics class: " + metricsClass.getName());
         writeGeneratedFile(metricsClass, "metrics");
@@ -385,7 +387,7 @@ public class OALClassGeneratorV2 {
                 metricsBuilderClass.addMethod(m);
             } catch (Exception e) {
                 log.error("Can't generate method " + method + " for " + className + ".", e);
-                throw new OALCompileException(e.getMessage(), e);
+                throw new OALCompileException(where(model) + ": " + e.getMessage(), e);
             }
         }
 
@@ -398,12 +400,7 @@ public class OALClassGeneratorV2 {
             refOf(model.getMetricDefinition().getLocation(), false)
                 .sourceFileOf(metricsBuilderClass.getSimpleName()));
 
-        try {
-            metricsBuilderClass.toClass(MetricBuilderClassPackageHolder.class);
-        } catch (CannotCompileException e) {
-            log.error("Can't compile/load " + className + ".", e);
-            throw new OALCompileException(e.getMessage(), e);
-        }
+        load(metricsBuilderClass, MetricBuilderClassPackageHolder.class, failure -> where(model));
 
         writeGeneratedFile(metricsBuilderClass, "metrics/builder");
     }
@@ -544,7 +541,7 @@ public class OALClassGeneratorV2 {
             } catch (Exception e) {
                 log.error("Can't generate method do" + metric.getMetricsName() + " for " + className + ".", e);
                 log.error("Method body: {}", methodEntity);
-                throw new OALCompileException(e.getMessage(), e);
+                throw new OALCompileException(where(metric) + ": " + e.getMessage(), e);
             }
         }
 
@@ -580,13 +577,15 @@ public class OALClassGeneratorV2 {
                 DslGeneratedFileWriter.lineOfMethod(dispatcherSource, m.getName()));
         }
 
-        Class targetClass;
-        try {
-            targetClass = dispatcherClass.toClass(DispatcherClassPackageHolder.class);
-        } catch (CannotCompileException e) {
-            log.error("Can't compile/load " + className + ".", e);
-            throw new OALCompileException(e.getMessage(), e);
-        }
+        Class targetClass = load(dispatcherClass, DispatcherClassPackageHolder.class, failure -> {
+            // The JVM names the method it rejects, do<MetricsName>, which leads to the rule.
+            for (CodeGenModel metric : dispatcherContext.getMetrics()) {
+                if (String.valueOf(failure).contains("do" + metric.getMetricsName() + "(")) {
+                    return where(metric);
+                }
+            }
+            return oalDefine.getConfigFile();
+        });
 
         writeGeneratedFile(dispatcherClass, "dispatcher");
         writeGeneratedSourceFile(dispatcherClass, "dispatcher", dispatcherSource);
@@ -625,6 +624,28 @@ public class OALClassGeneratorV2 {
         sb.append(methods);
         sb.append("}\n");
         return sb.toString();
+    }
+
+    private static String where(CodeGenModel model) {
+        return model.getMetricDefinition().getLocation() + " " + model.getVarName();
+    }
+
+    /**
+     * Define the generated class and look up its constructor, which links it: the JVM verifies a class when it is
+     * linked, so bytecode Javassist accepted but the verifier rejects fails the compile here, as an exception, rather
+     * than the boot as an Error. No instance is made, so no constructor runs before the stream is registered.
+     */
+    private static Class load(CtClass ctClass, Class<?> neighbor,
+                              Function<Throwable, String> where) throws OALCompileException {
+        try {
+            final Class loaded = ctClass.toClass(neighbor);
+            loaded.getDeclaredConstructor();
+            return loaded;
+        } catch (CannotCompileException | ReflectiveOperationException | LinkageError | RuntimeException e) {
+            log.error("Can't compile/load " + ctClass.getName() + ".", e);
+            throw new OALCompileException(
+                where.apply(e) + ": the generated " + ctClass.getName() + " does not load: " + e, e);
+        }
     }
 
     private String metricsClassName(CodeGenModel model, boolean fullName) {

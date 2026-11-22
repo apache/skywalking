@@ -37,5 +37,10 @@ enum CheckerDifference {
      * A bare host whose gateway {@code gateways.yml} lists at port 80: the listeners' exact lookup misses it, the shared
      * {@code isGateway} finds it.
      */
-    BARE_HOST_GATEWAY
+    BARE_HOST_GATEWAY,
+    /**
+     * A numeric tag padded with spaces: the Java analyzer's {@code Long.parseLong} failed the segment, the rule's
+     * {@code as Long} trims the text, as LAL and Groovy read it.
+     */
+    PADDED_NUMBER_TRIMMED
 }

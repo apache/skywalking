@@ -25,7 +25,7 @@
 // disable(endpoint_relation_server_side);
 // disable(top_n_database_statement);
 // disable(zipkin_span);
-// disable(jaeger_span);
 // disable(profile_task);
 // disable(profile_task_log);
 // disable(profile_task_segment_snapshot);
+// disable(browser_error_log);

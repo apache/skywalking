@@ -19,15 +19,19 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
+import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFunctionArg;
@@ -275,10 +279,24 @@ final class TALBlockCodegen {
                            .append(" = null;\n");
         genCtx.localVarLvtVars.add(new String[] {loopVar, TALCodegenHelper.descriptor(elementType)});
         genCtx.localVars.put(varName, new TALLocalVar(loopVar, elementType));
+        // The list's elements are no collection the rule made, nor a quotient.
+        genCtx.assumeUnassigned(loopVar, false, false);
 
         genCtx.blockScopes.addLast(new ArrayList<>());
         final StringBuilder body = new StringBuilder();
+        // An iteration starts with what the loop starts with or what an earlier iteration ended with, which the
+        // generation before learned; the rule is generated again until that settles, so the body's code holds on
+        // every iteration.
+        final Set<String> outerDefs = new HashSet<>();
+        genCtx.localVars.values().forEach(var -> outerDefs.add(var.javaVarName));
+        final TALGenCtx.Facts start = TALGenCtx.Facts.join(genCtx.facts(), genCtx.loopEntryFacts.get(block));
+        genCtx.restore(start);
         generateStatements(body, block.getBody(), genCtx);
+        final TALGenCtx.Facts exit = aborts(block.getBody()) ? null : genCtx.facts();
+        if (exit != null) {
+            genCtx.learnLoop(block, start, exit.only(outerDefs));
+        }
+        genCtx.restore(TALGenCtx.Facts.join(start, exit));
         final List<String> declaredInBody = genCtx.blockScopes.removeLast();
 
         sb.append("  ").append(iterator).append(" = ").append(TALRuntimeRoles.method("iterate")).append("(").append(listExpr).append(");\n");
@@ -306,8 +324,40 @@ final class TALBlockCodegen {
                                              final TALScriptModel.LogStatement stmt,
                                              final TALGenCtx genCtx) {
         final String level = stmt.getLevel();
+        final int placeholders = TALLiterals.placeholderCount(stmt.getMessage());
+        // An argument after the placeholders whose type does not say it is a Throwable is checked when it is logged.
+        boolean checkException = false;
+        if (stmt.getArguments().size() > placeholders) {
+            final TALScriptModel.FunctionArg extra = stmt.getArguments().get(stmt.getArguments().size() - 1);
+            final Class<?> type = TALValueCodegen.argumentTypes(List.of(extra), genCtx)[0];
+            checkException = type == null || !Throwable.class.isAssignableFrom(type);
+            if (!mayBeThrowable(type)) {
+                throw new IllegalArgumentException(
+                    "log message \"" + stmt.getMessage() + "\" has " + placeholders + " {} placeholder(s) and "
+                        + stmt.getArguments().size() + " argument(s); the argument after the placeholders is logged "
+                        + "as the exception, so it is a Throwable, not "
+                        + "a " + type.getSimpleName());
+            }
+        }
         final String enabled = "is" + Character.toUpperCase(level.charAt(0)) + level.substring(1) + "Enabled";
         sb.append("  if (").append(TALClassGenerator.SCRIPT_LOGGER).append(".").append(enabled).append("()) {\n");
+        if (Math.min(placeholders, stmt.getArguments().size()) == 0 && stmt.getMessage().contains("\\{}")) {
+            // No argument is formatted into the message, so nothing would unescape its \{}: the message is written as
+            // it reads, alone or as the one argument of "{}", beside the exception that follows it.
+            final String text = "\"" + DslJavaSourceText.toLiteral(TALLiterals.unescapedPlaceholders(stmt.getMessage()))
+                + "\"";
+            sb.append("    ").append(TALClassGenerator.SCRIPT_LOGGER).append(".").append(level).append("(");
+            if (stmt.getArguments().isEmpty()) {
+                sb.append(text).append(");\n");
+            } else {
+                final TALScriptModel.FunctionArg exception = stmt.getArguments().get(0);
+                sb.append("\"{}\", new Object[] {").append(text).append(", ");
+                appendLogArgument(sb, exception, checkException, genCtx);
+                sb.append("});\n");
+            }
+            sb.append("  }\n");
+            return;
+        }
         sb.append("    ").append(TALClassGenerator.SCRIPT_LOGGER).append(".").append(level).append("(\"")
           .append(DslJavaSourceText.toLiteral(stmt.getMessage())).append("\", ");
         if (stmt.getArguments().isEmpty()) {
@@ -319,12 +369,31 @@ final class TALBlockCodegen {
                 if (i > 0) {
                     sb.append(", ");
                 }
-                final TALScriptModel.FunctionArg arg = stmt.getArguments().get(i);
-                TALValueCodegen.generateBoxedValueAccess(sb, arg.getValue(), arg.getCastType(), genCtx);
+                appendLogArgument(sb, stmt.getArguments().get(i),
+                    checkException && i == stmt.getArguments().size() - 1, genCtx);
             }
             sb.append("});\n");
         }
         sb.append("  }\n");
+    }
+
+    private static void appendLogArgument(final StringBuilder sb, final TALScriptModel.FunctionArg arg,
+                                          final boolean exception, final TALGenCtx genCtx) {
+        if (exception) {
+            sb.append(TALRuntimeRoles.method("loggedException")).append("(");
+        }
+        TALValueCodegen.generateBoxedValueAccess(sb, arg.getValue(), arg.getCastType(), genCtx);
+        if (exception) {
+            sb.append(")");
+        }
+    }
+
+    /**
+     * @return whether a value of this compile-time type can be a Throwable; true when the type is unknown
+     */
+    private static boolean mayBeThrowable(final Class<?> type) {
+        return type == null || !type.isPrimitive() && (type.isInterface() || type.isAssignableFrom(Throwable.class)
+            || Throwable.class.isAssignableFrom(type));
     }
 
     private static void generateIfBlock(final StringBuilder sb,
@@ -333,13 +402,32 @@ final class TALBlockCodegen {
         sb.append("  if (");
         TALValueCodegen.generateCondition(sb, block.getCondition(), genCtx);
         sb.append(") {\n");
+        // A def holds its own collection, or a quotient, after the block when it does on every branch that ends.
+        final TALGenCtx.Facts before = genCtx.facts();
         generateStatements(sb, block.getThenStatements(), genCtx);
+        final TALGenCtx.Facts afterThen = aborts(block.getThenStatements()) ? null : genCtx.facts();
         sb.append("  }\n");
+        genCtx.restore(before);
         if (!block.getElseStatements().isEmpty()) {
             sb.append("  else {\n");
             generateStatements(sb, block.getElseStatements(), genCtx);
             sb.append("  }\n");
         }
+        final TALGenCtx.Facts afterElse = aborts(block.getElseStatements()) ? null : genCtx.facts();
+        genCtx.restore(TALGenCtx.Facts.join(afterThen, afterElse));
+    }
+
+    /**
+     * @return whether every run of the statements ends in {@code abort {}}
+     */
+    private static boolean aborts(final List<? extends TALScriptModel.FilterStatement> stmts) {
+        if (stmts.isEmpty()) {
+            return false;
+        }
+        final TALScriptModel.FilterStatement last = stmts.get(stmts.size() - 1);
+        return last instanceof TALScriptModel.AbortStatement || last instanceof TALScriptModel.IfBlock
+            && aborts(((TALScriptModel.IfBlock) last).getThenStatements())
+            && aborts(((TALScriptModel.IfBlock) last).getElseStatements());
     }
 
     /**
@@ -370,6 +458,9 @@ final class TALBlockCodegen {
                 break;
         }
         TALInputs.require(construct, genCtx.inputAlias);
+        if (stmt.getFieldType() == TALScriptModel.FieldType.LAYER) {
+            checkLiteralLayer(stmt.getValue(), stmt.getCastType());
+        }
         sb.append("  h.ctx().getMeta().").append(setter).append("(");
         TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
         sb.append(");\n");
@@ -421,7 +512,9 @@ final class TALBlockCodegen {
             }
         });
         final int index = genCtx.builds.size();
-        genCtx.builds.add(new TALGenCtx.BuildSite(block, captured, scopes));
+        final Set<String> byValue = new HashSet<>();
+        captured.values().forEach(var -> byValue.add(var.javaVarName));
+        genCtx.builds.add(new TALGenCtx.BuildSite(block, captured, scopes, genCtx.facts().only(byValue)));
         sb.append("  h.ctx().queueBuild(").append(index).append(", ");
         if (captured.isEmpty()) {
             // Javassist's compiler takes no empty array initializer.
@@ -594,6 +687,9 @@ final class TALBlockCodegen {
                 generateForeachBlock(sb, (TALScriptModel.ForeachBlock) content, genCtx);
             } else if (content instanceof TALScriptModel.LogStatement) {
                 generateLogStatement(sb, (TALScriptModel.LogStatement) content, genCtx);
+            } else {
+                throw new IllegalArgumentException(
+                    "Unsupported sampler statement in codegen: " + content.getClass().getSimpleName());
             }
         }
     }
@@ -817,7 +913,13 @@ final class TALBlockCodegen {
         }
         final String constructor = scope.getFunctionCallName();
         if (constructor == null) {
-            final String varName = scope.getSegments().get(0);
+            final String varName = scope.bareName();
+            if (varName == null) {
+                throw new IllegalArgumentException(
+                    "scope takes an entity constructor or the name of a def holding one, not `"
+                        + (scope.isStringLiteral() ? "\"" + scope.toPathString() + "\"" : scope.toPathString())
+                        + "`");
+            }
             final String scopeType = genCtx.entityScopeTypes.get(varName);
             if (scopeType == null) {
                 throw new IllegalArgumentException(
@@ -827,7 +929,21 @@ final class TALBlockCodegen {
             sb.append(genCtx.localVars.get(varName).javaVarName);
             return scopeType;
         }
+        requireBareConstructor(scope, null);
         return appendEntityConstructor(sb, scope, genCtx);
+    }
+
+    /**
+     * An entity is used as its constructor builds it: a method, field or {@code as} after the constructor would be
+     * dropped.
+     */
+    static void requireBareConstructor(final TALValueAccess constructor, final String castType) {
+        if (!constructor.getChain().isEmpty() || castType != null) {
+            throw new IllegalArgumentException(
+                "an entity is used as " + constructor.getFunctionCallName() + "(...) builds it; nothing may follow "
+                    + "the constructor, as `" + constructor.toPathString()
+                    + (castType == null ? "" : " as " + castType) + "` does");
+        }
     }
 
     /**
@@ -915,9 +1031,22 @@ final class TALBlockCodegen {
 
     private static void layer(final StringBuilder sb, final List<? extends TALFunctionArg> args,
                               final int index, final TALGenCtx genCtx) {
+        checkLiteralLayer(args.get(index).getValue(), args.get(index).getCastType());
         sb.append(TALRuntimeRoles.method("layer")).append("(");
         str(sb, args, index, genCtx);
         sb.append(")");
+    }
+
+    /**
+     * A layer name written as a literal is known now, so one that is not registered fails here rather than skipping
+     * the metrics on every span; {@code as Layer} checks its literal the same way.
+     */
+    private static void checkLiteralLayer(final TALValueAccess value, final String cast) {
+        final String name = TALDefCodegen.literalText(value, cast);
+        if (name != null) {
+            TALDefCodegen.requireTypedName(Layer.class, name, "'" + name + "' names no registered layer; declare it "
+                + "under layerDefinitions or name a registered layer");
+        }
     }
 
     private static void intArg(final StringBuilder sb, final List<? extends TALFunctionArg> args,
@@ -927,10 +1056,13 @@ final class TALBlockCodegen {
     }
 
     private static String detectPoint(final TALFunctionArg arg) {
-        final String text = arg.getValue().getSegments().get(0);
+        final TALValueAccess value = arg.getValue();
+        // The keyword, or its name as a plain literal; anything around it would be dropped, the name read alone.
+        final String text = value.isStringLiteral() ? value.getSegments().get(0) : value.bareName();
         if (!"CLIENT".equals(text) && !"SERVER".equals(text) || arg.getCastType() != null) {
             throw new IllegalArgumentException(
-                "a relation constructor's first argument is CLIENT or SERVER, got '" + text + "'");
+                "a relation constructor's first argument is CLIENT or SERVER, got '" + value.toPathString()
+                    + (arg.getCastType() == null ? "" : " as " + arg.getCastType()) + "'");
         }
         return DETECT_POINT + "." + text;
     }
@@ -1058,17 +1190,15 @@ final class TALBlockCodegen {
     }
 
     private static long wholeNumber(final String text, final String what, final String fullName) {
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) < '0' || text.charAt(i) > '9') {
-                throw new IllegalArgumentException(
-                    "metric " + fullName + " has a " + what + " that is not a whole number: " + text);
-            }
+        if (!TALLiterals.isWholeDigits(text)) {
+            throw new IllegalArgumentException(
+                "metric " + fullName + " has a " + what + " that is not a whole number: " + text);
         }
-        try {
-            return Long.parseLong(text);
-        } catch (final NumberFormatException e) {
+        final BigInteger value = DslNumbers.wholeLiteral(text, "metric " + fullName + "'s " + what + " " + text);
+        if (value.bitLength() > 63) {
             throw new IllegalArgumentException(
                 "metric " + fullName + " has a " + what + " beyond the range of a long: " + text);
         }
+        return value.longValue();
     }
 }

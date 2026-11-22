@@ -21,11 +21,9 @@ package org.apache.skywalking.oap.trace.analyzer.v2.compiler.model;
  * A numeric literal on the right of a comparison.
  */
 public interface TALNumberConditionValue extends TALConditionValue {
-    double getValue();
-
     /**
-     * @return the literal exactly as the rule wrote it, which is what preserves the declared numeric type: a bare
-     * {@code 10000} stays an int where an {@code L}-suffixed one is a long. Null for a synthesized value.
+     * @return the literal as the rule wrote it, which is what preserves the declared numeric type: a bare
+     * {@code 10000} stays an int where an {@code L}-suffixed one is a long
      */
     String getLiteral();
 }

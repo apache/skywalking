@@ -16,15 +16,15 @@
 # Example config file of path: config/lal/config.yaml
 rules:
   - name: example
+    layer: GENERAL
     dsl: |
       filter {
         if (log.service == "TestService") {
           abort {}
         }
         text {
-          if (!regexp($/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$)) {
-            abort {}
-          }
+          // A log the regexp does not match aborts the filter: abortOnFailure is true by default.
+          regexp $/(?s)(?<timestamp>\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}) \[TID:(?<tid>.+?)] \[(?<thread>.+?)] (?<level>\w{4,}) (?<logger>.{1,36}) (?<msg>.+)/$
         }
         extractor {
           metrics {

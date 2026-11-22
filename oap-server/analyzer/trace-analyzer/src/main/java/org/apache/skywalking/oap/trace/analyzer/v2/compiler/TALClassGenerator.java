@@ -21,11 +21,14 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtField;
@@ -203,56 +206,67 @@ public final class TALClassGenerator {
             targetClassLoader == null);
 
         final CtClass ctClass = classPool.makeClass(className);
-        ctClass.addInterface(classPool.get(EXPRESSION));
-        ctClass.addField(CtField.make(
-            "private static final org.slf4j.Logger " + SCRIPT_LOGGER
-                + " = org.slf4j.LoggerFactory.getLogger(\"" + scriptLoggerName(sourceRef) + "\");", ctClass));
-        ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
+        final Class<?> clazz;
+        final TalExpression expression;
+        // Defined and instantiated here, so code Javassist cannot compile or the verifier rejects fails this rule's
+        // compile with its name, rather than as an Error past the callers' catch.
+        try {
+            ctClass.addInterface(classPool.get(EXPRESSION));
+            ctClass.addField(CtField.make(
+                "private static final org.slf4j.Logger " + SCRIPT_LOGGER
+                    + " = org.slf4j.LoggerFactory.getLogger(\"" + scriptLoggerName(sourceRef) + "\");", ctClass));
+            ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
 
-        final List<GeneratedMethod> methods = new ArrayList<>(rule.methods);
-        if (genCtx.networkAliasBuild != null) {
-            methods.add(new GeneratedMethod("networkAliasAddress",
-                generateNetworkAliasMethod(genCtx.networkAliasBuild, genCtx.classMembers), null));
-        }
-        // Before the methods, which Javassist resolves the fields for when it compiles them.
-        final String memberFields = memberFields(genCtx.classMembers);
-        for (final String field : memberFields.split("\n")) {
-            if (!field.isEmpty()) {
-                ctClass.addField(CtField.make(field.trim(), ctClass));
+            final List<GeneratedMethod> methods = new ArrayList<>(rule.methods);
+            if (genCtx.networkAliasBuild != null) {
+                methods.add(new GeneratedMethod("networkAliasAddress",
+                    generateNetworkAliasMethod(genCtx.networkAliasBuild, genCtx.classMembers), null));
             }
-        }
-        final StringBuilder bodies = new StringBuilder();
-        final Map<String, CtMethod> made = new LinkedHashMap<>();
-        // In the order the list holds them: a build block's method before executeBuild, which calls it, since
-        // Javassist resolves a call when it compiles the caller.
-        for (final GeneratedMethod method : methods) {
-            if (log.isDebugEnabled()) {
-                log.debug("TAL compile {}():\n{}", method.name, method.source);
+            // Before the methods, which Javassist resolves the fields for when it compiles them.
+            final String memberFields = memberFields(genCtx.classMembers);
+            for (final String field : memberFields.split("\n")) {
+                if (!field.isEmpty()) {
+                    ctClass.addField(CtField.make(field.trim(), ctClass));
+                }
             }
-            final CtMethod ctMethod = CtNewMethod.make(method.source, ctClass);
-            ctClass.addMethod(ctMethod);
-            if (method.lvt != null) {
-                DslGeneratedFileWriter.addLocalVariableTable(
-                    ctMethod, className, method.lvt.toArray(new String[0][]));
-                made.put(method.name, ctMethod);
+            final StringBuilder bodies = new StringBuilder();
+            final Map<String, CtMethod> made = new LinkedHashMap<>();
+            // In the order the list holds them: a build block's method before executeBuild, which calls it, since
+            // Javassist resolves a call when it compiles the caller.
+            for (final GeneratedMethod method : methods) {
+                if (log.isDebugEnabled()) {
+                    log.debug("TAL compile {}():\n{}", method.name, method.source);
+                }
+                final CtMethod ctMethod = CtNewMethod.make(method.source, ctClass);
+                ctClass.addMethod(ctMethod);
+                if (method.lvt != null) {
+                    DslGeneratedFileWriter.addLocalVariableTable(
+                        ctMethod, className, method.lvt.toArray(new String[0][]));
+                    made.put(method.name, ctMethod);
+                }
+                bodies.append(method.source);
             }
-            bodies.append(method.source);
+
+            final String sourceText = buildSourceText(ctClass, memberFields, bodies.toString());
+            if (sourceRef != null) {
+                DslGeneratedFileWriter.setSourceFile(ctClass, sourceRef.sourceFileOf(ctClass.getSimpleName()));
+            }
+            made.forEach((name, ctMethod) -> DslGeneratedFileWriter.attachSignatureLine(
+                ctMethod, DslGeneratedFileWriter.lineOfMethod(sourceText, name)));
+
+            DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
+            DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), sourceText);
+
+            clazz = BytecodeClassDefiner.define(ctClass, targetClassLoader, TalExpressionPackageHolder.class);
+            expression = (TalExpression) clazz.getDeclaredConstructor().newInstance();
+        } catch (final CannotCompileException | LinkageError e) {
+            throw new IllegalArgumentException(
+                "TAL rule " + (classNameHint == null ? "tal" : classNameHint)
+                    + (sourceRef == null ? "" : " of " + sourceRef.describeYaml())
+                    + " generated code that does not compile or load: " + e.getMessage(), e);
+        } finally {
+            ctClass.detach();
         }
-
-        final String sourceText = buildSourceText(ctClass, memberFields, bodies.toString());
-        if (sourceRef != null) {
-            DslGeneratedFileWriter.setSourceFile(ctClass, sourceRef.sourceFileOf(ctClass.getSimpleName()));
-        }
-        made.forEach((name, ctMethod) -> DslGeneratedFileWriter.attachSignatureLine(
-            ctMethod, DslGeneratedFileWriter.lineOfMethod(sourceText, name)));
-
-        DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
-        DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), sourceText);
-
-        final Class<?> clazz = BytecodeClassDefiner.define(
-            ctClass, targetClassLoader, TalExpressionPackageHolder.class);
-        ctClass.detach();
-        final TalExpression expression = (TalExpression) clazz.getDeclaredConstructor().newInstance();
         final TALFunctionRegistry registry = functionRegistry == null ? TALFunctionRegistry.defaults() : functionRegistry;
         for (final Map.Entry<String, String[]> function : genCtx.classMembers.functionFields.entrySet()) {
             final Field field = clazz.getDeclaredField(function.getValue()[0]);
@@ -286,22 +300,32 @@ public final class TALClassGenerator {
                                        final List<TALScriptModel.FirstBlock> firsts,
                                        final Map<String, Integer> segmentDefSlots) {
         if (segmentDefSlots.isEmpty()) {
-            return generateMethods(regular, firsts, newGenCtx(segmentDefSlots, Map.of()));
+            return generateSettled(regular, firsts, () -> newGenCtx(segmentDefSlots, Map.of())).rule;
         }
-        Map<String, List<Object>> types = new HashMap<>();
+        Map<String, TALGenCtx.SegmentDefType> types = new HashMap<>();
         for (int generation = 0; generation < MAX_SEGMENT_DEF_GENERATIONS; generation++) {
             final TALGenCtx discovery = newGenCtx(segmentDefSlots, types);
             discovery.discoveringTypes = true;
             generateMethods(regular, firsts, discovery);
-            final Map<String, List<Object>> learned = new HashMap<>(types);
+            final Map<String, TALGenCtx.SegmentDefType> learned = new HashMap<>(types);
             learned.putAll(discovery.learnedSegmentDefTypes);
-            if (learned.equals(types)) {
-                final TALGenCtx strict = newGenCtx(segmentDefSlots, types);
-                final GeneratedRule rule = generateMethods(regular, firsts, strict);
-                learned.putAll(strict.learnedSegmentDefTypes);
-                if (learned.equals(types)) {
-                    return rule;
+            // What a segmentDef holds is what every assignment of the rule gives it, in any run: assumed to be the
+            // rule's own collection and a quotient first, then not where an assignment gives another value, until the
+            // assumption covers what the generation learns.
+            TALGenCtx.Facts assumed = TALGenCtx.Facts.none();
+            for (int round = 0; learned.equals(types) && round <= segmentDefSlots.size() * 2; round++) {
+                final TALGenCtx.Facts assumedFacts = assumed;
+                final Map<String, TALGenCtx.SegmentDefType> assumedTypes = types;
+                final Settled settled = generateSettled(regular, firsts, () -> {
+                    final TALGenCtx strict = newGenCtx(segmentDefSlots, assumedTypes);
+                    strict.assumedSegmentDefFacts = assumedFacts;
+                    return strict;
+                });
+                learned.putAll(settled.genCtx.learnedSegmentDefTypes);
+                if (learned.equals(types) && assumed.covers(settled.genCtx.learnedSegmentDefFacts)) {
+                    return settled.rule;
                 }
+                assumed = TALGenCtx.Facts.join(assumed, settled.genCtx.learnedSegmentDefFacts);
             }
             types = learned;
         }
@@ -310,7 +334,49 @@ public final class TALClassGenerator {
                 + MAX_SEGMENT_DEF_GENERATIONS + " generations; declare them with as <Type>");
     }
 
-    private TALGenCtx newGenCtx(final Map<String, Integer> segmentDefSlots, final Map<String, List<Object>> types) {
+    /**
+     * Generates the rule until each {@code foreach} body is generated for every state an iteration can start with:
+     * what the loop starts with, or what an earlier iteration ends with, as the generation before learned it. The
+     * facts only grow, over the rule's own variables, so every generation that does not settle learns one more.
+     */
+    private Settled generateSettled(final List<TALScriptModel.FilterStatement> regular,
+                                    final List<TALScriptModel.FirstBlock> firsts,
+                                    final Supplier<TALGenCtx> newGenCtx) {
+        Map<Object, TALGenCtx.Facts> loopEntryFacts = new IdentityHashMap<>();
+        while (true) {
+            final TALGenCtx genCtx = newGenCtx.get();
+            genCtx.loopEntryFacts = loopEntryFacts;
+            final GeneratedRule rule = generateMethods(regular, firsts, genCtx);
+            if (!genCtx.loopsUnsettled) {
+                return new Settled(rule, genCtx);
+            }
+            final Map<Object, TALGenCtx.Facts> learned = new IdentityHashMap<>(loopEntryFacts);
+            genCtx.learnedLoopFacts.forEach((block, facts) -> learned.merge(block, facts, TALGenCtx.Facts::join));
+            if (coversAll(loopEntryFacts, learned)) {
+                throw new IllegalStateException("a foreach loop is unsettled, and its generation learned nothing new");
+            }
+            loopEntryFacts = learned;
+        }
+    }
+
+    private static boolean coversAll(final Map<Object, TALGenCtx.Facts> known,
+                                     final Map<Object, TALGenCtx.Facts> learned) {
+        return learned.entrySet().stream().allMatch(
+            entry -> known.containsKey(entry.getKey()) && known.get(entry.getKey()).covers(entry.getValue()));
+    }
+
+    private static final class Settled {
+        final GeneratedRule rule;
+        final TALGenCtx genCtx;
+
+        Settled(final GeneratedRule rule, final TALGenCtx genCtx) {
+            this.rule = rule;
+            this.genCtx = genCtx;
+        }
+    }
+
+    private TALGenCtx newGenCtx(final Map<String, Integer> segmentDefSlots,
+                                final Map<String, TALGenCtx.SegmentDefType> types) {
         final TALGenCtx genCtx = new TALGenCtx(
             new TALSpanRootResolver(inputType, functionRegistry, inputAlias), inputType);
         genCtx.inputAlias = inputAlias;
@@ -391,6 +457,7 @@ public final class TALClassGenerator {
             genCtx.localVarLvtVars.add(new String[] {var.javaVarName, var.descriptor});
         }
         genCtx.entityScopeTypes.putAll(site.capturedScopes);
+        genCtx.include(site.capturedFacts);
         genCtx.extractorDepth = 1;
         genCtx.buildDepth = 1;
         final List<TALScriptModel.FilterStatement> statements = new ArrayList<>();
@@ -419,15 +486,11 @@ public final class TALClassGenerator {
         sb.append("  ").append(HELPER).append(" h = new ").append(HELPER)
           .append("(ctx, filterSpec, ").append(SCRIPT_LOGGER).append(");\n");
         lvt.add(new String[] {"h", "L" + HELPER.replace('.', '/') + ";"});
-        if (genCtx.usedProtoAccess) {
-            if (inputType != null) {
-                final String typeName = inputType.getName();
-                sb.append("  ").append(typeName).append(" _p = (")
-                  .append(typeName).append(") ctx.getInput();\n");
-                lvt.add(new String[] {"_p", "L" + typeName.replace('.', '/') + ";"});
-            }
-            sb.append(genCtx.protoVarDecls);
-            lvt.addAll(genCtx.protoLvtVars);
+        if (genCtx.usesInput && inputType != null) {
+            final String typeName = inputType.getName();
+            sb.append("  ").append(typeName).append(" _p = (")
+              .append(typeName).append(") ctx.getInput();\n");
+            lvt.add(new String[] {"_p", "L" + typeName.replace('.', '/') + ";"});
         }
         sb.append(genCtx.localVarDecls);
         lvt.addAll(genCtx.localVarLvtVars);
@@ -523,7 +586,17 @@ public final class TALClassGenerator {
     }
 
     private static void requirePairingOnly(final TALScriptModel.ValueAccess value) {
-        if (value == null || value.isStringLiteral() || value.isNumberLiteral()) {
+        if (value == null) {
+            return;
+        }
+        for (final TALScriptModel.ValueAccessSegment segment : value.getChain()) {
+            if (segment instanceof TALScriptModel.MethodSegment) {
+                for (final TALScriptModel.FunctionArg arg : ((TALScriptModel.MethodSegment) segment).getArguments()) {
+                    requirePairingOnly(arg.getValue());
+                }
+            }
+        }
+        if (value.isStringLiteral() || value.isNumberLiteral()) {
             return;
         }
         if (value.getFunctionCallName() != null) {

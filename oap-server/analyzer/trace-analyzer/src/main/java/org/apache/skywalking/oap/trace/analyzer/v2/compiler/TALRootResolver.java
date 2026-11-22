@@ -66,7 +66,7 @@ public interface TALRootResolver {
 
     /**
      * Emit a chain rooted at the input root, {@code span.*}, by walking it reflectively through
-     * {@link TALValueCodegen#generateTypedChainAccess} against the rule's declared input type.
+     * {@link TALDefCodegen#generateDefVarChain} against the rule's declared input type.
      *
      * @param sb    the buffer the generated Java source is appended to
      * @param chain the accesses applied to the root
@@ -110,14 +110,6 @@ public interface TALRootResolver {
      * compiled with one.
      */
     boolean isTypedInputActive();
-
-    /**
-     * @return the class {@code meta.*} reads, so a numeric field takes part in arithmetic as a number rather than
-     * as text; null when the DSL has no metadata root
-     */
-    default Class<?> metaRootType() {
-        return null;
-    }
 
     /**
      * @return a short description of the compile context, such as the active parser and input type, quoted in the

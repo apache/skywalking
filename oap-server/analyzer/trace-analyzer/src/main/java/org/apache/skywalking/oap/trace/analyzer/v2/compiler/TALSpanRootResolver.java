@@ -17,13 +17,9 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
-import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFieldSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFunctionArg;
-import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALIndexSegment;
-import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALMethodSegment;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccess;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALValueAccessSegment;
 
@@ -154,13 +150,14 @@ public class TALSpanRootResolver implements TALRootResolver {
 
     /**
      * {@code meta.*} walks {@link SpanMetadata}'s getters, so a chain that names a field the class does not have
-     * is a compile error rather than a null at runtime.
+     * is a compile error rather than a null at runtime. The root is never null.
      */
     @Override
     public void generateMetaRootAccess(final StringBuilder sb,
                                        final List<? extends TALValueAccessSegment> chain,
                                        final TALGenCtx genCtx) {
-        sb.append(chainAccess(chain, SpanMetadata.class, "h.ctx().getMeta()", false, genCtx, false));
+        TALDefCodegen.generateDefVarChain(sb,
+            new TALDefCodegen.ChainReceiver("h.ctx().getMeta()", SpanMetadata.class, null, null, false), chain, genCtx);
     }
 
     /**
@@ -174,7 +171,9 @@ public class TALSpanRootResolver implements TALRootResolver {
             throw new IllegalArgumentException(
                 "span.* is only resolvable when the rule declares a single inputType; " + describeContext());
         }
-        sb.append(chainAccess(chain, genCtx.inputType, "_p", true, genCtx, true));
+        genCtx.usesInput = true;
+        TALDefCodegen.generateDefVarChain(sb, new TALDefCodegen.ChainReceiver("_p", genCtx.inputType, null, null, true),
+            chain, genCtx);
     }
 
     @Override
@@ -224,70 +223,7 @@ public class TALSpanRootResolver implements TALRootResolver {
     }
 
     @Override
-    public Class<?> metaRootType() {
-        return SpanMetadata.class;
-    }
-
-    @Override
     public String describeContext() {
         return "inputType: " + inputTypeName;
-    }
-
-    /**
-     * Walk the leading field segments against a typed root, then apply whatever method and index segments follow,
-     * which is the shape every root chain takes. A root the rule can overwrite is read inline; see
-     * {@link TALValueCodegen#generateInlineChainAccess}.
-     */
-    private static String chainAccess(final List<? extends TALValueAccessSegment> chain,
-                                      final Class<?> rootType,
-                                      final String rootExpr,
-                                      final boolean rootCanBeNull,
-                                      final TALGenCtx genCtx,
-                                      final boolean cacheable) {
-        final List<TALFieldSegment> fieldSegments = new ArrayList<>();
-        int tailStart = -1;
-        for (int i = 0; i < chain.size(); i++) {
-            final TALValueAccessSegment seg = chain.get(i);
-            if (seg instanceof TALFieldSegment) {
-                fieldSegments.add((TALFieldSegment) seg);
-            } else {
-                tailStart = i;
-                break;
-            }
-        }
-
-        String current = cacheable
-            ? TALValueCodegen.generateTypedChainAccess(fieldSegments, rootType, rootExpr, rootCanBeNull, genCtx)
-            : TALValueCodegen.generateInlineChainAccess(fieldSegments, rootType, rootExpr, genCtx);
-        if (fieldSegments.isEmpty()) {
-            // The root on its own, as `(span)` reads it.
-            genCtx.clearExtraLogResult();
-            genCtx.lastResolvedType = rootType;
-        }
-
-        final Class<?> fieldsType = fieldSegments.isEmpty() ? rootType : genCtx.lastResolvedType;
-        if (tailStart >= 0 && fieldsType != null && !fieldsType.isPrimitive() && fieldsType != Object.class) {
-            // The methods after the fields resolve by reflection on what the fields lead to, so the result is typed.
-            final StringBuilder tail = new StringBuilder();
-            TALDefCodegen.generateDefVarChain(tail, new TALLocalVar(current, fieldsType),
-                chain.subList(tailStart, chain.size()), genCtx);
-            return tail.toString();
-        }
-        if (tailStart >= 0) {
-            for (int i = tailStart; i < chain.size(); i++) {
-                final TALValueAccessSegment seg = chain.get(i);
-                if (seg instanceof TALMethodSegment) {
-                    current = TALValueCodegen.appendMethodSegment(current, (TALMethodSegment) seg, genCtx);
-                } else if (seg instanceof TALIndexSegment) {
-                    current = current + "[" + ((TALIndexSegment) seg).getIndex() + "]";
-                } else if (seg instanceof TALFieldSegment) {
-                    current = current + "." + ((TALFieldSegment) seg).getName();
-                }
-            }
-            // What the segments above return is not resolved, so the result's type is unknown, whatever the
-            // arguments' code left behind.
-            genCtx.clearExtraLogResult();
-        }
-        return current;
     }
 }

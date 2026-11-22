@@ -66,7 +66,7 @@ class NativeRuleFilesTest {
     @Test
     void theNativeRulesCompileInFileOrder() throws Exception {
         final List<String> names = new ArrayList<>();
-        for (final TalDSL rule : factory("second,first").compileNativeRules()) {
+        for (final TalDSL rule : factory("second,first").loadRules(true)) {
             names.add(rule.getRuleName());
         }
         assertEquals(List.of("second-rule", "first-rule"), names);
@@ -75,11 +75,11 @@ class NativeRuleFilesTest {
     @Test
     void aNativeFileHoldsNativeRulesOfDistinctNames() {
         final Exception otlp = assertThrows(ModuleStartException.class,
-            () -> factory("first,otlp-rule").compileNativeRules());
+            () -> factory("first,otlp-rule").loadRules(true));
         assertTrue(otlp.getMessage().contains("otlp-rule of tal/otlp-rule.yaml declares inputType otlp"),
             otlp.getMessage());
         final Exception duplicate = assertThrows(ModuleStartException.class,
-            () -> factory("first,duplicate").compileNativeRules());
+            () -> factory("first,duplicate").loadRules(true));
         assertTrue(duplicate.getMessage().contains("two native TAL rules are named first-rule"),
             duplicate.getMessage());
     }

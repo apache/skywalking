@@ -82,4 +82,22 @@ public interface TALValueAccess {
      * @return the dotted path as text, for diagnostics
      */
     String toPathString();
+
+    /**
+     * @return the word this expression is when it is one alone, a def's name or {@code true}, {@code false} or
+     *     {@code null}; null for a literal, a root, a call, a group, a binary expression and anything with a chain
+     */
+    default String bareName() {
+        return getSegments().size() == 1 && getChain().isEmpty() && getConcatParts().isEmpty()
+            && getParenInner() == null && getFunctionCallName() == null && !isInputRef() && !isMetaRef()
+            && !isStringLiteral() && !isNumberLiteral() ? getSegments().get(0) : null;
+    }
+
+    /**
+     * @param word {@code true}, {@code false} or {@code null}
+     * @return whether this expression is that literal alone
+     */
+    default boolean isLiteral(final String word) {
+        return word.equals(bareName());
+    }
 }

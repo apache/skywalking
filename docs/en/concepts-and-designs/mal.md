@@ -333,7 +333,7 @@ last_server_state_sync_time_in_seconds.tagEqual('production', 'catalog').downsam
 They extract level relevant labels from metric labels, then informs the meter-system the level and [layer](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/Layer.java) to which this metric belongs.
 
  - `service([svc_label1, svc_label2...], Layer)` extracts service level labels from the array argument, extracts layer from `Layer` argument.
- - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...], Layer, Closure<Map<String, String>> propertiesExtractor)` extracts service level labels from the first array argument,
+ - `instance([svc_label1, svc_label2...], [ins_label1, ins_label2...], Layer)`, or with a properties extractor `instance([svc_label1...], '.', [ins_label1...], '.', Layer, Closure<Map<String, String>> propertiesExtractor)` (the two delimiters join the label values), extracts service level labels from the first array argument,
                                                                         extracts instance level labels from the second array argument, extracts layer from `Layer` argument, `propertiesExtractor` is an optional closure that extracts instance properties from `tags`, e.g. `{ tags -> ['pod': tags.pod, 'namespace': tags.namespace] }`.
  - `endpoint([svc_label1, svc_label2...], [ep_label1, ep_label2...], Layer)` extracts service level labels from the first array argument,
                                                                       extracts endpoint level labels from the second array argument, extracts layer from `Layer` argument.
@@ -347,6 +347,54 @@ They extract level relevant labels from metric labels, then informs the meter-sy
 ## Decorate function
 `decorate({ me -> me.attr0 = ...})`: Decorate the [MeterEntity](../../../oap-server/server-core/src/main/java/org/apache/skywalking/oap/server/core/analysis/meter/MeterEntity.java) with additional attributes. 
 The closure takes the MeterEntity as an argument. This function is used to add additional attributes to the metrics. More details, see [Metrics Additional Attributes](metrics-additional-attributes.md).
+
+## Closures
+A closure (`tag`, `filter`, `forEach`, `instance`, `decorate` and a file's `filter`) is a small Groovy-like language:
+`if` / `else if` / `else`, `return`, `def x = ...` and typed locals (`String`, `String[]`, `int`, `long`, `double`,
+`boolean`, `Map`, `List`), assignment, and labels read and written as `tags.x`, `tags['x']`, `tags.x = v`,
+`tags.put(k, v)` and `tags.remove(k)`. A number, boolean or character written to a label is written as its string. A
+filter (a rule file's `filter`, or `filter(...)` on an expression) only reads labels; labels are written in `tag`.
+
+| Operators | Semantics |
+|---|---|
+| `==` `!=` | by value across number types; a string or character against a number compares as the number it reads as (`"3" == 3`); lists and arrays element by element in order (a list against an array too), sets by their elements in any order, and maps by their keys and each key's value, as every DSL compares them |
+| `<` `<=` `>` `>=` | numbers by value; a string or character against a number reads as a number (one that is none fails the sample); two strings that both read as numbers compare as numbers (`"10" > "2"`), otherwise as text; null lowest |
+| `&&` `\|\|` `!`, `c ? a : b`, `a ?: b`, `?.`, `x in [...]` | Groovy truth: null, false, an empty string, collection or map, and zero are false |
+| `+` `-` `*` `/`, unary `-` | whole numbers stay whole (an `Integer` sum wraps, as in Groovy); `/` of two whole numbers is the exact decimal Groovy computes (`7 / 2` is 3.5; into an `int` or `long` it truncates); a decimal literal computes in double; whole numbers divided by zero fail the sample; `+` with a string concatenates onto a string, a number, a character or null on its left, and any value but an array, a collection or a map on its right (`"x" + true`); any other left value (`true + "x"`, an enum such as `me.scopeType + "-x"`), and an array, a collection or a map on either side, is refused; a string times a number is refused |
+| `label =~ /re/`, `m[i][j]` | see Regex match in closures |
+| `a[i]` | an array, list or string, negative from the end; the index is an `int`; a string's element is the one-character string |
+
+### What a closure can call
+
+A closure calls only:
+- the `String` methods `length`, `isEmpty`, `trim`, `toLowerCase`, `toUpperCase`, `startsWith`, `endsWith`, `contains`,
+  `indexOf`, `lastIndexOf`, `substring`, `replace`, `replaceAll`, `replaceFirst`, `split`, `charAt`, `equals`,
+  `equalsIgnoreCase`, `matches`, `concat`, `toString`;
+- `Integer.parseInt` / `valueOf`, `Long.parseLong` / `valueOf`, `Double.parseDouble` / `valueOf`, `String.valueOf`;
+- an array's `length` and `size()` (`t.path.split('/').size()`);
+- `Arrays.asList`, a list's `get`, `size`, `isEmpty`, `contains`, `indexOf`, and a map's `get`, `getOrDefault`,
+  `containsKey`, `size`, `isEmpty`, `keySet`, `values`, with `put` and `remove` on the labels or a map the closure
+  built;
+- `ProcessRegistry.generateVirtualLocalProcess`, `generateVirtualRemoteProcess`, `generateVirtualProcess`, and the
+  constants `ProcessRegistry.LOCAL_VIRTUAL_PROCESS` and `REMOTE_VIRTUAL_PROCESS` (no other static field);
+- in `decorate`, the `MeterEntity` getters and setters (`me.serviceName`, `me.attr0 = ...`) and a layer's `name()`;
+- `toString()` and `equals()` on any value.
+
+Any other call (`Math`, other classes, other methods) fails the rule's compilation with a message listing these. Where
+an argument's type is known only at run time (a ternary of different types, a `def` that holds different types), the
+call compiles when every type it can take picks the same method, as Groovy would pick it. This is the set this release
+supports; it grows as rules need more (propose an addition in an issue or a pull request).
+
+## Regex match in closures
+In a closure, `label =~ /pattern/` matches a label against a regular expression. `m[i][j]` is match `i`, group `j`,
+with group 0 the whole match (for a pattern without groups too). A match that is not there fails the sample, so check
+the match first: the match is true when the label matched. (A sample a rule file's `filter` fails on is dropped.)
+```
+{ tags -> def m = (tags.service =~ /^(.+)-v[0-9]+$/); if (m) { tags.service = m[0][1] } }
+{ tags -> def m = (tags.service =~ /^(.+)-v[0-9]+$/); tags.base = m ? m[0][1] : tags.service }
+```
+A group that takes no part in the match is `null` (`m[0][1] ?: 'none'`). To test a label without capturing, use the
+match itself in a filter (`{ tags -> tags.job =~ /^prod-/ }`), or `startsWith(...)` / `matches(...)` on the label.
 
 ## Configuration file
 

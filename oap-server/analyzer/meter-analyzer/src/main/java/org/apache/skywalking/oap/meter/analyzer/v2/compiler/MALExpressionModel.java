@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.meter.analyzer.v2.compiler;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import lombok.Getter;
@@ -123,9 +124,15 @@ public final class MALExpressionModel {
     @Getter
     public static final class NumberExpr implements Expr {
         private final double value;
+        /** Written without a decimal point: a whole number, which an int or long parameter takes. */
+        private final boolean integral;
+        /** The literal as written, for exact constant folding. */
+        private final BigDecimal exact;
 
-        public NumberExpr(final double value) {
+        public NumberExpr(final double value, final boolean integral, final BigDecimal exact) {
             this.value = value;
+            this.integral = integral;
+            this.exact = exact;
         }
     }
 
@@ -398,12 +405,27 @@ public final class MALExpressionModel {
         }
     }
 
+    /**
+     * A negated expression, -x: the operand's own number type (a float stays a float, -0.0 is kept).
+     */
+    @Getter
+    public static final class ClosureUnaryNegExpr implements ClosureExpr {
+        private final ClosureExpr operand;
+
+        public ClosureUnaryNegExpr(final ClosureExpr operand) {
+            this.operand = operand;
+        }
+    }
+
     @Getter
     public static final class ClosureNumberLiteral implements ClosureExpr {
         private final double value;
+        /** Written without a decimal point: an int or a long; with one (1000.0), a double. */
+        private final boolean integral;
 
-        public ClosureNumberLiteral(final double value) {
+        public ClosureNumberLiteral(final double value, final boolean integral) {
             this.value = value;
+            this.integral = integral;
         }
     }
 
@@ -523,27 +545,14 @@ public final class MALExpressionModel {
     }
 
     /**
-     * Ternary with explicit comparison condition: {@code left op right ? trueExpr : falseExpr}.
-     * E.g., {@code parts.length > 0 ? parts[0] : ''}.
+     * A {@code ${...}} of a double-quoted closure string: the value as Groovy prints it.
      */
     @Getter
-    public static final class ClosureCompTernaryExpr implements ClosureExpr {
-        private final ClosureExpr left;
-        private final CompareOp op;
-        private final ClosureExpr right;
-        private final ClosureExpr trueExpr;
-        private final ClosureExpr falseExpr;
+    public static final class ClosureInterpolation implements ClosureExpr {
+        private final ClosureExpr expr;
 
-        public ClosureCompTernaryExpr(final ClosureExpr left,
-                                      final CompareOp op,
-                                      final ClosureExpr right,
-                                      final ClosureExpr trueExpr,
-                                      final ClosureExpr falseExpr) {
-            this.left = left;
-            this.op = op;
-            this.right = right;
-            this.trueExpr = trueExpr;
-            this.falseExpr = falseExpr;
+        public ClosureInterpolation(final ClosureExpr expr) {
+            this.expr = expr;
         }
     }
 

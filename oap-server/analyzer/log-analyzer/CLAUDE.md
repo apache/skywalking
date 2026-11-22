@@ -33,8 +33,13 @@ oap-server/analyzer/log-analyzer/
     LALScriptParser.java                — ANTLR4 facade: DSL string → AST
     LALScriptModel.java                 — Immutable AST model classes
     LALClassGenerator.java              — Public API, execute method codegen, class scaffolding
-    LALBlockCodegen.java                — Extractor/sink/condition/value-access codegen
+    LALBlockCodegen.java                — Extractor/sink/metrics/tag/output-field codegen
+    LALValueCodegen.java                — Value access, conditions, casts, arithmetic; static types of values
+    LALChainCodegen.java                — Method/property/subscript chains: one step resolver, rendered or typed
+    LALDefCodegen.java                  — def statements, def casts, chains on a def
     LALCodegenHelper.java               — Static utility methods and shared constants
+    LALLiterals.java                    — Compile-time literal reading: octal, suffixes, decimals, strings
+    LALCallables.java                   — LAL's list of the Java a rule may call, on server-core's DslCallables
     rt/
       LalExpressionPackageHolder.java   — Class loading anchor (empty marker)
       LalRuntimeHelper.java             — Instance-based helper called by generated code
@@ -57,6 +62,8 @@ oap-server/analyzer/log-analyzer/
     LALClassGeneratorDefTest.java       — 7 tests: def variables, toJson/toJsonArray
     LALClassGeneratorSinkTest.java      — 5 tests: sampler, rateLimit, interpolated IDs
     LALExpressionExecutionTest.java     — 25+ data-driven execution tests (from YAML + .data.yaml)
+    LALRunsAsWrittenTest.java           — a rule runs every statement as written, or fails to compile; by topic
+    LALCallablesGuideTest.java          — the guide lists every callable of LALCallables, and its rules compile
 ```
 
 ## Package & Class Naming
@@ -132,7 +139,7 @@ The variable type is inferred from the initializer expression:
 | `toJsonArray(expr)` | `JsonArray` | `h.toJsonArray(expr)` |
 | General value access | Last resolved type via reflection | Standard value access codegen |
 
-Built-in functions are registered in `BUILTIN_FUNCTIONS` map in `LALBlockCodegen`.
+Built-in functions are the `LALValueCodegen.BuiltinFunction` enum.
 
 ### Chained def variables
 
@@ -170,7 +177,10 @@ and resolved type). Variable declarations are emitted at method top via `genCtx.
 assignments are emitted at the point where `def` appears in the DSL.
 
 Java variable names use the user-chosen name with a `_def_` prefix (e.g., `def config` → `_def_config`).
-Re-defining the same name reassigns the existing variable without creating a new declaration.
+Re-defining the same name with the same type reassigns the existing variable without creating a new declaration; a
+re-definition with another type, such as in the other branch of an `if`, gets its own `_def_<name>_<n>`. A def is scoped
+to its `if` branch, and the filter-level defs in scope where an `extractor` or `sink` sits become parameters of its
+private method, as a Groovy closure saw the locals around it.
 LVT entries are added for debugger visibility.
 
 ## Compile-Time Data Source Analysis
@@ -180,7 +190,7 @@ The generator detects the parser type from the AST at compile time and generates
 | Parser Type | LAL Example | Generated Code |
 |---|---|---|
 | JSON/YAML | `parsed.service` | `h.mapVal("service")` |
-| JSON/YAML nested | `parsed.a.b` | `h.mapVal("a", "b")` |
+| JSON/YAML nested | `parsed.a.b` | `h.prop(h.mapVal("a"), "b")` |
 | TEXT (regexp) | `parsed.level` | `h.group("level")` |
 | NONE + inputType | `parsed.response.code` | `((InputType) h.ctx().input()).getResponse().getCode()` |
 | NONE + no inputType | `parsed.service` | `h.ctx().metadata().getService()` (LogMetadata fallback) |
@@ -213,8 +223,10 @@ between the two groups when its `fallback` flag changes. `fallback: true` on a n
 Each rule a log runs gets its own copy of the log's `LogMetadata` (`LogFilterListener.parse`:
 `metadata.toBuilder().build()`), since the generated `layer` statement (`h.ctx().layer(...)`) writes the metadata
 layer, which the output builder and the sink listeners read: one rule's `layer` statement must not decide the layer
-of the other rules the log runs. Every rule starts from the layer the log arrived with. The copy is shallow —
-`sourceAttributes` and `traceContext` are shared, which holds as long as rules only read them.
+of the other rules the log runs. Every rule starts from the layer the log arrived with. The other standard field
+statements write the copy too (`h.setLogService(...)`, ..., the timestamp), as Groovy LAL set the log, so `log.*` reads
+and `TrafficSinkListener` see the rule's values. The copy is shallow — `sourceAttributes` and `traceContext` are
+shared, so a trace field statement replaces the copy's `traceContext` instead of changing it.
 
 The `autoLayerMode` flag on `ExecutionContext` (set for both passes) triggers a layer check in
 `FilterSpec.doSink()`: if the rule's extractor didn't set a layer, the log is warned and dropped. The check
@@ -315,28 +327,98 @@ public class default_L3_my_rule implements LalExpression {
 
 ## Runtime Helper (LalRuntimeHelper)
 
-Instance-based helper created at the start of `execute()`, holds the `ExecutionContext`.
+Instance-based helper created at the start of `execute()`, holds the `ExecutionContext`. It is the one place of
+LAL's conversion rules, forwarding to server-core's shared `DslNumbers` / `DslValues` / `DslStrings` where every DSL
+agrees: a text read as a number (`DslNumbers.numberIn`, trimmed; the compiler checks a literal compared with a number
+the same way), casts, string and character ordering and equality against numbers, whole-number division
+(`quotient()` / `decimal()`: Groovy's BigDecimal), Groovy truth, string conversion and `+`. The codegen only chooses which helper to call
+(`LALValueCodegen.castObject()` / `conversionHelper()` map a cast to its helper) and does not re-derive a rule
+inline. A rule's literals are read once, when it compiles, by `LALLiterals`.
 
 **Data source methods:**
-- `mapVal(key)`, `mapVal(k1, k2)`, `mapVal(k1, k2, k3)` — JSON/YAML map access
+- `mapVal(key)` — `parsed.<key>` (see `parsed.*` Lookup); `prop(value, key)` / `safeProp(value, key)` for the keys
+  after it
 - `group(name)` — text regexp named group
 - `tagValue(key)` — log tag lookup (persistent, from LogData tags)
 - `sourceAttributeValue(key)` — source context lookup (non-persistent, from `LogMetadata.sourceAttributes`)
 - `ctx()` — access to ExecutionContext (for `h.ctx().metadata()` and `h.ctx().log()` getters)
 
-**Type conversion:** `toStr()`, `toLong()`, `toInt()`, `toBool()`
+**Type conversion:** `toStr()`, `toLong()`, `toInt()`, `toBool()` (`DslNumbers.toBoolean`: a boolean, the text
+`true`/`false` in any case, a number or numeric text by zero; anything else fails); `toLong()` and the other numeric
+conversions throw for `null`, as Groovy could not convert it to a primitive either, so the codegen checks for `null`
+first where Groovy LAL handled one: a comparison orders it below every value, a primitive or enum setter is not called.
+`asInteger()`, `asLong()`, ... keep `null` (an `as` cast whose result stays an object: an `==` operand, a bare
+condition, a tag, a `def`). `timestampOf()` is the `timestamp` statement's value, `null` when Groovy LAL left the
+timestamp unset.
 
-**Boolean evaluation:** `isTrue()`, `isNotEmpty()`
+**Boolean evaluation:** `toBool()` (a bare `as Boolean` condition), `isNotEmpty()` (`DslValues.isNotEmpty`: `false`,
+`0`, `NaN`, `""`, empty collections are false)
+
+**Operators on run-time types:** after Groovy's `DefaultTypeTransformation`, a character taken as its one-character
+string: `equal()` (`DslValues.equal`; `==` unless both sides are strings or one is `null`: numbers by value, a string
+against a number as the number it holds, else unequal, two strings as text, lists and maps element-wise), `lt()` /
+`le()` / `gt()` / `ge()` (an ordering whose sides are not both numbers at compile time, or a nullable converted side:
+`DslValues.order` for numbers, texts and characters, a string against a number as the number it holds, else failing,
+two strings as numbers when both hold one, else as text; another pair by the left side's `Comparable`; false for a
+NaN, as Java compares it), `plus()` (`+` on values of unknown type, which v1 did not
+compile: numbers add, anything else, a null included, concatenates), `at()` (a list subscript past the end is null, a null receiver fails),
+`prop()` / `safeProp()` (`.x` / `?.x` read at run time), `asClass()` (a `def`'s class cast, as Groovy's `as`, enums
+included).
+
+**Parsed access:** see `parsed.*` Lookup below. `parsed.a.b` is `h.prop(h.mapVal("a"), "b")`: a `.` on a null fails as
+Groovy's does; `prop` reads a map's key, else a bean getter (a collection's own, such as `empty`), else spreads over a
+collection's elements. `tag()` (`tagValue()`) reads the log's tags, then those this rule's `tag` statements added; a
+tag statement evaluates all its values before adding any (`h.tag()` records them and converts as v1's statement).
+
+## Fail Loudly
+
+Every statement a rule holds either runs as Groovy LAL ran it or fails the compile with an
+`IllegalArgumentException` naming it: a statement its block does not run (`layer` in a filter-level `if`,
+`abort {}` in a sink), a name that resolves to nothing (`prased.x`, a `def` out of its block), a cast that would
+not convert (`as string`, a class outside `def`), a method no overload of the receiver's compile-time type takes, a
+second `regexp`. A codegen `if`/`switch` chain ends in a throw, never in a branch that emits nothing or a default.
+Reject only what was silently wrong: a form that compiled and ran consistently keeps working (as Groovy LAL ran it,
+or, where Groovy never allowed it, as the v2 compiler runs it), e.g. `abortOnFailure` on either side of `regexp`, a repeated metrics
+statement or tag key (the last wins), a setter cast its parameter type converts from.
+
+Method calls in chains resolve by reflection on the receiver's compile-time type (`LALChainCodegen.resolveMethod`,
+on server-core's `DslMethods.choose`),
+among those `LALCallables` allows (lal.md "Supported operators and functions"; `findGetter`, the typed-input getters,
+`ProcessRegistry` and `def` casts check it too, and `LalRuntimeHelper.prop` for a property read at run time; its
+rows are declared with the shared `DslCallables` builder in `build()`, built on first use, so supporting another
+method is a one-line change);
+choosing the overload by the arguments' rendered types (`LALChainCodegen.Arg`: the object form keeps a `null`, the
+primitive form is used for a primitive parameter), so a value of unknown type (a JSON field) only has `toString()`, not `Object`'s other
+methods.
 
 **Safe navigation:** `toString()`, `trim()`
 
-## JSON/YAML Metadata Field Population
+## `parsed.*` Lookup
 
-When `json{}` or `yaml{}` parses the log body, `FilterSpec` also adds `LogMetadata` fields
-(`service`, `serviceInstance`, `endpoint`, `layer`, `timestamp`) to the parsed map via
-`putIfAbsent`. Body-parsed values take priority; metadata fields serve as fallback. This matches
-v1 Groovy `Binding.Parsed.getAt(key)` behavior where `parsed.service` falls back to
-`LogData.getService()` when the JSON body doesn't contain a `service` key.
+`parsed.<key>` follows v1 Groovy `Binding.Parsed.getAt(key)` at the point of the read (`h.mapVal`): the regexp's
+group (a name the pattern has no group of throws, as v1 and base v2), the parsed map's non-null value, a typed input's
+getter (a parser that did not parse an Envoy entry), then the log's own field from the rule's metadata (`h.logField`,
+as `log.<field>` reads it; `traceContext` and `tags` are the protobuf messages `h.logTraceContext()` /
+`h.logTags()`, reflecting the rule's writes). The json / yaml parsers copy the log's standard fields into the map, as
+base v2 did, so `parsed.getMap()` holds them; `ExecutionContext.Parsed.fromMetadata` records the copied keys, which read the
+live metadata instead; the map is read only (`LALCallables`), so a copied key never holds a rule's write. With
+only a text parser, `h.group` is a String: the group, else the log's String field, else null. Without any parser in
+the rule, `parsed.<field>` reads `h.ctx().metadata().getX()` inline, validated against `LogMetadata`'s getters; a
+chain starting with a method (`parsed.getMap()`) calls it on `ExecutionContext.Parsed`. The parser in scope is tracked
+per branch (`GenCtx.scopeParser`); after a text and a json branch rejoin (MIXED), only a String-specific method casts
+`parsed.x` to String, an `Object` method takes the raw value.
+
+## Values As v1 Compiled Them
+
+v1 ran the DSL under `@CompileStatic` with `LALPrecompiledExtension` (`parsed.*` dynamic, `log.*` typed), so where v1
+compiled an expression, its static types chose the semantics: an ordering of two values of the same floating type is
+the primitive one (`h.lt`, ... on the run-time path) while other numeric comparisons follow `Double.compare`. Where v1
+did not compile an expression (`+` or a method on a value of unknown type, `log.getX()`, `parsed.getMap()`), v2 keeps
+what it always did. A divergence from v1 that base v2 already had (Java string formatting of maps, iterator truth, set
+equality, `log.traceContext` as the metadata POJO, primitive casts compared as boxes) is kept and listed in `lal.md`'s
+differences, not emulated; `+` with an array, a collection or a map, which v1 appended to and v2 joined as text, fails. Check a claim against v1 by compiling the rule with that configuration
+(Groovy 4.0.15 for 10.3.0, 5.0.3 for the 10.4.0 v1 harness), not with a plain `GroovyShell`, which is dynamic, and
+against base v2 before calling a difference a regression.
 
 ## Null-Safe String Conversion
 

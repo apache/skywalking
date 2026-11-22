@@ -21,8 +21,10 @@ import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import javassist.CannotCompileException;
 import javassist.ClassPool;
@@ -101,7 +103,11 @@ public final class LALClassGenerator {
 
     // ==================== Parser type detection ====================
 
-    enum ParserType { JSON, YAML, TEXT, NONE }
+    /**
+     * The parsers that may have run before a statement. MIXED is a text parser and a json / yaml one, either in
+     * sequence or in the branches of an {@code if}.
+     */
+    enum ParserType { JSON, YAML, TEXT, MIXED, NONE }
 
     static class PrivateMethod {
         final String source;
@@ -117,16 +123,39 @@ public final class LALClassGenerator {
         final String javaVarName;
         final Class<?> resolvedType;
         final String descriptor;
+        /** Holds what a typed method returned (such as a map's {@code get}), not a value read at run time. */
+        final boolean typedResult;
+        /** Holds a text parser's group after a text and a json branch rejoin: a string for a String method. */
+        final boolean textGroup;
 
-        LocalVarInfo(final String javaVarName, final Class<?> resolvedType) {
+        LocalVarInfo(final String javaVarName, final Class<?> resolvedType, final boolean typedResult,
+                     final boolean textGroup) {
             this.javaVarName = javaVarName;
             this.resolvedType = resolvedType;
-            this.descriptor = "L" + resolvedType.getName().replace('.', '/') + ";";
+            this.descriptor = descriptorOf(resolvedType);
+            this.typedResult = typedResult;
+            this.textGroup = textGroup;
         }
+    }
+
+    /**
+     * A reference type's JVM descriptor, an array's included.
+     */
+    static String descriptorOf(final Class<?> type) {
+        return type.isArray() ? type.getName().replace('.', '/') : "L" + type.getName().replace('.', '/') + ";";
+    }
+
+    /**
+     * A type's name as Java source writes it, {@code java.lang.String[]} for an array.
+     */
+    static String sourceNameOf(final Class<?> type) {
+        return type.isArray() ? sourceNameOf(type.getComponentType()) + "[]" : type.getName();
     }
 
     static class GenCtx {
         final ParserType parserType;
+        /** The parsers that may have run before the statement being generated, as its branch reaches it. */
+        ParserType scopeParser = ParserType.NONE;
         final Class<?> inputType;
         final Class<?> outputType;
         final List<PrivateMethod> privateMethods = new ArrayList<>();
@@ -139,6 +168,14 @@ public final class LALClassGenerator {
         Class<?> lastResolvedType;
         String lastNullChecks;
         String lastRawChain;
+        /** Whether the last value access can never be null, so a cast of it needs no null check. */
+        boolean lastNonNull;
+        /** Whether lastNullChecks tests an object a primitive was converted from, rather than a typed-proto chain. */
+        boolean lastNullCheckOnObject;
+        /** Whether the last value access only reads (no call), so evaluating it twice is harmless. */
+        boolean lastPure;
+        /** Whether the last value access is what a typed method or getter returned, not a value read at run time. */
+        boolean lastTypedResult;
 
         // Per-method proto field variable caching (NONE + inputType only).
         // Maps chain key ("response", "response.responseCode") to variable name ("_t0", "_t1").
@@ -152,8 +189,16 @@ public final class LALClassGenerator {
         // Local variables from def statements.
         // Maps user-chosen name (e.g., "metadata") to type info.
         final Map<String, LocalVarInfo> localVars = new HashMap<>();
+        /** Every def name of the rule, in scope here or not. */
+        final Set<String> allDefNames = new HashSet<>();
         final StringBuilder localVarDecls = new StringBuilder();
         final List<String[]> localVarLvtVars = new ArrayList<>();
+        /** Java variables declared for defs in this method, by name, with their type. */
+        final Map<String, Class<?>> declaredDefVars = new HashMap<>();
+        /** Temporaries of this method, declared at its top: a value read once and then used twice. */
+        final StringBuilder tempVarDecls = new StringBuilder();
+        final List<String[]> tempLvtVars = new ArrayList<>();
+        int tempVarCounter;
 
         GenCtx(final ParserType parserType, final Class<?> inputType,
                final Class<?> outputType) {
@@ -171,6 +216,10 @@ public final class LALClassGenerator {
             lastResolvedType = null;
             lastNullChecks = null;
             lastRawChain = null;
+            lastNonNull = false;
+            lastNullCheckOnObject = false;
+            lastPure = false;
+            lastTypedResult = false;
         }
 
         void resetProtoVars() {
@@ -182,6 +231,20 @@ public final class LALClassGenerator {
             localVars.clear();
             localVarDecls.setLength(0);
             localVarLvtVars.clear();
+            declaredDefVars.clear();
+            tempVarDecls.setLength(0);
+            tempLvtVars.clear();
+            tempVarCounter = 0;
+        }
+
+        String newTempVar(final Class<?> type) {
+            if (type.isPrimitive()) {
+                throw new IllegalArgumentException("A ?. on a " + type.getName() + " value is not supported");
+            }
+            final String name = "_s" + tempVarCounter++;
+            tempVarDecls.append("  ").append(sourceNameOf(type)).append(" ").append(name).append(";\n");
+            tempLvtVars.add(new String[]{name, descriptorOf(type)});
+            return name;
         }
 
         Object[] saveProtoVarState() {
@@ -193,7 +256,11 @@ public final class LALClassGenerator {
                 usedProtoAccess,
                 new HashMap<>(localVars),
                 localVarDecls.toString(),
-                new ArrayList<>(localVarLvtVars)
+                new ArrayList<>(localVarLvtVars),
+                new HashMap<>(declaredDefVars),
+                tempVarDecls.toString(),
+                new ArrayList<>(tempLvtVars),
+                tempVarCounter
             };
         }
 
@@ -213,6 +280,23 @@ public final class LALClassGenerator {
             localVarDecls.append((String) state[6]);
             localVarLvtVars.clear();
             localVarLvtVars.addAll((List<String[]>) state[7]);
+            declaredDefVars.clear();
+            declaredDefVars.putAll((Map<String, Class<?>>) state[8]);
+            tempVarDecls.setLength(0);
+            tempVarDecls.append((String) state[9]);
+            tempLvtVars.clear();
+            tempLvtVars.addAll((List<String[]>) state[10]);
+            tempVarCounter = (Integer) state[11];
+        }
+
+        /**
+         * Generates one branch of an {@code if}: a def it declares is not visible after it, as in Groovy.
+         */
+        void inBranchScope(final Runnable branch) {
+            final Map<String, LocalVarInfo> outer = new HashMap<>(localVars);
+            branch.run();
+            localVars.clear();
+            localVars.putAll(outer);
         }
     }
 
@@ -320,35 +404,46 @@ public final class LALClassGenerator {
                 + LALCodegenHelper.GATE_HOLDER_FQCN + "(\"" + escapedContent + "\");",
             ctClass));
         ctClass.addMethod(CtNewMethod.make(
-            "public " + LALCodegenHelper.GATE_HOLDER_FQCN + " debugHolder() { return this.debug; }",
+            "public " + LALCodegenHelper.GATE_HOLDER_FQCN + " debugHolder() {\n  return this.debug;\n}",
             ctClass));
     }
 
+    /**
+     * The parsers a rule holds anywhere: with none, {@code parsed.*} reads the typed input or the log.
+     */
     private static ParserType detectParserType(
             final List<? extends LALScriptModel.FilterStatement> stmts) {
+        ParserType found = ParserType.NONE;
         for (final LALScriptModel.FilterStatement stmt : stmts) {
+            final ParserType t;
             if (stmt instanceof LALScriptModel.JsonParser) {
-                return ParserType.JSON;
-            }
-            if (stmt instanceof LALScriptModel.YamlParser) {
-                return ParserType.YAML;
-            }
-            if (stmt instanceof LALScriptModel.TextParser) {
-                return ParserType.TEXT;
-            }
-            if (stmt instanceof LALScriptModel.IfBlock) {
+                t = ParserType.JSON;
+            } else if (stmt instanceof LALScriptModel.YamlParser) {
+                t = ParserType.YAML;
+            } else if (stmt instanceof LALScriptModel.TextParser) {
+                t = ParserType.TEXT;
+            } else if (stmt instanceof LALScriptModel.IfBlock) {
                 final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
-                ParserType t = detectParserType(ifBlock.getThenBranch());
-                if (t != ParserType.NONE) {
-                    return t;
-                }
-                t = detectParserType(ifBlock.getElseBranch());
-                if (t != ParserType.NONE) {
-                    return t;
-                }
+                t = combineParserTypes(detectParserType(ifBlock.getThenBranch()),
+                    detectParserType(ifBlock.getElseBranch()));
+            } else {
+                continue;
             }
+            found = combineParserTypes(found, t);
         }
-        return ParserType.NONE;
+        return found;
+    }
+
+    private static ParserType combineParserTypes(final ParserType a, final ParserType b) {
+        if (a == ParserType.NONE) {
+            return b;
+        }
+        if (b == ParserType.NONE || a == b) {
+            return a;
+        }
+        // h.mapVal reads the regexp's groups before the parsed map, as Groovy LAL's parsed did.
+        return a == ParserType.TEXT || b == ParserType.TEXT || a == ParserType.MIXED || b == ParserType.MIXED
+            ? ParserType.MIXED : a;
     }
 
     // ==================== Compilation ====================
@@ -404,15 +499,15 @@ public final class LALClassGenerator {
         emitDebugHolderMembers(ctClass);
 
         // Add private methods BEFORE execute so Javassist can resolve calls
+        final String rule = classNameHint == null ? className : classNameHint;
         final List<CtMethod> privateMethods = new ArrayList<>();
         for (final PrivateMethod pm : genCtx.privateMethods) {
-            final CtMethod ctMethod = CtNewMethod.make(pm.source, ctClass);
+            final CtMethod ctMethod = makeMethod(pm.source, ctClass, rule);
             ctClass.addMethod(ctMethod);
             privateMethods.add(ctMethod);
             DslGeneratedFileWriter.addLocalVariableTable(ctMethod, className, pm.lvtVars);
         }
-
-        final CtMethod execMethod = CtNewMethod.make(executeBody, ctClass);
+        final CtMethod execMethod = makeMethod(executeBody, ctClass, rule);
         ctClass.addMethod(execMethod);
 
         // Build LVT for execute(): params + h + optional _p and proto vars
@@ -428,6 +523,7 @@ public final class LALClassGenerator {
             execLvt.addAll(genCtx.protoLvtVars);
         }
         execLvt.addAll(genCtx.localVarLvtVars);
+        execLvt.addAll(genCtx.tempLvtVars);
         DslGeneratedFileWriter.addLocalVariableTable(execMethod, className,
             execLvt.toArray(new String[0][]));
         // One LineNumberTable entry per method, at its own signature line -- not a per-statement
@@ -454,13 +550,43 @@ public final class LALClassGenerator {
             DslGeneratedFileWriter.attachSignatureLine(pmMethod,
                 DslGeneratedFileWriter.lineOfMethod(sourceText, pmMethod.getName()));
         }
+        if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            DslGeneratedFileWriter.attachSignatureLine(ctClass.getDeclaredMethod("debugHolder"),
+                DslGeneratedFileWriter.lineOfMethod(sourceText, "debugHolder"));
+        }
 
         DslGeneratedFileWriter.writeClassFile(classOutputDir, ctClass);
         DslGeneratedFileWriter.writeSourceFile(classOutputDir, ctClass.getSimpleName(), sourceText);
 
-        final Class<?> clazz = defineClass(ctClass);
-        ctClass.detach();
-        return (LalExpression) clazz.getDeclaredConstructor().newInstance();
+        return instantiate(ctClass, rule);
+    }
+
+    /**
+     * Compiles one method of the rule's class; Javassist refusing the generated source fails the rule's compile.
+     */
+    CtMethod makeMethod(final String source, final CtClass ctClass, final String rule) {
+        try {
+            return CtNewMethod.make(source, ctClass);
+        } catch (final CannotCompileException e) {
+            ctClass.detach();
+            throw new IllegalArgumentException("LAL rule " + rule + " does not compile: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Defines and instantiates the rule's class. Defining parses it (a ClassFormatError) and instantiating links
+     * it, which verifies every method (a VerifyError) and initializes it: Errors a caller catching Exception would
+     * miss, so they fail the rule's compile.
+     */
+    LalExpression instantiate(final CtClass ctClass, final String rule) throws ReflectiveOperationException {
+        try {
+            final Class<?> clazz = defineClass(ctClass);
+            return (LalExpression) clazz.getDeclaredConstructor().newInstance();
+        } catch (final CannotCompileException | LinkageError e) {
+            throw new IllegalArgumentException("LAL rule " + rule + " compiled to a class the JVM refuses: " + e, e);
+        } finally {
+            ctClass.detach();
+        }
     }
 
     /**
@@ -487,8 +613,9 @@ public final class LALClassGenerator {
               .append(" debug = new ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
               .append("(\"").append(DslJavaSourceText.toLiteral(content))
               .append("\");\n\n");
+            // On its own line, as every method's signature, which its LineNumberTable entry points at.
             sb.append("    public ").append(LALCodegenHelper.GATE_HOLDER_FQCN)
-              .append(" debugHolder() { return this.debug; }\n\n");
+              .append(" debugHolder() {\n        return this.debug;\n    }\n\n");
         }
         for (final PrivateMethod pm : genCtx.privateMethods) {
             sb.append("    ").append(pm.source.replace("\n", "\n    ")).append("\n\n");
@@ -513,29 +640,14 @@ public final class LALClassGenerator {
         return BytecodeClassDefiner.define(ctClass, targetClassLoader, LalExpressionPackageHolder.class);
     }
 
-    private static boolean hasParsedAccess(
-            final List<? extends LALScriptModel.FilterStatement> stmts) {
-        for (final LALScriptModel.FilterStatement stmt : stmts) {
-            if (stmt instanceof LALScriptModel.ExtractorBlock) {
-                return true;
-            }
-            if (stmt instanceof LALScriptModel.IfBlock) {
-                final LALScriptModel.IfBlock ifBlock = (LALScriptModel.IfBlock) stmt;
-                if (hasParsedAccess(ifBlock.getThenBranch())
-                        || hasParsedAccess(ifBlock.getElseBranch())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     // ==================== Execute method generation ====================
 
     private String generateExecuteMethod(final LALScriptModel model,
                                           final GenCtx genCtx) {
         genCtx.resetProtoVars();
+        genCtx.scopeParser = ParserType.NONE;
         genCtx.ruleName = classNameHint == null ? "lal" : classNameHint;
+        collectDefNames(model.getStatements(), genCtx.allDefNames);
 
         // Generate body first so proto var declarations are collected
         final StringBuilder bodyContent = new StringBuilder();
@@ -585,6 +697,7 @@ public final class LALClassGenerator {
         if (genCtx.localVarDecls.length() > 0) {
             sb.append(genCtx.localVarDecls);
         }
+        sb.append(genCtx.tempVarDecls);
 
         sb.append(bodyContent);
         sb.append("}\n");
@@ -603,14 +716,17 @@ public final class LALClassGenerator {
             } else {
                 sb.append("  filterSpec.text(ctx);\n");
             }
+            genCtx.scopeParser = combineParserTypes(genCtx.scopeParser, ParserType.TEXT);
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.JsonParser) {
             sb.append("  filterSpec.json(ctx, ")
               .append(((LALScriptModel.JsonParser) stmt).isAbortOnFailure()).append(");\n");
+            genCtx.scopeParser = combineParserTypes(genCtx.scopeParser, ParserType.JSON);
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.YamlParser) {
             sb.append("  filterSpec.yaml(ctx, ")
               .append(((LALScriptModel.YamlParser) stmt).isAbortOnFailure()).append(");\n");
+            genCtx.scopeParser = combineParserTypes(genCtx.scopeParser, ParserType.YAML);
             LALCodegenHelper.emitCaptureCall(sb, "Parser", genCtx.ruleName, 0, "ctx", "");
         } else if (stmt instanceof LALScriptModel.AbortStatement) {
             sb.append("  filterSpec.abort(ctx);\n");
@@ -634,6 +750,22 @@ public final class LALClassGenerator {
         } else if (stmt instanceof LALScriptModel.DefStatement) {
             LALDefCodegen.generateDefStatement(
                 sb, (LALScriptModel.DefStatement) stmt, genCtx);
+        } else {
+            throw LALCodegenHelper.notAllowedIn(stmt, "a filter",
+                "put it in the extractor {} or sink {} block it belongs to");
+        }
+    }
+
+    private static void collectDefNames(final List<?> stmts, final Set<String> names) {
+        for (final Object stmt : stmts) {
+            if (stmt instanceof LALScriptModel.DefStatement) {
+                names.add(((LALScriptModel.DefStatement) stmt).getVarName());
+            } else if (stmt instanceof LALScriptModel.ExtractorBlock) {
+                collectDefNames(((LALScriptModel.ExtractorBlock) stmt).getStatements(), names);
+            } else if (stmt instanceof LALScriptModel.IfBlock) {
+                collectDefNames(((LALScriptModel.IfBlock) stmt).getThenBranch(), names);
+                collectDefNames(((LALScriptModel.IfBlock) stmt).getElseBranch(), names);
+            }
         }
     }
 
@@ -643,17 +775,26 @@ public final class LALClassGenerator {
         sb.append("  if (");
         LALValueCodegen.generateCondition(sb, ifBlock.getCondition(), genCtx);
         sb.append(") {\n");
-        for (final LALScriptModel.FilterStatement s : ifBlock.getThenBranch()) {
-            generateFilterStatement(sb, s, genCtx);
-        }
+        // A parser in a branch decides how that branch reads parsed.*; after the if, either branch may have run.
+        final ParserType before = genCtx.scopeParser;
+        genCtx.inBranchScope(() -> {
+            for (final LALScriptModel.FilterStatement s : ifBlock.getThenBranch()) {
+                generateFilterStatement(sb, s, genCtx);
+            }
+        });
+        final ParserType afterThen = genCtx.scopeParser;
+        genCtx.scopeParser = before;
         sb.append("  }\n");
         if (!ifBlock.getElseBranch().isEmpty()) {
             sb.append("  else {\n");
-            for (final LALScriptModel.FilterStatement s : ifBlock.getElseBranch()) {
-                generateFilterStatement(sb, s, genCtx);
-            }
+            genCtx.inBranchScope(() -> {
+                for (final LALScriptModel.FilterStatement s : ifBlock.getElseBranch()) {
+                    generateFilterStatement(sb, s, genCtx);
+                }
+            });
             sb.append("  }\n");
         }
+        genCtx.scopeParser = combineParserTypes(afterThen, genCtx.scopeParser);
     }
 
     // ==================== Source generation (for testing) ====================

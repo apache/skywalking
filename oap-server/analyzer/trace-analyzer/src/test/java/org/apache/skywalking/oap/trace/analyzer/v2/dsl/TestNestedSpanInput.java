@@ -36,4 +36,5 @@ public class TestNestedSpanInput {
     private List<TestSpanChild> children = new ArrayList<>();
     private TestSpanChild child;
     private byte[] bytes;
+    private Integer retries = 5;
 }
