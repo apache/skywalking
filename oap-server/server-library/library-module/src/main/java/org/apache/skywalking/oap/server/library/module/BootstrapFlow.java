@@ -52,7 +52,7 @@ class BootstrapFlow {
             provider.notifyAfterCompleted();
         }
         // The boot-completed hooks are the tail of this phase rather than a call of their own, so every driver of
-        // the flow gets both in order; the GraalVM distro's FixedModuleManager drives BootstrapFlow itself.
+        // the flow gets both in order.
         for (ModuleProvider provider : startupSequence) {
             provider.notifyBootCompleted();
         }
