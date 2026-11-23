@@ -124,7 +124,7 @@ dependency:
       version: 18.1
       license: MIT
     - name: com.graphql-java:graphql-java
-      version: 21.0
+      version: 25.2
       license: MIT
     - name: com.github.luben:zstd-jni
       version: 1.4.3-1
