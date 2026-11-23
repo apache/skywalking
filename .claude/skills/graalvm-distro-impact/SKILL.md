@@ -19,7 +19,7 @@ that is already on master, from an earlier change the distro hasn't synced yet, 
 one already reported to the distro's maintainers: the distro deals with those at its next sync. Leave them out of this
 PR's item, and don't count a distro check that fails only because the distro trails master.
 
-Everything this skill says about the distro is a snapshot (distro `main` f78c20f, 2026-11-20) for orientation: the
+Everything this skill says about the distro is a snapshot (2026-11-23) for orientation: the
 replaced classes, the metadata and the module set change with every distro sync. Decide against the latest distro, as
 [Keep a current distro clone](#keep-a-current-distro-clone) describes.
 
@@ -58,11 +58,11 @@ the clone has the latest replaced classes, metadata, module set and packaging. D
 
 | Question | Where the latest answer is in the distro |
 |---|---|
-| Which classes of this repo it replaces | The `.java` files under `oap-libs-for-graalvm/*/src/main/java`, `oap-graalvm-server/src/main/java` and `build-tools/precompiler/src/main/java` whose package path is a class of this repo; `oap-graalvm-server/src/test/resources/replacement-source-sha256.properties` pins most of them |
+| Which classes of this repo it replaces | The `.java` files under `oap-libs-for-graalvm/*/src/main/java`, `oap-graalvm-server/src/main/java` and `build-tools/precompiler/src/main/java` whose package path is a class of this repo; `oap-graalvm-server/src/test/resources/replacement-source-sha256.properties` pins all of them |
 | Which modules and providers it ships | `build-tools/build-common/src/main/java/org/apache/skywalking/oap/server/buildtools/common/AcceptedModules.java`, `oap-graalvm-server/src/test/resources/provider-inventory.properties`, `docs/distro-policy.md` |
 | Its `application.yml` | `oap-graalvm-server/src/main/resources/application.yml` |
 | The config classes it loads | `build-tools/precompiler/src/main/resources/META-INF/module-config-classes.txt` |
-| What it registers for reflection and resources | `oap-graalvm-native/src/main/resources/META-INF/native-image/org.apache.skywalking/oap-graalvm-native/` (`reachability-metadata.json`, `*-reflect-config.json`), and what `build-tools/precompiler/src/main/java/org/apache/skywalking/oap/server/buildtools/precompiler/Precompiler.java` generates |
+| What it registers for reflection and resources | `oap-graalvm-native/src/main/resources/META-INF/native-image/org.apache.skywalking/oap-graalvm-native/` (`reachability-metadata.json`, `*-reflect-config.json`), and what `build-tools/precompiler/src/main/java/org/apache/skywalking/oap/server/buildtools/precompiler/NativeImageMetadata.java` generates |
 | Its native build arguments | `oap-graalvm-native/pom.xml` |
 | The files it packages from this repo | `oap-graalvm-server/src/main/assembly/distribution.xml`, `oap-graalvm-native/src/main/assembly/native-distribution.xml` |
 | The files of this repo its tests and e2e cases read | `oap-graalvm-server/pom.xml`, `build-tools/precompiler/src/test/`, `oap-graalvm-server/src/test/`, `test/e2e/cases/` |
@@ -75,8 +75,8 @@ run time that wasn't known at build time; reflection, resources, proxies, serial
 metadata recorded at build time (or registrations Native Image resolves itself); there is no classpath to scan and no
 jar or classpath directory at run time. Code of this repo that relies on any of these has to be handled in the
 distro, by one of the mechanisms below. Some mechanisms also serve the distro's own choices
-rather than a native limit: it runs only compiled rules (no rule files at run time), loads config through generated
-setters, and ships a fixed module set.
+rather than a native limit: it runs only compiled rules (no rule file is read from outside the image), loads config
+through generated code, and ships a fixed module set.
 
 The distro's principles:
 
@@ -91,11 +91,11 @@ The distro's principles:
 | Limit | Distro mechanism | What the distro does | What it relies on here |
 |---|---|---|---|
 | No class unknown at build time can be defined at run time | Build-time generation | `build-tools/precompiler` runs the OAL, MAL, LAL, TAL and Hierarchy compilers and `MeterSystem` at build time and packs the generated classes into a jar. It reads the bundled rule files (MAL, LAL, TAL and Zabbix through upstream's loaders, the hierarchy and layer files directly) and generates the static rule registry (`CompiledRules`), so at run time the compiled rules come from it, not from rule files | The generators' build-time API (below), deterministic class names (`DslSourceRef`, `{yaml}_L{line}_{name}`), generated classes built by their no-arg constructor with any initialization upstream does afterwards (TAL's function objects) recorded so the distro can replay it, and the rule data classes (`Rule`, `LALConfigs`, `TALConfigs`, `ZabbixConfig`, `LayerDefinition`) with their setters |
-| Upstream code that can't run natively, but whose API other code calls | Same-FQCN replacement | 30 upstream classes are replaced by the distro's own copy with the same fully-qualified name: 26 shaded into `*-for-graalvm` jars, 4 (`YamlConfigLoaderUtils`, `FieldsHelper`, `ResourceUtils`, `LoggingConfigWatcher`) in `oap-graalvm-server`; the originals are filtered out | Every caller finds the members it calls on the copy; the native-unfriendly code sits in a class small enough to copy |
-| Upstream designs the distro serves differently: run-time rule compilation and hot-update (impossible natively), rule files and reflective config loading at run time (the distro's choice: compiled rules only, generated setter-based loading) | Reimplementation in the distro | Distro-only code: its boot (`GraalVMOAPServerStartUp`), a generated setter-based config loader (`ConfigInitializerGenerator` writes the `YamlConfigLoaderUtils` replacement), its own `application.yml` with compile-time rule activation (`CompiledRuleActivation`, `CompiledRulesCheck`), a read-only rule catalog (`BundledRuleCatalogHandler`), and the `graalvm-unsupported-admin` module standing in for runtime-rule | Seams it can plug into: the module / provider SPI, service interfaces, setters on config classes |
-| No reflection, resources or proxies without metadata | Native-image metadata | Generated by the precompiler's scans (DSL classes, handlers, GraphQL, covered JSON packages, protobuf closures, config classes) plus hand-kept JSON under `oap-graalvm-native/.../native-image/` | Code following the scanned patterns ([below](#what-the-native-image-metadata-covers-by-itself)) |
-| No classpath to scan | Build-time manifests | The precompiler writes `META-INF/annotation-scan/*.txt`, which the `AnnotationScan`, `SourceReceiverImpl` and `MeterSystem` replacements read | Declarative markers (annotations, interfaces, SPI) instead of ad-hoc scanning |
-| No classpath directory or jar at run time | Packaging and resource globs | The assemblies copy runtime config files to `config/`; globs embed resources; the `ResourceUtils` replacement reads `config/` first, then the embedded copy | Runtime config read through `ResourceUtils` from `config/` |
+| Upstream code that can't run natively, but whose API other code calls | Same-FQCN replacement | 20 upstream classes are replaced by the distro's own copy with the same fully-qualified name: 16 shaded into `*-for-graalvm` jars, 4 (`YamlConfigLoaderUtils`, `FieldsHelper`, `ResourceUtils`, `LoggingConfigWatcher`) in `oap-graalvm-server`; the originals are filtered out | Every caller finds the members it calls on the copy; the native-unfriendly code sits in a class small enough to copy |
+| Upstream designs the distro serves differently: run-time rule compilation and hot-update (impossible natively), rule files and reflective config loading at run time (the distro's choice: compiled rules only, generated config loading) | Reimplementation in the distro | Distro-only code: its boot (`GraalVMOAPServerStartUp`), a generated config loader (`ConfigInitializerGenerator` writes the `YamlConfigLoaderUtils` replacement: a field's setter where its class has one, `Field.set` for any other field, as upstream), its own `application.yml` with compile-time rule activation (`CompiledRuleActivation`, `CompiledRulesCheck`), a read-only rule catalog (`BundledRuleCatalogHandler`), and the `graalvm-unsupported-admin` module standing in for runtime-rule | Seams it can plug into: the module / provider SPI, service interfaces |
+| No reflection, resources or proxies without metadata | Native-image metadata | Generated by the precompiler's scans (DSL classes, handlers and their route bodies, GraphQL, covered JSON packages, protobuf closures, `StreamData` classes, the values LAL reads by reflection, config classes and the fields their loader writes through `Field.set`) plus hand-kept JSON under `oap-graalvm-native/.../native-image/` | Code following the scanned patterns ([below](#what-the-native-image-metadata-covers-by-itself)) |
+| No classpath to scan | Build-time manifests | The precompiler writes `META-INF/annotation-scan/*.txt`, which the `AnnotationScan` and `SourceReceiverImpl` replacements read; the meter functions go into the rule registry, which the `MeterSystem` replacement reads | Declarative markers (annotations, interfaces, SPI) instead of ad-hoc scanning |
+| No classpath directory or jar at run time | Packaging and resource globs | The assemblies copy runtime config files to `config/`; globs embed the class path resources code reads; the native `ResourceUtils` reads `config/` next to the executable and nothing else | Runtime config read through `ResourceUtils` from `config/` |
 | Features left out: native-incompatible ones (runtime-rule hot-update) and ones the distro's policy excludes (storage other than BanyanDB, other cluster and configuration providers) | Leave out, or stub | A fixed module set: only accepted providers are on the classpath (`server-starter-for-graalvm` excludes all of `server-starter`'s dependencies), booted through the SPI as `application.yml` names them; runtime-rule mutations are answered with HTTP 501 by `graalvm-unsupported-admin` | Each such feature in its own module or provider; the distro's `AcceptedModules` lists what it ships, and `provider-inventory.properties` marks every other provider `NOT_ACCEPTED` |
 
 ### Module set
@@ -113,26 +113,28 @@ A snapshot of what the distro has patched so far, the most certain impact when e
 native-image risk ([Native-image concerns in any class](#native-image-concerns-in-any-class)). The latest list is in
 your distro clone ([Keep a current distro clone](#keep-a-current-distro-clone)): the same-FQCN `.java` files under
 `oap-libs-for-graalvm/*/src/main/java`, `oap-graalvm-server/src/main/java` (outside
-`org.apache.skywalking.oap.server.graalvm`) and, build-time only, `build-tools/precompiler/src/main/java`. Of these,
-`replacement-source-sha256.properties` pins the upstream source of 27; `FieldsHelper`, `ResourceUtils` and
-`LoggingConfigWatcher` are not pinned.
+`org.apache.skywalking.oap.server.graalvm`) and, build-time only, `build-tools/precompiler/src/main/java`.
+`replacement-source-sha256.properties` pins the upstream source of every one of them, and of 18 more classes whose
+logic the distro mirrors or replays (among them `OALEngineV2`, `OALClassGeneratorV2`, `MetricConvert`,
+`LogFilterListener`, `SpanFilterListener`, `TALClassGenerator`, `TALFunctionRegistry`, `ZabbixMetrics`): an edit to
+any of them fails the distro's staleness test at its next sync, which then checks what the edit means.
 
 | Upstream class | Why the distro replaces it |
 |---|---|
 | `OALEngineLoaderService` | Registers the precompiled OAL metrics, dispatchers and disabled sources instead of running the OAL engine |
-| MAL `v2.dsl.DSL`, `FilterExpression` | Return the precompiled `MalExpression` / filter by expression text / filter literal (build-time copies in the precompiler capture the classes) |
-| `Rules` (MAL), `LALConfigs`, `TALConfigs`, `ZabbixConfigs`, `LayerExtensionLoader` | Read the rule registry instead of rule files |
-| LAL `v2.dsl.DSL` | Returns the precompiled `LalExpression` by source coordinates (`lal/<file>.yaml:<line>`), falling back to the rule name, with its effective input type |
+| MAL `v2.dsl.DSL` | Returns the precompiled `MalExpression` for the coordinates `MetricConvert` passes, requiring the metric name and expression text it was compiled from (build-time copies of it and `FilterExpression` in the precompiler capture the classes) |
+| MAL `FilterExpression` | Returns the precompiled filter for the rule file's coordinates, requiring the filter literal it was compiled from |
+| `Rules` (MAL), `LALConfigs`, `TALConfigs`, `ZabbixConfigs`, `LayerExtensionLoader` | Read the rule registry instead of rule files; the MAL, LAL and TAL ones pass the rule sources packaged into the image (`META-INF/rule-source/`) through upstream's `RuleSetMerger`, as upstream's loaders record what they read |
+| LAL `v2.dsl.DSL` | Returns the precompiled `LalExpression` by source coordinates (`lal/<file>.yaml:<line>`), requiring the rule name, DSL text and input / output types it was compiled from, with its effective input type |
 | `TalDSL` | Returns the precompiled `TalExpression` by coordinates (`tal/<file>.yaml:<line>`) after checking the rule name, DSL, input type and alias and metric prefix match, sets its function-object fields from the function registry by recorded key, creates its metrics (`create` + `limitLabels`) |
-| `HierarchyDefinitionService`, `HierarchyService` | Hierarchy definition and precompiled matching rules from the registry; the copy's `MatchingRule` has no `match(Service, Service)`, so the `HierarchyService` copy calls `getMatcher().apply(...)` |
-| `MeterSystem` | Meter functions from a manifest and precompiled meter classes, no Guava classpath scan or Javassist (a build-time copy in the precompiler generates and exports the classes) |
+| `HierarchyDefinitionService` | Hierarchy definition and precompiled matching rules from the registry, into the copy's own nested `MatchingRule` (an edit to upstream's needs mirroring), so upstream's `HierarchyService` runs unchanged |
+| `MeterSystem` | Meter functions and precompiled meter classes from the rule registry, no Guava classpath scan or Javassist (a build-time copy in the precompiler generates and exports the classes) |
 | `AnnotationScan`, `SourceReceiverImpl` | Annotation and dispatcher manifests instead of Guava `ClassPath` scanning |
-| `YamlConfigLoaderUtils` | Generated, setter-based config loading |
-| `CoreModuleConfig`, `AnalyzerModuleConfig`, `LogAnalyzerModuleConfig`, `OtelMetricReceiverConfig`, `EnvoyMetricReceiverConfig`, `EBPFReceiverModuleConfig`, `AWSFirehoseReceiverModuleConfig`, `CiliumFetcherConfig`, `HealthCheckerConfig` | Class-level `@Setter` added for the generated loader |
+| `YamlConfigLoaderUtils` | Generated config loading: a field's setter where its class has one, `Field.set` for any other field |
 | `DynamicSslContext` | gRPC TLS on the JDK provider instead of OpenSSL (`netty_tcnative`) |
 | `VirtualThreads` | Direct JDK 25 API instead of reflection |
 | `FieldsHelper` | `MethodHandle` instead of run-time `LambdaMetafactory` |
-| `ResourceUtils` | Reads `config/` from the filesystem first, then embedded resources (no classpath directory in a native image) |
+| `ResourceUtils` | In the native image, reads `config/` next to the executable and nothing else (no class path directory); on the JVM, upstream's class path |
 | `LoggingConfigWatcher` | No cast to `XmlConfiguration` (native Log4j2 may run on `DefaultConfiguration`) |
 
 A replacement is a copy: upstream changes to the original never reach it. The copy breaks callers when upstream adds
@@ -141,25 +143,35 @@ distro's own build doesn't see it: it surfaces at run time as `NoSuchMethodError
 analysis may report it earlier). The copy silently diverges when upstream changes logic it duplicated.
 Example: #14255 added `getOtlpLogSearchableTags()` to `OtelMetricReceiverConfig`, called from
 `OtelMetricReceiverProvider#start()` when the `otlp-logs` handler is enabled (the distro's default); the distro's copy
-lacks it, so the distro's boot would fail there until the copy gets it.
+lacked it, so the distro's boot would have failed there until the copy got it.
 
 ### Build-time API the precompiler calls
 
-- OAL: `OALEngineV2#start` and `#setStorageBuilderFactory`, with `getClassGeneratorV2().setOpenEngineDebug(true)` and
-  `OALClassGeneratorV2.setGeneratedFilePath(...)` to export the classes.
+- OAL: `OALEngineV2#start`, `#setStorageBuilderFactory`, `#setStreamListener`, `#setDispatcherListener` and
+  `#notifyAllListeners` (recording what each script registers), with `getClassGeneratorV2().setOpenEngineDebug(true)`
+  and `OALClassGeneratorV2.setGeneratedFilePath(...)` to export the classes; `OALScriptParserV2#parse` for each
+  script's disables, checked together against `DisableRegister#scriptDisablesWithoutStream`. Every concrete
+  `OALDefine` needs a `public static INSTANCE`, the object providers load.
 - MAL: the precompiler runs this repo's `MetricConvert` over each rule file; its `DSL.parse` and `FilterExpression`
   calls reach the precompiler's build-time copies of those two classes, which call `MALClassGenerator`
   (`setClassOutputDir`, `setClassNameHint`, `setSourceRef`, `setContent`, `compile`, `compileFilter`). A change to how the MAL
-  runtime calls `DSL` / `FilterExpression` reaches both the build-time and the run-time copies.
+  runtime calls `DSL` / `FilterExpression` reaches both the build-time and the run-time copies. Zabbix rules compile
+  through `new ZabbixMetrics(configs, meterSystem)`, as the receiver compiles them.
 - LAL / TAL / Hierarchy generators: `setClassOutputDir`, `setClassNameHint`, `setSourceRef`, `compile`; LAL
   `setContent`, `setInputType`, `setOutputType`, `getEffectiveInputType`; TAL `setContent`, `setInputType`,
   `setInputAlias`, `setMetricPrefix`, `setFunctionRegistry`, `getMetricDeclarations`, `createMetrics`;
-  `TALFunctionRegistry#discover` / `bind`; `DslSourceRef#ofRule`.
+  `TALFunctionRegistry#discover` / `bind` / `instance`; `TALConfigs#requiredModulesLoaded`; `TALMetricShapes#claim`;
+  `DslSourceRef#ofRule`; `DslYamlLineIndex#keyLines` (hierarchy rule lines).
+- `LogFilterListener.Factory`'s package-private `savesWithoutLayer`, `isRegisteredLayer` and `resolveLayer`: the
+  distro's `LalStaticRuleResolver`, a precompiler class in the factory's package, calls them, with the private members
+  below, to decide, as the boot does, which LAL rules it skips and the input and output types it compiles each with.
 - `DSLDebugCodegenSwitch#enableInjection`, so the precompiled OAL / MAL / LAL classes carry the live-debugger probes.
 - The loaders it reads rule files through: `Rules#loadRules`, `LALConfigs#load`, `TALConfigs#load`,
   `ZabbixConfigs#loadConfigs`, `LayerExtensionLoader#load`.
-- Two private fields it reaches by reflection: `OALClassGeneratorV2.IS_RT_TEMP_FOLDER_INIT_COMPLETED` (set) and
-  `DisableRegister.disableEntitySet` (read). Renaming either breaks the precompiler.
+- Private members it reaches by reflection: `OALClassGeneratorV2.IS_RT_TEMP_FOLDER_INIT_COMPLETED` (set), and
+  `LogFilterListener.Factory`'s `resolveInputType`, `resolveOutputType`, `loadOutputBuilderNames` and `spiProviders`
+  (through `MethodHandles.privateLookupIn` in `LalStaticRuleResolver`). Renaming or retyping any of them breaks the
+  precompiler.
 
 The distro instantiates the precompiled classes itself, through their no-arg constructors (DSL classes by constructor
 references in the generated registry, meter classes reflectively): whatever upstream sets on a generated instance after
@@ -170,27 +182,37 @@ fields, set by reflection from the `TALFunctionRegistry`) has to be replayed by 
 
 - Classes the DSL compilers generate, OAL metrics / builders / dispatchers, meter classes, storage builders, and
   annotation- and interface-scanned classes (`@Stream`, `@ScopeDeclaration`, `SourceDispatcher` implementations, …).
-- Armeria handlers with `@Get` / `@Post` / `@Path` methods, the `@Decorator` targets they name, and the
-  `ExceptionHandlerFunction` implementations in this repo.
+- Armeria handlers with `@Get` / `@Post` / `@Path` methods, the classes their `@ExceptionHandler`, `@Decorator`,
+  `@RequestConverter` and `@ResponseConverter` name, the bodies their route signatures name (parameters and return
+  type, and the classes their fields hold, as far as they are this repo's classes; a protobuf message stands for its
+  descriptor closure), and the `ExceptionHandlerFunction` implementations in this repo.
+- Every concrete `StreamData` class on the precompiler's class path (under `org.apache.skywalking`), an `@Stream` one
+  or not, which `RemoteHandleWorker` rebuilds with `newInstance()` on the receiving node.
+- The `LALSourceTypeProvider`, `LALOutputBuilder` and `LalInputDebugRenderer` implementations on the precompiler's class
+  path, and the values LAL reads by reflection: the getters `LALCallables` allows, walked from every type a rule reads
+  values from.
 - GraphQL resolvers, and the types of `query-protocol/*.graphqls`.
 - Jackson / Gson POJOs in `org.apache.skywalking.oap.query.*.entity.*`, `org.apache.skywalking.oap.server.admin.*.response.*`,
   `admin.status` `Debugging*Rsp` and `core.alarm.provider.status.*`. A JSON body class elsewhere needs a hand entry,
   unless another scan (GraphQL types, a protobuf closure) already covers it; without one, Jackson can answer HTTP 400
   "No serializer found" and Gson can print `{}`.
-- Protobuf types reachable (descriptor closure) from the LAL and TAL input types, the OTLP export requests,
-  `ExportTraceServiceResponse`, Tempo's `TraceByIDResponse` and `LogData`. `JsonFormat` on a type outside those
+- Protobuf types reachable (descriptor closure) from the LAL and TAL input types, the protobuf bodies of HTTP routes,
+  the OTLP export requests, `ExportTraceServiceResponse`, Tempo's `TraceByIDResponse` and `LogData`. `JsonFormat` on a type outside those
   closures needs adding, or it fails with "Generated message class ... missing method".
-- The config classes in the distro's `module-config-classes.txt` (no-arg constructor for `ModuleDefine#prepare`).
+- The config classes in the distro's `module-config-classes.txt` (no-arg constructor for `ModuleDefine#prepare`), and
+  every field of them no setter writes (none declared, or a final or static field), which its generated loader writes
+  through `Field.set` (`module-config-field-set.txt`).
 - Static calls generated classes make into this repo's helpers (the engines' runtime helpers and
   `org.apache.skywalking.oap.server.core.dsl`), and the reflection the DSL compilers and their `DslCallables` lists do
   while rules compile, which the distro does at build time.
 
-Not covered by itself: `Class.forName` / `newInstance` of other classes (e.g. a non-`@Stream` class registered with
-`IWorkerInstanceSetter.put(..., Class)`, rebuilt by `RemoteHandleWorker` on the receiving node), a class an Armeria
-`@RequestConverter` names (not collected), a new `LALOutputBuilder` (a hand list in the precompiler), a member a DSL runtime helper looks up by name on a value typed only
-at run time, a `DslCallables` list first built at run time (it reads its listed classes' public methods and fields), a new classpath resource read at run time (embedded by glob), a new runtime config
-file under `config/` (packaged by the distro's `distribution.xml` and `native-distribution.xml`, and embedded by a
-resource glob too: the distro's `ResourceUtils` reads `config/` first, then the embedded copy).
+Not covered by itself: `Class.forName` / `newInstance` of other classes, a member another DSL runtime helper than
+LAL's looks up by name on a value typed only at run time, a `DslCallables` list other than `LALCallables` first built at
+run time (it reads its listed classes' public methods and fields), a module with a new LAL SPI implementation that is
+not on the precompiler's class path, a class from outside this repo bound as an HTTP body (the body scan follows this
+repo's classes), a `StreamData` class of a module not on the precompiler's class path, a new classpath resource read at
+run time (embedded by glob), a new runtime config file under `config/` (packaged by the distro's `distribution.xml` and
+`native-distribution.xml`: the native `ResourceUtils` reads it from `config/` only).
 
 ## Native-image concerns in any class
 
@@ -199,7 +221,7 @@ hits a concern the distro can't cover with metadata. The concerns themselves app
 adds: a native image is built under a closed-world assumption, so a class doing one of these things works on the JVM
 and fails in the native image unless the distro covers it. A class not on the replaced list is not safe by default.
 
-As of distro `main` f78c20f, the image is built with `--no-fallback`, `-H:+AddAllCharsets` and
+As of 2026-11-23, the image is built with `--no-fallback`, `-H:+AddAllCharsets` and
 `--enable-url-protocols=https,http`, without `--enable-monitoring`, and without asking for build-time class
 initialization (Native Image still initializes JDK classes, and application classes it proves safe, at build time).
 Its own metadata registers reflection (some entries with JNI access), resources and one resource bundle, and no dynamic
@@ -216,8 +238,8 @@ class's resource URL, which the native image doesn't have; only the DSL debug fi
 | Reflection | `Class.forName`, `newInstance` / `getDeclaredConstructor().newInstance()`, `get(Declared)Method(s)` / `Field(s)` / `Constructor(s)`, `Method#invoke`, `Field#get` / `set`, `setAccessible`, `MethodHandles.Lookup#find*` / `unreflect*` on names not known at build time, annotations read from classes found at run time | Works only for registered classes and members, or accesses Native Image resolves itself (constant names): what the precompiler scans ([above](#what-the-native-image-metadata-covers-by-itself)), and the hand-kept `oap-graalvm-native/.../reachability-metadata.json` and `*-reflect-config.json` files (fabric8, Netty, Jackson, Armeria, Envoy / gRPC, Log4j2, Guava) | An entry for each class or member reached this way and not yet registered; search the distro's metadata for the class name first |
 | Object binding (serialization) | Jackson `readValue` / `writeValue` / `convertValue`, Armeria `@ProducesJson` / `@ConsumesJson` / `@RequestObject` / `HttpResponse.ofJson`, Gson `toJson` / `fromJson` of objects, SnakeYAML `loadAs` or a `Constructor` bound to a class, protobuf `JsonFormat`, Java serialization (`Serializable` with `ObjectInputStream` / `ObjectOutputStream`) | JSON: the covered packages and protobuf closures ([above](#what-the-native-image-metadata-covers-by-itself)). Java serialization: nothing registered. Parsing into maps and lists (SnakeYAML `SafeConstructor`, as `ServerClusterConfig` does; Jackson `readTree`; Gson `JsonParser`) needs no entries for this repo's classes | Entries for the bound classes (constructors, fields, accessors); serialization metadata for Java serialization |
 | Dynamic proxies | `java.lang.reflect.Proxy#newProxyInstance`, a library that proxies an interface at run time | Nothing in the distro's own metadata; a constant interface list is registered by Native Image itself | A proxy entry naming the interfaces, in order |
-| Resources | `Class#getResource(AsStream)`, `ClassLoader#getResource(s)`, `ResourceUtils.read` / `getPath` / `getPathFiles`, `ResourceBundle#getBundle` | Embedded when a pattern matches (globs in `reachability-metadata.json`, regex patterns in the precompiler's `resource-config.json`), or registered by Native Image itself for `Class#getResource(AsStream)` with a constant class and name; a resource bundle needs a bundle entry (`i18n.Parsing` is registered) and its locales; runtime config is read from `config/` first, then the embedded copy (`ResourceUtils` replacement). Embedded resources serve `read` / `readToStream` only: `getPath`, `getPathFiles` and `getDirectoryFilesRecursive` work on real files under `config/` | A resource glob or bundle entry; a `config/` file, and every directory listed at run time, packaged in both distributions |
-| Discovering code at run time | Guava `ClassPath`, `ClassLoader#getResources` over directories, walking jar files, `getProtectionDomain().getCodeSource()` or a class's resource URL (`WorkPath`) to find a jar or the home directory | The image has no run-time classpath to scan and can't load new code from jars; `AnnotationScan`, `SourceReceiverImpl` and `MeterSystem` read build-time manifests instead | A build-time manifest or a replacement |
+| Resources | `Class#getResource(AsStream)`, `ClassLoader#getResource(s)`, `ResourceUtils.read` / `getPath` / `getPathFiles`, `ResourceBundle#getBundle` | Embedded when a pattern matches (globs in `reachability-metadata.json`, regex patterns in the precompiler's `resource-config.json`), or registered by Native Image itself for `Class#getResource(AsStream)` with a constant class and name; a resource bundle needs a bundle entry (`i18n.Parsing` is registered) and its locales; runtime config read through `ResourceUtils` comes only from `config/` next to the native executable (a file missing there is not found, embedded or not) | A resource glob or bundle entry; a `config/` file, and every directory listed at run time, packaged in both distributions |
+| Discovering code at run time | Guava `ClassPath`, `ClassLoader#getResources` over directories, walking jar files, `getProtectionDomain().getCodeSource()` or a class's resource URL (`WorkPath`) to find a jar or the home directory | The image has no run-time classpath to scan and can't load new code from jars; `AnnotationScan` and `SourceReceiverImpl` read build-time manifests instead, `MeterSystem` the rule registry (`CompiledRules.meterFunctions()`, `meterClasses()`) | A build-time manifest or a replacement |
 | Service providers | `ServiceLoader#load` | The providers on the build classpath of a service interface the image reaches are registered; the build classpath holds only the shipped modules | Nothing for the SPI itself; a provider in a module the distro doesn't ship is absent |
 | Native code | JNI, `System#loadLibrary` / `load`, OpenSSL / `netty-tcnative`, JNA | Some JNI access is registered (mostly Netty's); gRPC TLS runs on the JDK provider instead of OpenSSL (`DynamicSslContext`) | JNI metadata plus the native library packaged and loadable, or a pure-Java path |
 | JVM management and agents | `ManagementFactory` / MXBeans, JMX, JFR, `java.lang.instrument`, HotSpot `-XX` options | Some `java.lang.management`, `com.sun.management` and `jdk.management.jfr` types are registered, but the image is built without `--enable-monitoring`, so JMX and JFR aren't available; GC names differ from HotSpot's; no Java agents; an unsupported `-XX` option fails the boot | Check the native image supports and reports what the code reads; JMX or JFR needs a monitoring build option |
@@ -234,14 +256,15 @@ class's resource URL, which the native image doesn't have; only the DSL debug fi
 | Edits a replaced class (above) | Impacted, unless it only touches comments | Diff the change into the copy; for a new member a caller uses, it's a boot or run-time failure until then |
 | Changes a DSL engine: OAL / MAL / LAL / TAL / Hierarchy compiler or runtime, `MeterSystem`, the debug codegen | Impacted. Distro code changes when it changes the build-time API above, what a generated class needs after its no-arg constructor, the rule data classes, the lookup keys (expression text, `file:line` coordinates, class names), or adds a `TALFunctionProvider` / `TALSourceTypeProvider` module. Otherwise mechanical: the precompiler compiles with this repo's engine and the comparison tests recheck it | Adapt the precompiler, the registry generator or the replacements; otherwise recompile and rerun the comparison tests |
 | Adds or removes a module or provider | Impacted. Of a kind the distro ships: accept and wire it (`AcceptedModules`, `provider-inventory.properties`, `oap-graalvm-server/pom.xml`, an `application.yml` section; a missing config loader branch fails boot with "Unknown config type"). Of an excluded kind (the None row): only a `provider-inventory.properties` entry, mechanical | As stated |
-| Adds, removes or retypes a `ModuleConfig` field | Impacted when the class belongs to a provider the distro ships | Regenerate `YamlConfigLoaderUtils`; a non-final field with no setter needs a replacement copy with `@Setter` (a class-level `@Setter` here avoids it) |
-| Changes `application.yml` | Impacted when it adds, removes or renames a key or default of a shipped module, or adds a rule-selecting setting (a list of rule files) | Mirror it in the distro's `application.yml`; a rule-selecting setting goes into `CompiledRuleActivation` |
+| Adds, removes or retypes a `ModuleConfig` field | Impacted when the class belongs to a provider the distro ships | Regenerate `YamlConfigLoaderUtils` and its manifests (`module-config-classes.txt`, `module-config-field-set.txt`); a field without a setter is written through `Field.set`, as upstream, so no class is copied |
+| Changes `application.yml` | Impacted when it adds, removes or renames a key or default of a shipped module, or adds a rule-selecting setting (a list of rule files) | Mirror it in the distro's `application.yml`; a rule-selecting setting is declared in the distro's `RuleCatalog` instead, filled from the compiled rules at boot (`CompiledRuleActivation`) and refused in its `application.yml` |
 | Adds, removes or edits bundled rule files (`oal/`, `otel-rules/`, `meter-analyzer-config/`, `log-mal-rules/`, `lal/`, `tal/`, `envoy-metrics-rules/`, `telegraf-rules/`, `zabbix-rules/`, `hierarchy-definition.yml`, `layer-extensions.yml`) | Impacted, mechanical: the distro compiles them as they are | Refresh checksums, inventories and comparison-test inputs; a rule that needs a newer engine feature waits for the sync |
 | Adds, in any class, a pattern from [Native-image concerns in any class](#native-image-concerns-in-any-class): run-time class generation, reflection, object binding, a dynamic proxy, a resource, run-time code discovery, native code, JVM management, a Log4j2 plugin, a new URL protocol, static state from build time, a security provider or trust setting, `Unsafe` or a finalizer | Impacted, native only (the JVM never notices), unless [the metadata already covers it](#what-the-native-image-metadata-covers-by-itself) or Native Image registers it by itself (constant names) | What that table's last column says |
 | Moves, renames or removes a file the distro's assemblies copy from this repo: the runtime config files under `oap-server/server-starter/src/main/resources/`, `dist-material/log4j2.xml` (JVM distribution), `dist-material/alarm-settings.yml`, `dist-material/release-docs/` (LICENSE, NOTICE) | Impacted. Edits in place are picked up as they are | Repoint the assembly |
-| Changes `oap-server/server-starter/pom.xml` | Impacted when it changes a dependency, or adds a `maven-jar-plugin` exclude (a new runtime config file under `config/`) | Mirror the dependency in the distro's poms; package the new config file in both distributions and add its resource glob |
-| Changes files the distro's tests read from this repo: `docs/en/concepts-and-designs/tal-otlp.md` and `docs/en/setup/backend/otlp-trace-practices/{gateway-overview,gateway-canary,gateway-nginx,database-and-cache,message-queue}.md` (scripts `TALDocScriptsTest` compiles), `CheckerFixtures.java` and `CheckerDifference.java` of `test/script-cases/trace-analysis-v1-v2-checker/` (`NativeTALComparisonTest`), `otel-receiver-plugin/src/test/resources/tal/otlp-trace-get-api-cart.json` (`TALRecordedTraceComparisonTest`), the `test/e2e-v2/cases/` and `test/e2e-v2/script/` files its e2e cases reference by relative path, and the `test/e2e-v2/java-test-service/` mock services its CI builds | Impacted, test-side, only when the distro's test or case has to change: a moved or renamed file, a moved snippet, a fixture shape its test parses, or an expected file that now expects behavior the distro doesn't have yet. An edited file it reads as-is (e.g. an e2e expected file the distro's OAP still meets) is None | Adapt the distro test or e2e case that reads it |
-| Code of a storage other than BanyanDB, a cluster other than standalone / Kubernetes, a configuration other than ConfigMap or `none`, or `receiver-runtime-rule` (adding or removing such a provider: see the module row); other docs and tests; UI | None | — |
+| Changes `oap-server/server-starter/pom.xml` | Impacted when it changes a dependency, or adds a `maven-jar-plugin` exclude (a new runtime config file under `config/`) | Mirror the dependency in the distro's poms; package the new config file in both distributions |
+| Changes files the distro's tests read from this repo: `docs/en/concepts-and-designs/tal-otlp.md` and `docs/en/setup/backend/otlp-trace-practices/{gateway-overview,gateway-canary,gateway-nginx,database-and-cache,message-queue}.md` (scripts `TALDocScriptsTest` compiles), `CheckerFixtures.java` and `CheckerDifference.java` of `test/script-cases/trace-analysis-v1-v2-checker/` (`NativeTALComparisonTest`), `otel-receiver-plugin/src/test/resources/tal/otlp-trace-get-api-cart.json` (`TALRecordedTraceComparisonTest`), `test-hierarchy-definition.yml` and `test-hierarchy-definition.data.yaml` of `oap-server/analyzer/hierarchy/src/test/resources/scripts/hierarchy-rule/` (`RegistryParityTest`), the `test/e2e-v2/cases/` and `test/e2e-v2/script/` files its e2e cases reference by relative path, and the `test/e2e-v2/java-test-service/` mock services its CI builds | Impacted, test-side, only when the distro's test or case has to change: a moved or renamed file, a moved snippet, a fixture shape its test parses, or an expected file that now expects behavior the distro doesn't have yet. An edited file it reads as-is (e.g. an e2e expected file the distro's OAP still meets) is None | Adapt the distro test or e2e case that reads it |
+| Changes `receiver-runtime-rule`'s read routes (`/runtime/rule/list`, `/runtime/rule/status`, `/runtime/rule`, `/runtime/rule/bundled`) or what they return | Impacted: the distro's `BundledRuleCatalogHandler` answers them from the compiled rule sources, held to upstream's by `BundledRuleCatalogParityTest` | Mirror the change in the handler |
+| Code of a storage other than BanyanDB, a cluster other than standalone / Kubernetes, a configuration other than ConfigMap or `none`, or `receiver-runtime-rule`'s hot-update and mutation routes (adding or removing such a provider: see the module row); other docs and tests; UI | None | — |
 
 ## When changing code
 
@@ -254,9 +277,9 @@ These are preferences for when two ways cost the same; where a change doesn't fo
 
 - **Replaced classes.** The distro's copy never sees an edit to one. Put new logic in a class it doesn't replace when
   that is natural; when you add a member other code calls, or change logic the copy duplicates, the PR names it.
-- **`ModuleConfig` classes.** Prefer a class-level `@Setter` on a new config class. Upstream loads config by
-  reflection and doesn't need it; the distro's generated loader does, and with it the distro only regenerates its
-  loader instead of keeping a replacement copy.
+- **`ModuleConfig` classes.** Nothing distro-specific: the distro's generated loader calls a field's setter where its
+  class has one and writes any other field through `Field.set`, as upstream does, so a new or changed field only
+  regenerates it.
 - **DSL engines.** Prefer a generated class that is complete after its no-arg constructor. When instances need state
   set after construction (as TAL's function objects do), or the build-time API, the class naming or the rule data
   classes' setters change, name it. A new TAL function or input provider module has to join the distro's
@@ -273,10 +296,10 @@ These are preferences for when two ways cost the same; where a change doesn't fo
   the distro replaces those classes. Ordinary lambdas and method references are fine; the native image compiles them.
 - **Reflection and JSON.** Prefer a package the metadata scan covers for HTTP JSON body classes
   (`org.apache.skywalking.oap.query.<plugin>.entity`, `org.apache.skywalking.oap.server.admin.<module>.response`).
-  A class instantiated by name, a new `LALOutputBuilder`, or `JsonFormat` on another protobuf type needs distro
-  metadata: the PR names it.
+  A class instantiated by name, or `JsonFormat` on another protobuf type, needs distro metadata, and a module with a
+  new `LALOutputBuilder` or `LALSourceTypeProvider` has to join the distro's precompiler classpath: the PR names it.
 - **Resources and config files.** Read runtime config through `ResourceUtils` from `config/`, as the other config
-  files are. A new file there is a packaging entry and a resource glob in the distro, a new classpath resource read at
+  files are. A new file there is a packaging entry in the distro, a new classpath resource read at
   run time a resource glob unless it is read with a constant name Native Image registers itself: the PR names it.
 - **Modules and settings.** A new module or provider, a new or renamed `application.yml` key of a shipped module, and a
   new rule-selecting setting are always distro work.

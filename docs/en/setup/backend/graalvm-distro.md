@@ -35,7 +35,7 @@ The GraalVM distro is a good fit when you want:
 ## Limitations
 
 - **BanyanDB is the sole supported storage backend.** Elasticsearch, MySQL, and PostgreSQL are not available.
-- **Modules are selected at build time.** Runtime SPI discovery is not supported.
+- **The module set is fixed at build time.** The image carries only the modules and providers the distro ships; `application.yml` selects among them at boot, as in the JVM OAP.
 - **DSL rules are pre-compiled at build time.** Dynamic rule changes require rebuilding the binary.
 
 All existing SkyWalking agents, UI, and CLI tools remain fully compatible.
