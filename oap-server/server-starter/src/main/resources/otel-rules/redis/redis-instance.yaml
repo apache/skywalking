@@ -64,6 +64,6 @@ metricsRules:
     exp: redis_blocked_clients
 
   - name: instance_average_time_spent_by_command
-    exp: (redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id']) / redis_commands_total.sum(['host_name','cmd','service_instance_id'])).rate('PT1M')
+    exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id']).rate('PT1M').safeDiv(redis_commands_total.sum(['host_name','cmd','service_instance_id']).rate('PT1M')) * 1000000
   - name: instance_commands_duration_seconds_total_rate
     exp: redis_commands_duration_seconds_total.sum(['host_name','cmd','service_instance_id']).rate('PT1M')
